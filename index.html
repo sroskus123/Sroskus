@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sroskus Custom Items - Guide</title>
+  <style>
+    :root{--bg:#080a0f;--sidebar:#10141c;--card:#111827;--line:#263142;--text:#f8fafc;--muted:#a7b0c0;--muted2:#7d8798;--accent:#7c3aed;--green:#22c55e;--blue:#3b82f6;--orange:#f59e0b;--code:#0b1020;--inline:#182033}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 80% 0%,rgba(124,58,237,.12),transparent 34%),radial-gradient(circle at 20% 10%,rgba(59,130,246,.08),transparent 28%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;line-height:1.65}a{color:inherit;text-decoration:none}.layout{min-height:100vh;display:grid;grid-template-columns:286px minmax(0,1fr)}aside{position:sticky;top:0;height:100vh;overflow-y:auto;background:rgba(16,20,28,.94);border-right:1px solid var(--line);padding:24px 18px;backdrop-filter:blur(10px)}.logo-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#111827 70%);box-shadow:0 0 24px rgba(124,58,237,.35);border:1px solid rgba(255,255,255,.08)}.brand h1{margin:0;font-size:19px;line-height:1.15;letter-spacing:-.02em}.brand p{margin:10px 0 22px;color:var(--muted);font-size:13px}.search{margin:0 0 22px}.search label{display:block;margin-bottom:7px;color:var(--muted);font-size:12px;letter-spacing:.08em;text-transform:uppercase}.search input{width:100%;background:#0b0f17;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px 12px;outline:none}.search input:focus{border-color:rgba(124,58,237,.8);box-shadow:0 0 0 3px rgba(124,58,237,.13)}.nav-title{margin:20px 10px 8px;color:var(--muted2);font-size:11px;text-transform:uppercase;letter-spacing:.14em;font-weight:800}.nav-link{display:block;padding:8px 11px;border-radius:8px;color:#d9dee8;font-size:14px;margin-bottom:3px}.nav-link:hover,.nav-link.active{background:rgba(124,58,237,.18);color:white}main{width:100%;max-width:1180px;padding:58px 68px 100px}.hero{padding-bottom:36px;border-bottom:1px solid var(--line)}.eyebrow{color:#c4b5fd;font-weight:800;letter-spacing:.16em;text-transform:uppercase;font-size:12px;margin-bottom:14px}h1{margin:0;max-width:900px;font-size:clamp(42px,7vw,82px);line-height:.98;letter-spacing:-.07em}.lead{max-width:760px;margin:26px 0 0;color:#cbd5e1;font-size:18px}.badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}.badge{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:800;border:1px solid var(--line);background:rgba(15,23,42,.78)}.badge.green{color:#86efac;border-color:rgba(34,197,94,.45)}.badge.purple{color:#d8b4fe;border-color:rgba(124,58,237,.55)}.badge.blue{color:#93c5fd;border-color:rgba(59,130,246,.55)}.badge.orange{color:#fcd34d;border-color:rgba(245,158,11,.55)}.feature-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:34px}.feature{border-top:3px solid var(--accent);padding:18px 0 0}.feature h3{margin:0 0 6px;font-size:16px}.feature p{margin:0;color:var(--muted);font-size:14px}section{padding-top:56px;margin-top:56px;border-top:1px solid var(--line)}section h2{margin:0 0 15px;font-size:34px;line-height:1.1;letter-spacing:-.04em}section h3{margin:28px 0 10px;font-size:22px;letter-spacing:-.03em}p{color:#d8dee9;max-width:820px}.note{margin:22px 0;border-left:4px solid var(--green);background:rgba(34,197,94,.08);border-radius:10px;padding:16px 18px;color:#e8fff1}.warning{border-left-color:var(--orange);background:rgba(245,158,11,.09)}code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;font-size:.92em;background:var(--inline);border:1px solid #334155;padding:2px 6px;border-radius:6px;color:#dbeafe}.codebox{position:relative;margin:18px 0 24px;background:var(--code);border:1px solid var(--line);border-radius:13px;overflow:hidden;box-shadow:0 18px 70px rgba(0,0,0,.18)}pre{margin:0;padding:24px;overflow-x:auto;color:#e5e7eb;font-size:14px;line-height:1.55}.copy{position:absolute;top:13px;right:13px;border:1px solid #38445a;background:#1f2940;color:white;border-radius:8px;padding:7px 11px;font-weight:800;cursor:pointer}.copy:hover{filter:brightness(1.15)}table{width:100%;border-collapse:separate;border-spacing:0;margin:20px 0;overflow:hidden;border:1px solid var(--line);border-radius:12px;background:rgba(15,23,42,.55)}th,td{padding:14px 16px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}tr:last-child td{border-bottom:0}th{background:rgba(148,163,184,.08);color:white;font-size:13px;letter-spacing:.04em}td{color:#d8dee9}.two-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.chip{border:1px solid var(--line);background:rgba(148,163,184,.08);border-radius:999px;padding:7px 12px;color:#d8dee9;font-size:13px}ul,ol{padding-left:22px;color:#d8dee9}li{margin:8px 0}footer{margin-top:70px;padding-top:24px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}@media(max-width:900px){.layout{grid-template-columns:1fr}aside{position:relative;height:auto}main{padding:38px 22px 80px}.feature-grid,.two-col{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="layout">
+<aside>
+<div class="brand"><div class="logo-row"><div class="logo"></div><h1>Sroskus Custom<br>Items</h1></div><p>Fabric 1.21.1 server-owner guide</p></div>
+<div class="search"><label for="filter">Filter docs</label><input id="filter" placeholder="Search items, sync, armor..." /></div>
+<nav id="nav"><div class="nav-title">Guide</div><a class="nav-link active" href="#overview">Overview</a><a class="nav-link" href="#install">Install</a><a class="nav-link" href="#folders">Folders</a><a class="nav-link" href="#client-sync">Client Sync</a><a class="nav-link" href="#registry-json">Registry JSON</a><a class="nav-link" href="#recipes">Recipes</a><a class="nav-link" href="#drops">Drops</a><a class="nav-link" href="#textures-models">Textures & Models</a><a class="nav-link" href="#reload-flow">Reload Flow</a><a class="nav-link" href="#limits">Limits</a><a class="nav-link" href="#troubleshooting">Troubleshooting</a></nav>
+</aside>
+<main>
+<header id="overview" class="hero"><div class="eyebrow">Minecraft Fabric Mod Docs</div><h1>Dynamic content for Fabric servers.</h1><p class="lead">Sroskus Custom Items lets server owners add items, weapons, tools, armor, blocks, recipes, models, textures, and random block drops from JSON files without shipping a new mod build every content update.</p><div class="badges"><span class="badge purple">Fabric 1.21.1</span><span class="badge green">Hot reload</span><span class="badge blue">Auto cache</span><span class="badge orange">Large pools</span></div><div class="feature-grid"><div class="feature"><h3>Fabric 1.21.1</h3><p>Java 21, mod installed on server and clients.</p></div><div class="feature"><h3>Hot reload</h3><p><code>/sroskus_c reload</code> updates loaded content.</p></div><div class="feature"><h3>Auto cache</h3><p>Clients cache server assets by content hash.</p></div><div class="feature"><h3>Large pools</h3><p>Designed for 1k+ server content entries.</p></div></div></header>
+<section id="install"><h2>Install</h2><p>Install the mod once on the dedicated server and on every client. Server owners then manage gameplay content from the world folder. Players do not need to manually copy every server texture or JSON file if the server sends the asset cache during join.</p><div class="note"><strong>Deployment rule:</strong> the mod must exist on both sides. The server is authoritative for stats, recipes, drops, block behavior, and armor behavior. The client receives render assets and registry metadata through the sync cache.</div><div class="codebox"><button class="copy">Copy</button><pre><code>Server:
+mods/sroskus-item-&lt;version&gt;.jar
+world/Sroskus_Customitems/
+
+Client:
+mods/sroskus-item-&lt;version&gt;.jar
+.minecraft/Sroskus_Customitems/cache/&lt;server-content-hash&gt;/</code></pre></div><h3>Config</h3><p>The config file lives in the normal Minecraft config folder. In dev it appears under <code>run/config/</code>.</p><div class="codebox"><button class="copy">Copy</button><pre><code># .minecraft/config/sroskus_item.properties
+generateexamples=true</code></pre></div><p>When <code>generateexamples</code> is true, the mod creates example JSON files, textures, model templates, armor UV templates, and readmes in each content folder. Keep it enabled for first setup, then disable it if you want a completely hand-managed production folder.</p></section>
+<section id="folders"><h2>Folders</h2><p>Use the organized folder layout below. Legacy flat files under <code>registry/</code> still load, but category folders are the public layout and match the creative tabs.</p><div class="codebox"><button class="copy">Copy</button><pre><code>Sroskus_Customitems/
+  registry/
+    items/
+    weapons_and_tools/
+    armors/
+    blocks/
+  textures/
+    items/
+    weapons_and_tools/
+    armors/
+    blocks/
+  models/
+    items/
+    weapons_and_tools/
+    armors/
+    blocks/
+  drops/
+  templates/
+  generated_datapack/
+  generated_resource_pack/</code></pre></div><table><thead><tr><th>Folder</th><th>Purpose</th></tr></thead><tbody><tr><td><code>registry/items</code></td><td>Generic materials and non-tool items.</td></tr><tr><td><code>registry/weapons_and_tools</code></td><td>Swords, pickaxes, axes, shovels, and hoes.</td></tr><tr><td><code>registry/armors</code></td><td>Helmets, chestplates, leggings, and boots.</td></tr><tr><td><code>registry/blocks</code></td><td>Custom placeable blocks and block items.</td></tr><tr><td><code>textures</code></td><td>PNG item icons, block textures, and armor layers.</td></tr><tr><td><code>models</code></td><td>Optional vanilla model JSON with custom UV/display data.</td></tr><tr><td><code>drops</code></td><td>Random block drop rules.</td></tr></tbody></table></section>
+<section id="client-sync"><h2>Client Sync</h2><p>On multiplayer join, the server sends a content manifest during the Fabric configuration phase. The client checks its local cache by hash. If the hash is missing, the client requests the content archive, receives it in chunks, extracts it into the cache, and mounts the generated resource pack.</p><div class="note"><strong>Different servers are safe.</strong> Each server content state is cached under its own hash, so one client can join multiple servers without replacing another server's assets.</div><div class="codebox"><button class="copy">Copy</button><pre><code>.minecraft/Sroskus_Customitems/cache/
+  9b47d9.../
+    registry/
+    textures/
+    models/
+  f13ac2.../
+    registry/
+    textures/
+    models/</code></pre></div><p>The generated resource pack is created locally from the active cache. This is what makes item icons, block models, item models, and armor layer textures render on the client.</p><div class="chips"><span class="chip">SHA-256 content hash</span><span class="chip">Configuration-phase download</span><span class="chip">Chunked archive transfer</span><span class="chip">Safe zip extraction</span><span class="chip">Reload sync for online players</span></div></section>
+<section id="registry-json"><h2>Registry JSON</h2><p>Each registry JSON file creates one content definition. File names can differ from IDs, but the <code>id</code> must be lowercase and use only letters, numbers, underscores, hyphens, dots, or slashes.</p><table><thead><tr><th>Field</th><th>Used by</th><th>Notes</th></tr></thead><tbody><tr><td><code>id</code></td><td>All</td><td>Stable content ID used by recipes and drops.</td></tr><tr><td><code>type</code></td><td>All</td><td><code>item</code>, <code>sword</code>, <code>pickaxe</code>, <code>axe</code>, <code>shovel</code>, <code>hoe</code>, <code>helmet</code>, <code>chestplate</code>, <code>leggings</code>, <code>boots</code>, <code>block</code>.</td></tr><tr><td><code>displayName</code></td><td>All</td><td>Name shown in game.</td></tr><tr><td><code>texture</code></td><td>All</td><td>Relative PNG path inside <code>textures/</code>.</td></tr><tr><td><code>model</code></td><td>Items, tools, armor items, blocks</td><td>Optional JSON path inside <code>models/</code>. If missing, a default model is generated.</td></tr><tr><td><code>stackSize</code></td><td>Items, blocks</td><td>Clamped from 1 to 64.</td></tr><tr><td><code>durability</code></td><td>Tools, weapons, armor</td><td>Runtime behavior reads this value from the definition.</td></tr><tr><td><code>attackDamage</code>, <code>attackSpeed</code>, <code>miningSpeed</code></td><td>Weapons and tools</td><td>Controls combat and mining behavior.</td></tr><tr><td><code>armor</code>, <code>toughness</code>, <code>knockbackResistance</code></td><td>Armor</td><td>Controls equipped armor attributes.</td></tr><tr><td><code>armorTexture</code></td><td>Armor</td><td>Shared armor layer filename prefix for a full armor set.</td></tr><tr><td><code>hardness</code>, <code>resistance</code>, <code>lightLevel</code></td><td>Blocks</td><td>Block strength and emitted light. Light is clamped from 0 to 15.</td></tr></tbody></table><h3>Material Item</h3><div class="codebox"><button class="copy">Copy</button><pre><code>{
+  "id": "ruby_ingot",
+  "type": "item",
+  "displayName": "Ruby Ingot",
+  "texture": "items/ruby_ingot.png",
+  "stackSize": 64
+}</code></pre></div><h3>Sword</h3><div class="codebox"><button class="copy">Copy</button><pre><code>{
+  "id": "ruby_sword",
+  "type": "sword",
+  "displayName": "Ruby Sword",
+  "texture": "weapons_and_tools/ruby_sword.png",
+  "model": "weapons_and_tools/ruby_sword.json",
+  "stackSize": 1,
+  "durability": 750,
+  "attackDamage": 8.0,
+  "attackSpeed": -2.4,
+  "miningSpeed": 1.0,
+  "recipe": {
+    "type": "shaped",
+    "pattern": [" A ", " A ", " B "],
+    "keys": {
+      "A": "ruby_ingot",
+      "B": "minecraft:stick"
+    },
+    "count": 1
+  }
+}</code></pre></div><h3>Armor Piece</h3><div class="codebox"><button class="copy">Copy</button><pre><code>{
+  "id": "ruby_chestplate",
+  "type": "chestplate",
+  "displayName": "Ruby Chestplate",
+  "texture": "armors/ruby_chestplate.png",
+  "armorTexture": "ruby",
+  "durability": 700,
+  "armor": 9,
+  "toughness": 2,
+  "knockbackResistance": 0.05
+}</code></pre></div><h3>Block</h3><div class="codebox"><button class="copy">Copy</button><pre><code>{
+  "id": "ruby_block",
+  "type": "block",
+  "displayName": "Ruby Block",
+  "texture": "blocks/ruby_block.png",
+  "stackSize": 64,
+  "hardness": 3.0,
+  "resistance": 9.0,
+  "lightLevel": 6
+}</code></pre></div></section>
+<section id="recipes"><h2>Recipes</h2><p>Recipes are defined inside registry JSON. Custom IDs can reference other custom content from the same content folder, or vanilla and modded namespaced IDs such as <code>minecraft:diamond</code>.</p><div class="two-col"><div><h3>Shaped</h3><div class="codebox"><button class="copy">Copy</button><pre><code>{
+  "type": "shaped",
+  "pattern": ["AAA", " B ", " B "],
+  "keys": {
+    "A": "ruby_ingot",
+    "B": "minecraft:stick"
+  },
+  "count": 1
+}</code></pre></div></div><div><h3>Shapeless</h3><div class="codebox"><button class="copy">Copy</button><pre><code>{
+  "type": "shapeless",
+  "ingredients": [
+    "ruby_block"
+  ],
+  "count": 9
+}</code></pre></div></div></div></section>
+<section id="drops"><h2>Drops</h2><p>Drop rules apply after a successful survival block break. Creative-mode block breaks do not trigger custom drops.</p><div class="codebox"><button class="copy">Copy</button><pre><code>{
+  "block": "minecraft:cobblestone",
+  "drop": "ruby_sword",
+  "amount": 1,
+  "chance": 5.0
+}</code></pre></div><ul><li><code>block</code> must be a valid namespaced block ID.</li><li><code>drop</code> can be a custom content ID or a vanilla/modded item ID.</li><li><code>chance</code> is a percent value from 0 to 100.</li><li>Invalid drop files are logged and skipped instead of crashing the server.</li></ul></section>
+<section id="textures-models"><h2>Textures & Models</h2><p>Textures and models are copied into the generated resource pack on the client. Keep asset paths lowercase and relative. Do not use drive letters, absolute paths, or <code>..</code>.</p><h3>Item, Tool, Weapon, and Block Icons</h3><ul><li>Use square PNG files such as 16x16, 32x32, 64x64, or larger square sizes.</li><li>If <code>model</code> is missing, the mod generates a flat item or block model from <code>texture</code>.</li><li>If <code>model</code> is present, the JSON is copied from <code>models/</code> and can use vanilla item model fields, including <code>parent</code>, <code>textures</code>, <code>display</code>, <code>elements</code>, and UV arrays.</li></ul><div class="codebox"><button class="copy">Copy</button><pre><code>{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "sroskus_item:item/weapons_and_tools/ruby_sword"
+  }
+}</code></pre></div><h3>Worn Armor UV</h3><p>Armor uses vanilla biped armor layer textures, not custom animated geometry. A full armor set should share one <code>armorTexture</code> value, then provide both layer files.</p><div class="codebox"><button class="copy">Copy</button><pre><code>Sroskus_Customitems/textures/models/armor/ruby_layer_1.png
+Sroskus_Customitems/textures/models/armor/ruby_layer_2.png</code></pre></div><ul><li><code>layer_1</code> is used by helmet, chestplate, and boots.</li><li><code>layer_2</code> is used by leggings.</li><li>Supported layer sizes are vanilla-compatible 2:1 PNGs: 64x32, 128x64, 256x128, or larger same-ratio images.</li><li>If layer files are missing, the mod generates fallback layers so the server keeps running.</li></ul></section>
+<section id="reload-flow"><h2>Reload Flow</h2><p>Use the reload command after editing JSON, textures, models, or drops. Both command aliases are available.</p><div class="codebox"><button class="copy">Copy</button><pre><code>/sroskus_c reload
+/sroskus_ce reload</code></pre></div><ol><li>Edit files in the server world <code>Sroskus_Customitems</code> folder.</li><li>Run <code>/sroskus_c reload</code>.</li><li>The server validates JSON and updates recipes, drops, stats, blocks, and slots.</li><li>Online clients receive the new manifest and cache update.</li><li>The generated datapack and generated resource pack are rebuilt.</li></ol><p>New live content uses pre-registered hot slots such as <code>sroskus_item_hot_sword_001</code>. This is what allows reloads without restarting Minecraft. Restarting keeps assignment stable when ordering stays stable.</p></section>
+<section id="limits"><h2>Limits</h2><table><thead><tr><th>Pool</th><th>Capacity</th></tr></thead><tbody><tr><td>Generic items</td><td>2048 slots</td></tr><tr><td>Blocks</td><td>1024 slots</td></tr><tr><td>Swords</td><td>512 slots</td></tr><tr><td>Pickaxes, axes, shovels, hoes</td><td>512 slots per tool type</td></tr><tr><td>Helmets, chestplates, leggings, boots</td><td>512 slots per armor piece type</td></tr><tr><td>Armor texture materials</td><td>512 sets</td></tr></tbody></table><div class="note warning"><strong>Production note:</strong> the mod is built for 1k+ content entries, but large texture packs can create large join downloads. Keep source PNGs optimized and avoid unused files in the synced folders.</div></section>
+<section id="troubleshooting"><h2>Troubleshooting</h2><h3>Item shows as missing texture</h3><p>Check that <code>texture</code> points to an existing PNG under <code>textures/</code>, uses lowercase characters, and does not include a namespace. Example: <code>weapons_and_tools/ruby_sword.png</code>.</p><h3>Custom model does not apply</h3><p>Check that <code>model</code> points to a JSON under <code>models/</code>. The model's texture references should use the generated namespace path such as <code>sroskus_item:item/weapons_and_tools/ruby_sword</code>.</p><h3>Armor item icon is correct, but worn armor is wrong</h3><p>Make sure every armor piece in the set has one <code>armorTexture</code> value and that both armor layer files exist under <code>textures/models/armor/</code>.</p><h3>Player cache looks stale</h3><p>Delete the specific cache hash folder, or delete <code>.minecraft/Sroskus_Customitems/cache/</code>. The next server join downloads the current server content again.</p><h3>JSON errors</h3><p>Invalid files are logged with the relative path. Fix the file, then run <code>/sroskus_ce reload</code>. The server should skip bad files instead of crashing.</p></section>
+<footer>Standalone docs for Sroskus Custom Items. Last updated for the current Fabric 1.21.1 implementation.</footer>
+</main></div>
+<script>document.querySelectorAll('.copy').forEach((button)=>{button.addEventListener('click',async()=>{const code=button.parentElement.querySelector('code').innerText;try{await navigator.clipboard.writeText(code);const old=button.innerText;button.innerText='Copied';setTimeout(()=>button.innerText=old,1200)}catch(e){button.innerText='Copy failed';setTimeout(()=>button.innerText='Copy',1200)}})});const filter=document.getElementById('filter');const links=Array.from(document.querySelectorAll('.nav-link'));filter.addEventListener('input',()=>{const q=filter.value.trim().toLowerCase();links.forEach(link=>{const text=link.textContent.toLowerCase();link.style.display=text.includes(q)?'':'none'})});const sections=Array.from(document.querySelectorAll('header[id], section[id]'));window.addEventListener('scroll',()=>{let current=sections[0].id;for(const section of sections){if(window.scrollY>=section.offsetTop-120)current=section.id}links.forEach(link=>{link.classList.toggle('active',link.getAttribute('href')==='#'+current)})});</script>
+</body>
+</html>
