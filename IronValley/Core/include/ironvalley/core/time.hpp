@@ -10,6 +10,13 @@ using Micros = std::int64_t;
 
 constexpr Micros kMicrosPerSecond = 1000000;
 
+/// Nejvetsi platne dt jednoho volani: 2^53 - 1 us (JS Number.MAX_SAFE_INTEGER). Vetsi nebo zaporne dt je chyba
+/// volajiciho (JS vyhodi RangeError, C++ tik neprovede). Mezisoucty jadra tak nikdy nepretecou int64.
+constexpr Micros kMaxDtUs = 9007199254740991LL;
+
+/// Je dt platne cele cislo mikrosekund pro jadro (0 <= dt <= kMaxDtUs)?
+constexpr bool validDt(Micros dtUs) { return dtUs >= 0 && dtUs <= kMaxDtUs; }
+
 /// Prevod sekund na cele mikrosekundy se stejnym zaokrouhlenim jako JS Math.round (polovina smerem k +nekonecnu).
 inline Micros secondsToMicros(double seconds) {
   const double x = seconds * 1e6;

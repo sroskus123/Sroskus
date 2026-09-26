@@ -65,6 +65,67 @@ const char* toString(ReloadResult v) {
 
 const char* toString(InterruptResult v) { return v == InterruptResult::Interrupted ? "interrupted" : "none"; }
 
+const char* toString(DisableReason v) {
+  switch (v) {
+    case DisableReason::Sprint: return "sprint";
+    case DisableReason::Switch: return "switch";
+    case DisableReason::Menu: return "menu";
+    case DisableReason::Results: return "results";
+    case DisableReason::Other: return "other";
+  }
+  return "?";
+}
+
+bool parseDisableReason(const std::string& text, DisableReason& out) {
+  if (text == "sprint") out = DisableReason::Sprint;
+  else if (text == "switch") out = DisableReason::Switch;
+  else if (text == "menu") out = DisableReason::Menu;
+  else if (text == "results") out = DisableReason::Results;
+  else if (text == "other") out = DisableReason::Other;
+  else return false;
+  return true;
+}
+
+namespace {
+
+void check(std::vector<std::string>& errors, bool ok, const char* what) {
+  if (!ok) errors.emplace_back(what);
+}
+
+/// Duvod preruseni probihajici akce pri vypnuti danym duvodem.
+InterruptReason interruptFor(DisableReason reason) {
+  switch (reason) {
+    case DisableReason::Sprint: return InterruptReason::Sprint;
+    case DisableReason::Switch: return InterruptReason::Switch;
+    default: return InterruptReason::Other;
+  }
+}
+
+}  // namespace
+
+std::vector<std::string> validateWeaponDef(const WeaponDef& w) {
+  std::vector<std::string> e;
+  check(e, !w.id.empty(), "prazdne id");
+  check(e, !w.slot.empty(), "prazdny slot");
+  check(e, w.magazineCapacity >= 1 && w.magazineCapacity <= 1000, "magazineCapacity mimo 1..1000");
+  check(e, w.startReserve >= 0 && w.maxReserve >= 0 && w.maxReserve <= 1000000 && w.startReserve <= w.maxReserve,
+        "rezerva mimo rozsah");
+  check(e, w.fireIntervalUs >= 1, "palebny interval < 1 us");
+  check(e, !w.fireModes.empty() && w.fireModes.size() <= 2, "fireModes");
+  check(e, !(w.fireModes.size() == 2 && w.fireModes[0] == w.fireModes[1]), "duplicitni fireModes");
+  check(e, w.supportsFireMode(w.defaultFireMode), "defaultFireMode neni ve fireModes");
+  check(e, w.damage >= 0 && w.damage <= 1000000, "damage mimo rozsah");
+  check(e, w.tactical.durationUs >= 0 && w.tactical.insertUs >= 0 && w.tactical.insertUs <= w.tactical.durationUs,
+        "reload.tactical");
+  check(e, w.empty.durationUs >= 0 && w.empty.insertUs >= 0 && w.empty.insertUs <= w.empty.durationUs, "reload.empty");
+  if (w.hasChamber) {
+    check(e, w.empty.boltUs >= w.empty.insertUs && w.empty.boltUs <= w.empty.durationUs, "reload.empty.boltRelease");
+    check(e, w.chamber.durationUs >= 0 && w.chamber.commitUs >= 0 && w.chamber.commitUs <= w.chamber.durationUs,
+          "reload.chamber");
+  }
+  return e;
+}
+
 bool parseInterruptReason(const std::string& text, InterruptReason& out) {
   if (text == "sprint") out = InterruptReason::Sprint;
   else if (text == "switch") out = InterruptReason::Switch;
@@ -74,9 +135,25 @@ bool parseInterruptReason(const std::string& text, InterruptReason& out) {
   return true;
 }
 
-WeaponState::WeaponState(const WeaponDef& def) : def_(def) { resetToLoadout(); }
+WeaponState::WeaponState(const WeaponDef& def) : def_(def) {
+  const std::vector<std::string> errors = validateWeaponDef(def_);
+  if (!errors.empty()) configError_ = "weapons." + def_.id + ": " + errors.front();
+  resetToLoadout();
+}
+
+std::vector<std::string> WeaponState::disabledByNames() const {
+  std::vector<std::string> out;
+  if (lifeLocked()) out.emplace_back("life");
+  for (DisableReason r : {DisableReason::Sprint, DisableReason::Switch, DisableReason::Menu, DisableReason::Results,
+                          DisableReason::Other}) {
+    if (disabledBy(r)) out.emplace_back(toString(r));
+  }
+  return out;
+}
 
 void WeaponState::resetToLoadout() {
+  // Probihajici akce musi skoncit udalosti (animace a zvuk), ne tichym zrusenim; schranka udalosti se nemaze.
+  if (state_ != WeaponActivity::Ready) interrupt(InterruptReason::Other);
   magazine_ = def_.magazineCapacity;
   chamber_ = def_.hasChamber ? 1 : 0;
   reserve_ = def_.startReserve;
@@ -85,7 +162,7 @@ void WeaponState::resetToLoadout() {
   clearAction();
   cooldownUs_ = 0;
   clockUs_ = 0;
-  holdValid_ = false;  // triggerPrev_ a enabled_ se zamerne nemeni (viz hlavicka)
+  holdValid_ = false;  // triggerPrev_ a zamky se zamerne nemeni (viz hlavicka)
   shotsFired_ = 0;
   resupplied_ = 0;
   dryFires_ = 0;
@@ -94,11 +171,10 @@ void WeaponState::resetToLoadout() {
   reloadsInterrupted_ = 0;
   chamberActions_ = 0;
   initialTotal_ = magazine_ + chamber_ + reserve_;
-  outbox_.clear();
 }
 
 bool WeaponState::setAmmo(int magazine, int chamber, int reserve) {
-  const bool ok = state_ == WeaponActivity::Ready && magazine >= 0 && magazine <= def_.magazineCapacity && chamber >= 0 &&
+  const bool ok = configError_.empty() && state_ == WeaponActivity::Ready && magazine >= 0 && magazine <= def_.magazineCapacity && chamber >= 0 &&
                   chamber <= (def_.hasChamber ? 1 : 0) && reserve >= 0 && reserve <= def_.maxReserve;
   if (!ok) return false;
   magazine_ = magazine;
@@ -127,11 +203,11 @@ std::vector<WeaponEvent> WeaponState::takeEvents() {
 }
 
 int WeaponState::update(Micros dtUs, bool trigger) {
-  if (dtUs < 0) return 0;
+  if (!validDt(dtUs) || !configError_.empty()) return 0;
   const int shotsBefore = shotsFired_;
-  // Stisk = hrana pusteno -> drzeno. Vypnuta zbran stisk ignoruje, ale stav spouste sleduje dal (GUN-03).
+  // Stisk = hrana pusteno -> drzeno. Zamcena zbran stisk ignoruje, ale stav spouste sleduje dal (GUN-03).
   if (!trigger) holdValid_ = false;
-  else if (!triggerPrev_ && enabled_) onPress();
+  else if (!triggerPrev_ && locks_ == 0) onPress();
   triggerPrev_ = trigger;
   // Vypnuta zbran nema platny stisk ani probihajici akci (disable ji prerusil), takze nize jen plyne cas.
 
@@ -265,7 +341,7 @@ void WeaponState::applyMilestone() {
 }
 
 ReloadResult WeaponState::reload() {
-  if (!enabled_) return ReloadResult::RejectedDisabled;
+  if (!enabled()) return ReloadResult::RejectedDisabled;
   if (state_ != WeaponActivity::Ready) return ReloadResult::RejectedBusy;
   if (def_.hasChamber && chamber_ == 0 && magazine_ > 0 && (magazine_ == def_.magazineCapacity || reserve_ == 0)) {
     holdValid_ = false;
@@ -298,17 +374,25 @@ InterruptResult WeaponState::interrupt(InterruptReason reason) {
   return InterruptResult::Interrupted;
 }
 
-void WeaponState::disable(InterruptReason reason) {
-  if (state_ != WeaponActivity::Ready) interrupt(reason);
-  holdValid_ = false;
-  enabled_ = false;
+void WeaponState::disable(DisableReason reason) { addLock(bitOf(reason), interruptFor(reason)); }
+
+void WeaponState::enable(DisableReason reason) { removeLock(bitOf(reason)); }
+
+void WeaponState::setLifeLock(bool locked, InterruptReason detail) {
+  if (locked) addLock(kLifeBit, detail);
+  else removeLock(kLifeBit);
 }
 
-void WeaponState::enable() {
-  if (!enabled_) {
-    enabled_ = true;
-    holdValid_ = false;
-  }
+void WeaponState::addLock(std::uint8_t bit, InterruptReason interruptReason) {
+  if (state_ != WeaponActivity::Ready) interrupt(interruptReason);
+  holdValid_ = false;
+  locks_ = static_cast<std::uint8_t>(locks_ | bit);
+}
+
+void WeaponState::removeLock(std::uint8_t bit) {
+  if ((locks_ & bit) == 0) return;
+  locks_ = static_cast<std::uint8_t>(locks_ & ~bit);
+  holdValid_ = false;
 }
 
 bool WeaponState::setFireMode(FireMode mode) {
@@ -321,7 +405,7 @@ bool WeaponState::setFireMode(FireMode mode) {
 }
 
 int WeaponState::resupply(long long rounds) {
-  if (rounds < 0) return -1;
+  if (rounds < 0 || !configError_.empty()) return -1;
   const long long room = static_cast<long long>(def_.maxReserve - reserve_);
   const int added = static_cast<int>(std::min(rounds, room));
   reserve_ += added;

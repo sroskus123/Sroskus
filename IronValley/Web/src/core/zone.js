@@ -24,6 +24,12 @@ export function validateParticipants(participants, teamCount) {
   return 'ok';
 }
 
+/**
+ * Nejvyssi skore: 2^53 - 1 (Number.MAX_SAFE_INTEGER). Skore se na teto hodnote zastavi (saturace), stejne v C++
+ * (int64). Do te doby je presne celociselne v obou jadrech (Docs/RULES.md, oddil 3).
+ */
+export const MAX_SCORE = Number.MAX_SAFE_INTEGER;
+
 /** Celociselne deleni nezapornych celych cisel (presne i pro velka cisla v double). */
 export function intDiv(a, b) {
   let q = Math.floor(a / b);
@@ -105,18 +111,29 @@ export class ZoneScoring {
       this.progressUs = 0;
       return { awards: 0, usedUs: dtUs };
     }
-    const total = this.progressUs + dtUs;
-    let awards = intDiv(total, this.pointIntervalUs);
+    // awards = floor((progress + dt) / interval) bez mezisouctu nad 2^53: dt = q*interval + r, r + progress < 2*interval.
+    const interval = this.pointIntervalUs;
+    const q = intDiv(dtUs, interval);
+    const rest = dtUs - q * interval + this.progressUs;
+    const q2 = intDiv(rest, interval);
+    let awards = q + q2;
     if (awards >= maxAwards) {
       awards = maxAwards;
-      const usedUs = awards * this.pointIntervalUs - this.progressUs;
-      this.scores[this.controller] += awards * this.pointsPerAward;
+      const usedUs = awards * interval - this.progressUs;
+      this.addScore(awards);
       this.progressUs = 0;
       return { awards, usedUs };
     }
-    this.scores[this.controller] += awards * this.pointsPerAward;
-    this.progressUs = total - awards * this.pointIntervalUs;
+    this.addScore(awards);
+    this.progressUs = rest - q2 * interval;
     return { awards, usedUs: dtUs };
+  }
+
+  /** Pricte kontrolorovi awards * pointsPerAward, nejvyse do MAX_SCORE (saturace, stejne jako C++). */
+  addScore(awards) {
+    const c = this.controller;
+    const room = MAX_SCORE - this.scores[c];
+    this.scores[c] = awards > intDiv(room, this.pointsPerAward) ? MAX_SCORE : this.scores[c] + awards * this.pointsPerAward;
   }
 
   /** Samostatny tik oblasti: evaluate + advance. Vraci 'ok' nebo kod chyby (stav se pri chybe nemeni). */

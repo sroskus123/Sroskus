@@ -20,6 +20,7 @@ const char* toString(InputResult v) {
     case InputResult::InvalidTeam: return "invalid_team";
     case InputResult::DuplicateId: return "duplicate_id";
     case InputResult::InvalidDt: return "invalid_dt";
+    case InputResult::InvalidConfig: return "invalid_config";
   }
   return "?";
 }
@@ -36,6 +37,14 @@ InputResult validateParticipants(const std::vector<ZoneParticipant>& participant
 
 ZoneScoring::ZoneScoring(const Rules& rules)
     : teamCount_(rules.teamCount), pointIntervalUs_(rules.zone.pointIntervalUs), pointsPerAward_(rules.zone.pointsPerAward) {
+  const std::vector<std::string> errors = validateRules(rules);
+  if (!errors.empty()) {
+    // Neplatna pravidla (napr. vychozi Rules{} nebo chyba parseru enginu): zadne deleni nulou ani zaporne velikosti.
+    configError_ = errors.front();
+    teamCount_ = 0;
+    pointIntervalUs_ = 1;
+    pointsPerAward_ = 1;
+  }
   reset();
 }
 
@@ -48,6 +57,7 @@ void ZoneScoring::reset() {
 }
 
 InputResult ZoneScoring::evaluate(const std::vector<ZoneParticipant>& participants) {
+  if (!configError_.empty()) return InputResult::InvalidConfig;
   const InputResult err = validateParticipants(participants, teamCount_);
   if (err != InputResult::Ok) return err;
   std::vector<int> counts(static_cast<std::size_t>(teamCount_), 0);
@@ -86,28 +96,35 @@ InputResult ZoneScoring::evaluate(const std::vector<ZoneParticipant>& participan
 }
 
 ZoneScoring::Advance ZoneScoring::advance(Micros dtUs, std::int64_t maxAwards) {
-  if (dtUs < 0 || maxAwards < 1) return Advance{0, 0};  // chyba volajiciho: nic nemenit
+  if (!validDt(dtUs) || maxAwards < 1 || !configError_.empty()) return Advance{0, 0};  // chyba volajiciho: nic nemenit
   if (controller_ == -1) {
     progressUs_ = 0;
     return Advance{0, dtUs};
   }
+  // progress < pointInterval <= 86400 s a dt <= 2^53 - 1, takze soucet ani soucin nize int64 nepretece.
   const Micros total = progressUs_ + dtUs;
   std::int64_t awards = total / pointIntervalUs_;
-  int& score = scores_[static_cast<std::size_t>(controller_)];
   if (awards >= maxAwards) {
     awards = maxAwards;
     const Micros used = awards * pointIntervalUs_ - progressUs_;
-    score += static_cast<int>(awards * pointsPerAward_);
+    addScore(awards);
     progressUs_ = 0;
     return Advance{awards, used};
   }
-  score += static_cast<int>(awards * pointsPerAward_);
+  addScore(awards);
   progressUs_ = total - awards * pointIntervalUs_;
   return Advance{awards, dtUs};
 }
 
+void ZoneScoring::addScore(std::int64_t awards) {
+  std::int64_t& score = scores_[static_cast<std::size_t>(controller_)];
+  const std::int64_t room = kMaxScore - score;
+  score = awards > room / pointsPerAward_ ? kMaxScore : score + awards * pointsPerAward_;
+}
+
 InputResult ZoneScoring::tick(Micros dtUs, const std::vector<ZoneParticipant>& participants) {
-  if (dtUs < 0) return InputResult::InvalidDt;
+  if (!configError_.empty()) return InputResult::InvalidConfig;
+  if (!validDt(dtUs)) return InputResult::InvalidDt;
   const InputResult err = evaluate(participants);
   if (err != InputResult::Ok) return err;
   advance(dtUs);

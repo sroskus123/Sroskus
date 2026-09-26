@@ -41,6 +41,15 @@ export class Match {
     return this.respawn.applyDamage(victimId, amount, attackerId);
   }
 
+  /** Zamek vstupu enginu (menu, vysledkova obrazovka ...) pro vsechny zbrane ucastnika; plati i ve stavu ended. */
+  disableInput(id, reason) {
+    return this.respawn.disableInput(id, reason);
+  }
+
+  enableInput(id, reason) {
+    return this.respawn.enableInput(id, reason);
+  }
+
   /**
    * @param world {inZone: Set|Array id, inactive: Set|Array id, predicate(query) -> bool}
    * Vstupy sveta plati po cely tik. Vraci 'ok' (ve stavu ended se nic nedeje; respawny i skore stoji).
@@ -51,8 +60,7 @@ export class Match {
     const inZone = toSet(world.inZone);
     const inactive = toSet(world.inactive);
     const predicate = world.predicate ?? null;
-    const claims = this.respawn.newClaims(); // jeden rozsah "bod pouzity v tomto update" pro cely tik
-    this.respawn.advance(0, predicate, claims); // kdo ma spawn ted (novy ucastnik, po resetu), pocita se od zacatku
+    this.respawn.advance(0, predicate); // kdo ma spawn ted (novy ucastnik, po resetu), pocita se od zacatku
     let remaining = dtUs;
     do {
       const step = Math.min(remaining, this.respawn.nextAttemptInUs());
@@ -60,9 +68,10 @@ export class Match {
       const elapsed0 = this.round.elapsedUs;
       const r = this.round.tick(step, this.zoneParticipants(inZone, inactive));
       if (r !== 'ok') return r;
-      // Kolo mohlo skoncit uprostred useku (cil): respawny dobehnou jen do okamziku konce, pak stoji.
+      // Kolo mohlo skoncit uprostred useku (cil nebo casovy limit): odpocty respawnu i rezervace bodu dobehnou jen
+      // do okamziku konce, pak stoji.
       const used = pre0 - this.round.preRoundRemainingUs + (this.round.elapsedUs - elapsed0);
-      this.respawn.advance(used, predicate, claims);
+      this.respawn.advance(used, predicate);
       remaining -= step;
     } while (remaining > 0 && this.round.state !== 'ended');
     return 'ok';
