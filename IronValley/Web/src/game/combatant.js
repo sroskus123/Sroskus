@@ -9,6 +9,7 @@
 
 import { Quaternion, Vector3 } from 'three';
 import { CharacterController } from '../physics/characterController.js';
+import { bindMovementEvents } from '../player/movementEvents.js';
 import { WeaponSystem, lookQuaternion } from '../weapons/weaponSystem.js';
 import { createHitShapeSet, shapeBounds, updateHitShapes } from './hitShapes.js';
 import { DEG2RAD, clamp, wrapAngle } from '../util/math.js';
@@ -57,6 +58,8 @@ export class Combatant {
     this.index = index;
     this.ctx = ctx;
     this.controller = new CharacterController(ctx.world, ctx.movement);
+    // 'footstep' (per foot contact of the controller's gait) and 'traverse:start' / 'traverse:end' on the bus
+    bindMovementEvents(this.controller, { owner: this, events: ctx.events, surfaceAt: (p) => ctx.worldQuery.surfaceAt(p), isActive: () => this.alive });
     this.yaw = 0;
     this.pitch = 0;
     this.turnRateDegPerSec = ctx.combat.bots.turnRateDegPerSec;
@@ -67,6 +70,7 @@ export class Combatant {
     this.deathsSeen = 0;
     this.spawnCountSeen = 0;
     this.spawnPointIndex = -1;
+    this.failedSpawnAttemptsBase = 0; // core failedSpawnAttempts when the current wait for a spawn began
     this.lastAttackerId = null;
     this.deathPose = null; // { dir:[x,z], mode:'fall'|'crumple', t, duration, angle }
     this.footDist = 0;
@@ -298,7 +302,6 @@ export class Combatant {
         ads: !!cmd.ads,
         fire: !!cmd.fire,
       });
-      this._footsteps(dt);
     } else {
       // dead: body stays (gravity only), no input
       c.update(dt, { moveX: 0, moveZ: 0, yaw: this.yaw, sprint: false, walk: false, crouch: false, jump: false, ads: false, fire: false });
@@ -313,9 +316,9 @@ export class Combatant {
         this.weapon.state.core.enable('switch');
       }
     }
-    // --- sprint lock (sprint interrupts reload, core reason 'sprint') ---
+    // --- sprint lock (sprint interrupts reload, core reason 'sprint'); a vault / mantle needs the hands too ---
     for (const w of this.weapons) {
-      if (c.sprinting && alive) w.state.core.disable('sprint');
+      if ((c.sprinting || c.traversing) && alive) w.state.core.disable('sprint');
       else w.state.core.enable('sprint');
     }
     // --- weapons: every weapon is updated every tick with the real trigger state (core contract) ---
@@ -357,29 +360,6 @@ export class Combatant {
       } else if (e.type === 'mag_insert' || e.type === 'bolt_release' || e.type === 'chamber_commit') {
         this.ctx.events.emit('weapon:action', { id: this.id, weaponId: w.def.id, type: e.type });
       }
-    }
-  }
-
-  _footsteps(dt) {
-    const c = this.controller;
-    if (!c.grounded) return;
-    const speed = Math.hypot(c.velocity.x, c.velocity.z);
-    if (speed < 0.3) {
-      this.footDist = 0;
-      return;
-    }
-    this.footDist += speed * dt;
-    const stride = c.sprinting ? 0.95 : c.crouched ? 0.55 : 0.75;
-    if (this.footDist >= stride) {
-      this.footDist -= stride;
-      const loudness = c.crouched ? 0.15 : c.sprinting ? 1.0 : speed < 2 ? 0.25 : 0.55;
-      this.ctx.events.emit('footstep', {
-        id: this.id,
-        team: this.team,
-        position: c.position.clone(),
-        surface: this.ctx.worldQuery.surfaceAt(c.position),
-        loudness,
-      });
     }
   }
 

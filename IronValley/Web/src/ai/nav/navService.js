@@ -64,20 +64,62 @@ export class NavService {
 
   /**
    * Marks the navmesh around `center` as impassable for `ttl` seconds. Returns the block id.
-   * Nodes that contain `keepFree` points (e.g. the bot's own position) are not blocked.
+   * Nodes that contain `keepFree` points (e.g. the bot's own position) are not blocked. With
+   * `ahead = { origin, dir }` only nodes whose centroid lies ahead of origin along dir (XZ) are blocked:
+   * the obstacle is in front of the bot, the ground beside / behind it stays usable as an escape route
+   * (e.g. a bot jammed in the corner between a barricade and a wall can still walk along the wall).
    */
-  blockArea(center, radius, ttl, { reason = 'stuck', keepFree = [] } = {}) {
+  blockArea(center, radius, ttl, { reason = 'stuck', keepFree = [], ahead = null } = {}) {
     const c = center.clone ? center.clone() : new Vector3(center.x, center.y, center.z);
     const nodes = new Set(this.mesh.nodesInDisc(c, radius, { dy: 1.5 }));
-    for (const p of keepFree) {
-      const n = this.mesh.nodeAt(p);
-      if (n >= 0) nodes.delete(n);
+    this._keepFree(nodes, keepFree);
+    if (ahead && ahead.origin && ahead.dir) {
+      const o = ahead.origin;
+      const d = ahead.dir;
+      for (const n of [...nodes]) {
+        const k = this.mesh.nodes[n].centroid;
+        if ((k.x - o.x) * d.x + (k.z - o.z) * d.z <= 0) nodes.delete(n);
+      }
     }
     const b = { id: this._nextBlockId++, center: c, radius, until: this.time + ttl, reason, nodes };
     for (const n of nodes) this._blockedNodes.set(n, (this._blockedNodes.get(n) || 0) + 1);
     this.blocks.push(b);
     this.stats.blocksAdded++;
     return b.id;
+  }
+
+  /**
+   * Marks the navmesh triangles that an obstacle's footprint covers (box { min: [x, y, z], max: [x, y, z] },
+   * shrunk by `shrink` so the triangles merely touching its faces stay free) as impassable for `ttl`
+   * seconds. Used when a bot ran into a static obstacle the navmesh does not know: only the covered ground is
+   * removed, the routes around it stay. Returns the block id, or -1 when the footprint covers no triangle
+   * (the obstacle is known to the navmesh).
+   */
+  blockFootprint(box, ttl, { reason = 'stuck', keepFree = [], shrink = 0.1 } = {}) {
+    const mn = box.min;
+    const mx = box.max;
+    const found = this.mesh.nodesInRect(mn[0] + shrink, mn[2] + shrink, mx[0] - shrink, mx[2] - shrink, { yMin: mn[1] - 0.5, yMax: mx[1] + 0.5 });
+    const nodes = new Set(found);
+    this._keepFree(nodes, keepFree);
+    if (nodes.size === 0) return -1;
+    const c = new Vector3((mn[0] + mx[0]) / 2, mn[1], (mn[2] + mx[2]) / 2);
+    const b = { id: this._nextBlockId++, center: c, radius: Math.hypot(mx[0] - mn[0], mx[2] - mn[2]) / 2, until: this.time + ttl, reason, nodes, footprint: true };
+    for (const n of nodes) this._blockedNodes.set(n, (this._blockedNodes.get(n) || 0) + 1);
+    this.blocks.push(b);
+    this.stats.blocksAdded++;
+    return b.id;
+  }
+
+  /** Removes the nodes of the keepFree points (the node containing it, else the closest one) from a set. */
+  _keepFree(nodes, keepFree) {
+    for (const p of keepFree) {
+      let n = this.mesh.nodeAt(p);
+      if (n < 0) {
+        const r = this.locate(p, 1.0);
+        n = r ? r.node : -1;
+      }
+      if (n >= 0) nodes.delete(n);
+    }
   }
 
   isBlockedNode(n) {

@@ -128,10 +128,12 @@ test('cannot pass the 1.0 m wall (sprinting and jumping at it)', async () => {
   const s = await scenario({ marker: 'wall1m_start', keys: ['KeyW', 'ShiftLeft'], ticks: 180 });
   assert.ok(s.position.z > m.wallFrontZ, `z ${s.position.z}`);
   assert.ok(s.maxY < 0.05, `was lifted to ${s.maxY}`);
-  // jumping repeatedly against it
+  // jumping repeatedly against it: pure jump physics never mounts it (the deliberate vault that the jump key
+  // starts at the wall is switched off here and tested in 07_movement_feel.test.mjs)
   const j = await g.page.evaluate(() => {
     const iv = window.__IV;
     iv.teleportToMarker('wall1m_start');
+    iv.setTraversalEnabled(false);
     iv.step(2);
     iv.keyDown('KeyW');
     let maxY = -Infinity;
@@ -150,6 +152,7 @@ test('cannot pass the 1.0 m wall (sprinting and jumping at it)', async () => {
     }
     iv.keyUp('KeyW');
     iv.step(30);
+    iv.setTraversalEnabled(true);
     return { minZ, maxY, final: iv.getState().player };
   });
   assert.ok(j.minZ > m.wallFrontZ, `jumped through: min z ${j.minZ}`);

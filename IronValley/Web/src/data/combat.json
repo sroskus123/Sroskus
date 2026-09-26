@@ -25,7 +25,13 @@
     "minEnemyDistance": 20.0,
     "bodyClearance": 1.5,
     "groundProbe": 1.2,
-    "losHeights": [1.65, 1.1]
+    "losHeights": [1.65, 1.1],
+    "fallback": {
+      "_comment": "Kdyz ucastnik ceka na bezpecny bod uz afterS (pocitano z neuspesnych pokusu jadra x retryInterval), vzdalenost od nepritele se snizi na minEnemyDistance a vybere se bod nejdal od nepratel (do bestMarginM od nejlepsiho). Kolize s geometrii, volno od tel a zadny vyhled nepritele plati dal bez zmirneni. Duvod: tri tymy na male mape - pri 25 m by tym, jehoz spawn je blizko aktivni oblasti, cekal minuty (namereno az 292 s).",
+      "afterS": 2.0,
+      "minEnemyDistance": 10.0,
+      "bestMarginM": 0.5
+    }
   },
   "death": {
     "_comment": "Smrt: provizorni stabilni padova poza (fyzikalni ragdoll pozdeji), pohled hrace po smrti.",

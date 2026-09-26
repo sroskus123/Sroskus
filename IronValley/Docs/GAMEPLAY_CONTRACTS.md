@@ -49,7 +49,8 @@ provádí spawn/respawn podle `Match` a poskytuje dotazy `all()`, `alive()`, `by
 | `combatant:damaged` | `{ victimId, attackerId, amount, part, fromDir }` |
 | `combatant:died` | `{ victimId, attackerId, position }` |
 | `combatant:spawned` | `{ id, team, position, yaw }` |
-| `footstep` | `{ id, team, position, surface, loudness }` |
+| `footstep` | `{ id, team, position, surface, loudness, speed, foot, kind }` — jeden za každý dopad chodidla (viz „Pohyb postavy“) |
+| `traverse:start` / `traverse:end` | přeskok / vylezení, viz „Pohyb postavy“ |
 | `weapon:reload_started` / `weapon:reload_finished` / `weapon:reload_interrupted` | `{ id, weaponId, kind }` |
 | `round:started` / `round:ended` / `round:reset` | `{ zoneId?, winner?, scores? }` |
 | `zone:control_changed` | `{ zoneId, controller \| null }` |
@@ -134,6 +135,7 @@ relace hra volá `ai.dispose()`, pokud existuje (odhlášení z event busu).
 | `weapon:dry_fire` | `{ id, weaponId }` |
 | `weapon:action` | `{ id, weaponId, type: 'mag_insert' \| 'bolt_release' \| 'chamber_commit' }` |
 | `round:pre` | `{ zoneId, preRoundS }` |
+| `weapon:casing_landed` | `{ position, mat, surface, speed, weaponId, shooterId }` — první dopad nábojnice (jen vizuální efekt; pro zvuk cinknutí) |
 
 `combatant:damaged` nese navíc `attackerPosition` (jen pro HUD hráče; AI ho podle kontraktu nečte) a `health`;
 `combatant:died` nese `weaponId`, `part`, `team`. Háček pro fyzikální ragdoll: `combatant:died` +
@@ -158,3 +160,49 @@ Stávající schéma (`solids`, `signs`, `banners`, `dummies`, `markers`) + voli
   tak nemění pořadí kontaktů kontroleru v základní úrovni.
 - Načtení: `loadLevelData(id)` (`src/game/levels.js`), v prohlížeči `window.__IV.loadLevel(id)`; seznam pro nabídku
   `src/data/levels.json`.
+
+### Pocit ze zbraně (recoil, 2026-09-26)
+
+- `weapon:fired` nese navíc `ads` (0..1) a `crouch` (bool) — postoj, podle kterého se počítal kop.
+- **Herní recoil** (`src/weapons/recoil.js`, data `weapons.json → <zbraň>.recoil`): `WeaponSystem.recoil.pitch / yaw`
+  (radiány) jsou odchylky, které se přičítají k pohledu **stejně** pro směr zásahu i pro kameru; kříž / mířidla proto
+  ukazují, kam jde další rána (GUN-03). Platí stejně pro hráče i boty. V okamžiku `weapon:fired` mají hodnotu, se kterou
+  byla rána vystřelena (AI i test AI-03 je tak čtou). `recoil.pitchDeg` (střední svislý kop rány) zůstává pro AI.
+- Částečný návrat: jen vlastník pohledu, který volá `recoil.takeLookTransfer()` (hráč v `game.js`), dostane zbytek
+  (1 − `recoverFraction`) do svého pohledu; bez odběratele (boti) se recoil vrací celý.
+- **Vizuální vrstva** (`weapons.json → <zbraň>.feel`): náklon kamery kolem osy pohledu (střed obrazovky se nehne),
+  kop zbraně (`viewModelMotion.js`, v ADS bez rotace a zdvihu), záblesk s pevnou dobou života, kouř, nábojnice
+  (`muzzleEffects.js`) a zásahy podle povrchu (`impactEffects.js`). Na hratelnost nemá vliv.
+
+## Pohyb postavy: kroky, přeskok, kamera (2026-09-26)
+
+Doplněk z práce na pocitu z pohybu (`src/physics/**`, `src/player/cameraEffects.js`, `src/player/movementEvents.js`).
+Hráč i boti používají **stejný** `CharacterController`, takže vše níže platí pro oba.
+
+- **Rychlost** (`src/physics/locomotion.js`, parametry v `movement.json`): složka rychlosti kolmá na směr přání se
+  na zemi silně brzdí (`lateralBraking` + `lateralFriction`), takže zatáčka nekluže; podél přání zrychlení
+  `acceleration`, nad cílovou rychlostí `speedChangeDeceleration` (sprint → běh / dřep, dopad v dřepu), proti přání
+  `reverseDeceleration`; bez vstupu `deceleration`. Ve vzduchu se hybnost zachovává (dřep ve vzduchu ji nemaže).
+  Rychlost nikdy nepřekročí max(předchozí, cílová) — žádný zisk ze strafování, zatáčení ani skákání.
+- **Skok:** stisk se pamatuje `jumpBufferTime` (0,15 s) — skok proběhne při dopadu; po sejití z hrany lze skočit
+  ještě `coyoteTime` (0,12 s); nikdy dvakrát v jedné fázi letu; v dřepu ne. `cmd.jump` = stisk (hráč posílá hranu).
+- **Přeskok / vylezení** (`src/physics/traversal.js`, `movement.json → traversal`): stisk skoku čelem k překážce,
+  jejíž horní hrana je 0,5–1,3 m nad zemí (nebo skok proti ní s držením vpřed). Tenká překážka (≤ 0,7 m) s místem
+  za ní = `vault`, hluboká = `mantle` (na vršek; vestoje, jinak v dřepu). Skriptovaný kinematický pohyb 0,5–0,9 s po
+  monotónní křivce; **každý vzorek dráhy** je ověřen testem překryvu kapsle (sbalená kapsle `tuckHeight` 1,0 m, konec
+  kapslí v dřepu) a během pohybu se ověřuje každý tik (při kolizi bezpečné přerušení). Vstup je během pohybu zamčený,
+  zbraň nejde použít (zámek jádra `sprint` — stejná sémantika: ruce jsou zaměstnané, přerušuje přebíjení).
+- **Události kontroleru** (`controller.addListener(fn)`, vedle staršího `onEvent`): `jump`, `landed`, `footstep`,
+  `step` (`{ dy }`, schod nahoru/dolů), `traverse:start`, `traverse:end`. Na sběrnici je s identitou bojovníka
+  publikuje `bindMovementEvents` (`src/player/movementEvents.js`, volá `Combatant`); mrtvý bojovník nevydává nic.
+
+| Událost (sběrnice) | Data |
+| --- | --- |
+| `footstep` | `{ id, team, position (Vector3), surface, loudness, speed, foot: 'left' \| 'right', kind: 'step' \| 'land' }` — `surface` z materiálu úrovně pod nohama (`WorldQuery.surfaceAt`), jinak `'concrete'`; kadence ze skutečné délky kroku (chůze ~2,3, běh ~3, sprint ~3,7 kroku/s) |
+| `traverse:start` | `{ id, team, traversalId, type: 'vault' \| 'mantle', ledgePoint (Vector3, bod hrany na čele překážky), ledgeNormal (Vector3, vodorovná normála čela), obstacleHeight, thickness, duration, endStance: 'stand' \| 'crouch' }` — pro FPS ruce (dlaně na hraně) a AI |
+| `traverse:end` | `{ id, team, traversalId, type, aborted, position }` |
+
+Kamera (jen vizuál, `src/player/cameraEffects.js`): houpání podle fáze kroku (nejníž při každém dopadu chodidla),
+drobný impulz na schodu, propad při dopadu podle rychlosti pádu, mírný náklon při úkroku, oblouk s náklonem při
+přeskoku; vše násobí nastavení „Pohyb kamery“ (0 = vypnuto). Tělo z pohledu první osoby (nohy) přijde s modely
+postav; kamera sedí v ose kapsle ve výšce `eyeHeight`, takže tělo lze později připojit pod ni.

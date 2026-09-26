@@ -98,7 +98,7 @@ export function createGridMaterials(maxAnisotropy = 8) {
   return mats;
 }
 
-function drawSign(text, sub, w = 512, h = 192) {
+function drawSign(text, sub, w = 512, h = 192, hint = null) {
   const c = document.createElement('canvas');
   c.width = w;
   c.height = h;
@@ -109,22 +109,35 @@ function drawSign(text, sub, w = 512, h = 192) {
   g.fillRect(0, 0, w, 10);
   g.fillStyle = '#f2efe8';
   g.textBaseline = 'middle';
-  let size = Math.round(h * 0.34);
+  // optional third line (what the station tests / what to do): the title moves up to make room
+  const yTitle = hint ? 0.3 : 0.42;
+  const ySub = hint ? 0.6 : 0.76;
+  let size = Math.round(h * (hint ? 0.26 : 0.34));
   g.font = `700 ${size}px "DejaVu Sans", "Segoe UI", Arial, sans-serif`;
   while (g.measureText(text).width > w - 40 && size > 12) {
     size -= 2;
     g.font = `700 ${size}px "DejaVu Sans", "Segoe UI", Arial, sans-serif`;
   }
-  g.fillText(text, 22, h * 0.42);
+  g.fillText(text, 22, h * yTitle);
   if (sub) {
-    let s2 = Math.round(h * 0.16);
+    let s2 = Math.round(h * (hint ? 0.14 : 0.16));
     g.font = `400 ${s2}px "DejaVu Sans", "Segoe UI", Arial, sans-serif`;
     while (g.measureText(sub).width > w - 40 && s2 > 10) {
       s2 -= 1;
       g.font = `400 ${s2}px "DejaVu Sans", "Segoe UI", Arial, sans-serif`;
     }
     g.fillStyle = '#b9c0c7';
-    g.fillText(sub, 22, h * 0.76);
+    g.fillText(sub, 22, h * ySub);
+  }
+  if (hint) {
+    let s3 = Math.round(h * 0.13);
+    g.font = `600 ${s3}px "DejaVu Sans", "Segoe UI", Arial, sans-serif`;
+    while (g.measureText(hint).width > w - 40 && s3 > 10) {
+      s3 -= 1;
+      g.font = `600 ${s3}px "DejaVu Sans", "Segoe UI", Arial, sans-serif`;
+    }
+    g.fillStyle = '#e8b35f';
+    g.fillText(hint, 22, h * 0.85);
   }
   const tex = new CanvasTexture(c);
   tex.colorSpace = SRGBColorSpace;
@@ -211,7 +224,7 @@ export function buildTestRangeView(level, solids, { maxAnisotropy = 8, lighting 
   const postGeo = new BoxGeometry(0.06, 1.35, 0.06);
   postGeo.translate(0, 0.675, 0);
   for (const s of level.signs || []) {
-    const tex = drawSign(s.text, s.sub);
+    const tex = drawSign(s.text, s.sub, 512, 192, s.hint || null);
     const board = new Mesh(
       new PlaneGeometry(1.2, 0.45),
       new MeshStandardMaterial({ map: tex, roughness: 0.75, metalness: 0, emissive: new Color('#ffffff'), emissiveMap: tex, emissiveIntensity: 0.08 }),

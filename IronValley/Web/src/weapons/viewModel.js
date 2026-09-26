@@ -3,17 +3,22 @@
 // Lighting uses the same sun direction and environment map as the world; the direct sun is
 // dimmed when the eye is in shadow. Pose = hip/ADS blend + sway + bob + recoil + sprint.
 // Recoil springs advance on the fixed simulation tick (ViewModelMotion.tick via tickSim) and
-// are interpolated here, so the weapon motion is the same at every frame rate.
+// are interpolated here, so the weapon motion is the same at every frame rate. The recoil rotation
+// pivots about the sight line (socket_ads), so in ADS (no pitch / yaw kick by data) the sight stays on
+// the camera axis - the aim kick comes from the camera recoil, which moves weapon and view together.
+// The muzzle flash lives a fixed simulated time (FlashTimer); the pistol slide / bolt cycles per shot.
 
 import {
   AdditiveBlending,
   CanvasTexture,
   Color,
   DirectionalLight,
+  Euler,
   Group,
   HemisphereLight,
   PerspectiveCamera,
   PointLight,
+  Quaternion,
   Scene,
   SRGBColorSpace,
   Sprite,
@@ -22,6 +27,16 @@ import {
 } from 'three';
 import { createPlaceholderRifle } from './placeholderRifle.js';
 import { adsBlend, viewModelPointInCamera, ViewModelMotion } from './viewModelMotion.js';
+import { FlashTimer, resolveFeel } from './muzzleEffects.js';
+import { createRng } from '../util/rng.js';
+
+const SIM_DT = 1 / 60;
+const _qR = new Quaternion();
+const _eR = new Euler(0, 0, 0, 'XYZ');
+const _pv = new Vector3();
+const _pv2 = new Vector3();
+const _q2 = new Quaternion();
+const _Z = new Vector3(0, 0, 1);
 
 function makeFlashTexture() {
   const s = 128;
@@ -112,12 +127,21 @@ export class ViewModel {
     this.setModel(ph.object, ph.muzzle, { placeholder: true, name: 'placeholder', adsEye: ph.adsEye });
     this.hiddenPatterns = [];
 
-    // animation state (springs on the simulation tick, sway / sprint per frame)
-    this.motion = new ViewModelMotion(vm.motion || {});
+    // animation state (springs on the simulation tick, sway / sprint per frame); kick peaks from
+    // weapons.json feel.viewModel
+    this.motion = new ViewModelMotion({ ...(vm.motion || {}), kick: (def.feel && def.feel.viewModel) || (vm.motion && vm.motion.kick) || {} });
     this.hipRotation = vm.hipRotation || [0, 0, 0];
     this.kick = 0; // last rendered (interpolated) values, for inspection
     this.kickRot = 0;
-    this.flashTimer = 0;
+    this.recoilPose = { back: 0, rise: 0, pitch: 0, roll: 0, yaw: 0 };
+    this.feel = resolveFeel(def.feel || {});
+    this.flashTimer = new FlashTimer(this.feel.flash.duration, this.feel.flash.minVisible);
+    this.flashIntensity = 0;
+    this._flashRng = createRng(97);
+    this._flashAds = 0;
+    this.cycleAge = Infinity; // simulated seconds since the last shot (slide / bolt cycle)
+    this._simDt = SIM_DT;
+    this.updated = false;
     this.sunVisibility = 1;
     this._tmpV = new Vector3();
   }
@@ -134,6 +158,7 @@ export class ViewModel {
     const tmp = new Vector3();
     if (muzzleNode) this.muzzleLocal.copy(this.modelRoot.worldToLocal(muzzleNode.getWorldPosition(tmp)));
     if (adsEye) this.adsEyeLocal.copy(this.modelRoot.worldToLocal(adsEye.getWorldPosition(tmp)));
+    this._setupFeelNodes(object);
     if (this.flash.parent) this.flash.parent.remove(this.flash);
     this.modelRoot.add(this.flash);
     this.flash.position.copy(this.muzzleLocal).add(new Vector3(0.03, 0, 0));
@@ -166,10 +191,49 @@ export class ViewModel {
     this.hemi.intensity = this.baseHemiIntensity * s;
   }
 
-  /** One fixed simulation tick: recoil springs and the muzzle flash timer. */
+  /** Eject socket, recoil pivot and the nodes that cycle per shot (slide / bolt), from the model + data. */
+  _setupFeelNodes(object) {
+    const sockets = this.def.viewModel.sockets || {};
+    const tmp = new Vector3();
+    const ej = object.getObjectByName(sockets.eject || 'socket_eject');
+    const data = this.def.feel && this.def.feel.casing && this.def.feel.casing.ejectLocal;
+    this.ejectLocal = ej ? this.modelRoot.worldToLocal(ej.getWorldPosition(tmp)).clone() : new Vector3().fromArray(data || [this.muzzleLocal.x * 0.2, this.muzzleLocal.y, 0.015]);
+    this.ejectFromSocket = !!ej;
+    // cycle: model -X (towards the shooter) expressed in each node's parent space
+    const cyc = this.def.feel && this.def.feel.cycle;
+    this.cycleNodes = [];
+    if (cyc && cyc.nodes) {
+      const re = new RegExp(cyc.nodes, 'i');
+      const a = this.modelRoot.localToWorld(new Vector3(0, 0, 0));
+      const b = this.modelRoot.localToWorld(new Vector3(-1, 0, 0));
+      object.traverse((o) => {
+        if (o === object || !o.parent || !re.test(o.name || '')) return;
+        const pa = o.parent.worldToLocal(a.clone());
+        const pb = o.parent.worldToLocal(b.clone());
+        this.cycleNodes.push({ node: o, base: o.position.clone(), dir: pb.sub(pa) });
+      });
+    }
+    this.cycleOffset = 0;
+    const pv = this.def.feel && this.def.feel.viewModel && this.def.feel.viewModel.pivot;
+    this.kickPivot = pv ? new Vector3().fromArray(pv) : this.adsEyeLocal;
+  }
+
+  /** Slide / bolt travel (m) at a simulated time since the shot. */
+  _cycleTravel(t) {
+    const c = this.def.feel && this.def.feel.cycle;
+    if (!c || !Number.isFinite(t)) return 0;
+    if (t < c.backTime) return c.travel * (t / c.backTime);
+    const u = (t - c.backTime) / c.returnTime;
+    if (u >= 1) return 0;
+    return c.travel * (1 - u * u * (3 - 2 * u));
+  }
+
+  /** One fixed simulation tick: recoil springs, the muzzle flash timer and the slide / bolt cycle. */
   tickSim(dt) {
+    this._simDt = dt;
     this.motion.tick(dt);
-    if (this.flashTimer > 0) this.flashTimer -= dt;
+    this.flashTimer.tick(dt);
+    if (Number.isFinite(this.cycleAge)) this.cycleAge = this.cycleAge + dt > 1 ? Infinity : this.cycleAge + dt;
   }
 
   /** Simulation not advancing (paused / menu): keep the interpolated pose still. */
@@ -177,13 +241,21 @@ export class ViewModel {
     this.motion.hold();
   }
 
-  /** Called from the simulation tick when a shot is fired. */
-  onShot() {
-    this.motion.onShot();
-    this.flashTimer = 0.05;
-    this.flash.material.rotation = Math.random() * Math.PI * 2;
-    const s = 0.085 + Math.random() * 0.04;
+  /**
+   * Called from the simulation tick when a shot is fired.
+   * @param {object} [shot] weapon:fired payload ({ ads, crouch }) - stance of the kick
+   */
+  onShot(shot = {}) {
+    const ads = (shot && shot.ads) || 0;
+    this.motion.onShot({ ads, crouch: !!(shot && shot.crouch) });
+    this.flashTimer.trigger();
+    this.cycleAge = 0;
+    // deterministic per-shot variation (never Math.random: identical at every frame rate / replay)
+    const f = this.feel.flash;
+    this.flash.material.rotation = this._flashRng.next() * Math.PI * 2;
+    const s = (f.size[0] + (f.size[1] - f.size[0]) * this._flashRng.next()) * (1 + (f.adsScale - 1) * adsBlend(ads));
     this.flash.scale.set(s, s, s);
+    this._flashAds = ads;
   }
 
   /**
@@ -210,9 +282,16 @@ export class ViewModel {
 
     const m = this.motion;
     m.frame(dt, p.lookDX || 0, p.lookDY || 0, p.sprint);
-    const { kick, kickRot } = m.kickAt(p.alpha ?? 1);
-    this.kick = kick;
-    this.kickRot = kickRot;
+    const k = m.kickAt(p.alpha ?? 1);
+    this.kick = k.back;
+    this.kickRot = k.pitch;
+    const rp = this.recoilPose;
+    rp.back = k.back;
+    rp.rise = k.rise;
+    rp.pitch = k.pitch;
+    rp.roll = k.roll;
+    rp.yaw = k.yaw;
+    this.updated = true;
     const swayX = m.swayX;
     const swayY = m.swayY;
     const sprint = m.sprint;
@@ -225,8 +304,9 @@ export class ViewModel {
     const bob = p.bobAmount * motion * (0.25 + 0.75 * hipW);
     pos.x += Math.cos(p.bobPhase) * 0.006 * bob + swayX * hipW;
     pos.y += Math.abs(Math.sin(p.bobPhase)) * -0.006 * bob + swayY * hipW;
-    // recoil pushes the weapon back
-    pos.z += kick * 0.035;
+    // recoil pushes the weapon back (along the view axis) and up (rise is 0 in ADS by data)
+    pos.z += k.back;
+    pos.y += k.rise;
     // sprint pose: lower and inward
     pos.y -= sprint * 0.06;
     pos.x -= sprint * 0.03;
@@ -241,20 +321,44 @@ export class ViewModel {
     // ADS; plus recoil, reload, sprint and sway rotations
     const hr = this.hipRotation;
     this.holder.rotation.set(
-      hr[0] * hipW + kickRot * 0.05 + r * -0.5 - sprint * 0.25 - lower * 0.7,
+      hr[0] * hipW + r * -0.5 - sprint * 0.25 - lower * 0.7,
       hr[1] * hipW + sprint * 0.55 + swayX * 2 * hipW,
       hr[2] * hipW + sprint * 0.3 + r * 0.35 + swayX * 1.5 * hipW,
     );
+    // recoil rotations about fixed holder-local pivots p (position += q * (p - q_kick * p)):
+    // muzzle rise / yaw about feel.viewModel.pivot (shoulder pocket / wrist), roll about the sight line
+    // point socket_ads, so a roll never moves the sight off the camera axis in ADS
+    if (k.pitch !== 0 || k.yaw !== 0) this._rotateAbout(this.kickPivot, _qR.setFromEuler(_eR.set(k.pitch, k.yaw, 0, 'XYZ')));
+    if (k.roll !== 0) this._rotateAbout(this.adsEyeLocal, _qR.setFromAxisAngle(_Z, k.roll));
+    // slide / bolt cycle (simulated time since the shot, interpolated like the springs)
+    if (this.cycleNodes && this.cycleNodes.length) {
+      const age = Number.isFinite(this.cycleAge) ? Math.max(0, this.cycleAge - (1 - Math.min(Math.max(p.alpha ?? 1, 0), 1)) * this._simDt) : Infinity;
+      const tr = this._cycleTravel(age);
+      this.cycleOffset = tr;
+      for (const c of this.cycleNodes) c.node.position.copy(c.base).addScaledVector(c.dir, tr);
+    }
 
     // lighting: world sun direction is fixed; dim direct light when the eye is in shadow
     this.sunVisibility += (p.sunVisibility - this.sunVisibility) * (1 - Math.exp(-6 * dt));
     this.sun.intensity = this.sunIntensity * (0.12 + 0.88 * this.sunVisibility);
 
-    // muzzle flash (timer advanced in tickSim)
-    const flashOn = this.flashTimer > 1e-6;
+    // muzzle flash: fixed simulated lifetime (FlashTimer), drawn at least once per shot
+    const fI = this.flashTimer.sample(p.alpha ?? 1, this._simDt);
+    this.flashIntensity = fI;
+    const flashOn = fI > 1e-6;
     this.flash.visible = flashOn;
+    this.flash.material.opacity = Math.min(1, fI);
     this.flash.getWorldPosition(this.flashLight.position);
-    this.flashLight.intensity = flashOn ? 1.6 : 0;
+    this.flashLight.intensity = flashOn ? this.feel.flash.light * fI * (1 - 0.4 * adsBlend(this._flashAds)) : 0;
+  }
+
+  /** Rotates the holder by q (holder-local) about the model-space point `local`, which stays fixed. */
+  _rotateAbout(local, q) {
+    _pv.set(local.z, local.y, -local.x); // model -> holder (model root turned +90 deg about Y)
+    _pv2.copy(_pv).applyQuaternion(q);
+    _pv.sub(_pv2).applyQuaternion(this.holder.quaternion);
+    this.holder.position.add(_pv);
+    this.holder.quaternion.multiply(q);
   }
 
   /**
@@ -284,5 +388,18 @@ export class ViewModel {
   /** ADS eye socket in camera space (should be the camera origin when fully aimed). */
   adsEyeInCameraSpace(ads = 1, out = new Vector3()) {
     return this._poseToCamera(this.adsEyeLocal, ads, out);
+  }
+
+  /** Camera-space position of the eject socket as currently drawn (null before the first update()). */
+  ejectInCameraSpace(out = new Vector3()) {
+    if (!this.updated) return null;
+    this.holder.updateMatrix();
+    return out.copy(this.ejectLocal).applyQuaternion(this.modelRoot.quaternion).applyQuaternion(this.holder.quaternion).add(this.holder.position);
+  }
+
+  /** Camera-space direction of a model-space vector (+X muzzle, +Y up, +Z right) in the drawn pose. */
+  modelDirInCameraSpace(v, out = new Vector3()) {
+    _q2.copy(this.holder.quaternion).multiply(this.modelRoot.quaternion);
+    return out.copy(v).applyQuaternion(_q2);
   }
 }

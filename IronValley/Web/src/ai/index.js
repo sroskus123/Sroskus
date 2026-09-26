@@ -75,6 +75,10 @@ export function createAISystem({ combatants, world, nav = null, cover = null, ev
     }
   }
   sys.enemySpawnCenters = (team) => spawnCenters.filter((_, t) => t !== team);
+  // axis-aligned footprint of a level solid by id (box solids), for navmesh blocks around unknown obstacles
+  const solidBoxes = new Map();
+  if (level && Array.isArray(level.solids)) for (const s of level.solids) if (s && s.id && Array.isArray(s.min) && Array.isArray(s.max)) solidBoxes.set(s.id, { min: s.min, max: s.max });
+  sys.solidBox = (id) => (id != null ? solidBoxes.get(id) || null : null);
   // solids of spawn shelters (level flag spawnShelter): their cover points are never used
   sys.shelterSolids = new Set(level && Array.isArray(level.solids) ? level.solids.filter((s) => s.spawnShelter).map((s) => s.id) : []);
 
@@ -214,6 +218,11 @@ export function createAISystem({ combatants, world, nav = null, cover = null, ev
     for (const b of sys.bots) b.decisionDirty = true;
   });
   on('round:started', () => {
+    for (const b of sys.bots) b.decisionDirty = true;
+  });
+  // round over: every bot re-decides in the next tick (task 'idle', stops moving) instead of finishing its
+  // current move until its next scheduled decision
+  on('round:ended', () => {
     for (const b of sys.bots) b.decisionDirty = true;
   });
 

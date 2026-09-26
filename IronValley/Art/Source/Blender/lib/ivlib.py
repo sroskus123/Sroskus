@@ -1234,12 +1234,13 @@ def _micro_normal(nb, co, w, h_extra=None, strength=1.0, milling=0.0, scuff=None
     peel = nb.noise(co, 420.0, 3.0, 0.55, w + 21.0)
     h = nb.mul(peel, 0.55)
     if milling:
-        mill = nb.wave(nb.mapping(co, scale=(1.0, 1.0, 1.0)), 780.0, 'X', distortion=1.5, detail=1.0)
-        h = nb.add(h, nb.mul(mill, 0.18 * milling))
+        mill = nb.wave(nb.mapping(co, scale=(1.0, 1.0, 1.0)), 780.0, 'X', distortion=0.0, detail=0.0)
+        h = nb.add(h, nb.mul(mill, 0.08 * milling))
     if scuff is not None:
-        sco = nb.mapping(co, scale=(1.0, 9.0, 9.0))
-        st = nb.remap(nb.noise(sco, 160.0, 2.0, 0.5, w + 31.0), 0.62, 0.72, smooth=True)
-        h = nb.sub(h, nb.mul(nb.mul(st, scuff), 0.8))
+        # short, soft handling scuffs only where the contact attribute is high
+        sco = nb.mapping(co, scale=(1.0, 7.0, 7.0))
+        st = nb.remap(nb.noise(sco, 120.0, 2.0, 0.5, w + 31.0), 0.66, 0.76, smooth=True)
+        h = nb.sub(h, nb.mul(nb.mul(st, nb.remap(scuff, 0.55, 0.9)), 0.35))
     if h_extra is not None:
         h = nb.add(h, h_extra)
     return nb.bump(h, strength, 0.00022)
@@ -1267,29 +1268,29 @@ def mat_anodized(name, masks, base=(0.042, 0.042, 0.046), rough=0.34, wear=1.0,
     e = nb.mul(edge, nb.lerp(patch, 0.55, 1.2))
     e = nb.mul(e, nb.remap(n_mid, 0.3, 0.7, 0.8, 1.15))
     e = nb.mul(e, gain)
-    worn = nb.remap(e, 0.50 / max(wear, 1e-3), 0.66 / max(wear, 1e-3), smooth=True)
-    hl = nb.remap(edge, 0.25, 0.55, smooth=True)                                   # bevel highlight
+    worn = nb.remap(e, 0.40 / max(wear, 1e-3), 0.54 / max(wear, 1e-3), smooth=True)
+    hl = nb.remap(edge, 0.22, 0.5, smooth=True)                                    # bevel highlight
     # handling polish: streaks along X, low frequency, stronger where handled
-    sco = nb.mapping(co, scale=(6.0, 160.0, 160.0))
-    polish = nb.mul(nb.remap(nb.noise(sco, 1.0, 3.0, 0.6, w + 11.0), 0.45, 0.75, smooth=True),
-                    nb.mul(scratches, nb.lerp(contact, 0.4, 1.0)))
+    sco = nb.mapping(co, scale=(3.0, 60.0, 60.0))
+    polish = nb.mul(nb.remap(nb.noise(sco, 1.0, 2.0, 0.5, w + 11.0), 0.5, 0.8, smooth=True),
+                    nb.mul(scratches, nb.remap(contact, 0.3, 0.9)))
     dirt = nb.mul(nb.remap(cav, 0.55, 0.15, smooth=True), 0.55)
     coat = nb.ramp(nb.add(nb.mul(n_big, 0.7), nb.mul(n_mid, 0.3)),
                    [(0.3, [c * 0.85 for c in base]), (0.7, [c * 1.15 for c in base])])
-    coat = nb.mix_col(nb.add(nb.mul(hl, 0.35), nb.mul(polish, 0.25)), coat, [c * 1.6 for c in base])
+    coat = nb.mix_col(nb.add(nb.mul(hl, 0.35), nb.mul(polish, 0.10)), coat, [c * 1.6 for c in base])
     bare_c = nb.ramp(n_fine, [(0.3, [c * 0.88 for c in bare]), (0.7, [min(1.0, c * 1.08) for c in bare])])
     col = nb.mix_col(worn, coat, bare_c)
     col = nb.mix_col(dirt, col, (0.050, 0.046, 0.040))
     r = nb.add(rough, nb.remap(n_big, 0.3, 0.7, -0.045, 0.045))
     r = nb.add(r, nb.remap(n_mid, 0.3, 0.7, -0.025, 0.025))
-    r = nb.sub(r, nb.mul(polish, 0.09))
+    r = nb.sub(r, nb.mul(polish, 0.06))
     r = nb.sub(r, nb.mul(hl, 0.05))
     r = nb.lerp(worn, r, 0.27)
     r = nb.lerp(dirt, r, 0.72)
     # metallic: binary per material; only heavy grime in crevices turns dielectric (narrow step)
     grime = nb.remap(dirt, 0.42, 0.5)
     metal = nb.inv(grime)
-    nrm = _micro_normal(nb, co, w, nb.mul(worn, -0.35), strength=1.0, milling=1.0,
+    nrm = _micro_normal(nb, co, w, nb.mul(worn, -0.35), strength=0.28, milling=0.0,
                         scuff=nb.mul(contact, 1.0))
     nb.set(bsdf.inputs['Base Color'], col)
     nb.set(bsdf.inputs['Roughness'], r)
@@ -1337,7 +1338,7 @@ def mat_steel(name, masks, base=(0.048, 0.048, 0.052), rough=0.36, metal=1.0, we
         diel = nb.maxf(diel, nb.remap(sv, 0.62, 0.72))   # thick carbon: dielectric, narrow step
     mt = nb.mul(metal, nb.inv(diel))
     h_extra = nb.add(nb.mul(n_fine, grain * 0.25), nb.mul(worn, -0.25))
-    nrm = _micro_normal(nb, co, w + 1.0, h_extra, strength=0.8, milling=0.5)
+    nrm = _micro_normal(nb, co, w + 1.0, h_extra, strength=0.3, milling=0.0)
     nb.set(bsdf.inputs['Base Color'], col)
     nb.set(bsdf.inputs['Roughness'], r)
     nb.set(bsdf.inputs['Metallic'], mt)
@@ -1716,6 +1717,9 @@ def uv_snap_degenerate(obj, area_eps=5e-8, tex_size=None, min_island_texels=0.0,
 
 # ---- UV rasterisation (pixel-centre coverage, the same rule the bake uses) -------------------
 
+_TIE_DX, _TIE_DY = 1.3e-4, 2.9e-4
+
+
 def _raster_tris(P, res):
     """P: (n, 3, 2) triangle corners in pixel units.  Returns (tri_index, pixel_index) arrays of
     every pixel centre inside a triangle (edge-inclusive)."""
@@ -1739,8 +1743,10 @@ def _raster_tris(P, res):
         gx = gx.ravel(); gy = gy.ravel()
         for chunk in range(0, len(sel), max(1, 2000000 // (K * K))):
             t = sel[chunk:chunk + max(1, 2000000 // (K * K))]
-            X = x0[t, None] + gx[None, :] + 0.5
-            Y = y0[t, None] + gy[None, :] + 0.5
+            # sample a hair off the pixel centre: a centre lying exactly on an edge shared by two
+            # triangles is then counted once (no false "overlap" between adjacent islands)
+            X = x0[t, None] + gx[None, :] + 0.5 + _TIE_DX
+            Y = y0[t, None] + gy[None, :] + 0.5 + _TIE_DY
             Q = P[t]
             dd = d[t][:, None]
             l0 = ((Q[:, 1, 1] - Q[:, 2, 1])[:, None] * (X - Q[:, 2, 0][:, None]) +
@@ -1752,11 +1758,11 @@ def _raster_tris(P, res):
             inside = (l0 >= e) & (l1 >= e) & (l2 >= e) & (X >= 0) & (Y >= 0) & (X < res) & (Y < res)
             ti, gi = np.nonzero(inside)
             out_t.append(t[ti])
-            out_p.append((Y[ti, gi] - 0.5).astype(np.int64) * res + (X[ti, gi] - 0.5).astype(np.int64))
+            out_p.append(np.floor(Y[ti, gi]).astype(np.int64) * res + np.floor(X[ti, gi]).astype(np.int64))
     big = np.nonzero(ok & (size > 128))[0]
     for t in big:
-        xs = np.arange(max(0, x0[t]), min(res - 1, x1[t]) + 1) + 0.5
-        ys = np.arange(max(0, y0[t]), min(res - 1, y1[t]) + 1) + 0.5
+        xs = np.arange(max(0, x0[t]), min(res - 1, x1[t]) + 1) + 0.5 + _TIE_DX
+        ys = np.arange(max(0, y0[t]), min(res - 1, y1[t]) + 1) + 0.5 + _TIE_DY
         if len(xs) == 0 or len(ys) == 0:
             continue
         X, Y = np.meshgrid(xs, ys)
@@ -1766,7 +1772,7 @@ def _raster_tris(P, res):
         l1 = ((cy - ay) * (X - cx) + (ax - cx) * (Y - cy)) / dd
         l2 = 1 - l0 - l1
         inside = (l0 >= -1e-7) & (l1 >= -1e-7) & (l2 >= -1e-7)
-        pix = ((Y[inside] - 0.5).astype(np.int64) * res + (X[inside] - 0.5).astype(np.int64))
+        pix = (np.floor(Y[inside]).astype(np.int64) * res + np.floor(X[inside]).astype(np.int64))
         out_t.append(np.full(len(pix), t, np.int64)); out_p.append(pix)
     if not out_t:
         return np.zeros(0, np.int64), np.zeros(0, np.int64)
@@ -1818,6 +1824,9 @@ def uv_island_raster(objs, res):
         np.minimum.at(bmin, gi, P.min(1)); np.maximum.at(bmax, gi, P.max(1))
     diag = np.hypot(*(bmax - bmin).T)
     thick = np.where(diag > 0, area / np.maximum(diag, 1e-9), 0.0)
+    owner = np.full(res * res, -1, np.int64)
+    owner[upix] = ugid
+    owner[per_pix > 1] = -2
     over_pix = np.nonzero(per_pix > 1)[0]
     over_islands = set()
     if len(over_pix):
@@ -1825,7 +1834,108 @@ def uv_island_raster(objs, res):
         over_islands = set(int(x) for x in ugid[m])
     return {"islands": islands, "pixels": counts, "area_px": area, "thick_px": thick,
             "coverage": covered / float(res * res), "overlap_px": overlap,
-            "overlap_islands": over_islands, "res": res}
+            "overlap_islands": over_islands, "res": res, "owner": owner}
+
+
+def _island_tris_px(obj, faces, res):
+    me = obj.data
+    me.calc_loop_triangles()
+    fs = set(faces)
+    uv = me.uv_layers.active.data
+    tris = [t for t in me.loop_triangles if t.polygon_index in fs]
+    P = np.array([[uv[l].uv[:] for l in t.loops] for t in tris], np.float64) * res
+    return tris, P
+
+
+def _nudge_island(obj, faces, res, owner=None, gid=None, max_shift=0.5):
+    """Translate an island by up to max_shift pixels (enlarging it 1.5x / 2.25x if needed) so
+    that it covers >= 1 pixel centre that no other island owns (owner: pixel -> island id)."""
+    tris, P = _island_tris_px(obj, faces, res)
+    if len(P) == 0:
+        return False
+    uv = obj.data.uv_layers.active.data
+    loops = sorted({li for fi in faces for li in obj.data.polygons[fi].loop_indices})
+    c = P.reshape(-1, 2).mean(0)
+    for grow in (1.0, 1.5, 2.25):
+        Pg = c + (P - c) * grow
+        for dx, dy in ((0.0, 0.0), (0.5, 0.0), (0.0, 0.5), (0.5, 0.5), (-0.5, 0.0), (0.0, -0.5), (-0.5, -0.5),
+                       (0.5, -0.5), (-0.5, 0.5), (0.25, 0.25), (-0.25, -0.25), (0.25, -0.25), (-0.25, 0.25)):
+            Q = Pg + np.array([dx, dy]) * (max_shift / 0.5)
+            t, pix = _raster_tris(Q, res)
+            if len(pix) == 0:
+                continue
+            if owner is not None and np.any((owner[pix] != -1) & (owner[pix] != gid)):
+                continue
+            cu = Vector((c[0], c[1])) / res
+            off = Vector((dx, dy)) * (max_shift / 0.5) / res
+            for li in loops:
+                uv[li].uv = cu + (uv[li].uv - cu) * grow + off
+            return True
+    return False
+
+
+def uv_repair_degenerate(obj, min_area=5e-8):
+    """After decimation: triangles whose UVs collapsed to (near) zero area but whose 3D area is
+    >= min_area get UVs from the affine UV mapping of an adjacent good triangle (extended across
+    the shared edge), so they sample a patch of their own island instead of a single texel."""
+    me = obj.data
+    uv = me.uv_layers.active.data
+    s2 = obj.matrix_world.median_scale ** 2
+
+    def uv_area(p):
+        pts = [uv[li].uv for li in p.loop_indices]
+        return sum(abs((pts[k] - pts[0]).cross(pts[k + 1] - pts[0])) * 0.5 for k in range(1, len(pts) - 1))
+    bm = bmesh.new(); bm.from_mesh(me); bm.faces.ensure_lookup_table()
+    fixed = 0
+    todo = [p for p in me.polygons if len(p.vertices) == 3 and p.area * s2 >= min_area and uv_area(p) <= 1e-12]
+    for _pass in range(4):
+        if not todo:
+            break
+        left = []
+        for p in todo:
+            if not _repair_one(p, me, bm, uv, uv_area):
+                left.append(p)
+            else:
+                fixed += 1
+        if len(left) == len(todo):
+            break
+        todo = left
+    bm.free()
+    return fixed
+
+
+def _repair_one(p, me, bm, uv, uv_area):
+    """Give one degenerate-UV triangle the affine UV mapping of its largest good neighbour."""
+    f = bm.faces[p.index]
+    best = None
+    for e in f.edges:
+        for g in e.link_faces:
+            if g is f or len(g.verts) != 3:
+                continue
+            pg = me.polygons[g.index]
+            if uv_area(pg) > 1e-12 and (best is None or pg.area > best.area):
+                best = pg
+    if best is None:
+        return False
+    # affine map 3D (plane of the good triangle) -> UV
+    vs = [me.vertices[v].co for v in best.vertices]
+    us = [uv[li].uv for li in best.loop_indices]
+    e1 = vs[1] - vs[0]; e2 = vs[2] - vs[0]
+    n = e1.cross(e2)
+    if n.length < 1e-18:
+        return False
+    ax = e1.normalized(); ay = n.cross(e1).normalized()
+    M = np.array([[e1.dot(ax), e2.dot(ax)], [e1.dot(ay), e2.dot(ay)]])
+    U = np.array([[us[1].x - us[0].x, us[2].x - us[0].x], [us[1].y - us[0].y, us[2].y - us[0].y]])
+    try:
+        A = U @ np.linalg.inv(M)
+    except np.linalg.LinAlgError:
+        return False
+    for li in p.loop_indices:
+        co = me.vertices[me.loops[li].vertex_index].co - vs[0]
+        q = A @ np.array([co.dot(ax), co.dot(ay)])
+        uv[li].uv = (min(1.0, max(0.0, us[0].x + q[0])), min(1.0, max(0.0, us[0].y + q[1])))
+    return uv_area(p) > 1e-12
 
 
 def _scale_island_uv(obj, faces, f):
@@ -2003,6 +2113,17 @@ def uv_unwrap(objs, angle=60.0, island_margin=0.002, pack_margin=0.004, uv_name=
             log(f"uv: {r['overlap_px']} px shared by different islands with shape {sh}; re-packing")
             _pack(objs, pack_margin, 'CONVEX' if sh == shape else 'AABB', rotate)
             stats["shape"] = 'CONVEX' if sh == shape else 'AABB'
+        # islands that still cover no pixel centre (a thin strip lying between two pixel rows):
+        # nudge them by a fraction of a pixel (the 3+ px pack margin keeps them clear of their
+        # neighbours) until they own at least one texel
+        r = uv_island_raster(objs, tex_size)
+        nudged = 0
+        for i, (o, fs) in enumerate(r["islands"]):
+            if r["pixels"][i] > 0 or r["area_px"][i] <= 1e-6:
+                continue
+            if _nudge_island(o, fs, tex_size, r["owner"], i):
+                nudged += 1
+        stats["nudged"] = nudged
         r = uv_island_raster(objs, tex_size)
         stats.update({"coverage": round(r["coverage"], 4), "overlap_px": r["overlap_px"],
                       "islands": len(r["islands"]),
@@ -2355,7 +2476,7 @@ def bake_texture_set(set_name, objs, masks_group, tex_dir, prefix, size=2048,
 # 7. LODs
 # =============================================================================
 
-def make_lod(src, ratio, name, col=None, sharp_angle=50.0, min_faces=0):
+def make_lod(src, ratio, name, col=None, sharp_angle=50.0, min_faces=0, clean_dist=1e-6):
     """Decimated copy (collapse, triangulated) keeping UVs, materials and vertex groups;
     normals re-weighted afterwards.  Parent / armature modifier are copied."""
     me = src.data.copy()
@@ -2373,7 +2494,9 @@ def make_lod(src, ratio, name, col=None, sharp_angle=50.0, min_faces=0):
         d.use_collapse_triangulate = True
         apply_modifiers(ob)
         clear_custom_normals(ob)
-        finish_shading(ob, sharp_angle=sharp_angle, weighted=True, triangulate=True)
+        finish_shading(ob, sharp_angle=sharp_angle, weighted=True, triangulate=True, clean_dist=clean_dist)
+        if ob.data.uv_layers:
+            uv_repair_degenerate(ob)
     return ob
 
 
@@ -2873,6 +2996,8 @@ def side_by_side(paths, out_path, labels=None, bg=(40, 40, 42)):
 #   armature_nodetype='NULL'         standard; the armature object becomes the FBX root node.
 #   use_armature_deform_only=False   keep non-deforming socket bones.
 #   bake_anim=False                  no animation in the asset file.
+#   use_metadata=False               no SceneInfo block: it would embed the absolute path of the
+#                                    source .blend ("Original|ApplicationNativeFile").
 #   path_mode='RELATIVE', embed_textures=False  texture paths stay relative to the FBX; the export
 #                                    job also writes the RELATIVE path into FileName / Path (the
 #                                    stock exporter puts an absolute machine path there) and points
@@ -2889,7 +3014,7 @@ FBX_UNREAL_OPTS = dict(
     add_leaf_bones=False, primary_bone_axis='Y', secondary_bone_axis='X',
     armature_nodetype='NULL', use_armature_deform_only=False, bake_anim=False,
     path_mode='RELATIVE', embed_textures=False, use_mesh_modifiers=True, use_custom_props=False,
-    use_metadata=True, colors_type='NONE', use_mesh_edges=False, use_subsurf=False)
+    use_metadata=False, colors_type='NONE', use_mesh_edges=False, use_subsurf=False)
 
 GLB_OPTS = dict(
     export_format='GLB', export_yup=True, export_apply=False, export_texcoords=True,

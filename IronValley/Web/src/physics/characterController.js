@@ -36,10 +36,19 @@
 // roll-over perch) is still in the way, the capsule is lowered until the sphere touches that
 // edge and keeps rolling down it on the following ticks until it reaches the ground below:
 // no hovering, no airborne phase, no sideways pop.
+//
+// Horizontal velocity: src/physics/locomotion.js (turns redirect quickly instead of sliding, momentum is
+// kept in the air, no speed gain). Jump input is buffered (jumpBufferTime) and allowed shortly after
+// walking off an edge (coyoteTime), never twice in one air phase. Vault / mantle: src/physics/traversal.js
+// (validated scripted move, input locked). Gait phase and foot contacts: src/physics/stride.js.
+// Events (onEvent + addListener): 'jump', 'landed', 'footstep', 'step', 'traverse:start', 'traverse:end'.
 
 import { Box3, Line3, Vector3 } from 'three';
 import { approach, DEG2RAD } from '../util/math.js';
 import { sweepSphereTriangle } from './sweep.js';
+import { locomotionParams, updateHorizontalVelocity } from './locomotion.js';
+import { StrideTracker } from './stride.js';
+import { planTraversal, traversalParams } from './traversal.js';
 
 // Scratch objects. Each one is used by exactly one function so nested calls cannot alias.
 const _seg = new Line3();
@@ -214,10 +223,46 @@ export class CharacterController {
     this.jumpCooldownTimer = 0;
     this.airTime = 0;
 
-    this.stats = { stepUps: 0, snaps: 0, landings: 0, jumps: 0, lastLandingSpeed: 0, lastLandingTick: -1, blockedStandTicks: 0, perchDrops: 0 };
+    this.stats = {
+      stepUps: 0,
+      snaps: 0,
+      landings: 0,
+      jumps: 0,
+      lastLandingSpeed: 0,
+      lastLandingTick: -1,
+      blockedStandTicks: 0,
+      perchDrops: 0,
+      bufferedJumps: 0,
+      coyoteJumps: 0,
+      footsteps: 0,
+      stepEvents: 0,
+      traversals: 0,
+      traversalAborts: 0,
+    };
     this.tickCount = 0;
     /** optional callback(eventName, payload) */
     this.onEvent = null;
+    this._listeners = [];
+
+    // locomotion / jump buffering / coyote time
+    this.loco = locomotionParams(params);
+    this.jumpBuffer = 0;
+    this.coyoteTimer = 0;
+    this._airJumped = false;
+    this._wallMem = [new Vector3(), new Vector3(), new Vector3(), new Vector3()];
+    this._wallMemCount = 0;
+    this._push = { x: 0, z: 0 };
+    // gait phase / foot contacts (footstep events, head bob)
+    this.stride = new StrideTracker(params.stride || {});
+    // vault / mantle
+    this.traversalParams = traversalParams(params);
+    this.traversalEnabled = this.traversalParams.enabled !== false;
+    this.traversal = null;
+    this._traversalSeq = 0;
+    this._nextAirTraverseTick = 0;
+    this.lastTraversalFail = null;
+    this._trPos = new Vector3();
+    this._trPrev = new Vector3();
 
     this._tris = [];
     this._probeSkip = [];
@@ -240,12 +285,38 @@ export class CharacterController {
     return new Vector3(this.position.x, this.position.y + this.eyeHeight, this.position.z);
   }
 
+  /** Additional event listener (name, payload); returns a function that removes it. */
+  addListener(fn) {
+    this._listeners.push(fn);
+    return () => {
+      const i = this._listeners.indexOf(fn);
+      if (i >= 0) this._listeners.splice(i, 1);
+    };
+  }
+
+  /** True during a vault / mantle (input locked, weapon lowered). */
+  get traversing() {
+    return this.traversal !== null;
+  }
+
   teleport(pos) {
+    if (this.traversal) {
+      // a teleport (respawn, script) ends a traversal without moving along it
+      const tr = this.traversal;
+      this.traversal = null;
+      if (this.height < this.crouchHeight) this.height = this.crouched ? this.crouchHeight : this.standHeight;
+      this._emit('traverse:end', { id: tr.id, type: tr.plan.type, aborted: true, reason: 'teleport', tick: this.tickCount });
+    }
     this.position.copy(pos);
     this.velocity.set(0, 0, 0);
     this.stepOffset = 0;
     this.grounded = false;
     this.airTime = 0;
+    this.jumpBuffer = 0;
+    this.coyoteTimer = 0;
+    this._airJumped = false;
+    this._wallMemCount = 0;
+    this.stride.reset();
     this._activePerchMinY = this.perchMinY;
     const f = resetFlags(this._probeFlags);
     this._gather(this.position, this.height, 0.3);
@@ -623,9 +694,17 @@ export class CharacterController {
   update(dt, cmd) {
     const P = this.params;
     this.tickCount++;
+    // vault / mantle in progress: scripted kinematic move, input locked
+    if (this.traversal) {
+      this._stepTraversal(dt);
+      return;
+    }
     const wasGrounded = this.grounded;
     const pos = this.position;
     const vel = this.velocity;
+    const gy0 = this.groundPointY;
+    const px0 = pos.x;
+    const pz0 = pos.z;
 
     // --- stance (stand up only with headroom) ---
     if (cmd.crouch && !this.crouched) {
@@ -672,36 +751,38 @@ export class CharacterController {
     this.sprinting = sprint && wishLen > 0.1;
     this.speedTarget = speed * wishLen;
 
-    // --- horizontal acceleration ---
-    const tx = wish.x * speed;
-    const tz = wish.z * speed;
-    let dvx = tx - vel.x;
-    let dvz = tz - vel.z;
-    const dvLen = Math.hypot(dvx, dvz);
-    let rate;
-    if (this.grounded) {
-      rate = Math.hypot(tx, tz) > Math.hypot(vel.x, vel.z) + 1e-6 ? P.acceleration : P.deceleration;
+    // --- horizontal velocity (src/physics/locomotion.js) ---
+    const push = this._push;
+    if (wishLen > 1e-3) {
+      updateHorizontalVelocity(vel, wish.x / wishLen, wish.z / wishLen, speed * wishLen, this.grounded, this.loco, dt, this._wallMem, this._wallMemCount, push);
     } else {
-      rate = P.airAcceleration;
+      updateHorizontalVelocity(vel, 0, 0, 0, this.grounded, this.loco, dt, null, 0, push);
     }
-    const maxDelta = rate * dt;
-    if (dvLen > maxDelta) {
-      dvx *= maxDelta / dvLen;
-      dvz *= maxDelta / dvLen;
-    }
-    vel.x += dvx;
-    vel.z += dvz;
 
-    // --- jump ---
+    // --- jump / vault (buffered press, coyote time after walking off an edge) ---
     let jumped = false;
     this.jumpCooldownTimer = Math.max(0, this.jumpCooldownTimer - dt);
-    if (cmd.jump && this.grounded && !this.crouched && this.jumpCooldownTimer <= 0) {
+    this.jumpBuffer = Math.max(0, this.jumpBuffer - dt);
+    if (cmd.jump) this.jumpBuffer = P.jumpBufferTime ?? 0.15;
+    if (this.traversalEnabled && iz >= 0 && this._traversalWanted(cmd, iz)) {
+      if (this._tryStartTraversal(yaw, !(this.jumpBuffer > 0))) {
+        this._stepTraversal(dt);
+        return;
+      }
+    }
+    const canJumpNow = this.grounded || (this.coyoteTimer > 0 && !this._airJumped);
+    if (this.jumpBuffer > 0 && canJumpNow && !this.crouched && this.jumpCooldownTimer <= 0) {
       const test = this._jumpTest.copy(pos);
       test.y += 0.05;
       if (!this.overlaps(test, this.height, 0.01)) {
         vel.y = this.jumpSpeed;
+        if (!this.grounded) this.stats.coyoteJumps++;
+        if (!cmd.jump) this.stats.bufferedJumps++;
         this.grounded = false;
         jumped = true;
+        this.jumpBuffer = 0;
+        this.coyoteTimer = 0;
+        this._airJumped = true;
         this.jumpCooldownTimer = P.jumpCooldown;
         this.stats.jumps++;
         this._emit('jump', { tick: this.tickCount });
@@ -713,6 +794,13 @@ export class CharacterController {
     if (this.grounded) {
       vel.y = 0;
       disp.set(vel.x * dt, 0, vel.z * dt);
+      // keep pressing against walls the wish goes into (contact -> step attempts, see locomotion.js)
+      const pl = Math.hypot(push.x, push.z);
+      if (pl > 1e-6) {
+        const k = Math.min(pl, P.wallPushSpeed ?? 0.5) / pl;
+        disp.x += push.x * k * dt;
+        disp.z += push.z * k * dt;
+      }
       const n = this.groundNormal;
       if (n.y > 0.1) disp.y = -(disp.x * n.x + disp.z * n.z) / n.y;
     } else {
@@ -780,6 +868,7 @@ export class CharacterController {
       this.stats.perchDrops++;
     }
 
+    const hSpeed = Math.hypot(vel.x, vel.z);
     if (this.grounded) {
       if (!wasGrounded) {
         const impact = -Math.min(vyBefore, 0);
@@ -787,14 +876,19 @@ export class CharacterController {
         this.stats.lastLandingSpeed = impact;
         this.stats.lastLandingTick = this.tickCount;
         this._emit('landed', { speed: impact, airTime: this.airTime, tick: this.tickCount });
+        this._footstep(this.stride.land(hSpeed), impact);
       }
       vel.y = 0;
       this.airTime = 0;
+      this.coyoteTimer = P.coyoteTime ?? 0.12;
+      this._airJumped = false;
     } else {
       this.airTime += dt;
+      this.coyoteTimer = Math.max(0, this.coyoteTimer - dt);
     }
     if (flags.ceiling && vel.y > 0) vel.y = 0;
     // remove velocity pointing into walls we touched (prevents speed build-up against walls)
+    this._wallMemCount = 0;
     for (let i = 0; i < flags.wallCount; i++) {
       const h = flags.wallNormals[i];
       const d = vel.x * h.x + vel.z * h.z;
@@ -802,6 +896,23 @@ export class CharacterController {
         vel.x -= h.x * d;
         vel.z -= h.z * d;
       }
+      if (this._wallMemCount < this._wallMem.length) this._wallMem[this._wallMemCount++].copy(h);
+    }
+
+    // --- gait: foot contacts, stair steps (camera / audio / AI hearing) ---
+    if (this.grounded && wasGrounded) {
+      const contact = this.stride.update(dt, true, Math.hypot(vel.x, vel.z), this.crouched);
+      if (contact) this._footstep(contact, 0);
+      // a stair riser: the support height jumps faster than any walkable slope could raise it
+      const dy = this.groundPointY - gy0;
+      const hMove = Math.hypot(pos.x - px0, pos.z - pz0);
+      const slopeRise = hMove * Math.tan(P.maxSlopeDeg * DEG2RAD) * 1.2;
+      if (Math.abs(dy) > Math.max(P.stepEventMinRise ?? 0.05, slopeRise)) {
+        this.stats.stepEvents++;
+        this._emit('step', { dy, tick: this.tickCount });
+      }
+    } else if (!this.grounded) {
+      this.stride.update(dt, false, 0, this.crouched);
     }
 
     // decay visual step smoothing
@@ -809,8 +920,183 @@ export class CharacterController {
     if (Math.abs(this.stepOffset) < 1e-4) this.stepOffset = 0;
   }
 
+  // ---------------------------------------------------------------- foot contacts
+
+  _footstep(contact, impact) {
+    if (!contact) return;
+    this.stats.footsteps++;
+    const s = contact.speed;
+    let loudness;
+    if (contact.kind === 'land') loudness = Math.min(1, 0.35 + impact / 8);
+    else loudness = this.crouched ? 0.15 : this.sprinting ? 1.0 : s < 2 ? 0.25 : 0.55;
+    this._emit('footstep', {
+      foot: contact.foot,
+      kind: contact.kind,
+      speed: s,
+      loudness,
+      crouched: this.crouched,
+      position: { x: this.position.x, y: this.position.y, z: this.position.z },
+      tick: this.tickCount,
+    });
+  }
+
+  // ---------------------------------------------------------------- vault / mantle
+
+  /** Should a traversal be attempted this tick? (jump pressed / buffered, or jumped into a wall holding forward) */
+  _traversalWanted(cmd, iz) {
+    const TP = this.traversalParams;
+    if (this.grounded || (this.coyoteTimer > 0 && !this._airJumped)) return this.jumpBuffer > 0;
+    // airborne: only early in the air phase, not falling fast, throttled
+    if (this.airTime > 1.2 || this.velocity.y < -TP.airMaxFallSpeed) return false;
+    if (this.tickCount < this._nextAirTraverseTick) return false;
+    if (this.jumpBuffer > 0) return true;
+    // jumped at an obstacle holding forward: grab it on contact (no second press needed)
+    if (!this._airJumped || iz < 0.5) return false;
+    const fx = -Math.sin(cmd.yaw || 0);
+    const fz = -Math.cos(cmd.yaw || 0);
+    for (let i = 0; i < this._wallMemCount; i++) {
+      const n = this._wallMem[i];
+      if (n.x * fx + n.z * fz < -0.7) return true;
+    }
+    return false;
+  }
+
+  _tryStartTraversal(yaw, auto) {
+    const dx = -Math.sin(yaw);
+    const dz = -Math.cos(yaw);
+    const v = this.velocity;
+    const airborne = !this.grounded;
+    const baseY = airborne ? Math.min(this.groundPointY, this.position.y) : this.groundPointY;
+    const res = planTraversal(this, {
+      dirX: dx,
+      dirZ: dz,
+      speed: Math.max(0, v.x * dx + v.z * dz),
+      baseY,
+      airborne,
+      nudge: !auto,
+      params: this.traversalParams,
+    });
+    if (airborne) this._nextAirTraverseTick = this.tickCount + 3;
+    if (!res.ok) {
+      this.lastTraversalFail = { reason: res.reason, tick: this.tickCount, detail: res.detail || null };
+      return false;
+    }
+    this._startTraversal(res.plan);
+    return true;
+  }
+
+  _startTraversal(plan) {
+    const tr = { plan, t: 0, id: ++this._traversalSeq, startCrouched: this.crouched };
+    this.traversal = tr;
+    this.height = plan.tuckHeight;
+    this.grounded = false;
+    this.sprinting = false;
+    this.speedTarget = 0;
+    this.jumpBuffer = 0;
+    this.coyoteTimer = 0;
+    this._airJumped = true;
+    this._wallMemCount = 0;
+    this.stats.traversals++;
+    this.lastTraversalFail = null;
+    this._emit('traverse:start', {
+      id: tr.id,
+      type: plan.type,
+      ledgePoint: { ...plan.ledgePoint },
+      ledgeNormal: { ...plan.ledgeNormal },
+      obstacleHeight: plan.obstacleHeight,
+      thickness: plan.thickness,
+      duration: plan.duration,
+      endStance: plan.endStance,
+      tick: this.tickCount,
+    });
+  }
+
+  _stepTraversal(dt) {
+    const tr = this.traversal;
+    const plan = tr.plan;
+    const TP = this.traversalParams;
+    const tPrev = tr.t;
+    tr.t = Math.min(1, tr.t + dt / plan.duration);
+    const p = plan.positionAt(tr.t, this._trPos);
+    // re-validated every tick: never move into geometry (static world: only fails if it changed)
+    if (this.overlaps(p, plan.tuckHeight, TP.tickShrink)) {
+      this._abortTraversal(tPrev);
+      return;
+    }
+    const prev = this._trPrev.copy(this.position);
+    this.position.copy(p);
+    this.velocity.set((p.x - prev.x) / dt, (p.y - prev.y) / dt, (p.z - prev.z) / dt);
+    this.eyeHeight = plan.eyeHeightAt(tr.t);
+    this.grounded = false;
+    this.airTime = 0;
+    this.stepOffset *= Math.exp(-14 * dt);
+    if (Math.abs(this.stepOffset) < 1e-4) this.stepOffset = 0;
+    if (tr.t >= 1) this._finishTraversal(false);
+  }
+
+  _abortTraversal(tPrev) {
+    const tr = this.traversal;
+    const plan = tr.plan;
+    this.stats.traversalAborts++;
+    // back along the (validated) path to a point that holds the crouched capsule
+    const p = this._trPos;
+    for (let t = tPrev; t >= 0; t -= 0.05) {
+      plan.positionAt(Math.max(0, t), p);
+      if (!this.overlaps(p, this.crouchHeight, 0.001)) {
+        this.position.copy(p);
+        break;
+      }
+      if (t - 0.05 < 0 && t > 0) {
+        plan.positionAt(0, p);
+        this.position.copy(p);
+      }
+    }
+    this._finishTraversal(true);
+  }
+
+  _finishTraversal(aborted) {
+    const tr = this.traversal;
+    const plan = tr.plan;
+    this.traversal = null;
+    const pos = this.position;
+    if (!aborted && plan.endStance === 'stand' && !this.overlaps(pos, this.standHeight, 0.01)) {
+      this.crouched = false;
+      this.height = this.standHeight;
+    } else {
+      this.crouched = true;
+      this.height = this.crouchHeight;
+    }
+    const v = aborted ? 0 : plan.exitSpeed;
+    this.velocity.set(plan.mx * v, 0, plan.mz * v);
+    // settle: ground under the end point?
+    const f = resetFlags(this._probeFlags);
+    this._gather(pos, this.height, 0.3);
+    this._resolve(pos, this.height, f);
+    this.grounded = false;
+    if (f.ground || this._probeDown(pos, this.height, 0.12, f)) {
+      this.grounded = true;
+      this.groundNormal.copy(f.groundNormal);
+      if (!this._supported(pos, this.groundNormal)) this.grounded = false;
+    }
+    if (this.grounded && Number.isFinite(f.groundPointY)) this.groundPointY = f.groundPointY;
+    this.airTime = 0;
+    this.coyoteTimer = 0;
+    this._airJumped = !this.grounded;
+    this._wallMemCount = 0;
+    this._emit('traverse:end', {
+      id: tr.id,
+      type: plan.type,
+      aborted,
+      grounded: this.grounded,
+      position: { x: pos.x, y: pos.y, z: pos.z },
+      tick: this.tickCount,
+    });
+    if (this.grounded) this._footstep(this.stride.land(Math.hypot(this.velocity.x, this.velocity.z)), plan.type === 'vault' ? 2.0 : 0.5);
+  }
+
   _emit(name, payload) {
     if (this.onEvent) this.onEvent(name, payload);
+    for (let i = 0; i < this._listeners.length; i++) this._listeners[i](name, payload);
   }
 
   getState() {
@@ -824,6 +1110,10 @@ export class CharacterController {
       height: this.height,
       eyeHeight: this.eyeHeight,
       sprinting: this.sprinting,
+      traversing: this.traversal !== null,
+      traversal: this.traversal ? { id: this.traversal.id, type: this.traversal.plan.type, t: this.traversal.t, duration: this.traversal.plan.duration } : null,
+      lastTraversalFail: this.lastTraversalFail ? { ...this.lastTraversalFail } : null,
+      stridePhase: this.stride.phase,
       stats: { ...this.stats },
     };
   }

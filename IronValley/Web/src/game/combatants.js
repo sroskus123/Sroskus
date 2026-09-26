@@ -76,19 +76,69 @@ export class CombatantManager {
    * Bodies that the core spawned earlier in the same update are taken at their spawn points.
    */
   spawnPredicate(q) {
-    const res = this.evaluateSpawnPoint(q.point, q.team, q.participantId);
-    if (!res.safe) this.predicateLog = { ...res, participantId: q.participantId, candidateIndex: q.candidateIndex };
+    const policy = this.spawnPolicyFor(this.byId.get(q.participantId));
+    const res = this.evaluateSpawnPoint(q.point, q.team, q.participantId, policy);
+    if (res.safe && policy.fallback) {
+      // fallback: only the (near-)safest point of the team is accepted (farthest from the nearest enemy)
+      const best = this._bestFallbackDistance(q.team, q.participantId, policy);
+      if (res.nearestEnemy < best - policy.bestMargin) {
+        res.safe = false;
+        res.reasons.push('not_safest');
+      }
+    }
+    if (!res.safe) this.predicateLog = { ...res, participantId: q.participantId, candidateIndex: q.candidateIndex, policy: policy.name };
     return res.safe;
   }
 
-  /** Full evaluation of a spawn point (also used for the spawn history and tests). */
-  evaluateSpawnPoint(point, team, participantId = null) {
+  /**
+   * Spawn policy of a waiting combatant. 'strict': enemies >= max(rules.respawn.minEnemyDistance,
+   * combat.spawn.minEnemyDistance). After combat.spawn.fallback.afterS of waiting (failed core attempts in
+   * this wait x respawn.retryInterval, so it does not depend on the tick length) 'fallback': enemies >=
+   * fallback.minEnemyDistance and the safest point of the team. Geometry, body clearance and "no living
+   * enemy sees the point" are never relaxed. Without a fallback block the rule stays strict (wait forever).
+   */
+  spawnPolicyFor(c) {
+    const ctx = this.ctx;
+    const cfg = ctx.combat.spawn;
+    const strict = Math.max(ctx.rules.respawn.minEnemyDistance, cfg.minEnemyDistance);
+    const fb = cfg.fallback;
+    const part = c ? c.participant : null;
+    const failed = part ? part.failedSpawnAttempts - (c.failedSpawnAttemptsBase || 0) : 0;
+    const waitedS = (failed * ctx.rules.respawn.retryIntervalUs) / 1e6;
+    if (fb && waitedS + 1e-9 >= fb.afterS) return { name: 'fallback', fallback: true, minEnemy: Math.min(strict, fb.minEnemyDistance), bestMargin: fb.bestMarginM ?? 0.5, waitedS };
+    return { name: 'strict', fallback: false, minEnemy: strict, bestMargin: 0, waitedS };
+  }
+
+  /** Largest nearest-enemy distance among the team's points that pass the fallback checks (cached per update). */
+  _bestFallbackDistance(team, participantId, policy) {
+    // bodies the core spawned earlier in this update but the engine has not placed yet change the answer
+    let pending = 0;
+    for (const c of this.list) {
+      const p = c.participant;
+      if (p && p.state === 'alive' && p.spawnCount !== c.spawnCountSeen) pending++;
+    }
+    const key = `${this.ctx.tick()}|${team}|${participantId}|${pending}`;
+    if (this._bestCache && this._bestCache.key === key) return this._bestCache.best;
+    let best = -Infinity;
+    for (const s of this.spawns[team]) {
+      const r = this.evaluateSpawnPoint(s.pos, team, participantId, policy);
+      if (r.safe && r.nearestEnemy > best) best = r.nearestEnemy;
+    }
+    this._bestCache = { key, best };
+    return best;
+  }
+
+  /**
+   * Full evaluation of a spawn point (also used for the spawn history and tests).
+   * @param {object} [policy] from spawnPolicyFor (default: strict)
+   */
+  evaluateSpawnPoint(point, team, participantId = null, policy = null) {
     const ctx = this.ctx;
     const cfg = ctx.combat.spawn;
     const rr = ctx.rules.respawn;
-    const minEnemy = Math.max(rr.minEnemyDistance, cfg.minEnemyDistance);
+    const minEnemy = policy ? policy.minEnemy : Math.max(rr.minEnemyDistance, cfg.minEnemyDistance);
     const clearance = Math.max(rr.bodyClearance, cfg.bodyClearance);
-    const out = { safe: true, reasons: [], nearestEnemy: Infinity, nearestBody: Infinity, visibleTo: null };
+    const out = { safe: true, reasons: [], nearestEnemy: Infinity, nearestBody: Infinity, visibleTo: null, minEnemyDistance: minEnemy };
     _p.set(point[0], point[1], point[2]);
 
     // geometry: capsule fits and ground is below
@@ -182,7 +232,11 @@ export class CombatantManager {
     const ctx = this.ctx;
     const part = c.participant;
     const s = this.spawns[c.team][pointIndex];
-    const check = this.evaluateSpawnPoint(s.pos, c.team, c.id); // record what the spot looked like
+    // record what the spot looked like, under the policy that accepted it (failed attempts not reset yet)
+    const policy = this.spawnPolicyFor(c);
+    const check = this.evaluateSpawnPoint(s.pos, c.team, c.id, policy);
+    const strictCheck = policy.fallback ? this.evaluateSpawnPoint(s.pos, c.team, c.id) : check;
+    c.failedSpawnAttemptsBase = part.failedSpawnAttempts;
     c.spawnCountSeen = part.spawnCount;
     c.spawnPointIndex = pointIndex;
     c.spawnAt(new Vector3(s.pos[0], s.pos[1], s.pos[2]), s.yaw ?? 0);
@@ -199,6 +253,10 @@ export class CombatantManager {
       visibleToEnemy: check.visibleTo,
       insideGeometry: check.reasons.includes('inside_geometry'),
       safeAtSpawn: check.safe,
+      policy: policy.name,
+      waitedS: policy.waitedS,
+      minEnemyDistance: policy.minEnemy,
+      strictSafe: strictCheck.safe,
     };
     this.spawnHistory.push(rec);
     if (this.spawnHistory.length > 2000) this.spawnHistory.shift();
@@ -210,6 +268,7 @@ export class CombatantManager {
     const attackerId = info ? info.attackerId : null;
     const fromDir = info ? info.fromDir : null;
     c.deathsSeen = c.participant.deaths;
+    c.failedSpawnAttemptsBase = c.participant.failedSpawnAttempts; // the wait for the next spawn starts now
     c.beginDeath({ fromDir, attackerId });
     const attacker = attackerId ? this.byId.get(attackerId) : null;
     if (attacker && attacker !== c && attacker.team !== c.team) attacker.kills++;
@@ -244,6 +303,7 @@ export class CombatantManager {
       c.spawnCountSeen = 0;
       c.deathsSeen = 0;
       c.spawnPointIndex = -1;
+      c.failedSpawnAttemptsBase = 0; // the core reset its counters
       c.lastAttackerId = null;
       c.controller.position.set(0, -1000 - c.index * 5, 0);
       c.controller.velocity.set(0, 0, 0);

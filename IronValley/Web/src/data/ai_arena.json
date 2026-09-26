@@ -131,11 +131,11 @@
   {
    "type": "box",
    "id": "yard_barricade",
-   "min": [-1, 0, -24.6],
-   "max": [1, 2, -23.4],
+   "min": [-1, 0, -24.15],
+   "max": [1, 2, -23.85],
    "mat": "hazard",
    "nav": false,
-   "_comment": "kolizni, ale zamerne vynechany z navmeshe (test zablokovane cesty)"
+   "_comment": "kolizni, ale zamerne vynechany z navmeshe (test zablokovane cesty). Zarovnany s licem zdi (z -24.15..-23.85): nesmi vycnivat do pasu podel zdi, ktery navmesh povazuje za pruchozi - jinak boti v zapase uviznou v rohu mezi zatarasem a zdi (integrace, namereno az 18 s)."
   },
   { "type": "box", "id": "sp_a_back", "min": [-5.8, 0, 31.5], "max": [5.8, 2.6, 31.8], "mat": "wall", "spawnShelter": true },
   { "type": "box", "id": "sp_a_w", "min": [-5.8, 0, 24.5], "max": [-5.5, 2.6, 31.8], "mat": "wall", "spawnShelter": true },

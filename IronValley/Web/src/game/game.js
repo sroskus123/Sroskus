@@ -3,7 +3,7 @@
 // third-person placeholder soldiers, HUD, menus and audio, on the fixed-step loop. Systems talk
 // through the event bus. The round logic itself lives in MatchSession (DOM-free).
 
-import { PerspectiveCamera, Scene, Vector3, Box3, Object3D } from 'three';
+import { PerspectiveCamera, Quaternion, Scene, Vector3, Box3, Object3D } from 'three';
 import defaultBindings from '../data/input_bindings.json' with { type: 'json' };
 import movement from '../data/movement.json' with { type: 'json' };
 import weaponsData from '../data/weapons.json' with { type: 'json' };
@@ -57,6 +57,8 @@ function safeStorage() {
 
 const smooth = (t) => t * t * (3 - 2 * t);
 const _v = new Vector3();
+const _qRecoilRoll = new Quaternion();
+const RECOIL_PITCH_LIMIT = 88 * DEG2RAD; // same as Player
 const _fwd = new Vector3();
 const _up = new Vector3();
 
@@ -139,7 +141,7 @@ export class Game {
       sunIntensity: envCfg.sun.intensity,
     };
     this.viewModels = [new ViewModel({ def: weaponsData.iv7_carbine, ...vmOpts }), new ViewModel({ def: weaponsData.ivp9_pistol, ...vmOpts, createPlaceholder: createPlaceholderPistol })];
-    this.effects = new ImpactEffects(this.scene, { rng: Math.random });
+    this.effects = new ImpactEffects(this.scene, { rng: Math.random, camera: this.camera, world: () => this.world, events, lookupCombatant: (id) => (this.session ? this.session.combatants.get(id) : null) });
     this.combatantViews = new CombatantViews(this.scene, teamsData);
     this.zoneView = new ZoneView(this.scene, teamsData);
 
@@ -480,11 +482,12 @@ export class Game {
     ev.on('input:toggleFps', () => this.settings.set('showFps', !this.settings.get('showFps')));
     ev.on('weapon:fired', (p) => {
       if (isPlayer(p.shooterId)) {
-        this.viewModel.onShot();
-        this.effects.onShot(p.muzzle);
+        this.viewModel.onShot(p);
+        this.effects.onShot(p.muzzle, p, this.viewModel);
         this.audio.shot(null, p.weaponId === 'iv7_carbine');
       } else {
         this.combatantViews.onShot(p.shooterId, p.muzzle);
+        this.effects.onShot(p.muzzle, p, null);
         this.audio.shot(p.muzzle, p.weaponId === 'iv7_carbine');
       }
     });
@@ -604,6 +607,14 @@ export class Game {
     // trigger state (core contract), so a trigger held through death does not fire after the respawn
     const cmd = this.player.buildCommand();
     s.tick(dt, { playerCmd: cmd });
+    // partial recoil recovery (weapons/recoil.js): what the automatic return leaves goes into the look
+    for (const w of pc.weapons) {
+      const rt = w.recoil.takeLookTransfer();
+      if (rt.pitch || rt.yaw) {
+        this.player.yaw += rt.yaw;
+        this.player.pitch = Math.max(-RECOIL_PITCH_LIMIT, Math.min(RECOIL_PITCH_LIMIT, this.player.pitch + rt.pitch));
+      }
+    }
     this.player.endTick(dt);
     this.combatantViews.tick(dt);
     this.dummyView.tick(dt);
@@ -645,6 +656,10 @@ export class Game {
     let camYaw = this.player.yaw + rec.yaw;
     let camPitch = this.player.pitch + rec.pitch;
     const q = lookQuaternion(camYaw, camPitch, this.camera.quaternion);
+    // visual camera roll from recoil: about the view axis, so the crosshair keeps pointing at the aim
+    if (rec.roll) q.multiply(_qRecoilRoll.setFromAxisAngle(_v.set(0, 0, 1), rec.roll * this.settings.get('cameraMotion')));
+    // camera feel (strafe roll, traversal arc, landing / stair nod; visual only, src/player/cameraEffects.js)
+    if (alive) this.player.applyCameraEffects(q, alpha);
     if (!alive && this.deathCam) {
       // short death view: the camera sinks to the ground and tilts
       const dc = this.deathCam;
@@ -695,7 +710,7 @@ export class Game {
       lookDX,
       lookDY,
       reload: ws.state === 'reloading' || ws.state === 'chambering' ? ws.reloadProgress : 0,
-      lower: sw,
+      lower: Math.max(sw, this.player.getWeaponLower(alpha)), // weapon switch or vault / mantle
       motion: this.settings.get('cameraMotion'),
       sunVisibility: this._sunVis,
     });

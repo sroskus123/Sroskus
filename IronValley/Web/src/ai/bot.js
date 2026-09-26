@@ -91,6 +91,8 @@ export class Bot {
     this.burstLeft = 0;
     this.pauseUntil = 0;
     this.lastShotsFired = this._weapon() ? this._weapon().state.shotsFired : 0;
+    this.lastShotsWeapon = this._weapon();
+    this.semiRelease = false;
     this.reloadPulse = false;
     this.strafeDir = 1;
     this.strafeUntil = 0;
@@ -553,6 +555,7 @@ export class Bot {
     cmd.sprint = !!(s.run && this.move.wantMove && this.move.remainingLength() > this.sys.cfg.movement.sprintMinDistance);
     if (this.move.arrived && s.arrivedAt < 0) s.arrivedAt = t;
     this.lastShotsFired = this._weapon() ? this._weapon().state.shotsFired : this.lastShotsFired;
+    this.lastShotsWeapon = this._weapon();
     return cmd;
   }
 
@@ -598,6 +601,21 @@ export class Bot {
     const cmd = this.cmd;
     this.fireBlockedReason = null;
     if (!wi) return;
+    // out of ammo (magazine, chamber and reserve empty): draw the other weapon if it has any (same
+    // switchTo command as the player; the core 'switch' lock keeps it from firing while drawing)
+    if (wi.rounds === 0 && wi.reserve === 0 && this.c.switchTimer <= 0) {
+      const other = this.c.weapons ? this.c.weapons.findIndex((w, i) => i !== this.c.activeWeapon && w.state.magazine + w.state.chamber + w.state.reserve > 0) : -1;
+      if (other >= 0) {
+        cmd.switchTo = other;
+        this.burstLeft = 0;
+        this.fireBlockedReason = 'switching';
+        this.metrics.switches = (this.metrics.switches || 0) + 1;
+        return;
+      }
+      this.fireBlockedReason = 'no_ammo';
+      this.burstLeft = 0;
+      return;
+    }
     const reloading = wi.state !== 'ready';
     // reload decision
     if (!reloading && wi.enabled) {
@@ -694,7 +712,14 @@ export class Bot {
       this.burstBand = band;
       this.metrics.bursts++;
     }
-    // hold the trigger; afterApply() counts the rounds that left and ends the burst (release + pause)
+    // hold the trigger; afterApply() counts the rounds that left and ends the burst (release + pause).
+    // A semi-automatic weapon fires once per press: release for one tick after each round (the core queues
+    // the next press until the fire interval has passed).
+    if (this.semiRelease) {
+      this.semiRelease = false;
+      this.fireBlockedReason = 'semi_release';
+      return;
+    }
     cmd.fire = true;
   }
 
@@ -761,9 +786,16 @@ export class Bot {
     const w = this._weapon();
     if (!w) return;
     const sf = w.state.shotsFired;
+    if (w !== this.lastShotsWeapon) {
+      // weapon switched: its counter is separate (engine counter per weapon)
+      this.lastShotsWeapon = w;
+      this.lastShotsFired = sf;
+      this.burstLeft = 0;
+    }
     const newShots = sf - this.lastShotsFired;
     if (newShots > 0) {
       this.lastShotsFired = sf;
+      if (w.state.core && w.state.core.fireMode === 'semi') this.semiRelease = true;
       this.metrics.shots += newShots;
       const before = this.burstLeft;
       this.burstLeft = Math.max(0, this.burstLeft - newShots);

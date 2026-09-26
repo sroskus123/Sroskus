@@ -192,12 +192,19 @@ test('view model recoil stays bounded and frame-rate independent through the rea
     return out;
   });
   console.log(`# view model after one shot: ${JSON.stringify(Object.fromEntries(Object.entries(r).map(([k, v]) => [k, { kick: +v.maxKick.toFixed(4), rot: +v.maxRot.toFixed(4), dev: +v.maxDev.toFixed(4) }])))}`);
+  // bounds from the weapon data (feel.viewModel: peak of one hip shot); the kick must also be VISIBLE
+  // (playtest: "no recoil" - the old kick was 0.6 mm / 0.17 deg): >= 60 % of the peak at 60 / 144 FPS
+  const feel = await g.page.evaluate(() => window.__IV.getConfig().weapon.feel.viewModel);
+  const peakBack = feel.back.peak;
+  const peakRot = (feel.pitch.peakDeg * Math.PI) / 180;
   for (const [fps, v] of Object.entries(r)) {
     assert.equal(v.finite, true, `${fps} FPS: non-finite pose`);
     assert.equal(v.extraShots, 0);
-    assert.ok(v.maxKick < 0.02, `${fps} FPS: kick ${v.maxKick}`);
-    assert.ok(v.maxRot < 0.06, `${fps} FPS: kickRot ${v.maxRot}`);
-    assert.ok(v.maxDev < 0.01, `${fps} FPS: weapon moved ${v.maxDev} m from the hip pose`);
+    assert.ok(v.maxKick <= peakBack * 1.05, `${fps} FPS: kick ${v.maxKick}`);
+    assert.ok(v.maxRot <= peakRot * 1.05, `${fps} FPS: kickRot ${v.maxRot}`);
+    if (Number(fps) >= 60) assert.ok(v.maxKick >= 0.6 * peakBack && v.maxRot >= 0.6 * peakRot, `${fps} FPS: kick too small to see (${v.maxKick} m, ${v.maxRot} rad)`);
+    // back + rise + rotation about the shoulder pivot: a few cm, never off screen (the old divergence flew away)
+    assert.ok(v.maxDev < 0.06, `${fps} FPS: weapon moved ${v.maxDev} m from the hip pose`);
     for (const t of ['0.5', '1']) {
       assert.ok(Math.abs(v.at[t].kick - r[144].at[t].kick) < 1e-9 && Math.abs(v.at[t].kickRot - r[144].at[t].kickRot) < 1e-9, `${fps} FPS differs from 144 FPS at ${t} s`);
     }

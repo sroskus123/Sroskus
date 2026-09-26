@@ -111,9 +111,12 @@ test('walks back down the stairs grounded (ground snapping)', () => {
 });
 
 test('cannot pass the 1.0 m wall (walking, sprinting, jumping)', () => {
+  // Pure step / jump physics: the wall is never a step and a jump never mounts it. Crossing it on purpose
+  // is the scripted vault (jump key at the wall), tested in physics_traversal.test.mjs, so it is off here.
   const m = M.wall1m_start;
   for (const extra of [{}, { sprint: true }, { sprint: true, jump: true }]) {
     const c = spawn(m);
+    c.traversalEnabled = false;
     run(c, 240, cmdOf({ moveZ: 1, ...extra }));
     assert.ok(c.position.z > m.wallFrontZ, `${JSON.stringify(extra)} z=${c.position.z}`);
     assert.ok(c.position.y < 0.5 || !c.grounded, `stood on wall y=${c.position.y}`);
@@ -410,12 +413,15 @@ test('edge perch: cannot stand further past a 1.0 m drop than standPerchRadius',
 });
 
 test('a running jump (0.45 m apex) mounts a 0.42 m ledge but never a 0.50 m or higher one', () => {
+  // jump physics only (no scripted mantle, which starts at traversal.minHeight = 0.5 m; see
+  // physics_traversal.test.mjs)
   const mounts = (h) => {
     const w = mkCustomWorld([{ type: 'box', id: 'ledge', min: [-3, 0, -12], max: [3, h, -10], mat: 'block' }]);
     let n = 0;
     for (const mode of [{}, { sprint: true }]) {
       for (let jumpAt = 0; jumpAt <= 3.0; jumpAt += 0.05) {
         const c = new CharacterController(w, movement);
+        c.traversalEnabled = false;
         c.teleport(new Vector3(0, 0, 0));
         const cmd = cmdOf({ moveZ: 1, ...mode });
         let k = 0;

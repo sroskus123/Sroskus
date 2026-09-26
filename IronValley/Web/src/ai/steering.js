@@ -97,10 +97,36 @@ export class PathFollower {
       this.stats.pathFailures++;
       return false;
     }
+    // a partial path that ends where the bot already stands leads nowhere (e.g. every way on is blocked):
+    // report the move as failed so the decision layer chooses another goal instead of pushing in place
+    const end = r.points.length ? r.points[r.points.length - 1] : null;
+    if (r.partial && (!end || Math.hypot(end.x - bot.c.position.x, end.z - bot.c.position.z) < 1.5)) {
+      this.path = [];
+      this.index = 0;
+      this.pathFailed = true;
+      this.stats.pathFailures++;
+      this.stats.partialToSelf = (this.stats.partialToSelf || 0) + 1;
+      if (bot.onMoveFailed && !this._inMoveFailed) {
+        this._inMoveFailed = true;
+        try {
+          bot.onMoveFailed('no_route');
+        } finally {
+          this._inMoveFailed = false;
+        }
+      }
+      return false;
+    }
+    // stuck detection measures progress as the drop of the remaining path length: a new path (detour,
+    // periodic refresh) changes that length without any movement, so the samples are rebased on it
+    const before = this.samples.length ? this.remainingLength() : 0;
     this.path = r.points;
     this.index = 0;
     this.pathFailed = false;
     this.partial = r.partial;
+    if (this.samples.length) {
+      const delta = this.remainingLength() - before;
+      for (const sm of this.samples) sm.rem += delta;
+    }
     return true;
   }
 
@@ -152,8 +178,10 @@ export class PathFollower {
         this._sample(t, pos, false);
         return this.desired;
       }
-    } else if (t - this.pathTime > M.repathInterval && !this.partial) {
-      // periodic refresh keeps paths valid when blocks expire / appear
+    } else if (t - this.pathTime > M.repathInterval && !this.partial && !this._halted(t, pos)) {
+      // periodic refresh keeps paths valid when blocks expire / appear (not while the bot is pressed in place:
+      // then the stuck detector decides and repaths itself; a refreshed path with a slightly different corner
+      // would only make the bot shuffle sideways and delay the detection)
       this.repath();
       if (!this.hasPath) return this.desired;
     }
@@ -244,13 +272,29 @@ export class PathFollower {
     return _sep;
   }
 
+  /** Wanted to move for the last 0.6 s but moved less than 0.1 m. */
+  _halted(t, pos) {
+    const s = this.samples;
+    if (!s.length || t - s[0].t < 0.6) return false;
+    let ref = null;
+    for (let i = s.length - 1; i >= 0; i--) {
+      if (t - s[i].t >= 0.6) {
+        ref = s[i];
+        break;
+      }
+    }
+    return !!ref && Math.hypot(pos.x - ref.x, pos.z - ref.z) < 0.1;
+  }
+
   _sample(t, pos, moving) {
     const s = this.samples;
     if (!moving) {
       s.length = 0;
       return;
     }
-    if (s.length === 0 || t - s[s.length - 1].t >= 0.1) s.push({ t, x: pos.x, z: pos.z });
+    // a jump no walking body can make (placement by a test / debugging): the history no longer applies
+    if (s.length && Math.hypot(pos.x - s[s.length - 1].x, pos.z - s[s.length - 1].z) > 1.0 + 8 * (t - s[s.length - 1].t)) s.length = 0;
+    if (s.length === 0 || t - s[s.length - 1].t >= 0.1) s.push({ t, x: pos.x, z: pos.z, rem: this.remainingLength() });
     const W = this.bot.sys.cfg.stuck.window;
     while (s.length > 2 && t - s[1].t >= W) s.shift();
   }
@@ -268,7 +312,11 @@ export class PathFollower {
     return dr > dl ? 1 : -1;
   }
 
-  /** A stuck event counts as recovered once the bot got more than 1 m away from where it was stuck. */
+  /**
+   * A stuck event counts as recovered once the bot got more than 1 m away from where it was stuck. A new stuck
+   * event before the previous one recovered continues the same episode: the open events form a chain and are
+   * all closed by the recovery that finally ends it (their recovery time includes the whole episode).
+   */
   _trackRecovery(t, pos) {
     const ev = this.lastStuck;
     if (!ev || ev.recoveredAt !== null) return;
@@ -277,9 +325,14 @@ export class PathFollower {
     const moved = Math.hypot(pos.x - ev.pos[0], pos.z - ev.pos[2]) > 1.0;
     const noLongerMoving = !this.goal || this.arrived;
     if (moved || noLongerMoving) {
-      ev.recoveredAt = +t.toFixed(3);
-      ev.recoveryTime = +(t - ev.t).toFixed(3);
-      ev.recoveredBy = moved ? 'moved_away' : this.arrived ? 'arrived' : 'goal_dropped';
+      const how = moved ? 'moved_away' : this.arrived ? 'arrived' : 'goal_dropped';
+      const chain = this.openStuck && this.openStuck.includes(ev) ? this.openStuck : [ev];
+      for (const e of chain) {
+        e.recoveredAt = +t.toFixed(3);
+        e.recoveryTime = +(t - e.t).toFixed(3);
+        e.recoveredBy = e === ev ? how : `chain:${how}`;
+      }
+      this.openStuck = [];
       this.recoveries = 0;
     }
   }
@@ -293,7 +346,17 @@ export class PathFollower {
     const first = s[0];
     if (t - first.t < S.window) return;
     const moved = Math.hypot(pos.x - first.x, pos.z - first.z);
-    if (moved >= S.minProgress) return;
+    // progress = the remaining path got shorter (sliding along the face of an obstacle the navmesh does not
+    // know moves the bot but brings it no closer along its path)
+    const progressed = first.rem - this.remainingLength();
+    if (moved >= S.minProgress) {
+      if (progressed >= S.minProgress) return;
+      // moving without path progress counts only when pressed against static geometry (sliding along it);
+      // bodies pushing each other around in a crowd are not a stuck bot
+      _tmp.set(pos.x, pos.y + 0.5, pos.z);
+      const face = sys.world && typeof sys.world.raycastStatic === 'function' ? sys.world.raycastStatic(_tmp, dir, 0.6) : null;
+      if (!face) return;
+    }
     // STUCK: wanted to move for `window` seconds with less than minProgress
     this.stats.stuckEvents++;
     const stuckSince = first.t;
@@ -330,8 +393,15 @@ export class PathFollower {
       ev.action = iYield ? `yield_to:${bodiesNear.id}` : `priority_over:${bodiesNear.id}`;
     } else if (sys.nav && staticAhead && this.recoveries <= S.maxRecoveries) {
       // unknown static obstacle: block the navmesh just ahead and search another route
-      _tmp.copy(pos).addScaledVector(dir, 1.2);
-      sys.nav.blockArea(_tmp, S.blockRadius, S.blockTtl, { reason: `stuck:${bot.c.id}`, keepFree: [pos] });
+      // block the ground the obstacle covers (its footprint); if the navmesh already knows the obstacle
+      // (nothing covered), block the navmesh just ahead of the bot instead
+      const box = sys.solidBox ? sys.solidBox(staticAhead.solidId) : null;
+      const fb = box && typeof sys.nav.blockFootprint === 'function' ? sys.nav.blockFootprint(box, S.blockTtl, { reason: `stuck:${bot.c.id}`, keepFree: [pos] }) : -1;
+      if (fb < 0) {
+        _tmp.copy(pos).addScaledVector(dir, 1.2);
+        sys.nav.blockArea(_tmp, S.blockRadius, S.blockTtl, { reason: `stuck:${bot.c.id}`, keepFree: [pos], ahead: { origin: pos, dir } });
+      }
+      ev.block = fb >= 0 ? 'footprint' : 'ahead';
       this.stats.blocksAdded++;
       const ok = this.repath();
       ev.action = ok ? 'block_and_repath' : 'block_no_route';
@@ -361,6 +431,8 @@ export class PathFollower {
       this.recoveries = 0;
       bot.onMoveFailed && bot.onMoveFailed(bodiesNear ? 'congestion' : 'stuck');
     }
+    if (!this.openStuck || !this.lastStuck || this.lastStuck.recoveredAt !== null) this.openStuck = [];
+    this.openStuck.push(ev);
     this.lastStuck = ev;
     this.stuckEvents.push(ev);
     if (this.stuckEvents.length > 20) this.stuckEvents.shift();

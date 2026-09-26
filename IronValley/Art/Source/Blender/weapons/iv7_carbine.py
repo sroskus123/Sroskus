@@ -242,7 +242,7 @@ def build_materials():
     mz = (MAG_PIVOT[2] - 6.5 - MAG_PIVOT[2]) * 0.01      # object coords of the magazine (origin at pivot)
     # magazine polymer: clearly matte and a lighter, slightly warm grey (reads apart from the
     # dark satin-metal receivers)
-    MAT["mag"] = L.mat_polymer("IV7_Polymer_Mag", mf, base=(0.066, 0.063, 0.059), rough=0.76,
+    MAT["mag"] = L.mat_polymer("IV7_Polymer_Mag", mf, base=(0.057, 0.054, 0.050), rough=0.76,
                                seed=23, stipple={"zmax": mz, "scale": 380.0, "normal_axis": "Y",
                                                  "randomness": 0.5, "height": 0.8})
     MAT["rubber"] = L.mat_rubber("IV7_Rubber_Pad", mf, seed=24, ribs={"axis": 'Z', "scale": 160.0})
@@ -1119,8 +1119,9 @@ CONTACT = {
                      ((None, None, None), (-6.9, None, None), 0.2),                   # rear hood rim
                      ((-0.8, None, None), (None, None, None), 0.2)]),                 # front rim
     "RearSightBase": (0.4, []), "FrontSightBase": (0.4, []),
-    "RearSightLeaf": (0.45, [((None, None, 7.2), (None, None, None), 0.3)]),
-    "FrontSightLeaf": (0.45, [((None, None, 7.0), (None, None, None), 0.3)]),
+    # thin (3 mm) leaves read as "edge" almost everywhere in the convexity mask: low base contact
+    "RearSightLeaf": (0.12, [((None, None, 7.2), (None, None, None), 0.25)]),
+    "FrontSightLeaf": (0.12, [((None, None, 7.0), (None, None, None), 0.25)]),
     "BoltCatch": (0.8, []), "Selector": (0.8, []), "MagRelease": (0.75, []), "Trigger": (0.55, []),
     "MuzzleDevice": (0.35, [((40.0, None, None), (None, None, None), 0.3)]),
     "Barrel": (0.15, []), "GasBlock": (0.15, []), "GasTube": (0.15, []), "BarrelNut": (0.2, []),

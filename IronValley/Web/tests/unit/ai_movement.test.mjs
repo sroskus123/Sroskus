@@ -120,7 +120,8 @@ test('AI-02: a path blocked by an obstacle the navmesh does not know is detected
       const p = c.position;
       maxH = Math.max(maxH, Math.hypot(p.x - prev.x, p.z - prev.z));
       prev.copy(p);
-      // barricade face at z = -23.4 (capsule radius 0.35): touching when z < -22.9 near x = 0
+      // barricade south face at z = -23.85 (flush with the wall), capsule radius 0.35: touching at z = -23.5;
+      // counted from z < -22.85 near x = 0 (a little before the contact, so the detection delay is not flattered)
       if (tAtObstacle === null && Math.abs(p.x) < 1.2 && p.z < -22.85) tAtObstacle = t;
       if (p.x > 5.5 && p.x < 8.5 && Math.abs(p.z + 24) < 0.6) viaK2 = true;
       if (Math.hypot(p.x - T.blocked.goal[0], p.z - T.blocked.goal[2]) < 0.8) {

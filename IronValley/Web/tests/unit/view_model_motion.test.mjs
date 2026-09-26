@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { Vector3 } from 'three';
 import weapons from '../../src/data/weapons.json' with { type: 'json' };
 import { FixedStepLoop } from '../../src/engine/loop.js';
-import { stepDampedSpring, ViewModelMotion, viewModelPointInCamera, VIEW_MODEL_MOTION_DEFAULTS } from '../../src/weapons/viewModelMotion.js';
+import { springPeakPerUnitVelocity, stepDampedSpring, ViewModelMotion, viewModelPointInCamera, VIEW_MODEL_MOTION_DEFAULTS } from '../../src/weapons/viewModelMotion.js';
 
 const W = weapons.iv7_carbine;
 
@@ -48,8 +48,8 @@ test('exact damped spring step matches a fine RK4 integration (under-, criticall
  * Drives ViewModelMotion exactly like the game: springs on the fixed tick of the real
  * FixedStepLoop (shots fired from the tick), kick interpolated and sway smoothed per frame.
  */
-function simulate(fps, { seconds = 1, shotTicks = [3], lookRate = 0 } = {}) {
-  const m = new ViewModelMotion();
+function simulate(fps, { seconds = 1, shotTicks = [3], lookRate = 0, kick = W.feel.viewModel } = {}) {
+  const m = new ViewModelMotion({ kick });
   const shots = new Set(shotTicks);
   const frames = [];
   let lastYaw = 0;
@@ -73,8 +73,11 @@ function simulate(fps, { seconds = 1, shotTicks = [3], lookRate = 0 } = {}) {
 }
 
 test('recoil kick stays bounded and FPS independent at 4-240 FPS (one shot)', () => {
-  const peakKick = 0.0174;
-  const peakRot = 0.0578;
+  // peaks of one hip shot from rest = the IV-7 data (feel.viewModel: back in m, pitch in degrees)
+  const peakKick = W.feel.viewModel.back.peak;
+  const peakRot = (W.feel.viewModel.pitch.peakDeg * Math.PI) / 180;
+  // visible: at least 2 cm back and 2 degrees of muzzle rise (the old kick was 0.6 mm / 0.17 deg)
+  assert.ok(peakKick >= 0.02 && peakRot >= (2 * Math.PI) / 180, `kick too small to see: ${peakKick} m, ${peakRot} rad`);
   const runs = {};
   for (const fps of [4, 10, 15, 20, 30, 60, 144, 240]) {
     const r = simulate(fps);
@@ -112,11 +115,57 @@ test('recoil kick stays bounded and FPS independent at 4-240 FPS (one shot)', ()
 test('full-auto recoil (750 rpm) stays bounded at 4, 10 and 144 FPS', () => {
   const shotTicks = [];
   for (let i = 0; i < 13; i++) shotTicks.push(Math.round(i * 4.8));
+  const peakKick = W.feel.viewModel.back.peak;
+  const peakRot = (W.feel.viewModel.pitch.peakDeg * Math.PI) / 180;
+  const ref = {};
   for (const fps of [4, 10, 144]) {
     const r = simulate(fps, { seconds: 1.5, shotTicks });
     const maxKick = Math.max(...r.frames.map((f) => Math.abs(f.kick)));
     const maxRot = Math.max(...r.frames.map((f) => Math.abs(f.kickRot)));
-    assert.ok(maxKick < 0.05 && maxRot < 0.15, `${fps} FPS: kick ${maxKick} rot ${maxRot}`);
+    // sustained fire superposes the springs but stays bounded (a divergent integration grows without limit)
+    assert.ok(maxKick < 2.2 * peakKick && maxRot < 2.2 * peakRot, `${fps} FPS: kick ${maxKick} rot ${maxRot}`);
+    ref[fps] = r.m;
+  }
+  // bit-identical spring state after the same ticks at every frame rate
+  assert.equal(ref[4].kick, ref[144].kick);
+  assert.equal(ref[10].kickRot, ref[144].kickRot);
+});
+
+test('view-model kick: configured peaks per channel; ADS keeps the sight line (no pitch / yaw / rise), crouch scales', () => {
+  const vm = W.feel.viewModel;
+  const run = (o) => {
+    const m = new ViewModelMotion({ kick: vm });
+    m.onShot(o);
+    const peak = { back: 0, rise: 0, pitch: 0, roll: 0, yaw: 0 };
+    for (let i = 0; i < 60; i++) {
+      m.tick(1 / 60);
+      const k = m.kickAt(1);
+      for (const c of Object.keys(peak)) peak[c] = Math.max(peak[c], Math.abs(k[c]));
+    }
+    return peak;
+  };
+  const hip = run({ ads: 0 });
+  const ads = run({ ads: 1 });
+  const crouch = run({ ads: 0, crouch: true });
+  // tick-sampled peaks within 3 % of the data (the exact peak can fall between ticks)
+  assert.ok(Math.abs(hip.back - vm.back.peak) / vm.back.peak < 0.03, `back ${hip.back}`);
+  assert.ok(Math.abs(hip.pitch - (vm.pitch.peakDeg * Math.PI) / 180) / ((vm.pitch.peakDeg * Math.PI) / 180) < 0.03, `pitch ${hip.pitch}`);
+  assert.ok(hip.roll > 0 && hip.yaw > 0 && hip.rise > 0);
+  assert.equal(ads.pitch, 0, 'ADS: no muzzle rotation (sight stays on the aim)');
+  assert.equal(ads.yaw, 0);
+  assert.equal(ads.rise, 0);
+  assert.ok(Math.abs(ads.back / hip.back - vm.stance.ads.back) < 1e-9 && ads.back > 0, 'ADS back push scaled by data');
+  assert.ok(Math.abs(crouch.pitch / hip.pitch - vm.stance.crouch.pitch) < 1e-9, 'crouch scales the kick');
+  // the impulse helper gives the analytic peak (checked against a fine exact-step scan)
+  for (const [k, d] of [[300, 26], [220, 20], [100, 20], [100, 40]]) {
+    let x = 0;
+    let v = 1;
+    let best = 0;
+    for (let i = 0; i < 20000; i++) {
+      [x, v] = stepDampedSpring(x, v, k, d, 1e-4);
+      best = Math.max(best, x);
+    }
+    assert.ok(Math.abs(best - springPeakPerUnitVelocity(k, d)) < 1e-6, `peak k=${k} d=${d}: ${best} vs ${springPeakPerUnitVelocity(k, d)}`);
   }
 });
 

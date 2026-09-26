@@ -26,10 +26,130 @@
     "adsFovMultiplier": 0.82,
     "switchTime": 0.5,
     "recoil": {
-      "pitchDeg": 0.55,
-      "yawDeg": 0.18,
-      "recoveryRate": 7.0,
-      "maxPitchDeg": 6.0
+      "_comment": "Herni recoil (mireni): stejne posouva smer vystrelu i kameru, zamerny kriz / miridla tedy nelzou (GUN-03); pouziva ho i AI. pitchDeg = svisly kop jedne rany u boku ve stoje (st.), pitchJitter = +- podil, yawDeg = max. vodorovny kop, yawBias > 0 = drift doprava. Prvni rana serie: firstShotPitch / firstShotYaw; dalsi rany rostou o followUpGrowth az na followUpMax (serie konci po stringReset s). Offset nabiha za riseTime (s). Navrat: behem serie recoveryRate x firingRecovery, po recoveryDelay s bez vystrelu plnou rychlosti; u hrace se automaticky vrati jen recoverFraction, zbytek zustane v pohledu (strhnout mysi). maxPitchDeg / maxYawDeg = strop. stance = nasobky kopu pro ADS a drep.",
+      "pitchDeg": 0.8,
+      "pitchJitter": 0.15,
+      "yawDeg": 0.3,
+      "yawBias": 0.25,
+      "firstShotPitch": 1.0,
+      "firstShotYaw": 0.35,
+      "followUpGrowth": 0.05,
+      "followUpMax": 1.2,
+      "stringReset": 0.3,
+      "riseTime": 0.02,
+      "recoveryRate": 6.5,
+      "recoveryDelay": 0.09,
+      "firingRecovery": 0.3,
+      "recoverFraction": 0.8,
+      "maxPitchDeg": 8.0,
+      "maxYawDeg": 2.5,
+      "stance": {
+        "ads": 0.75,
+        "crouch": 0.8
+      }
+    },
+    "feel": {
+      "_comment": "Vzhled vystrelu (jen vizualni, na zasah nema vliv). camera = naklon kamery kolem osy pohledu (stred obrazovky, tj. zamerny kriz, se nehne). viewModel = spicky kopu zbrane po jedne rane z klidu (back/rise v m, pitch/roll/yaw ve stupnich) a pruziny; pitch/yaw se toci kolem pivot (prostor modelu: ramenni jamka / zapesti), roll kolem zamerne osy (socket_ads); stance = nasobky; v ADS se zbran netoci ani nezvedne (pitch/yaw/rise 0), takze miridla ukazuji tam, kam jde rana, a kop miri pres kameru. muzzle = zablesk (duration s, velikost m) a kour. casing = nabojnice ze socket_eject (ejectLocal = zaloha v prostoru modelu), rychlost v prostoru zbrane: +X vpred, +Y nahoru, +Z vpravo (m/s). cycle = zaver/zavernik: uzly GLB (regularni vyraz) couvnou o travel m a vrati se.",
+      "camera": {
+        "rollDeg": 0.45,
+        "rollBias": 0.3,
+        "stiffness": 260,
+        "damping": 22,
+        "stance": {
+          "ads": 0.6,
+          "crouch": 0.85
+        }
+      },
+      "viewModel": {
+        "back": {
+          "peak": 0.026,
+          "stiffness": 300,
+          "damping": 26
+        },
+        "rise": {
+          "peak": 0.007,
+          "stiffness": 240,
+          "damping": 22
+        },
+        "pitch": {
+          "peakDeg": 3.2,
+          "stiffness": 220,
+          "damping": 20
+        },
+        "roll": {
+          "peakDeg": 1.6,
+          "stiffness": 170,
+          "damping": 15
+        },
+        "yaw": {
+          "peakDeg": 0.7,
+          "stiffness": 200,
+          "damping": 20
+        },
+        "rollBias": 0.4,
+        "pivot": [
+          -0.27,
+          0.07,
+          0.0
+        ],
+        "stance": {
+          "ads": {
+            "back": 0.2,
+            "rise": 0.0,
+            "pitch": 0.0,
+            "roll": 0.5,
+            "yaw": 0.0
+          },
+          "crouch": {
+            "back": 0.85,
+            "rise": 0.85,
+            "pitch": 0.85,
+            "roll": 0.85,
+            "yaw": 0.85
+          }
+        }
+      },
+      "muzzle": {
+        "flash": {
+          "duration": 0.03,
+          "size": [
+            0.085,
+            0.125
+          ],
+          "adsScale": 0.6,
+          "light": 1.6,
+          "worldLight": 5
+        },
+        "smoke": {
+          "opacity": 0.2,
+          "life": 0.9,
+          "size": [
+            0.05,
+            0.32
+          ],
+          "speed": 1.3,
+          "rise": 0.28,
+          "color": "#a29e97"
+        }
+      },
+      "casing": {
+        "caliber": "5.56x45",
+        "length": 0.045,
+        "radius": 0.0048,
+        "color": "#b98d3e",
+        "ejectLocal": [
+          0.1154,
+          0.0917,
+          0.015
+        ],
+        "velocity": [
+          0.5,
+          1.1,
+          2.9
+        ],
+        "spread": 0.25,
+        "spin": 28
+      }
     },
     "optics": {
       "_comment": "Volba v nabidce vybavy. 'hideNodes' = uzly GLB (regularni vyraz nazvu), ktere se pro danou volbu skryji. IV-7 ma kolimator a mechanicka miridla v souose (co-witness), bod oka pri mireni je pro obe volby stejny.",
@@ -81,7 +201,8 @@
       "fovVerticalDeg": 50.5,
       "sockets": {
         "muzzle": "socket_muzzle",
-        "adsEye": "socket_ads"
+        "adsEye": "socket_ads",
+        "eject": "socket_eject"
       }
     }
   },
@@ -107,10 +228,136 @@
     "adsFovMultiplier": 0.9,
     "switchTime": 0.4,
     "recoil": {
-      "pitchDeg": 1.1,
-      "yawDeg": 0.3,
+      "_comment": "Viz iv7_carbine.recoil.",
+      "pitchDeg": 1.5,
+      "pitchJitter": 0.2,
+      "yawDeg": 0.35,
+      "yawBias": 0.1,
+      "firstShotPitch": 1.0,
+      "firstShotYaw": 0.5,
+      "followUpGrowth": 0.06,
+      "followUpMax": 1.25,
+      "stringReset": 0.35,
+      "riseTime": 0.018,
       "recoveryRate": 9.0,
-      "maxPitchDeg": 8.0
+      "recoveryDelay": 0.07,
+      "firingRecovery": 0.4,
+      "recoverFraction": 0.85,
+      "maxPitchDeg": 9.0,
+      "maxYawDeg": 2.5,
+      "stance": {
+        "ads": 0.8,
+        "crouch": 0.85
+      }
+    },
+    "feel": {
+      "_comment": "Viz iv7_carbine.feel.",
+      "camera": {
+        "rollDeg": 0.6,
+        "rollBias": 0.3,
+        "stiffness": 280,
+        "damping": 22,
+        "stance": {
+          "ads": 0.6,
+          "crouch": 0.85
+        }
+      },
+      "viewModel": {
+        "back": {
+          "peak": 0.024,
+          "stiffness": 320,
+          "damping": 26
+        },
+        "rise": {
+          "peak": 0.012,
+          "stiffness": 260,
+          "damping": 22
+        },
+        "pitch": {
+          "peakDeg": 6.5,
+          "stiffness": 240,
+          "damping": 20
+        },
+        "roll": {
+          "peakDeg": 1.2,
+          "stiffness": 180,
+          "damping": 15
+        },
+        "yaw": {
+          "peakDeg": 0.8,
+          "stiffness": 220,
+          "damping": 20
+        },
+        "rollBias": 0.3,
+        "pivot": [
+          -0.07,
+          -0.06,
+          0.0
+        ],
+        "stance": {
+          "ads": {
+            "back": 0.25,
+            "rise": 0.0,
+            "pitch": 0.0,
+            "roll": 0.4,
+            "yaw": 0.0
+          },
+          "crouch": {
+            "back": 0.85,
+            "rise": 0.85,
+            "pitch": 0.85,
+            "roll": 0.85,
+            "yaw": 0.85
+          }
+        }
+      },
+      "muzzle": {
+        "flash": {
+          "duration": 0.03,
+          "size": [
+            0.06,
+            0.09
+          ],
+          "adsScale": 0.6,
+          "light": 1.2,
+          "worldLight": 4
+        },
+        "smoke": {
+          "opacity": 0.15,
+          "life": 0.7,
+          "size": [
+            0.04,
+            0.22
+          ],
+          "speed": 1.0,
+          "rise": 0.25,
+          "color": "#a29e97"
+        }
+      },
+      "casing": {
+        "caliber": "9x19",
+        "length": 0.019,
+        "radius": 0.0049,
+        "color": "#c29a4a",
+        "ejectLocal": [
+          0.06,
+          0.08,
+          0.013
+        ],
+        "velocity": [
+          -0.4,
+          2.0,
+          1.9
+        ],
+        "spread": 0.25,
+        "spin": 24
+      },
+      "cycle": {
+        "nodes": "^(slide|rear_sight|front_sight)",
+        "travel": 0.022,
+        "backTime": 0.022,
+        "returnTime": 0.05
+      }
     },
     "viewModel": {
       "asset": "assets/weapons/IVP9_Pistol.glb",
@@ -143,7 +390,8 @@
       "fovVerticalDeg": 50.5,
       "sockets": {
         "muzzle": "socket_muzzle",
-        "adsEye": "socket_ads"
+        "adsEye": "socket_ads",
+        "eject": "socket_eject"
       }
     }
   }

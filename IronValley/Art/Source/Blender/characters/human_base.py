@@ -90,6 +90,30 @@ TWIST_SPECS = [(f"{b}_twist_01_{s}", f"{b}_{s}", fh, ft) for s in ("l", "r")
 TWIST_RAMPS = {"lowerarm": (0.30, 0.70, True),     # 0 -> 1 from 30 % to 70 % of the forearm
                "upperarm": (0.20, 0.55, False)}    # 1 -> 0 from 20 % to 55 % of the upper arm
 TWIST_DRIVE = {"lower": 0.5, "upper": 0.5}
+# ---- review R1 fixes (see spec sections 7, 8, 13 and ivchar section 8) ----------------------
+# R1-HAND-01: finger joints re-seated inside the mesh (MPFB cubes: PIP/DIP 3-5 mm under the
+# dorsal skin, MCP at the finger webs).  Lengths in metres at this build's palm (0.1164 m).
+FINGER_RESEAT = dict(mcp_shift=-0.012, pip_shift=0.003, dip_shift=0.005,
+                     mcp_dorsal_frac=0.35, ip_dorsal_frac=0.45, lateral_centre=True)
+FINGER_WEIGHTS = dict(mcp_dorsal=(-0.002, 0.014), mcp_palmar=(-0.008, 0.008), side_blend=0.004,
+                      ip_window=0.30, lateral_rho=0.005, lateral_cut=(0.012, 0.020))
+# R1-HIP-JOINT-LATERAL: MPFB hip cubes give a 22.7 cm hip joint separation; adult-male hip joint
+# centre regressions (Harrington 2007, Bell 1990) give about 17.5-19 cm.  Move each thigh head
+# medially (m).
+HIP_MEDIAL_SHIFT = 0.020
+# R1-TOE-WEIGHTS: smooth the foot/ball split across the MTP crease (mirror-exact after the limit)
+TOE_SMOOTH = dict(rings=3, iters=10, alpha=0.5)
+# R1-ELBOW-140 / R1-KNEE-HIP-LBS: corrective shapes solved from the dual-quaternion pose (ivchar
+# section 9), 4 in-between samples per joint and side, driven by the joint angle at runtime
+# (ivchar.drive_correctives).  rest None = measured on the rest pose.
+CORRECTIVES = {"elbow": {"rest": None, "samples": (50, 80, 110, 140)},
+               "knee": {"rest": None, "samples": (50, 80, 110, 140)},
+               "hip": {"rest": 0.0, "samples": (30, 55, 80, 105)}}
+CORRECTIVE_TEST_ANGLES = {"elbow": (35, 65, 95, 120, 125, 140, 145), "knee": (35, 65, 95, 110, 125, 130, 145),
+                          "hip": (20, 45, 70, 90, 100, 115)}
+# smoothing of the hand / finger_01 split across the finger webs after the procedural weights
+WEB_SMOOTH = dict(rings=1, iters=3, alpha=0.5)
+THUMB_SMOOTH = dict(rings=1, iters=3, alpha=0.5)
 
 
 def log(*a):
@@ -108,7 +132,12 @@ def build():
                               "macro": {k: (round(v, 6) if isinstance(v, float) else v)
                                         for k, v in MACRO.items()},
                               "local_targets": LOCAL_TARGETS, "max_influences": MAX_INFLUENCES,
-                              "rest_elbow_flexion_deg": REST_ELBOW_FLEX}}
+                              "rest_elbow_flexion_deg": REST_ELBOW_FLEX,
+                              "finger_reseat": {k: (list(v) if isinstance(v, tuple) else v) for k, v in FINGER_RESEAT.items()},
+                              "finger_weights": {k: (list(v) if isinstance(v, tuple) else v) for k, v in FINGER_WEIGHTS.items()},
+                              "hip_medial_shift_m": HIP_MEDIAL_SHIFT, "toe_smooth": TOE_SMOOTH,
+                              "web_smooth": WEB_SMOOTH, "thumb_smooth": THUMB_SMOOTH,
+                              "correctives": {k: {"rest": v["rest"], "samples": list(v["samples"])} for k, v in CORRECTIVES.items()}}}
 
     obj = C.load_obj(os.path.join(MP, "3dobjs", "base.obj"))
     meta = C.load_json(os.path.join(MP, "mesh_metadata", "basemesh_vertex_groups.json"))
@@ -149,6 +178,19 @@ def build():
                              "reason": "Root carries zero skin weight in weights.game_engine.json; "
                                        "placed at the origin with world-aligned axes like the "
                                        "Unreal mannequin root. No deformation change."}
+    # R1-HAND-01: re-seat the finger / thumb joints inside the mesh (keeps local X)
+    tris_body = C.triangulate(bf)
+    palm = {sd: C.palm_length(bones, sd) for sd in ("l", "r")}
+    info["finger_reseat"] = C.reseat_finger_joints(bones, V3[:BODY_VERTS], tris_body, palm=palm,
+                                                   **FINGER_RESEAT)
+    # R1-HIP-JOINT-LATERAL: thigh heads medially
+    hj = {"medial_shift_m": HIP_MEDIAL_SHIFT,
+          "separation_mpfb_m": round(float(np.linalg.norm(bones["thigh_l"]["head"] - bones["thigh_r"]["head"])), 5)}
+    for sd, sg in (("l", -1.0), ("r", 1.0)):
+        C.move_joint(bones, f"thigh_{sd}", (sg * HIP_MEDIAL_SHIFT, 0.0, 0.0))
+        bones[f"thigh_{sd}"]["head_strategy"] = "CUBE+MEDIAL"
+    hj["separation_used_m"] = round(float(np.linalg.norm(bones["thigh_l"]["head"] - bones["thigh_r"]["head"])), 5)
+    info["hip_joint_centres"] = hj
     bones = C.add_twist_bones(bones, TWIST_SPECS)
     bone_names = list(bones.keys())
 
@@ -178,6 +220,27 @@ def build():
             b = bones[f"{seg}_{side}"]
             Ds = C.split_weights_along_bone(Ds, bone_names, V3[:BODY_VERTS], b["head"], b["tail"],
                                             f"{seg}_{side}", f"{seg}_twist_01_{side}", s0, s1, tt)
+    # R1-HAND-01: finger weights rebuilt around the re-seated joints (hand + 4 finger chains only)
+    info["finger_weights"] = {}
+    for sd in ("l", "r"):
+        Ds, frep = C.procedural_finger_weights(Ds, bone_names, V3[:BODY_VERTS], bones, sd,
+                                               palm=palm[sd], **FINGER_WEIGHTS)
+        info["finger_weights"][sd] = frep
+    nbrs = C.mesh_neighbours(bf, BODY_VERTS)
+    for sd in ("l", "r"):
+        grp = [f"hand_{sd}"] + [f"{f}_01_{sd}" for f in C.FINGERS4]
+        Ds, wrep = C.smooth_weight_group(Ds, bone_names, nbrs, grp, **WEB_SMOOTH)
+        info["finger_weights"][sd]["web_smoothing"] = wrep
+    # R1-TOE-WEIGHTS: smooth the foot / ball split
+    toe_names = [f"{b}_{sd}" for sd in ("l", "r") for b in ("foot", "ball")]
+    info["toe_weights"] = {"spikes_before": C.weight_spikes(Ds[:, [bone_names.index(n) for n in toe_names]],
+                                                           toe_names, nbrs)}
+    for sd in ("l", "r"):
+        Ds, trep = C.smooth_weight_pair(Ds, bone_names, nbrs, f"foot_{sd}", f"ball_{sd}", **TOE_SMOOTH)
+        info["toe_weights"][sd] = trep
+        # one source spike at the thumb MCP crease (thumb_02 0.91 among neighbours at ~0.59)
+        Ds, trep = C.smooth_weight_pair(Ds, bone_names, nbrs, f"thumb_01_{sd}", f"thumb_02_{sd}", **THUMB_SMOOTH)
+        info["finger_weights"][sd]["thumb_smoothing"] = trep
     _, lst = C.limit_and_normalize(Ds, MAX_INFLUENCES)        # stats only
     D4 = C.limit_symmetric(Ds, bone_names, mirror, mflags, MAX_INFLUENCES)
     chg = np.abs(D4 - Ds).sum(1)
@@ -206,6 +269,15 @@ def build():
         f = C.bone_dir(arm, f"lowerarm_{side}")
         rp[side]["rest_elbow_flexion_deg"] = round(C.angle_between(u, f), 2)
     info["rest_pose"] = rp
+
+    # R1-ELBOW-140 / R1-KNEE-HIP-LBS: corrective shapes (after the rest pose: shape keys block
+    # applying the armature modifier)
+    spec = {}
+    C.reset_pose(arm)
+    for joint, js in CORRECTIVES.items():
+        rest = js["rest"] if js["rest"] is not None else C.joint_angle(arm, joint, "l")
+        spec[joint] = {"rest": round(float(rest), 3), "samples": [float(x) for x in js["samples"]]}
+    info["correctives"] = {"spec": spec, "shapes": C.build_correctives(arm, me_ob, spec)}
 
     # feet on the ground after re-posing (legs unchanged, but check)
     co = C.mesh_arrays(me_ob)
@@ -302,7 +374,13 @@ PLAUSIBLE = {
     "shoulder_joint_height_m": (1.40, 1.48),
     "hip_joint_height_m": (0.90, 0.98),
     "knee_joint_height_m": (0.48, 0.54),
+    # review R1: hip joint centre separation of an adult male ~1.80 m (Harrington 2007 / Bell
+    # 1990 regressions on inter-ASIS width), approximate
+    "hip_joint_breadth_m": (0.170, 0.195),
 }
+# review R1 (HAND-01): proximal / middle phalanx segment ratio, joint to joint (anatomical
+# ~1.6-1.8 for index..ring, ~1.8 for the little finger); flags gross errors only
+FINGER_SEGMENT_RATIO = (1.40, 2.10)
 
 
 # =============================================================================
@@ -406,9 +484,58 @@ def validate(arm, body, info):
     rep["measurement_plausibility"] = flags
     checks["proportions_within_plausible_ranges"] = "PASS" if all(f["ok"] for f in flags.values()) else "FAIL"
 
+    # ---- review R1 hand checks (HAND-01): joints inside the fingers, segment ratios, fist
+    # without fingertips through the back of the hand, grip that leaves a gap to the palm
+    C.reset_pose(arm)
+    names = [b.name for b in arm.data.bones]
+    Dw = C.read_weights(body, names)
+    dom = np.array(names)[Dw.argmax(1)]
+    rep["finger_joint_depths"] = C.finger_joint_depths(arm, body, co)
+    fr = [v["dorsal_frac"] for v in rep["finger_joint_depths"].values()]
+    rep["finger_segments"] = {}
+    ratio_ok = True
+    for sd in ("l", "r"):
+        for f in C.FINGERS4:
+            L = [arm.data.bones[f"{f}_{i:02d}_{sd}"].length for i in (1, 2, 3)]
+            ratio = L[0] / L[1]
+            rep["finger_segments"][f"{f}_{sd}"] = {"lengths_cm": [round(x * 100, 2) for x in L],
+                                                   "proximal_over_middle": round(ratio, 3)}
+            ratio_ok &= FINGER_SEGMENT_RATIO[0] <= ratio <= FINGER_SEGMENT_RATIO[1]
+    checks["finger_joints_centred_0.3_0.55_dorsal_fraction"] = "PASS" if (min(fr) >= 0.30 and max(fr) <= 0.55) else "FAIL"
+    checks["finger_segment_ratio_proximal_over_middle"] = "PASS" if ratio_ok else "FAIL"
+    tris = tris.reshape(-1, 3) if tris.ndim == 1 else tris
+    hc = {}
+    for sd in ("l", "r"):
+        for hinge in ("anatomical", "local"):
+            for tag, curl in HAND_CURL_TESTS:
+                hc[f"{sd}_{hinge}_{tag}"] = C.hand_curl_metrics(arm, body, sd, curl, hinge, rest=co,
+                                                                tris=tris, dom=dom)
+    rep["hand_curl_tests"] = hc
+    fist_ok = all(v["verts_beyond_dorsal"] == 0 and v["finger_x_dorsal_pairs"] == 0
+                  for k, v in hc.items() if "_fist_" in k)
+    grip_ok = all(v["tip_x_palm_pairs"] == 0 and v["tip_gap_to_palm_m"] >= GRIP_MIN_GAP
+                  for k, v in hc.items() if "_grip_" in k)
+    checks["hand_fist_90_100_70_and_90_110_80_no_fingertip_through_back"] = "PASS" if fist_ok else "FAIL"
+    checks["hand_grip_60_80_50_no_fingertip_palm_contact"] = "PASS" if grip_ok else "FAIL"
+    # ---- review R1 toe weights: no spikes in the foot / ball weights
+    nbrs = C.mesh_neighbours([tuple(p.vertices) for p in body.data.polygons], len(co))
+    toe = [f"{b}_{sd}" for sd in ("l", "r") for b in ("foot", "ball")]
+    ti = [names.index(n) for n in toe]
+    rep["toe_weights"] = {"spikes": C.weight_spikes(Dw[:, ti], toe, nbrs),
+                          "spikes_all_bones": C.weight_spikes(Dw, names, nbrs),
+                          "max_gradient_per_cm": C.weight_gradient_max(Dw, names, co, [tuple(p.vertices) for p in body.data.polygons], toe)}
+    checks["weights_no_spikes_over_0.3_all_bones"] = "PASS" if rep["toe_weights"]["spikes_all_bones"]["count"] == 0 else "FAIL"
     rep["checks"] = checks
     rep["validation_seconds"] = round(time.time() - t0, 1)
     return rep
+
+
+# review R1 (HAND-01) curl tests: (tag, (MCP, PIP, DIP) deg) for index..pinky, thumb neutral.
+# 90/100/70 and 90/110/80 are normal tight human fists; at 60/80/50 a real hand still leaves
+# a few centimetres around a held object.
+HAND_CURL_TESTS = (("fist_90_100_70", (90, 100, 70)), ("fist_90_110_80", (90, 110, 80)),
+                   ("grip_60_80_50", (60, 80, 50)))
+GRIP_MIN_GAP = 0.004          # m, fingertip to palm at 60/80/50
 
 
 # =============================================================================
@@ -440,30 +567,67 @@ def p_arms_crossed(arm):
     C.aim_bone(arm, "lowerarm_r", (0.96, -0.22, 0.14))
 
 
-def p_elbows_120(arm):
+def p_elbows(arm, angle=120.0):
+    """Both elbows to `angle` (angle between upper arm and forearm), upper arms at rest; the
+    forearm turns about the rest elbow hinge axis (as the corrective solve)."""
     for side in ("l", "r"):
-        u = C.bone_dir(arm, f"upperarm_{side}")
-        C.aim_bone(arm, f"lowerarm_{side}", u)
-        fwd = Vector((0, -1, 0))
-        fwd_p = (fwd - u * fwd.dot(u)).normalized()
-        C.rotate_bone_world(arm, f"lowerarm_{side}", u.cross(fwd_p), 120.0)
+        C.pose_joint_to(arm, "elbow", side, angle, reset=False)
 
 
-def p_squat(arm, hip=100.0, knee=120.0):
+def p_elbows_120(arm):
+    p_elbows(arm, 120.0)
+
+
+def p_elbows_140(arm):
+    p_elbows(arm, 140.0)
+
+
+def p_squat(arm, hip=100.0, knee=120.0, ankle=20.0, spine=(14.0, 10.0), neck=(12.0, 8.0)):
+    """Feet planted: hip flexion `hip` (pelvis frame), knee angle `knee` (thigh/calf), ankle
+    dorsiflexion `ankle`, trunk leaning forward; the pelvis is moved so the ankles stay put."""
     rest_ank = (C.bone_world(arm, "foot_l") + C.bone_world(arm, "foot_r")) * 0.5
     for side in ("l", "r"):
-        C.rotate_bone_rest_axis(arm, f"thigh_{side}", -X, hip)
-        C.rotate_bone_rest_axis(arm, f"calf_{side}", X, knee)
-        C.rotate_bone_rest_axis(arm, f"foot_{side}", -X, knee - hip)
-    C.rotate_bone_rest_axis(arm, "spine_01", X, 14)
-    C.rotate_bone_rest_axis(arm, "spine_02", X, 10)
-    C.rotate_bone_rest_axis(arm, "neck_01", -X, 12)
-    C.rotate_bone_rest_axis(arm, "head", -X, 8)
+        C.pose_joint_to(arm, "hip", side, hip, reset=False)
+        C.pose_joint_to(arm, "knee", side, knee, reset=False)
+        C.rotate_bone_rest_axis(arm, f"foot_{side}", -X, ankle)
+    C.rotate_bone_rest_axis(arm, "spine_01", X, spine[0])
+    C.rotate_bone_rest_axis(arm, "spine_02", X, spine[1])
+    C.rotate_bone_rest_axis(arm, "neck_01", -X, neck[0])
+    C.rotate_bone_rest_axis(arm, "head", -X, neck[1])
     now = (C.bone_world(arm, "foot_l") + C.bone_world(arm, "foot_r")) * 0.5
     pb = arm.pose.bones["pelvis"]
     Mw = arm.matrix_world @ pb.matrix
     pb.matrix = arm.matrix_world.inverted() @ (Matrix.Translation(rest_ank - now) @ Mw)
     bpy.context.view_layer.update()
+
+
+def p_squat_120(arm):
+    p_squat(arm, 100.0, 120.0, 20.0)
+
+
+def p_squat_130(arm):
+    # the R1 reviewer's squat130: hip 100, knee 130, ankle 30 deg dorsiflexion
+    p_squat(arm, 100.0, 130.0, 30.0, spine=(15.0, 10.0), neck=(15.0, 8.0))
+
+
+def p_crouch_110(arm):
+    p_squat(arm, 95.0, 110.0, 25.0, spine=(12.0, 0.0), neck=(8.0, 0.0))
+
+
+def p_toes_40(arm):
+    """Left toes 40 deg up (dorsiflexion, walking toe-off), right toes 40 deg down."""
+    for side, up in (("l", True), ("r", False)):
+        x = (arm.matrix_world.to_3x3() @ arm.data.bones[f"ball_{side}"].matrix_local.to_3x3()).col[0]
+        t0 = C.bone_world(arm, f"ball_{side}", "tail").z
+        C.rotate_bone_world(arm, f"ball_{side}", x, 40.0)
+        if (C.bone_world(arm, f"ball_{side}", "tail").z > t0) != up:
+            C.rotate_bone_world(arm, f"ball_{side}", x, -80.0)
+
+
+def p_hip_abduction(arm):
+    """Both hips abducted 45 deg in the frontal plane."""
+    for side, sg in (("l", -1.0), ("r", 1.0)):
+        C.rotate_bone_rest_axis(arm, f"thigh_{side}", Y * sg, 45.0)
 
 
 def p_spine_twist(arm):
@@ -487,9 +651,10 @@ def p_wrist_twist(arm):
         C.rotate_bone_world(arm, f"hand_{side}", fa, 80.0 * sg)
 
 
-# Fist limit found by test: 88/100/62 pushes the fingertips through the back of the hand
-# (hm08 palm is thin and LBS does not compress it); 80/90/45 keeps them inside.
-FIST = dict(curl=(80, 90, 45), thumb=(45, 10, 35, 40))
+# Hand test poses (ivchar.pose_hand: local +X = flexion).  Since the R1 finger re-seat the fist
+# uses normal human angles (MCP/PIP/DIP 90/100/70); the old 80/90/45 cap is gone.
+FIST = dict(curl=(90, 100, 70), thumb=(45, 10, 35, 40))
+GRIP = dict(curl=(60, 80, 50), thumb=(30, 20, 20, 25))
 HALF = dict(curl=(42, 48, 30), thumb=(14, 8, 12, 18))
 SPREAD = dict(spread=14.0, curl=(-6, 0, 0), thumb=(-18, 0, -5, 0))
 
@@ -511,6 +676,11 @@ def p_fist(arm):
         C.pose_hand(arm, side, **FIST)
 
 
+def p_grip(arm):
+    for side in ("l", "r"):
+        C.pose_hand(arm, side, **GRIP)
+
+
 def p_half(arm):
     for side in ("l", "r"):
         C.pose_hand(arm, side, **HALF)
@@ -525,19 +695,28 @@ POSES = [
     ("arms_raised", p_arms_raised, "arms overhead: clavicle 22 deg + shoulder abduction 105 deg"),
     ("arms_forward", p_arms_forward, "shoulder flexion to horizontal, elbows straight"),
     ("arms_crossed", p_arms_crossed, "arms crossed in front of the chest (~110-125 deg elbows)"),
-    ("elbows_120", p_elbows_120, "elbow flexion 120 deg, upper arms at rest"),
-    ("squat_knees_120", p_squat, "hip flexion 100 deg, knee flexion 120 deg, ankle dorsiflexion 20 deg, feet planted"),
+    ("elbows_120", p_elbows_120, "elbows 120 deg (angle upper arm / forearm), upper arms at rest"),
+    ("elbows_140", p_elbows_140, "elbows 140 deg (R1 test), upper arms at rest"),
+    ("squat_knees_120", p_squat_120, "hip flexion 100 deg, knee 120 deg, ankle dorsiflexion 20 deg, feet planted"),
+    ("squat_knees_130", p_squat_130, "R1 squat130: hip 100, knee 130, ankle 30 deg, feet planted"),
+    ("crouch_knees_110", p_crouch_110, "crouch: hip 95, knee 110, ankle 25 deg, feet planted"),
+    ("hip_abduction_45", p_hip_abduction, "both hips abducted 45 deg"),
+    ("toes_40", p_toes_40, "toes: left 40 deg up (toe-off), right 40 deg down"),
     ("spine_twist", p_spine_twist, "spine axial rotation 55 deg (15+20+20) + neck 5 deg, pelvis fixed"),
     ("wrist_flex", p_wrist_flex, "left wrist flexion 70 deg, right wrist extension 60 deg"),
     ("wrist_twist", p_wrist_twist, "hand rotated 80 deg about the forearm axis"),
     ("upperarm_roll", p_upperarm_roll, "elbows 90 deg, upper arm rolled 70 deg about its axis (internal rotation)"),
-    ("fist", p_fist, "fist: fingers MCP/PIP/DIP 80/90/45 deg, thumb 01 folded 45 + out 10, 02/03 flex 35/40"),
+    ("fist", p_fist, "fist: fingers MCP/PIP/DIP 90/100/70 deg, thumb 01 folded 45 + out 10, 02/03 flex 35/40"),
+    ("fingers_grip", p_grip, "grip: fingers 60/80/50 deg, thumb 30/20/20/25"),
     ("fingers_half", p_half, "transition: fingers 42/48/30 deg, thumb 14/8/12/18"),
     ("fingers_spread", p_spread, "fingers spread 14 deg (pinky 22), MCP extension 6 deg, thumb radial abduction 18 deg"),
 ]
 
 
-DRIVEN = ("wrist_twist", "upperarm_roll")      # also measured / rendered with driven twist bones
+# also measured / rendered with the runtime rules driven (twist bones + corrective shapes)
+DRIVEN = ("wrist_twist", "upperarm_roll", "elbows_120", "elbows_140", "squat_knees_120",
+          "squat_knees_130", "crouch_knees_110")
+HAND_POSES = ("fist", "fingers_grip", "fingers_half", "fingers_spread")
 
 
 def ring_ratio(co_rest, co_pose, head, tail, fracs, mask, radius=0.08):
@@ -562,25 +741,63 @@ def ring_ratio(co_rest, co_pose, head, tail, fracs, mask, radius=0.08):
 
 def pose_metrics(arm, body):
     C.reset_pose(arm)
+    C.clear_correctives(body)
     rest = C.mesh_arrays(body, evaluated=True)
     out = {}
     names = [b.name for b in arm.data.bones]
     D = C.read_weights(body, names)
+    dom = np.array(names)[D.argmax(1)]
+    tris, _, _ = C.face_metrics(body, rest)
+    tri_dom = dom[tris[:, 0]]
+    vol0 = C.signed_volume(rest, tris)
     armmask = {sd: C.dominant_bone_mask(D, names, [f"{b}_{sd}" for b in (
         "upperarm", "upperarm_twist_01", "lowerarm", "lowerarm_twist_01", "hand", "clavicle")])
         for sd in ("l", "r")}
     bvh0 = C.mesh_bvh(body, rest)
+    n_int0, _ = C.self_intersections(body, rest)
+    joints = {"elbow_l": "lowerarm_l", "elbow_r": "lowerarm_r", "knee_l": "calf_l", "knee_r": "calf_r",
+              "hip_l": "thigh_l", "hip_r": "thigh_r", "wrist_l": "hand_l", "wrist_r": "hand_r"}
+    clear0 = {k: bvh0.find_nearest(arm.data.bones[b].head_local)[3] for k, b in joints.items()}
+    rings = (("upperarm_l", 0.95), ("lowerarm_l", 0.05), ("upperarm_r", 0.95), ("lowerarm_r", 0.05),
+             ("thigh_l", 0.05), ("thigh_l", 0.95), ("calf_l", 0.04), ("thigh_r", 0.05), ("thigh_r", 0.95),
+             ("calf_r", 0.04))
     runs = [(n, f, d, False) for n, f, d in POSES] + [(n, f, d, True) for n, f, d in POSES if n in DRIVEN]
     for name, fn, desc, drive in runs:
         C.reset_pose(arm)
+        C.clear_correctives(body)
         fn(arm)
-        tw = C.drive_twist_bones(arm, lower=TWIST_DRIVE["lower"], upper=TWIST_DRIVE["upper"]) if drive else None
+        drv = C.drive_runtime(arm, body, (TWIST_DRIVE["lower"], TWIST_DRIVE["upper"])) if drive else None
         bpy.context.view_layer.update()
         co = C.mesh_arrays(body, evaluated=True)
         r = C.deformation_report(body, rest, co)
         n_int, _ = C.self_intersections(body, co)
         r["self_intersecting_face_pairs"] = n_int
-        r["description"] = desc + (" -- twist bones driven" if drive else "")
+        r["self_intersecting_new_vs_rest"] = n_int - n_int0
+        r["description"] = desc + (" -- runtime rules driven (twist bones + corrective shapes)" if drive else "")
+        # R1 metrics: inverted triangles (normal vs dominant-bone-carried rest normal), body
+        # volume ratio, rings around the posed bone axis, joint clearance
+        inv, inv_by = C.inverted_triangles(arm, rest, co, tris, tri_dom)
+        r["inverted_tris"] = inv
+        r["inverted_tris_by_bone"] = inv_by
+        bvh = C.mesh_bvh(body, co)
+        if inv:
+            idx, N1 = C.inverted_triangle_indices(arm, rest, co, tris, tri_dom)
+            r["inverted_tris_buried"] = C.buried_triangles(bvh, co, tris, idx, N1)
+        else:
+            r["inverted_tris_buried"] = 0
+        r["body_volume_ratio"] = round(C.signed_volume(co, tris) / vol0, 4)
+        rr = {}
+        for bn, fr in rings:
+            v = C.ring_ratio_posed(arm, rest, co, bn, fr)
+            if v is not None and abs(v - 1.0) > 1e-4:
+                rr[f"{bn}@{fr}"] = round(v, 3)
+        r["ring_ratio_posed_axis"] = rr
+        cl = {}
+        for k, b in joints.items():
+            d1 = bvh.find_nearest(C.bone_world(arm, b))[3]
+            if abs(d1 / clear0[k] - 1.0) > 1e-3:
+                cl[k] = round(d1 / clear0[k], 3)
+        r["joint_clearance_ratio"] = cl
         maxdl = 0.0
         for pb in arm.pose.bones:
             L = (C.bone_world(arm, pb.name, "tail") - C.bone_world(arm, pb.name, "head")).length
@@ -588,7 +805,12 @@ def pose_metrics(arm, body):
         r["max_bone_length_change_rel"] = round(maxdl, 8)
         r["min_z_m"] = round(float(co[:, 2].min()), 4)
         if drive:
-            r["twist_bones_driven_deg"] = tw
+            r["runtime_drive"] = drv
+        angles = {}
+        for j in ("elbow", "knee", "hip"):
+            for sd in ("l", "r"):
+                angles[f"{j}_{sd}"] = round(C.joint_angle(arm, j, sd), 2)
+        r["joint_angles_deg"] = angles
         if name == "wrist_twist":
             for sd in ("l", "r"):
                 b = arm.data.bones[f"lowerarm_{sd}"]
@@ -599,22 +821,15 @@ def pose_metrics(arm, body):
                 b = arm.data.bones[f"upperarm_{sd}"]
                 r[f"upperarm_ring_ratio_{sd}"] = ring_ratio(rest, co, b.head_local, b.tail_local,
                                                             (0.1, 0.2, 0.35, 0.5, 0.7), armmask[sd], 0.09)
-        if name in ("elbows_120", "squat_knees_120", "upperarm_roll"):
-            bvh = C.mesh_bvh(body, co)
-            jc = {}
-            for jn in (("lowerarm_l", "lowerarm_r") if name != "squat_knees_120" else ("calf_l", "calf_r", "thigh_l")):
-                p0 = arm.data.bones[jn].head_local
-                p1 = C.bone_world(arm, jn)
-                d0 = bvh0.find_nearest(p0)[3]
-                d1 = bvh.find_nearest(p1)[3]
-                jc[jn] = {"rest_clearance_m": round(d0, 4), "posed_clearance_m": round(d1, 4),
-                          "ratio": round(d1 / d0, 3)}
-            r["joint_clearance"] = jc
         out[name + ("_driven" if drive else "")] = r
-        log(f"pose {name}{' (driven)' if drive else ''}: tris<25%={r['tris_below_25pct_area']} int={r['self_intersecting_face_pairs']}")
+        log(f"pose {name}{' (driven)' if drive else ''}: inv={inv} (buried {r['inverted_tris_buried']}) int_new={r['self_intersecting_new_vs_rest']} vol={r['body_volume_ratio']}")
     C.reset_pose(arm)
-    n_int, _ = C.self_intersections(body, rest)
-    out["_rest_self_intersecting_face_pairs"] = n_int
+    C.clear_correctives(body)
+    out["_rest_self_intersecting_face_pairs"] = n_int0
+    # how closely the driven corrective shapes reproduce the DQS pose between the solved angles
+    spec = json.loads(body.get("iv_correctives", "{}"))
+    out["_corrective_error_vs_dqs"] = {j: C.corrective_error(arm, body, j, "l", CORRECTIVE_TEST_ANGLES[j], spec)
+                                       for j in spec}
     return out
 
 
@@ -692,12 +907,13 @@ def renders(arm, body, only=None):
     # ---- deformation poses
     runs = [(n, f, False) for n, f, d in POSES] + [(n, f, True) for n, f, d in POSES if n in DRIVEN]
     for name, fn, drive in runs:
-        if name in ("fist", "fingers_half", "fingers_spread") or not want(only, "pose:" + name):
+        if name in HAND_POSES or not want(only, "pose:" + name):
             continue
         C.reset_pose(arm)
+        C.clear_correctives(body)
         fn(arm)
         if drive:
-            C.drive_twist_bones(arm, lower=TWIST_DRIVE["lower"], upper=TWIST_DRIVE["upper"])
+            C.drive_runtime(arm, body, (TWIST_DRIVE["lower"], TWIST_DRIVE["upper"]))
         bpy.context.view_layer.update()
         tag = name + ("_driven" if drive else "")
         for shot in pose_shots(arm, name):
@@ -711,8 +927,31 @@ def renders(arm, body, only=None):
         made += hand_renders(arm, body)
     if want(only, "pose:wrist_twist"):
         made += twist_compare()
+    made += driven_compare(only)
     C.reset_pose(arm)
+    C.clear_correctives(body)
     return made
+
+
+COMPARE = (("elbows_140", "elbow_side_l"), ("elbows_140", "elbow_outer_l"), ("elbows_120", "elbow_side_l"),
+           ("squat_knees_130", "knee_front_l"), ("squat_knees_130", "knee_side_l"),
+           ("squat_knees_130", "back_hips"), ("crouch_knees_110", "knee_front_l"))
+
+
+def driven_compare(only=None):
+    """Plain LBS vs runtime rules driven (twist bones + corrective shapes), same camera."""
+    out = []
+    for pose, shot in COMPARE:
+        if not want(only, "pose:" + pose):
+            continue
+        a = os.path.join(PREV, f"HumanBase_pose_{pose}_{shot}.png")
+        b = os.path.join(PREV, f"HumanBase_pose_{pose}_driven_{shot}.png")
+        if os.path.exists(a) and os.path.exists(b):
+            o = os.path.join(PREV, f"HumanBase_compare_{pose}_{shot}.png")
+            ivlib.side_by_side([a, b], o, labels=[f"{pose} {shot}: plain LBS (correctives not driven)",
+                                                  f"{pose} {shot}: corrective shapes + twist bones driven"])
+            out.append(o)
+    return out
 
 
 def twist_compare():
@@ -740,6 +979,40 @@ def pose_shots(arm, name):
     sl = C.bone_world(arm, "upperarm_l")
     wl = C.bone_world(arm, "hand_l")
     wr = C.bone_world(arm, "hand_r")
+    def elbow_views(sd):
+        e = C.bone_world(arm, f"lowerarm_{sd}")
+        u, f = C.bone_dir(arm, f"upperarm_{sd}"), C.bone_dir(arm, f"lowerarm_{sd}")
+        h = u.cross(f).normalized()
+        if h.x * (1 if sd == "l" else -1) < 0:
+            h = -h                                      # look from outside the body
+        post = -(f - u).normalized()                    # olecranon side
+        return [(f"elbow_side_{sd}", e, h + Vector((0, -0.25, 0.1)), 0.50, 50),
+                (f"elbow_outer_{sd}", e, (post * 1.0 + h * 0.8).normalized(), 0.50, 50),
+                (f"elbow_top_{sd}", e, (h * 0.6 + Vector((0, -0.6, 1.0))).normalized(), 0.55, 50)]
+    if name in ("elbows_120", "elbows_140"):
+        shots += elbow_views("l") + elbow_views("r")[:1]
+        return shots
+    if name in ("squat_knees_130", "crouch_knees_110"):
+        shots = [("full", (0, -0.1, 0.62), (-0.6, -1, 0.15), 4.4, 50), ("side", (0, 0, 0.55), (1, 0, 0.05), 3.2, 50)]
+        kl = C.bone_world(arm, "calf_l")
+        hl = C.bone_world(arm, "thigh_l")
+        shots.append(("knee_front_l", kl, (0.45, -1, 0.55), 0.55, 50))
+        shots.append(("knee_side_l", kl, (1, -0.05, 0.1), 0.55, 50))
+        shots.append(("knee_back_l", kl + Vector((0, 0.05, -0.05)), (0.9, 0.6, -0.1), 0.6, 50))
+        shots.append(("back_hips", (0, 0.1, hl.z), (0.25, 1, 0.3), 1.6, 50))
+        shots.append(("groin_l", hl + Vector((0.0, -0.08, 0.0)), (0.9, -1, 0.6), 0.75, 50))
+        return shots
+    if name == "hip_abduction_45":
+        hl = C.bone_world(arm, "thigh_l")
+        shots.append(("groin_l", hl + Vector((0.0, -0.06, -0.05)), (0.8, -1, 0.2), 0.8, 50))
+        shots.append(("hips_back", (0, 0.1, hl.z - 0.05), (0.2, 1, 0.15), 1.6, 50))
+        return shots
+    if name == "toes_40":
+        bl, br = C.bone_world(arm, "ball_l"), C.bone_world(arm, "ball_r")
+        return [("toes_top_l", bl + Vector((0, -0.03, 0.02)), (0.3, -0.8, 1.0), 0.40, 50),
+                ("toes_side_l", bl + Vector((0, -0.02, 0.02)), (1, -0.25, 0.25), 0.40, 50),
+                ("toes_top_r", br + Vector((0, -0.03, 0.02)), (-0.3, -0.8, 1.0), 0.40, 50),
+                ("toes_side_r", br + Vector((0, -0.02, 0.02)), (-1, -0.25, 0.25), 0.40, 50)]
     if name == "arms_raised":
         shots.append(("shoulder_back", (sl + C.bone_world(arm, "upperarm_r")) * 0.5 + Vector((0, 0, 0.05)), (0.35, 1, 0.25), 1.6, 50))
         shots.append(("shoulder_front", sl, (0.5, -1, 0.1), 1.1, 50))
@@ -748,9 +1021,6 @@ def pose_shots(arm, name):
         shots.append(("shoulder_top", (sl + C.bone_world(arm, "upperarm_r")) * 0.5, (0.25, 0.35, 1), 1.5, 50))
     elif name == "arms_crossed":
         shots.append(("front_close", (el + er) * 0.5, (-0.3, -1, 0.15), 1.3, 50))
-    elif name == "elbows_120":
-        shots.append(("elbow_inner", el, (0.9, -0.8, 0.3), 0.75, 50))
-        shots.append(("elbow_outer", el, (0.8, 1.0, -0.1), 0.75, 50))
     elif name == "squat_knees_120":
         shots.append(("side", (0, 0, 0.55), (1, 0, 0.05), 3.2, 50))
         shots.append(("knee_close", kl, (0.9, -0.9, 0.35), 0.9, 50))
@@ -845,7 +1115,7 @@ def hand_renders(arm, body):
     made = []
     mod, vg = arm_mask(body, arm)
     bpy.data.objects["IVC_Ground"].hide_render = True
-    for pname, fn in (("open", None), ("fist", p_fist), ("half", p_half), ("spread", p_spread)):
+    for pname, fn in (("open", None), ("fist", p_fist), ("grip", p_grip), ("half", p_half), ("spread", p_spread)):
         C.reset_pose(arm)
         if fn:
             fn(arm)
@@ -882,16 +1152,49 @@ def sheets(paths):
 # export
 # =============================================================================
 
-def export_all():
+RUNTIME_FBX = os.path.join(IV, "Art", "Export", "FBX", "SK_Human_Base.runtime.json")
+RUNTIME_GLB = os.path.join(IV, "Art", "Export", "GLB", "Human_Base.runtime.json")
+
+
+def runtime_spec(body):
+    """The per-frame rules an engine must run after animation (FBX / glTF carry no drivers)."""
+    spec = json.loads(body.get("iv_correctives", "{}"))
+    shapes = [k.name for k in body.data.shape_keys.key_blocks[1:]] if body.data.shape_keys else []
+    return {
+        "asset": "SK_Human_Base", "version": f"ivchar {C.IVCHAR_VERSION}",
+        "reference_implementation": "Art/Source/Blender/lib/ivchar.py: drive_runtime() = drive_twist_bones() + drive_correctives()",
+        "without_these_rules": "the mesh deforms as plain linear blend skinning (twist bones follow their parents, corrective weights stay 0)",
+        "twist_bones": {
+            "lowerarm_twist_01_<s>": f"local rotation about its own Y = {TWIST_DRIVE['lower']} x twist of hand_<s> relative to lowerarm_<s> about lowerarm Y (swing-twist decomposition)",
+            "upperarm_twist_01_<s>": f"local rotation about its own Y = -{TWIST_DRIVE['upper']} x twist of upperarm_<s>'s own local rotation about its Y"},
+        "correctives": {
+            "spec": spec, "shapes": shapes,
+            "shape_name": "CS_<joint>_<solved angle, 3 digits>_<l|r>",
+            "angles": {
+                "elbow": "angle in degrees between the posed directions (head->tail) of upperarm_<s> and lowerarm_<s> (rest pose = spec rest)",
+                "knee": "angle in degrees between the posed directions of thigh_<s> and calf_<s>",
+                "hip": "hip flexion: signed angle of thigh_<s>'s direction relative to its rest direction, about the pelvis' lateral axis (rest world +X carried by the pelvis), projected on the plane normal to it; thigh forward = positive"},
+            "weights": "piecewise-linear in-betweens over [rest] + samples: between two neighbouring samples the two shapes cross-fade linearly (weights sum 1); rest..first sample: first shape 0->1; beyond the last sample: last shape = 1; at or below rest: all 0",
+            "note": "each shape is a rest-space offset solved so that plain LBS + the shape reproduces Blender's dual-quaternion (Preserve Volume) pose at its angle"},
+    }
+
+
+def export_all(body=None):
     res = {}
     res["fbx_export"] = ivlib.export_fbx(BLEND, [ARMATURE_NAME, MESH_NAME], FBX_PATH)
     res["glb_export"] = ivlib.export_glb(BLEND, [ARMATURE_NAME, MESH_NAME], GLB_PATH)
     res["fbx_reimport"] = C.reimport_skinned_check(FBX_PATH)
     res["glb_reimport"] = C.reimport_skinned_check(GLB_PATH)
+    if body is not None:
+        rs = runtime_spec(body)
+        for pth in (RUNTIME_FBX, RUNTIME_GLB):
+            with open(pth, "w") as f:
+                json.dump(rs, f, indent=2)
+        res["runtime_json"] = [os.path.relpath(RUNTIME_FBX, IV), os.path.relpath(RUNTIME_GLB, IV)]
     return res
 
 
-def reimport_verdict(r, expected_bones, source_heads=None):
+def reimport_verdict(r, expected_bones, source_heads=None, expected_shapes=None):
     ok = True
     notes = []
     if source_heads:
@@ -919,6 +1222,12 @@ def reimport_verdict(r, expected_bones, source_heads=None):
             notes.append(f"{mname}: no armature modifier")
         if m.get("vertices") != BODY_VERTS:
             notes.append(f"{mname}: vertex count {m.get('vertices')} (split by UV seams/normals on import is expected for glTF)")
+        if expected_shapes is not None:
+            got = [k for k in m.get("shape_keys", []) if k.startswith("CS_")]
+            if sorted(got) != sorted(expected_shapes):
+                ok = False
+                notes.append(f"{mname}: corrective shapes missing {sorted(set(expected_shapes) - set(got))} "
+                             f"extra {sorted(set(got) - set(expected_shapes))}")
     return ("PASS" if ok else "FAIL"), notes
 
 
@@ -940,7 +1249,9 @@ def main():
             with open(REPORT) as f:
                 old = json.load(f)
             info = {k: old[k] for k in ("design_inputs", "source_mesh", "targets", "scale",
-                                        "root_override", "weights", "rest_pose", "rest_bbox_m",
+                                        "root_override", "finger_reseat", "hip_joint_centres",
+                                        "finger_weights", "toe_weights", "correctives",
+                                        "weights", "rest_pose", "rest_bbox_m",
                                         "build_seconds") if k in old}
     rep = None
     if "validate" in stages:
@@ -959,11 +1270,12 @@ def main():
         # renders changed materials / added helpers: reload the clean saved file afterwards
         arm, body = load_scene()
     if "export" in stages:
-        ex = export_all()
+        ex = export_all(body)
         names = [b.name for b in arm.data.bones]
         heads = {b.name: list(arm.matrix_world @ b.head_local) for b in arm.data.bones}
+        shapes = [k.name for k in body.data.shape_keys.key_blocks[1:]] if body.data.shape_keys else []
         for k in ("fbx_reimport", "glb_reimport"):
-            ex[k + "_verdict"], ex[k + "_notes"] = reimport_verdict(ex[k], names, heads)
+            ex[k + "_verdict"], ex[k + "_notes"] = reimport_verdict(ex[k], names, heads, shapes)
         if rep is not None:
             rep["export"] = ex
             rep.setdefault("checks", {})["fbx_reimport"] = ex["fbx_reimport_verdict"]

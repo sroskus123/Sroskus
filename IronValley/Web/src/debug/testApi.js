@@ -21,6 +21,7 @@ export function installTestApi(game, target = window) {
       displayName: game.data.level.displayName,
       markers: game.data.level.markers,
       dummies: game.data.level.dummies || [],
+      signs: game.data.level.signs || [],
       match: game.data.level.match || null,
     }),
     getConfig: () => ({ movement: game.data.movement, weapon: game.weaponDef, bindings: game.data.bindings, rules: S() ? S().rules : game.rules, combat: game.data.combat }),
@@ -270,6 +271,29 @@ export function installTestApi(game, target = window) {
       game.player.setLook(yaw, pitch);
       return { yaw, pitch };
     },
+    /** Test only: vault / mantle on the player's controller on or off (pure step / jump physics checks). */
+    setTraversalEnabled: (on) => {
+      game.player.ctrl.traversalEnabled = !!on;
+      return game.player.ctrl.traversalEnabled;
+    },
+    /** Starts collecting game bus events with these names (e.g. ['footstep', 'traverse:start']); takeEvents() returns them. */
+    watchEvents: (names) => {
+      if (api._evOff) api._evOff.forEach((off) => off());
+      api._evLog = [];
+      api._evOff = names.map((n) =>
+        game.events.on(n, (p) => {
+          const o = {};
+          for (const [k, v] of Object.entries(p || {})) o[k] = v && typeof v.toArray === 'function' ? v.toArray() : v;
+          api._evLog.push({ name: n, tick: game.simTicks, ...o });
+        }),
+      );
+      return names.length;
+    },
+    takeEvents: () => {
+      const out = api._evLog || [];
+      api._evLog = [];
+      return out;
+    },
 
     // ---- weapon helpers (test / debug only) ----
     setInfiniteAmmo: (on) => {
@@ -283,6 +307,57 @@ export function installTestApi(game, target = window) {
       return game.weapon.state.getState();
     },
     resetRecoil: () => game.weapon.recoil.reset(),
+    /**
+     * Weapon feel of the player's active weapon: aim recoil state (recoil.js), rendered view-model kick
+     * pose, flash, camera (world vs view-model FOV, rendered look with recoil) and muzzle / impact effects.
+     */
+    getWeaponFeel: () => {
+      const w = game.weapon;
+      const vm = game.viewModel;
+      const cam = game.camera;
+      const f = new Vector3(0, 0, -1).applyQuaternion(cam.quaternion);
+      const up = new Vector3(0, 1, 0).applyQuaternion(cam.quaternion);
+      const R = 180 / Math.PI;
+      const horizRight = new Vector3(-f.z, 0, f.x).normalize();
+      return {
+        recoil: w.recoil.debug(),
+        camera: {
+          pitchDeg: Math.asin(Math.max(-1, Math.min(1, f.y))) * R,
+          yawDeg: Math.atan2(-f.x, -f.z) * R,
+          rollDeg: Math.asin(Math.max(-1, Math.min(1, -up.dot(horizRight)))) * R,
+          fovDeg: cam.fov,
+          position: cam.position.toArray(),
+          forward: f.toArray(),
+        },
+        viewModel: {
+          pose: { ...vm.recoilPose },
+          holderPosition: vm.holder.position.toArray(),
+          holderQuaternion: vm.holder.quaternion.toArray(),
+          fovDeg: vm.camera.fov,
+          flashIntensity: vm.flashIntensity,
+          flashVisible: vm.flash.visible,
+          flashFramesShown: vm.flashTimer.framesShown,
+          flashSeq: vm.flashTimer.seq,
+          cycleOffset: vm.cycleOffset || 0,
+          ejectFromSocket: !!vm.ejectFromSocket,
+          ejectLocal: vm.ejectLocal ? vm.ejectLocal.toArray() : null,
+          adsEyeCamera: (() => {
+            vm.holder.updateMatrixWorld(true);
+            const node = vm.adsEyeNode;
+            if (node) return vm.camera.worldToLocal(node.getWorldPosition(new Vector3())).toArray();
+            return vm.adsEyeLocal.clone().applyQuaternion(vm.modelRoot.quaternion).applyQuaternion(vm.holder.quaternion).add(vm.holder.position).toArray();
+          })(),
+          barrelCamera: vm.modelDirInCameraSpace(new Vector3(1, 0, 0)).toArray(),
+        },
+        effects: game.effects.getState(),
+      };
+    },
+    /** Test only: same random recoil draws for repeated runs (active weapon's recoil + view-model kick). */
+    setRecoilSeed: (seed) => {
+      game.weapon.recoil.rng.setState(seed >>> 0);
+      if (game.viewModel.motion._rng) game.viewModel.motion._rng.setState((seed * 7 + 1) >>> 0);
+      return seed >>> 0;
+    },
     /** Core weapon snapshot of the player's active (or given slot) weapon: the authoritative ammo state. */
     getCoreWeapon: (slot = null) => {
       const pc = game.playerCombatant;

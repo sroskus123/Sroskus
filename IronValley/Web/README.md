@@ -229,6 +229,19 @@ které by ve zvláštním průchodu pro zbraň vykreslilo černou čočku — hr
 průhledným sklem. Textury vložené v GLB se dekódují přímo z bajtů (`createImageBitmap(Blob)`), bez
 `blob:` URL, takže je nezablokuje ani přísné CSP hostitele (`connect-src 'self'`).
 
+### Recoil a pocit ze střelby (`weapons.json` → `recoil`, `feel`)
+
+- **Herní recoil** (`recoil`): kop pohledu i směru zásahu zároveň (kříž / mířidla nelžou, GUN-03), náhodný
+  vodorovný kop s driftem, první rána vs. další rány série, stoupání při dávce, částečný automatický návrat
+  (`recoverFraction`, zbytek zůstane v pohledu hráče), násobky pro ADS a dřep. Stejná data používají boti.
+- **Vizuální vrstva** (`feel`): náklon kamery kolem osy pohledu, kop zbraně dozadu / nahoru / náklon na pružinách
+  (v ADS bez rotace, aby mířidla ukazovala, kam jde rána), záblesk s pevnou dobou života (~2 snímky při 60 FPS,
+  aspoň 1 snímek vždy), kouř, nábojnice ze `socket_eject` (poolované, po dopadu zmizí, událost
+  `weapon:casing_landed`), zásahy podle povrchu. Vše běží na pevném ticku, výsledek je stejný při 30 / 60 / 144 FPS.
+- Naměřeno (puška, 60 FPS): kop kamery 1 rány ~0,6° (ADS ~0,45°, dřep ~0,48°), zbraň 2,6 cm dozadu a 3,2° nahoru,
+  dávka 10 ran ~4,8° (ADS ~3,5°), zbytek po návratu ~0,9°; pistole ~1,0° a 6,5°. Testy
+  `tests/unit/weapon_feel.test.mjs`, `tests/e2e/06_weapon_feel.test.mjs`.
+
 ## Známá omezení
 
 * Postavy, pistole a zvuky jsou **provizorní** (viz výše). FPS paže/ruce a animace přebíjení zatím nejsou (přebití

@@ -57,7 +57,7 @@ export class WeaponSystem {
     this.rulesDef = rulesDef;
     this.damage = rulesDef.damage;
     this.state = new WeaponHandle({ def, core, rulesDef });
-    this.recoil = new Recoil(def.recoil, rng);
+    this.recoil = new Recoil(def.recoil, rng, def.feel && def.feel.camera);
     this.lastShot = null;
     this.hitsOnDummies = 0;
     this.hitsOnCombatants = 0;
@@ -183,6 +183,7 @@ export class WeaponSystem {
         loudness: this.def.loudness ?? 1,
         result,
         ads: this.state.ads,
+        crouch: this._crouched(),
         shot: this.lastShot,
       });
       if (hit) {
@@ -199,7 +200,13 @@ export class WeaponSystem {
         });
       }
     }
-    this.recoil.kick(this.state.ads);
+    // stance-dependent kick (hip / ADS / crouch); the next round uses the new offset (aim = camera)
+    this.recoil.kick({ ads: this.state.ads, crouch: this._crouched() });
+  }
+
+  _crouched() {
+    const c = this.owner && this.owner.controller;
+    return !!(c && c.crouched);
   }
 
   getState() {
@@ -207,6 +214,7 @@ export class WeaponSystem {
       ...this.state.getState(),
       recoilPitchDeg: (this.recoil.pitch * 180) / Math.PI,
       recoilYawDeg: (this.recoil.yaw * 180) / Math.PI,
+      recoil: this.recoil.debug(),
       hitsOnDummies: this.hitsOnDummies,
       hitsOnCombatants: this.hitsOnCombatants,
       hitsOnWorld: this.hitsOnWorld,

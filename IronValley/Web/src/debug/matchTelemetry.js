@@ -312,6 +312,7 @@ export class MatchTelemetry {
             if (!tr.stuckEpisode) tr.stuckEpisode = { id: c.id, team: c.team, start: r3(tr.anchorT), duration: dur, pos: [r3(p.x), r3(p.y), r3(p.z)], task };
             tr.stuckEpisode.duration = dur;
             if (task) tr.stuckEpisode.task = task;
+            if (dur >= 4 && !tr.stuckEpisode.detail) tr.stuckEpisode.detail = this._stuckDetail(c, botOf(c.id));
           }
         }
         // bots out of ammo in the active weapon
@@ -333,6 +334,28 @@ export class MatchTelemetry {
       tr.prevSpawnCount = sc;
       tr.spawnedThisTick = false;
     }
+  }
+
+  /** What a long stuck episode looks like (for diagnosis): AI movement state and nearby bodies. */
+  _stuckDetail(c, b) {
+    const p = c.controller.position;
+    const near = [];
+    for (const o of this.session.combatants.all()) {
+      if (o === c || !o.alive) continue;
+      const d = o.controller.position.distanceTo(p);
+      if (d < 2.5) near.push(`${o.id}@${r3(d)}`);
+    }
+    const out = { t: r3(this.session.simTime - this.startTime), near, cmd: c.lastCmd ? { moveX: r3(c.lastCmd.moveX || 0), moveZ: r3(c.lastCmd.moveZ || 0), sprint: !!c.lastCmd.sprint, crouch: !!c.lastCmd.crouch } : null };
+    if (b) {
+      const m = b.move;
+      out.task = b.task;
+      out.taskReason = b.taskReason;
+      out.goal = m.goal ? [r3(m.goal.x), r3(m.goal.y), r3(m.goal.z)] : null;
+      out.waypoint = m.path[m.index] ? [r3(m.path[m.index].x), r3(m.path[m.index].y), r3(m.path[m.index].z)] : null;
+      out.pathLeft = m.path.length - m.index;
+      out.aiStuckEvents = m.stuckEvents.slice(-3).map((e) => ({ t: r3(e.t), action: e.action, obstacle: e.obstacle || null, recoveredBy: e.recoveredBy || null }));
+    }
+    return out;
   }
 
   report() {

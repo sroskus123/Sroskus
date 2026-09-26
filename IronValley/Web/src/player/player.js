@@ -1,8 +1,13 @@
 // Player: turns input into movement commands for the shared capsule controller, owns the
 // look angles and produces the interpolated first-person eye transform for rendering.
 
-import { Vector3 } from 'three';
+import { Quaternion, Vector3 } from 'three';
 import { clamp, DEG2RAD } from '../util/math.js';
+import { CameraEffects } from './cameraEffects.js';
+
+const _qFx = new Quaternion();
+const _axisX = new Vector3(1, 0, 0);
+const _axisZ = new Vector3(0, 0, 1);
 
 const PITCH_LIMIT = 88 * DEG2RAD;
 
@@ -41,16 +46,10 @@ export class Player {
     this.viewVy = 0;
     this.prevViewY = 0;
 
-    // head bob / landing dip (visual only, scaled by camera motion setting). They advance on
-    // the simulation tick, so rendering interpolates them between the last two ticks like the
-    // eye position (otherwise they would move in 60 Hz steps on faster displays).
-    this.bobPhase = 0;
-    this.bobAmount = 0;
-    this.landingDip = 0;
-    this.landingDipVel = 0;
-    this.prevBobPhase = 0;
-    this.prevBobAmount = 0;
-    this.prevLandingDip = 0;
+    // camera feel (visual only, scaled by the camera motion setting): footstep-synced head bob, stair
+    // step impulse, landing dip, strafe roll, traversal arc. Advances on the simulation tick and is
+    // interpolated between the last two ticks like the eye position (src/player/cameraEffects.js).
+    this.cameraFx = new CameraEffects({ settings });
     this._bob = { phase: 0, amount: 0, landingDip: 0 };
     this.lastCmd = null;
 
@@ -66,13 +65,10 @@ export class Player {
     if (this.ctrl && this.ctrl !== controller && this.ctrl.onEvent === this._onCtrlEvent) this.ctrl.onEvent = null;
     this.ctrl = controller;
     this._onCtrlEvent = (name, payload) => {
-      if (name === 'landed') {
-        const s = Math.min(payload.speed, 8);
-        if (s > 1.5) this.landingDipVel -= s * 0.35;
-      }
       this.events.emit(`player:${name}`, payload);
     };
     controller.onEvent = this._onCtrlEvent;
+    this.cameraFx.attach(controller);
     this.prevFeet.copy(controller.position);
     this.currFeet.copy(controller.position);
     this.prevEyeH = this.currEyeH = controller.eyeHeight;
@@ -92,9 +88,14 @@ export class Player {
     this.prevStep = this.currStep = 0;
     this.viewY = this.prevViewY = this.ctrl.position.y + this.ctrl.eyeHeight;
     this.viewVy = 0;
-    this.landingDip = this.landingDipVel = 0;
+    this.cameraFx.reset();
     this._y0 = this.ctrl.position.y;
     this._holdVisuals();
+  }
+
+  /** Landing dip spring offset (m) of the current tick (camera effects). */
+  get landingDip() {
+    return this.cameraFx.cur.landing;
   }
 
   setLook(yawDeg, pitchDeg) {
@@ -147,9 +148,7 @@ export class Player {
 
   /** Makes the previous-tick snapshots of the visual (bob / dip) state equal to the current one. */
   _holdVisuals() {
-    this.prevBobPhase = this.bobPhase;
-    this.prevBobAmount = this.bobAmount;
-    this.prevLandingDip = this.landingDip;
+    this.cameraFx.hold();
   }
 
   /**
@@ -174,7 +173,7 @@ export class Player {
     this._y0 = this.ctrl.position.y;
   }
 
-  /** End of a tick (after the controller moved): camera filter, head bob, landing dip. */
+  /** End of a tick (after the controller moved): camera filter, then camera effects (bob, dips, roll). */
   endTick(dt) {
     const c = this.ctrl;
     const y0 = this._y0;
@@ -194,19 +193,8 @@ export class Player {
       this.viewY = predicted + (target - predicted) * (1 - Math.exp(-25 * dt));
     }
 
-    // head bob driven by actual horizontal speed
-    const speed = Math.hypot(c.velocity.x, c.velocity.z);
-    const moving = c.grounded ? Math.min(speed / 3.5, 1.6) : 0;
-    this.bobAmount += (moving - this.bobAmount) * (1 - Math.exp(-8 * dt));
-    // step frequency ~1.8 Hz at run, higher when sprinting
-    this.bobPhase += dt * (4 + speed * 1.6);
-
-    // landing dip spring
-    const k = 120;
-    const d = 18;
-    this.landingDipVel += (-k * this.landingDip - d * this.landingDipVel) * dt;
-    this.landingDip += this.landingDipVel * dt;
-    this.landingDip = clamp(this.landingDip, -0.12, 0.05);
+    // head bob from the real gait phase, stair step impulse, landing dip, strafe roll, traversal arc
+    this.cameraFx.tick(dt, c, this.yaw);
   }
 
   /** Simulation not advancing (paused / menu): make the interpolated eye stand still. */
@@ -223,26 +211,39 @@ export class Player {
    * [0,1]); shared by the camera and the view model. Returns a reused object.
    */
   getRenderBob(alpha) {
-    const a = Math.min(Math.max(alpha, 0), 1);
+    const fx = this.cameraFx.sample(alpha);
     const b = this._bob;
-    b.phase = this.prevBobPhase + (this.bobPhase - this.prevBobPhase) * a;
-    b.amount = this.prevBobAmount + (this.bobAmount - this.prevBobAmount) * a;
-    b.landingDip = this.prevLandingDip + (this.landingDip - this.prevLandingDip) * a;
+    b.phase = fx.phase;
+    b.amount = fx.amount;
+    b.landingDip = fx.landingDip;
     return b;
+  }
+
+  /**
+   * Applies the camera effects' roll / pitch (strafe roll, traversal arc, landing / step nod) to a camera
+   * orientation built from yaw / pitch (visual only; the aim uses the simulation look). Returns q.
+   */
+  applyCameraEffects(q, alpha) {
+    const fx = this.cameraFx.sample(alpha);
+    if (fx.pitch !== 0) q.multiply(_qFx.setFromAxisAngle(_axisX, fx.pitch));
+    if (fx.roll !== 0) q.multiply(_qFx.setFromAxisAngle(_axisZ, -fx.roll));
+    return q;
+  }
+
+  /** Weapon lowering 0..1 while vaulting / mantling (interpolated). */
+  getWeaponLower(alpha) {
+    return this.cameraFx.sample(alpha).lower;
   }
 
   /** Interpolated eye position for rendering (alpha in [0,1] between ticks). */
   getRenderEye(alpha, out = new Vector3()) {
     out.lerpVectors(this.prevFeet, this.currFeet, alpha);
     out.y = this.prevViewY + (this.viewY - this.prevViewY) * alpha;
-    const motion = this.settings.get('cameraMotion');
-    if (motion > 0) {
-      const { phase, amount, landingDip } = this.getRenderBob(alpha);
-      const bob = amount * motion;
-      out.y += Math.sin(phase * 2) * 0.012 * bob + landingDip * motion;
-      const side = Math.cos(phase) * 0.008 * bob;
-      out.x += Math.cos(this.yaw) * side;
-      out.z -= Math.sin(this.yaw) * side;
+    const fx = this.cameraFx.sample(alpha);
+    if (fx.motion > 0) {
+      out.y += fx.offsetY;
+      out.x += Math.cos(this.yaw) * fx.side;
+      out.z -= Math.sin(this.yaw) * fx.side;
     }
     return out;
   }
@@ -261,6 +262,7 @@ export class Player {
       pitchDeg: this.pitch / DEG2RAD,
       eyeWorldY: s.position.y + s.eyeHeight,
       viewY: this.viewY,
+      cameraFx: this.cameraFx.getState(),
       cmd: this.lastCmd,
     };
   }

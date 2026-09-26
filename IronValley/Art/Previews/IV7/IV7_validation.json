@@ -1,15 +1,15 @@
 {
   "generated_by": "ivlib 1.0.0",
   "blender": "4.5.14 LTS",
-  "time": "2026-09-26 20:13:33",
+  "time": "2026-09-26 20:30:36",
   "objects": {
     "UpperReceiver": {
-      "tris": 4991,
-      "verts": 2488,
-      "non_manifold_edges": 3,
-      "boundary_edges": 2,
+      "tris": 5052,
+      "verts": 2518,
+      "non_manifold_edges": 0,
+      "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
-      "faces_opposing_vertex_normals": 6,
+      "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
       "loose_edges": 0,
       "zero_area_faces": 0,
@@ -24,7 +24,7 @@
       "bbox_min_m": [
         0.02186,
         -0.0222,
-        0.0727
+        0.07272
       ],
       "bbox_max_m": [
         0.19686,
@@ -34,7 +34,7 @@
       "dimensions_cm": [
         17.5,
         3.72,
-        4.903
+        4.9
       ],
       "materials": [
         {
@@ -66,14 +66,14 @@
         0.0015
       ],
       "uv_max": [
-        0.99155,
-        0.99085
+        0.99428,
+        0.99437
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 1326,
-      "zero_uv_area_mm2": 69.618,
-      "zero_uv_max_face_mm2": 7.2016,
-      "texel_density_px_per_cm": 12.44,
+      "zero_uv_faces": 1323,
+      "zero_uv_area_mm2": 36.65,
+      "zero_uv_max_face_mm2": 0.0602,
+      "texel_density_px_per_cm": 12.13,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -94,7 +94,7 @@
       "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
       "loose_edges": 0,
-      "zero_area_faces": 3,
+      "zero_area_faces": 0,
       "duplicate_faces": 0,
       "shells": 1,
       "deform_weights_without_groups": 0,
@@ -145,17 +145,17 @@
       ],
       "uv_min": [
         0.0015,
-        0.0015
+        0.00199
       ],
       "uv_max": [
-        0.99846,
-        0.99165
+        0.99494,
+        0.99482
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 1025,
-      "zero_uv_area_mm2": 94.334,
-      "zero_uv_max_face_mm2": 13.1608,
-      "texel_density_px_per_cm": 14.81,
+      "zero_uv_faces": 954,
+      "zero_uv_area_mm2": 18.431,
+      "zero_uv_max_face_mm2": 0.2509,
+      "texel_density_px_per_cm": 14.43,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -169,11 +169,11 @@
     },
     "Handguard": {
       "tris": 7950,
-      "verts": 3908,
-      "non_manifold_edges": 6,
-      "boundary_edges": 4,
+      "verts": 3907,
+      "non_manifold_edges": 0,
+      "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
-      "faces_opposing_vertex_normals": 4,
+      "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
       "loose_edges": 0,
       "zero_area_faces": 0,
@@ -230,14 +230,14 @@
         0.0015
       ],
       "uv_max": [
-        0.99779,
-        0.99116
+        0.99461,
+        0.99464
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 214,
-      "zero_uv_area_mm2": 17.525,
-      "zero_uv_max_face_mm2": 1.8308,
-      "texel_density_px_per_cm": 11.93,
+      "zero_uv_faces": 181,
+      "zero_uv_area_mm2": 4.724,
+      "zero_uv_max_face_mm2": 0.0494,
+      "texel_density_px_per_cm": 11.96,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -308,18 +308,18 @@
         }
       ],
       "uv_min": [
-        0.08381,
-        0.09399
+        0.01625,
+        0.03317
       ],
       "uv_max": [
-        0.99831,
-        0.99168
+        0.9947,
+        0.99476
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 190,
       "zero_uv_area_mm2": 6.449,
       "zero_uv_max_face_mm2": 0.0483,
-      "texel_density_px_per_cm": 15.91,
+      "texel_density_px_per_cm": 16.19,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -390,18 +390,18 @@
         }
       ],
       "uv_min": [
-        0.01157,
-        0.0015
+        0.00267,
+        0.00173
       ],
       "uv_max": [
-        0.983,
-        0.99088
+        0.99446,
+        0.96349
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 5.15,
+      "texel_density_px_per_cm": 5.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -472,18 +472,18 @@
         }
       ],
       "uv_min": [
-        0.02885,
-        0.12114
+        0.03156,
+        0.02192
       ],
       "uv_max": [
-        0.99778,
-        0.99182
+        0.99457,
+        0.99486
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 56,
       "zero_uv_area_mm2": 2.273,
       "zero_uv_max_face_mm2": 0.0458,
-      "texel_density_px_per_cm": 6.27,
+      "texel_density_px_per_cm": 6.09,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -554,18 +554,18 @@
         }
       ],
       "uv_min": [
-        0.15562,
-        0.00962
+        0.09309,
+        0.02498
       ],
       "uv_max": [
-        0.97367,
-        0.97319
+        0.97633,
+        0.97726
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 88,
-      "zero_uv_area_mm2": 1.822,
+      "zero_uv_area_mm2": 1.818,
       "zero_uv_max_face_mm2": 0.0434,
-      "texel_density_px_per_cm": 14.7,
+      "texel_density_px_per_cm": 14.28,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -578,8 +578,8 @@
       "texture_set": "Body"
     },
     "GasBlock": {
-      "tris": 1610,
-      "verts": 805,
+      "tris": 1570,
+      "verts": 785,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
@@ -636,18 +636,18 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.84861
+        0.312,
+        0.02733
       ],
       "uv_max": [
-        0.99094,
-        0.99134
+        0.9949,
+        0.99455
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 844,
-      "zero_uv_area_mm2": 22.93,
-      "zero_uv_max_face_mm2": 0.0496,
-      "texel_density_px_per_cm": 6.72,
+      "zero_uv_faces": 314,
+      "zero_uv_area_mm2": 8.388,
+      "zero_uv_max_face_mm2": 0.0497,
+      "texel_density_px_per_cm": 6.59,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -718,18 +718,18 @@
         }
       ],
       "uv_min": [
-        0.1893,
-        0.71856
+        0.2914,
+        0.23576
       ],
       "uv_max": [
-        0.86163,
-        0.99086
+        0.81342,
+        0.99457
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 5.2,
+      "texel_density_px_per_cm": 5.11,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -800,18 +800,18 @@
         }
       ],
       "uv_min": [
-        0.07208,
-        0.0015
+        0.00156,
+        0.00745
       ],
       "uv_max": [
-        0.99094,
-        0.9736
+        0.97722,
+        0.99438
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 498,
-      "zero_uv_area_mm2": 12.291,
+      "zero_uv_area_mm2": 12.303,
       "zero_uv_max_face_mm2": 0.0476,
-      "texel_density_px_per_cm": 13.48,
+      "texel_density_px_per_cm": 13.09,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -832,7 +832,7 @@
       "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
       "loose_edges": 0,
-      "zero_area_faces": 1,
+      "zero_area_faces": 0,
       "duplicate_faces": 0,
       "shells": 1,
       "deform_weights_without_groups": 0,
@@ -882,18 +882,18 @@
         }
       ],
       "uv_min": [
-        0.05661,
-        0.01258
+        0.1289,
+        0.03894
       ],
       "uv_max": [
-        0.9832,
-        0.99139
+        0.99479,
+        0.98674
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 50,
-      "zero_uv_area_mm2": 1.326,
-      "zero_uv_max_face_mm2": 0.0996,
-      "texel_density_px_per_cm": 14.77,
+      "zero_uv_faces": 46,
+      "zero_uv_area_mm2": 1.122,
+      "zero_uv_max_face_mm2": 0.0489,
+      "texel_density_px_per_cm": 14.39,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -964,18 +964,18 @@
         }
       ],
       "uv_min": [
-        0.03184,
-        0.20628
+        0.0015,
+        0.07385
       ],
       "uv_max": [
-        0.99161,
-        0.98355
+        0.98759,
+        0.98678
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 32,
       "zero_uv_area_mm2": 1.012,
       "zero_uv_max_face_mm2": 0.0439,
-      "texel_density_px_per_cm": 14.82,
+      "texel_density_px_per_cm": 14.46,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1046,18 +1046,18 @@
         }
       ],
       "uv_min": [
-        0.00159,
-        0.0033
+        0.00317,
+        0.0016
       ],
       "uv_max": [
-        0.97716,
-        0.92584
+        0.94633,
+        0.85761
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 23.28,
+      "texel_density_px_per_cm": 23.29,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1128,18 +1128,18 @@
         }
       ],
       "uv_min": [
-        0.00186,
-        0.0015
+        0.00193,
+        0.00162
       ],
       "uv_max": [
-        0.99537,
-        0.97874
+        0.99411,
+        0.96851
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 226,
-      "zero_uv_area_mm2": 3.691,
+      "zero_uv_area_mm2": 3.694,
       "zero_uv_max_face_mm2": 0.0493,
-      "texel_density_px_per_cm": 23.28,
+      "texel_density_px_per_cm": 23.29,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1210,18 +1210,18 @@
         }
       ],
       "uv_min": [
-        0.27509,
-        0.12101
+        0.00304,
+        0.14545
       ],
       "uv_max": [
-        0.9334,
-        0.83514
+        0.96111,
+        0.85391
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 23.28,
+      "texel_density_px_per_cm": 23.29,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1234,12 +1234,12 @@
       "texture_set": "Furniture"
     },
     "ChargingHandle": {
-      "tris": 919,
+      "tris": 920,
       "verts": 462,
-      "non_manifold_edges": 3,
-      "boundary_edges": 2,
+      "non_manifold_edges": 0,
+      "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
-      "faces_opposing_vertex_normals": 1,
+      "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
       "loose_edges": 0,
       "zero_area_faces": 0,
@@ -1292,18 +1292,18 @@
         }
       ],
       "uv_min": [
-        0.11828,
-        0.0015
+        0.0015,
+        0.06625
       ],
       "uv_max": [
-        0.99138,
-        0.99169
+        0.98697,
+        0.99449
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 209,
-      "zero_uv_area_mm2": 11.679,
-      "zero_uv_max_face_mm2": 3.12,
-      "texel_density_px_per_cm": 14.76,
+      "zero_uv_faces": 208,
+      "zero_uv_area_mm2": 5.329,
+      "zero_uv_max_face_mm2": 0.0373,
+      "texel_density_px_per_cm": 14.36,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1374,18 +1374,18 @@
         }
       ],
       "uv_min": [
-        0.06372,
-        0.0015
+        0.00222,
+        0.13483
       ],
       "uv_max": [
-        0.99151,
-        0.9625
+        0.97715,
+        0.99472
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 158,
       "zero_uv_area_mm2": 3.444,
       "zero_uv_max_face_mm2": 0.0318,
-      "texel_density_px_per_cm": 10.52,
+      "texel_density_px_per_cm": 10.23,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1456,18 +1456,18 @@
         }
       ],
       "uv_min": [
-        0.01801,
-        0.0015
+        0.4147,
+        0.0131
       ],
       "uv_max": [
-        0.95951,
-        0.85546
+        0.96554,
+        0.51461
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 208,
-      "zero_uv_area_mm2": 22.894,
-      "zero_uv_max_face_mm2": 9.9765,
-      "texel_density_px_per_cm": 14.67,
+      "zero_uv_faces": 206,
+      "zero_uv_area_mm2": 2.941,
+      "zero_uv_max_face_mm2": 0.0458,
+      "texel_density_px_per_cm": 14.29,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1538,18 +1538,18 @@
         }
       ],
       "uv_min": [
-        0.72015,
-        0.47712
+        0.33258,
+        0.7341
       ],
       "uv_max": [
-        0.9909,
-        0.99084
+        0.36939,
+        0.99454
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 6,
-      "zero_uv_area_mm2": 109.015,
-      "zero_uv_max_face_mm2": 18.1691,
-      "texel_density_px_per_cm": 6.82,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
+      "texel_density_px_per_cm": 7.65,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1562,12 +1562,12 @@
       "texture_set": "Body"
     },
     "ForwardAssist": {
-      "tris": 628,
-      "verts": 316,
+      "tris": 594,
+      "verts": 299,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
-      "faces_opposing_vertex_normals": 2,
+      "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
       "loose_edges": 0,
       "zero_area_faces": 0,
@@ -1582,16 +1582,16 @@
       "bbox_min_m": [
         0.02236,
         -0.0169,
-        0.09022
+        0.08962
       ],
       "bbox_max_m": [
         0.02986,
-        -0.00945,
-        0.09962
+        -0.00969,
+        0.09902
       ],
       "dimensions_cm": [
         0.75,
-        0.745,
+        0.721,
         0.94
       ],
       "materials": [
@@ -1620,18 +1620,18 @@
         }
       ],
       "uv_min": [
-        0.0428,
-        0.15267
+        0.00896,
+        0.03524
       ],
       "uv_max": [
-        0.99167,
-        0.99182
+        0.98767,
+        0.9948
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 194,
-      "zero_uv_area_mm2": 5.031,
-      "zero_uv_max_face_mm2": 0.06,
-      "texel_density_px_per_cm": 17.65,
+      "zero_uv_faces": 167,
+      "zero_uv_area_mm2": 3.728,
+      "zero_uv_max_face_mm2": 0.0475,
+      "texel_density_px_per_cm": 16.89,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1702,18 +1702,18 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.05589
+        0.33129,
+        0.0015
       ],
       "uv_max": [
-        0.9909,
-        0.99175
+        0.99442,
+        0.99454
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 11.96,
+      "texel_density_px_per_cm": 11.65,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1784,18 +1784,18 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.14847
+        0.10251,
+        0.40374
       ],
       "uv_max": [
-        0.973,
-        0.97345
+        0.97658,
+        0.97705
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 14.7,
+      "texel_density_px_per_cm": 14.28,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1866,18 +1866,18 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.08165
+        0.00701,
+        0.0822
       ],
       "uv_max": [
-        0.9982,
-        0.99127
+        0.99467,
+        0.98612
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 316,
-      "zero_uv_area_mm2": 7.439,
+      "zero_uv_faces": 315,
+      "zero_uv_area_mm2": 7.437,
       "zero_uv_max_face_mm2": 0.0495,
-      "texel_density_px_per_cm": 15.78,
+      "texel_density_px_per_cm": 15.52,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1948,18 +1948,18 @@
         }
       ],
       "uv_min": [
-        0.1036,
-        0.05075
+        0.01067,
+        0.01569
       ],
       "uv_max": [
-        0.99817,
-        0.99128
+        0.99404,
+        0.99463
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 182,
-      "zero_uv_area_mm2": 9.939,
-      "zero_uv_max_face_mm2": 0.8292,
-      "texel_density_px_per_cm": 18.42,
+      "zero_uv_faces": 168,
+      "zero_uv_area_mm2": 6.791,
+      "zero_uv_max_face_mm2": 0.0497,
+      "texel_density_px_per_cm": 18.73,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2030,18 +2030,18 @@
         }
       ],
       "uv_min": [
-        0.21637,
-        0.37791
+        0.0015,
+        0.46529
       ],
       "uv_max": [
-        0.9125,
-        0.96117
+        0.96424,
+        0.97737
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 263,
-      "zero_uv_area_mm2": 6.325,
+      "zero_uv_area_mm2": 6.333,
       "zero_uv_max_face_mm2": 0.0495,
-      "texel_density_px_per_cm": 14.64,
+      "texel_density_px_per_cm": 14.27,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2054,12 +2054,12 @@
       "texture_set": "Body"
     },
     "RearSightBase": {
-      "tris": 2332,
-      "verts": 1162,
+      "tris": 2340,
+      "verts": 1166,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
-      "faces_opposing_vertex_normals": 1,
+      "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
       "loose_edges": 0,
       "zero_area_faces": 0,
@@ -2112,18 +2112,18 @@
         }
       ],
       "uv_min": [
-        0.14949,
-        0.00544
+        0.0015,
+        0.0015
       ],
       "uv_max": [
-        0.99729,
-        0.99131
+        0.99308,
+        0.9948
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 978,
-      "zero_uv_area_mm2": 21.452,
+      "zero_uv_faces": 980,
+      "zero_uv_area_mm2": 21.619,
       "zero_uv_max_face_mm2": 0.0499,
-      "texel_density_px_per_cm": 14.79,
+      "texel_density_px_per_cm": 14.42,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2194,18 +2194,18 @@
         }
       ],
       "uv_min": [
-        0.20176,
-        0.2079
+        0.06761,
+        0.46217
       ],
       "uv_max": [
-        0.98296,
-        0.96172
+        0.96364,
+        0.98665
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 10.8,
+      "texel_density_px_per_cm": 10.54,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2276,18 +2276,18 @@
         }
       ],
       "uv_min": [
-        0.02167,
-        0.07936
+        0.02409,
+        0.2942
       ],
       "uv_max": [
-        0.99169,
-        0.99173
+        0.97698,
+        0.99478
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 803,
-      "zero_uv_area_mm2": 20.868,
-      "zero_uv_max_face_mm2": 1.0121,
-      "texel_density_px_per_cm": 14.67,
+      "zero_uv_faces": 800,
+      "zero_uv_area_mm2": 18.815,
+      "zero_uv_max_face_mm2": 0.046,
+      "texel_density_px_per_cm": 14.24,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2300,12 +2300,12 @@
       "texture_set": "Body"
     },
     "FrontSightBase": {
-      "tris": 1832,
-      "verts": 912,
+      "tris": 1836,
+      "verts": 914,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
-      "faces_opposing_vertex_normals": 1,
+      "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
       "loose_edges": 0,
       "zero_area_faces": 0,
@@ -2358,18 +2358,18 @@
         }
       ],
       "uv_min": [
-        0.0462,
-        0.0015
+        0.07656,
+        0.03808
       ],
       "uv_max": [
-        0.99106,
-        0.99095
+        0.99461,
+        0.98674
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 902,
-      "zero_uv_area_mm2": 19.157,
-      "zero_uv_max_face_mm2": 0.0825,
-      "texel_density_px_per_cm": 14.81,
+      "zero_uv_faces": 910,
+      "zero_uv_area_mm2": 19.003,
+      "zero_uv_max_face_mm2": 0.0492,
+      "texel_density_px_per_cm": 14.4,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2440,18 +2440,18 @@
         }
       ],
       "uv_min": [
-        0.40567,
-        0.03838
+        0.05866,
+        0.2326
       ],
       "uv_max": [
-        0.98296,
-        0.96106
+        0.96364,
+        0.98665
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 10.88,
+      "texel_density_px_per_cm": 10.71,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2522,18 +2522,18 @@
         }
       ],
       "uv_min": [
-        0.05647,
-        0.12682
+        0.04917,
+        0.20953
       ],
       "uv_max": [
-        0.9916,
-        0.99176
+        0.97657,
+        0.99484
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 636,
       "zero_uv_area_mm2": 14.188,
       "zero_uv_max_face_mm2": 0.0436,
-      "texel_density_px_per_cm": 14.71,
+      "texel_density_px_per_cm": 14.29,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2546,12 +2546,12 @@
       "texture_set": "Body"
     },
     "Optic": {
-      "tris": 10898,
-      "verts": 5447,
+      "tris": 8656,
+      "verts": 4326,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
-      "faces_opposing_vertex_normals": 21,
+      "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
       "loose_edges": 0,
       "zero_area_faces": 0,
@@ -2608,14 +2608,14 @@
         0.0015
       ],
       "uv_max": [
-        0.99637,
-        0.99166
+        0.9946,
+        0.99479
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 2870,
-      "zero_uv_area_mm2": 55.136,
-      "zero_uv_max_face_mm2": 0.2706,
-      "texel_density_px_per_cm": 13.64,
+      "zero_uv_faces": 1414,
+      "zero_uv_area_mm2": 32.671,
+      "zero_uv_max_face_mm2": 0.0499,
+      "texel_density_px_per_cm": 13.27,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2686,18 +2686,18 @@
         }
       ],
       "uv_min": [
-        0.10294,
-        0.16044
+        0.04468,
+        0.23837
       ],
       "uv_max": [
-        0.99099,
-        0.9624
+        0.98647,
+        0.99433
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 11.34,
+      "texel_density_px_per_cm": 11.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2900,16 +2900,16 @@
       "texture_set": null
     },
     "Magazine": {
-      "tris": 3582,
-      "verts": 1753,
-      "non_manifold_edges": 118,
-      "boundary_edges": 23,
+      "tris": 2996,
+      "verts": 1500,
+      "non_manifold_edges": 0,
+      "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
       "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
       "loose_edges": 0,
       "zero_area_faces": 0,
-      "duplicate_faces": 22,
+      "duplicate_faces": 0,
       "shells": 1,
       "deform_weights_without_groups": 0,
       "uv_layers": [
@@ -2920,7 +2920,7 @@
       "bbox_min_m": [
         0.09049,
         -0.0138,
-        -0.1208
+        -0.12079
       ],
       "bbox_max_m": [
         0.18088,
@@ -2928,9 +2928,9 @@
         0.07842
       ],
       "dimensions_cm": [
-        9.039,
+        9.038,
         2.76,
-        19.922
+        19.921
       ],
       "materials": [
         {
@@ -2958,17 +2958,17 @@
         }
       ],
       "uv_min": [
-        0.00155,
-        0.00183
+        0.0015,
+        0.00167
       ],
       "uv_max": [
-        0.99312,
-        0.94095
+        0.99674,
+        0.91675
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 376,
-      "zero_uv_area_mm2": 6.051,
-      "zero_uv_max_face_mm2": 0.0489,
+      "zero_uv_faces": 370,
+      "zero_uv_area_mm2": 6.528,
+      "zero_uv_max_face_mm2": 0.0497,
       "texel_density_px_per_cm": 23.29,
       "skin": {
         "armature": "SK_IV7",
@@ -3040,18 +3040,18 @@
         }
       ],
       "uv_min": [
-        0.46897,
-        0.01614
+        0.0999,
+        0.0025
       ],
       "uv_max": [
-        0.99317,
-        0.76334
+        0.99058,
+        0.95742
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 40,
       "zero_uv_area_mm2": 1.988,
       "zero_uv_max_face_mm2": 0.0497,
-      "texel_density_px_per_cm": 18.57,
+      "texel_density_px_per_cm": 18.58,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3064,10 +3064,10 @@
       "texture_set": "Furniture"
     },
     "UpperReceiver_LOD1": {
-      "tris": 2495,
-      "verts": 1240,
-      "non_manifold_edges": 3,
-      "boundary_edges": 2,
+      "tris": 2526,
+      "verts": 1255,
+      "non_manifold_edges": 0,
+      "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
       "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
@@ -3087,14 +3087,14 @@
         0.07272
       ],
       "bbox_max_m": [
-        0.19686,
-        0.01496,
+        0.19687,
+        0.015,
         0.12172
       ],
       "dimensions_cm": [
         17.501,
-        3.715,
-        4.901
+        3.719,
+        4.9
       ],
       "materials": [
         {
@@ -3126,13 +3126,13 @@
         0.0015
       ],
       "uv_max": [
-        0.99155,
-        0.99083
+        0.99426,
+        0.99434
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 226,
-      "zero_uv_area_mm2": 238.475,
-      "zero_uv_max_face_mm2": 53.6518,
+      "zero_uv_faces": 99,
+      "zero_uv_area_mm2": 4.616,
+      "zero_uv_max_face_mm2": 0.0893,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3203,17 +3203,17 @@
         }
       ],
       "uv_min": [
-        0.00151,
-        0.0015
+        0.0015,
+        0.00199
       ],
       "uv_max": [
-        0.99846,
-        0.99165
+        0.99494,
+        0.99627
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 103,
-      "zero_uv_area_mm2": 143.447,
-      "zero_uv_max_face_mm2": 14.1661,
+      "zero_uv_faces": 12,
+      "zero_uv_area_mm2": 3.215,
+      "zero_uv_max_face_mm2": 2.9216,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3227,9 +3227,9 @@
     },
     "Handguard_LOD1": {
       "tris": 3974,
-      "verts": 1920,
-      "non_manifold_edges": 6,
-      "boundary_edges": 4,
+      "verts": 1919,
+      "non_manifold_edges": 0,
+      "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
       "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
@@ -3288,13 +3288,13 @@
         0.0015
       ],
       "uv_max": [
-        0.99132,
-        0.99116
+        0.99432,
+        0.99464
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 31,
-      "zero_uv_area_mm2": 12.937,
-      "zero_uv_max_face_mm2": 0.6627,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3365,17 +3365,17 @@
         }
       ],
       "uv_min": [
-        0.08386,
-        0.09399
+        0.01636,
+        0.03317
       ],
       "uv_max": [
-        0.99831,
-        0.99162
+        0.9947,
+        0.99466
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 28,
-      "zero_uv_area_mm2": 3.729,
-      "zero_uv_max_face_mm2": 0.8242,
+      "zero_uv_faces": 4,
+      "zero_uv_area_mm2": 0.174,
+      "zero_uv_max_face_mm2": 0.0439,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3446,12 +3446,12 @@
         }
       ],
       "uv_min": [
-        0.01157,
-        0.0015
+        0.00267,
+        0.00174
       ],
       "uv_max": [
-        0.98294,
-        0.99088
+        0.99446,
+        0.96349
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -3527,17 +3527,17 @@
         }
       ],
       "uv_min": [
-        0.02885,
-        0.12144
+        0.03156,
+        0.02192
       ],
       "uv_max": [
-        0.99144,
-        0.99182
+        0.99457,
+        0.99486
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 16,
-      "zero_uv_area_mm2": 8.652,
-      "zero_uv_max_face_mm2": 2.5156,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3608,17 +3608,17 @@
         }
       ],
       "uv_min": [
-        0.15562,
-        0.00962
+        0.09309,
+        0.02498
       ],
       "uv_max": [
-        0.97341,
-        0.97316
+        0.97629,
+        0.97661
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 2,
-      "zero_uv_area_mm2": 7.41,
-      "zero_uv_max_face_mm2": 6.0274,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3631,8 +3631,8 @@
       "texture_set": null
     },
     "GasBlock_LOD1": {
-      "tris": 804,
-      "verts": 402,
+      "tris": 784,
+      "verts": 392,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
@@ -3650,18 +3650,18 @@
       "has_custom_normals": true,
       "bbox_min_m": [
         0.35286,
-        -0.01149,
+        -0.01148,
         0.08022
       ],
       "bbox_max_m": [
         0.38386,
-        0.01149,
-        0.10971
+        0.01148,
+        0.10972
       ],
       "dimensions_cm": [
         3.1,
-        2.298,
-        2.949
+        2.296,
+        2.95
       ],
       "materials": [
         {
@@ -3689,17 +3689,17 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.84861
+        0.31203,
+        0.02729
       ],
       "uv_max": [
-        0.99094,
-        0.99134
+        0.9949,
+        0.99455
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 307,
-      "zero_uv_area_mm2": 365.934,
-      "zero_uv_max_face_mm2": 27.9114,
+      "zero_uv_faces": 8,
+      "zero_uv_area_mm2": 8.042,
+      "zero_uv_max_face_mm2": 7.7757,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3770,12 +3770,12 @@
         }
       ],
       "uv_min": [
-        0.18944,
-        0.71856
+        0.2914,
+        0.23576
       ],
       "uv_max": [
-        0.86163,
-        0.99086
+        0.81342,
+        0.99457
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -3851,17 +3851,17 @@
         }
       ],
       "uv_min": [
-        0.0721,
-        0.0015
+        0.00164,
+        0.00959
       ],
       "uv_max": [
-        0.99091,
-        0.97359
+        0.97722,
+        0.99438
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 57,
-      "zero_uv_area_mm2": 6.468,
-      "zero_uv_max_face_mm2": 0.1418,
+      "zero_uv_faces": 4,
+      "zero_uv_area_mm2": 0.177,
+      "zero_uv_max_face_mm2": 0.0475,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3932,17 +3932,17 @@
         }
       ],
       "uv_min": [
-        0.05661,
-        0.01258
+        0.12895,
+        0.03894
       ],
       "uv_max": [
-        0.9832,
-        0.99139
+        0.99479,
+        0.98674
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 6,
-      "zero_uv_area_mm2": 1.565,
-      "zero_uv_max_face_mm2": 0.6167,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -4013,17 +4013,17 @@
         }
       ],
       "uv_min": [
-        0.03184,
-        0.21894
+        0.0015,
+        0.07385
       ],
       "uv_max": [
-        0.99156,
-        0.98355
+        0.98759,
+        0.98678
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 1,
-      "zero_uv_area_mm2": 0.321,
-      "zero_uv_max_face_mm2": 0.321,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -4094,12 +4094,12 @@
         }
       ],
       "uv_min": [
-        0.00159,
-        0.0033
+        0.00317,
+        0.0016
       ],
       "uv_max": [
-        0.97716,
-        0.92584
+        0.94633,
+        0.85761
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -4175,17 +4175,17 @@
         }
       ],
       "uv_min": [
-        0.00192,
-        0.0015
+        0.00193,
+        0.00162
       ],
       "uv_max": [
-        0.99537,
-        0.97874
+        0.99411,
+        0.96851
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 13,
-      "zero_uv_area_mm2": 10.863,
-      "zero_uv_max_face_mm2": 7.8668,
+      "zero_uv_faces": 4,
+      "zero_uv_area_mm2": 0.07,
+      "zero_uv_max_face_mm2": 0.0206,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -4256,12 +4256,12 @@
         }
       ],
       "uv_min": [
-        0.27509,
-        0.12101
+        0.00304,
+        0.14545
       ],
       "uv_max": [
-        0.93308,
-        0.83514
+        0.96079,
+        0.85391
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -4279,10 +4279,10 @@
       "texture_set": null
     },
     "ChargingHandle_LOD1": {
-      "tris": 459,
+      "tris": 460,
       "verts": 232,
-      "non_manifold_edges": 3,
-      "boundary_edges": 2,
+      "non_manifold_edges": 0,
+      "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
       "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
@@ -4337,17 +4337,17 @@
         }
       ],
       "uv_min": [
-        0.11828,
-        0.0015
+        0.00168,
+        0.06625
       ],
       "uv_max": [
-        0.99138,
-        0.99169
+        0.98697,
+        0.99449
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 34,
-      "zero_uv_area_mm2": 25.174,
-      "zero_uv_max_face_mm2": 14.1926,
+      "zero_uv_faces": 15,
+      "zero_uv_area_mm2": 0.505,
+      "zero_uv_max_face_mm2": 0.048,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -4418,17 +4418,17 @@
         }
       ],
       "uv_min": [
-        0.06388,
-        0.00156
+        0.00222,
+        0.13483
       ],
       "uv_max": [
-        0.99151,
-        0.9625
+        0.97715,
+        0.99472
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 11,
-      "zero_uv_area_mm2": 9.924,
-      "zero_uv_max_face_mm2": 1.9934,
+      "zero_uv_faces": 1,
+      "zero_uv_area_mm2": 0.046,
+      "zero_uv_max_face_mm2": 0.0457,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -4499,17 +4499,17 @@
         }
       ],
       "uv_min": [
-        0.01801,
-        0.0015
+        0.4147,
+        0.0131
       ],
       "uv_max": [
-        0.95951,
-        0.85546
+        0.96554,
+        0.51462
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 47,
-      "zero_uv_area_mm2": 266.957,
-      "zero_uv_max_face_mm2": 16.9286,
+      "zero_uv_faces": 13,
+      "zero_uv_area_mm2": 0.272,
+      "zero_uv_max_face_mm2": 0.0395,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -4580,12 +4580,12 @@
         }
       ],
       "uv_min": [
-        0.72015,
-        0.47724
+        0.33258,
+        0.7341
       ],
       "uv_max": [
-        0.99066,
-        0.99084
+        0.36939,
+        0.99454
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -4603,8 +4603,8 @@
       "texture_set": null
     },
     "ForwardAssist_LOD1": {
-      "tris": 314,
-      "verts": 159,
+      "tris": 296,
+      "verts": 150,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
@@ -4623,17 +4623,17 @@
       "bbox_min_m": [
         0.02236,
         -0.01687,
-        0.09022
+        0.08962
       ],
       "bbox_max_m": [
         0.02986,
-        -0.00946,
-        0.0996
+        -0.0097,
+        0.09902
       ],
       "dimensions_cm": [
         0.75,
-        0.742,
-        0.937
+        0.717,
+        0.94
       ],
       "materials": [
         {
@@ -4661,17 +4661,17 @@
         }
       ],
       "uv_min": [
-        0.04281,
-        0.15267
+        0.00896,
+        0.03524
       ],
       "uv_max": [
-        0.99167,
-        0.99182
+        0.98764,
+        0.99477
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 56,
-      "zero_uv_area_mm2": 5.517,
-      "zero_uv_max_face_mm2": 0.6363,
+      "zero_uv_faces": 21,
+      "zero_uv_area_mm2": 0.724,
+      "zero_uv_max_face_mm2": 0.0385,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -4742,12 +4742,12 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.05589
+        0.33129,
+        0.0015
       ],
       "uv_max": [
-        0.9909,
-        0.99175
+        0.99442,
+        0.99454
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -4823,12 +4823,12 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.14847
+        0.10251,
+        0.40374
       ],
       "uv_max": [
-        0.973,
-        0.97345
+        0.97658,
+        0.97705
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -4904,17 +4904,17 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.08165
+        0.00701,
+        0.0822
       ],
       "uv_max": [
-        0.9982,
-        0.99107
+        0.99877,
+        0.98612
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 51,
-      "zero_uv_area_mm2": 6.947,
-      "zero_uv_max_face_mm2": 0.7726,
+      "zero_uv_faces": 29,
+      "zero_uv_area_mm2": 0.771,
+      "zero_uv_max_face_mm2": 0.0612,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -4951,12 +4951,12 @@
       ],
       "bbox_max_m": [
         0.05389,
-        0.01747,
+        0.01745,
         0.06419
       ],
       "dimensions_cm": [
         1.849,
-        3.127,
+        3.125,
         1.093
       ],
       "materials": [
@@ -4985,17 +4985,17 @@
         }
       ],
       "uv_min": [
-        0.1036,
-        0.05205
+        0.18692,
+        0.01569
       ],
       "uv_max": [
-        0.99817,
-        0.99128
+        0.99404,
+        0.99463
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 48,
-      "zero_uv_area_mm2": 10.622,
-      "zero_uv_max_face_mm2": 2.9988,
+      "zero_uv_faces": 2,
+      "zero_uv_area_mm2": 0.076,
+      "zero_uv_max_face_mm2": 0.0417,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -5066,17 +5066,17 @@
         }
       ],
       "uv_min": [
-        0.21637,
-        0.37791
+        0.0015,
+        0.46529
       ],
       "uv_max": [
-        0.9125,
-        0.96117
+        0.96424,
+        0.97737
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 60,
-      "zero_uv_area_mm2": 41.837,
-      "zero_uv_max_face_mm2": 5.7936,
+      "zero_uv_faces": 40,
+      "zero_uv_area_mm2": 1.069,
+      "zero_uv_max_face_mm2": 0.0491,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -5089,8 +5089,8 @@
       "texture_set": null
     },
     "RearSightBase_LOD1": {
-      "tris": 1166,
-      "verts": 579,
+      "tris": 1170,
+      "verts": 581,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
@@ -5147,17 +5147,17 @@
         }
       ],
       "uv_min": [
-        0.14949,
-        0.00544
+        0.00154,
+        0.0015
       ],
       "uv_max": [
-        0.99104,
-        0.99131
+        0.98754,
+        0.99478
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 241,
-      "zero_uv_area_mm2": 90.866,
-      "zero_uv_max_face_mm2": 6.9901,
+      "zero_uv_faces": 157,
+      "zero_uv_area_mm2": 5.542,
+      "zero_uv_max_face_mm2": 0.3261,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -5228,12 +5228,12 @@
         }
       ],
       "uv_min": [
-        0.20193,
-        0.20806
+        0.06766,
+        0.46221
       ],
       "uv_max": [
-        0.9829,
-        0.96172
+        0.96364,
+        0.9866
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -5309,17 +5309,17 @@
         }
       ],
       "uv_min": [
-        0.02167,
-        0.07936
+        0.02409,
+        0.2942
       ],
       "uv_max": [
-        0.99169,
-        0.99173
+        0.97714,
+        0.99498
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 149,
-      "zero_uv_area_mm2": 24.133,
-      "zero_uv_max_face_mm2": 2.3879,
+      "zero_uv_faces": 78,
+      "zero_uv_area_mm2": 2.733,
+      "zero_uv_max_face_mm2": 0.0497,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -5332,8 +5332,8 @@
       "texture_set": null
     },
     "FrontSightBase_LOD1": {
-      "tris": 916,
-      "verts": 454,
+      "tris": 918,
+      "verts": 455,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
@@ -5390,17 +5390,17 @@
         }
       ],
       "uv_min": [
-        0.04621,
-        0.0015
+        0.07656,
+        0.03809
       ],
       "uv_max": [
-        0.99106,
-        0.99095
+        0.99459,
+        0.98674
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 271,
-      "zero_uv_area_mm2": 71.441,
-      "zero_uv_max_face_mm2": 8.4589,
+      "zero_uv_faces": 209,
+      "zero_uv_area_mm2": 9.307,
+      "zero_uv_max_face_mm2": 2.2981,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -5471,12 +5471,12 @@
         }
       ],
       "uv_min": [
-        0.40588,
-        0.03851
+        0.05871,
+        0.23265
       ],
       "uv_max": [
-        0.9829,
-        0.96106
+        0.96364,
+        0.9866
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -5552,17 +5552,17 @@
         }
       ],
       "uv_min": [
-        0.05647,
-        0.12682
+        0.04908,
+        0.20953
       ],
       "uv_max": [
-        0.9916,
-        0.99176
+        0.97657,
+        0.99485
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 202,
-      "zero_uv_area_mm2": 29.984,
-      "zero_uv_max_face_mm2": 3.0204,
+      "zero_uv_faces": 134,
+      "zero_uv_area_mm2": 4.468,
+      "zero_uv_max_face_mm2": 0.0498,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -5575,8 +5575,8 @@
       "texture_set": null
     },
     "Optic_LOD1": {
-      "tris": 5448,
-      "verts": 2722,
+      "tris": 4328,
+      "verts": 2162,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
@@ -5633,17 +5633,17 @@
         }
       ],
       "uv_min": [
-        0.00347,
+        0.0015,
         0.0015
       ],
       "uv_max": [
-        0.99181,
-        0.99165
+        0.9946,
+        0.99479
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 415,
-      "zero_uv_area_mm2": 89.544,
-      "zero_uv_max_face_mm2": 8.3878,
+      "zero_uv_faces": 48,
+      "zero_uv_area_mm2": 0.871,
+      "zero_uv_max_face_mm2": 0.0454,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -5714,12 +5714,12 @@
         }
       ],
       "uv_min": [
-        0.10317,
-        0.16064
+        0.04487,
+        0.23837
       ],
       "uv_max": [
-        0.99099,
-        0.9624
+        0.98641,
+        0.99427
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -5927,16 +5927,16 @@
       "texture_set": null
     },
     "Magazine_LOD1": {
-      "tris": 1790,
-      "verts": 855,
-      "non_manifold_edges": 114,
-      "boundary_edges": 19,
+      "tris": 1498,
+      "verts": 751,
+      "non_manifold_edges": 0,
+      "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
       "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
       "loose_edges": 0,
       "zero_area_faces": 0,
-      "duplicate_faces": 22,
+      "duplicate_faces": 0,
       "shells": 1,
       "deform_weights_without_groups": 0,
       "uv_layers": [
@@ -5947,17 +5947,17 @@
       "bbox_min_m": [
         0.0905,
         -0.0138,
-        -0.12082
+        -0.12079
       ],
       "bbox_max_m": [
-        0.18087,
+        0.18086,
         0.0138,
-        0.07841
+        0.0784
       ],
       "dimensions_cm": [
         9.036,
         2.76,
-        19.923
+        19.92
       ],
       "materials": [
         {
@@ -5985,17 +5985,17 @@
         }
       ],
       "uv_min": [
-        0.00155,
-        0.00203
+        0.0015,
+        0.00167
       ],
       "uv_max": [
-        0.99312,
-        0.94095
+        0.99674,
+        0.91675
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 88,
-      "zero_uv_area_mm2": 21.938,
-      "zero_uv_max_face_mm2": 13.1987,
+      "zero_uv_faces": 21,
+      "zero_uv_area_mm2": 0.664,
+      "zero_uv_max_face_mm2": 0.0473,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -6066,17 +6066,17 @@
         }
       ],
       "uv_min": [
-        0.46925,
-        0.01614
+        0.10118,
+        0.0025
       ],
       "uv_max": [
-        0.99317,
-        0.76334
+        0.99058,
+        0.95742
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 4,
-      "zero_uv_area_mm2": 0.678,
-      "zero_uv_max_face_mm2": 0.1753,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -6089,10 +6089,10 @@
       "texture_set": null
     },
     "UpperReceiver_LOD2": {
-      "tris": 997,
-      "verts": 491,
-      "non_manifold_edges": 3,
-      "boundary_edges": 2,
+      "tris": 1010,
+      "verts": 497,
+      "non_manifold_edges": 0,
+      "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
       "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
@@ -6109,17 +6109,17 @@
       "bbox_min_m": [
         0.02186,
         -0.02218,
-        0.07273
+        0.0728
       ],
       "bbox_max_m": [
         0.19686,
-        0.0149,
+        0.01492,
         0.12161
       ],
       "dimensions_cm": [
         17.5,
-        3.708,
-        4.888
+        3.71,
+        4.882
       ],
       "materials": [
         {
@@ -6151,13 +6151,13 @@
         0.0015
       ],
       "uv_max": [
-        0.99155,
-        0.99083
+        0.99426,
+        0.99434
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 13,
-      "zero_uv_area_mm2": 102.283,
-      "zero_uv_max_face_mm2": 53.1123,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -6228,17 +6228,17 @@
         }
       ],
       "uv_min": [
-        0.00151,
-        0.0015
+        0.0015,
+        0.00209
       ],
       "uv_max": [
-        0.99843,
-        0.99161
+        0.99493,
+        0.99482
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 4,
-      "zero_uv_area_mm2": 7.216,
-      "zero_uv_max_face_mm2": 6.3045,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -6252,9 +6252,9 @@
     },
     "Handguard_LOD2": {
       "tris": 1590,
-      "verts": 728,
-      "non_manifold_edges": 6,
-      "boundary_edges": 4,
+      "verts": 727,
+      "non_manifold_edges": 0,
+      "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
       "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
@@ -6269,19 +6269,19 @@
       "missing_uvs": false,
       "has_custom_normals": true,
       "bbox_min_m": [
-        0.19888,
+        0.19901,
         -0.025,
-        0.06479
+        0.06478
       ],
       "bbox_max_m": [
-        0.52884,
+        0.52871,
         0.02491,
         0.12159
       ],
       "dimensions_cm": [
-        32.996,
+        32.97,
         4.991,
-        5.68
+        5.681
       ],
       "materials": [
         {
@@ -6310,16 +6310,16 @@
       ],
       "uv_min": [
         0.0015,
-        0.0015
+        0.00161
       ],
       "uv_max": [
-        0.99132,
-        0.99116
+        0.99425,
+        0.99415
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 6,
-      "zero_uv_area_mm2": 8.213,
-      "zero_uv_max_face_mm2": 4.7558,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -6390,12 +6390,12 @@
         }
       ],
       "uv_min": [
-        0.08404,
-        0.09399
+        0.01636,
+        0.03331
       ],
       "uv_max": [
-        0.99831,
-        0.99158
+        0.99469,
+        0.99466
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6471,12 +6471,12 @@
         }
       ],
       "uv_min": [
-        0.01163,
-        0.00158
+        0.00277,
+        0.00179
       ],
       "uv_max": [
-        0.98294,
-        0.99071
+        0.99429,
+        0.96343
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6552,12 +6552,12 @@
         }
       ],
       "uv_min": [
-        0.0291,
-        0.12155
+        0.03156,
+        0.02192
       ],
       "uv_max": [
-        0.99144,
-        0.99161
+        0.99457,
+        0.99486
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6633,12 +6633,12 @@
         }
       ],
       "uv_min": [
-        0.15573,
-        0.0099
+        0.09333,
+        0.02498
       ],
       "uv_max": [
-        0.97341,
-        0.97316
+        0.97629,
+        0.97651
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6656,8 +6656,8 @@
       "texture_set": null
     },
     "GasBlock_LOD2": {
-      "tris": 322,
-      "verts": 161,
+      "tris": 314,
+      "verts": 157,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
@@ -6676,17 +6676,17 @@
       "bbox_min_m": [
         0.35286,
         -0.01148,
-        0.08024
+        0.08026
       ],
       "bbox_max_m": [
-        0.38385,
+        0.38386,
         0.01148,
-        0.10971
+        0.10966
       ],
       "dimensions_cm": [
-        3.099,
+        3.1,
         2.296,
-        2.947
+        2.939
       ],
       "materials": [
         {
@@ -6714,17 +6714,17 @@
         }
       ],
       "uv_min": [
-        0.00151,
-        0.84861
+        0.31217,
+        0.02744
       ],
       "uv_max": [
-        0.99094,
-        0.99134
+        0.99483,
+        0.99449
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 11,
-      "zero_uv_area_mm2": 94.012,
-      "zero_uv_max_face_mm2": 39.4314,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -6795,12 +6795,12 @@
         }
       ],
       "uv_min": [
-        0.18986,
-        0.71856
+        0.29176,
+        0.23576
       ],
       "uv_max": [
-        0.86133,
-        0.99055
+        0.81342,
+        0.99443
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6876,17 +6876,17 @@
         }
       ],
       "uv_min": [
-        0.0727,
-        0.0015
+        0.00164,
+        0.00959
       ],
       "uv_max": [
-        0.99088,
-        0.97346
+        0.97716,
+        0.99434
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 2,
-      "zero_uv_area_mm2": 0.169,
-      "zero_uv_max_face_mm2": 0.087,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -6957,12 +6957,12 @@
         }
       ],
       "uv_min": [
-        0.05668,
-        0.01258
+        0.12908,
+        0.03902
       ],
       "uv_max": [
-        0.9832,
-        0.99139
+        0.99479,
+        0.96328
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7038,12 +7038,12 @@
         }
       ],
       "uv_min": [
-        0.03185,
-        0.21894
+        0.14097,
+        0.07385
       ],
       "uv_max": [
-        0.99122,
-        0.98293
+        0.98724,
+        0.98565
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7119,12 +7119,12 @@
         }
       ],
       "uv_min": [
-        0.00236,
-        0.0037
+        0.00394,
+        0.00193
       ],
       "uv_max": [
-        0.95146,
-        0.92535
+        0.94633,
+        0.85726
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7166,12 +7166,12 @@
       ],
       "bbox_max_m": [
         -0.10767,
-        0.02113,
+        0.02111,
         0.12251
       ],
       "dimensions_cm": [
         15.846,
-        4.226,
+        4.224,
         12.355
       ],
       "materials": [
@@ -7200,12 +7200,12 @@
         }
       ],
       "uv_min": [
-        0.0026,
-        0.00216
+        0.00217,
+        0.00164
       ],
       "uv_max": [
-        0.99519,
-        0.97866
+        0.99388,
+        0.96842
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7281,12 +7281,12 @@
         }
       ],
       "uv_min": [
-        0.27649,
-        0.12308
+        0.00511,
+        0.14685
       ],
       "uv_max": [
-        0.93287,
-        0.83365
+        0.96059,
+        0.85242
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7304,10 +7304,10 @@
       "texture_set": null
     },
     "ChargingHandle_LOD2": {
-      "tris": 183,
+      "tris": 184,
       "verts": 94,
-      "non_manifold_edges": 3,
-      "boundary_edges": 2,
+      "non_manifold_edges": 0,
+      "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
       "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
@@ -7327,13 +7327,13 @@
         0.10796
       ],
       "bbox_max_m": [
-        0.1438,
+        0.14372,
         0.02412,
         0.11412
       ],
       "dimensions_cm": [
-        14.064,
-        4.824,
+        14.057,
+        4.825,
         0.616
       ],
       "materials": [
@@ -7362,17 +7362,17 @@
         }
       ],
       "uv_min": [
-        0.11828,
-        0.0015
+        0.0017,
+        0.06637
       ],
       "uv_max": [
-        0.99082,
-        0.99169
+        0.98606,
+        0.99449
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 4,
-      "zero_uv_area_mm2": 7.929,
-      "zero_uv_max_face_mm2": 3.9646,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -7443,17 +7443,17 @@
         }
       ],
       "uv_min": [
-        0.06388,
-        0.00156
+        0.00222,
+        0.13483
       ],
       "uv_max": [
-        0.99151,
-        0.9625
+        0.97715,
+        0.99472
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 2,
-      "zero_uv_area_mm2": 4.406,
-      "zero_uv_max_face_mm2": 2.2241,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -7524,17 +7524,17 @@
         }
       ],
       "uv_min": [
-        0.01801,
-        0.0015
+        0.4147,
+        0.0132
       ],
       "uv_max": [
-        0.95951,
-        0.85546
+        0.96554,
+        0.51461
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 2,
-      "zero_uv_area_mm2": 37.731,
-      "zero_uv_max_face_mm2": 26.5514,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -7605,12 +7605,12 @@
         }
       ],
       "uv_min": [
-        0.72015,
-        0.47724
+        0.33281,
+        0.7341
       ],
       "uv_max": [
-        0.99004,
-        0.99084
+        0.36928,
+        0.99423
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7628,8 +7628,8 @@
       "texture_set": null
     },
     "ForwardAssist_LOD2": {
-      "tris": 124,
-      "verts": 64,
+      "tris": 118,
+      "verts": 61,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
@@ -7647,18 +7647,18 @@
       "has_custom_normals": true,
       "bbox_min_m": [
         0.02236,
-        -0.01688,
-        0.09029
+        -0.01687,
+        0.08969
       ],
       "bbox_max_m": [
-        0.02985,
-        -0.00944,
-        0.0997
+        0.02986,
+        -0.0097,
+        0.09901
       ],
       "dimensions_cm": [
         0.75,
-        0.744,
-        0.941
+        0.717,
+        0.932
       ],
       "materials": [
         {
@@ -7686,17 +7686,17 @@
         }
       ],
       "uv_min": [
-        0.0429,
-        0.15267
+        0.00896,
+        0.03524
       ],
       "uv_max": [
-        0.99167,
-        0.99158
+        0.98761,
+        0.99474
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 3,
-      "zero_uv_area_mm2": 1.722,
-      "zero_uv_max_face_mm2": 0.6314,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -7767,12 +7767,12 @@
         }
       ],
       "uv_min": [
-        0.00174,
-        0.05625
+        0.33143,
+        0.0015
       ],
       "uv_max": [
-        0.9908,
-        0.99117
+        0.99406,
+        0.99411
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7848,12 +7848,12 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.14895
+        0.10279,
+        0.40374
       ],
       "uv_max": [
-        0.97241,
-        0.97345
+        0.97658,
+        0.97677
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7929,17 +7929,17 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.08165
+        0.00705,
+        0.0822
       ],
       "uv_max": [
-        0.9982,
-        0.99104
+        1.00146,
+        0.98612
       ],
-      "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 3,
-      "zero_uv_area_mm2": 0.18,
-      "zero_uv_max_face_mm2": 0.0888,
+      "uv_out_of_bounds_loops": 1,
+      "zero_uv_faces": 1,
+      "zero_uv_area_mm2": 0.034,
+      "zero_uv_max_face_mm2": 0.0341,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -8010,12 +8010,12 @@
         }
       ],
       "uv_min": [
-        0.13918,
-        0.22604
+        0.18692,
+        0.01569
       ],
       "uv_max": [
-        0.99152,
-        0.99128
+        0.98741,
+        0.99463
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8053,17 +8053,17 @@
       "bbox_min_m": [
         0.05069,
         -0.0035,
-        0.0245
+        0.02452
       ],
       "bbox_max_m": [
         0.06237,
-        0.0035,
+        0.00351,
         0.0549
       ],
       "dimensions_cm": [
         1.168,
-        0.7,
-        3.04
+        0.701,
+        3.038
       ],
       "materials": [
         {
@@ -8091,12 +8091,12 @@
         }
       ],
       "uv_min": [
-        0.21638,
-        0.37801
+        0.0015,
+        0.46531
       ],
       "uv_max": [
-        0.9125,
-        0.96117
+        0.96424,
+        0.97737
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8114,8 +8114,8 @@
       "texture_set": null
     },
     "RearSightBase_LOD2": {
-      "tris": 466,
-      "verts": 229,
+      "tris": 468,
+      "verts": 230,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
@@ -8137,12 +8137,12 @@
         0.11674
       ],
       "bbox_max_m": [
-        0.09385,
+        0.09386,
         0.01297,
         0.13991
       ],
       "dimensions_cm": [
-        2.299,
+        2.3,
         3.056,
         2.317
       ],
@@ -8172,17 +8172,17 @@
         }
       ],
       "uv_min": [
-        0.1504,
-        0.00544
+        0.00174,
+        0.00153
       ],
       "uv_max": [
-        0.99102,
-        0.99073
+        0.98734,
+        0.99462
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 9,
-      "zero_uv_area_mm2": 20.414,
-      "zero_uv_max_face_mm2": 5.8462,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -8253,12 +8253,12 @@
         }
       ],
       "uv_min": [
-        0.20193,
-        0.20806
+        0.068,
+        0.46261
       ],
       "uv_max": [
-        0.98256,
-        0.96172
+        0.9635,
+        0.98648
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8334,17 +8334,17 @@
         }
       ],
       "uv_min": [
-        0.02193,
-        0.07942
+        0.02416,
+        0.2942
       ],
       "uv_max": [
-        0.99142,
-        0.99159
+        0.97698,
+        0.99455
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 12,
-      "zero_uv_area_mm2": 5.129,
-      "zero_uv_max_face_mm2": 1.4539,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -8380,12 +8380,12 @@
         0.11674
       ],
       "bbox_max_m": [
-        0.51085,
+        0.51086,
         0.013,
         0.1399
       ],
       "dimensions_cm": [
-        2.199,
+        2.2,
         2.597,
         2.317
       ],
@@ -8415,17 +8415,17 @@
         }
       ],
       "uv_min": [
-        0.04625,
-        0.00157
+        0.07656,
+        0.03813
       ],
       "uv_max": [
-        0.99106,
-        0.99095
+        0.9945,
+        0.98674
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 16,
-      "zero_uv_area_mm2": 35.558,
-      "zero_uv_max_face_mm2": 8.4444,
+      "zero_uv_faces": 1,
+      "zero_uv_area_mm2": 1.731,
+      "zero_uv_max_face_mm2": 1.7314,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -8496,12 +8496,12 @@
         }
       ],
       "uv_min": [
-        0.40588,
-        0.03851
+        0.05883,
+        0.23281
       ],
       "uv_max": [
-        0.98276,
-        0.95983
+        0.96364,
+        0.98646
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8577,17 +8577,17 @@
         }
       ],
       "uv_min": [
-        0.05647,
-        0.12691
+        0.04917,
+        0.20953
       ],
       "uv_max": [
-        0.99137,
-        0.99176
+        0.97653,
+        0.99479
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 11,
-      "zero_uv_area_mm2": 4.251,
-      "zero_uv_max_face_mm2": 1.8517,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -8600,8 +8600,8 @@
       "texture_set": null
     },
     "Optic_LOD2": {
-      "tris": 2178,
-      "verts": 1087,
+      "tris": 1730,
+      "verts": 863,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
@@ -8618,19 +8618,19 @@
       "missing_uvs": false,
       "has_custom_normals": true,
       "bbox_min_m": [
-        0.09386,
-        -0.02658,
+        0.09387,
+        -0.0266,
         0.11475
       ],
       "bbox_max_m": [
         0.16284,
         0.02158,
-        0.1883
+        0.18832
       ],
       "dimensions_cm": [
-        6.898,
-        4.816,
-        7.355
+        6.897,
+        4.818,
+        7.358
       ],
       "materials": [
         {
@@ -8658,17 +8658,17 @@
         }
       ],
       "uv_min": [
-        0.00421,
-        0.00162
+        0.0015,
+        0.0015
       ],
       "uv_max": [
-        0.99178,
-        0.99162
+        0.9946,
+        0.99479
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 7,
-      "zero_uv_area_mm2": 42.872,
-      "zero_uv_max_face_mm2": 11.27,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -8739,12 +8739,12 @@
         }
       ],
       "uv_min": [
-        0.10334,
-        0.16064
+        0.04487,
+        0.23837
       ],
       "uv_max": [
-        0.99063,
-        0.9624
+        0.98629,
+        0.99417
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8952,16 +8952,16 @@
       "texture_set": null
     },
     "Magazine_LOD2": {
-      "tris": 715,
-      "verts": 316,
-      "non_manifold_edges": 111,
-      "boundary_edges": 16,
+      "tris": 598,
+      "verts": 301,
+      "non_manifold_edges": 0,
+      "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
       "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
       "loose_edges": 0,
       "zero_area_faces": 0,
-      "duplicate_faces": 22,
+      "duplicate_faces": 0,
       "shells": 1,
       "deform_weights_without_groups": 0,
       "uv_layers": [
@@ -8970,19 +8970,19 @@
       "missing_uvs": false,
       "has_custom_normals": true,
       "bbox_min_m": [
-        0.09065,
-        -0.01364,
-        -0.12077
+        0.09064,
+        -0.01375,
+        -0.12074
       ],
       "bbox_max_m": [
-        0.18072,
-        0.01361,
-        0.07838
+        0.18073,
+        0.01364,
+        0.07837
       ],
       "dimensions_cm": [
-        9.007,
-        2.725,
-        19.914
+        9.008,
+        2.739,
+        19.911
       ],
       "materials": [
         {
@@ -9010,17 +9010,17 @@
         }
       ],
       "uv_min": [
-        0.00164,
-        0.00205
+        0.0015,
+        -0.01923
       ],
       "uv_max": [
-        0.99232,
-        0.94095
+        0.99674,
+        0.91675
       ],
-      "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 52,
-      "zero_uv_area_mm2": 1.621,
-      "zero_uv_max_face_mm2": 0.2406,
+      "uv_out_of_bounds_loops": 3,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -9091,17 +9091,17 @@
         }
       ],
       "uv_min": [
-        0.47003,
-        0.01655
+        0.10126,
+        0.0025
       ],
       "uv_max": [
-        0.99317,
-        0.7633
+        0.99056,
+        0.95737
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 1,
-      "zero_uv_area_mm2": 0.502,
-      "zero_uv_max_face_mm2": 0.5018,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -9114,16 +9114,16 @@
       "texture_set": null
     },
     "SM_IV7_Magazine": {
-      "tris": 4702,
-      "verts": 2317,
-      "non_manifold_edges": 118,
-      "boundary_edges": 23,
+      "tris": 4116,
+      "verts": 2064,
+      "non_manifold_edges": 0,
+      "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
       "faces_opposing_vertex_normals": 0,
       "loose_verts": 0,
       "loose_edges": 0,
       "zero_area_faces": 0,
-      "duplicate_faces": 22,
+      "duplicate_faces": 0,
       "shells": 3,
       "deform_weights_without_groups": 0,
       "uv_layers": [
@@ -9132,7 +9132,7 @@
       "missing_uvs": false,
       "has_custom_normals": true,
       "bbox_min_m": [
-        -0.01337,
+        -0.01336,
         -0.0138,
         -0.16992
       ],
@@ -9142,7 +9142,7 @@
         0.03038
       ],
       "dimensions_cm": [
-        9.039,
+        9.038,
         2.76,
         20.03
       ],
@@ -9172,24 +9172,24 @@
         }
       ],
       "uv_min": [
-        0.00155,
-        0.00183
+        0.0015,
+        0.00167
       ],
       "uv_max": [
-        0.99317,
-        0.94095
+        0.99674,
+        0.95742
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 416,
-      "zero_uv_area_mm2": 8.04,
+      "zero_uv_faces": 410,
+      "zero_uv_area_mm2": 8.516,
       "zero_uv_max_face_mm2": 0.0497,
       "texture_set": null
     }
   },
   "summary": {
-    "total_tris": 120055,
-    "problem_count": 81,
-    "validation_seconds": 3.2
+    "total_tris": 114666,
+    "problem_count": 12,
+    "validation_seconds": 4.0
   },
   "texture_sets": {
     "Body": {
@@ -9228,15 +9228,15 @@
       "size": 1024,
       "uv_overlap": {
         "resolution": 1024,
-        "covered_fraction": 0.498,
-        "pixels_shared_by_different_islands": 1,
-        "islands": 9003,
-        "islands_without_pixel_centres": 304,
-        "collapsed_degenerate_faces": 6553,
+        "covered_fraction": 0.4712,
+        "pixels_shared_by_different_islands": 4,
+        "islands": 8432,
+        "islands_without_pixel_centres": 334,
+        "collapsed_degenerate_faces": 6061,
         "method": "pixel-centre rasterisation per island at the texture size"
       },
-      "texel_density_min": 5.15,
-      "texel_density_max": 18.42
+      "texel_density_min": 5.0,
+      "texel_density_max": 18.73
     },
     "Furniture": {
       "objects": [
@@ -9249,14 +9249,14 @@
       "size": 1024,
       "uv_overlap": {
         "resolution": 1024,
-        "covered_fraction": 0.6793,
+        "covered_fraction": 0.6779,
         "pixels_shared_by_different_islands": 0,
-        "islands": 558,
-        "islands_without_pixel_centres": 5,
-        "collapsed_degenerate_faces": 373,
+        "islands": 596,
+        "islands_without_pixel_centres": 14,
+        "collapsed_degenerate_faces": 450,
         "method": "pixel-centre rasterisation per island at the texture size"
       },
-      "texel_density_min": 18.57,
+      "texel_density_min": 18.58,
       "texel_density_max": 23.29
     }
   },
@@ -9420,87 +9420,18 @@
     }
   },
   "problems": [
-    "UpperReceiver: non_manifold_edges=3",
-    "UpperReceiver: faces_opposing_vertex_normals=6",
-    "UpperReceiver: zero-UV-area face of 7.2016 mm2 (limit 0.05)",
-    "LowerReceiver: zero_area_faces=3",
-    "LowerReceiver: zero-UV-area face of 13.1608 mm2 (limit 0.05)",
-    "Handguard: non_manifold_edges=6",
-    "Handguard: faces_opposing_vertex_normals=4",
-    "Handguard: zero-UV-area face of 1.8308 mm2 (limit 0.05)",
-    "EndPlate: zero_area_faces=1",
-    "EndPlate: zero-UV-area face of 0.0996 mm2 (limit 0.05)",
-    "ChargingHandle: non_manifold_edges=3",
-    "ChargingHandle: faces_opposing_vertex_normals=1",
-    "ChargingHandle: zero-UV-area face of 3.12 mm2 (limit 0.05)",
-    "DustCover: zero-UV-area face of 9.9765 mm2 (limit 0.05)",
-    "DustCoverRod: zero-UV-area face of 18.1691 mm2 (limit 0.05)",
-    "ForwardAssist: faces_opposing_vertex_normals=2",
-    "ForwardAssist: zero-UV-area face of 0.06 mm2 (limit 0.05)",
-    "Selector: zero-UV-area face of 0.8292 mm2 (limit 0.05)",
-    "RearSightBase: faces_opposing_vertex_normals=1",
-    "RearSightLeaf: zero-UV-area face of 1.0121 mm2 (limit 0.05)",
-    "FrontSightBase: faces_opposing_vertex_normals=1",
-    "FrontSightBase: zero-UV-area face of 0.0825 mm2 (limit 0.05)",
-    "Optic: faces_opposing_vertex_normals=21",
-    "Optic: zero-UV-area face of 0.2706 mm2 (limit 0.05)",
-    "Magazine: non_manifold_edges=118",
-    "Magazine: duplicate_faces=22",
-    "UpperReceiver_LOD1: non_manifold_edges=3",
-    "UpperReceiver_LOD1: zero-UV-area face of 53.6518 mm2 (limit 0.05)",
-    "LowerReceiver_LOD1: zero-UV-area face of 14.1661 mm2 (limit 0.05)",
-    "Handguard_LOD1: non_manifold_edges=6",
-    "Handguard_LOD1: zero-UV-area face of 0.6627 mm2 (limit 0.05)",
-    "HandguardScrews_LOD1: zero-UV-area face of 0.8242 mm2 (limit 0.05)",
-    "BarrelNut_LOD1: zero-UV-area face of 2.5156 mm2 (limit 0.05)",
-    "MuzzleDevice_LOD1: zero-UV-area face of 6.0274 mm2 (limit 0.05)",
-    "GasBlock_LOD1: zero-UV-area face of 27.9114 mm2 (limit 0.05)",
-    "BufferTube_LOD1: zero-UV-area face of 0.1418 mm2 (limit 0.05)",
-    "EndPlate_LOD1: zero-UV-area face of 0.6167 mm2 (limit 0.05)",
-    "CastleNut_LOD1: zero-UV-area face of 0.321 mm2 (limit 0.05)",
-    "Stock_LOD1: zero-UV-area face of 7.8668 mm2 (limit 0.05)",
-    "ChargingHandle_LOD1: non_manifold_edges=3",
-    "ChargingHandle_LOD1: zero-UV-area face of 14.1926 mm2 (limit 0.05)",
-    "BoltCarrier_LOD1: zero-UV-area face of 1.9934 mm2 (limit 0.05)",
-    "DustCover_LOD1: zero-UV-area face of 16.9286 mm2 (limit 0.05)",
-    "ForwardAssist_LOD1: zero-UV-area face of 0.6363 mm2 (limit 0.05)",
-    "BoltCatch_LOD1: zero-UV-area face of 0.7726 mm2 (limit 0.05)",
-    "Selector_LOD1: zero-UV-area face of 2.9988 mm2 (limit 0.05)",
-    "Trigger_LOD1: zero-UV-area face of 5.7936 mm2 (limit 0.05)",
-    "RearSightBase_LOD1: zero-UV-area face of 6.9901 mm2 (limit 0.05)",
-    "RearSightLeaf_LOD1: zero-UV-area face of 2.3879 mm2 (limit 0.05)",
-    "FrontSightBase_LOD1: zero-UV-area face of 8.4589 mm2 (limit 0.05)",
-    "FrontSightLeaf_LOD1: zero-UV-area face of 3.0204 mm2 (limit 0.05)",
-    "Optic_LOD1: zero-UV-area face of 8.3878 mm2 (limit 0.05)",
-    "Magazine_LOD1: non_manifold_edges=114",
-    "Magazine_LOD1: duplicate_faces=22",
-    "Magazine_LOD1: zero-UV-area face of 13.1987 mm2 (limit 0.05)",
-    "MagRounds_LOD1: zero-UV-area face of 0.1753 mm2 (limit 0.05)",
-    "UpperReceiver_LOD2: non_manifold_edges=3",
-    "UpperReceiver_LOD2: zero-UV-area face of 53.1123 mm2 (limit 0.05)",
-    "LowerReceiver_LOD2: zero-UV-area face of 6.3045 mm2 (limit 0.05)",
-    "Handguard_LOD2: non_manifold_edges=6",
-    "Handguard_LOD2: zero-UV-area face of 4.7558 mm2 (limit 0.05)",
-    "GasBlock_LOD2: zero-UV-area face of 39.4314 mm2 (limit 0.05)",
-    "BufferTube_LOD2: zero-UV-area face of 0.087 mm2 (limit 0.05)",
-    "ChargingHandle_LOD2: non_manifold_edges=3",
-    "ChargingHandle_LOD2: zero-UV-area face of 3.9646 mm2 (limit 0.05)",
-    "BoltCarrier_LOD2: zero-UV-area face of 2.2241 mm2 (limit 0.05)",
-    "DustCover_LOD2: zero-UV-area face of 26.5514 mm2 (limit 0.05)",
-    "ForwardAssist_LOD2: zero-UV-area face of 0.6314 mm2 (limit 0.05)",
-    "BoltCatch_LOD2: zero-UV-area face of 0.0888 mm2 (limit 0.05)",
-    "RearSightBase_LOD2: zero-UV-area face of 5.8462 mm2 (limit 0.05)",
-    "RearSightLeaf_LOD2: zero-UV-area face of 1.4539 mm2 (limit 0.05)",
-    "FrontSightBase_LOD2: zero-UV-area face of 8.4444 mm2 (limit 0.05)",
-    "FrontSightLeaf_LOD2: zero-UV-area face of 1.8517 mm2 (limit 0.05)",
-    "Optic_LOD2: zero-UV-area face of 11.27 mm2 (limit 0.05)",
-    "Magazine_LOD2: non_manifold_edges=111",
-    "Magazine_LOD2: duplicate_faces=22",
-    "Magazine_LOD2: zero-UV-area face of 0.2406 mm2 (limit 0.05)",
-    "MagRounds_LOD2: zero-UV-area face of 0.5018 mm2 (limit 0.05)",
-    "SM_IV7_Magazine: non_manifold_edges=118",
-    "SM_IV7_Magazine: duplicate_faces=22",
-    "set Body: 1 px shared by different UV islands"
+    "UpperReceiver: zero-UV-area face of 0.0602 mm2 (limit 0.05)",
+    "LowerReceiver: zero-UV-area face of 0.2509 mm2 (limit 0.05)",
+    "UpperReceiver_LOD1: zero-UV-area face of 0.0893 mm2 (limit 0.05)",
+    "LowerReceiver_LOD1: zero-UV-area face of 2.9216 mm2 (limit 0.05)",
+    "GasBlock_LOD1: zero-UV-area face of 7.7757 mm2 (limit 0.05)",
+    "BoltCatch_LOD1: zero-UV-area face of 0.0612 mm2 (limit 0.05)",
+    "RearSightBase_LOD1: zero-UV-area face of 0.3261 mm2 (limit 0.05)",
+    "FrontSightBase_LOD1: zero-UV-area face of 2.2981 mm2 (limit 0.05)",
+    "BoltCatch_LOD2: 1 UV loops outside 0..1",
+    "FrontSightBase_LOD2: zero-UV-area face of 1.7314 mm2 (limit 0.05)",
+    "Magazine_LOD2: 3 UV loops outside 0..1",
+    "set Body: 4 px shared by different UV islands"
   ],
   "asset": "IV-7 carbine",
   "measurements": {
@@ -9523,11 +9454,24 @@
     "rail_top_above_bore_cm": 3.0,
     "optic_axis_above_bore_cm": 7.0,
     "front_post_tip_above_bore_cm": 7.0,
-    "rear_aperture_centre_above_bore_cm": 6.97,
+    "rear_aperture_centre_above_bore_cm": 6.985,
     "socket_ads_behind_rear_lens_cm": 8.0,
     "grip_rake_deg": 22.0,
     "grip_length_along_axis_cm": 11.0,
     "grip_hold_point_below_bore_cm": 9.172,
+    "trigger_reach_cm": 7.36,
+    "length_of_pull_cm": 34.65,
+    "bolt_face_to_butt_cm": 45.1,
+    "charging_handle": {
+      "length_cm": 14.08,
+      "stroke_cm": 7.0,
+      "engaged_in_receiver_at_full_stroke_cm": 5.2
+    },
+    "magwell_front_wall_mm": 6.0,
+    "magazine_pivot_on_catch_axis": [
+      true,
+      true
+    ],
     "magazine_centerline_length_cm": 19.02,
     "magazine_body_width_cm": 2.4,
     "magazine_body_depth_cm": 6.5,
@@ -9537,41 +9481,41 @@
       0.0,
       9.172
     ],
-    "note": "all values measured from the built meshes except rake/grip length/rail pitch (design inputs)"
+    "note": "all values measured from the built meshes except rake / grip length / rail pitch / magwell front wall / charging-handle stroke (design inputs)"
   },
   "triangles": {
-    "LOD0": 67872,
-    "LOD1": 33928,
-    "LOD2": 13553,
-    "SM_IV7_Magazine": 4702,
+    "LOD0": 65044,
+    "LOD1": 32516,
+    "LOD2": 12990,
+    "SM_IV7_Magazine": 4116,
     "per_part_LOD0": {
-      "Optic": 10898,
+      "Optic": 8656,
       "Handguard": 7950,
       "LowerReceiver": 6194,
-      "UpperReceiver": 4991,
-      "Magazine": 3582,
+      "UpperReceiver": 5052,
+      "Magazine": 2996,
       "BufferTube": 2782,
-      "RearSightBase": 2332,
+      "RearSightBase": 2340,
       "RearSightLeaf": 2204,
       "PistolGrip": 2084,
       "MuzzleDevice": 1932,
       "Stock": 1930,
-      "FrontSightBase": 1832,
-      "GasBlock": 1610,
+      "FrontSightBase": 1836,
       "BoltCarrier": 1596,
+      "GasBlock": 1570,
       "BarrelNut": 1484,
       "Barrel": 1472,
       "FrontSightLeaf": 1328,
       "CastleNut": 1208,
       "MagRounds": 1120,
       "EndPlate": 1082,
-      "ChargingHandle": 919,
+      "ChargingHandle": 920,
       "Trigger": 848,
       "BoltCatch": 842,
       "Pins": 768,
       "HandguardScrews": 760,
       "Selector": 652,
-      "ForwardAssist": 628,
+      "ForwardAssist": 594,
       "ButtPad": 580,
       "DustCover": 436,
       "OpticLensRear": 380,
@@ -9742,27 +9686,29 @@
   "uv_unwrap": {
     "Body": {
       "enlarged": [
-        1070,
-        710
+        935,
+        684
       ],
       "shape": "CONCAVE",
-      "coverage": 0.4997,
+      "nudged": 79,
+      "coverage": 0.4725,
       "overlap_px": 0,
-      "islands": 2267,
-      "islands_without_pixels": 115,
-      "collapsed_faces": 12048
+      "islands": 2019,
+      "islands_without_pixels": 9,
+      "collapsed_faces": 9907
     },
     "Furniture": {
       "enlarged": [
-        82,
-        67
+        29,
+        18
       ],
       "shape": "CONCAVE",
-      "coverage": 0.6796,
+      "nudged": 4,
+      "coverage": 0.6781,
       "overlap_px": 0,
-      "islands": 209,
-      "islands_without_pixels": 3,
-      "collapsed_faces": 642
+      "islands": 141,
+      "islands_without_pixels": 0,
+      "collapsed_faces": 636
     }
   },
   "reimport_checks": {
@@ -9788,19 +9734,19 @@
         0.01,
         0.01
       ],
-      "tris": 67850,
+      "tris": 65044,
       "materials": {
         "M_IV7_Body": [
           "T_IV7_Body_BaseColor.png",
           "T_IV7_Body_Normal_DX.png"
         ],
+        "M_IV7_Glass": [],
+        "M_IV7_Reticle": [],
+        "M_IV7_ReticleMask": [],
         "M_IV7_Furniture": [
           "T_IV7_Furniture_BaseColor.png",
           "T_IV7_Furniture_Normal_DX.png"
-        ],
-        "M_IV7_Glass": [],
-        "M_IV7_Reticle": [],
-        "M_IV7_ReticleMask": []
+        ]
       },
       "images_resolved": true,
       "textured_materials_ok": true,
@@ -9830,19 +9776,19 @@
         0.01,
         0.01
       ],
-      "tris": 33906,
+      "tris": 32516,
       "materials": {
         "M_IV7_Body": [
           "T_IV7_Body_BaseColor.png",
           "T_IV7_Body_Normal_DX.png"
         ],
+        "M_IV7_Reticle": [],
+        "M_IV7_ReticleMask": [],
         "M_IV7_Furniture": [
           "T_IV7_Furniture_BaseColor.png",
           "T_IV7_Furniture_Normal_DX.png"
         ],
-        "M_IV7_Glass": [],
-        "M_IV7_Reticle": [],
-        "M_IV7_ReticleMask": []
+        "M_IV7_Glass": []
       },
       "images_resolved": true,
       "textured_materials_ok": true,
@@ -9872,7 +9818,7 @@
         0.01,
         0.01
       ],
-      "tris": 13531,
+      "tris": 12990,
       "materials": {
         "M_IV7_Body": [
           "T_IV7_Body_BaseColor.png",
@@ -9910,7 +9856,7 @@
       "bone_count": 0,
       "bones_ok": true,
       "armature_object_scale_after_import": null,
-      "tris": 4680,
+      "tris": 4116,
       "materials": {
         "M_IV7_Furniture": [
           "T_IV7_Furniture_BaseColor.png",
@@ -9945,7 +9891,7 @@
         1.0,
         1.0
       ],
-      "tris": 67850,
+      "tris": 65044,
       "materials": {
         "M_IV7_Body": [
           "T_IV7_Body_BaseColor",
@@ -9991,7 +9937,7 @@
         1.0,
         1.0
       ],
-      "tris": 67850,
+      "tris": 65044,
       "materials": {
         "M_IV7_Body": [
           "T_IV7_Body_BaseColor.png",
@@ -10037,7 +9983,7 @@
         1.0,
         1.0
       ],
-      "tris": 33906,
+      "tris": 32516,
       "materials": {
         "M_IV7_Body": [
           "T_IV7_Body_BaseColor.png",
@@ -10083,7 +10029,7 @@
         1.0,
         1.0
       ],
-      "tris": 13531,
+      "tris": 12990,
       "materials": {
         "M_IV7_Body": [
           "T_IV7_Body_BaseColor.png",
@@ -10125,7 +10071,7 @@
       "bone_count": 0,
       "bones_ok": true,
       "armature_object_scale_after_import": null,
-      "tris": 4680,
+      "tris": 4116,
       "materials": {
         "M_IV7_Furniture": [
           "T_IV7_Furniture_BaseColor.png",
@@ -10145,47 +10091,47 @@
     "Art/Export/FBX/SK_IV7_Carbine.fbx": {
       "format": "FBX",
       "objects": 39,
-      "bytes": 6275468
+      "bytes": 6235324
     },
     "Art/Export/FBX/SK_IV7_Carbine_LOD1.fbx": {
       "format": "FBX",
       "objects": 39,
-      "bytes": 3795548
+      "bytes": 3806156
     },
     "Art/Export/FBX/SK_IV7_Carbine_LOD2.fbx": {
       "format": "FBX",
       "objects": 39,
-      "bytes": 2099132
+      "bytes": 2084396
     },
     "Art/Export/FBX/SM_IV7_Magazine.fbx": {
       "format": "FBX",
       "objects": 1,
-      "bytes": 395420
+      "bytes": 352028
     },
     "Art/Export/GLB/IV7_Carbine.glb": {
       "format": "GLB",
       "objects": 39,
-      "bytes": 10148124
+      "bytes": 9938620
     },
     "Art/Export/GLB/IV7/IV7_Carbine.gltf": {
       "format": "glTF (separate, shared textures)",
       "objects": 39,
-      "bytes": 5656228
+      "bytes": 5413350
     },
     "Art/Export/GLB/IV7/IV7_Carbine_LOD1.gltf": {
       "format": "glTF (separate, shared textures)",
       "objects": 39,
-      "bytes": 2820082
+      "bytes": 2755437
     },
     "Art/Export/GLB/IV7/IV7_Carbine_LOD2.gltf": {
       "format": "glTF (separate, shared textures)",
       "objects": 39,
-      "bytes": 1364301
+      "bytes": 1300437
     },
     "Art/Export/GLB/IV7/IV7_Magazine.gltf": {
       "format": "glTF (separate, shared textures)",
       "objects": 1,
-      "bytes": 236893
+      "bytes": 217861
     },
     "Art/Export/GLB/IV7/textures": {
       "format": "shared PNG textures of the glTF set",
@@ -10197,7 +10143,7 @@
         "T_IV7_Furniture_Normal.png",
         "T_IV7_Furniture_ORM.png"
       ],
-      "bytes": 4511510
+      "bytes": 4544889
     }
   }
 }

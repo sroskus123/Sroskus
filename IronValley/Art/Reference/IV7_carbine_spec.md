@@ -12,8 +12,9 @@ tables below. Every number here is either a design input to
 validation report `Art/Previews/IV7/IV7_validation.json` → `measurements` is regenerated on every
 build.
 
-Status: built and validated in Blender (bpy 4.5.14, headless). **Not imported into Unreal**
-(Unreal is unavailable in this environment), so nothing in this document is an in-engine result.
+Status: built and validated in Blender (bpy 4.5.14, headless); revised after the first independent
+review (fix round 1, see §10). **Not imported into Unreal** (Unreal is unavailable in this
+environment), so nothing in this document is an in-engine result.
 
 ---
 
@@ -40,18 +41,23 @@ right side, reading front to back:
   rail. Rounded accessory slots run along both sides and the bottom, and small vents sit on the
   upper chamfers.
 - **Upper receiver.** A flat-top upper with the same rail. On the right: the ejection port with
-  the bolt carrier visible through it, the hinged dust cover hanging open below it, a sculpted
-  brass deflector, a forward-assist-style boss, and the T-shaped charging handle at the rear.
-- **Lower receiver.** A billet-style lower with a wide magazine well that flares at the mouth
-  and has shallow machined flank panels. The trigger guard is integral and open. Takedown pins,
-  bolt catch, selector with pictograms and a fenced magazine release complete it.
+  the bolt carrier visible through it (smooth side with a short band of forward-assist notches
+  near the rear of the port, bolt head and extractor at the front), the hinged dust cover hanging
+  open below it, a sculpted brass deflector, a forward-assist-style boss, and the T-shaped
+  charging handle at the rear. The handle's 14 cm shaft runs forward in a channel under the rail.
+- **Lower receiver.** A billet-style lower with a magazine well that flares at the mouth
+  (6 mm front wall below the pivot-pin lug) and has shallow machined flank panels. The trigger
+  guard is integral and open. Takedown pins, bolt catch, selector with pictograms and a fenced
+  magazine release (on the right magwell wall, over the magazine catch notch) complete it. The
+  lower's rear tang covers the pistol grip's top, so the grip tucks under it.
 - **Grip and stock.** A raked, stippled flat-dark-earth (FDE) pistol grip. A skeletal FDE
   carbine stock with a triangular lightening window, a sling slot and a black rubber butt pad,
   riding on a ribbed buffer tube with castle nut and a QD end plate.
 - **Magazine.** A curved dark-grey polymer 30-round magazine, textured on its lower flanks, with
   the top cartridges visible between the feed lips.
 - **Sights.** A compact enclosed red-dot optic on a riser, plus flip-up front and rear iron
-  sights, deployed and absolutely co-witnessed.
+  sights, deployed and absolutely co-witnessed. Both leaves pivot on a pin between two hinge lugs
+  and fold rearward.
 
 Proportions: the handguard is about 38 % of the overall length. The magazine hangs about 12 cm
 below the magwell mouth and curves forward about 2.2 cm. The optic sits over the
@@ -67,26 +73,32 @@ Tolerance for major proportions is ±5 %.
 | Overall length, stock position 3 | ~86 cm | **86.00 cm** | Only position 3 is modelled; the stock body can later slide on the buffer tube |
 | Barrel length from bolt face | 36.8 cm (14.5") | **36.80 cm** | Crown sits inside the muzzle device |
 | Visible barrel OD | 1.6–1.9 cm | **1.90 cm** (x = 8 cm), **1.64 cm** (x = 30 cm) | 1.68 cm at the gas-block journal (hidden under the handguard) |
-| Gas block | under the handguard | yes, x = 18.6–21.7 cm from the bolt face | Low-profile block; the straight gas tube runs back into the upper |
+| Gas block | under the handguard | yes, x = 18.6–21.7 cm from the bolt face | Low-profile block; the straight gas tube runs back to x = 3.05 cm, inside the barrel-nut slot (it no longer passes through the barrel extension) |
 | Muzzle device length | ~5.5 cm | **5.50 cm** | Three open prong slots, 4.4 mm wide, 120° apart |
 | Muzzle device OD | ~2.2 cm | **2.20 cm** | Wrench flats on the sides |
 | Handguard length | ~33 cm | **33.00 cm** | Free float; 2 mm gap to the upper receiver |
 | Handguard width | ~5 cm | **5.00 cm** | Octagonal section, 3.2 mm wall |
-| Top rail width | ~21 mm | **21.2 mm** (max dovetail width) | Continuous from the upper onto the handguard at the same height |
+| Top rail width | ~21 mm | **20.5 mm** (max dovetail width, measured over the bevelled tips; 21.2 mm to the sharp profile corners) | Continuous from the upper onto the handguard at the same height. The dovetail tips now carry a real 0.5 mm bevel, which is why the measured width dropped from 21.2 mm |
 | Rail cross-slot pitch / width | 10 mm | **10 mm / 5.3 mm**, floor 3.8 mm below the rail top | Design input |
 | Rail top above bore | — | **3.00 cm** | |
 | Accessory slots | real cut-through | 7 per side, 6 on the bottom, 12 vents | All are real holes; barrel and gas system are visible through them |
 | Pistol grip rake | 20–25° | **22°** from vertical | Design input |
-| Pistol grip length | ~11 cm | **11.0 cm** along the raked axis | Max width 3.24 cm; stippled 0.9 cm below the top down to 0.8 cm above the base |
+| Pistol grip length | ~11 cm | **11.0 cm** along the raked axis | Max width 3.24 cm; stippled (round dimples ≈ 2.6 mm apart) 0.9 cm below the top down to 0.8 cm above the base. The grip top stays inside the lower's bottom face (half width 1.22 cm, rear edge 1.5 mm inside the lower's tang) |
+| Trigger reach | ≈ 7.4 cm (typical carbine) | **7.36 cm** | Grip back strap (web of the hand) to the trigger face, measured horizontally 3.5 cm above the grip hold point. The trigger, its pin and the hammer pin sit 1.2 cm further back than in the first build (8.6 cm) |
+| Length of pull | – | **34.65 cm** (13.6") | Trigger face to the butt-pad face. See §9.1: this is at or beyond a typical carbine stock's fully extended position |
+| Bolt face to butt | – | **45.1 cm** | M4-type carbine at full extension ≈ 42.7 cm (§9.1) |
 | Magazine length along the curve | ~19 cm | **19.0 cm** | Centreline from feed-lip top to baseplate bottom |
 | Magazine width | ~2.4 cm | **2.40 cm** | Baseplate 2.76 cm |
 | Magazine depth (front–back) | ~6.5 cm | **6.50 cm** | |
+| Magazine well | – | outside **7.5 cm** front–back (8.0 cm at the flared mouth); front wall **6 mm** below the pivot-pin lug (was 14 mm); rear wall 3 mm | Magazine clearance 0.5 mm; flared mouth kept (design inputs) |
+| Charging handle | real AR-type length | **14.1 cm** long (T-handle 1.9 cm + 12.2 cm shaft) | Shaft 8.8 × 4.8 mm in a 9.2 × 5.2 mm channel under the rail (0.2 mm sliding clearance) |
+| Charging-handle stroke | ≈ 6.5–7 cm | **7.0 cm** | At full stroke **5.2 cm** of shaft is still inside the receiver channel; the handle clears the buffer tower, end plate and castle nut over the whole stroke (checked every 0.5–1 cm) |
 | Optic axis above bore | ~7 cm | **7.00 cm** | |
 | Iron sight line above bore | co-witnessed | front post tip **7.00 cm**, rear aperture centre **6.99 cm** | Absolute co-witness: optic axis, rear aperture and front post tip on one line parallel to the bore |
 | socket_ads behind the optic's rear lens | 5–8 cm | **8.00 cm** | |
 | Height with magazine, incl. optic | — | **30.9 cm** | Top of elevation turret to baseplate corner |
 | Height with magazine, without optic | — | **28.9 cm** | Iron sights deployed |
-| Max width | — | **5.4 cm** | End-plate sling ear (left) to optic windage turret (right) |
+| Max width | — | **5.43 cm** | End-plate sling ear (left) to optic windage turret (right) |
 
 ## 4. Part list
 
@@ -103,39 +115,44 @@ Every part is a separate mesh object in the collection `IV7_Parts`, parented to 
 | BarrelNut | phosphated steel | Body | root | – |
 | MuzzleDevice | nitrided steel with carbon fouling towards the front | Body | root | – |
 | GasBlock / GasTube | phosphated / nitrided steel | Body | root | – |
-| BufferTube | black anodised aluminium | Body | root | – |
-| EndPlate (QD sling ear) / CastleNut | phosphated steel | Body | root | – |
-| ForwardAssist (plunger) | phosphated steel | Body | root | – |
+| BufferTube (hollow front: the bolt carrier recoils into it) | black anodised aluminium | Body | root | – |
+| EndPlate (QD sling ear, flat top level with the buffer tower) / CastleNut (OD 3.24 cm) | phosphated steel | Body | root | – |
+| ForwardAssist (plunger; its pawl face follows the carrier with 0.2 mm clearance) | phosphated steel | Body | root | – |
 | Pins (front/rear takedown, trigger, hammer) | phosphated steel | Body | root | – |
 | DustCoverRod | nitrided steel | Body | root | – |
 | RearSightBase / FrontSightBase (+ cross bolts) | black anodised aluminium / steel | Body | root | – |
-| Optic (housing, riser mount, turrets, brightness knob, clamp knob) + OpticBolt | black anodised aluminium / steel | Body | root | – |
+| Optic (housing 48 segments round, riser mount, turrets and brightness knob with V-groove knurling, clamp knob) + OpticBolt | black anodised aluminium / steel | Body | root | – |
 | OpticLensFront / OpticLensRear | glass with a thin-film coating | – (constant `M_IV7_Glass`) | root | – |
-| OpticReticle | emissive red dot, bonded to the inner face of the front lens | – (constant `M_IV7_Reticle`) | root | – |
+| OpticReticle | 0.3 mm emissive red dot on the inner face of the front lens; its muzzle-side cap and rim are black (`M_IV7_ReticleMask`), so the dot cannot be seen from the front | – (constants `M_IV7_Reticle`, `M_IV7_ReticleMask`) | root | – |
 | PistolGrip | FDE polymer, stippled | Furniture | root | – |
 | Stock | FDE polymer | Furniture | root | (slides later) |
 | ButtPad | black rubber | Furniture | root | – |
-| **Magazine** | dark-grey polymer, textured lower flanks | Furniture | magazine | yes |
+| **Magazine** (with the catch notch on the left flank) | dark-grey polymer (matte), textured lower flanks | Furniture | magazine | yes |
 | **MagRounds** (two visible cartridges) | brass case, copper jacket | Furniture | magazine | yes |
-| **ChargingHandle** | black anodised aluminium | Body | charging_handle | yes |
-| **BoltCarrier** (with bolt head and extractor) | nitrided steel | Body | bolt_carrier | yes |
+| **ChargingHandle** (T-handle + 12 cm shaft) | black anodised aluminium | Body | charging_handle | yes |
+| **BoltCarrier** (smooth flat, 9 forward-assist notches near the rear of the port, bolt head and extractor) | nitrided steel | Body | bolt_carrier | yes |
 | **DustCover** | nitrided steel | Body | dust_cover | yes |
 | **Trigger** | nitrided steel | Body | trigger | yes |
 | **Selector** (with white index line) | phosphated steel | Body | selector | yes |
 | **BoltCatch** | phosphated steel | Body | bolt_catch | yes |
-| **MagRelease** | phosphated steel | Body | mag_release | yes |
-| **RearSightLeaf** (ghost-ring aperture, ears) | black anodised aluminium | Body | rear_sight | yes |
-| **FrontSightLeaf** (post, ears) | black anodised aluminium | Body | front_sight | yes |
+| **MagRelease** (button on the right magwell wall, on the catch axis) | phosphated steel | Body | mag_release | yes |
+| **RearSightLeaf** (ghost-ring aperture on the centre post, ears, knuckle bored for the hinge pin) | black anodised aluminium | Body | rear_sight | yes |
+| **FrontSightLeaf** (post, ears, knuckle bored for the hinge pin) | black anodised aluminium | Body | front_sight | yes |
 
 Separate `SM_IV7_Magazine` (collection `IV7_Static`) is the magazine body plus rounds joined
-into one static mesh. It uses the same Furniture texture set, has its pivot at the magazine catch
-(same point as the `magazine` bone), and sits at the world origin.
+into one static mesh, built from copies of the LOD0 meshes: same topology, UVs and baked custom
+normals, no vertex groups and no deform weights. It uses the same Furniture texture set, has its
+pivot at the magazine catch (same point as the `magazine` bone), and sits at the world origin.
+
+Every part except `Pins` (4), `HandguardScrews` (2), `MagRounds` (2) and `SM_IV7_Magazine` (3)
+is one connected shell; the validation report fails otherwise.
 
 **Single mesh or multiple meshes?** The source keeps one object per part: readable, per-part
 validation, and easy editing. Each object carries exactly one vertex group at weight 1.0.
 Unreal's FBX importer merges all skinned meshes under one armature into a single skeletal mesh
-with one section per material, so the in-engine result is effectively one mesh with 4 material
-slots (Body, Furniture, Glass, Reticle) and no draw-call penalty for the split.
+with one section per material, so the in-engine result is effectively one mesh with 5 material
+slots (Body, Furniture, Glass, Reticle, ReticleMask; the last is 12 triangles) and no draw-call
+penalty for the split.
 
 ## 5. Rig, pivots and sockets
 
@@ -151,16 +168,16 @@ orientations should therefore be identity (X forward, Y right, Z up) in Unreal. 
 | Bone | Head, final frame (cm: X, Y, Z) | Pivot meaning | Motion (bone-local) |
 | --- | --- | --- | --- |
 | root | 0, 0, 0 | grip hold point (= object origin) | – |
-| magazine | 10.686, 0, 4.872 | magazine catch height, magazine centreline | translate −Z to drop; small rotation about Y to rock out |
-| charging_handle | 1.386, 0, 11.022 | rear centre of the T-handle | translate −X (≈ 6.5–7 cm stroke) |
+| magazine | 10.386, 0, 4.912 | on the magazine-catch axis (the `mag_release` button axis) at the magazine centreline; the catch notch on the magazine's left flank sits on this axis | translate −Z to drop; small rotation about Y to rock out |
+| charging_handle | 1.236, 0, 11.122 | centre of the T-handle | translate −X, **7.0 cm** stroke (5.2 cm of shaft stays in the receiver) |
 | bolt_carrier | 8.686, 0, 9.172 | on the bore axis, carrier centre | translate −X (≈ 7.5 cm stroke) |
 | dust_cover | 11.536, −1.80, 7.822 | hinge-rod axis (parallel to X) | rotate about X: bind pose = **open (176°)**; −176° closes it |
-| trigger | 6.686, 0, 5.072 | trigger pin | rotate about Y, about +12° when pulled |
+| trigger | 5.486, 0, 5.072 | trigger pin | rotate about Y, about +12° when pulled |
 | selector | 4.086, 0, 5.872 | selector axis | rotate about Y: 0° SAFE (lever forward, bind pose), +90° SEMI (lever down), +180° AUTO (lever back) |
 | bolt_catch | 7.186, 1.3, 6.722 | roll pin | rotate about Y (±9°) |
-| mag_release | 7.736, −1.3, 4.912 | button axis | translate +Y (press, ≈ 1.5 mm) |
-| rear_sight | 8.386, 0, 13.692 | leaf hinge | rotate about Y: bind pose deployed; +90° folds forward |
-| front_sight | 50.086, 0, 13.692 | leaf hinge | rotate about Y: bind pose deployed; −90° folds rearward |
+| mag_release | 10.386, −1.65, 4.912 | button axis (right magwell wall, over the rear of the magazine) | translate +Y (press, ≈ 1.5 mm; the button stays 1 mm clear of the magazine) |
+| rear_sight | 8.386, 0, 13.692 | leaf hinge (pin between two base lugs) | rotate about Y: bind pose deployed; **−90° folds rearward** (a forward fold would hit the optic riser) |
+| front_sight | 50.086, 0, 13.692 | leaf hinge (pin between two base lugs) | rotate about Y: bind pose deployed; −90° folds rearward |
 | socket_muzzle | 57.586, 0, 9.172 | bore axis at the muzzle face | non-deforming |
 | socket_ads | 1.786, 0, 16.172 | eye point on the optic axis, 8.0 cm behind the rear lens | non-deforming |
 | socket_support_hand | 33.686, 0, 6.472 | handguard bottom, 17 cm ahead of the bolt face | non-deforming |
@@ -168,9 +185,13 @@ orientations should therefore be identity (X forward, Y right, Z up) in Unreal. 
 | socket_eject | 11.536, −1.5, 9.172 | centre of the ejection port, on the receiver's right face | non-deforming |
 | socket_mag | 12.536, 0, 0.372 | centre of the magwell mouth | non-deforming |
 
-The rig is verified in Blender by `Art/Previews/IV7/IV7_rig_pose_test.png`. That render poses
-every moving bone: dust cover closed, carrier and charging handle back, trigger pressed, selector
-on SEMI, bolt catch up, magazine release pressed, magazine dropping, and both sights folded.
+The rig is checked in Blender by `Art/Previews/IV7/IV7_rig_pose_test.png` (every moving bone
+posed: dust cover closed, carrier 7.5 cm and charging handle 7 cm back, trigger pressed, selector
+on SEMI, bolt catch up, magazine release pressed, magazine dropping, both sights folded rearward)
+and by a pose interpenetration test (`Art/Previews/IV7/fix_r1/interpenetration.json`): every
+documented pose, the charging handle every 0.5–1 cm of its stroke, the carrier at 1/3/5/7.5 cm,
+the bolt catch at ±9°, and the sight leaves at −30/−60/−90°, collide with nothing (remaining
+contacts are coplanar seating faces of ≤ 0.05 mm).
 
 ## 6. Texture plan
 
@@ -194,46 +215,72 @@ intermediate, not for import.
 
 Baking works in two stages (`ivlib.bake_texture_set`):
 
-1. Procedural masks are baked with many samples: edge convexity from a short-range inside-AO,
-   cavity, and AO. The magazine is moved away during this bake so it neither receives nor casts
-   weapon occlusion. A dropped magazine therefore has clean AO.
+1. Procedural masks are baked with many samples: edge convexity from an inside-AO over
+   **2.2 mm** (Body; 1.6 mm Furniture), cavity (6 mm) and AO (3 cm). **Moving parts are baked
+   apart from the weapon**: the magazine with its rounds, the dust cover, charging handle, bolt
+   carrier, selector, bolt catch, trigger, magazine release and both sight leaves are each moved
+   away during this bake, so they neither receive nor cast inter-part AO or cavity dirt. No pose
+   shows an occlusion ghost (closed dust cover, selector on AUTO, folded sights, dropped
+   magazine).
 2. The materials switch to the baked mask image, and BaseColor, Roughness, Metallic and the
-   tangent-space Normal are baked noise-free.
+   tangent-space Normal are baked (8 samples per texel).
+
+Edge wear and handling polish are driven by the edge mask and by a per-vertex **contact**
+attribute (`iv_contact`, written by `assign_contact()` from bore-frame zones: support-hand area
+of the handguard, magwell flare, trigger guard, rail teeth, charging-handle T-bar, controls,
+turret caps, end plate, buffer tube underside). The attribute is generator-only: it is removed
+after the bake together with every procedural material, node group and generated image
+(recursive orphan purge), so the saved `.blend` and the exports contain no procedural data.
 
 Bake margins are not Blender's. Every pass bakes with margin 0. A numpy dilation then grows the
 baked texels 16 px outward, each new texel taking the mean of its filled neighbours, so ownership
-is purely by distance. Blender's per-object margin had let one object's margin overwrite another
-object's island border. After packing, islands smaller than ~4 texels² or thinner than ~0.8
-texel, and zero-area slivers, are collapsed onto a neighbouring face's UV point, so they never
-sample foreign texels. Paint and engraving islands are exempt from this.
+is purely by distance.
+
+UV layout (`ivlib.uv_unwrap`): smart projection (62°), average island scale, a per-island
+texture budget (`uv_scale_policy`), flat face groups re-projected as single planar islands and
+the selector barrel unwrapped as one cylindrical strip (`uv_planar_policy`; smart projection had
+split the hub disc into stretched wedges), then packing (concave shapes, any rotation, 3 px
+margin at 2048). Islands that would own fewer than 12 pixel centres are enlarged (up to 6×)
+and everything is re-packed twice; islands that still own no pixel centre are nudged by a
+fraction of a pixel onto free texels. Only faces smaller than **0.05 mm²** are collapsed onto a
+neighbouring UV point (they are below half a texel); visible faces, glyph counters and every
+island that touches paint or engraving are never collapsed. After packing, a pixel-centre
+rasterisation per island checks that **no pixel is shared by two different islands**; if one
+is, the set is re-packed with a safer shape method. The validation report repeats this check
+(it fails on any shared pixel) and fails on any zero-UV face larger than 0.05 mm², also on the
+LODs (decimated triangles whose UVs collapsed get the affine UV mapping of a neighbour).
 
 Meshes are triangulated *before* UV and bake, so the exported mesh and the normal map share the
 same MikkTSpace basis.
 
-Texel density at 2048²:
+Texel density at 2048² (object averages from the validation report; exterior surfaces are
+somewhat higher, interior/hidden surfaces lower by design):
 
 | Surface | Density |
 | --- | --- |
-| Body exterior | ≈ 26.5 px/cm (object averages including their interiors: lower 26.5, charging handle 26.4, optic 24.0, upper 23.0, handguard 21.9) |
-| Body hidden or interior surfaces (receiver bore, handguard inside, barrel under the handguard, gas system, bolt carrier, very small hole walls) | 45–70 % of that, by design (`uv_scale_policy`); the barrel averages 11.9 px/cm |
+| Body, receivers and controls | {{BODY_DENS}} |
+| Body hidden or interior surfaces (receiver bore, handguard and buffer-tube insides, barrel under the handguard, gas system, bolt carrier) | 35–70 % of the exterior density, by design (`uv_scale_policy`) |
 | Engraved and painted markings (pictograms, roll marks) | 1.6× the exterior density, for legibility |
-| Furniture | ≈ 44.5 px/cm |
+| Furniture | {{FURN_DENS}} |
 
-Exact numbers are in the validation report.
+UV coverage of the 2048² sheets: Body **{{BODY_COV}}** (was 41 %), Furniture **{{FURN_COV}}**. The
+Body sheet stays below the 65–70 % a hand-packed sheet reaches because the bevelled hard-surface
+parts break into ≈ 2 000 smart-projection islands, each with a 3 px margin (§10, MAT-6).
 
 Material identity, as baked values (linear):
 
 | Material | BaseColor | Metallic | Roughness | Notes |
 | --- | --- | --- | --- | --- |
-| Black hard-anodised aluminium | ≈ 0.02 | 0 | ≈ 0.44 | Patchy wear on the sharpest convex edges goes to bare aluminium: metallic 1, roughness ≈ 0.3 |
-| Nitrided steel | ≈ 0.05 | 1 | ≈ 0.36 | |
-| Phosphated steel | ≈ 0.07 | ≈ 0.55 | ≈ 0.6 | |
+| Black hard-anodised aluminium | ≈ 0.034–0.043 | **1** | ≈ 0.32–0.37, broken up ±0.05, ≈ 0.05 lower on bevel highlights and where handled | Wear-through to bare aluminium (base ≈ 0.6, roughness ≈ 0.27) on convex edges, concentrated where hands, sling and gear touch. Subtle orange-peel micro-normal. Heavy grime in closed cavities (receiver bore interior) is a dielectric layer |
+| Nitrided steel | ≈ 0.05 | **1** | ≈ 0.37 | Carbon fouling at the muzzle and heavy cavity grime are dielectric layers with a narrow transition (metallic stays binary) |
+| Phosphated steel | ≈ 0.06 | **1** | ≈ 0.6 | |
 | FDE polymer | ≈ (0.175, 0.125, 0.072) | 0 | ≈ 0.66 | Stippled areas ≈ 0.8 |
-| Magazine polymer | ≈ 0.043 | 0 | ≈ 0.6 | |
+| Magazine polymer | ≈ (0.057, 0.054, 0.050), slightly warm | 0 | **≈ 0.76** (matte) | Reads clearly apart from the satin metal receivers |
 | Rubber | ≈ 0.017 | 0 | ≈ 0.9 | |
 | Brass / copper | – | 1 | ≈ 0.28–0.3 | |
 | Glass | – | – | 0.02 | IOR 1.52, 120 nm thin-film coating |
-| Reticle | red | – | – | Emissive 150; in Cycles it does not illuminate its surroundings |
+| Reticle | saturated red (1, 0.02, 0.01) | – | – | Emission **8** (was 150, which clipped to pink-white); 0.3 mm dot; in Cycles it does not illuminate its surroundings |
+| Reticle mask | 0.01 | 0 | 0.5 | Black back of the reticle dot |
 
 ## 7. Triangle budget
 
@@ -265,7 +312,7 @@ The LODs are collapse-decimated copies with weighted normals re-applied. They ke
 skeleton, UVs and materials, and are exported as separate files:
 
 - `SK_IV7_Carbine_LOD1.fbx` / `_LOD2.fbx`, to import into LOD slots of the skeletal mesh.
-- `IV7_Carbine_LOD1.glb` / `_LOD2.glb`.
+- `GLB/IV7/IV7_Carbine_LOD1.gltf` / `_LOD2.gltf` (shared-texture glTF set, §8).
 
 The Blender FBX exporter cannot write FBX LOD groups, so the LODs are not embedded.
 
@@ -282,7 +329,11 @@ These are documented choices. The Unreal side is **untested**.
     meshes pre-triangulated.
   - Bones: no leaf bones, primary/secondary bone axis Y/X (identity correction), all bones
     including non-deforming sockets kept. No animation.
-  - Textures: referenced with relative paths.
+  - Textures: the FBX materials reference **`T_IV7_*_Normal_DX.png`** (Unreal's normal
+    convention) and BaseColor, with **relative paths only** (`../../Textures/Weapons/IV7/…` in
+    both `FileName` and `RelativeFilename`); `use_metadata=False`, so no absolute path of the
+    source `.blend` is embedded either. Checked by scanning the written files: 0 occurrences of
+    `/home/`.
   - Verified by parsing the written file: `GlobalSettings.UnitScaleFactor = 1.0`, no
     `Lcl Scaling` on any node, bone translations in cm (e.g. `socket_muzzle` at
     57.59 / 0 / 9.17). The armature and mesh root nodes carry only the −90° X
@@ -290,13 +341,20 @@ These are documented choices. The Unreal side is **untested**.
 - **Recommended Unreal import (unverified).**
   - Skeletal Mesh on, Import Normals and Tangents, Convert Scene on, Force Front X Axis off,
     Convert Scene Unit off, uniform scale 1.0.
-  - Normal maps: `_Normal_DX`, or flip green. ORM: sRGB off, then wire R to AO, G to Roughness
-    and B to Metallic manually (FBX materials only carry BaseColor and Normal).
-  - Glass: needs a translucent material. Reticle: an unlit emissive material.
+  - Normal maps: the FBX already points at `_Normal_DX`. ORM: sRGB off, then wire R to AO, G to
+    Roughness and B to Metallic manually (FBX materials only carry BaseColor and Normal).
+  - Glass: needs a translucent material. Reticle: an unlit emissive material, one-sided (default);
+    ReticleMask: plain black opaque.
   - Unreal may add the armature object `SK_IV7` as an extra identity root bone above `root`.
     This is harmless, and it carries no scale because of the centimetre bake.
-- **GLB.** Metres, Y-up (converted by the exporter). Skins, all bones, tangents, and embedded
-  PNGs. The ORM image feeds glTF occlusion plus metallicRoughness, whose channel layout matches.
+- **glTF / GLB.** Metres, Y-up (converted by the exporter). Skins, all bones, tangents. The ORM
+  image feeds glTF occlusion plus metallicRoughness, whose channel layout matches.
+  - `GLB/IV7_Carbine.glb`: LOD0 as one self-contained file with embedded PNGs. The browser build
+    loads exactly this file (`Web/src/data/weapons.json`).
+  - `GLB/IV7/`: the complete set as separate glTF files, `IV7_Carbine.gltf`,
+    `IV7_Carbine_LOD1.gltf`, `IV7_Carbine_LOD2.gltf`, `IV7_Magazine.gltf` (+ `.bin`), which all
+    reference **one** shared copy of the six PNGs in `GLB/IV7/textures/`. The earlier per-LOD
+    GLBs each embedded the same 12 MB of textures and are no longer written.
 
 Re-import checks: both formats are re-imported with Blender's stock importers into an empty
 scene. Dimensions, mesh count, 17 bones, materials and image references are compared; results
@@ -305,9 +363,14 @@ consistent. It is **not** an Unreal import test.
 
 ## 9. Interpretations and uncertainties
 
-1. **Overall length.** 86 cm with the stock in position 3 is longer than a typical 14.5"
-   carbine, which is around 80–84 cm in that position. The target is kept as specified and met
-   with a longer stock body (buttstock 15.8 cm plus a 1.8 cm pad).
+1. **Overall length and length of pull.** 86 cm with the stock in position 3 is longer than a
+   typical 14.5" carbine, which is around 80–84 cm in that position. The target is kept as
+   specified and met with a longer stock body (buttstock 15.8 cm plus a 1.8 cm pad). The result:
+   **length of pull 34.65 cm (13.6")** and **bolt face to butt 45.1 cm**, against ≈ 42.7 cm for
+   an M4-type carbine at full extension, so "position 3" here corresponds to *at or beyond* a real
+   carbine stock's fully extended position. Animation and third-person shouldering must use
+   these numbers. An OAL of ≈ 83 cm at position 3 would give a typical LOP; that needs the brief
+   owner's decision and was not changed.
 2. **Sight height.** Absolute co-witness at 7.0 cm over the bore follows the ~7 cm optic-height
    target. The iron sights are therefore taller than typical absolute co-witness sights
    (≈ 6.6 cm). This is deliberate.
@@ -315,23 +378,40 @@ consistent. It is **not** an Unreal import test.
    ≈ 6.6 cm behind the deployed rear aperture. That is closer than a real cheek weld and is a
    game-camera convention required by the brief. The rear leaf uses a large, thin ghost ring so
    the ADS view stays usable (see `IV7_ads.png`).
-4. **Sights deployed.** Both iron sights are modelled deployed, as instructed.
+4. **Sights deployed; folding.** Both iron sights are modelled deployed, as instructed. Both
+   fold **rearward** (−90° about bone Y); a forward fold of the rear leaf would pass through the
+   optic riser. Each leaf's knuckle turns on a pin between two lugs of its base; the tower tops
+   sit 0.9 mm below a folded leaf.
 5. **Dust cover.** The bind pose has the dust cover open, hanging at 176°, so the bolt carrier is
    visible through the port. Closing it is a −176° rotation of `dust_cover`.
 6. **Selector layout.** The throw is the project's own: SAFE forward, SEMI down, AUTO rear. The
-   pictograms are generic: a crossed-out bullet (white), one bullet (red) and three bullets
-   (red).
+   pictograms are generic: a crossed-out bullet (white bullet with a diagonal unpainted gap, and a
+   thinner white slash running past the outline), one bullet (red) and three bullets (red).
 7. **Top cartridge.** The top round is centred between the feed lips for visibility; real
    double-stack magazines offset it to one side. The second round is offset.
-8. **Reticle.** A 1.4 mm emissive disc bonded to the inner face of the front lens. It is also
-   visible from the front of the optic, which a real closed-emitter sight hides (P2).
-9. **Internal mechanism.** Only visible internals are modelled: bolt carrier and bolt head
-   through the port, and cartridges through the feed lips. There is no hammer, buffer or spring.
-   The gas tube is straight, with no bend at the gas block.
-10. **Hidden surfaces.** The receiver bore, handguard interior and barrel under the handguard get
-    reduced texel density on purpose.
-11. **Roll marks.** The "IV-7" and "5.56 mm" letter shapes are cut from Blender's built-in UI
+8. **Reticle.** A 0.3 mm emissive dot (≈ 7 MOA at the 14 cm eye distance; real dots are 2–4 MOA,
+   which would be sub-pixel in a render) bonded to the inner face of the front lens. Its
+   muzzle-side cap is black, so it cannot be seen from the front. In an engine a collimated
+   (far-plane) reticle shader is the better solution.
+9. **Trigger reach.** 7.36 cm from the grip back strap to the trigger face, typical for a
+   carbine. The FP arms rig can use a standard trigger-finger pose.
+10. **Internal mechanism.** Only visible internals are modelled: bolt carrier and bolt head
+    through the port, cartridges through the feed lips, the charging-handle shaft in its channel
+    and the magazine catch notch. There is no hammer, buffer or spring. The gas tube is straight
+    and ends in the barrel-nut slot.
+11. **Hidden surfaces.** The receiver bore, handguard and buffer-tube interiors and the barrel
+    under the handguard get reduced texel density on purpose.
+12. **Roll marks.** The "IV-7" and "5.56 mm" letter shapes are cut from Blender's built-in UI
     font (DejaVu Sans-based, permissive licence). There are no third-party logos.
-12. **Unverified in engine.** Nothing here was verified in Unreal: axis mapping, bone
+13. **Anodised aluminium as a metal.** The dyed oxide is authored as a dark metal (metallic 1),
+    the common game-art convention, so that it reads as metal next to the polymer parts.
+14. **Unverified in engine.** Nothing here was verified in Unreal: axis mapping, bone
     orientation, the extra root bone, material hookup and LOD import are documented intentions
     only.
+
+## 10. Fix round 1 (independent review r1)
+
+Reviewer defect IDs and what changed in the source (`iv7_carbine.py`, `ivlib.py`). Evidence is in
+`Art/Previews/IV7/fix_r1/` and the regenerated validation report.
+
+{{FIX_TABLE}}

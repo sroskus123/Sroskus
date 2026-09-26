@@ -548,6 +548,67 @@ export class NavMeshData {
     return out;
   }
 
+  /**
+   * Nodes whose triangle overlaps the XZ rectangle [minX, maxX] x [minZ, maxZ] (separating-axis test,
+   * touching counts as no overlap) and whose height range meets [yMin, yMax].
+   */
+  nodesInRect(minX, minZ, maxX, maxZ, { yMin = -Infinity, yMax = Infinity } = {}) {
+    const out = [];
+    if (!(maxX > minX) || !(maxZ > minZ)) return out;
+    const cx0 = this._cx(minX);
+    const cx1 = this._cx(maxX);
+    const cz0 = this._cz(minZ);
+    const cz1 = this._cz(maxZ);
+    const seen = new Set();
+    const rect = [
+      [minX, minZ],
+      [maxX, minZ],
+      [maxX, maxZ],
+      [minX, maxZ],
+    ];
+    for (let cz = cz0; cz <= cz1; cz++) {
+      for (let cx = cx0; cx <= cx1; cx++) {
+        for (const i of this.grid[cz * this.gw + cx]) {
+          if (seen.has(i)) continue;
+          seen.add(i);
+          if (this.maxY[i] < yMin || this.minY[i] > yMax) continue;
+          if (this.maxX[i] <= minX || this.minX[i] >= maxX || this.maxZ[i] <= minZ || this.minZ[i] >= maxZ) continue;
+          const [a, b, c] = this.triangle(i);
+          const tri = [
+            [a.x, a.z],
+            [b.x, b.z],
+            [c.x, c.z],
+          ];
+          // SAT: the rectangle axes are covered by the bounds test above; test the 3 triangle edge normals
+          let separated = false;
+          for (let k = 0; k < 3 && !separated; k++) {
+            const p0 = tri[k];
+            const p1 = tri[(k + 1) % 3];
+            const nx = p1[1] - p0[1];
+            const nz = -(p1[0] - p0[0]);
+            let tMin = Infinity;
+            let tMax = -Infinity;
+            for (const q of tri) {
+              const d = q[0] * nx + q[1] * nz;
+              if (d < tMin) tMin = d;
+              if (d > tMax) tMax = d;
+            }
+            let rMin = Infinity;
+            let rMax = -Infinity;
+            for (const q of rect) {
+              const d = q[0] * nx + q[1] * nz;
+              if (d < rMin) rMin = d;
+              if (d > rMax) rMax = d;
+            }
+            if (rMax <= tMin + 1e-9 || rMin >= tMax - 1e-9) separated = true;
+          }
+          if (!separated) out.push(i);
+        }
+      }
+    }
+    return out;
+  }
+
   /** Boundary edges (triangle edges without a neighbour) of a group: [{a, b, node}] (a, b vertex ids). */
   boundaryEdges(groupIndex = this.mainGroup) {
     const out = [];
