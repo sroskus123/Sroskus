@@ -135,3 +135,12 @@ merged navmesh_validation: PASS {'zone_dilna': 1.0225, 'zone_sklad': 1.0362, 'zo
 <<< exit 0 (49 s)
 
 >>> /usr/local/bin/python3 draw_plans.py
+written Docs/img/map_plan.png
+written Docs/img/map_plan_core.png
+written Docs/img/map_routes.png
+written Docs/img/plan_dilna_L0.png
+written Docs/img/plan_dilna_L1.png
+written Docs/img/plan_sklad_L0.png
+written Docs/img/plan_dum_L0.png
+written Docs/img/plan_dum_L1.png
+<<< exit 0 (9 s)

@@ -1,7 +1,7 @@
 {
   "generated_by": "human_base.py (ivchar 1.0.0, ivlib 1.0.0)",
   "blender": "4.5.14 LTS",
-  "time": "2026-09-26 18:44:08",
+  "time": "2026-09-26 18:58:51",
   "design_inputs": {
     "stature_m": 1.8,
     "age_years": 28.0,
@@ -149,8 +149,8 @@
     "reason": "Root carries zero skin weight in weights.game_engine.json; placed at the origin with world-aligned axes like the Unreal mannequin root. No deformation change."
   },
   "weights": {
-    "max_influences_before": 6,
-    "vertices_over_limit_before": 614,
+    "max_influences_before": 7,
+    "vertices_over_limit_before": 630,
     "rows_without_weight": 0,
     "source_bones": 53,
     "source_lr_asymmetry": {
@@ -158,11 +158,23 @@
       "vertices_over_0.01": 645
     },
     "symmetrized": true,
+    "twist_ramps": {
+      "lowerarm": [
+        0.3,
+        0.7,
+        true
+      ],
+      "upperarm": [
+        0.2,
+        0.55,
+        false
+      ]
+    },
     "after_symmetrize_and_limit_lr_asymmetry": {
       "max_abs_diff": 0.0,
       "vertices_over_0.01": 0
     },
-    "limit_change_L1_mean": 0.000394,
+    "limit_change_L1_mean": 0.000412,
     "limit_change_L1_max": 0.11221
   },
   "rest_pose": {
@@ -189,7 +201,7 @@
       1.8
     ]
   },
-  "build_seconds": 2.6,
+  "build_seconds": 1.9,
   "mesh": {
     "tris": 26756,
     "verts": 13380,
@@ -251,7 +263,7 @@
     ]
   },
   "skeleton": {
-    "bone_count": 53,
+    "bone_count": 57,
     "roots": [
       "root"
     ],
@@ -372,6 +384,22 @@
         "roll_deg": 135.679,
         "deform": true
       },
+      "upperarm_twist_01_l": {
+        "parent": "upperarm_l",
+        "head_m": [
+          0.2135,
+          -0.0175,
+          1.413
+        ],
+        "tail_m": [
+          0.3125,
+          -0.0167,
+          1.3018
+        ],
+        "length_m": 0.1488,
+        "roll_deg": 135.679,
+        "deform": true
+      },
       "lowerarm_l": {
         "parent": "upperarm_l",
         "head_m": [
@@ -385,6 +413,22 @@
           1.0334
         ],
         "length_m": 0.2532,
+        "roll_deg": 137.251,
+        "deform": true
+      },
+      "lowerarm_twist_01_l": {
+        "parent": "lowerarm_l",
+        "head_m": [
+          0.4749,
+          -0.0482,
+          1.1231
+        ],
+        "tail_m": [
+          0.5582,
+          -0.0803,
+          1.0334
+        ],
+        "length_m": 0.1266,
         "roll_deg": 137.251,
         "deform": true
       },
@@ -676,6 +720,22 @@
         "roll_deg": -135.679,
         "deform": true
       },
+      "upperarm_twist_01_r": {
+        "parent": "upperarm_r",
+        "head_m": [
+          -0.2135,
+          -0.0175,
+          1.413
+        ],
+        "tail_m": [
+          -0.3125,
+          -0.0167,
+          1.3018
+        ],
+        "length_m": 0.1488,
+        "roll_deg": -135.679,
+        "deform": true
+      },
       "lowerarm_r": {
         "parent": "upperarm_r",
         "head_m": [
@@ -689,6 +749,22 @@
           1.0334
         ],
         "length_m": 0.2532,
+        "roll_deg": -137.251,
+        "deform": true
+      },
+      "lowerarm_twist_01_r": {
+        "parent": "lowerarm_r",
+        "head_m": [
+          -0.4749,
+          -0.0482,
+          1.1231
+        ],
+        "tail_m": [
+          -0.5582,
+          -0.0803,
+          1.0334
+        ],
+        "length_m": 0.1266,
         "roll_deg": -137.251,
         "deform": true
       },
@@ -1118,10 +1194,10 @@
     "vertices_over_limit": 0,
     "influence_histogram": {
       "0": 0,
-      "1": 6507,
-      "2": 4214,
-      "3": 1385,
-      "4": 1274
+      "1": 6333,
+      "2": 4314,
+      "3": 1403,
+      "4": 1330
     },
     "weight_sum_min": 1.0,
     "weight_sum_max": 1.0,
@@ -1134,7 +1210,12 @@
     "ok": true
   },
   "joints_vs_mesh": {
-    "problems": [],
+    "problems": [
+      "upperarm_twist_01_l.tail 4.1 cm from surface",
+      "lowerarm_twist_01_l.tail 1.9 cm from surface",
+      "upperarm_twist_01_r.tail 4.1 cm from surface",
+      "lowerarm_twist_01_r.tail 1.9 cm from surface"
+    ],
     "detail": {
       "pelvis.head": {
         "inside": true,
@@ -1160,9 +1241,25 @@
         "inside": true,
         "dist_to_surface_m": 0.051
       },
+      "upperarm_twist_01_l.head": {
+        "inside": true,
+        "dist_to_surface_m": 0.0515
+      },
+      "upperarm_twist_01_l.tail": {
+        "inside": true,
+        "dist_to_surface_m": 0.0407
+      },
       "lowerarm_l.head": {
         "inside": true,
         "dist_to_surface_m": 0.0245
+      },
+      "lowerarm_twist_01_l.head": {
+        "inside": true,
+        "dist_to_surface_m": 0.032
+      },
+      "lowerarm_twist_01_l.tail": {
+        "inside": true,
+        "dist_to_surface_m": 0.0189
       },
       "hand_l.head": {
         "inside": true,
@@ -1256,9 +1353,25 @@
         "inside": true,
         "dist_to_surface_m": 0.051
       },
+      "upperarm_twist_01_r.head": {
+        "inside": true,
+        "dist_to_surface_m": 0.0515
+      },
+      "upperarm_twist_01_r.tail": {
+        "inside": true,
+        "dist_to_surface_m": 0.0407
+      },
       "lowerarm_r.head": {
         "inside": true,
         "dist_to_surface_m": 0.0245
+      },
+      "lowerarm_twist_01_r.head": {
+        "inside": true,
+        "dist_to_surface_m": 0.032
+      },
+      "lowerarm_twist_01_r.tail": {
+        "inside": true,
+        "dist_to_surface_m": 0.0189
       },
       "hand_r.head": {
         "inside": true,
@@ -1520,7 +1633,7 @@
     "facing_minus_Y": "PASS",
     "skeleton_ue_mannequin_names_hierarchy": "PASS",
     "skin_all_weighted_max4_sum1": "PASS",
-    "joints_inside_mesh_tips_on_surface": "PASS",
+    "joints_inside_mesh_tips_on_surface": "FAIL",
     "proportions_within_plausible_ranges": "PASS"
   },
   "validation_seconds": 0.2,
@@ -1528,7 +1641,7 @@
     "arms_raised": {
       "tri_area_ratio_min": 0.121,
       "tri_area_ratio_p01": 0.832,
-      "tri_area_ratio_p99": 1.597,
+      "tri_area_ratio_p99": 1.599,
       "tri_area_ratio_max": 5.743,
       "tris_below_25pct_area": 16,
       "tris_below_10pct_area": 0,
@@ -1579,7 +1692,19 @@
       "self_intersecting_face_pairs": 64,
       "description": "elbow flexion 120 deg, upper arms at rest",
       "max_bone_length_change_rel": 8e-07,
-      "min_z_m": -0.0
+      "min_z_m": -0.0,
+      "joint_clearance": {
+        "lowerarm_l": {
+          "rest_clearance_m": 0.0245,
+          "posed_clearance_m": 0.0168,
+          "ratio": 0.684
+        },
+        "lowerarm_r": {
+          "rest_clearance_m": 0.0245,
+          "posed_clearance_m": 0.0168,
+          "ratio": 0.684
+        }
+      }
     },
     "squat_knees_120": {
       "tri_area_ratio_min": 0.06,
@@ -1593,7 +1718,24 @@
       "self_intersecting_face_pairs": 192,
       "description": "hip flexion 100 deg, knee flexion 120 deg, ankle dorsiflexion 20 deg, feet planted",
       "max_bone_length_change_rel": 9.7e-07,
-      "min_z_m": 0.0
+      "min_z_m": 0.0,
+      "joint_clearance": {
+        "calf_l": {
+          "rest_clearance_m": 0.0423,
+          "posed_clearance_m": 0.024,
+          "ratio": 0.568
+        },
+        "calf_r": {
+          "rest_clearance_m": 0.0423,
+          "posed_clearance_m": 0.024,
+          "ratio": 0.568
+        },
+        "thigh_l": {
+          "rest_clearance_m": 0.0393,
+          "posed_clearance_m": 0.0371,
+          "ratio": 0.943
+        }
+      }
     },
     "spine_twist": {
       "tri_area_ratio_min": 0.433,
@@ -1633,53 +1775,195 @@
       "edge_len_ratio_min": 0.361,
       "edge_len_ratio_max": 2.111,
       "self_intersecting_face_pairs": 8,
-      "description": "hand rotated 80 deg about the forearm axis (no twist bones)",
+      "description": "hand rotated 80 deg about the forearm axis",
       "max_bone_length_change_rel": 1.27e-06,
-      "min_z_m": -0.0
+      "min_z_m": -0.0,
+      "forearm_ring_ratio_l": {
+        "0.3": 1.0,
+        "0.5": 1.0,
+        "0.7": 1.0,
+        "0.85": 0.931,
+        "0.95": 0.866,
+        "1.0": 0.793,
+        "1.05": 0.831
+      },
+      "forearm_ring_ratio_r": {
+        "0.3": 1.0,
+        "0.5": 1.0,
+        "0.7": 1.0,
+        "0.85": 0.931,
+        "0.95": 0.866,
+        "1.0": 0.793,
+        "1.05": 0.831
+      }
+    },
+    "upperarm_roll": {
+      "tri_area_ratio_min": 0.014,
+      "tri_area_ratio_p01": 0.727,
+      "tri_area_ratio_p99": 1.258,
+      "tri_area_ratio_max": 1.746,
+      "tris_below_25pct_area": 32,
+      "tris_below_10pct_area": 18,
+      "edge_len_ratio_min": 0.073,
+      "edge_len_ratio_max": 2.126,
+      "self_intersecting_face_pairs": 255,
+      "description": "elbows 90 deg, upper arm rolled 70 deg about its axis (internal rotation)",
+      "max_bone_length_change_rel": 8e-07,
+      "min_z_m": -0.0,
+      "upperarm_ring_ratio_l": {
+        "0.1": 0.881,
+        "0.2": 0.917,
+        "0.35": 0.991,
+        "0.5": 1.003,
+        "0.7": 0.958
+      },
+      "upperarm_ring_ratio_r": {
+        "0.1": 0.881,
+        "0.2": 0.917,
+        "0.35": 0.991,
+        "0.5": 1.003,
+        "0.7": 0.958
+      },
+      "joint_clearance": {
+        "lowerarm_l": {
+          "rest_clearance_m": 0.0245,
+          "posed_clearance_m": 0.0211,
+          "ratio": 0.859
+        },
+        "lowerarm_r": {
+          "rest_clearance_m": 0.0245,
+          "posed_clearance_m": 0.0211,
+          "ratio": 0.859
+        }
+      }
     },
     "fist": {
-      "tri_area_ratio_min": 0.022,
-      "tri_area_ratio_p01": 0.302,
-      "tri_area_ratio_p99": 1.291,
-      "tri_area_ratio_max": 3.251,
-      "tris_below_25pct_area": 168,
-      "tris_below_10pct_area": 20,
-      "edge_len_ratio_min": 0.165,
-      "edge_len_ratio_max": 3.43,
-      "self_intersecting_face_pairs": 866,
-      "description": "fist: fingers 80/95/65 deg, thumb opposed 35 deg + curl 10/35/45",
-      "max_bone_length_change_rel": 1.29e-06,
+      "tri_area_ratio_min": 0.028,
+      "tri_area_ratio_p01": 0.334,
+      "tri_area_ratio_p99": 1.296,
+      "tri_area_ratio_max": 3.386,
+      "tris_below_25pct_area": 150,
+      "tris_below_10pct_area": 12,
+      "edge_len_ratio_min": 0.142,
+      "edge_len_ratio_max": 3.51,
+      "self_intersecting_face_pairs": 752,
+      "description": "fist: fingers MCP/PIP/DIP 80/90/45 deg, thumb 01 folded 45 + out 10, 02/03 flex 35/40",
+      "max_bone_length_change_rel": 1.09e-06,
       "min_z_m": -0.0
     },
     "fingers_half": {
-      "tri_area_ratio_min": 0.025,
-      "tri_area_ratio_p01": 0.49,
-      "tri_area_ratio_p99": 1.125,
-      "tri_area_ratio_max": 1.741,
-      "tris_below_25pct_area": 58,
-      "tris_below_10pct_area": 12,
-      "edge_len_ratio_min": 0.104,
-      "edge_len_ratio_max": 1.501,
-      "self_intersecting_face_pairs": 92,
-      "description": "transition: fingers 40/45/30 deg",
-      "max_bone_length_change_rel": 1.37e-06,
+      "tri_area_ratio_min": 0.01,
+      "tri_area_ratio_p01": 0.488,
+      "tri_area_ratio_p99": 1.136,
+      "tri_area_ratio_max": 1.91,
+      "tris_below_25pct_area": 60,
+      "tris_below_10pct_area": 16,
+      "edge_len_ratio_min": 0.039,
+      "edge_len_ratio_max": 1.695,
+      "self_intersecting_face_pairs": 50,
+      "description": "transition: fingers 42/48/30 deg, thumb 14/8/12/18",
+      "max_bone_length_change_rel": 1.21e-06,
       "min_z_m": -0.0
     },
     "fingers_spread": {
-      "tri_area_ratio_min": 0.677,
-      "tri_area_ratio_p01": 0.959,
-      "tri_area_ratio_p99": 1.129,
-      "tri_area_ratio_max": 1.758,
+      "tri_area_ratio_min": 0.427,
+      "tri_area_ratio_p01": 0.947,
+      "tri_area_ratio_p99": 1.13,
+      "tri_area_ratio_max": 2.074,
       "tris_below_25pct_area": 0,
       "tris_below_10pct_area": 0,
-      "edge_len_ratio_min": 0.766,
-      "edge_len_ratio_max": 1.657,
+      "edge_len_ratio_min": 0.728,
+      "edge_len_ratio_max": 1.967,
       "self_intersecting_face_pairs": 8,
-      "description": "fingers spread 14 deg (index/ring/pinky), slight extension",
-      "max_bone_length_change_rel": 1.43e-06,
+      "description": "fingers spread 14 deg (pinky 22), MCP extension 6 deg, thumb radial abduction 18 deg",
+      "max_bone_length_change_rel": 1.34e-06,
       "min_z_m": -0.0
+    },
+    "wrist_twist_driven": {
+      "tri_area_ratio_min": 0.613,
+      "tri_area_ratio_p01": 0.948,
+      "tri_area_ratio_p99": 1.007,
+      "tri_area_ratio_max": 1.567,
+      "tris_below_25pct_area": 0,
+      "tris_below_10pct_area": 0,
+      "edge_len_ratio_min": 0.678,
+      "edge_len_ratio_max": 1.477,
+      "self_intersecting_face_pairs": 8,
+      "description": "hand rotated 80 deg about the forearm axis -- twist bones driven",
+      "max_bone_length_change_rel": 1.27e-06,
+      "min_z_m": -0.0,
+      "twist_bones_driven_deg": {
+        "lowerarm_twist_01_l": 40.0,
+        "upperarm_twist_01_l": -0.0,
+        "lowerarm_twist_01_r": 40.0,
+        "upperarm_twist_01_r": -0.0
+      },
+      "forearm_ring_ratio_l": {
+        "0.3": 0.998,
+        "0.5": 0.94,
+        "0.7": 1.0,
+        "0.85": 0.981,
+        "0.95": 0.964,
+        "1.0": 0.946,
+        "1.05": 0.956
+      },
+      "forearm_ring_ratio_r": {
+        "0.3": 0.998,
+        "0.5": 0.94,
+        "0.7": 1.0,
+        "0.85": 0.981,
+        "0.95": 0.964,
+        "1.0": 0.946,
+        "1.05": 0.956
+      }
+    },
+    "upperarm_roll_driven": {
+      "tri_area_ratio_min": 0.014,
+      "tri_area_ratio_p01": 0.814,
+      "tri_area_ratio_p99": 1.131,
+      "tri_area_ratio_max": 1.65,
+      "tris_below_25pct_area": 28,
+      "tris_below_10pct_area": 16,
+      "edge_len_ratio_min": 0.073,
+      "edge_len_ratio_max": 1.662,
+      "self_intersecting_face_pairs": 255,
+      "description": "elbows 90 deg, upper arm rolled 70 deg about its axis (internal rotation) -- twist bones driven",
+      "max_bone_length_change_rel": 8e-07,
+      "min_z_m": -0.0,
+      "twist_bones_driven_deg": {
+        "lowerarm_twist_01_l": 0.0,
+        "upperarm_twist_01_l": -35.0,
+        "lowerarm_twist_01_r": -0.0,
+        "upperarm_twist_01_r": 35.0
+      },
+      "upperarm_ring_ratio_l": {
+        "0.1": 0.969,
+        "0.2": 0.978,
+        "0.35": 0.952,
+        "0.5": 0.987,
+        "0.7": 0.958
+      },
+      "upperarm_ring_ratio_r": {
+        "0.1": 0.969,
+        "0.2": 0.978,
+        "0.35": 0.952,
+        "0.5": 0.987,
+        "0.7": 0.958
+      },
+      "joint_clearance": {
+        "lowerarm_l": {
+          "rest_clearance_m": 0.0245,
+          "posed_clearance_m": 0.0211,
+          "ratio": 0.859
+        },
+        "lowerarm_r": {
+          "rest_clearance_m": 0.0245,
+          "posed_clearance_m": 0.0211,
+          "ratio": 0.859
+        }
+      }
     },
     "_rest_self_intersecting_face_pairs": 8
   },
-  "total_seconds_this_run": 6.2
+  "total_seconds_this_run": 3.8
 }
