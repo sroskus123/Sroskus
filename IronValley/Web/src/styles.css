@@ -1,0 +1,391 @@
+:root {
+  --iv-bg: #0f1215;
+  --iv-panel: rgba(18, 22, 26, 0.92);
+  --iv-line: rgba(255, 255, 255, 0.12);
+  --iv-text: #e9e6df;
+  --iv-muted: #a3a9ae;
+  --iv-accent: #e39a35;
+  --iv-accent-light: #f2b560;
+  --iv-danger: #e05a3a;
+  /* backing plate for small HUD labels: readable over bright sky or lit walls (>= 4.5:1 even on white) */
+  --iv-hud-plate: rgba(10, 12, 14, 0.75);
+  color-scheme: dark;
+}
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--iv-bg);
+  color: var(--iv-text);
+  font-family: 'DejaVu Sans', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+  overflow: hidden;
+}
+#iv-root {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--iv-bg);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.iv-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  outline: none;
+  cursor: crosshair;
+}
+.iv-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: none;
+}
+.iv-hud.iv-open {
+  display: block;
+}
+.iv-location {
+  position: absolute;
+  left: 12px;
+  top: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 4px 10px;
+  background: var(--iv-hud-plate);
+  border-radius: 2px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+.iv-location-name {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-size: 15px;
+}
+.iv-location-tag {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--iv-accent-light);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.iv-crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+}
+.iv-crosshair i {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.55);
+}
+.iv-ch-t,
+.iv-ch-b {
+  width: 2px;
+  height: 7px;
+  left: -1px;
+}
+.iv-ch-t {
+  top: -12px;
+}
+.iv-ch-b {
+  top: 5px;
+}
+.iv-ch-l,
+.iv-ch-r {
+  height: 2px;
+  width: 7px;
+  top: -1px;
+}
+.iv-ch-l {
+  left: -12px;
+}
+.iv-ch-r {
+  left: 5px;
+}
+.iv-ch-dot {
+  width: 2px;
+  height: 2px;
+  left: -1px;
+  top: -1px;
+}
+.iv-hitmarker {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  opacity: 0;
+  background:
+    linear-gradient(45deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%),
+    linear-gradient(-45deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%);
+  -webkit-mask: radial-gradient(circle, transparent 5px, #000 5.5px);
+  mask: radial-gradient(circle, transparent 5px, #000 5.5px);
+}
+.iv-hitmarker.iv-show {
+  opacity: 1;
+}
+.iv-hitmarker.iv-kill {
+  filter: drop-shadow(0 0 2px var(--iv-danger)) sepia(1) saturate(6) hue-rotate(-30deg);
+}
+.iv-ammo {
+  position: absolute;
+  right: 20px;
+  bottom: 18px;
+  text-align: right;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.85);
+}
+.iv-weapon-name {
+  font-size: 12px;
+  color: #c3c8cc;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.iv-ammo-line {
+  font-variant-numeric: tabular-nums;
+}
+.iv-ammo-mag {
+  font-size: 34px;
+  font-weight: 700;
+}
+.iv-ammo-mag.iv-low {
+  color: var(--iv-danger);
+}
+.iv-ammo-res {
+  font-size: 16px;
+  color: var(--iv-muted);
+  margin-left: 6px;
+}
+.iv-reload {
+  margin-top: 4px;
+  height: 3px;
+  width: 120px;
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.15);
+  visibility: hidden;
+}
+.iv-reload.iv-show {
+  visibility: visible;
+}
+.iv-reload i {
+  display: block;
+  height: 100%;
+  background: var(--iv-accent);
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+.iv-stance {
+  position: absolute;
+  left: 16px;
+  bottom: 18px;
+  padding: 4px 10px;
+  background: var(--iv-hud-plate);
+  border-left: 3px solid var(--iv-accent);
+  border-radius: 2px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--iv-text);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+.iv-stance:empty {
+  display: none;
+}
+.iv-notice {
+  position: absolute;
+  left: 50%;
+  top: 64%;
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  background: rgba(10, 12, 14, 0.72);
+  border: 1px solid var(--iv-line);
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 150ms linear;
+  max-width: min(560px, calc(100% - 32px));
+  text-align: center;
+}
+.iv-notice.iv-show {
+  opacity: 1;
+}
+.iv-fps {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  padding: 3px 8px;
+  background: var(--iv-hud-plate);
+  border-radius: 2px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--iv-text);
+  display: none;
+}
+.iv-placeholder-note {
+  position: absolute;
+  right: 16px;
+  bottom: 84px;
+  padding: 3px 8px;
+  background: var(--iv-hud-plate);
+  border-radius: 2px;
+  font-size: 12px;
+  color: var(--iv-accent-light);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+.iv-placeholder-note:empty {
+  display: none;
+}
+.iv-menu {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, rgba(10, 12, 14, 0.55), rgba(10, 12, 14, 0.82));
+  overflow: auto;
+  padding: 16px;
+  box-sizing: border-box;
+}
+.iv-menu.iv-open {
+  display: flex;
+}
+.iv-panel {
+  width: min(860px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  background: var(--iv-panel);
+  border: 1px solid var(--iv-line);
+  border-top: 3px solid var(--iv-accent);
+  padding: 20px 24px;
+  box-sizing: border-box;
+}
+.iv-title {
+  margin: 0;
+  font-size: 30px;
+  letter-spacing: 0.12em;
+}
+.iv-subtitle {
+  margin: 4px 0 14px;
+  color: var(--iv-muted);
+  font-size: 14px;
+}
+.iv-status {
+  min-height: 1.2em;
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--iv-accent);
+}
+.iv-btn {
+  font: inherit;
+  color: #14171a;
+  background: var(--iv-text);
+  border: 0;
+  padding: 9px 22px;
+  cursor: pointer;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.iv-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.iv-btn-primary {
+  background: var(--iv-accent);
+  font-size: 16px;
+}
+.iv-btn-small {
+  padding: 5px 12px;
+  font-size: 12px;
+  margin-top: 8px;
+  background: #cfd3d6;
+}
+.iv-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.iv-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  margin-top: 14px;
+}
+.iv-cols h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--iv-muted);
+  margin: 0 0 8px;
+}
+.iv-keys {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 14px;
+  margin: 0;
+  font-size: 13px;
+}
+.iv-keys dt {
+  color: var(--iv-muted);
+}
+.iv-keys dd {
+  margin: 0;
+}
+.iv-hint {
+  font-size: 11px;
+  color: var(--iv-muted);
+  margin: 8px 0 0;
+}
+.iv-row {
+  display: grid;
+  grid-template-columns: 150px 1fr 52px;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.iv-row input[type='checkbox'] {
+  justify-self: start;
+}
+.iv-row-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--iv-muted);
+}
+.iv-foot {
+  margin: 16px 0 0;
+  font-size: 11px;
+  color: var(--iv-muted);
+}
+.iv-touch-note {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 16px;
+  padding: 12px 14px;
+  background: #3a1f12;
+  border: 1px solid var(--iv-accent);
+  font-size: 14px;
+  display: none;
+  z-index: 5;
+}
+.iv-touch-note.iv-show {
+  display: block;
+}
+.iv-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  text-align: center;
+  font-size: 15px;
+}
+@media (max-width: 899px) {
+  .iv-cols {
+    grid-template-columns: 1fr;
+  }
+  .iv-row {
+    grid-template-columns: 1fr 1fr 48px;
+  }
+}

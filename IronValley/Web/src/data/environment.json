@@ -1,0 +1,45 @@
+{
+  "_comment": "Stale denni nastaveni. Smer slunce je jediny zdroj pravdy pro oblohu (Sky) i smerove svetlo.",
+  "sun": {
+    "elevationDeg": 38,
+    "azimuthDeg": 222,
+    "color": "#fff1dc",
+    "intensity": 5.0,
+    "shadowMapSize": 2048,
+    "shadowExtent": 28,
+    "shadowRadius": 3,
+    "shadowBias": -0.0004,
+    "shadowNormalBias": 0.025
+  },
+  "sky": {
+    "turbidity": 3.2,
+    "rayleigh": 1.15,
+    "mieCoefficient": 0.004,
+    "mieDirectionalG": 0.78,
+    "cloudCoverage": 0.4,
+    "cloudDensity": 0.8,
+    "cloudScale": 0.0007,
+    "cloudElevation": 0.55,
+    "cloudSpeed": 0.0
+  },
+  "clouds": {
+    "_comment": "Vrstva mraku (clouds.js): cloudScale = jednotky sumu na metr, vyska vrstvy v m, pohlcovani slunecniho svetla.",
+    "cloudDetail": 1.0,
+    "cloudLayerHeight": 1800,
+    "cloudSunAbsorption": 2.2
+  },
+  "hemisphere": {
+    "skyColor": "#bcd4ee",
+    "groundColor": "#6f6a5e",
+    "intensity": 0.08
+  },
+  "environmentIntensity": 0.3,
+  "exposure": 0.55,
+  "fog": {
+    "color": "#c3cfd9",
+    "density": 0.0045,
+    "heightFalloff": 0.12,
+    "heightDensity": 0.0035,
+    "baseHeight": 0.0
+  }
+}

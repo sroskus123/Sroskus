@@ -1,0 +1,16 @@
+{
+  "Body": {
+    "BaseColor": "Art/Textures/Weapons/IV7/T_IV7_Body_BaseColor.png",
+    "Normal": "Art/Textures/Weapons/IV7/T_IV7_Body_Normal.png",
+    "Normal_DX": "Art/Textures/Weapons/IV7/T_IV7_Body_Normal_DX.png",
+    "ORM": "Art/Textures/Weapons/IV7/T_IV7_Body_ORM.png",
+    "Masks_intermediate": "Art/Textures/Weapons/IV7/Intermediate/T_IV7_Body_Masks.png"
+  },
+  "Furniture": {
+    "BaseColor": "Art/Textures/Weapons/IV7/T_IV7_Furniture_BaseColor.png",
+    "Normal": "Art/Textures/Weapons/IV7/T_IV7_Furniture_Normal.png",
+    "Normal_DX": "Art/Textures/Weapons/IV7/T_IV7_Furniture_Normal_DX.png",
+    "ORM": "Art/Textures/Weapons/IV7/T_IV7_Furniture_ORM.png",
+    "Masks_intermediate": "Art/Textures/Weapons/IV7/Intermediate/T_IV7_Furniture_Masks.png"
+  }
+}

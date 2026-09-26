@@ -1,0 +1,77 @@
+{
+  "schema": "ironvalley.rules",
+  "version": 1,
+  "notes": "Vsechny laditelne hodnoty pravidel. Casy jsou v sekundach (jadro je prevadi na cele mikrosekundy), vzdalenosti v metrech. Popis a politiky: Docs/RULES.md.",
+  "teams": {
+    "count": 3,
+    "size": 6,
+    "list": [
+      { "id": "alfa", "name": "Alfa" },
+      { "id": "bravo", "name": "Bravo" },
+      { "id": "charlie", "name": "Charlie" }
+    ]
+  },
+  "round": {
+    "preRoundDuration": 5.0,
+    "timeLimit": 600.0,
+    "scoreTarget": 100
+  },
+  "zone": {
+    "pointInterval": 2.0,
+    "pointsPerAward": 1,
+    "locations": [
+      { "id": "zone_dilna", "name": "Dílna" },
+      { "id": "zone_sklad", "name": "Sklad" },
+      { "id": "zone_dvur", "name": "Dvůr" }
+    ]
+  },
+  "respawn": {
+    "delay": 5.0,
+    "retryInterval": 0.5,
+    "minEnemyDistance": 25.0,
+    "bodyClearance": 1.0
+  },
+  "combat": {
+    "maxHealth": 100,
+    "friendlyFire": false
+  },
+  "loadout": {
+    "default": ["rifle_iv7", "pistol_p9"]
+  },
+  "weapons": {
+    "rifle_iv7": {
+      "name": "Puška IV-7",
+      "slot": "primary",
+      "magazineCapacity": 30,
+      "hasChamber": true,
+      "startReserve": 90,
+      "maxReserve": 180,
+      "roundsPerMinute": 750,
+      "fireModes": ["auto", "semi"],
+      "defaultFireMode": "auto",
+      "damage": 34,
+      "reload": {
+        "tactical": { "duration": 2.2, "insertCommit": 1.3 },
+        "empty": { "duration": 2.9, "insertCommit": 1.3, "boltRelease": 2.3 },
+        "chamber": { "duration": 0.8, "commit": 0.5 }
+      }
+    },
+    "pistol_p9": {
+      "name": "Pistole P9",
+      "slot": "secondary",
+      "magazineCapacity": 15,
+      "hasChamber": true,
+      "startReserve": 45,
+      "maxReserve": 90,
+      "roundsPerMinute": 450,
+      "fireModes": ["semi"],
+      "defaultFireMode": "semi",
+      "damage": 26,
+      "reload": {
+        "tactical": { "duration": 1.7, "insertCommit": 0.95 },
+        "empty": { "duration": 2.1, "insertCommit": 0.95, "boltRelease": 1.55 },
+        "chamber": { "duration": 0.6, "commit": 0.35 }
+      }
+    }
+  }
+}

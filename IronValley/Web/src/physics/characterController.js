@@ -1,0 +1,758 @@
+// Kinematic capsule character controller shared by the player and bots (decision D7).
+//
+// Model: a vertical capsule whose bottom point is `position` (the feet). Movement is
+// integrated on the fixed simulation tick and resolved against the static BVH world by
+// iterative depenetration in small sub-steps (<= maxSubstepDistance, far below the capsule
+// radius, so even sprinting at a 0.1 m wall cannot tunnel through it).
+//
+// Contact classification (similar to Unreal's CharacterMovement, which judges floors by the
+// surface normal rather than the capsule's contact normal):
+//   ground   the touched triangle's FACE normal is walkable (<= maxSlope) and the contact lies
+//            under the bottom sphere within the perch radius -> resolved vertically, so the
+//            capsule never slides on walkable slopes and rolls smoothly over small edges
+//            (stair nosings, door thresholds);
+//   ceiling  contact normal points down                      -> resolved along the normal;
+//   wall     everything else, including steep (> maxSlope) faces -> resolved horizontally
+//            only, so steep slopes behave like walls and can never be climbed.
+// Ground contacts are resolved before walls in each pass so an edge shared by a tread and a
+// riser lifts instead of blocking.
+// Two perch radii (both measured horizontally from the capsule axis to the contact point):
+//   perchRadius       while grounded, an edge touched within this radius is rolled over as
+//                     ground (low edges up to ~0.2 m lift smoothly, like stair nosings);
+//   standPerchRadius  what actually supports the capsule. Standing on an edge further out than
+//                     this is only allowed if walkable ground lies under the axis within
+//                     maxStepHeight (stairs, low ledges); otherwise the capsule falls off
+//                     (like Unreal's perch check). While airborne only edges within this radius
+//                     can be landed on, so a jump cannot mount ledges much above its apex.
+// Steps higher than the automatic roll-over use an explicit lift -> move -> sweep-down step
+// (<= maxStepHeight, only with headroom). The forward probe is extended towards the blocking
+// face so the step works at any approach angle. A step is accepted only if it really climbed
+// onto something past that face; a 1.0 m wall can never become a step.
+// Ground snapping: after a grounded move without ground contact, the bottom sphere is swept
+// down by groundSnapDistance (stairs / slopes downward); if nothing walkable is hit it falls.
+
+import { Box3, Line3, Vector3 } from 'three';
+import { approach, DEG2RAD } from '../util/math.js';
+import { sweepSphereTriangle } from './sweep.js';
+
+// Scratch objects. Each one is used by exactly one function so nested calls cannot alias.
+const _seg = new Line3();
+const _triPoint = new Vector3(); // capsuleTriangleContact
+const _segPoint = new Vector3(); // capsuleTriangleContact
+const _ctPierce = new Vector3(); // capsuleTriangleContact
+const _ctMid = new Vector3(); // capsuleTriangleContact
+const _rsNormal = new Vector3(); // _resolve
+const _rsFace = new Vector3(); // _resolve
+const _rsH = new Vector3(); // _resolve
+const _rsKeepN = new Vector3(); // _resolve
+const _rsKeepF = new Vector3(); // _resolve
+const _alPos = new Vector3(); // _landsOnEdge
+const _alNormal = new Vector3(); // _landsOnEdge
+const _ovNormal = new Vector3(); // overlaps
+const _ovFace = new Vector3(); // overlaps
+const _pdCenter = new Vector3(); // _probeDown
+const _pdPoint = new Vector3(); // _probeDown
+const _pdBest = new Vector3(); // _probeDown
+const _pdNormal = new Vector3(); // _probeDown
+const _pdFace = new Vector3(); // _probeDown
+const _stDir = new Vector3(); // _tryStep
+const _stTmp = new Vector3(); // _tryStep
+const _stFwd = new Vector3(); // _tryStep
+const _upInto = new Vector3(); // update
+const _fsCenter = new Vector3(); // _footSupported
+const _fsPoint = new Vector3(); // _footSupported
+const _box = new Box3();
+const DOWN = new Vector3(0, -1, 0);
+// A contact whose normal is within ~2.6 deg of the triangle's face normal touches the face
+// itself (not an edge or vertex): the surface continues under the capsule.
+const FACE_CONTACT_COS = 0.999;
+// A step is only tried against a face the character wants to go into (cos of the angle
+// between the wish direction and the face normal must exceed this); grazing never steps.
+const STEP_MIN_INTO = 0.05;
+// Minimum rise and minimum advance past the blocking face for an accepted step.
+const STEP_MIN_RISE = 0.005;
+const STEP_MIN_PAST = 0.01;
+// Ground probe: wall contacts with a normal flatter than this may be skipped if they are only
+// grazed (<= PROBE_GLANCE_SKIN overlap) at the ground below.
+const PROBE_GLANCE_MAX_NY = 0.5;
+const PROBE_GLANCE_SKIN = 0.01;
+
+function makeFlags() {
+  return {
+    ground: false,
+    groundNormal: new Vector3(0, 1, 0),
+    groundPointY: 0,
+    wall: false,
+    ceiling: false,
+    wallNormals: [new Vector3(), new Vector3(), new Vector3(), new Vector3()],
+    wallCount: 0,
+  };
+}
+
+function resetFlags(f) {
+  f.ground = false;
+  f.groundNormal.set(0, 1, 0);
+  f.wall = false;
+  f.ceiling = false;
+  f.wallCount = 0;
+  return f;
+}
+
+function addWallNormal(f, h) {
+  f.wall = true;
+  for (let i = 0; i < f.wallCount; i++) {
+    if (f.wallNormals[i].dot(h) > 0.999) return;
+  }
+  if (f.wallCount < f.wallNormals.length) {
+    f.wallNormals[f.wallCount++].copy(h);
+  }
+}
+
+function setGround(f, n) {
+  if (!f.ground || n.y > f.groundNormal.y) f.groundNormal.copy(n);
+  f.ground = true;
+}
+
+function mergeFlags(into, f) {
+  if (f.ground) setGround(into, f.groundNormal);
+  if (f.ceiling) into.ceiling = true;
+  for (let i = 0; i < f.wallCount; i++) addWallNormal(into, f.wallNormals[i]);
+}
+
+/**
+ * Penetration depth of a capsule (segment + radius) into a triangle. Writes the push-out
+ * contact normal and the triangle's face normal (oriented towards the capsule). Returns 0
+ * when not touching.
+ */
+export function capsuleTriangleContact(tri, seg, radius, outNormal, outFace) {
+  const plane = tri.plane;
+  const ds = plane.distanceToPoint(seg.start);
+  const de = plane.distanceToPoint(seg.end);
+  if (ds * de < 0) {
+    // The capsule axis crosses the triangle plane: check if it pierces the triangle itself.
+    const t = ds / (ds - de);
+    _ctPierce.copy(seg.end).sub(seg.start).multiplyScalar(t).add(seg.start);
+    if (tri.containsPoint(_ctPierce)) {
+      outNormal.copy(plane.normal);
+      // push towards the side where most of the capsule already is
+      if (Math.abs(de) > Math.abs(ds)) {
+        if (de < 0) outNormal.negate();
+      } else if (ds < 0) {
+        outNormal.negate();
+      }
+      if (outFace) outFace.copy(outNormal);
+      return radius + Math.min(Math.abs(ds), Math.abs(de));
+    }
+  }
+  const dist = tri.closestPointToSegment(seg, _triPoint, _segPoint);
+  if (dist >= radius) return 0;
+  if (dist > 1e-7) {
+    outNormal.subVectors(_segPoint, _triPoint).divideScalar(dist);
+  } else {
+    outNormal.copy(plane.normal);
+    _ctMid.addVectors(seg.start, seg.end).multiplyScalar(0.5);
+    const side = plane.distanceToPoint(_ctMid);
+    if (side < 0 || (side === 0 && outNormal.y < 0)) outNormal.negate();
+  }
+  if (outFace) {
+    outFace.copy(plane.normal);
+    if (outFace.dot(outNormal) < 0) outFace.negate();
+  }
+  return radius - dist;
+}
+
+export class CharacterController {
+  /**
+   * @param {import('./collisionWorld.js').CollisionWorld} world
+   * @param {object} params  movement.json
+   */
+  constructor(world, params) {
+    this.world = world;
+    this.params = params;
+    const c = params.capsule;
+    this.radius = c.radius;
+    this.standHeight = c.standHeight;
+    this.crouchHeight = c.crouchHeight;
+    this.standEyeHeight = c.standEyeHeight;
+    this.crouchEyeHeight = c.crouchEyeHeight;
+    this.walkableCos = Math.cos(params.maxSlopeDeg * DEG2RAD);
+    // roll-over perch (grounded contact classification)
+    this.perchRadius = Math.min(params.perchRadius ?? this.radius * 0.9, this.radius * 0.99);
+    // contact normal y below which an edge contact is too far out to be rolled over
+    this.perchMinY = Math.sqrt(1 - (this.perchRadius / this.radius) ** 2);
+    // support perch (standing past an edge, landing while airborne)
+    this.standPerchRadius = Math.min(params.standPerchRadius ?? this.perchRadius, this.perchRadius);
+    this.standPerchMinY = Math.sqrt(1 - (this.standPerchRadius / this.radius) ** 2);
+    this._activePerchMinY = this.perchMinY;
+    this.jumpSpeed = Math.sqrt(2 * params.gravity * params.jumpApexHeight);
+
+    this.position = new Vector3();
+    this.velocity = new Vector3();
+    this.grounded = false;
+    this.groundNormal = new Vector3(0, 1, 0);
+    this.crouched = false;
+    this.height = this.standHeight;
+    this.eyeHeight = this.standEyeHeight;
+    this.sprinting = false;
+    this.speedTarget = 0;
+    this.stepOffset = 0; // visual smoothing for discrete vertical snaps (steps), decays to 0
+    this.jumpCooldownTimer = 0;
+    this.airTime = 0;
+
+    this.stats = { stepUps: 0, snaps: 0, landings: 0, jumps: 0, lastLandingSpeed: 0, lastLandingTick: -1, blockedStandTicks: 0, perchDrops: 0 };
+    this.tickCount = 0;
+    /** optional callback(eventName, payload) */
+    this.onEvent = null;
+
+    this._tris = [];
+    this._probeSkip = [];
+    this._flags = makeFlags();
+    this._subFlags = makeFlags();
+    this._stepFlags = makeFlags();
+    this._probeFlags = makeFlags();
+    this._prev = new Vector3();
+    this._disp = new Vector3();
+    this._sub = new Vector3();
+    this._stepPos = new Vector3();
+    this._wish = new Vector3();
+    this._jumpTest = new Vector3();
+    this._saved = new Vector3();
+  }
+
+  get eyePosition() {
+    return new Vector3(this.position.x, this.position.y + this.eyeHeight, this.position.z);
+  }
+
+  teleport(pos) {
+    this.position.copy(pos);
+    this.velocity.set(0, 0, 0);
+    this.stepOffset = 0;
+    this.grounded = false;
+    this.airTime = 0;
+    this._activePerchMinY = this.perchMinY;
+    const f = resetFlags(this._probeFlags);
+    this._gather(this.position, this.height, 0.3);
+    this._resolve(this.position, this.height, f);
+    if (f.ground || this._probeDown(this.position, this.height, 0.5, f)) {
+      this.grounded = true;
+      this.groundNormal.copy(f.groundNormal);
+      if (!this._supported(this.position, this.groundNormal)) this.grounded = false;
+    }
+  }
+
+  // ---------------------------------------------------------------- collision helpers
+
+  _segment(pos, height, radius) {
+    _seg.start.set(pos.x, pos.y + radius, pos.z);
+    _seg.end.set(pos.x, pos.y + Math.max(height - radius, radius), pos.z);
+    return _seg;
+  }
+
+  _gather(pos, height, margin, extraDown = 0) {
+    const r = this.radius;
+    _box.min.set(pos.x - r - margin, pos.y - margin - extraDown, pos.z - r - margin);
+    _box.max.set(pos.x + r + margin, pos.y + height + margin, pos.z + r + margin);
+    return this.world.gatherTriangles(_box, this._tris);
+  }
+
+  /**
+   * Walkable face, and the contact is either on the face itself or an edge/vertex close enough
+   * to the axis (active perch: roll-over radius while grounded, support radius in the air).
+   */
+  _isGroundContact(n, face) {
+    if (face.y < this.walkableCos - 1e-4) return false;
+    return n.y >= this._activePerchMinY - 1e-4 || n.dot(face) >= FACE_CONTACT_COS;
+  }
+
+  /**
+   * True if walkable ground lies under the capsule axis within the support perch radius, at
+   * most maxStepHeight below the feet (small sphere swept down from the feet).
+   */
+  _footSupported(pos) {
+    const rp = this.standPerchRadius;
+    const maxDist = this.params.maxStepHeight + 0.02;
+    this._gather(pos, rp * 2, 0.05, maxDist + 0.05);
+    const center = _fsCenter.set(pos.x, pos.y + rp, pos.z);
+    let best = Infinity;
+    for (let i = 0; i < this._tris.length; i++) {
+      const t = sweepSphereTriangle(center, DOWN, rp, this._tris[i], maxDist, _fsPoint);
+      if (t < best) best = t;
+    }
+    if (!(best <= maxDist)) return false;
+    const tol = 1e-4;
+    for (let i = 0; i < this._tris.length; i++) {
+      const tri = this._tris[i];
+      const t = sweepSphereTriangle(center, DOWN, rp, tri, best + tol, _fsPoint);
+      if (t > best + tol) continue;
+      // face normal oriented towards the sphere; an edge shared by a walkable top and a
+      // vertical side counts as support
+      const side = tri.plane.distanceToPoint(center) < 0 ? -1 : 1;
+      if (tri.plane.normal.y * side >= this.walkableCos - 1e-4) return true;
+    }
+    return false;
+  }
+
+  /** Grounded on `normal`: is the capsule really supported there (see standPerchRadius)? */
+  _supported(pos, normal) {
+    if (normal.y >= this.standPerchMinY - 1e-4) return true;
+    return this._footSupported(pos);
+  }
+
+  /**
+   * Airborne landing check for an edge/vertex contact that looks standable at the penetrated
+   * position: a fast sideways sub-step can carry an edge from "touching the side of the
+   * sphere" to "under the sphere" in one go. Judge the contact by its normal at first touch
+   * along the sub-step from `from` to `pos` instead (bisection), so the landing / ledge-mount
+   * limit does not depend on speed.
+   */
+  _landsOnEdge(tri, pos, from, height) {
+    const r = this.radius;
+    _alPos.copy(from);
+    if (capsuleTriangleContact(tri, this._segment(_alPos, height, r), r, _alNormal, null) > 1e-4) return true; // already resting on it
+    let lo = 0;
+    let hi = 1;
+    for (let k = 0; k < 14; k++) {
+      const mid = (lo + hi) / 2;
+      _alPos.lerpVectors(from, pos, mid);
+      if (capsuleTriangleContact(tri, this._segment(_alPos, height, r), r, _alNormal, null) > 1e-6) hi = mid;
+      else lo = mid;
+    }
+    _alPos.lerpVectors(from, pos, hi);
+    if (capsuleTriangleContact(tri, this._segment(_alPos, height, r), r, _alNormal, null) <= 0) return true;
+    return _alNormal.y >= this.standPerchMinY - 1e-4;
+  }
+
+  /**
+   * Depenetrates `pos` against the gathered triangles; accumulates contact info in flags.
+   * `from` (airborne sub-steps only): start of the sub-step, see _landsOnEdge.
+   */
+  _resolve(pos, height, flags, from = null) {
+    const r = this.radius;
+    const tris = this._tris;
+    const n = _rsNormal;
+    const face = _rsFace;
+    for (let iter = 0; iter < 8; iter++) {
+      let maxDepth = 0;
+      // pass 0: ground contacts only; pass 1: everything that still penetrates
+      for (let pass = 0; pass < 2; pass++) {
+        for (let i = 0; i < tris.length; i++) {
+          const seg = this._segment(pos, height, r);
+          const depth = capsuleTriangleContact(tris[i], seg, r, n, face);
+          if (depth <= 1e-6) continue;
+          let isGround = this._isGroundContact(n, face);
+          if (isGround && from !== null && n.dot(face) < FACE_CONTACT_COS) {
+            // n / face live in shared scratch vectors: keep them across the check
+            _rsKeepN.copy(n);
+            _rsKeepF.copy(face);
+            isGround = this._landsOnEdge(tris[i], pos, from, height);
+            n.copy(_rsKeepN);
+            face.copy(_rsKeepF);
+          }
+          if (pass === 0 && !isGround) continue;
+          if (depth > maxDepth) maxDepth = depth;
+          if (isGround) {
+            pos.y += depth / n.y;
+            setGround(flags, n);
+          } else if (n.y < -0.3) {
+            pos.addScaledVector(n, depth);
+            flags.ceiling = true;
+          } else {
+            _rsH.set(n.x, 0, n.z);
+            let len = _rsH.length();
+            if (len < 0.2) {
+              // contact normal nearly vertical but surface too steep to stand on:
+              // slide off along the surface's horizontal direction
+              _rsH.set(face.x, 0, face.z);
+              len = _rsH.length();
+              if (len < 1e-5) {
+                pos.addScaledVector(n, depth);
+                continue;
+              }
+              _rsH.divideScalar(len);
+              const along = _rsH.dot(n);
+              pos.addScaledVector(_rsH, depth / Math.max(along, 0.2));
+            } else {
+              _rsH.divideScalar(len);
+              pos.addScaledVector(_rsH, depth / len);
+            }
+            addWallNormal(flags, _rsH);
+          }
+        }
+      }
+      if (maxDepth < 1e-5) break;
+    }
+  }
+
+  /** True if the capsule at pos (with radius shrunk by `shrink`) overlaps static geometry. */
+  overlaps(pos, height, shrink = 0.01) {
+    this._gather(pos, height, 0.05);
+    const r = this.radius - shrink;
+    for (let i = 0; i < this._tris.length; i++) {
+      const seg = this._segment(pos, height, r);
+      if (capsuleTriangleContact(this._tris[i], seg, r, _ovNormal, _ovFace) > 1e-4) return true;
+    }
+    return false;
+  }
+
+  canStand() {
+    return !this.overlaps(this.position, this.standHeight, 0.01);
+  }
+
+  /**
+   * Sweeps the bottom sphere straight down by up to maxDist. If the first surface hit is
+   * standable ground, moves pos onto it and returns true; otherwise leaves pos unchanged.
+   */
+  _probeDown(pos, height, maxDist, flags) {
+    resetFlags(flags);
+    const r = this.radius;
+    const n = this._gather(pos, height, 0.05, maxDist + 0.05);
+    const tris = this._tris;
+    const center = _pdCenter.set(pos.x, pos.y + r, pos.z);
+    const skipped = this._probeSkip;
+    skipped.length = 0;
+    const tol = 1e-4;
+    // A glancing touch of a wall edge on the way down (e.g. the next stair riser's top edge
+    // right in front of the capsule on a tread narrower than the capsule) must not hide the
+    // ground just below it. Such contacts (nearly horizontal normal) are skipped as long as the
+    // bottom sphere would overlap them by no more than PROBE_GLANCE_SKIN at the ground found
+    // further down; the next depenetration pass pushes that sliver out sideways.
+    for (let round = 0; round < 3; round++) {
+      // first time of impact among the remaining triangles
+      let best = Infinity;
+      for (let i = 0; i < n; i++) {
+        if (skipped.includes(i)) continue;
+        const t = sweepSphereTriangle(center, DOWN, r, tris[i], maxDist, _pdPoint);
+        if (t < best) best = t;
+      }
+      if (!(best <= maxDist)) return false;
+      // Several triangles can be hit at the same time (an edge shared by a tread and a riser):
+      // the contact counts as ground if any of them is a standable surface.
+      let groundFound = false;
+      let blocking = false;
+      const skippedBefore = skipped.length;
+      for (let i = 0; i < n && !groundFound; i++) {
+        if (skipped.includes(i)) continue;
+        const tri = tris[i];
+        const t = sweepSphereTriangle(center, DOWN, r, tri, best + tol, _pdPoint);
+        if (t > best + tol) continue;
+        _pdBest.set(center.x, center.y - t, center.z);
+        _pdNormal.subVectors(_pdBest, _pdPoint);
+        const len = _pdNormal.length();
+        if (len < 1e-7) continue;
+        _pdNormal.divideScalar(len);
+        _pdFace.copy(tri.plane.normal);
+        if (_pdFace.dot(_pdNormal) < 0) _pdFace.negate();
+        if (this._isGroundContact(_pdNormal, _pdFace)) {
+          groundFound = true;
+          flags.groundPointY = _pdPoint.y;
+        } else if (_pdNormal.y < PROBE_GLANCE_MAX_NY) {
+          skipped.push(i);
+        } else {
+          blocking = true; // e.g. a steep face under the capsule: it must slide / fall
+        }
+      }
+      if (groundFound) {
+        const drop = Math.max(best - 1e-5, 0);
+        // the skipped wall contacts may only be grazed at the new position
+        _pdBest.set(center.x, center.y - drop, center.z);
+        for (let k = 0; k < skipped.length; k++) {
+          tris[skipped[k]].closestPointToPoint(_pdBest, _pdPoint);
+          if (r - _pdPoint.distanceTo(_pdBest) > PROBE_GLANCE_SKIN) return false;
+        }
+        pos.y -= drop;
+        setGround(flags, _pdNormal);
+        return true;
+      }
+      if (blocking || skipped.length === skippedBefore) return false;
+    }
+    return false;
+  }
+
+  /**
+   * Attempts to climb a step after the plain move from `prev` by `move` was blocked.
+   * `resolved` is where the plain move ended (touching the obstacle), `wallFlags` holds the
+   * wall normals it touched, `intoDir` (horizontal unit vector or null) is the direction the
+   * character wants to go. On success moves this.position and fills outFlags.
+   */
+  _tryStep(prev, move, height, resolved, wallFlags, outFlags, intoDir = null) {
+    const P = this.params;
+    const hlen = Math.hypot(move.x, move.z);
+    if (hlen < 1e-7) return false;
+    _stDir.set(move.x / hlen, 0, move.z / hlen);
+    // The face to climb: the touched wall normal most opposed to where the character wants to
+    // go. The wish is used rather than the velocity because velocity into a wall is removed at
+    // the end of every tick, so after any blocked tick the move itself only grazes the face.
+    const want = intoDir || _stDir;
+    let block = null;
+    let blockDot = -STEP_MIN_INTO;
+    for (let i = 0; i < wallFlags.wallCount; i++) {
+      const d = wallFlags.wallNormals[i].dot(want);
+      if (d < blockDot) {
+        blockDot = d;
+        block = wallFlags.wallNormals[i];
+      }
+    }
+    if (!block) return false;
+    const maxLift = P.maxStepHeight;
+    // lift in increments, stopping below any ceiling
+    let lift = 0;
+    const p = this._stepPos;
+    for (let k = 1; k <= 4; k++) {
+      const l = (maxLift * k) / 4;
+      p.copy(prev);
+      p.y += l;
+      if (this.overlaps(p, height, 0.005)) break;
+      lift = l;
+    }
+    if (lift < 0.05) return false;
+    // Forward probe: the move itself, extended towards the blocking face far enough that the
+    // step edge ends up under the bottom sphere inside the roll-over perch radius. Probing only
+    // along the (possibly oblique) move direction fails at steep approach angles, and probing
+    // further along the slide direction would let the "step" add speed along walls.
+    const gap = Math.max(0, _stTmp.subVectors(prev, resolved).dot(block));
+    const need = gap + (this.radius - this.perchRadius) + (P.stepEdgeMargin ?? 0.02);
+    _stFwd.copy(_stDir).multiplyScalar(hlen);
+    const into = -_stFwd.dot(block);
+    if (into < need) _stFwd.addScaledVector(block, into - need);
+    p.copy(prev);
+    p.y += lift;
+    p.add(_stFwd);
+    const f = resetFlags(this._stepFlags);
+    this._gather(p, height, 0.25);
+    this._resolve(p, height, f);
+    const pf = this._probeFlags;
+    if (!this._probeDown(p, height, lift + 0.05, pf)) return false;
+    const rise = p.y - prev.y;
+    // nothing was climbed (e.g. a tall wall pushed the lifted probe back to the floor)
+    if (rise < STEP_MIN_RISE) return false;
+    // Judge the step by the height of the supporting surface point, not by the capsule
+    // bottom: perched on an edge, the rounded bottom sits lower than the edge itself.
+    if (pf.groundPointY - prev.y > maxLift + 1e-3 || rise > maxLift + 1e-3) return false;
+    // the capsule must have got past the face that stopped the plain move, and not backwards
+    if (_stTmp.subVectors(p, resolved).dot(block) > -STEP_MIN_PAST) return false;
+    if (_stTmp.subVectors(p, prev).dot(_stDir) <= 1e-4) return false;
+    // final safety: stepped position must be free
+    if (this.overlaps(p, height, 0.01)) return false;
+    // accept
+    resetFlags(outFlags);
+    outFlags.ground = true;
+    outFlags.groundNormal.copy(pf.groundNormal);
+    for (let i = 0; i < f.wallCount; i++) addWallNormal(outFlags, f.wallNormals[i]);
+    if (f.ceiling) outFlags.ceiling = true;
+    this.position.copy(p);
+    if (rise > 0.02) this.stepOffset -= rise;
+    this.stats.stepUps++;
+    return true;
+  }
+
+  // ---------------------------------------------------------------- simulation
+
+  /**
+   * One fixed simulation tick.
+   * @param {number} dt
+   * @param {object} cmd { moveX, moveZ (forward +), yaw, sprint, walk, crouch, jump, ads, fire }
+   */
+  update(dt, cmd) {
+    const P = this.params;
+    this.tickCount++;
+    const wasGrounded = this.grounded;
+    const pos = this.position;
+    const vel = this.velocity;
+
+    // --- stance (stand up only with headroom) ---
+    if (cmd.crouch && !this.crouched) {
+      this.crouched = true;
+      this.height = this.crouchHeight;
+    } else if (!cmd.crouch && this.crouched) {
+      if (this.canStand()) {
+        this.crouched = false;
+        this.height = this.standHeight;
+      } else {
+        this.stats.blockedStandTicks++;
+      }
+    }
+    const eyeTarget = this.crouched ? this.crouchEyeHeight : this.standEyeHeight;
+    this.eyeHeight = approach(this.eyeHeight, eyeTarget, P.eyeHeightRate * dt);
+
+    // --- wish direction (diagonal input normalised) ---
+    let ix = cmd.moveX || 0;
+    let iz = cmd.moveZ || 0;
+    const ilen = Math.hypot(ix, iz);
+    if (ilen > 1) {
+      ix /= ilen;
+      iz /= ilen;
+    }
+    const yaw = cmd.yaw || 0;
+    const sy = Math.sin(yaw);
+    const cy = Math.cos(yaw);
+    // forward = (-sin, 0, -cos), right = (cos, 0, -sin)
+    const wish = this._wish.set(cy * ix - sy * iz, 0, -sy * ix - cy * iz);
+    const wishLen = wish.length();
+
+    let angleOk = false;
+    if (wishLen > 0.1 && iz > 0) {
+      const cosA = iz / Math.hypot(ix, iz);
+      angleOk = cosA >= Math.cos(P.sprintMaxAngleDeg * DEG2RAD) - 1e-6;
+    }
+    const sprint = !!cmd.sprint && !this.crouched && !cmd.ads && !cmd.fire && angleOk;
+    let speed;
+    if (this.crouched) speed = P.speeds.crouch;
+    else if (cmd.ads) speed = P.speeds.ads;
+    else if (cmd.walk) speed = P.speeds.walk;
+    else if (sprint) speed = P.speeds.sprint;
+    else speed = P.speeds.run;
+    this.sprinting = sprint && wishLen > 0.1;
+    this.speedTarget = speed * wishLen;
+
+    // --- horizontal acceleration ---
+    const tx = wish.x * speed;
+    const tz = wish.z * speed;
+    let dvx = tx - vel.x;
+    let dvz = tz - vel.z;
+    const dvLen = Math.hypot(dvx, dvz);
+    let rate;
+    if (this.grounded) {
+      rate = Math.hypot(tx, tz) > Math.hypot(vel.x, vel.z) + 1e-6 ? P.acceleration : P.deceleration;
+    } else {
+      rate = P.airAcceleration;
+    }
+    const maxDelta = rate * dt;
+    if (dvLen > maxDelta) {
+      dvx *= maxDelta / dvLen;
+      dvz *= maxDelta / dvLen;
+    }
+    vel.x += dvx;
+    vel.z += dvz;
+
+    // --- jump ---
+    let jumped = false;
+    this.jumpCooldownTimer = Math.max(0, this.jumpCooldownTimer - dt);
+    if (cmd.jump && this.grounded && !this.crouched && this.jumpCooldownTimer <= 0) {
+      const test = this._jumpTest.copy(pos);
+      test.y += 0.05;
+      if (!this.overlaps(test, this.height, 0.01)) {
+        vel.y = this.jumpSpeed;
+        this.grounded = false;
+        jumped = true;
+        this.jumpCooldownTimer = P.jumpCooldown;
+        this.stats.jumps++;
+        this._emit('jump', { tick: this.tickCount });
+      }
+    }
+
+    // --- displacement for this tick ---
+    const disp = this._disp;
+    if (this.grounded) {
+      vel.y = 0;
+      disp.set(vel.x * dt, 0, vel.z * dt);
+      const n = this.groundNormal;
+      if (n.y > 0.1) disp.y = -(disp.x * n.x + disp.z * n.z) / n.y;
+    } else {
+      const vy0 = vel.y;
+      const vy1 = Math.max(vy0 - P.gravity * dt, -P.maxFallSpeed);
+      disp.set(vel.x * dt, ((vy0 + vy1) / 2) * dt, vel.z * dt);
+      vel.y = vy1;
+    }
+
+    // --- move in sub-steps ---
+    const flags = resetFlags(this._flags);
+    const dist = disp.length();
+    const nSub = Math.max(1, Math.ceil(dist / P.maxSubstepDistance));
+    const sub = this._sub.copy(disp).divideScalar(nSub);
+    const canStep = wasGrounded && !jumped;
+    // grounded: roll over low edges; airborne: only edges near the axis can be landed on
+    this._activePerchMinY = canStep ? this.perchMinY : this.standPerchMinY;
+    const intoDir = wishLen > 0.1 ? _upInto.set(wish.x / wishLen, 0, wish.z / wishLen) : null;
+    for (let i = 0; i < nSub; i++) {
+      const prev = this._prev.copy(pos);
+      pos.add(sub);
+      const f = resetFlags(this._subFlags);
+      this._gather(pos, this.height, 0.25);
+      this._resolve(pos, this.height, f, canStep ? null : prev);
+      if (f.wall && canStep && (sub.x !== 0 || sub.z !== 0)) {
+        const saved = this._saved.copy(pos);
+        if (!this._tryStep(prev, sub, this.height, saved, f, f, intoDir)) {
+          pos.copy(saved);
+        }
+      }
+      mergeFlags(flags, f);
+    }
+
+    // --- ground state ---
+    const vyBefore = vel.y;
+    if (jumped) {
+      this.grounded = false;
+    } else if (flags.ground && (wasGrounded || vel.y <= 0)) {
+      this.grounded = true;
+      this.groundNormal.copy(flags.groundNormal);
+    } else if (wasGrounded) {
+      const y0 = pos.y;
+      const pf = this._probeFlags;
+      if (this._probeDown(pos, this.height, P.groundSnapDistance, pf)) {
+        this.grounded = true;
+        this.groundNormal.copy(pf.groundNormal);
+        const dy = pos.y - y0;
+        if (Math.abs(dy) > 0.03) {
+          this.stepOffset -= dy;
+          this.stats.snaps++;
+        }
+      } else {
+        this.grounded = false;
+      }
+    } else {
+      this.grounded = false;
+    }
+    // perched on an edge beyond the support radius over a drop: not supported, fall off
+    if (this.grounded && !this._supported(pos, this.groundNormal)) {
+      this.grounded = false;
+      this.stats.perchDrops++;
+    }
+
+    if (this.grounded) {
+      if (!wasGrounded) {
+        const impact = -Math.min(vyBefore, 0);
+        this.stats.landings++;
+        this.stats.lastLandingSpeed = impact;
+        this.stats.lastLandingTick = this.tickCount;
+        this._emit('landed', { speed: impact, airTime: this.airTime, tick: this.tickCount });
+      }
+      vel.y = 0;
+      this.airTime = 0;
+    } else {
+      this.airTime += dt;
+    }
+    if (flags.ceiling && vel.y > 0) vel.y = 0;
+    // remove velocity pointing into walls we touched (prevents speed build-up against walls)
+    for (let i = 0; i < flags.wallCount; i++) {
+      const h = flags.wallNormals[i];
+      const d = vel.x * h.x + vel.z * h.z;
+      if (d < 0) {
+        vel.x -= h.x * d;
+        vel.z -= h.z * d;
+      }
+    }
+
+    // decay visual step smoothing
+    this.stepOffset *= Math.exp(-14 * dt);
+    if (Math.abs(this.stepOffset) < 1e-4) this.stepOffset = 0;
+  }
+
+  _emit(name, payload) {
+    if (this.onEvent) this.onEvent(name, payload);
+  }
+
+  getState() {
+    return {
+      position: { x: this.position.x, y: this.position.y, z: this.position.z },
+      velocity: { x: this.velocity.x, y: this.velocity.y, z: this.velocity.z },
+      horizontalSpeed: Math.hypot(this.velocity.x, this.velocity.z),
+      grounded: this.grounded,
+      groundNormalY: this.groundNormal.y,
+      crouched: this.crouched,
+      height: this.height,
+      eyeHeight: this.eyeHeight,
+      sprinting: this.sprinting,
+      stats: { ...this.stats },
+    };
+  }
+}

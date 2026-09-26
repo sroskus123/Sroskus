@@ -1,0 +1,176 @@
+{
+  "schema": "ironvalley.testvectors",
+  "version": 1,
+  "suite": "zone",
+  "description": "GAME-01: bodovani kontrolni oblasti. Ucastnik = [id, tym, alive, active, inZone]. Vychozi pravidla: 1 bod za 2 000 000 us platne kontroly. Ocekavane hodnoty odvozene rucne.",
+  "cases": [
+    {
+      "id": "GAME-01/empty-zone-scores-nothing",
+      "kind": "zone",
+      "steps": [
+        { "op": "tick", "dtUs": 10000000, "participants": [], "expect": { "result": "ok", "status": "empty", "controller": -1, "counts": [0, 0, 0], "progressUs": 0, "scores": [0, 0, 0] } },
+        { "op": "tick", "dtUs": 10000000, "participants": [["a1", 0, true, true, false], ["b1", 1, true, true, false]], "expect": { "status": "empty", "scores": [0, 0, 0], "progressUs": 0 } }
+      ]
+    },
+    {
+      "id": "GAME-01/one-present-scores-every-2s",
+      "kind": "zone",
+      "steps": [
+        { "op": "tick", "dtUs": 1999999, "participants": [["a1", 0, true, true, true]], "expect": { "status": "controlled", "controller": 0, "counts": [1, 0, 0], "progressUs": 1999999, "scores": [0, 0, 0] } },
+        { "op": "tick", "dtUs": 1, "expect": { "scores": [1, 0, 0], "progressUs": 0 } },
+        { "op": "tick", "dtUs": 3000000, "expect": { "scores": [2, 0, 0], "progressUs": 1000000 } }
+      ]
+    },
+    {
+      "id": "GAME-01/majority-controls",
+      "kind": "zone",
+      "steps": [
+        { "op": "tick", "dtUs": 4000000, "participants": [["a1", 0, true, true, true], ["a2", 0, true, true, true], ["b1", 1, true, true, true]], "expect": { "status": "controlled", "controller": 0, "counts": [2, 1, 0], "scores": [2, 0, 0] } },
+        { "op": "tick", "dtUs": 4000000, "participants": [["a1", 0, true, true, true], ["b1", 1, true, true, true], ["b2", 1, true, true, true], ["c1", 2, true, true, true]], "expect": { "controller": 1, "counts": [1, 2, 1], "scores": [2, 2, 0], "progressUs": 0 } }
+      ]
+    },
+    {
+      "id": "GAME-01/tie-of-two-teams-stops-scoring",
+      "kind": "zone",
+      "steps": [
+        { "op": "tick", "dtUs": 10000000, "participants": [["a1", 0, true, true, true], ["a2", 0, true, true, true], ["b1", 1, true, true, true], ["b2", 1, true, true, true], ["c1", 2, true, true, true]], "expect": { "status": "contested", "controller": -1, "counts": [2, 2, 1], "scores": [0, 0, 0], "progressUs": 0 } }
+      ]
+    },
+    {
+      "id": "GAME-01/tie-drops-previous-owner-progress",
+      "kind": "zone",
+      "steps": [
+        { "op": "tick", "dtUs": 1500000, "participants": [["a1", 0, true, true, true]], "expect": { "controller": 0, "progressUs": 1500000 } },
+        { "op": "tick", "dtUs": 1000000, "participants": [["a1", 0, true, true, true], ["b1", 1, true, true, true]], "expect": { "status": "contested", "controller": -1, "progressUs": 0, "scores": [0, 0, 0] } },
+        { "op": "tick", "dtUs": 1999999, "participants": [["a1", 0, true, true, true], ["b1", 1, true, true, false]], "expect": { "controller": 0, "progressUs": 1999999, "scores": [0, 0, 0] } },
+        { "op": "tick", "dtUs": 1, "expect": { "scores": [1, 0, 0], "progressUs": 0 } }
+      ]
+    },
+    {
+      "id": "GAME-01/tie-of-three-teams",
+      "kind": "zone",
+      "steps": [
+        { "op": "tick", "dtUs": 10000000, "participants": [["a1", 0, true, true, true], ["b1", 1, true, true, true], ["c1", 2, true, true, true]], "expect": { "status": "contested", "controller": -1, "counts": [1, 1, 1], "scores": [0, 0, 0] } },
+        { "op": "tick", "dtUs": 10000000, "participants": [["a1", 0, true, true, true], ["a2", 0, true, true, true], ["b1", 1, true, true, true], ["b2", 1, true, true, true], ["c1", 2, true, true, true], ["c2", 2, true, true, true]], "expect": { "status": "contested", "counts": [2, 2, 2], "scores": [0, 0, 0] } }
+      ]
+    },
+    {
+      "id": "GAME-01/unique-top-team-wins-over-tied-lower-teams",
+      "kind": "zone",
+      "steps": [
+        { "op": "tick", "dtUs": 2000000, "participants": [["a1", 0, true, true, true], ["a2", 0, true, true, true], ["b1", 1, true, true, true], ["c1", 2, true, true, true]], "expect": { "status": "controlled", "controller": 0, "counts": [2, 1, 1], "scores": [1, 0, 0] } }
+      ]
+    },
+    {
+      "id": "GAME-01/death-inside-zone",
+      "kind": "zone",
+      "steps": [
+        { "op": "tick", "dtUs": 3000000, "participants": [["a1", 0, true, true, true], ["b1", 1, true, true, true]], "expect": { "status": "contested", "scores": [0, 0, 0] } },
+        { "op": "tick", "dtUs": 1999999, "participants": [["a1", 0, true, true, true], ["b1", 1, false, true, true]], "expect": { "status": "controlled", "controller": 0, "counts": [1, 0, 0], "progressUs": 1999999, "scores": [0, 0, 0] } },
+        { "op": "tick", "dtUs": 1, "expect": { "scores": [1, 0, 0] } },
+        { "op": "tick", "dtUs": 2000000, "participants": [["a1", 0, false, true, true], ["b1", 1, false, true, true]], "expect": { "status": "empty", "controller": -1, "counts": [0, 0, 0], "progressUs": 0, "scores": [1, 0, 0] } }
+      ]
+    },
+    {
+      "id": "GAME-01/dead-respawning-and-inactive-never-count",
+      "kind": "zone",
+      "steps": [
+        { "op": "tick", "dtUs": 10000000, "participants": [["a1", 0, false, true, true], ["b1", 1, true, false, true], ["c1", 2, true, true, false]], "expect": { "status": "empty", "counts": [0, 0, 0], "scores": [0, 0, 0] } },
+        { "op": "tick", "dtUs": 2000000, "participants": [["a1", 0, true, true, true], ["a2", 0, true, false, true], ["b1", 1, true, true, true]], "expect": { "status": "contested", "counts": [1, 1, 0], "scores": [0, 0, 0] } },
+        { "op": "tick", "dtUs": 2000000, "participants": [["a1", 0, true, true, true], ["b1", 1, true, true, true], ["b2", 1, false, false, true]], "expect": { "status": "contested", "counts": [1, 1, 0], "scores": [0, 0, 0] } }
+      ]
+    },
+    {
+      "id": "GAME-01/fast-enter-exit-never-scores",
+      "kind": "zone",
+      "steps": [
+        { "op": "loop", "count": 300, "steps": [{ "op": "tick", "dtUs": 16667, "participants": [["a1", 0, true, true, true]] }, { "op": "tick", "dtUs": 16667, "participants": [["a1", 0, true, true, false]] }], "expect": { "result": "ok", "scores": [0, 0, 0], "progressUs": 0, "status": "empty" } },
+        { "op": "tick", "dtUs": 1900000, "participants": [["a1", 0, true, true, true]], "expect": { "progressUs": 1900000, "scores": [0, 0, 0] } },
+        { "op": "tick", "dtUs": 16667, "participants": [["a1", 0, true, true, false]], "expect": { "progressUs": 0, "scores": [0, 0, 0] } },
+        { "op": "tick", "dtUs": 1900000, "participants": [["a1", 0, true, true, true]], "expect": { "progressUs": 1900000, "scores": [0, 0, 0] } }
+      ]
+    },
+    {
+      "id": "GAME-01/controller-change-resets-progress",
+      "kind": "zone",
+      "steps": [
+        { "op": "tick", "dtUs": 1900000, "participants": [["a1", 0, true, true, true], ["b1", 1, true, true, false]], "expect": { "controller": 0, "progressUs": 1900000 } },
+        { "op": "tick", "dtUs": 1000000, "participants": [["a1", 0, true, true, false], ["b1", 1, true, true, true]], "expect": { "controller": 1, "progressUs": 1000000, "scores": [0, 0, 0] } },
+        { "op": "tick", "dtUs": 1999999, "participants": [["a1", 0, true, true, true], ["b1", 1, true, true, false]], "expect": { "controller": 0, "progressUs": 1999999, "scores": [0, 0, 0] } },
+        { "op": "tick", "dtUs": 1, "expect": { "controller": 0, "scores": [1, 0, 0], "progressUs": 0 } }
+      ]
+    },
+    {
+      "id": "GAME-01/same-controller-keeps-progress-when-members-change",
+      "kind": "zone",
+      "steps": [
+        { "op": "tick", "dtUs": 1000000, "participants": [["a1", 0, true, true, true]], "expect": { "progressUs": 1000000 } },
+        { "op": "tick", "dtUs": 500000, "participants": [["a1", 0, true, true, true], ["a2", 0, true, true, true]], "expect": { "progressUs": 1500000 } },
+        { "op": "tick", "dtUs": 500000, "participants": [["a1", 0, true, true, false], ["a2", 0, true, true, true]], "expect": { "progressUs": 0, "scores": [1, 0, 0] } }
+      ]
+    },
+    {
+      "id": "GAME-01/several-points-in-one-long-tick",
+      "kind": "zone",
+      "steps": [
+        { "op": "tick", "dtUs": 7000000, "participants": [["c1", 2, true, true, true]], "expect": { "scores": [0, 0, 3], "progressUs": 1000000 } }
+      ]
+    },
+    {
+      "id": "GAME-01/configurable-interval-and-points",
+      "kind": "zone",
+      "rules": { "zone": { "pointInterval": 1.5, "pointsPerAward": 2 } },
+      "steps": [
+        { "op": "tick", "dtUs": 4000000, "participants": [["b1", 1, true, true, true]], "expect": { "scores": [0, 4, 0], "progressUs": 1000000 } }
+      ]
+    },
+    {
+      "id": "GAME-01/invalid-input-rejected-without-state-change",
+      "kind": "zone",
+      "steps": [
+        { "op": "tick", "dtUs": 1000000, "participants": [["a1", 0, true, true, true]], "expect": { "result": "ok", "progressUs": 1000000 } },
+        { "op": "tick", "dtUs": 5000000, "participants": [["a1", 3, true, true, true]], "expect": { "result": "invalid_team", "progressUs": 1000000, "scores": [0, 0, 0], "controller": 0 } },
+        { "op": "tick", "dtUs": 5000000, "participants": [["a1", 0, true, true, true], ["a1", 1, true, true, true]], "expect": { "result": "duplicate_id", "progressUs": 1000000 } },
+        { "op": "tick", "dtUs": 5000000, "participants": [["", 0, true, true, true]], "expect": { "result": "invalid_id", "progressUs": 1000000 } },
+        { "op": "tick", "dtUs": 5000000, "participants": [["a1", -1, true, true, true]], "expect": { "result": "invalid_team", "progressUs": 1000000 } },
+        { "op": "tick", "dtUs": 1000000, "participants": [["a1", 0, true, true, true]], "expect": { "result": "ok", "scores": [1, 0, 0], "progressUs": 0 } }
+      ]
+    },
+    {
+      "id": "GAME-01/reset-clears-scores-and-progress",
+      "kind": "zone",
+      "steps": [
+        { "op": "tick", "dtUs": 3000000, "participants": [["a1", 0, true, true, true]], "expect": { "scores": [1, 0, 0], "progressUs": 1000000 } },
+        { "op": "reset", "expect": { "result": "ok", "snapshot": { "status": "empty", "controller": -1, "counts": [0, 0, 0], "progressUs": 0, "scores": [0, 0, 0] } } },
+        { "op": "tick", "dtUs": 1999999, "participants": [["a1", 0, true, true, true]], "expect": { "scores": [0, 0, 0], "progressUs": 1999999 } }
+      ]
+    },
+    {
+      "id": "GAME-01/zero-length-ticks-change-control-but-not-score",
+      "kind": "zone",
+      "steps": [
+        { "op": "tick", "dtUs": 0, "participants": [["a1", 0, true, true, true]], "expect": { "controller": 0, "progressUs": 0, "scores": [0, 0, 0] } },
+        { "op": "tick", "dtUs": 1500000, "expect": { "progressUs": 1500000 } },
+        { "op": "tick", "dtUs": 0, "participants": [["a1", 0, true, true, true], ["b1", 1, true, true, true]], "expect": { "status": "contested", "progressUs": 0 } }
+      ]
+    },
+    {
+      "id": "GAME-01/scoring-independent-of-tick-size",
+      "kind": "zone",
+      "tickModes": [
+        { "hz": 30 },
+        { "hz": 60 },
+        { "hz": 144 },
+        { "dtUs": 1000 },
+        { "dtUs": 10000000 },
+        { "irregular": { "seed": 5, "minUs": 0, "maxUs": 70000 } },
+        { "irregular": { "seed": 77, "minUs": 100000, "maxUs": 3000000 } }
+      ],
+      "steps": [
+        { "op": "run", "durationUs": 20500000, "ticks": "case", "participants": [["a1", 0, true, true, true]], "expect": { "result": "ok", "scores": [10, 0, 0], "progressUs": 500000 } },
+        { "op": "run", "durationUs": 3000000, "ticks": "case", "participants": [["a1", 0, true, true, true], ["b1", 1, true, true, true]], "expect": { "scores": [10, 0, 0], "progressUs": 0 } },
+        { "op": "run", "durationUs": 7500000, "ticks": "case", "participants": [["b1", 1, true, true, true]], "expect": { "scores": [10, 3, 0], "progressUs": 1500000 } }
+      ]
+    }
+  ]
+}

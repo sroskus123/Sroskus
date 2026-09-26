@@ -1,0 +1,323 @@
+{
+  "schema": "ironvalley.testvectors",
+  "version": 1,
+  "suite": "respawn",
+  "description": "GAME-02 a pravidla respawnu: alive -> dead (odpocet 5 s) -> respawning (ceka na bezpecny bod, opakuje po 0.5 s) -> alive. Spawnove oblasti: tym 0 body [0..12,0,0] po 4 m, tym 1 [100..112,0,0], tym 2 [0..12,0,100]. Indexy bodu zavisle na semenu nezavisle overuje referencni implementace v Pythonu (Shared/testvectors/tools/seed_reference.py). Zbrane ucastnika, ktery neni alive, jsou vypnute (GUN-03); pokusy o spawn probehnou v presnych okamzicich uvnitr tiku.",
+  "cases": [
+    {
+      "id": "RESPAWN/initial-spawn-seed-5",
+      "kind": "respawn",
+      "setup": {
+        "seed": 5,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0], [8, 0, 0], [12, 0, 0]], [[100, 0, 0], [104, 0, 0], [108, 0, 0], [112, 0, 0]], [[0, 0, 100], [4, 0, 100], [8, 0, 100], [12, 0, 100]]],
+        "participants": [{ "id": "a1", "team": 0 }, { "id": "a2", "team": 0 }, { "id": "b1", "team": 1 }, { "id": "c1", "team": 2 }]
+      },
+      "steps": [
+        { "op": "tick", "dtUs": 0, "expect": { "result": "ok", "events": [{ "type": "spawned", "id": "a1", "point": 1 }, { "type": "spawned", "id": "a2", "point": 3 }, { "type": "spawned", "id": "b1", "point": 0 }, { "type": "spawned", "id": "c1", "point": 3 }],
+          "order": ["a1", "a2", "b1", "c1"],
+          "participants": {
+            "a1": { "team": 0, "state": "alive", "health": 100, "respawnInUs": 0, "retryInUs": 0, "spawnPoint": 1, "spawnCount": 1, "deaths": 0, "failedSpawnAttempts": 0, "loadout": ["rifle_iv7", "pistol_p9"], "equipped": ["rifle_iv7", "pistol_p9"], "weapons": { "rifle_iv7": { "magazine": 30, "chamber": 1, "reserve": 90, "state": "ready" }, "pistol_p9": { "magazine": 15, "chamber": 1, "reserve": 45, "state": "ready" } } },
+            "a2": { "state": "alive", "spawnPoint": 3 },
+            "b1": { "state": "alive", "spawnPoint": 0 },
+            "c1": { "state": "alive", "spawnPoint": 3 }
+          } } }
+      ]
+    },
+    {
+      "id": "RESPAWN/initial-spawn-seed-6-differs",
+      "kind": "respawn",
+      "setup": {
+        "seed": 6,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0], [8, 0, 0], [12, 0, 0]], [[100, 0, 0], [104, 0, 0], [108, 0, 0], [112, 0, 0]], [[0, 0, 100], [4, 0, 100], [8, 0, 100], [12, 0, 100]]],
+        "participants": [{ "id": "a1", "team": 0 }, { "id": "a2", "team": 0 }, { "id": "b1", "team": 1 }, { "id": "c1", "team": 2 }]
+      },
+      "steps": [
+        { "op": "tick", "dtUs": 16667, "expect": { "participants": { "a1": { "spawnPoint": 3 }, "a2": { "spawnPoint": 2 }, "b1": { "spawnPoint": 3 }, "c1": { "spawnPoint": 1 } } } }
+      ]
+    },
+    {
+      "id": "GAME-02/three-deaths-with-delay",
+      "kind": "respawn",
+      "setup": {
+        "seed": 5,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0], [8, 0, 0], [12, 0, 0]], [[100, 0, 0], [104, 0, 0], [108, 0, 0], [112, 0, 0]], [[0, 0, 100], [4, 0, 100], [8, 0, 100], [12, 0, 100]]],
+        "participants": [{ "id": "a1", "team": 0 }, { "id": "a2", "team": 0 }, { "id": "b1", "team": 1 }, { "id": "c1", "team": 2 }]
+      },
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "kill", "id": "a1", "expect": { "result": "killed", "events": [{ "type": "killed", "id": "a1", "point": -1 }], "participants": { "a1": { "state": "dead", "health": 0, "respawnInUs": 5000000, "deaths": 1 } } } },
+        { "op": "kill", "id": "a1", "expect": { "result": "not_alive", "events": [] } },
+        { "op": "kill", "id": "zz", "expect": { "result": "unknown_id" } },
+        { "op": "tick", "dtUs": 4900000, "expect": { "events": [], "participants": { "a1": { "state": "dead", "respawnInUs": 100000 } } } },
+        { "op": "tick", "dtUs": 100000, "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 1 }], "participants": { "a1": { "state": "alive", "health": 100, "respawnInUs": 0, "spawnCount": 2, "spawnPoint": 1 } } } },
+        { "op": "kill", "id": "a1", "expect": { "result": "killed" } },
+        { "op": "tick", "dtUs": 5000000, "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 3 }], "participants": { "a1": { "state": "alive", "spawnCount": 3 } } } },
+        { "op": "kill", "id": "a1" },
+        { "op": "tick", "dtUs": 2500000, "expect": { "participants": { "a1": { "state": "dead", "respawnInUs": 2500000 } } } },
+        { "op": "tick", "dtUs": 2500000, "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 1 }], "participants": { "a1": { "state": "alive", "health": 100, "spawnCount": 4, "deaths": 3 }, "a2": { "spawnCount": 1, "deaths": 0 } } } }
+      ]
+    },
+    {
+      "id": "RESPAWN/no-safe-point-waits-and-retries",
+      "kind": "respawn",
+      "setup": {
+        "seed": 5,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0], [8, 0, 0], [12, 0, 0]], [[100, 0, 0], [104, 0, 0], [108, 0, 0], [112, 0, 0]], [[0, 0, 100], [4, 0, 100], [8, 0, 100], [12, 0, 100]]],
+        "participants": [{ "id": "a1", "team": 0 }]
+      },
+      "steps": [
+        { "op": "tick", "dtUs": 0, "expect": { "participants": { "a1": { "spawnPoint": 1 } } } },
+        { "op": "kill", "id": "a1" },
+        { "op": "tick", "dtUs": 5000000, "blocked": { "0": [0, 1, 2, 3] }, "expect": { "events": [{ "type": "spawn_blocked", "id": "a1", "point": -1 }], "participants": { "a1": { "state": "respawning", "health": 0, "failedSpawnAttempts": 1, "retryInUs": 500000, "respawnInUs": 0 } } } },
+        { "op": "tick", "dtUs": 400000, "expect": { "events": [], "participants": { "a1": { "state": "respawning", "retryInUs": 100000, "failedSpawnAttempts": 1 } } } },
+        { "op": "tick", "dtUs": 100000, "expect": { "events": [{ "type": "spawn_blocked", "id": "a1", "point": -1 }], "participants": { "a1": { "failedSpawnAttempts": 2, "retryInUs": 500000 } } } },
+        { "op": "tick", "dtUs": 499999, "blocked": {}, "expect": { "events": [], "participants": { "a1": { "state": "respawning", "retryInUs": 1 } } } },
+        { "op": "tick", "dtUs": 1, "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 3 }], "participants": { "a1": { "state": "alive", "health": 100, "spawnPoint": 3, "spawnCount": 2, "failedSpawnAttempts": 2, "retryInUs": 0 } } } }
+      ]
+    },
+    {
+      "id": "RESPAWN/living-enemies-block-nearby-points",
+      "kind": "respawn",
+      "setup": {
+        "seed": 12,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0], [8, 0, 0], [12, 0, 0]], [[100, 0, 0], [104, 0, 0], [108, 0, 0], [112, 0, 0]], [[0, 0, 100], [4, 0, 100], [8, 0, 100], [12, 0, 100]]],
+        "participants": [{ "id": "a1", "team": 0 }, { "id": "b1", "team": 1 }]
+      },
+      "steps": [
+        { "op": "tick", "dtUs": 0, "expect": { "participants": { "a1": { "spawnPoint": 2 }, "b1": { "spawnPoint": 1 } } } },
+        { "op": "kill", "id": "a1" },
+        { "op": "tick", "dtUs": 5000000, "bodies": [{ "team": 1, "alive": true, "pos": [2, 0, 0] }], "expect": { "events": [{ "type": "spawn_blocked", "id": "a1", "point": -1 }], "participants": { "a1": { "state": "respawning" } } } },
+        { "op": "tick", "dtUs": 500000, "bodies": [{ "team": 1, "alive": false, "pos": [2, 0, 0] }, { "team": 1, "alive": true, "pos": [30, 0, 0] }], "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 1 }], "participants": { "a1": { "state": "alive", "spawnPoint": 1 } } } }
+      ]
+    },
+    {
+      "id": "RESPAWN/enemy-distance-boundary-is-strict",
+      "kind": "respawn",
+      "setup": {
+        "seed": 3,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0], [8, 0, 0], [12, 0, 0]], [[100, 0, 0], [104, 0, 0], [108, 0, 0], [112, 0, 0]], [[0, 0, 100], [4, 0, 100], [8, 0, 100], [12, 0, 100]]],
+        "participants": [{ "id": "a1", "team": 0 }]
+      },
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "kill", "id": "a1" },
+        { "op": "tick", "dtUs": 5000000, "blocked": { "0": [0, 1, 2] }, "bodies": [{ "team": 2, "alive": true, "pos": [36.9, 0, 0] }], "expect": { "events": [{ "type": "spawn_blocked", "id": "a1", "point": -1 }] } },
+        { "op": "tick", "dtUs": 500000, "bodies": [{ "team": 2, "alive": true, "pos": [37, 0, 0] }], "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 3 }] } }
+      ]
+    },
+    {
+      "id": "RESPAWN/body-clearance-applies-to-teammates",
+      "kind": "respawn",
+      "setup": {
+        "seed": 1,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0], [8, 0, 0], [12, 0, 0]], [[100, 0, 0], [104, 0, 0], [108, 0, 0], [112, 0, 0]], [[0, 0, 100], [4, 0, 100], [8, 0, 100], [12, 0, 100]]],
+        "participants": [{ "id": "a1", "team": 0 }]
+      },
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "kill", "id": "a1" },
+        { "op": "tick", "dtUs": 5000000, "blocked": { "0": [0, 2, 3] }, "bodies": [{ "team": 0, "alive": true, "pos": [4.5, 0, 0] }], "expect": { "events": [{ "type": "spawn_blocked", "id": "a1", "point": -1 }] } },
+        { "op": "tick", "dtUs": 500000, "bodies": [{ "team": 0, "alive": true, "pos": [4, 0, 2] }], "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 1 }] } }
+      ]
+    },
+    {
+      "id": "RESPAWN/point-claimed-in-same-update-is-not-reused",
+      "kind": "respawn",
+      "setup": {
+        "seed": 1,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0], [8, 0, 0], [12, 0, 0]], [[100, 0, 0], [104, 0, 0], [108, 0, 0], [112, 0, 0]], [[0, 0, 100], [4, 0, 100], [8, 0, 100], [12, 0, 100]]],
+        "participants": [{ "id": "a1", "team": 0 }, { "id": "a2", "team": 0 }]
+      },
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "kill", "id": "a1" },
+        { "op": "kill", "id": "a2" },
+        { "op": "tick", "dtUs": 5000000, "blocked": { "0": [0, 1, 3] }, "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 2 }, { "type": "spawn_blocked", "id": "a2", "point": -1 }] } },
+        { "op": "tick", "dtUs": 500000, "bodies": [{ "team": 0, "alive": true, "pos": [8, 0, 0] }], "expect": { "events": [{ "type": "spawn_blocked", "id": "a2", "point": -1 }], "participants": { "a2": { "failedSpawnAttempts": 2 } } } },
+        { "op": "tick", "dtUs": 500000, "blocked": { "0": [0, 1] }, "expect": { "events": [{ "type": "spawned", "id": "a2", "point": 3 }] } }
+      ]
+    },
+    {
+      "id": "GAME-02/damage-with-friendly-fire-off",
+      "kind": "respawn",
+      "setup": {
+        "seed": 1,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0], [8, 0, 0], [12, 0, 0]], [[100, 0, 0], [104, 0, 0], [108, 0, 0], [112, 0, 0]], [[0, 0, 100], [4, 0, 100], [8, 0, 100], [12, 0, 100]]],
+        "participants": [{ "id": "a1", "team": 0 }, { "id": "a2", "team": 0 }, { "id": "b1", "team": 1 }]
+      },
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "damage", "id": "a1", "amount": 30, "attacker": "a2", "expect": { "result": { "result": "blocked_friendly_fire", "applied": 0 }, "participants": { "a1": { "health": 100 } } } },
+        { "op": "damage", "id": "a1", "amount": 30, "attacker": "b1", "expect": { "result": { "result": "applied", "applied": 30 }, "participants": { "a1": { "health": 70 } } } },
+        { "op": "damage", "id": "a1", "amount": 30, "expect": { "result": { "result": "applied", "applied": 30 }, "participants": { "a1": { "health": 40 } } } },
+        { "op": "damage", "id": "a1", "amount": 50, "attacker": "b1", "expect": { "result": { "result": "killed", "applied": 40 }, "events": [{ "type": "killed", "id": "a1", "point": -1 }], "participants": { "a1": { "health": 0, "state": "dead", "deaths": 1, "respawnInUs": 5000000 } } } },
+        { "op": "damage", "id": "a1", "amount": 10, "attacker": "b1", "expect": { "result": { "result": "not_alive", "applied": 0 } } },
+        { "op": "damage", "id": "a2", "amount": 0, "expect": { "result": { "result": "invalid_amount", "applied": 0 } } },
+        { "op": "damage", "id": "a2", "amount": 10.5, "expect": { "result": { "result": "invalid_amount", "applied": 0 } } },
+        { "op": "damage", "id": "a2", "amount": 10, "attacker": "zz", "expect": { "result": { "result": "unknown_id", "applied": 0 } } },
+        { "op": "damage", "id": "zz", "amount": 10, "expect": { "result": { "result": "unknown_id", "applied": 0 } } },
+        { "op": "damage", "id": "a2", "amount": 10, "attacker": "a2", "expect": { "result": { "result": "applied", "applied": 10 }, "participants": { "a2": { "health": 90 } } } }
+      ]
+    },
+    {
+      "id": "GAME-02/damage-with-friendly-fire-on",
+      "kind": "respawn",
+      "rules": { "combat": { "friendlyFire": true } },
+      "setup": {
+        "seed": 1,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0], [8, 0, 0], [12, 0, 0]], [[100, 0, 0], [104, 0, 0], [108, 0, 0], [112, 0, 0]], [[0, 0, 100], [4, 0, 100], [8, 0, 100], [12, 0, 100]]],
+        "participants": [{ "id": "a1", "team": 0 }, { "id": "a2", "team": 0 }]
+      },
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "damage", "id": "a1", "amount": 30, "attacker": "a2", "expect": { "result": { "result": "applied", "applied": 30 }, "participants": { "a1": { "health": 70 } } } }
+      ]
+    },
+    {
+      "id": "GAME-02/respawn-restores-full-loadout",
+      "kind": "respawn",
+      "setup": {
+        "seed": 1,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0], [8, 0, 0], [12, 0, 0]], [[100, 0, 0], [104, 0, 0], [108, 0, 0], [112, 0, 0]], [[0, 0, 100], [4, 0, 100], [8, 0, 100], [12, 0, 100]]],
+        "participants": [{ "id": "a1", "team": 0 }]
+      },
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 16667, "trigger": true }, "expect": { "result": 1, "events": [{ "type": "shot", "atUs": 0, "detail": "" }] } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "reload" }, "expect": { "result": "started_tactical" } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 1500000 }, "expect": { "events": [{ "type": "mag_insert", "atUs": 1316667, "detail": "" }], "participants": { "a1": { "weapons": { "rifle_iv7": { "state": "reloading", "magazine": 30, "chamber": 1, "reserve": 89 } } } } } },
+        { "op": "weapon", "id": "a1", "weapon": "pistol_p9", "do": { "op": "tick", "dtUs": 16667, "trigger": true }, "expect": { "result": 1 } },
+        { "op": "kill", "id": "a1", "expect": { "result": "killed", "participants": { "a1": { "weapons": { "rifle_iv7": { "state": "ready", "magazine": 30, "chamber": 1, "reserve": 89, "reloadsInterrupted": 1 }, "pistol_p9": { "magazine": 14, "chamber": 1 } } } } } },
+        { "op": "tick", "dtUs": 5000000, "expect": { "participants": { "a1": { "state": "alive", "health": 100, "spawnCount": 2, "equipped": ["rifle_iv7", "pistol_p9"], "weapons": {
+          "rifle_iv7": { "weapon": "rifle_iv7", "state": "ready", "reloadKind": "none", "actionUs": 0, "insertCommitted": false, "boltReleased": false, "chamberCommitted": false, "magazine": 30, "chamber": 1, "reserve": 90, "fireMode": "auto", "cooldownUs": 0, "clockUs": 0, "triggerPrev": false, "holdValid": false, "enabled": true, "shotsFired": 0, "resupplied": 0, "dryFires": 0, "reloadsStarted": 0, "reloadsCompleted": 0, "reloadsInterrupted": 0, "chamberActions": 0, "initialTotal": 121 },
+          "pistol_p9": { "state": "ready", "magazine": 15, "chamber": 1, "reserve": 45, "shotsFired": 0, "initialTotal": 61 } } } } } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 16667, "trigger": true }, "expect": { "result": 1 } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "reload" }, "expect": { "result": "started_tactical" } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 500000 }, "expect": { "participants": { "a1": { "weapons": { "rifle_iv7": { "insertCommitted": false } } } } } },
+        { "op": "kill", "id": "a1", "expect": { "participants": { "a1": { "weapons": { "rifle_iv7": { "state": "ready", "magazine": 29, "chamber": 1, "reserve": 90 } } } } } },
+        { "op": "tick", "dtUs": 5000000, "expect": { "participants": { "a1": { "state": "alive", "spawnCount": 3, "weapons": { "rifle_iv7": { "magazine": 30, "chamber": 1, "reserve": 90, "shotsFired": 0, "state": "ready" } } } } } }
+      ]
+    },
+    {
+      "id": "GAME-02/reset-round-clears-pending-respawns",
+      "kind": "respawn",
+      "setup": {
+        "seed": 1,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0], [8, 0, 0], [12, 0, 0]], [[100, 0, 0], [104, 0, 0], [108, 0, 0], [112, 0, 0]], [[0, 0, 100], [4, 0, 100], [8, 0, 100], [12, 0, 100]]],
+        "participants": [{ "id": "a1", "team": 0 }, { "id": "b1", "team": 1 }]
+      },
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "kill", "id": "a1" },
+        { "op": "tick", "dtUs": 3000000, "expect": { "participants": { "a1": { "state": "dead", "respawnInUs": 2000000 } } } },
+        { "op": "resetRound", "expect": { "result": "ok", "events": [], "participants": {
+          "a1": { "state": "respawning", "health": 0, "respawnInUs": 0, "retryInUs": 0, "spawnPoint": -1, "spawnCount": 0, "deaths": 0, "failedSpawnAttempts": 0 },
+          "b1": { "state": "respawning", "health": 0, "spawnCount": 0 } } } },
+        { "op": "tick", "dtUs": 0, "expect": { "participants": { "a1": { "state": "alive", "spawnCount": 1 }, "b1": { "state": "alive", "spawnCount": 1 } } } },
+        { "op": "tick", "dtUs": 2000000, "expect": { "events": [], "participants": { "a1": { "state": "alive", "spawnCount": 1, "deaths": 0 } } } }
+      ]
+    },
+    {
+      "id": "RESPAWN/add-participant-validation",
+      "kind": "respawn",
+      "setup": {
+        "seed": 1,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0], [8, 0, 0], [12, 0, 0]], [[100, 0, 0], [104, 0, 0], [108, 0, 0], [112, 0, 0]], [[0, 0, 100], [4, 0, 100], [8, 0, 100], [12, 0, 100]]]
+      },
+      "steps": [
+        { "op": "add", "id": "a1", "team": 0, "expect": { "result": "ok" } },
+        { "op": "add", "id": "a2", "team": 0, "expect": { "result": "ok" } },
+        { "op": "add", "id": "a3", "team": 0, "expect": { "result": "ok" } },
+        { "op": "add", "id": "a4", "team": 0, "expect": { "result": "ok" } },
+        { "op": "add", "id": "a5", "team": 0, "expect": { "result": "ok" } },
+        { "op": "add", "id": "a6", "team": 0, "expect": { "result": "ok" } },
+        { "op": "add", "id": "a7", "team": 0, "expect": { "result": "team_full" } },
+        { "op": "add", "id": "a1", "team": 1, "expect": { "result": "duplicate_id" } },
+        { "op": "add", "id": "x", "team": 3, "expect": { "result": "invalid_team" } },
+        { "op": "add", "id": "x", "team": -1, "expect": { "result": "invalid_team" } },
+        { "op": "add", "id": "", "team": 1, "expect": { "result": "invalid_id" } },
+        { "op": "add", "id": "y", "team": 1, "loadout": ["nope"], "expect": { "result": "invalid_loadout" } },
+        { "op": "add", "id": "y", "team": 1, "loadout": ["pistol_p9", "pistol_p9"], "expect": { "result": "invalid_loadout" } },
+        { "op": "add", "id": "y", "team": 1, "loadout": [], "expect": { "result": "invalid_loadout" } },
+        { "op": "add", "id": "p", "team": 2, "loadout": ["pistol_p9"], "expect": { "result": "ok", "order": ["a1", "a2", "a3", "a4", "a5", "a6", "p"], "participants": { "p": { "team": 2, "state": "respawning", "loadout": ["pistol_p9"], "equipped": ["pistol_p9"] } } } }
+      ]
+    },
+    {
+      "id": "RESPAWN/loadout-change-applies-at-next-spawn",
+      "kind": "respawn",
+      "setup": {
+        "seed": 1,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0], [8, 0, 0], [12, 0, 0]], [[100, 0, 0], [104, 0, 0], [108, 0, 0], [112, 0, 0]], [[0, 0, 100], [4, 0, 100], [8, 0, 100], [12, 0, 100]]],
+        "participants": [{ "id": "a1", "team": 0 }]
+      },
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "setLoadout", "id": "a1", "loadout": ["pistol_p9"], "expect": { "result": "ok", "participants": { "a1": { "loadout": ["pistol_p9"], "equipped": ["rifle_iv7", "pistol_p9"] } } } },
+        { "op": "setLoadout", "id": "a1", "loadout": ["knife"], "expect": { "result": "invalid_loadout", "participants": { "a1": { "loadout": ["pistol_p9"] } } } },
+        { "op": "setLoadout", "id": "zz", "loadout": ["pistol_p9"], "expect": { "result": "unknown_id" } },
+        { "op": "kill", "id": "a1" },
+        { "op": "tick", "dtUs": 5000000, "expect": { "participants": { "a1": { "state": "alive", "equipped": ["pistol_p9"], "weapons": { "pistol_p9": { "magazine": 15, "chamber": 1, "reserve": 45 } } } } } }
+      ]
+    },
+    {
+      "id": "RESPAWN/zero-delay-config",
+      "kind": "respawn",
+      "rules": { "respawn": { "delay": 0 } },
+      "setup": {
+        "seed": 1,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0], [8, 0, 0], [12, 0, 0]], [[100, 0, 0], [104, 0, 0], [108, 0, 0], [112, 0, 0]], [[0, 0, 100], [4, 0, 100], [8, 0, 100], [12, 0, 100]]],
+        "participants": [{ "id": "a1", "team": 0 }]
+      },
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "kill", "id": "a1", "expect": { "participants": { "a1": { "state": "dead", "respawnInUs": 0 } } } },
+        { "op": "tick", "dtUs": 0, "expect": { "participants": { "a1": { "state": "alive", "spawnCount": 2 } } } }
+      ]
+    },
+    {
+      "id": "GUN-03/dead-participant-weapon-is-inert-and-held-trigger-needs-release",
+      "kind": "respawn",
+      "setup": {
+        "seed": 1,
+        "spawnAreas": [[[0, 0, 0]], [[100, 0, 0]], [[0, 0, 100]]],
+        "participants": [{ "id": "a1", "team": 0 }]
+      },
+      "steps": [
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "reload" }, "expect": { "result": "rejected_disabled", "participants": { "a1": { "state": "respawning", "weapons": { "rifle_iv7": { "enabled": false }, "pistol_p9": { "enabled": false } } } } } },
+        { "op": "tick", "dtUs": 0, "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 0 }], "participants": { "a1": { "state": "alive", "weapons": { "rifle_iv7": { "enabled": true }, "pistol_p9": { "enabled": true } } } } } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 100000, "trigger": true }, "expect": { "result": 2, "events": [{ "type": "shot", "atUs": 0, "detail": "" }, { "type": "shot", "atUs": 80000, "detail": "" }] } },
+        { "op": "kill", "id": "a1", "expect": { "result": "killed", "events": [{ "type": "killed", "id": "a1", "point": -1 }], "participants": { "a1": { "state": "dead", "weapons": { "rifle_iv7": { "enabled": false, "holdValid": false, "magazine": 28 }, "pistol_p9": { "enabled": false } } } } } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 1000000, "trigger": true }, "expect": { "result": 0, "events": [], "participants": { "a1": { "weapons": { "rifle_iv7": { "magazine": 28, "chamber": 1, "shotsFired": 2 } } } } } },
+        { "op": "weapon", "id": "a1", "weapon": "pistol_p9", "do": { "op": "reload" }, "expect": { "result": "rejected_disabled", "events": [] } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 16667 }, "expect": { "result": 0, "participants": { "a1": { "weapons": { "rifle_iv7": { "triggerPrev": false } } } } } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 100000, "trigger": true }, "expect": { "result": 0, "events": [], "participants": { "a1": { "weapons": { "rifle_iv7": { "magazine": 28, "holdValid": false, "triggerPrev": true } } } } } },
+        { "op": "tick", "dtUs": 5000000, "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 0 }], "participants": { "a1": { "state": "alive", "spawnCount": 2, "weapons": { "rifle_iv7": { "enabled": true, "magazine": 30, "chamber": 1, "reserve": 90, "triggerPrev": true, "holdValid": false } } } } } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 100000, "trigger": true }, "expect": { "result": 0, "events": [] } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 16667 }, "expect": { "result": 0 } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 16667, "trigger": true }, "expect": { "result": 1, "events": [{ "type": "shot", "atUs": 116667, "detail": "" }], "participants": { "a1": { "weapons": { "rifle_iv7": { "magazine": 29 } } } } } }
+      ]
+    },
+    {
+      "id": "RESPAWN/retries-inside-one-long-tick-are-tick-independent",
+      "kind": "respawn",
+      "setup": {
+        "seed": 1,
+        "spawnAreas": [[[0, 0, 0]], [[100, 0, 0]], [[0, 0, 100]]],
+        "participants": [{ "id": "a1", "team": 0 }]
+      },
+      "tickModes": [
+        { "dtUs": 5600000 },
+        { "dtUs": 250000 },
+        { "hz": 60 },
+        { "hz": 7 },
+        { "irregular": { "seed": 5, "minUs": 0, "maxUs": 700000 } }
+      ],
+      "steps": [
+        { "op": "tick", "dtUs": 0, "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 0 }] } },
+        { "op": "kill", "id": "a1" },
+        { "op": "run", "durationUs": 5600000, "ticks": "case", "blocked": { "0": [0] }, "expect": { "events": [{ "type": "spawn_blocked", "id": "a1", "point": -1 }, { "type": "spawn_blocked", "id": "a1", "point": -1 }], "participants": { "a1": { "state": "respawning", "respawnInUs": 0, "retryInUs": 400000, "failedSpawnAttempts": 2, "spawnCount": 1 } } } },
+        { "op": "run", "durationUs": 400000, "ticks": "case", "blocked": {}, "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 0 }], "participants": { "a1": { "state": "alive", "retryInUs": 0, "failedSpawnAttempts": 2, "spawnCount": 2, "spawnPoint": 0 } } } }
+      ]
+    }
+  ]
+}

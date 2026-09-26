@@ -1,0 +1,20 @@
+# build outputs and caches
+Core/build/
+Core/build-*/
+Web/node_modules/
+Web/dist/
+Web/test-results/
+**/__pycache__/
+*.pyc
+*.blend1
+*.blend2
+
+# Regenerated binary outputs: deterministic from the scripts in Art/Source and Tools/.
+# Committed only at milestones (git add -f) to keep history small.
+Art/Export/
+Art/Textures/**/*.png
+Art/Previews/**/review/
+Art/Previews/**/*.png
+*.blend
+Web/public/assets/**/*.glb
+Web/tests/e2e/screens/

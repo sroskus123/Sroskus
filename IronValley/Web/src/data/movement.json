@@ -1,0 +1,34 @@
+{
+  "_comment": "Parametry kapsloveho kontroleru (hrac i boti). Jednotky: metry, sekundy, stupne.",
+  "capsule": {
+    "radius": 0.35,
+    "standHeight": 1.8,
+    "standEyeHeight": 1.65,
+    "crouchHeight": 1.2,
+    "crouchEyeHeight": 1.05
+  },
+  "speeds": {
+    "walk": 1.6,
+    "run": 3.5,
+    "sprint": 5.8,
+    "crouch": 1.5,
+    "ads": 1.8
+  },
+  "sprintMaxAngleDeg": 50,
+  "acceleration": 10.0,
+  "deceleration": 12.0,
+  "airAcceleration": 2.0,
+  "maxSlopeDeg": 45,
+  "maxStepHeight": 0.4,
+  "perchRadius": 0.32,
+  "standPerchRadius": 0.15,
+  "stepEdgeMargin": 0.02,
+  "groundSnapDistance": 0.4,
+  "gravity": 9.81,
+  "jumpApexHeight": 0.45,
+  "jumpCooldown": 0.25,
+  "maxFallSpeed": 50,
+  "maxSubstepDistance": 0.1,
+  "eyeHeightRate": 3.0,
+  "landingEventMinSpeed": 1.5
+}
