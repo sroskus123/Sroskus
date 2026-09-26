@@ -260,23 +260,29 @@ def setmat(obj, key):
 
 
 # ============================================================================ parts
+FA_C = (-1.22, 0.26)              # forward-assist axis (y, z): boss top 0.98, 0.7 mm below the side crease
+
+
 def part_upper():
     prof = mirror_y([(0.78, RAIL_TOP), (1.06, 2.72), (0.80, 2.46), (0.80, 2.08),
                      (1.10, 1.86), (1.50, 1.05), (1.50, -1.90)])
     up = L.poly_extrude("UpperReceiver", prof, 'X', UP_X0, UP_X1)
-    # 1) main body: bore, charging-handle channel (floor above the lower's buffer tower, end plate
-    #    and castle nut so the handle can slide back its full stroke), ejection port, feed opening;
-    #    bevelled with a 22 deg limit so the 26 deg side/chamfer creases get a soft bevel too (the
-    #    weighted normals then keep the large flat faces flat)
+    # 1) main body + forward-assist boss: bore, charging-handle channel (floor above the lower's
+    #    buffer tower, end plate and castle nut so the handle can slide back its full stroke),
+    #    ejection port, feed opening, forward-assist bore; bevelled with a 22 deg limit so the
+    #    26 deg side/chamfer creases get a soft bevel too (the weighted normals then keep the
+    #    large flat faces flat)
+    fa = L.lathe("fa", [(-9.5, 0.0), (-9.5, 0.25), (-10.6, 0.72), (-13.9, 0.72), (-13.9, 0.0)], 28,
+                 'X', center=FA_C)
+    L.union(up, [fa])
     cut = [L.cyl("bore", 1.30, UP_X0 - 0.2, UP_X1 + 0.2, 'X', segs=40),
            L.box("ch_chan", UP_X0 - 0.2, CH_CHAN_X1, -CH_CHAN_HW, CH_CHAN_HW, CH_Z0 - 0.02, CH_Z1 + 0.02),
            L.poly_extrude("port", L.rounded_rect(6.5, 1.9, 0.28, 4, cx=-5.15, cy=0.0), 'Y', -2.6, -0.4),
-           L.box("feed", -7.5, -0.9, -1.22, 1.22, -2.1, -1.0)]
+           L.box("feed", -7.5, -0.9, -1.22, 1.22, -2.1, -1.0),
+           L.cyl("fa_bore", 0.52, -14.6, -13.7, 'X', center=FA_C, segs=20)]
     L.boolean(up, cut)
     L.bevel(up, 0.045, 2, 22)
-    # 2) forward-assist boss, brass deflector and dust-cover hinge knuckles, bevelled on their own
-    fa = L.lathe("fa", [(-9.5, 0.0), (-9.5, 0.25), (-10.6, 0.72), (-13.9, 0.72), (-13.9, 0.0)], 28,
-                 'X', center=(-1.22, 0.32))
+    # 2) brass deflector and dust-cover hinge knuckles, bevelled on their own
     defl = L.poly_extrude("defl", L.fillet_polygon(
         [(-8.55, -1.40), (-10.7, -1.40), (-10.45, -2.02), (-9.6, -2.24), (-8.85, -1.95)],
         [0, 0, 0.25, 0.4, 0.3], 3), 'Z', 0.05, 1.45)
@@ -285,14 +291,11 @@ def part_upper():
         kn = L.cyl("kn", 0.22, x0, x1, 'X', center=DUST_HINGE, segs=16)
         L.union(kn, [L.box("web", x0, x1, -1.85, -1.3, -1.52, -1.18)])
         knuckles.append(kn)
-    # the boss must not fill the receiver bore (the bore was cut before this union)
-    L.boolean(fa, [L.cyl("bore_fa", 1.31, -15.0, -9.0, 'X', segs=40)])
-    for o in [fa, defl] + knuckles:
+    for o in [defl] + knuckles:
         L.bevel(o, 0.03, 2, 30)
-    L.union(up, [fa, defl] + knuckles)
-    # 3) forward-assist bore, hinge-pin hole and rail cross-slots with their own narrow bevel
-    L.boolean_bevelled(up, [L.cyl("fa_bore", 0.52, -14.6, -13.7, 'X', center=(-1.22, 0.32), segs=20),
-                            L.cyl("hinge_hole", 0.095, -9.2, -1.1, 'X', center=DUST_HINGE, segs=12)]
+    L.union(up, [defl] + knuckles)
+    # 3) hinge-pin hole and rail cross-slots with their own narrow bevel
+    L.boolean_bevelled(up, [L.cyl("hinge_hole", 0.095, -9.2, -1.1, 'X', center=DUST_HINGE, segs=12)]
                        + rail_slot_cutters([UP_X0 + 0.9 + k for k in range(17)]), 0.02, 1)
     return reg(setmat(up, "anod_upper"), "Body", "root")
 
@@ -704,18 +707,19 @@ def part_dust_rod():
 
 def part_forward_assist():
     f = L.lathe("ForwardAssist", [(-13.7, 0.0), (-13.7, 0.47), (-14.3, 0.47), (-14.42, 0.4), (-14.45, 0.0)], 24, 'X',
-                center=(-1.22, 0.32))
-    cut = []
+                center=FA_C)
+    L.bevel(f, 0.012, 1, 30)
+    # pawl face follows the carrier (r 1.15) with 0.2 mm clearance, so the plunger never enters
+    # the carrier in any carrier position (hidden inside the receiver: no bevel needed)
+    L.boolean(f, [L.cyl("carrier_clear", 1.17, -15.0, -13.0, 'X', segs=64)])
+    # grip flutes on the exposed button, with their own narrow bevel
+    fl = []
     for k in range(6):
         c = L.box("fl", -14.6, -14.25, -0.05, 0.05, 0.2, 0.7)
         rotate_obj_data(c, 30 * k, 'X', (0, 0, 0))
-        c.data.transform(Matrix.Translation((0, -1.22, 0.32)))
-        cut.append(c)
-    # pawl face follows the carrier (r 1.15) with 0.2 mm clearance, so the plunger never enters
-    # the carrier in any carrier position
-    cut.append(L.cyl("carrier_clear", 1.17, -15.0, -13.0, 'X', segs=64))
-    L.boolean(f, cut)
-    L.bevel(f, 0.012, 1, 30)
+        c.data.transform(Matrix.Translation((0, FA_C[0], FA_C[1])))
+        fl.append(c)
+    L.boolean_bevelled(f, fl, 0.008, 1)
     return reg(setmat(f, "phos"), "Body", "root")
 
 
@@ -927,26 +931,32 @@ def part_optic():
                  (-1.3, 1.3), (-1.3, 1.12), (-1.15, 1.12), (-1.15, 1.3), (OPT_X1 + 0.5, 1.3), (OPT_X1 + 0.5, 0.0)]
     cut = [L.lathe("bore", bore_prof, 48, 'X', center=(0.0, SIGHT_Z)),
            L.cyl("rbolt", 0.19, -1.28, 2, 'Y', center=(-3.6, 2.8), segs=16)]
-    # knurl flutes on turret caps and brightness knob: cut after the body bevel and given their
-    # own narrow single-segment bevel (no razor edges, few extra triangles)
+    L.boolean(body, cut)
+    L.bevel(body, 0.035, 2, 30)
+    # knurl flutes on the turret caps and the brightness knob: 90 deg V-grooves (their rims are
+    # 45 deg edges, not knife edges, so they need no bevel), cut after the body bevel
+    def vgroove(axis, apex_r, base_r, hw, a0, a1):
+        tri = [(0.0, apex_r), (hw, base_r), (-hw, base_r)]
+        return L.poly_extrude("fl", tri, axis, a0, a1)
     fl = []
     for k in range(12):
         a = 360.0 * k / 12
-        c = L.box("fl", -0.055, 0.055, 0.68, 0.9, 9.2, 9.7)
+        c = vgroove('Z', 0.69, 0.95, 0.26, 9.15, 9.75)                     # elevation cap (r 0.76)
         rotate_obj_data(c, a, 'Z', (0, 0, 0)); c.data.transform(Matrix.Translation((-3.75, 0, 0)))
         fl.append(c)
-        c = L.box("fl", -0.055, 0.055, -2.7, -2.16, 0.68, 0.9)
+        c = vgroove('Y', 0.69, 0.95, 0.26, -2.72, -2.14)                   # windage cap (r 0.76)
         rotate_obj_data(c, a, 'Y', (0, 0, 0)); c.data.transform(Matrix.Translation((-3.75, 0, SIGHT_Z)))
         fl.append(c)
     for k in range(16):
-        c = L.box("fl", -0.07, 0.07, 1.6, 2.25, 0.86, 1.1)
+        c = vgroove('Y', 0.87, 1.13, 0.26, 1.58, 2.25)                     # brightness knob (r 0.95)
         rotate_obj_data(c, 360.0 * k / 16, 'Y', (0, 0, 0)); c.data.transform(Matrix.Translation((-4.9, 0, SIGHT_Z)))
         fl.append(c)
-    fl.append(L.box("cs", -3.75 - 0.5, -3.75 + 0.5, -0.07, 0.07, 9.58, 9.8))
-    fl.append(L.box("cs", -3.75 - 0.07, -3.75 + 0.07, -2.8, -2.58, SIGHT_Z - 0.5, SIGHT_Z + 0.5))
-    L.boolean(body, cut)
-    L.bevel(body, 0.035, 2, 30)
-    L.boolean_bevelled(body, fl, 0.012, 1)
+    # coin slots across the turret caps (V-section as well)
+    fl.append(L.poly_extrude("cs", [(0.0, 9.58), (0.2, 9.8), (-0.2, 9.8)], 'X', -3.75 - 0.5, -3.75 + 0.5))
+    c = L.poly_extrude("cs", [(0.0, -2.58), (0.2, -2.8), (-0.2, -2.8)], 'Z', SIGHT_Z - 0.5, SIGHT_Z + 0.5)
+    c.data.transform(Matrix.Translation((-3.75, 0, 0)))
+    fl.append(c)
+    L.boolean(body, fl)
     reg(setmat(body, "anod_opt"), "Body", "root")
     # cross bolt through the clamp (sits in a rail slot)
     bolt = _cross_bolt("OpticBolt", -3.6, y_right=-1.27)       # right end inside the clamp knob
@@ -1027,18 +1037,20 @@ def part_magazine():
         lips.append(L.poly_extrude("lip", L.fillet_polygon(lip, [0, 0.12, 0.12, 0.04, 0.04, 0.1, 0.1, 0], 2),
                                    'X', -7.40, -2.45))
     rear = L.box("rearwall", -7.40, -7.18, -1.2, 1.2, -2.5, -1.6)
-    # trim lips and rear wall to the body's rounded footprint (their square corners poked 0.3 mm
-    # into the magwell's rounded inner corners)
-    for o in lips + [rear]:
-        foot = L.poly_extrude("foot", L.rounded_rect(MAG_DEPTH, MAG_WIDTH, 0.42, 4, cx=MAG_CX, cy=0.0), 'Z', -3.0, -1.0)
-        L.boolean(o, [foot], op='INTERSECT')
-    # staged bevels: body + spines + baseplate first, lips / rear wall on their own, then the round
+    # lips + rear wall as one piece, trimmed 0.1 mm inside the body's rounded footprint (their
+    # square corners poked 0.3 mm into the magwell's rounded inner corners, and shared surfaces
+    # with the body made the union non-manifold)
+    L.union(lips[0], [lips[1], rear])
+    top = lips[0]
+    foot = L.poly_extrude("foot", L.rounded_rect(MAG_DEPTH - 0.02, MAG_WIDTH - 0.02, 0.41, 4, cx=MAG_CX, cy=0.0),
+                          'Z', -3.0, -1.0)
+    L.boolean(top, [foot], op='INTERSECT')
+    # staged bevels: body + spines + baseplate first, the lip piece on its own, then the round
     # pocket and catch notch with a narrow bevel of their own
     L.union(body, ribs + [bp])
     L.bevel(body, 0.05, 2, 30)
-    for o in lips + [rear]:
-        L.bevel(o, 0.03, 1, 30)
-    L.union(body, lips + [rear])
+    L.bevel(top, 0.03, 1, 30)
+    L.union(body, [top])
     # pocket for the rounds under the lips + the catch notch on the left flank (engages the
     # magazine catch on the MR_C axis; hidden when inserted, visible on a dropped magazine)
     L.boolean_bevelled(body, [L.box("pocket", -7.18, -1.3, -0.99, 0.99, -3.15, -2.0),

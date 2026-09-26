@@ -67,6 +67,19 @@ cca 29 GB volného disku, **bez GPU** (`/dev/dri` chybí, `nvidia-smi` chybí). 
   (`dist-artifact/` s `.b64.txt`), zmenšit GLB (WebP textury).
 - Publikační složka: `scratchpad/publish/iron-valley.html` (stejná cesta = stejná URL při dalších verzích).
 
+## Zpětná vazba uživatele z hraní náhledu (2026-09-26 ~20:30)
+
+Běží WF `iv-feel-feedback` (pohyb/kamera, recoil, zvuk) a `iv-optics-art` (modely optik). Po nich webová integrace optik.
+- Klouzání při prudké změně směru běhu → oprava modelu zrychlení/tření (měřitelná kritéria).
+- Skok těsně před dopadem (buffer) a chvíli po sejití z hrany (coyote); skok za běhu/sprintu.
+- Chyba: sprint → skok → přikrčení ve vzduchu = zastavení na místě.
+- Přeskok/přelezení zdi 1 m (vault/mantle) s validací kolizí, události pro animaci rukou.
+- Jemný pohyb kamery na schodech a při krocích (škálováno nastavením).
+- Viditelný recoil, záblesk, nábojnice; zvuky (jen ověřené licence CC0/PD/CC-BY, jinak syntéza označená jako prozatímní), ne zbytečně hlasité.
+- Optika: blikání při výstřelu a rozmazání (sklo s transmisí), tečka plave s pohybem, zbytečná železná mířidla →
+  čisté holo/kolimátor, 2×, 3×, 6×; výběr ve výbavě, zbrojní bedna na spawnu, náhradní optika v batohu (výroba/crafting ne).
+- Nohy pod sebou nevidět → vyřeší plné tělo v první osobě po dokončení postav a animací.
+
 ## Známé vady / otevřené body
 
 - P0 (vnější blokátor): Unreal Engine 5 není v prostředí dostupný → hra v UE nemůže být spuštěna ani testována.

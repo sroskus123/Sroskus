@@ -25,8 +25,9 @@ spawny týmů) a **AI aréna** (připravuje modul AI); Kalné Hamry přibudou po
 | `three` | 0.186.1 | vykreslování, obloha (`Sky.js`), načítání GLB (`GLTFLoader`) |
 | `three-mesh-bvh` | 0.9.15 | BVH statického kolizního světa, raycasty, kapslový kontroler |
 | `cannon-es` | 0.20.0 | svět tuhých těles (zatím kostra pro ragdoll, dveře, předměty) |
-| `three-pathfinding` | 1.3.0 | připraveno pro navigaci botů (zatím se za běhu nepoužívá) |
+| `three-pathfinding` | 1.3.0 | formát zapečeného navmeshe botů (zóna), načtení za běhu; hledání cesty viz `Docs/AI.md` |
 | `esbuild` (dev) | 0.28.2 | sestavení do jednoho souboru `dist/game.js` |
+| `recast-navigation` (dev) | 0.43.1 | pečení navmeshe při buildu (`tools/bake_navmesh.mjs`, WebAssembly jen v Node, ne ve hře) |
 
 ## Instalace, sestavení, spuštění
 

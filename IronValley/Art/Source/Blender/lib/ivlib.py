@@ -457,17 +457,32 @@ def union(target, others, **kw):
 
 
 def mesh_health(obj, locations=False):
-    """(non-manifold edges, zero-area faces, self-intersecting face pairs) of a mesh.  Self
-    intersections ignore pairs of faces that share a vertex.  locations=True also returns the
-    centres of the intersecting faces."""
+    """(non-manifold edges, zero-area faces, self-intersecting face pairs, folded faces) of a
+    mesh.  Self intersections ignore pairs of faces that share a vertex; a face is 'folded' when
+    its normal points against the area-weighted normal of its edge neighbours (a bevel that
+    turned inside out).  locations=True also returns the centres of the offending faces."""
     from mathutils.bvhtree import BVHTree
     bm = bmesh.new(); bm.from_mesh(obj.data)
+    # judge the mesh as it will be exported: triangulated (a twisted or pinched n-gon is manifold
+    # as an n-gon but triangulates into overlapping / open triangles)
+    bmesh.ops.triangulate(bm, faces=bm.faces[:], quad_method='BEAUTY', ngon_method='BEAUTY')
     bm.faces.ensure_lookup_table()
-    nonman = sum(1 for e in bm.edges if len(e.link_faces) != 2)
-    zero = sum(1 for f in bm.faces if f.calc_area() < (CLEAN_DIST * 0.1) ** 2)
+    locs = []
+    nonman = 0
+    for e in bm.edges:
+        if len(e.link_faces) != 2:
+            nonman += 1
+            if locations:
+                locs.append((e.verts[0].co + e.verts[1].co) / 2)
+    zmin = (CLEAN_DIST * 0.1) ** 2
+    zero = 0
+    for f in bm.faces:
+        if f.calc_area() < zmin:
+            zero += 1
+            if locations:
+                locs.append(f.calc_center_median().copy())
     tree = BVHTree.FromBMesh(bm)
     inter = 0
-    locs = []
     for i, j in tree.overlap(tree):
         if i >= j:
             continue
@@ -478,8 +493,23 @@ def mesh_health(obj, locations=False):
         if locations:
             locs.append(bm.faces[i].calc_center_median().copy())
             locs.append(bm.faces[j].calc_center_median().copy())
+    folded = 0
+    for f in bm.faces:
+        a = f.calc_area()
+        if a < zmin:
+            continue
+        acc = Vector()
+        for e in f.edges:
+            for g in e.link_faces:
+                if g is not f:
+                    acc += g.normal * g.calc_area()
+        if acc.length > 0 and f.normal.dot(acc.normalized()) < -0.3:
+            folded += 1
+            if locations:
+                locs.append(f.calc_center_median().copy())
     bm.free()
-    return ((nonman, zero, inter), locs) if locations else (nonman, zero, inter)
+    h = (nonman, zero, inter, folded)
+    return (h, locs) if locations else h
 
 
 def _bevel_once(obj, width, segments, angle, profile, limit, clamp, harden, miter_outer):
@@ -564,7 +594,7 @@ def _clear_bevel_weights(obj):
         obj.data.attributes.remove(a)
 
 
-BEVEL_RETRIES = 5
+BEVEL_RETRIES = 7
 
 
 def _narrow_near(wts, segs, locs, width, attempt):
@@ -620,14 +650,16 @@ def bevel(obj, width, segments=1, angle=30.0, profile=0.5, limit='ANGLE', clamp=
         return _bevel_once(obj, width, segments, angle, profile, limit, bool(clamp), harden, miter_outer)
     before = mesh_health(obj)
     src = obj.data.copy()
+    ign = min(0.2 * width, 10.0 * CLEAN_DIST)       # bevels narrower than this still read as razor edges
     # candidate A: Blender's clamped bevel
     _bevel_once(obj, width, segments, angle, profile, 'ANGLE', True, harden, miter_outer)
     res_clamped = obj.data
-    ign = min(0.2 * width, 10.0 * CLEAN_DIST)       # bevels narrower than this still read as razor edges
+    health_c = mesh_health(obj)
     razor_c = razor_length(obj, ignore_below=ign)
     # candidate B: local per-edge widths
     wts, segs = _local_bevel_limits(src, width, angle)
     res_local = None
+    health_l = None
     for attempt in range(BEVEL_RETRIES + 1):
         work = src.copy()
         obj.data = work
@@ -637,6 +669,7 @@ def bevel(obj, width, segments=1, angle=30.0, profile=0.5, limit='ANGLE', clamp=
         after, locs = mesh_health(obj, locations=True)
         if all(x <= y for x, y in zip(after, before)):
             res_local = obj.data
+            health_l = after
             break
         bad = obj.data
         obj.data = src                     # never remove an object's current data (kills the object)
@@ -646,10 +679,21 @@ def bevel(obj, width, segments=1, angle=30.0, profile=0.5, limit='ANGLE', clamp=
     if res_local is not None:
         obj.data = res_local
         razor_l = razor_length(obj, ignore_below=ign)
-    if res_local is not None and razor_l < razor_c - 1e-9:
+    clamped_ok = all(x <= y for x, y in zip(health_c, before))
+    if res_local is not None and (not clamped_ok or razor_l < razor_c - 1e-9):
         keep, drop, mode = res_local, res_clamped, "local"
-    else:
+    elif clamped_ok or res_local is None:
         keep, drop, mode = res_clamped, res_local, "clamped"
+    else:
+        keep, drop, mode = res_local, res_clamped, "local"
+    if keep is res_clamped and not clamped_ok:
+        # neither variant is clean: keep the unbevelled mesh rather than a broken one
+        keep, drop, mode = src, res_clamped, "none"
+        log(f"  bevel {obj.name}: no clean bevel (health {before} -> clamped {health_c}); left unbevelled")
+        obj.data = keep
+        bpy.data.meshes.remove(drop)
+        obj["iv_bevel_mode"] = mode
+        return obj
     obj.data = keep
     keep.name = src.name
     for m in (drop, src):
@@ -657,7 +701,7 @@ def bevel(obj, width, segments=1, angle=30.0, profile=0.5, limit='ANGLE', clamp=
             bpy.data.meshes.remove(m)
     obj["iv_bevel_mode"] = mode
     if os.environ.get("IV_BEVEL_DEBUG"):
-        log(f"  bevel {obj.name}: clamped razor {razor_c:.3f}, local razor "
+        log(f"  bevel {obj.name}: clamped razor {razor_c:.3f} health {health_c}, local razor "
             f"{'failed' if razor_l is None else round(razor_l, 3)} -> {mode}")
     return obj
 
@@ -754,15 +798,69 @@ def mark_sharp_between_flats(obj, min_angle, max_angle, min_area):
     return len(sharp)
 
 
+def _split_bad_ngons(obj, nonplanar_deg=2.0):
+    """Split concave and non-planar n-gons into convex planar pieces (new edges are flat, so the
+    shading does not change).  Twisted boolean / bevel n-gons otherwise triangulate into
+    overlapping triangles (non-manifold edges, zero-area slivers)."""
+    bm = bmesh.new(); bm.from_mesh(obj.data)
+    faces = [f for f in bm.faces if len(f.verts) > 3]
+    if faces:
+        bmesh.ops.connect_verts_concave(bm, faces=faces)
+        faces = [f for f in bm.faces if len(f.verts) > 3]
+        bmesh.ops.connect_verts_nonplanar(bm, angle_limit=math.radians(nonplanar_deg), faces=faces)
+    bm.to_mesh(obj.data); bm.free()
+    obj.data.update()
+
+
+def _dissolve_collinear(obj, max_angle_deg=2.0):
+    """Dissolve valence-2 vertices that sit on a straight edge chain (boolean leftovers): an n-gon
+    with collinear vertices triangulates into zero-area slivers."""
+    bm = bmesh.new(); bm.from_mesh(obj.data)
+    lim = math.radians(max_angle_deg)
+    vs = []
+    for v in bm.verts:
+        if len(v.link_edges) != 2:
+            continue
+        a, b = [e.other_vert(v).co - v.co for e in v.link_edges]
+        if a.length < 1e-12 or b.length < 1e-12:
+            continue
+        if math.pi - a.angle(b, math.pi) < lim:
+            vs.append(v)
+    if vs:
+        bmesh.ops.dissolve_verts(bm, verts=vs)
+    bm.to_mesh(obj.data); bm.free()
+    obj.data.update()
+    return len(vs)
+
+
+def _opposing_faces(obj, thresh=0.05):
+    me = obj.data
+    cn = me.corner_normals
+    out = []
+    for p in me.polygons:
+        acc = Vector()
+        for li in p.loop_indices:
+            acc += cn[li].vector
+        if acc.length < 1e-12 or acc.normalized().dot(p.normal) < thresh:
+            out.append(p.index)
+    return out
+
+
 def finish_shading(obj, sharp_angle=50.0, weighted=True, weight=50, triangulate=True, clean_dist=None,
                    sharp_flats=None):
     """Smooth shading + sharp edges above `sharp_angle` + face-area weighted normals (on the
     n-gon mesh, so large flat faces shade flat) + triangulation that keeps custom normals.
     Triangulating before UV/bake guarantees bake and export share the same tangent basis.
+    A small face wedged between large ones can end up with weighted corner normals pointing away
+    from it (renders inside-out); the edges of such faces are marked sharp and the normals
+    re-weighted, so they shade flat instead.  Collinear boolean leftovers are dissolved first and
+    n-gons are ear-clipped (robust for concave boolean n-gons: no slivers / overlaps).
     sharp_flats=(min_angle, max_angle, min_area) additionally marks shallow creases between
     large flat faces sharp (see mark_sharp_between_flats)."""
     if clean_dist:
         clean_mesh(obj, clean_dist)
+    _dissolve_collinear(obj)
+    _split_bad_ngons(obj)
     me = obj.data
     me.shade_smooth()
     if sharp_angle is not None:
@@ -770,12 +868,25 @@ def finish_shading(obj, sharp_angle=50.0, weighted=True, weight=50, triangulate=
     if sharp_flats:
         mark_sharp_between_flats(obj, *sharp_flats)
     if weighted:
-        w = obj.modifiers.new("wn", 'WEIGHTED_NORMAL')
-        w.mode = 'FACE_AREA'
-        w.weight = weight
-        w.keep_sharp = True
-        w.thresh = 0.01
-        apply_modifiers(obj)
+        for attempt in range(3):
+            w = obj.modifiers.new("wn", 'WEIGHTED_NORMAL')
+            w.mode = 'FACE_AREA'
+            w.weight = weight
+            w.keep_sharp = True
+            w.thresh = 0.01
+            apply_modifiers(obj)
+            bad = _opposing_faces(obj)
+            if not bad:
+                break
+            me = obj.data
+            attr = me.attributes.get("sharp_edge") or me.attributes.new("sharp_edge", 'BOOLEAN', 'EDGE')
+            vals = [False] * len(me.edges)
+            attr.data.foreach_get("value", vals)
+            for fi in bad:
+                for li in me.polygons[fi].loop_indices:
+                    vals[me.loops[li].edge_index] = True
+            attr.data.foreach_set("value", vals)
+            clear_custom_normals(obj)
     if triangulate:
         t = obj.modifiers.new("tri", 'TRIANGULATE')
         t.quad_method = 'BEAUTY'
@@ -783,6 +894,12 @@ def finish_shading(obj, sharp_angle=50.0, weighted=True, weight=50, triangulate=
         t.keep_custom_normals = True
         t.min_vertices = 4
         apply_modifiers(obj)
+        if clean_dist:
+            # sliver triangles from near-collinear boolean vertices (custom normals survive)
+            bm = bmesh.new(); bm.from_mesh(obj.data)
+            bmesh.ops.dissolve_degenerate(bm, dist=2.0 * clean_dist, edges=bm.edges[:])
+            bm.to_mesh(obj.data); bm.free()
+            obj.data.update()
     return obj
 
 

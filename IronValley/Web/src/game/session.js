@@ -18,6 +18,9 @@ import { createRng } from '../util/rng.js';
 
 export const PLAYER_ID = 'player';
 
+// wall-clock timer for the simulation cost measurement (browser and Node 16+ both have performance.now)
+const now = typeof performance !== 'undefined' && performance.now ? () => performance.now() : () => Date.now();
+
 function mixSeed(seed, k) {
   let h = (seed >>> 0) ^ Math.imul(k + 1, 0x9e3779b1);
   h = Math.imul(h ^ (h >>> 16), 0x85ebca6b);
@@ -82,6 +85,8 @@ export class MatchSession {
     this.stats = { ffBlocked: 0, damageEvents: 0, shotsHitCombatants: 0 };
     this.killFeed = [];
     this.aiEnabled = true;
+    this.perf = { tickMs: 0, aiMs: 0 }; // wall-clock cost of the last tick (whole tick / ai.update)
+    this._tickObservers = [];
 
     const session = this;
     this.ctx = {
@@ -199,19 +204,36 @@ export class MatchSession {
    * @param {object} [o] { playerCmd }
    */
   tick(dt, { playerCmd = null } = {}) {
+    const t0 = now();
     this.tickCount++;
     this.lastDtUs = this.clock.advance(dt);
     this.simTime += dt;
     this._advanceMatch(this.lastDtUs);
     this._emitRoundTransitions(false);
     if (this.player) this.player.applyCommand(playerCmd, dt);
+    const tAi = now();
     if (this.aiEnabled) this.ai.update(dt);
+    this.perf.aiMs = now() - tAi;
     this.combatants.stepUndriven(dt);
     this.combatants.processCoreEvents(this.pendingKills);
     this.dummies.tick(dt);
     // kill feed ageing
     for (const k of this.killFeed) k.age += dt;
     while (this.killFeed.length && this.killFeed[0].age > this.combat.hud.killFeedSeconds) this.killFeed.shift();
+    this.perf.tickMs = now() - t0;
+    for (let i = 0; i < this._tickObservers.length; i++) this._tickObservers[i](this, dt);
+  }
+
+  /**
+   * Debug / test hook: fn(session, dt) runs after every tick (telemetry, src/debug/matchTelemetry.js).
+   * Observers only read state; the simulation never depends on them. Returns an unsubscribe function.
+   */
+  addTickObserver(fn) {
+    this._tickObservers.push(fn);
+    return () => {
+      const i = this._tickObservers.indexOf(fn);
+      if (i >= 0) this._tickObservers.splice(i, 1);
+    };
   }
 
   /** Damage of one round that hit a combatant (called from the shooter's WeaponSystem). */

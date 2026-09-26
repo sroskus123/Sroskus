@@ -266,7 +266,8 @@ AI se do `window.__IV` připojí sama při prvním `update` (hra na tom nezávis
 
 Měřeno na skutečné herní integraci (`MatchSession`, `Combatant.applyCommand`, `WorldQuery`, hitscan s ověřením ústí,
 jádro `Match`) v AI aréně: v Node (`tests/unit/ai_*.test.mjs`, deterministicky se semenem) a v sestavené hře v headless
-Chromiu s vypnutým vykreslováním (`tests/e2e/05_ai.test.mjs`). Datum 2026-09-26.
+Chromiu s vypnutým vykreslováním (`tests/e2e/05_ai.test.mjs`). Datum 2026-09-26. Poslední úplný běh `npm test`:
+unit 320/320, e2e 58/58 PASS (včetně testů herní integrace, které teď běží se skutečnou AI místo stubu).
 
 ### AI-01 — zrak, sluch, paměť
 
@@ -285,7 +286,7 @@ Chromiu s vypnutým vykreslováním (`tests/e2e/05_ai.test.mjs`). Datum 2026-09-
 
 | Měření | Výsledek |
 | --- | --- |
-| 17 botů současně po 17 trasách (dveře domu, schody do patra, ulička, průchod, střed, K2, sever) | 17/17 v cíli, čas 3,4–13,4 s (medián 6,3 s); prohlížeč 17/17, max. 11,9 s |
+| 17 botů současně po 17 trasách (dveře domu, schody do patra, ulička, průchod, střed, K2, sever) | 17/17 v cíli, čas 3,4–13,4 s (medián 6,3 s); prohlížeč 17/17, max. 12,0 s |
 | zaseknutí při přechodu | 1 událost (blokace + nová cesta), obnova 0,45 s; nejdelší doba bez postupu 3,5 s; prohlížeč 0 událostí |
 | teleport | max. posun za tik 0,0969 m (limit sprint 5,8 m/s × 1/60 + 0,02 = 0,1167 m), svisle max. 0,18 m (schody) |
 | dva boti na jednom místě (< 0,45 m) | nejdelší souvislý překryv 0,15 s |
@@ -297,26 +298,28 @@ Chromiu s vypnutým vykreslováním (`tests/e2e/05_ai.test.mjs`). Datum 2026-09-
 
 | Měření | Výsledek |
 | --- | --- |
-| reakce (umístění do výhledu → 1. výstřel), 4 pokusy | 10 m 0,54 s, 20 m 0,79 s, 40 m 1,30 s (vše v okně detekce + 0,25–0,45 s + dotočení); prohlížeč 20 m 0,88 s; medián v zápase 0,52 s (100 vzorků) |
+| reakce (umístění do výhledu → 1. výstřel), 4 pokusy | 10 m 0,54 s, 20 m 0,79 s, 40 m 1,30 s (vše v okně detekce + 0,25–0,45 s + dotočení); prohlížeč 20 m 0,88 s; medián v zápase 0,50–0,57 s (100 vzorků) |
 | zásahovost vs. model (3 × 25 s, stojící cíl) | 10 m (strafuje, 8,6 m): 0,331 vs. model 0,317; 20 m: 0,313 vs. 0,360; 40 m: 0,104 vs. 0,112; prohlížeč 20 m ≈ 0,36 |
 | citlivost na data | 3× `aim.baseErrorDeg` → zásahovost ve 20 m 0,322 → 0,085 |
 | dávky | vždy ≤ max. pásma (10 m: 4–7, 20 m: 3–5, 40 m: 2–3), většina v pásmu |
 | palba při přebíjení | 0 (23 přebití v testu, 0 v zápasech, 519 tiků přebíjení v prohlížeči) |
 | otáčení | max. 5,0°/tik (= 300°/s), otočka o 150° za 0,50 s |
-| pravidlo ústí | oko vidí cíl, ústí ve zdi: výstřel `blocked: eye-to-muzzle`, 0 poškození; AI držela palbu 0,8 s, pak úkrok a 11 výstřelů, 0 s blokovaným ústím; v zápasech 1 z 4 233 ran (0,02 %) šla do zdi, **0 zásahů skrz zeď** |
+| pravidlo ústí | oko vidí cíl, ústí ve zdi: výstřel `blocked: eye-to-muzzle`, 0 poškození; AI držela palbu 0,8 s, pak úkrok a 11 výstřelů, 0 s blokovaným ústím; v zápasech 0 z 7 191 ran s blokovaným ústím (dřívější běhy do 0,15 %), **0 zásahů skrz zeď** |
 
 ### AI-04 — tým a cíl
 
 | Měření | 180 s, hráč nečinný | 120 s bez hráče | prohlížeč 120 s, hráč nečinný |
 | --- | --- | --- | --- |
-| skóre Alfa/Bravo/Charlie | 3 / 15 / 25 | 0 / 21 / 9 | 2 / 11 / 4 |
-| čas týmu v oblasti (s) | 14,2 / 57,8 / 80,6 | 3,3 / 54,5 / 23,9 | 17 / 40 / 23,5 |
-| zabití | 34 / 44 / 52 | 27 / 34 / 27 | 24 / 33 / 33 |
-| stavy oblasti / kontroloři | prázdná, držená, sporná / 0, 1, 2 (61 změn) | prázdná, držená, sporná / 0, 1, 2 | prázdná, držená, sporná / 0, 1, 2 |
+| skóre Alfa/Bravo/Charlie | 1 / 27 / 16 | 1 / 13 / 6 | 1 / 20 / 4 |
+| čas týmu v oblasti (s) | 15,4 / 81,3 / 48,3 | 11,9 / 45,4 / 20,5 | 13 / 59,5 / 17,5 |
+| zabití | 39 / 51 / 46 | 23 / 38 / 29 | 27 / 34 / 30 |
+| stavy oblasti / kontroloři | prázdná, držená, sporná / 0, 1, 2 (60 změn) | prázdná, držená, sporná / 0, 1, 2 (47 změn) | prázdná, držená, sporná / 0, 1, 2 |
 | cíl = spoluhráč, spojenec → hráč, friendly fire | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 |
-| zaseknutí (obnoveno) | 29 (vše, max. 5,3 s) | 12 (vše, max. 2,1 s) | — |
-| spoluhráči stojící < 1 m od sebe | 1,0 % vzorků | 0,5 % | — |
+| zaseknutí (obnoveno) | 16 (vše, max. 1,7 s) | 15 (vše, max. 5,3 s) | — |
+| spoluhráči stojící < 1 m od sebe | 1,3 % vzorků | 1,6 % | — |
 | nové rozhodnutí po změně kontroly oblasti | všichni v dalším tiku | všichni | — |
+| rány do zdi s blokovaným ústím / zásahy skrz zeď | 0 z 4 358 / 0 | 0 z 2 833 / 0 | — |
+| medián reakce v zápase | 0,50 s | 0,57 s | — |
 
 Přepočet úkolů po smrti (kryt uvolněn, paměť smazána, všichni zapomněli mrtvého), po respawnu (nový mozek, hned
 rozhoduje) a po novém kole (rezervace, blokace, paměti, cesty smazány; ≥ 12 botů do 2 s míří k oblasti) ověřuje test.
