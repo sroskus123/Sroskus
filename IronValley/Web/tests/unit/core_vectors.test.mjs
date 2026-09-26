@@ -2,7 +2,7 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
-import { listVectorFiles, loadVectorFile, loadBaseRules, checkCase } from './support/vector_runner.mjs';
+import { listVectorFiles, loadVectorFile, loadBaseRules, checkCase, FILE_KEYS } from './support/vector_runner.mjs';
 
 const baseRaw = loadBaseRules();
 const files = listVectorFiles();
@@ -20,6 +20,7 @@ for (const file of files) {
   describe(`vektory ${path.basename(file)}`, () => {
     test('hlavicka souboru', () => {
       assert.equal(data.schema, 'ironvalley.testvectors');
+      for (const k of Object.keys(data)) assert.ok(FILE_KEYS.has(k), `neznamy klic hlavicky "${k}"`);
       assert.equal(data.version, 1);
       assert.ok(Array.isArray(data.cases) && data.cases.length > 0);
       const ids = data.cases.map((c) => c.id);

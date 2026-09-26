@@ -120,7 +120,109 @@ test('renderer uses sRGB output, ACES tone mapping and shadows', async () => {
   assert.equal(r.env, true);
 });
 
-test('gameplay muzzle matches the drawn muzzle socket (hip incl. cant, and ADS) within 2 mm', async (t) => {
+test('no direct sunlight leaks under the tunnel roof: occluded wall band identical with sun on and off (screenshots)', async () => {
+  // Regression: a loose shadow depth range (near 1 / far 220 m) made the normalised depth bias
+  // about 9 cm, so the inner wall just under the 1.4 m roof showed dithered sunlit stripes.
+  const info = await g.page.evaluate(() => window.__IV.getState().shadow);
+  assert.ok(info.far - info.near < 120, `shadow depth range ${info.near}..${info.far} m`);
+  assert.ok(info.biasMeters > 0 && info.biasMeters < 0.01, `shadow bias ${info.biasMeters} m`);
+  const shoot = async (name, view, sun, crouch) => {
+    await g.page.evaluate(
+      ({ view, sun, crouch, bounce }) => {
+        const iv = window.__IV;
+        iv.startGame();
+        iv.pause();
+        iv.releaseAll();
+        // only the direct sunlight is switched; the baked sunlight bounce stays as with the sun on
+        iv.setLighting({ sun, bounceSun: bounce });
+        iv.teleport(...view);
+        if (crouch) iv.keyDown('KeyC');
+        iv.step(40, { render: true });
+        iv.keyUp('KeyC');
+      },
+      { view, sun, crouch, bounce: sunOn },
+    );
+    return decodePng((await screenshot(g.page, name)).buf);
+  };
+  const sunOn = await g.page.evaluate(() => window.__IV._game.env.sun.intensity);
+  const band = { x: 330, y: 0, w: 600, h: 40 }; // inner east wall right under the roof (HUD label is left of x 330)
+  const tunnelView = [2.7, 0, -7.0, -90, -10];
+  const on = await shoot('tunnel_roof_sun_on.png', tunnelView, sunOn, true);
+  const off = await shoot('tunnel_roof_sun_off.png', tunnelView, 0, true);
+  // guard: the sun really lights the open range in the same session
+  const openOn = imageStats(await shoot('open_sun_on.png', [0, 0, 12, 0, -20], sunOn, false));
+  const openOff = imageStats(await shoot('open_sun_off.png', [0, 0, 12, 0, -20], 0, false));
+  await g.page.evaluate((s) => window.__IV.setLighting({ sun: s, bounceSun: null }), sunOn);
+  assert.ok(openOn.mean > openOff.mean + 15, `sun lights the open floor: ${openOn.mean} vs ${openOff.mean}`);
+  const lum = (img, x, y) => {
+    const i = (y * img.width + x) * img.channels;
+    return 0.2126 * img.data[i] + 0.7152 * img.data[i + 1] + 0.0722 * img.data[i + 2];
+  };
+  let sumDiff = 0;
+  let maxBelow = 0; // below the junction line itself (rows >= 2)
+  let brighter = 0;
+  let n = 0;
+  for (let y = band.y; y < band.y + band.h; y++) {
+    for (let x = band.x; x < band.x + band.w; x++) {
+      const d = lum(on, x, y) - lum(off, x, y);
+      sumDiff += d;
+      if (d > 4) brighter++;
+      if (y >= band.y + 2) maxBelow = Math.max(maxBelow, d);
+      n++;
+    }
+  }
+  console.log(`# tunnel roof band sun on - off: mean ${(sumDiff / n).toFixed(2)}, pixels > +4: ${brighter}/${n}, max below the junction row ${maxBelow.toFixed(1)} (before the fix: mean +10.1, max +29)`);
+  assert.ok(sumDiff / n < 1.0, `mean luminance leak ${sumDiff / n}`);
+  // single dithered pixels on the junction line itself (PCF kernel) are tolerated, a band is not
+  assert.ok(brighter <= n * 0.001, `${brighter} pixels brighter by more than 4 with the sun on`);
+  assert.ok(maxBelow < 6, `brightest leaked pixel below the junction line +${maxBelow}`);
+});
+
+test('enclosed spaces get less ambient light than open ground: tunnel wall vs open wall of the same material and orientation (screenshots)', async () => {
+  // Before: the image-based sky light reached every surface fully, so the tunnel's inner walls
+  // were exactly as bright as walls in the open. Sun off = ambient light only; eye adaptation
+  // frozen so both views use the same exposure.
+  const bake = await g.page.evaluate(() => window.__IV.getState().bakedLighting);
+  assert.ok(bake && bake.vertices > 5000, `baked level lighting present: ${JSON.stringify(bake)}`);
+  const shoot = async (name, view, crouch) => {
+    const st = await g.page.evaluate(
+      ({ view, crouch }) => {
+        const iv = window.__IV;
+        iv.startGame();
+        iv.pause();
+        iv.releaseAll();
+        iv.setEyeAdaptation(false);
+        iv.setLighting({ sun: 0 });
+        iv.teleport(...view);
+        if (crouch) iv.keyDown('KeyC');
+        iv.step(40, { render: true });
+        iv.keyUp('KeyC');
+        return iv.getState().bakedLighting;
+      },
+      { view, crouch },
+    );
+    return { img: decodePng((await screenshot(g.page, name)).buf), st };
+  };
+  const sunOn = await g.page.evaluate(() => window.__IV._game.env.sun.intensity);
+  // both walls face -x (west) and use the 'wall' material: the tunnel's east inner wall, and
+  // the tunnel's west outer wall seen from the open ground in front of it
+  const inside = await shoot('ao_tunnel_wall_ambient.png', [2.7, 0, -5.5, -90, 0], true);
+  const open = await shoot('ao_open_wall_ambient.png', [0.2, 0, -5.5, -90, 0], true);
+  await g.page.evaluate((s) => {
+    window.__IV.setLighting({ sun: s });
+    window.__IV.setEyeAdaptation(true);
+  }, sunOn);
+  const region = { x: 380, y: 120, w: 200, h: 120 };
+  const lin = (v) => ((v / 255 + 0.055) / 1.055) ** 2.4;
+  const a = imageStats(inside.img, region).mean;
+  const b = imageStats(open.img, region).mean;
+  console.log(`# ambient only: tunnel wall ${a.toFixed(1)}, open wall ${b.toFixed(1)} (linear ratio ${(lin(a) / lin(b)).toFixed(2)}); eye sky visibility inside ${inside.st.eyeSky.toFixed(2)}, view-model ambient ${inside.st.viewModelAmbient.toFixed(2)}`);
+  assert.ok(lin(a) < 0.5 * lin(b), `tunnel wall ${a} vs open wall ${b}: interior must get clearly less ambient light`);
+  assert.ok(inside.st.eyeSky < 0.2 && open.st.eyeSky > 0.6, `eye sky visibility inside ${inside.st.eyeSky}, open ${open.st.eyeSky}`);
+  assert.ok(inside.st.viewModelAmbient < 0.5 && open.st.viewModelAmbient > 0.6, 'the held weapon darkens with the world inside');
+});
+
+test('gameplay muzzle matches the drawn muzzle socket (hip incl. cant, ADS, and during the ADS transition) within 2 mm', async (t) => {
   const m = await g.page.evaluate(() => window.__IV.muzzleConsistency());
   if (m.model === 'placeholder') {
     t.skip('IV-7 GLB not in this build (placeholder has no socket to compare)');
@@ -131,7 +233,11 @@ test('gameplay muzzle matches the drawn muzzle socket (hip incl. cant, and ADS) 
   assert.ok(m.ads.rendered && m.ads.renderedDistance < 0.002, JSON.stringify(m.ads));
   // the analytic pose used by tools agrees with the drawn one
   assert.ok(m.hip.distance < 0.002 && m.ads.distance < 0.002, JSON.stringify(m));
-  console.log(`# muzzle: hip rendered-vs-logic ${(m.hip.renderedDistance * 1000).toFixed(3)} mm, ADS ${(m.ads.renderedDistance * 1000).toFixed(3)} mm`);
+  // mid-transition (the drawn weapon eases and un-cants; shots must leave from the drawn muzzle)
+  assert.equal(m.transition.length, 5);
+  for (const tr of m.transition) assert.ok(tr.renderedDistance !== null && tr.renderedDistance < 0.002, JSON.stringify(m.transition));
+  const worst = Math.max(...m.transition.map((tr) => tr.renderedDistance));
+  console.log(`# muzzle: hip rendered-vs-logic ${(m.hip.renderedDistance * 1000).toFixed(3)} mm, ADS ${(m.ads.renderedDistance * 1000).toFixed(3)} mm, transition worst ${(worst * 1000).toFixed(3)} mm`);
 });
 
 test('artifact.html has no document skeleton and boots when wrapped by a host page', async () => {

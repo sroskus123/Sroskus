@@ -50,9 +50,11 @@ node tests/unit/support/generate_fuzz_vectors.mjs --check  # jen ověří, že u
   převod `secondsToMicros(s) = Math.round(s · 10^6)` (C++ má stejné zaokrouhlení, polovina směrem k +∞).
 - Důvod: součet libovolného rozdělení stejného intervalu na tiky je přesný, takže počet výstřelů, body, respawny i konec kola
   **nezávisí na délce snímku** a JS i C++ dávají bit po bitu totéž. Platí to i pro respawn uprostřed tiku: pokusy o spawn
-  proběhnou v přesných okamžicích a `Match` tik v těchto okamžicích dělí (oddíl 7). Předpoklad: vstupy světa (kdo je
-  v oblasti, polohy těl pro predikát spawnu, spoušť) jsou po dobu jednoho tiku konstantní — jemnější tik je prostě
-  vzorkuje častěji.
+  proběhnou v přesných okamžicích a `Match` tik v těchto okamžicích dělí (oddíl 7), a rezervace bodu spawnu se měří časem
+  jádra, ne hranicemi `update` (oddíl 5), takže nezávislý je i výběr bodu. Jediný předpoklad: vstupy světa (kdo je
+  v oblasti, polohy těl a výsledek predikátu spawnu, spoušť) jsou po dobu jednoho tiku konstantní — jemnější tik je prostě
+  vzorkuje častěji. Engine, který predikátu předá nově spawnuté tělo až v dalším tiku, tak při jemném tiku může bod
+  po skončení rezervace odmítnout dřív než při hrubém; to je změna vstupu světa, ne pravidel.
 - Engine převádí svůj plovoucí `dt` pomocí `TickClock` (zaokrouhluje celkový čas, ne jednotlivé kroky → žádný drift).
   Architektura počítá s pevným krokem 1/60 s; jádro ale funguje pro jakýkoli krok včetně nulového.
 - Tik `[t, t+dt]` má dvě pravidla, obě nezávislá na rozdělení času:
@@ -61,10 +63,12 @@ node tests/unit/support/generate_fuzz_vectors.mjs --check  # jen ověří, že u
     co bylo naplánováno na ≤ T.
   - **Výstřely** pokrývají polootevřený interval `[t, t+dt)`: výstřel přesně v čase t+dt patří dalšímu tiku, kde se znovu
     čte spoušť. 600 ran/min držených přesně 1 s = 10 výstřelů; 750 ran/min 1 s = 13 výstřelů.
-- Záporné (nebo v JS neceločíselné) `dt` je chyba volajícího. JS vyhodí `RangeError`. C++ jádro nepoužívá výjimky, takový
-  tik proto **neprovede vůbec** (stav se nezmění, ani se znovu nevyhodnotí oblast): `Round::tick`, `ZoneScoring::tick`
-  a `Match::update` vrátí `InputResult::InvalidDt` (`"invalid_dt"`), `ZoneScoring::advance` vrátí `{0, 0}`,
-  `WeaponState::update` vrátí 0 výstřelů, `RespawnSystem::update`/`advance` nic neudělají, `TickClock::advance` vrátí 0.
+- Záporné, neceločíselné (JS) nebo větší než 2^53 − 1 µs `dt` (JS `Number.isSafeInteger`, C++ `validDt` / `kMaxDtUs`) je
+  chyba volajícího. JS vyhodí `RangeError`. C++ jádro nepoužívá výjimky, takový tik proto **neprovede vůbec** (stav se
+  nezmění, ani se znovu nevyhodnotí oblast): `Round::tick`, `ZoneScoring::tick` a `Match::update` vrátí
+  `InputResult::InvalidDt` (`"invalid_dt"`), `ZoneScoring::advance` vrátí `{0, 0}`, `WeaponState::update` vrátí 0 výstřelů,
+  `RespawnSystem::update`/`advance` nic neudělají, `TickClock::advance` vrátí 0 (jen záporné dt). Díky horní mezi
+  žádný mezisoučet jádra nepřeteče `int64`.
 
 ## 2. Konfigurace (`Shared/config/rules.json`)
 
@@ -95,6 +99,15 @@ Kontrola konfigurace (JS `compileRules`, C++ `rulesFromJson` + `validateRules`) 
 duplicitní id atd. Neznámé klíče se ignorují (dopředná kompatibilita). Přepisy pravidel v testech jsou JSON Merge Patch
 (RFC 7386: objekty se slučují, `null` klíč odstraní).
 
+**Pravidla v C++ bez JSON vrstvy (engine UE je sestaví vlastním parserem):** `ZoneScoring`, `Round`, `RespawnSystem`
+a `Match` volají `validateRules` už v konstruktoru, `WeaponState` kontroluje svou definici (`validateWeaponDef`).
+Neplatná pravidla (např. výchozí `Rules{}`, `pointInterval` 0, `retryInterval` 0) nic neshodí ani nezablokují:
+`configError()` vrátí první chybu, `tick`/`update`/`evaluate` vrací `InputResult::InvalidConfig` (`"invalid_config"`),
+`addParticipant` `AddResult::InvalidConfig`, `start()` `false`, `Round::zoneId()` prázdný text a stav se nemění; zbraň
+s neplatnou definicí je netečná (`update` 0 výstřelů, `reload` `rejected_disabled`, `resupply` −1, `enabled()` `false`).
+`validateRules` navíc omezuje časy kola, oblasti a respawnu na nejvýše 86 400 s (stejně jako JS `compileRules`).
+JS třídy dostávají pravidla vždy z `compileRules`, který neplatná pravidla odmítne výjimkou.
+
 ## 3. Kontrolní oblast
 
 - Každý tik dostane seznam účastníků `{id, team, alive, active, inZone}`. **Počítá se jen `alive && active && inZone`.**
@@ -105,7 +118,9 @@ duplicitní id atd. Neznámé klíče se ignorují (dopředná kompatibilita). P
   se postup vynuluje. Předchozí vlastník tak nikdy nezíská bod z rozpracovaného postupu (ani po krátkém sporu nebo
   opuštění oblasti na jediný snímek). Změna složení stejného týmu (přijde/odejde spoluhráč, tým dál vede) postup nenuluje.
 - Za každých `pointInterval` nepřetržité platné kontroly dostane kontrolor `pointsPerAward` bodů; jeden dlouhý tik může
-  udělit více bodů. Skóre jsou celá čísla.
+  udělit více bodů. Skóre jsou celá čísla, v obou jádrech přesná (C++ `int64`, JS `Number`) až do **2^53 − 1**, kde se
+  zastaví (saturace, JS `MAX_SCORE`, C++ `ZoneScoring::kMaxScore`). Kolo končí cílem nejvýše 1 000 000, takže herní cesta
+  saturace nedosáhne; týká se jen samostatného `ZoneScoring` s extrémní konfigurací.
 - Neplatný vstup (prázdné id, tým mimo rozsah, duplicitní id) tik odmítne kódem `invalid_id` / `invalid_team` /
   `duplicate_id` a **stav se nezmění**.
 
@@ -142,20 +157,32 @@ Stavy účastníka: `alive → dead → respawning → alive`.
   kolizi s geometrií a viditelnost živými nepřáteli (raycast v enginu). Jádro poskytuje referenční vzdálenostní část
   `spawnPointSafe`: živý nepřítel blíže než `minEnemyDistance` nebo jakékoli živé tělo blíže než `bodyClearance`
   bod vylučuje (3D vzdálenost, ostrá nerovnost — přesně 25 m je bezpečné; mrtvá těla se ignorují).
-- Bod použitý v jednom `update` se jinému účastníkovi ve stejném `update` nenabídne, ani když spawnují v různých okamžicích
-  uvnitř tiku (engine aktualizuje polohy těl pro predikát až mezi tiky). Účastníci se stejným okamžikem pokusu se zpracují
-  v pořadí přidání.
+- **Rezervace bodu:** bod použitý pro spawn je rezervovaný po dobu `respawn.retryInterval` (výchozí 0,5 s) **času jádra**
+  a během ní se nikomu nenabídne (ani stejnému účastníkovi). Rezervace klesá s časem stejně jako odpočty, přes hranice
+  `update` i úseků `Match`; bod je volný přesně v okamžiku, kdy zbývá 0. Délka = `retryInterval`, takže spoluhráč odmítnutý
+  kvůli rezervaci to zkusí znovu přesně ve chvíli, kdy skončí. Důvod: engine předá predikátu polohu nově spawnutého těla
+  až v dalším tiku, takže bez rezervace by dva účastníci ve stejném tiku skončili na jednom bodě; rezervace omezená na
+  jeden `update` (dřívější pravidlo) ale závisela na délce tiku (jeden dlouhý tik bod blokoval déle než mnoho krátkých).
+  Po skončení rezervace rozhoduje predikát (volno od těl). Účastníci se stejným okamžikem pokusu se zpracují v pořadí
+  přidání. `resetRound` rezervace zruší; snímek je ukazuje jako `reservedUs[tým][index]`.
 - **Když žádný bod neprojde, nespawnuje se do nebezpečí:** stav zůstane `respawning`, další pokus za `retryInterval`.
 - **Spawn obnoví** plné zdraví, výchozí výbavu (každá zbraň `resetToLoadout`: plný zásobník, nabitá komora, výchozí
-  rezerva, zrušené přebíjení, vynulované čítače) a zbraně zapne (`enable`).
+  rezerva, zrušené přebíjení, vynulované čítače) a odebere zbraním výbavy **zámek života**. Zámky vstupu enginu (menu,
+  výsledky …) spawn nemění: hráč, který má při respawnu otevřené menu, nestřílí, dokud ho nezavře (oddíl 6).
 - **Platnost referencí na zbraně:** reference (JS) i ukazatel `WeaponState*` (C++) získaný přes `weapon(id, zbraň)` platí
   po celou dobu života `RespawnSystem`/`Match`. Respawn i reset kola objekt jen resetují na místě, přidání dalších účastníků
   ho nepřesune a zbraň odebraná z výbavy (`setLoadout`, projeví se při dalším spawnu) se nezruší, jen zůstane vypnutá; po
   opětovném vybavení je to tentýž objekt. V C++ leží objekty na haldě v `Participant::armory`, `Participant::weapons` na ně
   jen ukazuje. Ukazatel na samotný `Participant` v C++ platí jen do dalšího `addParticipant`.
-- **Smrt** zbraně vypne (`disable('death')`: přeruší přebíjení/nabíjení podle pravidel přerušení níže, zruší platný stisk)
-  a spustí odpočet. Zbraně jsou vypnuté po celou dobu, kdy účastník není `alive` (i ve stavu `respawning` po přidání nebo po
-  resetu kola); mrtvý nestřílí ani nepřebíjí (GUN-03, oddíl 6).
+- **Smrt** nastaví zbraním **zámek života** (přeruší přebíjení/nabíjení s důvodem `death` podle pravidel přerušení níže,
+  zruší platný stisk) a spustí odpočet. Zámek života drží jen `RespawnSystem`: je nastavený po celou dobu, kdy účastník
+  není `alive` (i ve stavu `respawning` po přidání nebo po resetu kola, tam s důvodem přerušení `other`), a na zbraních
+  mimo výbavu. Veřejným API ho nejde odebrat (JS: klíč je symbol, který `index.js` neexportuje; C++: soukromá metoda
+  pro `RespawnSystem`). Mrtvý proto nestřílí ani nepřebíjí, ať engine volá `enable` s jakýmkoli důvodem (GUN-03, oddíl 6).
+- **Zámky vstupu účastníka:** `disableInput(id, důvod)` / `enableInput(id, důvod)` (také na `Match`, platí i ve stavu
+  `ended`) nastaví/odeberou zámek s důvodem z oddílu 6 na **všech** zbraních účastníka, i na těch, které vzniknou až při
+  pozdějším spawnu po změně výbavy. Respawn, reset kola ani změna výbavy je nezruší; snímek je ukazuje jako `inputLocks`.
+  Výsledky: `ok`, `unknown_id`, `invalid_reason`.
 - **Poškození** je celé kladné číslo. Friendly fire je vypnutý: poškození od spoluhráče se zahodí (`blocked_friendly_fire`).
   Poškození od sebe sama a od prostředí (`attacker = null`) se aplikuje. Nula nebo záporná hodnota = `invalid_amount`.
   Zdraví 0 = smrt. Poškození mrtvého = `not_alive`.
@@ -183,12 +210,20 @@ Stavy účastníka: `alive → dead → respawning → alive`.
   nevystřelí, dokud se nepustí a znovu nestiskne; stisk, který začne po respawnu (po předchozím puštění), vystřelí hned.
 
 ### Vypnutí zbraně (GUN-03: po otevření menu nebo smrti nesmí pokračovat vstup pro palbu)
-- `disable(důvod)` (důvody jako u přerušení): přeruší probíhající přebíjení/nabíjení s tímto důvodem, zruší platný stisk.
-  Dokud je zbraň vypnutá, spoušť se ignoruje (stav spouště se ale dál sleduje), `reload()` vrací `rejected_disabled`;
-  čas (hodiny zbraně, doběh palebného intervalu) plyne dál. Režim palby a doplnění munice fungují.
-- `enable()`: zbraň opět přijímá vstup; na zapnuté zbrani nic nedělá. Vystřelit smí až nový stisk.
-- `RespawnSystem` vypíná zbraně při smrti a při resetu kola a zapíná je při spawnu. Engine stejné volání použije pro menu
-  a výsledkovou obrazovku (`disable('other')` / `enable()`).
+- Zbraň má sadu **nezávislých zámků**. Zbraň přijímá spoušť a přebití, jen když není nastavený žádný (`enabled`);
+  snímek je ukazuje jako `disabledBy` v pevném pořadí `life`, `sprint`, `switch`, `menu`, `results`, `other`.
+- `disable(důvod)` s důvodem `sprint`, `switch`, `menu`, `results` nebo `other` (JS `DISABLE_REASONS`, C++ `DisableReason`)
+  přidá zámek: přeruší probíhající přebíjení/nabíjení (`sprint` → důvod přerušení `sprint`, `switch` → `switch`, ostatní
+  → `other`), zruší platný stisk. Opakované vypnutí stejným důvodem nic nemění. Dokud trvá jakýkoli zámek, spoušť se
+  ignoruje (stav spouště se ale dál sleduje), `reload()` vrací `rejected_disabled`; čas (hodiny zbraně, doběh palebného
+  intervalu) plyne dál. Režim palby a doplnění munice fungují.
+- `enable(důvod)` odebere **jen** zámek s tímto důvodem; ostatní zámky (jiný důvod, zámek života) trvají. Odebrání
+  nenastaveného zámku nic nedělá. Jiný důvod (`death`, `life`, chybějící, neznámý) = `invalid_reason`. Když zmizí poslední
+  zámek, vystřelit smí až nový stisk.
+- Zámek života (`life`) nastavuje a odebírá jen `RespawnSystem` (oddíl 5). Engine používá vlastní důvody: menu → `menu`,
+  výsledková obrazovka → `results`, sprint → `sprint`, uložená zbraň → `switch`. Pro menu a výsledky je vhodnější
+  `disableInput`/`enableInput` na účastníkovi (platí i pro zbraně vzniklé později). Menu otevřené během smrti a zavřené
+  před respawnem tak zbraň nezapne, a respawn s otevřeným menu ji nezapne také.
 - **Kontrakt pro engine:** `update(dt, spoušť)` volat každý snímek se skutečným stavem spouště i na vypnutou zbraň. Pokud by
   engine vypnutou zbraň neaktualizoval, stisk, který začal během vypnutí a trvá i po zapnutí, by se jevil jako nový.
 
@@ -223,7 +258,11 @@ Rozhodnutí při požadavku `reload()`:
   - Přerušení nabíjení před jeho commitem nic nemění; potřeba nabití trvá.
 - **Doplnění munice** (`resupply`) přidává do rezervy nejvýše do `maxReserve`; přidané množství se eviduje.
 - **Respawn** resetuje zbraň na výchozí výbavu včetně stavu přebíjení a čítačů (`resetToLoadout`); poslední pozorovaný stav
-  spouště a zapnutí/vypnutí se resetem nemění.
+  spouště a zámky se resetem nemění. Probíhající akci `resetToLoadout` nejdřív přeruší s důvodem `other` (událost
+  `reload_interrupted` / `chamber_interrupted`) a **nesmaže** dosud neodebrané události. Animace a zvuk tak vždy dostanou
+  konec akce, i při `Match.reset()` a při okamžitém respawnu (GUN-01, SND-01). Hodiny zbraně (`atUs`) po resetu začínají
+  od 0; události před resetem nesou čas na starých hodinách. Engine má pohled zbraně (ruka na zbrani, závěr, zásobník)
+  resetovat i na událost respawnu `spawned` a po `Match.reset()`.
 
 ### Invariant (kontrolovaný v testech po každém tiku)
 `zásobník + komora + rezerva == počáteční_stav − vystřeleno + doplněno`, žádná hodnota není záporná ani nad kapacitou
@@ -244,8 +283,9 @@ Každá nese přesný čas `atUs` na hodinách zbraně.
 3. na konci úseku proběhnou pokusy o spawn, které na něj připadají, a pokračuje se dalším úsekem.
 
 Respawnutý účastník se tak v oblasti počítá **přesně od okamžiku spawnu** a body nezávisí na délce tiku. Skončí-li kolo
-uprostřed úseku (dosažení cíle), odpočty respawnu doběhnou jen do okamžiku konce. Body spawnu použité v jednom `update`
-se nenabídnou znovu ani v dalším úseku téhož tiku. Ve stavu `ended` je `update` bez účinku (skóre, čas i respawny stojí).
+uprostřed úseku (dosažením cíle i vypršením časového limitu), odpočty respawnu i rezervace bodů doběhnou jen do okamžiku
+konce (vektory `GAME-01/match-*-mid-segment-freezes-pending-respawn`). Rezervace bodů (oddíl 5) platí přes úseky i tiky.
+Ve stavu `ended` je `update` bez účinku (skóre, čas i respawny stojí).
 Snímek stavu po tiku ukazuje oblast tak, jak byla vyhodnocena v posledním úseku (respawn přesně na konci tiku se v počtech
 projeví až v dalším tiku).
 
@@ -258,13 +298,18 @@ projeví až v dalším tiku).
   ručně z těchto pravidel, ne z testovaného jádra. Hodnoty závislé na semeni (výběr oblasti, body spawnu, výstupy generátoru)
   nezávisle přepočítává referenční implementace v Pythonu **`Shared/testvectors/tools/seed_reference.py`**, která nepoužívá
   JS ani C++ jádro: kontroluje celý `rng.json`, `zoneIndex`/`zoneId` ve všech vektorech kola a zápasu (ruční i fuzz)
-  a výsledky, události a pole životního cyklu respawnu včetně bodů spawnu v `respawn.json` i `fuzz_respawn.json`.
+  a výsledky, události a pole životního cyklu respawnu včetně bodů spawnu, rezervací (`reservedUs`) a zámků vstupu
+  (`inputLocks`) v `respawn.json` i `fuzz_respawn.json`.
   Spouští ji ctest (test `seed_reference`, je-li nalezen Python 3) nebo přímo `python3 Shared/testvectors/tools/seed_reference.py`.
 - **Diferenciální fuzz** (`fuzz_*.json`): generátor `Web/tests/unit/support/fuzz_generator.mjs` vytvoří náhodné, ale platné
   posloupnosti akcí (munice, oblast, kolo, respawn, zápas), JS jádro dopočítá výsledek, události a stav po každém kroku.
   C++ test přehraje stejné soubory: výsledek a události se porovnávají přesně, stav přes FNV-1a 64 kanonického JSON
   celého stavu (seřazené klíče, bez mezer) a každý 10. a poslední krok i celý stav pole po poli.
   JS test navíc hlídá, že uložené soubory odpovídají aktuálnímu generátoru.
+- **Kontrola tvaru vektorů:** oba spouštěče odmítnou chybou případu neznámý klíč případu, `setup`, kroku, `do` nebo těla,
+  `expect` uvnitř `loop`/`do` (tam se nekontroluje), nelogickou hodnotu `trigger`/`alive`/`active`/`inZone` a režim tiku
+  s jiným počtem klíčů než jedním. Soubor `Shared/testvectors/malformed/cases.json` (dvojice chybný případ + tentýž bez
+  chyby) to ověřuje v JS (`core_runner.test.mjs`) i v C++ (`ctest` `runner.malformed`).
 
 ## 9. Rozhodnutí o nejasnostech zadání
 
@@ -284,13 +329,16 @@ projeví až v dalším tiku).
 | R12 | Co se stane s nábojem z vyjmutého zásobníku | Politika „retained magazine“: vrací se do rezervy, přesun je atomický v okamžiku vložení. |
 | R13 | Počítá se v oblasti účastník respawnutý v tomtéž tiku | Ano, ale až od přesného okamžiku spawnu (`Match` tik v okamžicích spawnu dělí), takže body nezávisí na délce tiku. |
 | R14 | Poškození od sebe sama při vypnutém friendly fire | Aplikuje se (není to friendly fire). Poškození od prostředí také. |
-| R15 | Dva spoluhráči spawnující ve stejném tiku | Bod použitý v tiku se jinému ve stejném tiku nenabídne; mezi tiky musí engine předat polohy těl predikátu. |
+| R15 | Dva spoluhráči spawnující ve stejném tiku | Bod použitý pro spawn je rezervovaný na `retryInterval` času jádra (ne na jeden tik), takže výsledek nezávisí na délce tiku; po rezervaci rozhoduje predikát, kterému engine mezi tiky předává polohy těl. |
 | R16 | Vzdálenost „N m od živých nepřátel“ | 3D eukleidovská, ostrá nerovnost; mrtvá těla se ignorují. |
 | R17 | Zabití/poškození po konci kola | Odmítnuto (`round_ended`); respawny ve stavu `ended` stojí. |
 | R18 | Po konci kola časovým limitem zbylý postup | Vynuluje se (stav `ended`). |
 | R19 | Výběr spawnu je náhodný nebo podle priority | Náhodné pořadí ze semene (deterministické); engine může priority vyjádřit predikátem. |
-| R20 | Palba a přebití mrtvého; spoušť držená přes smrt, menu nebo respawn (GUN-03) | Zbraně účastníka, který není `alive`, jsou vypnuté: spoušť se ignoruje, `reload` → `rejected_disabled`. Vystřelit smí jen nový stisk (hrana v `update`); spoušť držená přes smrt/menu/respawn/reset výbavy nevystřelí, dokud se nepustí. |
-| R21 | Jak dlouho platí reference enginu na zbraň | Po celou dobu života `RespawnSystem`/`Match` (respawn, reset kola, přidání účastníků i změna výbavy); zbraň mimo výbavu je vypnutá. |
+| R20 | Palba a přebití mrtvého; spoušť držená přes smrt, menu nebo respawn (GUN-03) | Zbraně účastníka, který není `alive`, mají zámek života: spoušť se ignoruje, `reload` → `rejected_disabled`. Vystřelit smí jen nový stisk (hrana v `update`); spoušť držená přes smrt/menu/respawn/reset výbavy nevystřelí, dokud se nepustí. |
+| R21 | Jak dlouho platí reference enginu na zbraň | Po celou dobu života `RespawnSystem`/`Match` (respawn, reset kola, přidání účastníků i změna výbavy); zbraň mimo výbavu má zámek života. |
+| R22 | Menu nebo výsledky během smrti a respawnu | Každý důvod vypnutí je samostatný zámek; `enable(důvod)` odebere jen svůj. Zavření menu mrtvého nezapne, respawn nezapne zbraň s otevřeným menu. Zámek života drží jen `RespawnSystem`. |
+| R23 | Skóre nad rozsah 32bitového čísla | Přesné celé číslo do 2^53 − 1, pak saturace (JS i C++ stejně). |
+| R24 | Neoverená pravidla v C++ (vlastní parser enginu) | Konstruktory je zkontrolují; při chybě jsou operace bez účinku (`invalid_config`), nic nespadne ani nezamrzne. |
 
 ## 10. Pokrytí požadavků testy
 
@@ -303,13 +351,18 @@ projeví až v dalším tiku).
 | GAME-01 konec cílem / časem / remíza | `GAME-01/score-target-*`, `GAME-01/time-limit-*`, `GAME-01/target-reached-exactly-at-time-limit-counts-as-target` |
 | GAME-01 vynulování bez zbytků časovačů | `GAME-01/reset-*`, `GAME-01/match-reset-leaves-no-timers`, `GAME-02/reset-round-clears-pending-respawns` |
 | GAME-02 respawn (≥ 3 smrti, zdraví, výbava) | `GAME-02/three-deaths-with-delay`, `GAME-02/respawn-restores-full-loadout`, `GAME-02/full-match-cycle-3x6` |
-| Bezpečný spawn | `RESPAWN/no-safe-point-waits-and-retries`, `RESPAWN/living-enemies-block-nearby-points`, `RESPAWN/enemy-distance-boundary-is-strict`, `RESPAWN/body-clearance-applies-to-teammates`, `RESPAWN/point-claimed-in-same-update-is-not-reused` |
+| Bezpečný spawn | `RESPAWN/no-safe-point-waits-and-retries`, `RESPAWN/living-enemies-block-nearby-points`, `RESPAWN/enemy-distance-boundary-is-strict`, `RESPAWN/body-clearance-applies-to-teammates`, `RESPAWN/point-claimed-in-same-update-is-not-reused`, `RESPAWN/spawn-point-reservation-spans-updates` |
 | GUN-01 střelba z plného, poslední náboj, prázdný | `GUN-01/fire-from-full`, `GUN-01/last-round-locks-bolt`, `GUN-01/empty-whole-magazine-in-auto`, `GUN-01/empty-dry-fire-and-no-reserve` |
 | GUN-01 přebití částečné, z prázdna, nedostatek rezervy, rezerva 0 | `GUN-01/partial-tactical-reload`, `GUN-01/empty-reload-chambers-at-bolt-release`, `GUN-01/*-insufficient-reserve`, `GUN-01/reserve-zero-no-reload`, `GUN-01/full-magazine-with-chamber-no-reload` |
 | GUN-01 přerušení před/po vložení, před uvolněním závěru + nabití | `GUN-01/interrupt-before-insert-changes-nothing`, `GUN-01/interrupt-empty-reload-before-insert`, `GUN-01/interrupt-after-insert-tactical-keeps-new-magazine`, `GUN-01/interrupt-before-bolt-release-then-chamber-action`, `GUN-01/chamber-action-interrupted-before-commit`, `GUN-01/interrupt-after-bolt-release` |
 | GUN-01 jednorázové commity, respawn | `GUN-01/commits-happen-once-in-one-large-tick`, `GUN-01/respawn-resets-weapon-mid-reload` |
 | GUN-01 nezávislost na FPS | `GUN-01/frame-rate-independence` (1/30, 1/60, 1/144, 1/7, 1 ms, 80 ms, jeden obří tik, 3× nepravidelné), plus 200 náhodných rozdělení v `core_weapon.test.mjs` a `ivcore_unit` |
-| GUN-03 smrt/menu: žádná palba ani přebití, spoušť držená přes smrt/respawn/reset | `GUN-03/disabled-weapon-ignores-trigger-and-reload`, `GUN-03/disable-before-insert-interrupts-reload-and-blocks-new-reload`, `GUN-03/disable-after-insert-keeps-magazine-then-chamber-action`, `GUN-03/trigger-held-through-reset-to-loadout-does-not-fire`, `GUN-03/dead-participant-weapon-is-inert-and-held-trigger-needs-release`, `GUN-03/match-dead-participant-weapon-must-not-fire`, `GUN-03/match-trigger-held-through-respawn-must-not-fire` |
-| Respawn uprostřed tiku nezávislý na délce tiku | `GAME-01/match-respawn-inside-tick-counts-from-spawn-instant`, `RESPAWN/retries-inside-one-long-tick-are-tick-independent` (každý v 5–6 režimech tiku) |
+| GUN-03 smrt/menu: žádná palba ani přebití, spoušť držená přes smrt/respawn/reset | `GUN-03/disable-reasons-are-independent-locks`, `GUN-03/match-menu-closed-while-dead-weapon-stays-inert`, `GUN-03/match-respawn-keeps-menu-lock`, `RESPAWN/new-weapon-inherits-participant-input-lock`, `GUN-03/disabled-weapon-ignores-trigger-and-reload`, `GUN-03/disable-before-insert-interrupts-reload-and-blocks-new-reload`, `GUN-03/disable-after-insert-keeps-magazine-then-chamber-action`, `GUN-03/trigger-held-through-reset-to-loadout-does-not-fire`, `GUN-03/dead-participant-weapon-is-inert-and-held-trigger-needs-release`, `GUN-03/match-dead-participant-weapon-must-not-fire`, `GUN-03/match-trigger-held-through-respawn-must-not-fire` |
+| Respawn uprostřed tiku nezávislý na délce tiku | `GAME-01/match-respawn-inside-tick-counts-from-spawn-instant`, `RESPAWN/retries-inside-one-long-tick-are-tick-independent`, `RESPAWN/single-free-point-two-spawners-tick-independent`, `GAME-01/match-single-free-point-scores-tick-independent` (každý v 5–6 režimech tiku), `RESPAWN/spawn-point-reservation-spans-updates` |
+| Konec kola uprostřed úseku zastaví odpočty respawnu | `GAME-01/match-time-limit-mid-segment-freezes-pending-respawn`, `GAME-01/match-score-target-mid-segment-freezes-pending-respawn` (5 režimů tiku) |
+| Události přerušení při resetu a okamžitém respawnu | `GUN-01/respawn-resets-weapon-mid-reload`, `GUN-01/match-reset-reports-interrupted-reload`, `GUN-01/reload-interrupted-event-survives-reset-and-instant-respawn` |
+| Skóre nad 2^31, saturace | `GAME-01/zone-score-exact-beyond-32-bit-and-saturates`, `ivcore_unit`, `core_api.test.mjs` |
+| Neoverená pravidla v C++, dt nad 2^53 − 1 | `ivcore_unit` (`Rules{}`, `pointInterval` 0, `pointsPerAward` 0, `retryInterval` 0 / záporný, neplatná zbraň) |
+| Spouštěč neignoruje chybné vektory | `Shared/testvectors/malformed/cases.json` (`core_runner.test.mjs`, `ctest runner.malformed`) |
 | Platnost referencí/ukazatelů na zbraně | `core_api.test.mjs` (respawn, `Match.reset`, změna výbavy), `ivcore_unit` (totéž + přidání účastníků; s `-DIV_SANITIZE=ON` odhalí use-after-free) |
 | Záporné `dt` | `core_api.test.mjs` (JS `RangeError`), `ivcore_unit` (C++ bez účinku, `InvalidDt`) |

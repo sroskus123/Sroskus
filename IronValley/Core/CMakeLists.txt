@@ -73,6 +73,9 @@ foreach(vec ${IV_VECTOR_FILES})
   add_test(NAME vectors.${name} COMMAND ivcore_vectors --rules "${IV_RULES}" "${vec}")
 endforeach()
 add_test(NAME unit COMMAND ivcore_unit "${IV_SHARED_DIR}")
+# Spoustec nesmi tise ignorovat preklepy a spatne umistene klice ve vektorech (stejny soubor kontroluje JS test).
+add_test(NAME runner.malformed
+         COMMAND ivcore_vectors --rules "${IV_RULES}" --malformed "${IV_SHARED_DIR}/testvectors/malformed/cases.json")
 
 # Nezavisla referencni kontrola hodnot zavislych na semeni (Python, bez JS/C++ jadra). Spusti se, je-li Python 3 k dispozici.
 find_package(Python3 COMPONENTS Interpreter QUIET)

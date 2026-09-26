@@ -200,6 +200,13 @@ Baking works in two stages (`ivlib.bake_texture_set`):
 2. The materials switch to the baked mask image, and BaseColor, Roughness, Metallic and the
    tangent-space Normal are baked noise-free.
 
+Bake margins are not Blender's. Every pass bakes with margin 0. A numpy dilation then grows the
+baked texels 16 px outward, each new texel taking the mean of its filled neighbours, so ownership
+is purely by distance. Blender's per-object margin had let one object's margin overwrite another
+object's island border. After packing, islands smaller than ~4 texels² or thinner than ~0.8
+texel, and zero-area slivers, are collapsed onto a neighbouring face's UV point, so they never
+sample foreign texels. Paint and engraving islands are exempt from this.
+
 Meshes are triangulated *before* UV and bake, so the exported mesh and the normal map share the
 same MikkTSpace basis.
 
@@ -276,6 +283,10 @@ These are documented choices. The Unreal side is **untested**.
   - Bones: no leaf bones, primary/secondary bone axis Y/X (identity correction), all bones
     including non-deforming sockets kept. No animation.
   - Textures: referenced with relative paths.
+  - Verified by parsing the written file: `GlobalSettings.UnitScaleFactor = 1.0`, no
+    `Lcl Scaling` on any node, bone translations in cm (e.g. `socket_muzzle` at
+    57.59 / 0 / 9.17). The armature and mesh root nodes carry only the −90° X
+    axis-conversion rotation, which Unreal's "Convert Scene" removes.
 - **Recommended Unreal import (unverified).**
   - Skeletal Mesh on, Import Normals and Tangents, Convert Scene on, Force Front X Axis off,
     Convert Scene Unit off, uniform scale 1.0.

@@ -171,6 +171,19 @@
         { "op": "run", "durationUs": 3000000, "ticks": "case", "participants": [["a1", 0, true, true, true], ["b1", 1, true, true, true]], "expect": { "scores": [10, 0, 0], "progressUs": 0 } },
         { "op": "run", "durationUs": 7500000, "ticks": "case", "participants": [["b1", 1, true, true, true]], "expect": { "scores": [10, 3, 0], "progressUs": 1500000 } }
       ]
+    },
+    {
+      "id": "GAME-01/zone-score-exact-beyond-32-bit-and-saturates",
+      "kind": "zone",
+      "description": "V2-P2-3: skore je presne cele cislo i nad 2^31 (C++ int64, JS double) a na 2^53 - 1 se zastavi (saturace v obou jadrech). Interval 1 us, 1000 bodu za udeleni: 3 s = 3 000 000 udeleni = 3e9 bodu; tik 2^53 - 1 us by dal vic nez 2^53 - 1 bodu.",
+      "rules": { "zone": { "pointInterval": 1e-06, "pointsPerAward": 1000 } },
+      "steps": [
+        { "op": "tick", "dtUs": 3000000, "participants": [["a1", 0, true, true, true]], "expect": { "result": "ok", "scores": [3000000000, 0, 0], "progressUs": 0, "controller": 0 } },
+        { "op": "tick", "dtUs": 9007199254740991, "expect": { "result": "ok", "scores": [9007199254740991, 0, 0], "progressUs": 0 } },
+        { "op": "tick", "dtUs": 1000000, "expect": { "scores": [9007199254740991, 0, 0] } },
+        { "op": "tick", "dtUs": 7, "participants": [["b1", 1, true, true, true]], "expect": { "scores": [9007199254740991, 7000, 0], "controller": 1 } },
+        { "op": "reset", "expect": { "result": "ok", "scores": [0, 0, 0] } }
+      ]
     }
   ]
 }

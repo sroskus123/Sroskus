@@ -434,3 +434,89 @@ test('a running jump (0.45 m apex) mounts a 0.42 m ledge but never a 0.50 m or h
   assert.ok(mounts(0.42) > 0, '0.42 m ledge should be mountable with a well-timed jump');
   for (const h of [0.5, 0.55, 0.65]) assert.equal(mounts(h), 0, `${h} m ledge was mounted`);
 });
+
+// ---------------------------------------------------------------- stepping down
+// Regression tests for ground loss while rolling off an edge: going down steep but walkable
+// stairs (0.25-0.40 m risers) or walking off low ledges must stay grounded (no free fall, no
+// landing event, no hovering, no sideways pop) at every speed; a drop higher than
+// maxStepHeight is a fall at every speed.
+
+const speedOfMode = (m) => (m.walk ? movement.speeds.walk : m.sprint ? movement.speeds.sprint : m.crouch ? movement.speeds.crouch : movement.speeds.run);
+
+/** Walks +z down a straight flight (top landing at z < 0, bottom floor at z > 0). */
+function descend(riser, tread, mode, phase) {
+  const n = 6;
+  const w = mkCustomWorld([{ type: 'stairs', id: 's', x: [-2, 2], zStart: 0, dir: -1, riser, tread, risers: n, landingDepth: 3, mat: 'block' }]);
+  const c = new CharacterController(w, movement);
+  c.teleport(new Vector3(0, riser * n, -tread * (n - 1) - 1.0 - phase));
+  const cmd = cmdOf({ moveZ: 1, yaw: Math.PI, ...mode });
+  const topAt = (z) => {
+    if (z > 0) return 0;
+    const k = Math.floor(-z / tread);
+    return k >= n - 1 ? riser * n : riser * (k + 1);
+  };
+  const landings0 = c.stats.landings;
+  const out = { airborne: 0, maxFloat: 0, penetrating: 0, maxStepRatio: 0, ticks: 0 };
+  const prev = c.position.clone();
+  while (c.position.z < 1.2 && out.ticks < 900) {
+    c.update(DT, cmd);
+    out.ticks++;
+    if (!c.grounded) out.airborne++;
+    const q = c.position;
+    let support = 0;
+    for (let dz = -c.radius; dz <= c.radius + 1e-9; dz += 0.005) support = Math.max(support, topAt(q.z + dz));
+    out.maxFloat = Math.max(out.maxFloat, q.y - support);
+    if (c.overlaps(q, c.height, 0.002)) out.penetrating++;
+    if (out.ticks > 45) out.maxStepRatio = Math.max(out.maxStepRatio, Math.hypot(q.x - prev.x, q.z - prev.z) / (speedOfMode(mode) * DT));
+    prev.copy(q);
+  }
+  out.landings = c.stats.landings - landings0;
+  out.y = c.position.y;
+  return out;
+}
+
+test('walks / runs / sprints / crouches down steep walkable stairs (0.25-0.40 m risers) without leaving the ground', () => {
+  const fails = [];
+  for (const [riser, tread] of [[0.25, 0.3], [0.3, 0.3], [0.4, 0.3], [0.22, 0.26]]) {
+    for (const mode of [{ walk: true }, {}, { sprint: true }, { crouch: true }]) {
+      for (const phase of [0, 0.05, 0.1, 0.15]) {
+        const r = descend(riser, tread, mode, phase);
+        const ok = r.airborne === 0 && r.landings === 0 && r.maxFloat < 0.005 && r.penetrating === 0 && r.maxStepRatio < 1.02 && Math.abs(r.y) < 1e-3;
+        if (!ok) fails.push({ riser, mode: Object.keys(mode)[0] || 'run', phase, ...r });
+      }
+    }
+  }
+  assert.deepEqual(fails, [], JSON.stringify(fails));
+});
+
+test('steps down low ledges (<= maxStepHeight) at every speed; higher drops are falls at every speed', () => {
+  for (const h of [0.2, 0.3, 0.4, 0.45, 1.0]) {
+    const w = mkCustomWorld([{ type: 'box', id: 'ledge', min: [-6, 0, -6], max: [6, h, 0], mat: 'block' }]);
+    for (const mode of [{ walk: true }, {}, { sprint: true }, { crouch: true }]) {
+      for (const ang of [0, 40, 70]) {
+        const c = new CharacterController(w, movement);
+        c.teleport(new Vector3(0, h, -1.2));
+        const cmd = cmdOf({ moveZ: 1, yaw: Math.PI - ang * DEG, ...mode });
+        let airborne = 0;
+        let pen = 0;
+        const landings0 = c.stats.landings;
+        const past = () => c.position.z > 1.5 || Math.abs(c.position.x) > 5.5;
+        for (let t = 0; t < 400 && !(past() && c.grounded); t++) {
+          c.update(DT, cmd);
+          if (!c.grounded) airborne++;
+          if (c.overlaps(c.position, c.height, 0.002)) pen++;
+        }
+        const tag = `h=${h} ${Object.keys(mode)[0] || 'run'} ang=${ang}`;
+        assert.ok(c.grounded && Math.abs(c.position.y) < 1e-3, `${tag}: ended at ${c.position.toArray()}`);
+        assert.equal(pen, 0, `${tag}: penetrating ticks`);
+        if (h <= movement.maxStepHeight) {
+          assert.equal(airborne, 0, `${tag}: airborne ticks while stepping down`);
+          assert.equal(c.stats.landings - landings0, 0, `${tag}: landing event while stepping down`);
+        } else {
+          assert.ok(airborne >= 5, `${tag}: a ${h} m drop must be a fall, airborne ticks ${airborne}`);
+          assert.equal(c.stats.landings - landings0, 1, `${tag}: landing events`);
+        }
+      }
+    }
+  }
+});

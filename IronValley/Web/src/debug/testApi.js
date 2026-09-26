@@ -60,6 +60,11 @@ export function installTestApi(game, target = window) {
       renderOnStep = !!on;
       return renderOnStep;
     },
+    /** Eye adaptation on/off (off = fixed base exposure, for exposure-independent pixel checks). */
+    setEyeAdaptation: (on) => {
+      game.eyeAdaptationEnabled = !!on;
+      return game.eyeAdaptationEnabled;
+    },
     /** Skip the WebGL draw calls while keeping the full frame update (pose, HUD). */
     setDrawEnabled: (on) => {
       game.drawEnabled = !!on;
@@ -123,16 +128,23 @@ export function installTestApi(game, target = window) {
     /** Debug lighting overrides (tuning only; not persisted). */
     setLighting: (o = {}) => {
       const r = game.renderer.renderer;
-      if (o.exposure !== undefined) r.toneMappingExposure = o.exposure;
+      if (o.exposure !== undefined) {
+        game.baseExposure = o.exposure; // eye adaptation multiplies this every frame
+        r.toneMappingExposure = o.exposure * game._adapt;
+      }
       if (o.sun !== undefined) {
         game.env.sun.intensity = o.sun;
         game.viewModel.sunIntensity = o.sun;
       }
       if (o.env !== undefined) {
         game.scene.environmentIntensity = o.env;
-        game.viewModel.scene.environmentIntensity = o.env;
+        game.viewModel.baseEnvIntensity = o.env;
+        game.viewModel.setAmbientScale(game.viewModel.ambientScale);
       }
       if (o.hemi !== undefined) game.env.hemi.intensity = o.hemi;
+      // baked sunlight bounce: null = follows the sun light, a number = fixed sun intensity (lets
+      // a test switch only the direct sunlight)
+      if (o.bounceSun !== undefined) game.bounceSunOverride = o.bounceSun;
       if (o.fogDensity !== undefined) game.scene.fog.density = o.fogDensity;
       return {
         exposure: r.toneMappingExposure,
@@ -142,9 +154,10 @@ export function installTestApi(game, target = window) {
       };
     },
     /**
-     * Gameplay muzzle offsets (weapons.json) vs the view model. `visual` is the analytic static
-     * pose; `rendered` is the muzzle socket node's camera-space position after the real
-     * viewModel.update() at rest (springs settled, camera motion 0), i.e. what is drawn.
+     * Gameplay muzzle (weapons.json offsets, WeaponSystem.muzzleOffset between them) vs the view
+     * model. `visual` is the analytic static pose; `rendered` is the muzzle socket node's
+     * camera-space position after the real viewModel.update() at rest (springs settled, camera
+     * motion 0), i.e. what is drawn. `transition` samples the hip <-> ADS blend in between.
      */
     muzzleConsistency: () => {
       const vm = game.viewModel;
@@ -152,9 +165,7 @@ export function installTestApi(game, target = window) {
       const res = {};
       const saved = { ...vm.motion };
       const q = new Quaternion();
-      for (const ads of [0, 1]) {
-        const visual = vm.muzzleInCameraSpace(ads);
-        const logic = new Vector3().fromArray(ads ? def.muzzleOffsetAds : def.muzzleOffsetHip);
+      const drawnAt = (ads) => {
         vm.motion.reset();
         vm.update({
           dt: 0,
@@ -171,7 +182,12 @@ export function installTestApi(game, target = window) {
           motion: 0,
           sunVisibility: vm.sunVisibility,
         });
-        const rendered = vm.renderedMuzzleInCameraSpace(new Vector3());
+        return vm.renderedMuzzleInCameraSpace(new Vector3());
+      };
+      for (const ads of [0, 1]) {
+        const visual = vm.muzzleInCameraSpace(ads);
+        const logic = new Vector3().fromArray(ads ? def.muzzleOffsetAds : def.muzzleOffsetHip);
+        const rendered = drawnAt(ads);
         res[ads ? 'ads' : 'hip'] = {
           visual: visual.toArray(),
           rendered: rendered ? rendered.toArray() : null,
@@ -180,6 +196,11 @@ export function installTestApi(game, target = window) {
           renderedDistance: rendered ? rendered.distanceTo(logic) : null,
         };
       }
+      res.transition = [0.1, 0.25, 0.5, 0.75, 0.9].map((ads) => {
+        const rendered = drawnAt(ads);
+        const logic = game.weapon.muzzleOffset(ads);
+        return { ads, renderedDistance: rendered ? rendered.distanceTo(logic) : null };
+      });
       Object.assign(vm.motion, saved);
       const eye = vm.adsEyeInCameraSpace(1);
       res.adsEye = { cameraSpace: eye.toArray(), distance: eye.length() };

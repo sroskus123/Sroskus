@@ -309,6 +309,123 @@ int main(int argc, char** argv) {
     check(std::string(toString(InputResult::InvalidDt)) == "invalid_dt", "toString(InvalidDt)");
   }
 
+  // --- V2-P2-4: trida vytvorena z neoverenych pravidel (vychozi Rules{}, chyba parseru enginu) nespadne ani
+  //     nezamrzne; operace jsou bez ucinku a hlasi InvalidConfig ---
+  {
+    const std::vector<std::vector<Vec3>> areas = {{Vec3{0, 0, 0}}, {Vec3{100, 0, 0}}, {Vec3{0, 0, 100}}};
+    const std::vector<ZoneParticipant> teamA = {ZoneParticipant{"a1", 0, true, true, true}};
+    const Rules empty{};
+
+    ZoneScoring z0(empty);
+    check(!z0.configError().empty() && z0.tick(1000, teamA) == InputResult::InvalidConfig && z0.scores().empty(),
+          "ZoneScoring(Rules{}): InvalidConfig bez deleni nulou");
+    Rules interval0 = rules;
+    interval0.zone.pointIntervalUs = 0;
+    ZoneScoring z1(interval0);
+    check(!z1.configError().empty() && z1.tick(1000, teamA) == InputResult::InvalidConfig &&
+              z1.advance(1000).awards == 0 && z1.evaluate(teamA) == InputResult::InvalidConfig,
+          "ZoneScoring s pointInterval 0: bez SIGFPE, InvalidConfig");
+    Rules ppa0 = rules;
+    ppa0.zone.pointsPerAward = 0;
+    Round r0(ppa0, 1);
+    check(!r0.configError().empty() && !r0.start() && r0.tick(5000000, teamA) == InputResult::InvalidConfig,
+          "Round s pointsPerAward 0: bez SIGFPE, InvalidConfig");
+    Round r1(empty, 1);
+    check(!r1.configError().empty() && r1.zoneId().empty() && r1.tick(1000, {}) == InputResult::InvalidConfig,
+          "Round(Rules{}): zadna oblast, zoneId prazdne (zadne cteni mimo pole)");
+
+    Rules retry0 = rules;
+    retry0.respawn.retryIntervalUs = 0;
+    RespawnSystem rs0(retry0, 1, areas);
+    check(!rs0.configError().empty() && rs0.addParticipant("a1", 0) == AddResult::InvalidConfig,
+          "RespawnSystem s retryInterval 0: InvalidConfig");
+    rs0.update(1000000, [](const SpawnQuery&) { return false; });  // drive nekonecna smycka
+    check(rs0.participants().empty(), "RespawnSystem s retryInterval 0: update se vrati");
+    Rules retryNeg = rules;
+    retryNeg.respawn.retryIntervalUs = -5;
+    RespawnSystem rs1(retryNeg, 1, areas);
+    rs1.update(1000000, [](const SpawnQuery&) { return false; });
+    check(!rs1.configError().empty(), "RespawnSystem se zapornym retryInterval: InvalidConfig, update se vrati");
+
+    Match m0(empty, 1, areas);
+    check(!m0.configError().empty() && m0.addParticipant("a1", 0) == AddResult::InvalidConfig && !m0.start() &&
+              m0.update(1000000, MatchWorld()) == InputResult::InvalidConfig,
+          "Match(Rules{}): InvalidConfig, zadna operace");
+    check(std::string(toString(InputResult::InvalidConfig)) == "invalid_config" &&
+              std::string(toString(AddResult::InvalidConfig)) == "invalid_config",
+          "toString(InvalidConfig)");
+
+    WeaponDef bad = *rules.findWeapon("rifle_iv7");
+    bad.fireIntervalUs = 0;
+    WeaponState wb(bad);
+    check(!wb.configError().empty() && !wb.enabled() && wb.update(1000000, true) == 0 && wb.magazine() == 30 &&
+              wb.clockUs() == 0 && wb.reload() == ReloadResult::RejectedDisabled && wb.resupply(10) == -1 &&
+              !wb.setAmmo(1, 1, 1),
+          "WeaponState s neplatnou definici je netecna");
+    check(validateWeaponDef(*rules.findWeapon("rifle_iv7")).empty() && !validateWeaponDef(bad).empty(),
+          "validateWeaponDef");
+  }
+
+  // --- dt nad 2^53 - 1 us je chyba volajiciho stejne jako v JS (Number.isSafeInteger) ---
+  {
+    const std::vector<ZoneParticipant> teamA = {ZoneParticipant{"a1", 0, true, true, true}};
+    check(validDt(0) && validDt(kMaxDtUs) && !validDt(kMaxDtUs + 1) && !validDt(-1), "validDt");
+    ZoneScoring z(rules);
+    check(z.tick(kMaxDtUs + 1, teamA) == InputResult::InvalidDt && z.controller() == -1, "ZoneScoring: dt > 2^53-1");
+    Round r(rules, 1);
+    check(r.tick(kMaxDtUs + 1, teamA) == InputResult::InvalidDt && r.preRoundRemainingUs() == rules.round.preRoundUs,
+          "Round: dt > 2^53-1");
+    WeaponState w(*rules.findWeapon("rifle_iv7"));
+    check(w.update(kMaxDtUs + 1, true) == 0 && w.clockUs() == 0 && w.magazine() == 30, "WeaponState: dt > 2^53-1");
+    const std::vector<std::vector<Vec3>> areas = {{Vec3{0, 0, 0}}, {Vec3{100, 0, 0}}, {Vec3{0, 0, 100}}};
+    Match m(rules, 1, areas);
+    m.addParticipant("a1", 0);
+    check(m.update(kMaxDtUs + 1, MatchWorld()) == InputResult::InvalidDt &&
+              m.respawn().participant("a1")->state == LifeState::Respawning,
+          "Match: dt > 2^53-1");
+    // V2-P2-3: skore v int64, saturace na 2^53 - 1 misto preteceni int
+    Rules big = rules;
+    big.zone.pointIntervalUs = 1;
+    big.zone.pointsPerAward = 1000;
+    ZoneScoring zb(big);
+    zb.tick(3000000, teamA);
+    check(zb.scores()[0] == 3000000000LL, "skore 3e9 bez preteceni");
+    zb.tick(kMaxDtUs, teamA);
+    check(zb.scores()[0] == ZoneScoring::kMaxScore, "skore se zastavi na 2^53 - 1");
+  }
+
+  // --- V2-P1-1: zamek zivota nejde verejnym API odebrat; zamky enginu jsou nezavisle ---
+  {
+    const std::vector<std::vector<Vec3>> areas = {{Vec3{0, 0, 0}}, {Vec3{100, 0, 0}}, {Vec3{0, 0, 100}}};
+    Match m(rules, 3, areas);
+    m.addParticipant("a1", 0);
+    m.update(0, MatchWorld());
+    WeaponState* w = m.respawn().weapon("a1", "rifle_iv7");
+    check(w != nullptr && w->enabled(), "zbran po spawnu");
+    if (w != nullptr) {
+      w->update(100000, true);
+      w->update(1, false);
+      m.kill("a1");
+      for (DisableReason r : {DisableReason::Sprint, DisableReason::Switch, DisableReason::Menu, DisableReason::Results,
+                              DisableReason::Other}) {
+        w->enable(r);
+      }
+      check(w->lifeLocked() && !w->enabled() && w->update(500000, true) == 0 && w->reload() == ReloadResult::RejectedDisabled,
+            "mrtvy: enable() zadneho duvodu neodemkne zamek zivota");
+      m.disableInput("a1", DisableReason::Menu);
+      m.update(5000000, MatchWorld());
+      check(m.respawn().participant("a1")->state == LifeState::Alive && !w->lifeLocked() && w->disabledBy(DisableReason::Menu) &&
+              !w->enabled(),
+            "respawn s otevrenym menu: zamek menu trva");
+      w->update(1, false);
+      check(w->update(100000, true) == 0, "zbran se zamkem menu nestrili");
+      m.enableInput("a1", DisableReason::Menu);
+      w->update(1, false);
+      check(w->enabled() && w->update(16667, true) == 1, "po zavreni menu strili novy stisk");
+      check(m.enableInput("zz", DisableReason::Menu) == InputLockResult::UnknownId, "enableInput neznameho id");
+    }
+  }
+
   std::cout << "unit: " << g_checks << " kontrol, " << g_failures << " selhani\n";
   return g_failures == 0 ? 0 : 1;
 }

@@ -152,3 +152,32 @@ test('gameplay muzzle offsets equal the drawn static pose (hip cant included); A
   const noCant = viewModelPointInCamera({ ...vm, hipRotation: [0, 0, 0] }, vm.muzzleLocal, 0);
   assert.ok(noCant.distanceTo(hip) > 0.01, 'hip rotation must move the muzzle');
 });
+
+test('gameplay muzzle follows the drawn view-model pose through the whole hip <-> ADS transition', async () => {
+  const { WeaponSystem } = await import('../../src/weapons/weaponSystem.js');
+  const { buildLevelSolids } = await import('../../src/level/levelGeometry.js');
+  const { CollisionWorld } = await import('../../src/physics/collisionWorld.js');
+  const { createRng } = await import('../../src/util/rng.js');
+  const world = new CollisionWorld(buildLevelSolids({ solids: [{ type: 'box', id: 'g', min: [-5, -0.5, -5], max: [5, 0, 5] }] }));
+  const ws = new WeaponSystem({ def: W, world, rng: createRng(1) });
+  const vm = W.viewModel;
+  // end poses are exactly the data offsets
+  assert.deepEqual(ws.muzzleOffset(0).toArray(), W.muzzleOffsetHip);
+  assert.deepEqual(ws.muzzleOffset(1).toArray(), W.muzzleOffsetAds);
+  let worst = 0;
+  let worstLinear = 0;
+  for (let i = 0; i <= 40; i++) {
+    const ads = i / 40;
+    const drawn = viewModelPointInCamera(vm, vm.muzzleLocal, ads);
+    worst = Math.max(worst, ws.muzzleOffset(ads).distanceTo(drawn));
+    const linear = new Vector3().fromArray(W.muzzleOffsetHip).lerp(new Vector3().fromArray(W.muzzleOffsetAds), ads);
+    worstLinear = Math.max(worstLinear, linear.distanceTo(drawn));
+  }
+  assert.ok(worst < 5e-4, `gameplay vs drawn muzzle during ADS transition: ${(worst * 1000).toFixed(3)} mm`);
+  // guard: the drawn path really differs from a straight line (so this test can fail)
+  assert.ok(worstLinear > 0.01, `linear blend deviates only ${worstLinear} m`);
+  // and the world-space muzzle uses it (eye at origin, looking down -z, no recoil)
+  const eye = new Vector3(0, 1.65, 0);
+  const mw = ws.muzzleWorld(eye, 0, 0, 0.25, new Vector3());
+  assert.ok(mw.clone().sub(eye).distanceTo(viewModelPointInCamera(vm, vm.muzzleLocal, 0.25)) < 5e-4);
+});

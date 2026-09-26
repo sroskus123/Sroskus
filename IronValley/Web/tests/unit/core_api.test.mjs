@@ -1,7 +1,8 @@
 // API jadra, ktere vektory nepokryvaji (konstrukce, predikat enginu, vstupy Set/pole).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { compileRules, RespawnSystem, Match, Round, ZoneScoring, spawnPointSafe } from '../../src/core/index.js';
+import * as core from '../../src/core/index.js';
+import { compileRules, RespawnSystem, Match, Round, ZoneScoring, spawnPointSafe, DISABLE_REASONS, MAX_SCORE } from '../../src/core/index.js';
 import { loadBaseRules } from './support/vector_runner.mjs';
 
 const rules = compileRules(loadBaseRules());
@@ -122,4 +123,45 @@ test('Round a ZoneScoring odmitnou neplatne dt', () => {
   const zone = new ZoneScoring(rules);
   assert.throws(() => zone.tick(1.5, []));
   assert.throws(() => zone.advance(10, 0));
+});
+
+test('zamek zivota neni verejne API: mrtvy hrac nestrili ani po odebrani vsech zamku enginu (V2-P1-1)', () => {
+  assert.ok(!Object.values(core).some((v) => typeof v === 'symbol'), 'index.js nesmi exportovat klic zamku zivota');
+  const m = new Match(rules, { seed: 3, spawnAreas: areas });
+  m.addParticipant('a1', 0);
+  m.update(0);
+  const w = m.respawn.weapon('a1', 'rifle_iv7');
+  w.update(100000, true);
+  w.update(1, false);
+  assert.equal(m.kill('a1'), 'killed');
+  assert.equal(w.disable('life'), 'invalid_reason');
+  assert.equal(w.enable('life'), 'invalid_reason');
+  assert.equal(w.enable('death'), 'invalid_reason');
+  for (const r of DISABLE_REASONS) assert.equal(w.enable(r), 'ok');
+  assert.deepEqual(w.disabledBy, ['life']);
+  assert.equal(w.update(500000, true), 0);
+  assert.equal(w.reload(), 'rejected_disabled');
+  // Menu otevrene behem odpoctu: respawn odebere jen zamek zivota.
+  assert.equal(m.disableInput('a1', 'menu'), 'ok');
+  m.update(5000000);
+  assert.equal(m.respawn.participant('a1').state, 'alive');
+  assert.deepEqual(w.disabledBy, ['menu']);
+  w.update(1, false);
+  assert.equal(w.update(100000, true), 0);
+  // Vysledkova obrazovka po konci kola: zamky vstupu funguji i ve stavu ended.
+  assert.equal(m.enableInput('a1', 'menu'), 'ok');
+  assert.equal(m.disableInput('a1', 'results'), 'ok');
+  assert.deepEqual(m.respawn.participant('a1').inputLocks, new Set(['results']));
+  assert.equal(m.disableInput('zz', 'menu'), 'unknown_id');
+  assert.equal(m.enableInput('a1', 'jump'), 'invalid_reason');
+});
+
+test('ZoneScoring: skore nad 2^31 je presne a zastavi se na MAX_SCORE (V2-P2-3)', () => {
+  const big = compileRules({ ...loadBaseRules(), zone: { ...loadBaseRules().zone, pointInterval: 0.000001, pointsPerAward: 1000 } });
+  const z = new ZoneScoring(big);
+  z.tick(3000000, [['a1', 0, true, true, true]]);
+  assert.equal(z.scores[0], 3000000000);
+  z.tick(Number.MAX_SAFE_INTEGER, [['a1', 0, true, true, true]]);
+  assert.equal(z.scores[0], MAX_SCORE);
+  assert.throws(() => z.tick(Number.MAX_SAFE_INTEGER + 1, []), RangeError);
 });

@@ -1,0 +1,8837 @@
+{
+ "schema": "ironvalley.buildings/1",
+ "conventions": "ivbuildings -- authoring source for Shared/level/buildings.json (IRON VALLEY, map \"Kalné Hamry\").\n\nBuilding-local frame: metres, Z up.  Origin = centre of the external footprint (outer faces of the\nexternal walls) at finished ground-floor level (top of the L0 floor finish = 0.00).  Local +Y = FRONT\nfacade (rotation_deg 0 in layout.json means local +Y points north).  Local +X = to the right of an\nobserver standing inside looking out of the front.  World = rotate local by layout rotation_deg\n(counter-clockwise about +Z) and translate by layout position [x, y, z_floor].\nAxis conversions (same as layout.json): three.js (x, y, z)_three = (x, z, -y)_blender; Unreal (cm) =\n(100 x, -100 y, 100 z) with FBX 'Y forward, Z up' export (UE import NOT TESTED).\n\nWalls (exact, no implicit extension):\n  * a wall is a box: centre line from `start` to `end` (exact box ends), `thickness` centred on the line,\n    from z = level.floor_z + base_z to + height.\n  * walls running along X run through the corners; walls along Y stop at the inner faces of the X-walls;\n    internal walls stop at the faces of the walls they meet.  Boxes never overlap.\n  * external walls are listed counter-clockwise (seen from above), so their LEFT normal (-dy, dx) points\n    INTO the building.  `finish_left` / `finish_right` = finish on the left / right face.\n  * `gable_above: true` -> the generator adds the gable prism above `height` up to roof `gable_roof`.\n  * `construction_boxes` (derived, authoritative for the generator, no booleans): the wall split into\n    full-height piers, sill blocks and lintel blocks; each box = {part, u:[u0,u1] along the wall from\n    `start`, z:[z0,z1] above the level floor}.  Union of boxes = wall box minus openings.\nOpenings:\n  * `offset_from_start` = distance along the centre line from `start` to the near jamb; `width`,\n    `sill_height`, `head_height` = STRUCTURAL (rough) opening, relative to the wall's level floor.\n  * doors: frame jamb 0.05 m each side and 0.05 m head; leaf of `leaf.thickness` resting at `open_deg`\n    (90 = perpendicular to the wall) on the `swing` side (\"left\"/\"right\" of the wall direction), hinged at\n    the jamb `hinge` (\"start\"/\"end\" = jamb nearer to the wall start/end).\n    clear_width = width - 2 * frame_jamb - leaf thickness (single leaf) or - 2 * leaf thickness (pair);\n    clear_height = head_height - frame_head.  Project rule: clear_width >= 1.10 m (brief >= 0.90 m) so a\n    0.35 m capsule keeps a >= 0.30 m navmesh corridor at Recast cs 0.10 m / radius 4 cells; clear_height\n    >= 2.05 m.\n  * roller doors: guide rails 0.05 m each side -> clear_width = width - 0.10; clear_height =\n    state.open_height - 0.05 (bottom rail).  open_height < 2.10 is never used on a walkable opening.\n  * `passes` = {movement, bullets, vision}: windows are capsule-blocking clip planes that pass bullets and\n    vision (v1: glass does not stop hits); translucent polycarbonate strips pass bullets, block vision;\n    louvred vents block everything.\nStairs (`stairs` = internal flights, `exterior_stairs` = every external flight incl. dock and entrance\nsteps; one schema for all):\n  * `start` = local XY of the centre of the FIRST (bottom) riser line; `direction_deg` = direction of\n    ascent, degrees CCW from local +Y (0 = +Y, 90 = -X, 180 = -Y, 270 = +X), i.e. the same convention as\n    building rotations; `direction_vector` = (-sin a, cos a).\n  * `count` = number of risers, `treads` = count - 1 (the last riser lands on the landing/upper floor),\n    `run` = treads * tread, `top_riser_center` = start + direction_vector * run (validated).\n  * `width` = clear width between wall faces / balustrade inner faces (project rule >= 1.10 m).\n  * `waist` = structural depth below the pitch line (soffit = pitch line - waist).\n  * `under_stair` = how the space below the flight is closed: enclosed (walls, listed in `sealed_voids`),\n    solid_mass (built solid to the ground), filled (collision furniture up to where headroom >= 2.10).\nRooms have polygon, ceiling_height (clear), floor_material.  `sealed_voids` = closed, unreachable spaces\n(under-stair stores) that are neither rooms nor walkable.  Furniture: box {center, size [x, y, z],\nrotation_deg}, cover low/high/none, blocks bullets/vision (soft furniture = concealment only).",
+ "units": "m",
+ "buildings": [
+  {
+   "id": "B_DILNA",
+   "type": "dilna",
+   "name": "Dílna (bývalý hamr)",
+   "enterable": true,
+   "story": "Hamr na Kalném potoce stál na tomto místě od 18. století; náhon od jezu pod štěrkovnou přiváděl vodu na kolo u štítu přístavku. Kolem roku 1924 rodina Kalinů přestavěla hamr na cihlovou zámečnickou dílnu, v 60. letech se z ní stala opravna zemědělských strojů. Hala bez stropu s krovem, dvoupodlažní přístavek s výdejnou nářadí a kanceláří mistra, který vnitřními okny dohlíží do haly.",
+   "local_origin": "centre of the external footprint X[-11.5,11.5] x Y[-5.0,5.0] at finished L0 floor (z 0.00); +Y = front (yard)",
+   "footprint_external": [
+    23.0,
+    10.0
+   ],
+   "footprint_parts": [
+    {
+     "part": "hall",
+     "external_rect": [
+      [
+       -11.5,
+       -5.0
+      ],
+      [
+       4.05,
+       -5.0
+      ],
+      [
+       4.05,
+       5.0
+      ],
+      [
+       -11.5,
+       5.0
+      ]
+     ],
+     "interior_rect": [
+      [
+       -11.05,
+       -4.55
+      ],
+      [
+       4.05,
+       -4.55
+      ],
+      [
+       4.05,
+       4.55
+      ],
+      [
+       -11.05,
+       4.55
+      ]
+     ],
+     "walls": {
+      "x": [
+       0.45,
+       0.0
+      ],
+      "y": [
+       0.45,
+       0.45
+      ]
+     },
+     "check": "15.55 = 0.45 + 15.10 (the 0.45 fire wall is counted in the annex); 10.00 = 0.45 + 9.10 + 0.45"
+    },
+    {
+     "part": "annex",
+     "external_rect": [
+      [
+       4.05,
+       -5.0
+      ],
+      [
+       11.5,
+       -5.0
+      ],
+      [
+       11.5,
+       5.0
+      ],
+      [
+       4.05,
+       5.0
+      ]
+     ],
+     "interior_rect": [
+      [
+       4.5,
+       -4.55
+      ],
+      [
+       11.05,
+       -4.55
+      ],
+      [
+       11.05,
+       4.55
+      ],
+      [
+       4.5,
+       4.55
+      ]
+     ],
+     "walls": {
+      "x": [
+       0.45,
+       0.45
+      ],
+      "y": [
+       0.45,
+       0.45
+      ]
+     },
+     "check": "7.45 = 0.45 (fire wall) + 6.55 + 0.45; 10.00 = 0.45 + 9.10 + 0.45"
+    }
+   ],
+   "structure": "load-bearing brick masonry 450 (external + former gable = fire wall), 150 brick partitions; timber roofs",
+   "levels": [
+    {
+     "id": "L0",
+     "name": "Přízemí (dílna + přístavek)",
+     "floor_z": 0.0,
+     "ceiling_height": 2.75,
+     "floor_thickness": 0.15,
+     "note": "hall has no ceiling: tie beams at z 4.20 (clear), roof above; annex slab soffit 2.75; slab-on-grade 0.15 + stone plinth"
+    },
+    {
+     "id": "L1",
+     "name": "Patro přístavku",
+     "floor_z": 3.0,
+     "ceiling_height": 2.8,
+     "floor_thickness": 0.25,
+     "extent": [
+      [
+       4.5,
+       -4.55
+      ],
+      [
+       11.05,
+       -4.55
+      ],
+      [
+       11.05,
+       4.55
+      ],
+      [
+       4.5,
+       4.55
+      ]
+     ]
+    }
+   ],
+   "rooms": [
+    {
+     "id": "DL_R_HALA",
+     "level": "L0",
+     "name": "Dílna (hala)",
+     "polygon": [
+      [
+       -11.05,
+       -4.55
+      ],
+      [
+       4.05,
+       -4.55
+      ],
+      [
+       4.05,
+       4.55
+      ],
+      [
+       -11.05,
+       4.55
+      ]
+     ],
+     "ceiling_height": 4.2,
+     "floor_material": "concrete_oil_stained",
+     "in_zone": true
+    },
+    {
+     "id": "DL_R_CHODBA0",
+     "level": "L0",
+     "name": "Schodišťový kout a chodba",
+     "polygon": [
+      [
+       4.5,
+       -4.55
+      ],
+      [
+       5.7,
+       -4.55
+      ],
+      [
+       5.7,
+       -3.35
+      ],
+      [
+       11.05,
+       -3.35
+      ],
+      [
+       11.05,
+       -2.175
+      ],
+      [
+       4.5,
+       -2.175
+      ]
+     ],
+     "ceiling_height": 2.75,
+     "floor_material": "terrazzo_grey",
+     "in_zone": false,
+     "note": "bottom approach bay 1.20 x 1.10 m in front of the first riser + corridor 1.175 m to the tool room"
+    },
+    {
+     "id": "DL_R_VYDEJNA",
+     "level": "L0",
+     "name": "Výdejna nářadí",
+     "polygon": [
+      [
+       4.5,
+       -2.025
+      ],
+      [
+       11.05,
+       -2.025
+      ],
+      [
+       11.05,
+       4.55
+      ],
+      [
+       4.5,
+       4.55
+      ]
+     ],
+     "ceiling_height": 2.75,
+     "floor_material": "vinyl_tiles_beige",
+     "in_zone": true
+    },
+    {
+     "id": "DL_R_CHODBA1",
+     "level": "L1",
+     "name": "Chodba patra s podestou",
+     "polygon": [
+      [
+       4.5,
+       -4.55
+      ],
+      [
+       5.7,
+       -4.55
+      ],
+      [
+       5.7,
+       -3.45
+      ],
+      [
+       9.75,
+       -3.45
+      ],
+      [
+       9.75,
+       -4.55
+      ],
+      [
+       11.05,
+       -4.55
+      ],
+      [
+       11.05,
+       -2.175
+      ],
+      [
+       4.5,
+       -2.175
+      ]
+     ],
+     "ceiling_height": 2.8,
+     "floor_material": "timber_boards",
+     "in_zone": false
+    },
+    {
+     "id": "DL_R_KANCELAR",
+     "level": "L1",
+     "name": "Kancelář mistra",
+     "polygon": [
+      [
+       4.5,
+       -2.025
+      ],
+      [
+       11.05,
+       -2.025
+      ],
+      [
+       11.05,
+       4.55
+      ],
+      [
+       4.5,
+       4.55
+      ]
+     ],
+     "ceiling_height": 2.8,
+     "floor_material": "vinyl_tiles_beige",
+     "in_zone": false,
+     "note": "two doors to the corridor, two internal windows over the hall; outside zone_dilna (z_max)"
+    }
+   ],
+   "sealed_voids": [
+    {
+     "id": "DL_V0_PODSCHODI",
+     "level": "L0",
+     "polygon": [
+      [
+       5.7,
+       -4.55
+      ],
+      [
+       11.05,
+       -4.55
+      ],
+      [
+       11.05,
+       -3.45
+      ],
+      [
+       5.7,
+       -3.45
+      ]
+     ],
+     "reason": "space below flight DL_S1 and its top landing, closed by spandrel DL_P0_2; no door, not walkable, not in navmesh"
+    }
+   ],
+   "walls": [
+    {
+     "id": "DL_H_S",
+     "level": "L0",
+     "start": [
+      -11.5,
+      -4.775
+     ],
+     "end": [
+      4.05,
+      -4.775
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 4.6,
+     "kind": "external",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_lime_white_over_green_oil_dado_1500",
+     "finish_right": "render_lime_offwhite_weathered",
+     "length": 15.55,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        2.6
+       ],
+       "z": [
+        0.0,
+        4.6
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        2.6,
+        4.4
+       ],
+       "z": [
+        0.0,
+        1.4
+       ],
+       "of": "DL_W3"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        2.6,
+        4.4
+       ],
+       "z": [
+        3.0,
+        4.6
+       ],
+       "of": "DL_W3"
+      },
+      {
+       "part": "pier",
+       "u": [
+        4.4,
+        5.6
+       ],
+       "z": [
+        0.0,
+        4.6
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        5.6,
+        7.4
+       ],
+       "z": [
+        0.0,
+        1.4
+       ],
+       "of": "DL_W4"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        5.6,
+        7.4
+       ],
+       "z": [
+        3.0,
+        4.6
+       ],
+       "of": "DL_W4"
+      },
+      {
+       "part": "pier",
+       "u": [
+        7.4,
+        8.825
+       ],
+       "z": [
+        0.0,
+        4.6
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        8.825,
+        10.075
+       ],
+       "z": [
+        2.3,
+        4.6
+       ],
+       "of": "DL_D2"
+      },
+      {
+       "part": "pier",
+       "u": [
+        10.075,
+        12.1
+       ],
+       "z": [
+        0.0,
+        4.6
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        12.1,
+        13.9
+       ],
+       "z": [
+        0.0,
+        1.4
+       ],
+       "of": "DL_W5"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        12.1,
+        13.9
+       ],
+       "z": [
+        3.0,
+        4.6
+       ],
+       "of": "DL_W5"
+      },
+      {
+       "part": "pier",
+       "u": [
+        13.9,
+        15.55
+       ],
+       "z": [
+        0.0,
+        4.6
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DL_H_N",
+     "level": "L0",
+     "start": [
+      4.05,
+      4.775
+     ],
+     "end": [
+      -11.5,
+      4.775
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 4.6,
+     "kind": "external",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_lime_white_over_green_oil_dado_1500",
+     "finish_right": "render_lime_offwhite_weathered",
+     "length": 15.55,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        2.15
+       ],
+       "z": [
+        0.0,
+        4.6
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        2.15,
+        3.95
+       ],
+       "z": [
+        0.0,
+        1.2
+       ],
+       "of": "DL_W1"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        2.15,
+        3.95
+       ],
+       "z": [
+        3.0,
+        4.6
+       ],
+       "of": "DL_W1"
+      },
+      {
+       "part": "pier",
+       "u": [
+        3.95,
+        7.85
+       ],
+       "z": [
+        0.0,
+        4.6
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        7.85,
+        11.25
+       ],
+       "z": [
+        3.6,
+        4.6
+       ],
+       "of": "DL_G1"
+      },
+      {
+       "part": "pier",
+       "u": [
+        11.25,
+        12.55
+       ],
+       "z": [
+        0.0,
+        4.6
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        12.55,
+        14.35
+       ],
+       "z": [
+        0.0,
+        1.2
+       ],
+       "of": "DL_W2"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        12.55,
+        14.35
+       ],
+       "z": [
+        3.0,
+        4.6
+       ],
+       "of": "DL_W2"
+      },
+      {
+       "part": "pier",
+       "u": [
+        14.35,
+        15.55
+       ],
+       "z": [
+        0.0,
+        4.6
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DL_H_W",
+     "level": "L0",
+     "start": [
+      -11.275,
+      4.55
+     ],
+     "end": [
+      -11.275,
+      -4.55
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 4.6,
+     "kind": "external",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_lime_white_over_green_oil_dado_1500",
+     "finish_right": "render_lime_offwhite_weathered",
+     "gable_above": true,
+     "gable_roof": "RF_HALA",
+     "length": 9.1,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        3.225
+       ],
+       "z": [
+        0.0,
+        4.6
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        3.225,
+        4.475
+       ],
+       "z": [
+        2.3,
+        4.6
+       ],
+       "of": "DL_D3"
+      },
+      {
+       "part": "pier",
+       "u": [
+        4.475,
+        6.15
+       ],
+       "z": [
+        0.0,
+        4.6
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        6.15,
+        7.75
+       ],
+       "z": [
+        0.0,
+        1.2
+       ],
+       "of": "DL_W6"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        6.15,
+        7.75
+       ],
+       "z": [
+        2.8,
+        4.6
+       ],
+       "of": "DL_W6"
+      },
+      {
+       "part": "pier",
+       "u": [
+        7.75,
+        9.1
+       ],
+       "z": [
+        0.0,
+        4.6
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DL_A0_S",
+     "level": "L0",
+     "start": [
+      4.05,
+      -4.775
+     ],
+     "end": [
+      11.5,
+      -4.775
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 3.0,
+     "kind": "external",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_lime_white",
+     "finish_right": "render_lime_offwhite_weathered",
+     "length": 7.45,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        7.45
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DL_A0_E",
+     "level": "L0",
+     "start": [
+      11.275,
+      -4.55
+     ],
+     "end": [
+      11.275,
+      4.55
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 3.0,
+     "kind": "external",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_lime_white",
+     "finish_right": "render_lime_offwhite_weathered",
+     "length": 9.1,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        4.45
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        4.45,
+        5.65
+       ],
+       "z": [
+        0.0,
+        0.9
+       ],
+       "of": "DL_W7"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        4.45,
+        5.65
+       ],
+       "z": [
+        2.3,
+        3.0
+       ],
+       "of": "DL_W7"
+      },
+      {
+       "part": "pier",
+       "u": [
+        5.65,
+        7.15
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        7.15,
+        8.4
+       ],
+       "z": [
+        2.3,
+        3.0
+       ],
+       "of": "DL_D6"
+      },
+      {
+       "part": "pier",
+       "u": [
+        8.4,
+        9.1
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DL_A0_N",
+     "level": "L0",
+     "start": [
+      11.5,
+      4.775
+     ],
+     "end": [
+      4.05,
+      4.775
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 3.0,
+     "kind": "external",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_lime_white",
+     "finish_right": "render_lime_offwhite_weathered",
+     "length": 7.45,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        1.3
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        1.3,
+        2.5
+       ],
+       "z": [
+        0.0,
+        0.9
+       ],
+       "of": "DL_W9"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        1.3,
+        2.5
+       ],
+       "z": [
+        2.3,
+        3.0
+       ],
+       "of": "DL_W9"
+      },
+      {
+       "part": "pier",
+       "u": [
+        2.5,
+        3.075
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        3.075,
+        4.325
+       ],
+       "z": [
+        2.3,
+        3.0
+       ],
+       "of": "DL_D7"
+      },
+      {
+       "part": "pier",
+       "u": [
+        4.325,
+        4.9
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        4.9,
+        6.1
+       ],
+       "z": [
+        0.0,
+        0.9
+       ],
+       "of": "DL_W8"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        4.9,
+        6.1
+       ],
+       "z": [
+        2.3,
+        3.0
+       ],
+       "of": "DL_W8"
+      },
+      {
+       "part": "pier",
+       "u": [
+        6.1,
+        7.45
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DL_A0_W",
+     "level": "L0",
+     "start": [
+      4.275,
+      4.55
+     ],
+     "end": [
+      4.275,
+      -4.55
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 3.0,
+     "kind": "internal",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_lime_white",
+     "finish_right": "plaster_lime_white_over_green_oil_dado_1500",
+     "note": "former gable of the hammer mill, 0.45 masonry fire wall; above the hall roof it is an exterior face",
+     "length": 9.1,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        3.3
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        3.3,
+        4.55
+       ],
+       "z": [
+        2.3,
+        3.0
+       ],
+       "of": "DL_D5"
+      },
+      {
+       "part": "pier",
+       "u": [
+        4.55,
+        7.75
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        7.75,
+        9.0
+       ],
+       "z": [
+        2.3,
+        3.0
+       ],
+       "of": "DL_D4"
+      },
+      {
+       "part": "pier",
+       "u": [
+        9.0,
+        9.1
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DL_A1_S",
+     "level": "L1",
+     "start": [
+      4.05,
+      -4.775
+     ],
+     "end": [
+      11.5,
+      -4.775
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 3.15,
+     "kind": "external",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_lime_white",
+     "finish_right": "render_lime_offwhite_weathered",
+     "length": 7.45,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        3.05
+       ],
+       "z": [
+        0.0,
+        3.15
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        3.05,
+        4.05
+       ],
+       "z": [
+        0.0,
+        1.2
+       ],
+       "of": "DL_W13"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        3.05,
+        4.05
+       ],
+       "z": [
+        2.35,
+        3.15
+       ],
+       "of": "DL_W13"
+      },
+      {
+       "part": "pier",
+       "u": [
+        4.05,
+        5.7
+       ],
+       "z": [
+        0.0,
+        3.15
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        5.7,
+        6.95
+       ],
+       "z": [
+        2.3,
+        3.15
+       ],
+       "of": "DL_D9"
+      },
+      {
+       "part": "pier",
+       "u": [
+        6.95,
+        7.45
+       ],
+       "z": [
+        0.0,
+        3.15
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DL_A1_E",
+     "level": "L1",
+     "start": [
+      11.275,
+      -4.55
+     ],
+     "end": [
+      11.275,
+      4.55
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 3.15,
+     "kind": "external",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_lime_white",
+     "finish_right": "render_lime_offwhite_weathered",
+     "gable_above": true,
+     "gable_roof": "RF_PRISTAVEK",
+     "length": 9.1,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        5.45
+       ],
+       "z": [
+        0.0,
+        3.15
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        5.45,
+        6.65
+       ],
+       "z": [
+        0.0,
+        0.9
+       ],
+       "of": "DL_W12"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        5.45,
+        6.65
+       ],
+       "z": [
+        2.35,
+        3.15
+       ],
+       "of": "DL_W12"
+      },
+      {
+       "part": "pier",
+       "u": [
+        6.65,
+        9.1
+       ],
+       "z": [
+        0.0,
+        3.15
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DL_A1_N",
+     "level": "L1",
+     "start": [
+      11.5,
+      4.775
+     ],
+     "end": [
+      4.05,
+      4.775
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 3.15,
+     "kind": "external",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_lime_white",
+     "finish_right": "render_lime_offwhite_weathered",
+     "length": 7.45,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        1.3
+       ],
+       "z": [
+        0.0,
+        3.15
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        1.3,
+        2.5
+       ],
+       "z": [
+        0.0,
+        0.9
+       ],
+       "of": "DL_W11"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        1.3,
+        2.5
+       ],
+       "z": [
+        2.35,
+        3.15
+       ],
+       "of": "DL_W11"
+      },
+      {
+       "part": "pier",
+       "u": [
+        2.5,
+        4.9
+       ],
+       "z": [
+        0.0,
+        3.15
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        4.9,
+        6.1
+       ],
+       "z": [
+        0.0,
+        0.9
+       ],
+       "of": "DL_W10"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        4.9,
+        6.1
+       ],
+       "z": [
+        2.35,
+        3.15
+       ],
+       "of": "DL_W10"
+      },
+      {
+       "part": "pier",
+       "u": [
+        6.1,
+        7.45
+       ],
+       "z": [
+        0.0,
+        3.15
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DL_A1_W",
+     "level": "L1",
+     "start": [
+      4.275,
+      4.55
+     ],
+     "end": [
+      4.275,
+      -4.55
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 3.15,
+     "kind": "internal",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_lime_white",
+     "finish_right": "render_lime_offwhite_weathered",
+     "gable_above": true,
+     "gable_roof": "RF_PRISTAVEK",
+     "note": "former gable of the hammer mill, 0.45 masonry fire wall; above the hall roof it is an exterior face",
+     "length": 9.1,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        1.35
+       ],
+       "z": [
+        0.0,
+        3.15
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        1.35,
+        2.55
+       ],
+       "z": [
+        0.0,
+        0.95
+       ],
+       "of": "DL_WI1"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        1.35,
+        2.55
+       ],
+       "z": [
+        2.1,
+        3.15
+       ],
+       "of": "DL_WI1"
+      },
+      {
+       "part": "pier",
+       "u": [
+        2.55,
+        3.75
+       ],
+       "z": [
+        0.0,
+        3.15
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        3.75,
+        4.95
+       ],
+       "z": [
+        0.0,
+        0.95
+       ],
+       "of": "DL_WI2"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        3.75,
+        4.95
+       ],
+       "z": [
+        2.1,
+        3.15
+       ],
+       "of": "DL_WI2"
+      },
+      {
+       "part": "pier",
+       "u": [
+        4.95,
+        9.1
+       ],
+       "z": [
+        0.0,
+        3.15
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DL_P0_1",
+     "level": "L0",
+     "start": [
+      4.5,
+      -2.1
+     ],
+     "end": [
+      11.05,
+      -2.1
+     ],
+     "thickness": 0.15,
+     "base_z": 0.0,
+     "height": 2.75,
+     "kind": "internal",
+     "material": "brick_partition_150",
+     "finish_left": "plaster_lime_white",
+     "finish_right": "plaster_lime_white",
+     "note": "corridor | tool room",
+     "length": 6.55,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        5.1
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        5.1,
+        6.35
+       ],
+       "z": [
+        2.3,
+        2.75
+       ],
+       "of": "DL_D8"
+      },
+      {
+       "part": "pier",
+       "u": [
+        6.35,
+        6.55
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DL_P0_2",
+     "level": "L0",
+     "start": [
+      5.7,
+      -3.4
+     ],
+     "end": [
+      11.05,
+      -3.4
+     ],
+     "thickness": 0.1,
+     "base_z": 0.0,
+     "height": 2.75,
+     "kind": "internal",
+     "material": "timber_stud_board_100",
+     "finish_left": "painted_board_grey",
+     "finish_right": "painted_board_grey",
+     "note": "closed spandrel along the stair flight (under-stair store DL_V0_PODSCHODI, no door, not walkable)",
+     "length": 5.35,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        5.35
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DL_P1_1",
+     "level": "L1",
+     "start": [
+      4.5,
+      -2.1
+     ],
+     "end": [
+      11.05,
+      -2.1
+     ],
+     "thickness": 0.15,
+     "base_z": 0.0,
+     "height": 2.8,
+     "kind": "internal",
+     "material": "brick_partition_150",
+     "finish_left": "plaster_lime_white",
+     "finish_right": "plaster_lime_white",
+     "note": "corridor | foreman office",
+     "length": 6.55,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        0.2
+       ],
+       "z": [
+        0.0,
+        2.8
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        0.2,
+        1.45
+       ],
+       "z": [
+        2.3,
+        2.8
+       ],
+       "of": "DL_D10"
+      },
+      {
+       "part": "pier",
+       "u": [
+        1.45,
+        5.1
+       ],
+       "z": [
+        0.0,
+        2.8
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        5.1,
+        6.35
+       ],
+       "z": [
+        2.3,
+        2.8
+       ],
+       "of": "DL_D11"
+      },
+      {
+       "part": "pier",
+       "u": [
+        6.35,
+        6.55
+       ],
+       "z": [
+        0.0,
+        2.8
+       ]
+      }
+     ]
+    }
+   ],
+   "openings": [
+    {
+     "id": "DL_G1",
+     "wall_id": "DL_H_N",
+     "type": "double_door",
+     "offset_from_start": 7.85,
+     "width": 3.4,
+     "sill_height": 0.0,
+     "head_height": 3.6,
+     "has_leaf": true,
+     "hinge": "both",
+     "swing": "right",
+     "open_deg": 100,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 3.18,
+     "clear_height": 3.55,
+     "clear_rule": "3.40 - 2 x 0.05 frame - 2 x 0.06 leaf at 100 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_ledged_braced_pair",
+      "thickness": 0.06,
+      "material": "timber_green_paint_worn"
+     },
+     "note": "main gate; both leaves open outward to 100 deg against facade stops"
+    },
+    {
+     "id": "DL_W1",
+     "wall_id": "DL_H_N",
+     "type": "window",
+     "offset_from_start": 2.15,
+     "width": 1.8,
+     "sill_height": 1.2,
+     "head_height": 3.0,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "steel_industrial_small_panes"
+    },
+    {
+     "id": "DL_W2",
+     "wall_id": "DL_H_N",
+     "type": "window",
+     "offset_from_start": 12.55,
+     "width": 1.8,
+     "sill_height": 1.2,
+     "head_height": 3.0,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "steel_industrial_small_panes"
+    },
+    {
+     "id": "DL_D2",
+     "wall_id": "DL_H_S",
+     "type": "door",
+     "offset_from_start": 8.825,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "start",
+     "swing": "right",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "steel_sheet",
+      "thickness": 0.05,
+      "material": "steel_grey_paint_worn"
+     },
+     "note": "rear door to the rear pad, opens outward"
+    },
+    {
+     "id": "DL_W3",
+     "wall_id": "DL_H_S",
+     "type": "window",
+     "offset_from_start": 2.6,
+     "width": 1.8,
+     "sill_height": 1.4,
+     "head_height": 3.0,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "steel_industrial_small_panes"
+    },
+    {
+     "id": "DL_W4",
+     "wall_id": "DL_H_S",
+     "type": "window",
+     "offset_from_start": 5.6,
+     "width": 1.8,
+     "sill_height": 1.4,
+     "head_height": 3.0,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "steel_industrial_small_panes"
+    },
+    {
+     "id": "DL_W5",
+     "wall_id": "DL_H_S",
+     "type": "window",
+     "offset_from_start": 12.1,
+     "width": 1.8,
+     "sill_height": 1.4,
+     "head_height": 3.0,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "steel_industrial_small_panes"
+    },
+    {
+     "id": "DL_D3",
+     "wall_id": "DL_H_W",
+     "type": "door",
+     "offset_from_start": 3.225,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "end",
+     "swing": "left",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_ledged",
+      "thickness": 0.05,
+      "material": "timber_green_paint_worn"
+     },
+     "note": "gable side door (brook-side path), opens inward"
+    },
+    {
+     "id": "DL_W6",
+     "wall_id": "DL_H_W",
+     "type": "window",
+     "offset_from_start": 6.15,
+     "width": 1.6,
+     "sill_height": 1.2,
+     "head_height": 2.8,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "steel_industrial_small_panes"
+    },
+    {
+     "id": "DL_V1",
+     "wall_id": "DL_H_W",
+     "type": "vent",
+     "offset_from_start": 4.15,
+     "width": 0.8,
+     "sill_height": 5.2,
+     "head_height": 5.8,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": false,
+      "vision": false
+     },
+     "note": "louvred gable vent (not passable)"
+    },
+    {
+     "id": "DL_D4",
+     "wall_id": "DL_A0_W",
+     "type": "door",
+     "offset_from_start": 7.75,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "end",
+     "swing": "left",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_flush",
+      "thickness": 0.05,
+      "material": "timber_cream_paint"
+     },
+     "note": "hall -> stair bay, straight onto the flight; leaf rests along the rear wall in the bay"
+    },
+    {
+     "id": "DL_D5",
+     "wall_id": "DL_A0_W",
+     "type": "door",
+     "offset_from_start": 3.3,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "start",
+     "swing": "left",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_flush",
+      "thickness": 0.05,
+      "material": "timber_cream_paint"
+     },
+     "note": "hall -> tool room"
+    },
+    {
+     "id": "DL_D6",
+     "wall_id": "DL_A0_E",
+     "type": "door",
+     "offset_from_start": 7.15,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "end",
+     "swing": "right",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "steel_sheet",
+      "thickness": 0.05,
+      "material": "steel_grey_paint_worn"
+     },
+     "note": "annex gable door into the tool room, opens outward"
+    },
+    {
+     "id": "DL_W7",
+     "wall_id": "DL_A0_E",
+     "type": "window",
+     "offset_from_start": 4.45,
+     "width": 1.2,
+     "sill_height": 0.9,
+     "head_height": 2.3,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement"
+    },
+    {
+     "id": "DL_D7",
+     "wall_id": "DL_A0_N",
+     "type": "door",
+     "offset_from_start": 3.075,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "end",
+     "swing": "left",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_half_glazed",
+      "thickness": 0.05,
+      "material": "timber_green_paint_worn"
+     },
+     "note": "tool room / issue office entrance from the yard"
+    },
+    {
+     "id": "DL_W8",
+     "wall_id": "DL_A0_N",
+     "type": "window",
+     "offset_from_start": 4.9,
+     "width": 1.2,
+     "sill_height": 0.9,
+     "head_height": 2.3,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement"
+    },
+    {
+     "id": "DL_W9",
+     "wall_id": "DL_A0_N",
+     "type": "window",
+     "offset_from_start": 1.3,
+     "width": 1.2,
+     "sill_height": 0.9,
+     "head_height": 2.3,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement"
+    },
+    {
+     "id": "DL_D8",
+     "wall_id": "DL_P0_1",
+     "type": "door",
+     "offset_from_start": 5.1,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "start",
+     "swing": "left",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_flush",
+      "thickness": 0.05,
+      "material": "timber_cream_paint"
+     },
+     "note": "corridor -> tool room"
+    },
+    {
+     "id": "DL_W10",
+     "wall_id": "DL_A1_N",
+     "type": "window",
+     "offset_from_start": 4.9,
+     "width": 1.2,
+     "sill_height": 0.9,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement"
+    },
+    {
+     "id": "DL_W11",
+     "wall_id": "DL_A1_N",
+     "type": "window",
+     "offset_from_start": 1.3,
+     "width": 1.2,
+     "sill_height": 0.9,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement"
+    },
+    {
+     "id": "DL_W12",
+     "wall_id": "DL_A1_E",
+     "type": "window",
+     "offset_from_start": 5.45,
+     "width": 1.2,
+     "sill_height": 0.9,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement"
+    },
+    {
+     "id": "DL_W13",
+     "wall_id": "DL_A1_S",
+     "type": "window",
+     "offset_from_start": 3.05,
+     "width": 1.0,
+     "sill_height": 1.2,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement",
+     "note": "stair window above the flight (not reachable, over the void)"
+    },
+    {
+     "id": "DL_D9",
+     "wall_id": "DL_A1_S",
+     "type": "door",
+     "offset_from_start": 5.7,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "end",
+     "swing": "right",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "steel_sheet",
+      "thickness": 0.05,
+      "material": "steel_grey_paint_worn"
+     },
+     "note": "upper landing -> external steel stair platform (second way out of the upper floor)"
+    },
+    {
+     "id": "DL_D10",
+     "wall_id": "DL_P1_1",
+     "type": "door",
+     "offset_from_start": 0.2,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "start",
+     "swing": "left",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_flush",
+      "thickness": 0.05,
+      "material": "timber_cream_paint"
+     },
+     "note": "corridor -> foreman office (west)"
+    },
+    {
+     "id": "DL_D11",
+     "wall_id": "DL_P1_1",
+     "type": "door",
+     "offset_from_start": 5.1,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "end",
+     "swing": "left",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_flush",
+      "thickness": 0.05,
+      "material": "timber_cream_paint"
+     },
+     "note": "second office door at the landing end: the office is never a single-door trap"
+    },
+    {
+     "id": "DL_WI1",
+     "wall_id": "DL_A1_W",
+     "type": "window",
+     "offset_from_start": 1.35,
+     "width": 1.2,
+     "sill_height": 0.95,
+     "head_height": 2.1,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "internal_single_glazed_steel_frame",
+     "note": "internal window: foreman office overlooks the hall (office floor +3.00 above the hall floor)"
+    },
+    {
+     "id": "DL_WI2",
+     "wall_id": "DL_A1_W",
+     "type": "window",
+     "offset_from_start": 3.75,
+     "width": 1.2,
+     "sill_height": 0.95,
+     "head_height": 2.1,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "internal_single_glazed_steel_frame",
+     "note": "internal window: foreman office overlooks the hall"
+    }
+   ],
+   "slabs": [
+    {
+     "level": "L1",
+     "polygon": [
+      [
+       4.5,
+       -4.55
+      ],
+      [
+       11.05,
+       -4.55
+      ],
+      [
+       11.05,
+       4.55
+      ],
+      [
+       4.5,
+       4.55
+      ]
+     ],
+     "thickness": 0.25,
+     "top_z": 3.0,
+     "openings": [
+      {
+       "id": "DL_SO1",
+       "polygon": [
+        [
+         5.7,
+         -4.55
+        ],
+        [
+         9.75,
+         -4.55
+        ],
+        [
+         9.75,
+         -3.45
+        ],
+        [
+         5.7,
+         -3.45
+        ]
+       ],
+       "reason": "stair DL_S1 void"
+      }
+     ]
+    }
+   ],
+   "stairs": [
+    {
+     "id": "DL_S1",
+     "level_from": "L0",
+     "level_to": "L1",
+     "start": [
+      5.7,
+      -4.0
+     ],
+     "direction_deg": 270.0,
+     "direction_vector": [
+      1.0,
+      -0.0
+     ],
+     "width": 1.1,
+     "riser": 0.1875,
+     "tread": 0.27,
+     "count": 16,
+     "treads": 15,
+     "run": 4.05,
+     "rise": 3.0,
+     "z_start": 0.0,
+     "z_end": 3.0,
+     "top_riser_center": [
+      9.75,
+      -4.0
+     ],
+     "two_r_plus_t": 0.645,
+     "construction": "reinforced_concrete_slab_stair_terrazzo_treads",
+     "waist": 0.18,
+     "handrail": "left",
+     "pitch_deg": 34.7778,
+     "landing": {
+      "id": "DL_LAND_L1",
+      "level": "L1",
+      "polygon": [
+       [
+        9.75,
+        -4.55
+       ],
+       [
+        11.05,
+        -4.55
+       ],
+       [
+        11.05,
+        -3.45
+       ],
+       [
+        9.75,
+        -3.45
+       ]
+      ],
+      "z": 3.0
+     },
+     "under_stair": {
+      "treatment": "enclosed",
+      "void": "DL_V0_PODSCHODI",
+      "by": [
+       "DL_P0_2",
+       "DL_A0_S",
+       "DL_A0_E",
+       "flight soffit meets the floor at the first riser"
+      ]
+     },
+     "note": "straight flight along the rear wall, bottom approach bay 1.20 m (x 4.50..5.70) reached straight through DL_D4 from the hall or from the corridor; rear wall on the right, spandrel + handrail on the left"
+    }
+   ],
+   "exterior_stairs": [
+    {
+     "id": "DL_ES1",
+     "level_from": "ground",
+     "level_to": "L1",
+     "start": [
+      5.28,
+      -5.65
+     ],
+     "direction_deg": 270.0,
+     "direction_vector": [
+      1.0,
+      -0.0
+     ],
+     "width": 1.1,
+     "riser": 0.1865,
+     "tread": 0.27,
+     "count": 17,
+     "treads": 16,
+     "run": 4.32,
+     "rise": 3.17,
+     "z_start": -0.17,
+     "z_end": 3.0,
+     "top_riser_center": [
+      9.6,
+      -5.65
+     ],
+     "two_r_plus_t": 0.6429,
+     "construction": "galvanised_steel_grating_on_steel_stringers",
+     "waist": 0.25,
+     "handrail": "both",
+     "pitch_deg": 34.6302,
+     "landing": {
+      "id": "DL_PLATFORM",
+      "level": "L1",
+      "polygon": [
+       [
+        9.6,
+        -6.25
+       ],
+       [
+        11.5,
+        -6.25
+       ],
+       [
+        11.5,
+        -5.0
+       ],
+       [
+        9.6,
+        -5.0
+       ]
+      ],
+      "z": 3.0,
+      "thickness": 0.1,
+      "surface": "galvanised_grating"
+     },
+     "under_stair": {
+      "treatment": "filled",
+      "by": [
+       "DL_F17"
+      ],
+      "note": "firewood stack below the flight up to x 8.45 where the soffit reaches 2.10 m above the rear pad; beyond it and under the platform headroom >= 2.10"
+     },
+     "note": "external steel stair along the rear facade rising towards +X to the platform at door DL_D9",
+     "side": "rear_exterior"
+    }
+   ],
+   "balustrades": [
+    {
+     "id": "DL_BAL1",
+     "level": "L1",
+     "polyline": [
+      [
+       5.7,
+       -3.45
+      ],
+      [
+       9.75,
+       -3.45
+      ]
+     ],
+     "height": 1.0,
+     "type": "steel_flat_bar_infill"
+    },
+    {
+     "id": "DL_BAL2",
+     "level": "L1",
+     "polyline": [
+      [
+       5.7,
+       -4.55
+      ],
+      [
+       5.7,
+       -3.45
+      ]
+     ],
+     "height": 1.0,
+     "type": "steel_flat_bar_infill"
+    },
+    {
+     "id": "DL_BAL3",
+     "level": "exterior",
+     "polyline": [
+      [
+       9.6,
+       -6.25
+      ],
+      [
+       11.5,
+       -6.25
+      ],
+      [
+       11.5,
+       -5.0
+      ]
+     ],
+     "height": 1.1,
+     "z": 3.0,
+     "type": "galvanised_steel_rail",
+     "note": "platform guard; flight side guards follow DL_ES1"
+    }
+   ],
+   "balconies": [],
+   "roof": [
+    {
+     "id": "RF_HALA",
+     "type": "gable",
+     "pitch_deg": 30.0,
+     "ridge_axis": "X",
+     "wall_rect": [
+      [
+       -11.5,
+       -5.0
+      ],
+      [
+       4.05,
+       -5.0
+      ],
+      [
+       4.05,
+       5.0
+      ],
+      [
+       -11.5,
+       5.0
+      ]
+     ],
+     "eave_z": 4.6,
+     "ridge_z": 7.4868,
+     "overhang_eave": 0.5,
+     "overhang_verge": {
+      "-X": 0.3,
+      "+X": 0.0
+     },
+     "abuts": {
+      "+X": "DL_A1_W (annex fire wall rises above, lead flashing)"
+     },
+     "material": "fibre_cement_corrugated_grey",
+     "structure": "timber king-post trusses at 3.0 m, tie beams underside z 4.20",
+     "fascia": "timber_board_0.20_brown",
+     "soffit": "open rafters"
+    },
+    {
+     "id": "RF_PRISTAVEK",
+     "type": "gable",
+     "pitch_deg": 35.0,
+     "ridge_axis": "X",
+     "wall_rect": [
+      [
+       4.05,
+       -5.0
+      ],
+      [
+       11.5,
+       -5.0
+      ],
+      [
+       11.5,
+       5.0
+      ],
+      [
+       4.05,
+       5.0
+      ]
+     ],
+     "eave_z": 6.15,
+     "ridge_z": 9.651,
+     "overhang_eave": 0.5,
+     "overhang_verge": {
+      "-X": 0.2,
+      "+X": 0.3
+     },
+     "material": "clay_tile_beaver_tail_red_weathered",
+     "structure": "timber purlin roof, ceiling joists over L1 at z 5.80-6.15 (attic not accessible)",
+     "fascia": "timber_board_0.20_brown",
+     "soffit": "boarded"
+    }
+   ],
+   "gutters": [
+    {
+     "roof": "RF_HALA",
+     "edge": "+Y",
+     "from": [
+      -11.8,
+      5.5
+     ],
+     "to": [
+      4.05,
+      5.5
+     ],
+     "z": 4.55,
+     "profile": "half_round_125_galv"
+    },
+    {
+     "roof": "RF_HALA",
+     "edge": "-Y",
+     "from": [
+      -11.8,
+      -5.5
+     ],
+     "to": [
+      4.05,
+      -5.5
+     ],
+     "z": 4.55,
+     "profile": "half_round_125_galv"
+    },
+    {
+     "roof": "RF_PRISTAVEK",
+     "edge": "+Y",
+     "from": [
+      4.05,
+      5.5
+     ],
+     "to": [
+      11.8,
+      5.5
+     ],
+     "z": 6.1000000000000005,
+     "profile": "half_round_125_zinc"
+    },
+    {
+     "roof": "RF_PRISTAVEK",
+     "edge": "-Y",
+     "from": [
+      4.05,
+      -5.5
+     ],
+     "to": [
+      11.8,
+      -5.5
+     ],
+     "z": 6.1000000000000005,
+     "profile": "half_round_125_zinc"
+    }
+   ],
+   "downpipes": [
+    {
+     "id": "DL_DP1",
+     "pos": [
+      -11.2,
+      5.12
+     ],
+     "top_z": 4.55,
+     "dia": 0.1,
+     "outlet": "splash_block_to_yard_channel"
+    },
+    {
+     "id": "DL_DP2",
+     "pos": [
+      3.75,
+      5.12
+     ],
+     "top_z": 4.55,
+     "dia": 0.1,
+     "outlet": "splash_block_to_yard_channel"
+    },
+    {
+     "id": "DL_DP3",
+     "pos": [
+      -11.2,
+      -5.12
+     ],
+     "top_z": 4.55,
+     "dia": 0.1,
+     "outlet": "rear_pad_channel"
+    },
+    {
+     "id": "DL_DP4",
+     "pos": [
+      3.75,
+      -5.12
+     ],
+     "top_z": 4.55,
+     "dia": 0.1,
+     "outlet": "rear_pad_channel"
+    },
+    {
+     "id": "DL_DP5",
+     "pos": [
+      11.2,
+      5.12
+     ],
+     "top_z": 6.1000000000000005,
+     "dia": 0.1,
+     "outlet": "gully_G_DL1"
+    },
+    {
+     "id": "DL_DP6",
+     "pos": [
+      11.62,
+      -4.6
+     ],
+     "top_z": 6.1000000000000005,
+     "dia": 0.1,
+     "outlet": "old_tailrace_to_brook",
+     "note": "on the east gable face, clear of the stair platform"
+    }
+   ],
+   "drainage": {
+    "yard": "gravel yard falls 1 % towards the brook; a concrete dish channel along the gate side collects DL_DP1/DP2 and the hall gate apron and discharges through the yard low wall into the brook",
+    "rear_pad": "stone-lined drain channel at the foot of RW_DILNA collects the weep holes (every 2.0 m, 0.30 m above the pad) and DL_DP3/DP4, runs NE to the old tailrace beside the annex and into the brook",
+    "gullies": [
+     {
+      "id": "G_DL1",
+      "pos": [
+       11.9,
+       5.6
+      ],
+      "type": "cast_iron_gully_300"
+     }
+    ]
+   },
+   "foundation": {
+    "plinth_height_above_floor": 0.45,
+    "plinth_material": "stone_greywacke_rubble_plinth",
+    "ground_levels": {
+     "front_yard": -0.17,
+     "rear_pad": -0.17,
+     "gable_-X": -0.17,
+     "gable_+X": -0.17
+    },
+    "footing": "stone strip footing 0.60 wide, 0.80 deep (hidden)",
+    "floor_to_terrain_rule": "terrain pad around the building is flat at floor - 0.17 on all sides (one riser)"
+   },
+   "exterior_steps": [
+    {
+     "id": "DL_X1",
+     "at": "DL_G1",
+     "type": "ramp",
+     "polygon": [
+      [
+       -7.2,
+       5.0
+      ],
+      [
+       -3.8,
+       5.0
+      ],
+      [
+       -3.8,
+       6.5
+      ],
+      [
+       -7.2,
+       6.5
+      ]
+     ],
+     "z_top": 0.0,
+     "z_bottom": -0.17,
+     "slope_pct": 11.3333,
+     "material": "concrete_broom"
+    },
+    {
+     "id": "DL_X2",
+     "at": "DL_D7",
+     "type": "step",
+     "polygon": [
+      [
+       7.1,
+       5.0
+      ],
+      [
+       8.5,
+       5.0
+      ],
+      [
+       8.5,
+       5.35
+      ],
+      [
+       7.1,
+       5.35
+      ]
+     ],
+     "risers": 1,
+     "riser": 0.17,
+     "material": "concrete"
+    },
+    {
+     "id": "DL_X3",
+     "at": "DL_D3",
+     "type": "step",
+     "polygon": [
+      [
+       -11.85,
+       0.0
+      ],
+      [
+       -11.5,
+       0.0
+      ],
+      [
+       -11.5,
+       1.4
+      ],
+      [
+       -11.85,
+       1.4
+      ]
+     ],
+     "risers": 1,
+     "riser": 0.17,
+     "material": "stone_slab"
+    },
+    {
+     "id": "DL_X4",
+     "at": "DL_D6",
+     "type": "step",
+     "polygon": [
+      [
+       11.5,
+       2.55
+      ],
+      [
+       11.85,
+       2.55
+      ],
+      [
+       11.85,
+       3.9
+      ],
+      [
+       11.5,
+       3.9
+      ]
+     ],
+     "risers": 1,
+     "riser": 0.17,
+     "material": "concrete"
+    },
+    {
+     "id": "DL_X5",
+     "at": "DL_D2",
+     "type": "step",
+     "polygon": [
+      [
+       -2.75,
+       -5.35
+      ],
+      [
+       -1.35,
+       -5.35
+      ],
+      [
+       -1.35,
+       -5.0
+      ],
+      [
+       -2.75,
+       -5.0
+      ]
+     ],
+     "risers": 1,
+     "riser": 0.17,
+     "material": "concrete"
+    }
+   ],
+   "chimneys": [
+    {
+     "id": "DL_CH1",
+     "type": "steel_flue",
+     "pos": [
+      -9.5,
+      -5.25
+     ],
+     "size": [
+      0.2,
+      0.2
+     ],
+     "top_z": 8.0,
+     "note": "stove flue on the rear facade of the hall, 0.25 m off the wall"
+    }
+   ],
+   "furniture": [
+    {
+     "id": "DL_F1",
+     "level": "L0",
+     "type": "tractor_dismantled",
+     "center": [
+      -5.5,
+      0.6
+     ],
+     "size": [
+      3.8,
+      1.9,
+      2.4
+     ],
+     "rotation_deg": 0,
+     "cover": "high",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true,
+     "note": "old tractor on blocks, wheels off -- the hall's central hard cover"
+    },
+    {
+     "id": "DL_F2",
+     "level": "L0",
+     "type": "lathe",
+     "center": [
+      1.3,
+      -3.35
+     ],
+     "size": [
+      2.6,
+      1.0,
+      1.4
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DL_F3",
+     "level": "L0",
+     "type": "lathe",
+     "center": [
+      -8.4,
+      -3.35
+     ],
+     "size": [
+      2.6,
+      1.0,
+      1.4
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DL_F4",
+     "level": "L0",
+     "type": "milling_machine",
+     "center": [
+      2.4,
+      2.9
+     ],
+     "size": [
+      1.6,
+      1.4,
+      2.1
+     ],
+     "rotation_deg": 0,
+     "cover": "high",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DL_F5",
+     "level": "L0",
+     "type": "workbench",
+     "center": [
+      -10.45,
+      -1.6
+     ],
+     "size": [
+      0.8,
+      2.6,
+      0.95
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DL_F6",
+     "level": "L0",
+     "type": "profile_rack_steel",
+     "center": [
+      -2.3,
+      1.6
+     ],
+     "size": [
+      0.8,
+      4.0,
+      2.4
+     ],
+     "rotation_deg": 0,
+     "cover": "high",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true,
+     "note": "steel profile rack as a room divider: splits the hall into two lanes"
+    },
+    {
+     "id": "DL_F7",
+     "level": "L0",
+     "type": "oil_drums_x4",
+     "center": [
+      -3.6,
+      -3.9
+     ],
+     "size": [
+      1.2,
+      1.2,
+      0.9
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DL_F8",
+     "level": "L0",
+     "type": "pallet_stack",
+     "center": [
+      -10.35,
+      -4.0
+     ],
+     "size": [
+      1.2,
+      1.0,
+      1.1
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DL_F9",
+     "level": "L0",
+     "type": "welding_cart",
+     "center": [
+      0.6,
+      -0.9
+     ],
+     "size": [
+      0.8,
+      0.6,
+      1.0
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DL_F10",
+     "level": "L0",
+     "type": "compressor",
+     "center": [
+      -10.25,
+      3.85
+     ],
+     "size": [
+      1.4,
+      0.7,
+      1.1
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DL_F11",
+     "level": "L0",
+     "type": "lockers_row",
+     "center": [
+      6.3,
+      -1.7
+     ],
+     "size": [
+      2.6,
+      0.5,
+      1.9
+     ],
+     "rotation_deg": 0,
+     "cover": "high",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DL_F12",
+     "level": "L0",
+     "type": "desk_steel",
+     "center": [
+      8.2,
+      0.6
+     ],
+     "size": [
+      1.6,
+      0.8,
+      0.75
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DL_F13",
+     "level": "L0",
+     "type": "tool_shelving",
+     "center": [
+      10.8,
+      -0.2
+     ],
+     "size": [
+      0.5,
+      1.6,
+      2.0
+     ],
+     "rotation_deg": 0,
+     "cover": "high",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DL_F14",
+     "level": "L1",
+     "type": "desk_timber",
+     "center": [
+      7.6,
+      1.8
+     ],
+     "size": [
+      1.6,
+      0.8,
+      0.75
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DL_F15",
+     "level": "L1",
+     "type": "filing_cabinets",
+     "center": [
+      4.8,
+      1.0
+     ],
+     "size": [
+      0.5,
+      2.0,
+      1.4
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DL_F16",
+     "level": "L1",
+     "type": "sofa_old",
+     "center": [
+      9.6,
+      4.05
+     ],
+     "size": [
+      2.0,
+      0.9,
+      0.85
+     ],
+     "rotation_deg": 0,
+     "cover": "none",
+     "collision": true,
+     "blocks_bullets": false,
+     "blocks_vision": true,
+     "note": "soft furniture: concealment only"
+    },
+    {
+     "id": "DL_F17",
+     "level": "exterior",
+     "type": "firewood_under_stair",
+     "center": [
+      6.865,
+      -5.65
+     ],
+     "size": [
+      3.17,
+      1.1,
+      1.95
+     ],
+     "rotation_deg": 0,
+     "cover": "high",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true,
+     "shape": "wedge_under_soffit",
+     "note": "fills the space below DL_ES1 from its foot to x 8.45 (collision); top follows the stair soffit - 0.02"
+    }
+   ],
+   "zone_notes": "zone_dilna counts the hall floor, the tool room and the yard; the stair bay/corridor strip and the whole upper floor (z >= +3.00, 0.50 m above z_max) are outside the capture polygon"
+  },
+  {
+   "id": "B_SKLAD",
+   "type": "mensi_sklad",
+   "name": "Menší sklad (stavebniny a zemědělské potřeby)",
+   "enterable": true,
+   "story": "Sklad hnojiv a osiv postavilo JZD v roce 1976 na 1 m vysokém protipovodňovém násypu u návsi; v roce 2004 ho firma Stavebniny Kalina (fiktivní) přestavěla na ocelovou halu. Podlaha je ve výšce ložné plochy nákladního auta nad dvorem, zadní strana je zapuštěná do svahu.",
+   "local_origin": "centre of the external footprint X[-12.25,12.25] x Y[-7.75,7.75] at finished floor (z 0.00); +Y = front (loading dock)",
+   "footprint_external": [
+    24.5,
+    15.5
+   ],
+   "footprint_parts": [
+    {
+     "part": "hall",
+     "external_rect": [
+      [
+       -12.25,
+       -7.75
+      ],
+      [
+       12.25,
+       -7.75
+      ],
+      [
+       12.25,
+       7.75
+      ],
+      [
+       -12.25,
+       7.75
+      ]
+     ],
+     "interior_rect": [
+      [
+       -12.0,
+       -7.5
+      ],
+      [
+       12.0,
+       -7.5
+      ],
+      [
+       12.0,
+       7.5
+      ],
+      [
+       -12.0,
+       7.5
+      ]
+     ],
+     "walls": {
+      "x": [
+       0.25,
+       0.25
+      ],
+      "y": [
+       0.25,
+       0.25
+      ]
+     },
+     "check": "24.50 = 0.25 + 24.00 + 0.25; 15.50 = 0.25 + 15.00 + 0.25"
+    }
+   ],
+   "structure": "5 steel portal frames at 6.0 m, HEA240 columns on the inner face of the cladding zone, 0.25 m external wall zone = 0.12 sandwich panel + girts (0.25 precast concrete plinth panel up to +1.00)",
+   "levels": [
+    {
+     "id": "L0",
+     "name": "Hala",
+     "floor_z": 0.0,
+     "ceiling_height": 5.5,
+     "floor_thickness": 0.2,
+     "note": "clear height to rafter haunches 5.50; floor is 1.10 above the front yard (truck-bed height) and at grade at the rear"
+    }
+   ],
+   "rooms": [
+    {
+     "id": "SK_R_HALA",
+     "level": "L0",
+     "name": "Skladová hala",
+     "polygon": [
+      [
+       -12.0,
+       -7.5
+      ],
+      [
+       12.0,
+       -7.5
+      ],
+      [
+       12.0,
+       7.5
+      ],
+      [
+       -8.0,
+       7.5
+      ],
+      [
+       -8.0,
+       2.2
+      ],
+      [
+       -12.0,
+       2.2
+      ]
+     ],
+     "ceiling_height": 5.5,
+     "floor_material": "concrete_industrial_sealed",
+     "in_zone": "front half"
+    },
+    {
+     "id": "SK_R_KANCELAR",
+     "level": "L0",
+     "name": "Kancelář skladu",
+     "polygon": [
+      [
+       -12.0,
+       2.35
+      ],
+      [
+       -8.15,
+       2.35
+      ],
+      [
+       -8.15,
+       7.5
+      ],
+      [
+       -12.0,
+       7.5
+      ]
+     ],
+     "ceiling_height": 3.0,
+     "floor_material": "vinyl_tiles_grey",
+     "note": "suspended ceiling 3.00; office roof deck at 3.20 is NOT accessible (no ladder)"
+    }
+   ],
+   "sealed_voids": [],
+   "walls": [
+    {
+     "id": "SK_S",
+     "level": "L0",
+     "start": [
+      -12.25,
+      -7.625
+     ],
+     "end": [
+      12.25,
+      -7.625
+     ],
+     "thickness": 0.25,
+     "base_z": 0.0,
+     "height": 6.0,
+     "kind": "external",
+     "material": "steel_frame_sandwich_cladding_250",
+     "finish_left": "sandwich_panel_liner_white",
+     "finish_right": "sandwich_panel_ribbed_greygreen_over_concrete_plinth_1000",
+     "length": 24.5,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        1.25
+       ],
+       "z": [
+        0.0,
+        6.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        1.25,
+        5.65
+       ],
+       "z": [
+        0.0,
+        4.2
+       ],
+       "of": "SK_WH1"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        1.25,
+        5.65
+       ],
+       "z": [
+        5.2,
+        6.0
+       ],
+       "of": "SK_WH1"
+      },
+      {
+       "part": "pier",
+       "u": [
+        5.65,
+        7.25
+       ],
+       "z": [
+        0.0,
+        6.0
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        7.25,
+        11.25
+       ],
+       "z": [
+        4.2,
+        6.0
+       ],
+       "of": "SK_RD3"
+      },
+      {
+       "part": "pier",
+       "u": [
+        11.25,
+        12.85
+       ],
+       "z": [
+        0.0,
+        6.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        12.85,
+        19.67
+       ],
+       "z": [
+        0.0,
+        4.2
+       ],
+       "of": "SK_WH2"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        12.85,
+        23.25
+       ],
+       "z": [
+        5.2,
+        6.0
+       ],
+       "of": "SK_WH2"
+      },
+      {
+       "part": "transom",
+       "u": [
+        19.67,
+        20.93
+       ],
+       "z": [
+        2.3,
+        4.2
+       ],
+       "of": "SK_WH2"
+      },
+      {
+       "part": "sill",
+       "u": [
+        20.93,
+        23.25
+       ],
+       "z": [
+        0.0,
+        4.2
+       ],
+       "of": "SK_WH2"
+      },
+      {
+       "part": "pier",
+       "u": [
+        23.25,
+        24.5
+       ],
+       "z": [
+        0.0,
+        6.0
+       ]
+      }
+     ]
+    },
+    {
+     "id": "SK_E",
+     "level": "L0",
+     "start": [
+      12.125,
+      -7.5
+     ],
+     "end": [
+      12.125,
+      7.5
+     ],
+     "thickness": 0.25,
+     "base_z": 0.0,
+     "height": 6.0,
+     "kind": "external",
+     "material": "steel_frame_sandwich_cladding_250",
+     "finish_left": "sandwich_panel_liner_white",
+     "finish_right": "sandwich_panel_ribbed_greygreen_over_concrete_plinth_1000",
+     "gable_above": true,
+     "gable_roof": "RF_SKLAD",
+     "length": 15.0,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        2.5
+       ],
+       "z": [
+        0.0,
+        6.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        2.5,
+        7.42
+       ],
+       "z": [
+        0.0,
+        4.2
+       ],
+       "of": "SK_WH4"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        2.5,
+        12.5
+       ],
+       "z": [
+        5.2,
+        6.0
+       ],
+       "of": "SK_WH4"
+      },
+      {
+       "part": "transom",
+       "u": [
+        7.42,
+        8.68
+       ],
+       "z": [
+        2.3,
+        4.2
+       ],
+       "of": "SK_WH4"
+      },
+      {
+       "part": "sill",
+       "u": [
+        8.68,
+        12.5
+       ],
+       "z": [
+        0.0,
+        4.2
+       ],
+       "of": "SK_WH4"
+      },
+      {
+       "part": "pier",
+       "u": [
+        12.5,
+        15.0
+       ],
+       "z": [
+        0.0,
+        6.0
+       ]
+      }
+     ]
+    },
+    {
+     "id": "SK_N",
+     "level": "L0",
+     "start": [
+      12.25,
+      7.625
+     ],
+     "end": [
+      -12.25,
+      7.625
+     ],
+     "thickness": 0.25,
+     "base_z": 0.0,
+     "height": 6.0,
+     "kind": "external",
+     "material": "steel_frame_sandwich_cladding_250",
+     "finish_left": "sandwich_panel_liner_white",
+     "finish_right": "sandwich_panel_ribbed_greygreen_over_concrete_plinth_1000",
+     "length": 24.5,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        1.25
+       ],
+       "z": [
+        0.0,
+        6.0
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        1.25,
+        5.25
+       ],
+       "z": [
+        4.2,
+        6.0
+       ],
+       "of": "SK_RD2"
+      },
+      {
+       "part": "pier",
+       "u": [
+        5.25,
+        10.27
+       ],
+       "z": [
+        0.0,
+        6.0
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        10.27,
+        11.53
+       ],
+       "z": [
+        2.3,
+        6.0
+       ],
+       "of": "SK_D1"
+      },
+      {
+       "part": "pier",
+       "u": [
+        11.53,
+        13.25
+       ],
+       "z": [
+        0.0,
+        6.0
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        13.25,
+        17.25
+       ],
+       "z": [
+        4.2,
+        6.0
+       ],
+       "of": "SK_RD1"
+      },
+      {
+       "part": "pier",
+       "u": [
+        17.25,
+        20.95
+       ],
+       "z": [
+        0.0,
+        6.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        20.95,
+        21.95
+       ],
+       "z": [
+        0.0,
+        1.0
+       ],
+       "of": "SK_W1"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        20.95,
+        21.95
+       ],
+       "z": [
+        2.2,
+        6.0
+       ],
+       "of": "SK_W1"
+      },
+      {
+       "part": "pier",
+       "u": [
+        21.95,
+        22.47
+       ],
+       "z": [
+        0.0,
+        6.0
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        22.47,
+        23.73
+       ],
+       "z": [
+        2.3,
+        6.0
+       ],
+       "of": "SK_D2"
+      },
+      {
+       "part": "pier",
+       "u": [
+        23.73,
+        24.5
+       ],
+       "z": [
+        0.0,
+        6.0
+       ]
+      }
+     ]
+    },
+    {
+     "id": "SK_W",
+     "level": "L0",
+     "start": [
+      -12.125,
+      7.5
+     ],
+     "end": [
+      -12.125,
+      -7.5
+     ],
+     "thickness": 0.25,
+     "base_z": 0.0,
+     "height": 6.0,
+     "kind": "external",
+     "material": "steel_frame_sandwich_cladding_250",
+     "finish_left": "sandwich_panel_liner_white",
+     "finish_right": "sandwich_panel_ribbed_greygreen_over_concrete_plinth_1000",
+     "gable_above": true,
+     "gable_roof": "RF_SKLAD",
+     "length": 15.0,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        1.8
+       ],
+       "z": [
+        0.0,
+        6.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        1.8,
+        3.0
+       ],
+       "z": [
+        0.0,
+        1.0
+       ],
+       "of": "SK_W2"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        1.8,
+        3.0
+       ],
+       "z": [
+        2.2,
+        6.0
+       ],
+       "of": "SK_W2"
+      },
+      {
+       "part": "pier",
+       "u": [
+        3.0,
+        5.0
+       ],
+       "z": [
+        0.0,
+        6.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        5.0,
+        12.32
+       ],
+       "z": [
+        0.0,
+        4.2
+       ],
+       "of": "SK_WH3"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        5.0,
+        13.0
+       ],
+       "z": [
+        5.2,
+        6.0
+       ],
+       "of": "SK_WH3"
+      },
+      {
+       "part": "transom",
+       "u": [
+        12.32,
+        13.0
+       ],
+       "z": [
+        2.3,
+        4.2
+       ],
+       "of": "SK_WH3"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        13.0,
+        13.58
+       ],
+       "z": [
+        2.3,
+        6.0
+       ],
+       "of": "SK_D5"
+      },
+      {
+       "part": "pier",
+       "u": [
+        13.58,
+        15.0
+       ],
+       "z": [
+        0.0,
+        6.0
+       ]
+      }
+     ]
+    },
+    {
+     "id": "SK_P1",
+     "level": "L0",
+     "start": [
+      -12.0,
+      2.275
+     ],
+     "end": [
+      -8.0,
+      2.275
+     ],
+     "thickness": 0.15,
+     "base_z": 0.0,
+     "height": 3.0,
+     "kind": "internal",
+     "material": "block_partition_150",
+     "finish_left": "plaster_white",
+     "finish_right": "plaster_white",
+     "note": "office | hall (along X)",
+     "length": 4.0,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        4.0
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      }
+     ]
+    },
+    {
+     "id": "SK_P2",
+     "level": "L0",
+     "start": [
+      -8.075,
+      2.35
+     ],
+     "end": [
+      -8.075,
+      7.5
+     ],
+     "thickness": 0.15,
+     "base_z": 0.0,
+     "height": 3.0,
+     "kind": "internal",
+     "material": "block_partition_150",
+     "finish_left": "plaster_white",
+     "finish_right": "plaster_white",
+     "note": "office | hall (along Y)",
+     "length": 5.15,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        0.575
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        0.575,
+        1.825
+       ],
+       "z": [
+        2.3,
+        3.0
+       ],
+       "of": "SK_D3"
+      },
+      {
+       "part": "pier",
+       "u": [
+        1.825,
+        2.8
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        2.8,
+        4.3
+       ],
+       "z": [
+        0.0,
+        1.0
+       ],
+       "of": "SK_W3"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        2.8,
+        4.3
+       ],
+       "z": [
+        2.2,
+        3.0
+       ],
+       "of": "SK_W3"
+      },
+      {
+       "part": "pier",
+       "u": [
+        4.3,
+        5.15
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      }
+     ]
+    }
+   ],
+   "openings": [
+    {
+     "id": "SK_RD1",
+     "wall_id": "SK_N",
+     "type": "roller_door",
+     "offset_from_start": 13.25,
+     "width": 4.0,
+     "sill_height": 0.0,
+     "head_height": 4.2,
+     "has_leaf": true,
+     "guide_rails": 0.05,
+     "clear_width": 3.9,
+     "clear_height": 4.15,
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true,
+      "note": "open part passes; closed curtain above/below blocks bullets and vision"
+     },
+     "state": {
+      "open_height": 4.2
+     },
+     "note": "bay -6..0, fully open (curtain rolled up)"
+    },
+    {
+     "id": "SK_RD2",
+     "wall_id": "SK_N",
+     "type": "roller_door",
+     "offset_from_start": 1.25,
+     "width": 4.0,
+     "sill_height": 0.0,
+     "head_height": 4.2,
+     "has_leaf": true,
+     "guide_rails": 0.05,
+     "clear_width": 3.9,
+     "clear_height": 0.0,
+     "passes": {
+      "movement": false,
+      "bullets": false,
+      "vision": false,
+      "note": "open part passes; closed curtain above/below blocks bullets and vision"
+     },
+     "state": {
+      "open_height": 0.0
+     },
+     "note": "bay +6..+12, closed and padlocked (solid collision, blocks bullets); baked as wall in the navmesh"
+    },
+    {
+     "id": "SK_D1",
+     "wall_id": "SK_N",
+     "type": "door",
+     "offset_from_start": 10.27,
+     "width": 1.26,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "start",
+     "swing": "left",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.26 - 2 x 0.05 frame - 1 x 0.06 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "steel_insulated",
+      "thickness": 0.06,
+      "material": "steel_blue_grey"
+     },
+     "note": "personnel door onto the dock"
+    },
+    {
+     "id": "SK_D2",
+     "wall_id": "SK_N",
+     "type": "door",
+     "offset_from_start": 22.47,
+     "width": 1.26,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "end",
+     "swing": "left",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.26 - 2 x 0.05 frame - 1 x 0.06 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "steel_insulated_glazed",
+      "thickness": 0.06,
+      "material": "steel_blue_grey"
+     },
+     "note": "office door onto the dock"
+    },
+    {
+     "id": "SK_W1",
+     "wall_id": "SK_N",
+     "type": "window",
+     "offset_from_start": 20.95,
+     "width": 1.0,
+     "sill_height": 1.0,
+     "head_height": 2.2,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "pvc_double_glazed"
+    },
+    {
+     "id": "SK_RD3",
+     "wall_id": "SK_S",
+     "type": "roller_door",
+     "offset_from_start": 7.25,
+     "width": 4.0,
+     "sill_height": 0.0,
+     "head_height": 4.2,
+     "has_leaf": true,
+     "guide_rails": 0.05,
+     "clear_width": 3.9,
+     "clear_height": 2.55,
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true,
+      "note": "open part passes; closed curtain above/below blocks bullets and vision"
+     },
+     "state": {
+      "open_height": 2.6
+     },
+     "note": "partly open: 3.90 x 2.55 clear passage, curtain above blocks vision/bullets"
+    },
+    {
+     "id": "SK_D4",
+     "wall_id": "SK_S",
+     "type": "door",
+     "offset_from_start": 19.67,
+     "width": 1.26,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "start",
+     "swing": "right",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.26 - 2 x 0.05 frame - 1 x 0.06 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "steel_insulated",
+      "thickness": 0.06,
+      "material": "steel_blue_grey"
+     }
+    },
+    {
+     "id": "SK_WH1",
+     "wall_id": "SK_S",
+     "type": "window",
+     "offset_from_start": 1.25,
+     "width": 4.4,
+     "sill_height": 4.2,
+     "head_height": 5.2,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": false,
+      "note": "translucent strip: blocks vision, passes bullets"
+     },
+     "glazing": "polycarbonate_translucent",
+     "note": "high strip light, opaque for vision"
+    },
+    {
+     "id": "SK_WH2",
+     "wall_id": "SK_S",
+     "type": "window",
+     "offset_from_start": 12.85,
+     "width": 10.4,
+     "sill_height": 4.2,
+     "head_height": 5.2,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": false,
+      "note": "translucent strip: blocks vision, passes bullets"
+     },
+     "glazing": "polycarbonate_translucent",
+     "note": "high strip light, opaque for vision"
+    },
+    {
+     "id": "SK_D5",
+     "wall_id": "SK_W",
+     "type": "door",
+     "offset_from_start": 12.32,
+     "width": 1.26,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "start",
+     "swing": "right",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.26 - 2 x 0.05 frame - 1 x 0.06 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "steel_insulated",
+      "thickness": 0.06,
+      "material": "steel_blue_grey"
+     }
+    },
+    {
+     "id": "SK_W2",
+     "wall_id": "SK_W",
+     "type": "window",
+     "offset_from_start": 1.8,
+     "width": 1.2,
+     "sill_height": 1.0,
+     "head_height": 2.2,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "pvc_double_glazed",
+     "note": "office"
+    },
+    {
+     "id": "SK_WH3",
+     "wall_id": "SK_W",
+     "type": "window",
+     "offset_from_start": 5.0,
+     "width": 8.0,
+     "sill_height": 4.2,
+     "head_height": 5.2,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": false,
+      "note": "translucent strip: blocks vision, passes bullets"
+     },
+     "glazing": "polycarbonate_translucent"
+    },
+    {
+     "id": "SK_D6",
+     "wall_id": "SK_E",
+     "type": "door",
+     "offset_from_start": 7.42,
+     "width": 1.26,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "end",
+     "swing": "left",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.26 - 2 x 0.05 frame - 1 x 0.06 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "steel_insulated",
+      "thickness": 0.06,
+      "material": "steel_blue_grey"
+     }
+    },
+    {
+     "id": "SK_WH4",
+     "wall_id": "SK_E",
+     "type": "window",
+     "offset_from_start": 2.5,
+     "width": 10.0,
+     "sill_height": 4.2,
+     "head_height": 5.2,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": false,
+      "note": "translucent strip: blocks vision, passes bullets"
+     },
+     "glazing": "polycarbonate_translucent"
+    },
+    {
+     "id": "SK_D3",
+     "wall_id": "SK_P2",
+     "type": "door",
+     "offset_from_start": 0.575,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "start",
+     "swing": "right",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_flush",
+      "thickness": 0.05,
+      "material": "hpl_grey"
+     },
+     "note": "office -> hall"
+    },
+    {
+     "id": "SK_W3",
+     "wall_id": "SK_P2",
+     "type": "window",
+     "offset_from_start": 2.8,
+     "width": 1.5,
+     "sill_height": 1.0,
+     "head_height": 2.2,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "internal_single_glazed",
+     "note": "office window into the hall"
+    }
+   ],
+   "columns": [
+    {
+     "center": [
+      -11.88,
+      -7.38
+     ],
+     "size": [
+      0.24,
+      0.24
+     ],
+     "height": 6.0,
+     "section": "HEA240",
+     "material": "steel_painted_blue_grey"
+    },
+    {
+     "center": [
+      -11.88,
+      7.38
+     ],
+     "size": [
+      0.24,
+      0.24
+     ],
+     "height": 6.0,
+     "section": "HEA240",
+     "material": "steel_painted_blue_grey"
+    },
+    {
+     "center": [
+      -6.0,
+      -7.38
+     ],
+     "size": [
+      0.24,
+      0.24
+     ],
+     "height": 6.0,
+     "section": "HEA240",
+     "material": "steel_painted_blue_grey"
+    },
+    {
+     "center": [
+      -6.0,
+      7.38
+     ],
+     "size": [
+      0.24,
+      0.24
+     ],
+     "height": 6.0,
+     "section": "HEA240",
+     "material": "steel_painted_blue_grey"
+    },
+    {
+     "center": [
+      0.0,
+      -7.38
+     ],
+     "size": [
+      0.24,
+      0.24
+     ],
+     "height": 6.0,
+     "section": "HEA240",
+     "material": "steel_painted_blue_grey"
+    },
+    {
+     "center": [
+      0.0,
+      7.38
+     ],
+     "size": [
+      0.24,
+      0.24
+     ],
+     "height": 6.0,
+     "section": "HEA240",
+     "material": "steel_painted_blue_grey"
+    },
+    {
+     "center": [
+      6.0,
+      -7.38
+     ],
+     "size": [
+      0.24,
+      0.24
+     ],
+     "height": 6.0,
+     "section": "HEA240",
+     "material": "steel_painted_blue_grey"
+    },
+    {
+     "center": [
+      6.0,
+      7.38
+     ],
+     "size": [
+      0.24,
+      0.24
+     ],
+     "height": 6.0,
+     "section": "HEA240",
+     "material": "steel_painted_blue_grey"
+    },
+    {
+     "center": [
+      11.88,
+      -7.38
+     ],
+     "size": [
+      0.24,
+      0.24
+     ],
+     "height": 6.0,
+     "section": "HEA240",
+     "material": "steel_painted_blue_grey"
+    },
+    {
+     "center": [
+      11.88,
+      7.38
+     ],
+     "size": [
+      0.24,
+      0.24
+     ],
+     "height": 6.0,
+     "section": "HEA240",
+     "material": "steel_painted_blue_grey"
+    },
+    {
+     "center": [
+      -11.9,
+      -3.0
+     ],
+     "size": [
+      0.2,
+      0.2
+     ],
+     "height": 6.5,
+     "section": "HEA200 gable post",
+     "material": "steel_painted_blue_grey"
+    },
+    {
+     "center": [
+      11.9,
+      -3.0
+     ],
+     "size": [
+      0.2,
+      0.2
+     ],
+     "height": 6.5,
+     "section": "HEA200 gable post",
+     "material": "steel_painted_blue_grey"
+    },
+    {
+     "center": [
+      -11.9,
+      3.0
+     ],
+     "size": [
+      0.2,
+      0.2
+     ],
+     "height": 6.5,
+     "section": "HEA200 gable post",
+     "material": "steel_painted_blue_grey"
+    },
+    {
+     "center": [
+      11.9,
+      3.0
+     ],
+     "size": [
+      0.2,
+      0.2
+     ],
+     "height": 6.5,
+     "section": "HEA200 gable post",
+     "material": "steel_painted_blue_grey"
+    }
+   ],
+   "slabs": [],
+   "stairs": [],
+   "exterior_stairs": [
+    {
+     "id": "SK_X1",
+     "level_from": "ground",
+     "level_to": "L0",
+     "start": [
+      -13.65,
+      9.25
+     ],
+     "direction_deg": 270.0,
+     "direction_vector": [
+      1.0,
+      -0.0
+     ],
+     "width": 1.5,
+     "riser": 0.1833,
+     "tread": 0.28,
+     "count": 6,
+     "treads": 5,
+     "run": 1.4,
+     "rise": 1.1,
+     "z_start": -1.1,
+     "z_end": 0.0,
+     "top_riser_center": [
+      -12.25,
+      9.25
+     ],
+     "two_r_plus_t": 0.6467,
+     "construction": "precast_concrete_steps",
+     "waist": 0.0,
+     "handrail": "outer side",
+     "pitch_deg": 33.2153,
+     "under_stair": {
+      "treatment": "solid_mass"
+     },
+     "note": "dock west end, rises +X onto the dock"
+    },
+    {
+     "id": "SK_X2",
+     "level_from": "ground",
+     "level_to": "L0",
+     "start": [
+      0.0,
+      12.15
+     ],
+     "direction_deg": 180.0,
+     "direction_vector": [
+      -0.0,
+      -1.0
+     ],
+     "width": 2.0,
+     "riser": 0.1833,
+     "tread": 0.28,
+     "count": 6,
+     "treads": 5,
+     "run": 1.4,
+     "rise": 1.1,
+     "z_start": -1.1,
+     "z_end": 0.0,
+     "top_riser_center": [
+      -0.0,
+      10.75
+     ],
+     "two_r_plus_t": 0.6467,
+     "construction": "precast_concrete_steps",
+     "waist": 0.0,
+     "handrail": "none (2.0 wide, open both sides)",
+     "pitch_deg": 33.2153,
+     "under_stair": {
+      "treatment": "solid_mass"
+     },
+     "note": "dock middle, rises -Y onto the dock"
+    }
+   ],
+   "balustrades": [],
+   "balconies": [],
+   "roof": [
+    {
+     "id": "RF_SKLAD",
+     "type": "gable",
+     "pitch_deg": 10.0,
+     "ridge_axis": "X",
+     "wall_rect": [
+      [
+       -12.25,
+       -7.75
+      ],
+      [
+       12.25,
+       -7.75
+      ],
+      [
+       12.25,
+       7.75
+      ],
+      [
+       -12.25,
+       7.75
+      ]
+     ],
+     "eave_z": 6.0,
+     "ridge_z": 7.3665,
+     "overhang_eave": 0.3,
+     "overhang_verge": {
+      "-X": 0.2,
+      "+X": 0.2
+     },
+     "material": "trapezoidal_sheet_greygreen",
+     "structure": "steel portal frames at 6.0 m (IPE360 rafters), Z-purlins",
+     "fascia": "steel_flashing_greygreen"
+    },
+    {
+     "id": "RF_RAMPA",
+     "type": "mono",
+     "pitch_deg": 5.0,
+     "slope_direction": "+Y",
+     "rect": [
+      [
+       -12.25,
+       7.75
+      ],
+      [
+       12.25,
+       7.75
+      ],
+      [
+       12.25,
+       11.25
+      ],
+      [
+       -12.25,
+       11.25
+      ]
+     ],
+     "eave_z": 4.4938,
+     "high_z": 4.8,
+     "material": "trapezoidal_sheet_greygreen",
+     "supports": [
+      {
+       "pos": [
+        -12.0,
+        10.6
+       ],
+       "size": [
+        0.16,
+        0.16
+       ]
+      },
+      {
+       "pos": [
+        0.0,
+        10.6
+       ],
+       "size": [
+        0.16,
+        0.16
+       ]
+      },
+      {
+       "pos": [
+        12.0,
+        10.6
+       ],
+       "size": [
+        0.16,
+        0.16
+       ]
+      }
+     ],
+     "note": "dock canopy on cantilever brackets, posts at the dock edge"
+    }
+   ],
+   "gutters": [
+    {
+     "roof": "RF_SKLAD",
+     "edge": "+Y",
+     "from": [
+      -12.45,
+      8.05
+     ],
+     "to": [
+      12.45,
+      8.05
+     ],
+     "z": 5.95,
+     "profile": "box_150_galv",
+     "note": "discharges onto canopy RF_RAMPA via spreaders"
+    },
+    {
+     "roof": "RF_SKLAD",
+     "edge": "-Y",
+     "from": [
+      -12.45,
+      -8.05
+     ],
+     "to": [
+      12.45,
+      -8.05
+     ],
+     "z": 5.95,
+     "profile": "box_150_galv"
+    },
+    {
+     "roof": "RF_RAMPA",
+     "edge": "+Y",
+     "from": [
+      -12.25,
+      11.3
+     ],
+     "to": [
+      12.25,
+      11.3
+     ],
+     "z": 4.45,
+     "profile": "half_round_150_galv"
+    }
+   ],
+   "downpipes": [
+    {
+     "id": "SK_DP1",
+     "pos": [
+      -12.1,
+      -7.9
+     ],
+     "top_z": 5.95,
+     "dia": 0.12,
+     "outlet": "gully_G_SK1"
+    },
+    {
+     "id": "SK_DP2",
+     "pos": [
+      0.35,
+      -7.9
+     ],
+     "top_z": 5.95,
+     "dia": 0.12,
+     "outlet": "gully_G_SK2"
+    },
+    {
+     "id": "SK_DP3",
+     "pos": [
+      12.1,
+      -7.9
+     ],
+     "top_z": 5.95,
+     "dia": 0.12,
+     "outlet": "gully_G_SK3"
+    },
+    {
+     "id": "SK_DP4",
+     "pos": [
+      -12.0,
+      10.75
+     ],
+     "top_z": 4.45,
+     "dia": 0.12,
+     "outlet": "dock_foot_channel",
+     "note": "fixed to canopy post"
+    },
+    {
+     "id": "SK_DP5",
+     "pos": [
+      12.0,
+      10.75
+     ],
+     "top_z": 4.45,
+     "dia": 0.12,
+     "outlet": "dock_foot_channel",
+     "note": "fixed to canopy post"
+    }
+   ],
+   "drainage": {
+    "rear": "three cast-iron gullies at the rear downpipes, piped to a soakaway under the rear yard",
+    "dock": "slotted concrete channel along the dock foot (yard side) collects the canopy downpipes and the yard; outfall to the road-side ditch of ROAD_B at the yard gate",
+    "gullies": [
+     {
+      "id": "G_SK1",
+      "pos": [
+       -12.1,
+       -8.3
+      ]
+     },
+     {
+      "id": "G_SK2",
+      "pos": [
+       0.35,
+       -8.3
+      ]
+     },
+     {
+      "id": "G_SK3",
+      "pos": [
+       12.1,
+       -8.3
+      ]
+     }
+    ]
+   },
+   "foundation": {
+    "plinth_height_above_floor": 1.0,
+    "plinth_material": "precast_concrete_plinth_panel",
+    "ground_levels": {
+     "front_yard (+Y beyond dock)": -1.1,
+     "rear (-Y)": -0.05,
+     "gables (+-X, 3 m aprons)": -0.05,
+     "note": "building + rear yard + gable aprons sit on one pad cut into the slope; the front yard is the old 1976 flood-protection fill, 1.10 lower (truck-bed height)"
+    },
+    "footing": "pad footings under columns, ground beam (hidden)"
+   },
+   "loading_dock": {
+    "id": "SK_DOCK",
+    "type": "loading_dock",
+    "polygon": [
+     [
+      -12.25,
+      7.75
+     ],
+     [
+      12.25,
+      7.75
+     ],
+     [
+      12.25,
+      10.75
+     ],
+     [
+      -12.25,
+      10.75
+     ]
+    ],
+    "top_z": 0.0,
+    "bottom_z": -1.1,
+    "edge": "steel angle nosing + 4 rubber bumpers (0.25 proud) at x = -8, -3, 3, 8",
+    "material": "concrete_broom",
+    "note": "1.10 m edge is NOT a step (max step 0.40): access via SK_X1/SK_X2/SK_X3 only; one-way drop down allowed"
+   },
+   "exterior_steps": [
+    {
+     "id": "SK_X3",
+     "at": "dock east end",
+     "type": "ramp",
+     "polygon": [
+      [
+       12.25,
+       7.75
+      ],
+      [
+       18.85,
+       7.75
+      ],
+      [
+       18.85,
+       10.75
+      ],
+      [
+       12.25,
+       10.75
+      ]
+     ],
+     "z_top": 0.0,
+     "z_bottom": -1.1,
+     "slope_pct": 16.6667,
+     "rise_direction_deg": 90.0,
+     "material": "concrete_broom",
+     "note": "vehicle/pallet ramp 1:6 (9.5 deg), walkable, rises towards -X onto the dock"
+    },
+    {
+     "id": "SK_X4",
+     "at": "SK_D5",
+     "type": "threshold",
+     "polygon": [
+      [
+       -12.55,
+       -6.2
+      ],
+      [
+       -12.25,
+       -6.2
+      ],
+      [
+       -12.25,
+       -4.7
+      ],
+      [
+       -12.55,
+       -4.7
+      ]
+     ],
+     "risers": 0,
+     "riser": 0.05,
+     "apron": {
+      "polygon": [
+       [
+        -15.25,
+        -7.75
+       ],
+       [
+        -12.25,
+        -7.75
+       ],
+       [
+        -12.25,
+        7.75
+       ],
+       [
+        -15.25,
+        7.75
+       ]
+      ],
+      "z": -0.05
+     },
+     "material": "concrete",
+     "note": "gable pad extends 3 m beyond the gable at floor -0.05 (terrain pad PAD_SKLAD): flush threshold, no step"
+    },
+    {
+     "id": "SK_X5",
+     "at": "SK_D6",
+     "type": "threshold",
+     "polygon": [
+      [
+       12.25,
+       -0.2
+      ],
+      [
+       12.55,
+       -0.2
+      ],
+      [
+       12.55,
+       1.3
+      ],
+      [
+       12.25,
+       1.3
+      ]
+     ],
+     "risers": 0,
+     "riser": 0.05,
+     "apron": {
+      "polygon": [
+       [
+        12.25,
+        -7.75
+       ],
+       [
+        15.25,
+        -7.75
+       ],
+       [
+        15.25,
+        7.75
+       ],
+       [
+        12.25,
+        7.75
+       ]
+      ],
+      "z": -0.05
+     },
+     "material": "concrete",
+     "note": "gable pad extends 3 m beyond the gable at floor -0.05: flush threshold, no step"
+    }
+   ],
+   "chimneys": [],
+   "furniture": [
+    {
+     "id": "SK_F1",
+     "level": "L0",
+     "type": "pallet_racking_full",
+     "center": [
+      -1.6,
+      1.75
+     ],
+     "size": [
+      9.4,
+      1.1,
+      3.6
+     ],
+     "rotation_deg": 0,
+     "cover": "high",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true,
+     "note": "rack run 1a (x -6.3..3.1), loaded solid"
+    },
+    {
+     "id": "SK_F2",
+     "level": "L0",
+     "type": "pallet_racking_full",
+     "center": [
+      7.7,
+      1.75
+     ],
+     "size": [
+      5.4,
+      1.1,
+      3.6
+     ],
+     "rotation_deg": 0,
+     "cover": "high",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true,
+     "note": "rack run 1b; gap x 3.1..5.0 = cross aisle"
+    },
+    {
+     "id": "SK_F3",
+     "level": "L0",
+     "type": "pallet_racking_full",
+     "center": [
+      -4.45,
+      -3.25
+     ],
+     "size": [
+      8.9,
+      1.1,
+      3.6
+     ],
+     "rotation_deg": 0,
+     "cover": "high",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true,
+     "note": "rack run 2a (x -8.9..0)"
+    },
+    {
+     "id": "SK_F4",
+     "level": "L0",
+     "type": "pallet_racking_full",
+     "center": [
+      6.2,
+      -3.25
+     ],
+     "size": [
+      8.4,
+      1.1,
+      3.6
+     ],
+     "rotation_deg": 0,
+     "cover": "high",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true,
+     "note": "rack run 2b; gap x 0..2 = cross aisle"
+    },
+    {
+     "id": "SK_F5",
+     "level": "L0",
+     "type": "forklift",
+     "center": [
+      -10.0,
+      0.5
+     ],
+     "size": [
+      2.3,
+      1.2,
+      2.1
+     ],
+     "rotation_deg": 0,
+     "cover": "high",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "SK_F6",
+     "level": "L0",
+     "type": "pallets_bagged_cement",
+     "center": [
+      3.5,
+      5.6
+     ],
+     "size": [
+      1.2,
+      1.0,
+      1.2
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "SK_F7",
+     "level": "L0",
+     "type": "pallets_bagged_cement",
+     "center": [
+      10.3,
+      5.4
+     ],
+     "size": [
+      1.2,
+      2.2,
+      1.2
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "SK_F8",
+     "level": "L0",
+     "type": "big_bags_x3",
+     "center": [
+      -10.2,
+      -5.6
+     ],
+     "size": [
+      1.0,
+      3.2,
+      1.4
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "SK_F9",
+     "level": "L0",
+     "type": "ibc_tanks_x2",
+     "center": [
+      10.4,
+      -5.9
+     ],
+     "size": [
+      2.2,
+      1.0,
+      1.15
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "SK_F10",
+     "level": "L0",
+     "type": "desk_office",
+     "center": [
+      -11.0,
+      4.3
+     ],
+     "size": [
+      1.6,
+      0.8,
+      0.75
+     ],
+     "rotation_deg": 90,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "SK_F11",
+     "level": "L0",
+     "type": "filing_cabinets",
+     "center": [
+      -9.9,
+      2.65
+     ],
+     "size": [
+      1.8,
+      0.5,
+      1.4
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "SK_F12",
+     "level": "exterior",
+     "type": "pallet_stack",
+     "center": [
+      -6.5,
+      9.2
+     ],
+     "size": [
+      1.2,
+      1.0,
+      1.1
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true,
+     "note": "on the dock"
+    },
+    {
+     "id": "SK_F13",
+     "level": "exterior",
+     "type": "pallet_stack",
+     "center": [
+      5.5,
+      9.4
+     ],
+     "size": [
+      1.2,
+      2.0,
+      1.1
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true,
+     "note": "on the dock"
+    },
+    {
+     "id": "SK_F14",
+     "level": "exterior",
+     "type": "pallet_jack",
+     "center": [
+      -1.8,
+      9.0
+     ],
+     "size": [
+      1.6,
+      0.6,
+      1.2
+     ],
+     "rotation_deg": 0,
+     "cover": "none",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    }
+   ],
+   "zone_notes": "zone_sklad polygon covers the dock, the front aisle and the first rack row; racks are not climbable"
+  },
+  {
+   "id": "B_DUM",
+   "type": "obytny_dum",
+   "name": "Obytný dům (dům mistra)",
+   "enterable": true,
+   "story": "Zděný dvoupodlažní dům z roku 1934 s valbovou střechou, postavený pro mistra hamru na terase nad návsí. Terasu drží pískovcová opěrná zeď se zapuštěnou garáží a zahradními schody; vstup je ze dvora, kuchyňské dveře do bočního dvorku, balkon nad dvorem má schody do zahrady.",
+   "local_origin": "centre of the external footprint X[-5.5,5.5] x Y[-4.75,4.75] at finished L0 floor (z 0.00); +Y = street facade (towards the village square)",
+   "footprint_external": [
+    11.0,
+    9.5
+   ],
+   "footprint_parts": [
+    {
+     "part": "house",
+     "external_rect": [
+      [
+       -5.5,
+       -4.75
+      ],
+      [
+       5.5,
+       -4.75
+      ],
+      [
+       5.5,
+       4.75
+      ],
+      [
+       -5.5,
+       4.75
+      ]
+     ],
+     "interior_rect": [
+      [
+       -5.05,
+       -4.3
+      ],
+      [
+       5.05,
+       -4.3
+      ],
+      [
+       5.05,
+       4.3
+      ],
+      [
+       -5.05,
+       4.3
+      ]
+     ],
+     "walls": {
+      "x": [
+       0.45,
+       0.45
+      ],
+      "y": [
+       0.45,
+       0.45
+      ]
+     },
+     "check": "11.00 = 0.45 + 10.10 + 0.45; 9.50 = 0.45 + 8.60 + 0.45"
+    }
+   ],
+   "structure": "brick masonry 450 external, 300 spine wall, 150 partitions; reinforced concrete slab over L0, timber joists over L1",
+   "levels": [
+    {
+     "id": "L0",
+     "name": "Přízemí",
+     "floor_z": 0.0,
+     "ceiling_height": 2.75,
+     "floor_thickness": 0.25,
+     "note": "raised ground floor, +0.54 above the terrace (3 steps)"
+    },
+    {
+     "id": "L1",
+     "name": "Patro",
+     "floor_z": 3.0,
+     "ceiling_height": 2.75,
+     "floor_thickness": 0.25
+    },
+    {
+     "id": "ATTIC",
+     "name": "Půda (nepřístupná)",
+     "floor_z": 6.0,
+     "ceiling_height": 0.0,
+     "floor_thickness": 0.0,
+     "note": "closed hatch; not walkable, not in navmesh"
+    }
+   ],
+   "rooms": [
+    {
+     "id": "DM_R0_OBYVAK",
+     "level": "L0",
+     "name": "Obývací pokoj",
+     "polygon": [
+      [
+       -5.05,
+       0.15
+      ],
+      [
+       2.45,
+       0.15
+      ],
+      [
+       2.45,
+       4.3
+      ],
+      [
+       -5.05,
+       4.3
+      ]
+     ],
+     "ceiling_height": 2.75,
+     "floor_material": "timber_parquet",
+     "in_zone": true
+    },
+    {
+     "id": "DM_R0_KUCHYNE",
+     "level": "L0",
+     "name": "Kuchyně",
+     "polygon": [
+      [
+       2.6,
+       0.15
+      ],
+      [
+       5.05,
+       0.15
+      ],
+      [
+       5.05,
+       4.3
+      ],
+      [
+       2.6,
+       4.3
+      ]
+     ],
+     "ceiling_height": 2.75,
+     "floor_material": "ceramic_tiles_red_brown",
+     "in_zone": true
+    },
+    {
+     "id": "DM_R0_POKOJ",
+     "level": "L0",
+     "name": "Pokoj (zadní)",
+     "polygon": [
+      [
+       -5.05,
+       -4.3
+      ],
+      [
+       -1.65,
+       -4.3
+      ],
+      [
+       -1.65,
+       -0.15
+      ],
+      [
+       -5.05,
+       -0.15
+      ]
+     ],
+     "ceiling_height": 2.75,
+     "floor_material": "timber_parquet",
+     "in_zone": true
+    },
+    {
+     "id": "DM_R0_CHODBA",
+     "level": "L0",
+     "name": "Zádveří a chodba",
+     "polygon": [
+      [
+       -1.5,
+       -4.3
+      ],
+      [
+       2.3,
+       -4.3
+      ],
+      [
+       2.3,
+       -0.15
+      ],
+      [
+       0.9,
+       -0.15
+      ],
+      [
+       0.9,
+       -3.24
+      ],
+      [
+       -0.4,
+       -3.24
+      ],
+      [
+       -0.4,
+       -3.14
+      ],
+      [
+       -1.5,
+       -3.14
+      ]
+     ],
+     "ceiling_height": 2.75,
+     "floor_material": "terrazzo_grey",
+     "in_zone": true
+    },
+    {
+     "id": "DM_R0_TECH",
+     "level": "L0",
+     "name": "Technická místnost",
+     "polygon": [
+      [
+       2.45,
+       -4.3
+      ],
+      [
+       5.05,
+       -4.3
+      ],
+      [
+       5.05,
+       -0.15
+      ],
+      [
+       2.45,
+       -0.15
+      ]
+     ],
+     "ceiling_height": 2.75,
+     "floor_material": "ceramic_tiles_grey",
+     "in_zone": true
+    },
+    {
+     "id": "DM_R1_LOZ_Z",
+     "level": "L1",
+     "name": "Ložnice západ",
+     "polygon": [
+      [
+       -5.05,
+       0.15
+      ],
+      [
+       -0.075,
+       0.15
+      ],
+      [
+       -0.075,
+       4.3
+      ],
+      [
+       -5.05,
+       4.3
+      ]
+     ],
+     "ceiling_height": 2.75,
+     "floor_material": "timber_boards",
+     "in_zone": false
+    },
+    {
+     "id": "DM_R1_LOZ_V",
+     "level": "L1",
+     "name": "Ložnice východ",
+     "polygon": [
+      [
+       0.075,
+       0.15
+      ],
+      [
+       5.05,
+       0.15
+      ],
+      [
+       5.05,
+       4.3
+      ],
+      [
+       0.075,
+       4.3
+      ]
+     ],
+     "ceiling_height": 2.75,
+     "floor_material": "timber_boards",
+     "in_zone": false
+    },
+    {
+     "id": "DM_R1_DETSKY",
+     "level": "L1",
+     "name": "Dětský pokoj",
+     "polygon": [
+      [
+       -5.05,
+       -4.3
+      ],
+      [
+       -1.65,
+       -4.3
+      ],
+      [
+       -1.65,
+       -0.15
+      ],
+      [
+       -5.05,
+       -0.15
+      ]
+     ],
+     "ceiling_height": 2.75,
+     "floor_material": "timber_boards",
+     "in_zone": false
+    },
+    {
+     "id": "DM_R1_CHODBA",
+     "level": "L1",
+     "name": "Podesta a chodba",
+     "polygon": [
+      [
+       -1.5,
+       -4.3
+      ],
+      [
+       2.3,
+       -4.3
+      ],
+      [
+       2.3,
+       -0.15
+      ],
+      [
+       0.8,
+       -0.15
+      ],
+      [
+       0.8,
+       -3.14
+      ],
+      [
+       -1.5,
+       -3.14
+      ]
+     ],
+     "ceiling_height": 2.75,
+     "floor_material": "terrazzo_grey",
+     "in_zone": false
+    },
+    {
+     "id": "DM_R1_KOUPELNA",
+     "level": "L1",
+     "name": "Koupelna",
+     "polygon": [
+      [
+       2.45,
+       -4.3
+      ],
+      [
+       5.05,
+       -4.3
+      ],
+      [
+       5.05,
+       -0.15
+      ],
+      [
+       2.45,
+       -0.15
+      ]
+     ],
+     "ceiling_height": 2.75,
+     "floor_material": "ceramic_tiles_white",
+     "in_zone": false,
+     "dead_end_ok": "bathroom: single door, only high windows (sill 1.30 m) -- not a firing position, not campable over the zone"
+    }
+   ],
+   "sealed_voids": [
+    {
+     "id": "DM_V0_PODSCHODI",
+     "level": "L0",
+     "polygon": [
+      [
+       -1.5,
+       -3.14
+      ],
+      [
+       -0.4,
+       -3.14
+      ],
+      [
+       -0.4,
+       -3.24
+      ],
+      [
+       0.8,
+       -3.24
+      ],
+      [
+       0.8,
+       -0.15
+      ],
+      [
+       -1.5,
+       -0.15
+      ]
+     ],
+     "reason": "space below both U-stair flights and the mid landing, closed by DM0_Pd / DM0_Pe; not walkable, not in navmesh"
+    }
+   ],
+   "walls": [
+    {
+     "id": "DM0_S",
+     "level": "L0",
+     "start": [
+      -5.5,
+      -4.525
+     ],
+     "end": [
+      5.5,
+      -4.525
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 3.0,
+     "kind": "external",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_white_painted",
+     "finish_right": "render_lime_ochre_light",
+     "length": 11.0,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        1.5
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        1.5,
+        2.7
+       ],
+       "z": [
+        0.0,
+        0.85
+       ],
+       "of": "DM0_WS1"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        1.5,
+        2.7
+       ],
+       "z": [
+        2.35,
+        3.0
+       ],
+       "of": "DM0_WS1"
+      },
+      {
+       "part": "pier",
+       "u": [
+        2.7,
+        5.675
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        5.675,
+        6.925
+       ],
+       "z": [
+        2.3,
+        3.0
+       ],
+       "of": "DM0_D1"
+      },
+      {
+       "part": "pier",
+       "u": [
+        6.925,
+        8.65
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        8.65,
+        9.55
+       ],
+       "z": [
+        0.0,
+        1.2
+       ],
+       "of": "DM0_WS2"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        8.65,
+        9.55
+       ],
+       "z": [
+        2.2,
+        3.0
+       ],
+       "of": "DM0_WS2"
+      },
+      {
+       "part": "pier",
+       "u": [
+        9.55,
+        11.0
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DM0_E",
+     "level": "L0",
+     "start": [
+      5.275,
+      -4.3
+     ],
+     "end": [
+      5.275,
+      4.3
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 3.0,
+     "kind": "external",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_white_painted",
+     "finish_right": "render_lime_ochre_light",
+     "length": 8.6,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        1.65
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        1.65,
+        2.55
+       ],
+       "z": [
+        0.0,
+        1.2
+       ],
+       "of": "DM0_WE1"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        1.65,
+        2.55
+       ],
+       "z": [
+        2.2,
+        3.0
+       ],
+       "of": "DM0_WE1"
+      },
+      {
+       "part": "pier",
+       "u": [
+        2.55,
+        5.525
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        5.525,
+        6.775
+       ],
+       "z": [
+        2.3,
+        3.0
+       ],
+       "of": "DM0_D2"
+      },
+      {
+       "part": "pier",
+       "u": [
+        6.775,
+        8.6
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DM0_N",
+     "level": "L0",
+     "start": [
+      5.5,
+      4.525
+     ],
+     "end": [
+      -5.5,
+      4.525
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 3.0,
+     "kind": "external",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_white_painted",
+     "finish_right": "render_lime_ochre_light",
+     "length": 11.0,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        1.2
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        1.2,
+        2.2
+       ],
+       "z": [
+        0.0,
+        1.0
+       ],
+       "of": "DM0_WN4"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        1.2,
+        2.2
+       ],
+       "z": [
+        2.35,
+        3.0
+       ],
+       "of": "DM0_WN4"
+      },
+      {
+       "part": "pier",
+       "u": [
+        2.2,
+        3.7
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        3.7,
+        4.9
+       ],
+       "z": [
+        0.0,
+        0.85
+       ],
+       "of": "DM0_WN3"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        3.7,
+        4.9
+       ],
+       "z": [
+        2.35,
+        3.0
+       ],
+       "of": "DM0_WN3"
+      },
+      {
+       "part": "pier",
+       "u": [
+        4.9,
+        6.1
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        6.1,
+        7.3
+       ],
+       "z": [
+        0.0,
+        0.85
+       ],
+       "of": "DM0_WN2"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        6.1,
+        7.3
+       ],
+       "z": [
+        2.35,
+        3.0
+       ],
+       "of": "DM0_WN2"
+      },
+      {
+       "part": "pier",
+       "u": [
+        7.3,
+        8.5
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        8.5,
+        9.7
+       ],
+       "z": [
+        0.0,
+        0.85
+       ],
+       "of": "DM0_WN1"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        8.5,
+        9.7
+       ],
+       "z": [
+        2.35,
+        3.0
+       ],
+       "of": "DM0_WN1"
+      },
+      {
+       "part": "pier",
+       "u": [
+        9.7,
+        11.0
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DM0_W",
+     "level": "L0",
+     "start": [
+      -5.275,
+      4.3
+     ],
+     "end": [
+      -5.275,
+      -4.3
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 3.0,
+     "kind": "external",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_white_painted",
+     "finish_right": "render_lime_ochre_light",
+     "length": 8.6,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        1.5
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        1.5,
+        2.7
+       ],
+       "z": [
+        0.0,
+        0.85
+       ],
+       "of": "DM0_WW1"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        1.5,
+        2.7
+       ],
+       "z": [
+        2.35,
+        3.0
+       ],
+       "of": "DM0_WW1"
+      },
+      {
+       "part": "pier",
+       "u": [
+        2.7,
+        5.9
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        5.9,
+        7.1
+       ],
+       "z": [
+        0.0,
+        0.85
+       ],
+       "of": "DM0_WW2"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        5.9,
+        7.1
+       ],
+       "z": [
+        2.35,
+        3.0
+       ],
+       "of": "DM0_WW2"
+      },
+      {
+       "part": "pier",
+       "u": [
+        7.1,
+        8.6
+       ],
+       "z": [
+        0.0,
+        3.0
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DM0_SP",
+     "level": "L0",
+     "start": [
+      -5.05,
+      0.0
+     ],
+     "end": [
+      5.05,
+      0.0
+     ],
+     "thickness": 0.3,
+     "base_z": 0.0,
+     "height": 2.75,
+     "kind": "internal",
+     "material": "brick_loadbearing_300",
+     "finish_left": "plaster_white_painted",
+     "finish_right": "plaster_white_painted",
+     "note": "spine wall (carries floor joists)",
+     "length": 10.1,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        0.725
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        0.725,
+        1.975
+       ],
+       "z": [
+        2.3,
+        2.75
+       ],
+       "of": "DM0_D5"
+      },
+      {
+       "part": "pier",
+       "u": [
+        1.975,
+        6.025
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        6.025,
+        7.275
+       ],
+       "z": [
+        2.3,
+        2.75
+       ],
+       "of": "DM0_D3"
+      },
+      {
+       "part": "pier",
+       "u": [
+        7.275,
+        8.75
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        8.75,
+        10.0
+       ],
+       "z": [
+        2.3,
+        2.75
+       ],
+       "of": "DM0_D4"
+      },
+      {
+       "part": "pier",
+       "u": [
+        10.0,
+        10.1
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DM1_S",
+     "level": "L1",
+     "start": [
+      -5.5,
+      -4.525
+     ],
+     "end": [
+      5.5,
+      -4.525
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 3.1,
+     "kind": "external",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_white_painted",
+     "finish_right": "render_lime_ochre_light",
+     "length": 11.0,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        1.4
+       ],
+       "z": [
+        0.0,
+        3.1
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        1.4,
+        2.65
+       ],
+       "z": [
+        2.3,
+        3.1
+       ],
+       "of": "DM1_D6"
+      },
+      {
+       "part": "pier",
+       "u": [
+        2.65,
+        4.6
+       ],
+       "z": [
+        0.0,
+        3.1
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        4.6,
+        5.6
+       ],
+       "z": [
+        0.0,
+        0.95
+       ],
+       "of": "DM1_WS2"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        4.6,
+        5.6
+       ],
+       "z": [
+        2.35,
+        3.1
+       ],
+       "of": "DM1_WS2"
+      },
+      {
+       "part": "pier",
+       "u": [
+        5.6,
+        8.65
+       ],
+       "z": [
+        0.0,
+        3.1
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        8.65,
+        9.55
+       ],
+       "z": [
+        0.0,
+        1.3
+       ],
+       "of": "DM1_WS3"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        8.65,
+        9.55
+       ],
+       "z": [
+        2.2,
+        3.1
+       ],
+       "of": "DM1_WS3"
+      },
+      {
+       "part": "pier",
+       "u": [
+        9.55,
+        11.0
+       ],
+       "z": [
+        0.0,
+        3.1
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DM1_E",
+     "level": "L1",
+     "start": [
+      5.275,
+      -4.3
+     ],
+     "end": [
+      5.275,
+      4.3
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 3.1,
+     "kind": "external",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_white_painted",
+     "finish_right": "render_lime_ochre_light",
+     "length": 8.6,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        1.65
+       ],
+       "z": [
+        0.0,
+        3.1
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        1.65,
+        2.55
+       ],
+       "z": [
+        0.0,
+        1.3
+       ],
+       "of": "DM1_WE2"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        1.65,
+        2.55
+       ],
+       "z": [
+        2.2,
+        3.1
+       ],
+       "of": "DM1_WE2"
+      },
+      {
+       "part": "pier",
+       "u": [
+        2.55,
+        5.9
+       ],
+       "z": [
+        0.0,
+        3.1
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        5.9,
+        7.1
+       ],
+       "z": [
+        0.0,
+        0.85
+       ],
+       "of": "DM1_WE1"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        5.9,
+        7.1
+       ],
+       "z": [
+        2.35,
+        3.1
+       ],
+       "of": "DM1_WE1"
+      },
+      {
+       "part": "pier",
+       "u": [
+        7.1,
+        8.6
+       ],
+       "z": [
+        0.0,
+        3.1
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DM1_N",
+     "level": "L1",
+     "start": [
+      5.5,
+      4.525
+     ],
+     "end": [
+      -5.5,
+      4.525
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 3.1,
+     "kind": "external",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_white_painted",
+     "finish_right": "render_lime_ochre_light",
+     "length": 11.0,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        1.3
+       ],
+       "z": [
+        0.0,
+        3.1
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        1.3,
+        2.5
+       ],
+       "z": [
+        0.0,
+        0.85
+       ],
+       "of": "DM1_WN4"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        1.3,
+        2.5
+       ],
+       "z": [
+        2.35,
+        3.1
+       ],
+       "of": "DM1_WN4"
+      },
+      {
+       "part": "pier",
+       "u": [
+        2.5,
+        3.7
+       ],
+       "z": [
+        0.0,
+        3.1
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        3.7,
+        4.9
+       ],
+       "z": [
+        0.0,
+        0.85
+       ],
+       "of": "DM1_WN3"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        3.7,
+        4.9
+       ],
+       "z": [
+        2.35,
+        3.1
+       ],
+       "of": "DM1_WN3"
+      },
+      {
+       "part": "pier",
+       "u": [
+        4.9,
+        6.1
+       ],
+       "z": [
+        0.0,
+        3.1
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        6.1,
+        7.3
+       ],
+       "z": [
+        0.0,
+        0.85
+       ],
+       "of": "DM1_WN2"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        6.1,
+        7.3
+       ],
+       "z": [
+        2.35,
+        3.1
+       ],
+       "of": "DM1_WN2"
+      },
+      {
+       "part": "pier",
+       "u": [
+        7.3,
+        8.5
+       ],
+       "z": [
+        0.0,
+        3.1
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        8.5,
+        9.7
+       ],
+       "z": [
+        0.0,
+        0.85
+       ],
+       "of": "DM1_WN1"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        8.5,
+        9.7
+       ],
+       "z": [
+        2.35,
+        3.1
+       ],
+       "of": "DM1_WN1"
+      },
+      {
+       "part": "pier",
+       "u": [
+        9.7,
+        11.0
+       ],
+       "z": [
+        0.0,
+        3.1
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DM1_W",
+     "level": "L1",
+     "start": [
+      -5.275,
+      4.3
+     ],
+     "end": [
+      -5.275,
+      -4.3
+     ],
+     "thickness": 0.45,
+     "base_z": 0.0,
+     "height": 3.1,
+     "kind": "external",
+     "material": "brick_masonry_450",
+     "finish_left": "plaster_white_painted",
+     "finish_right": "render_lime_ochre_light",
+     "length": 8.6,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        1.5
+       ],
+       "z": [
+        0.0,
+        3.1
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        1.5,
+        2.7
+       ],
+       "z": [
+        0.0,
+        0.85
+       ],
+       "of": "DM1_WW1"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        1.5,
+        2.7
+       ],
+       "z": [
+        2.35,
+        3.1
+       ],
+       "of": "DM1_WW1"
+      },
+      {
+       "part": "pier",
+       "u": [
+        2.7,
+        5.9
+       ],
+       "z": [
+        0.0,
+        3.1
+       ]
+      },
+      {
+       "part": "sill",
+       "u": [
+        5.9,
+        7.1
+       ],
+       "z": [
+        0.0,
+        0.85
+       ],
+       "of": "DM1_WW2"
+      },
+      {
+       "part": "lintel",
+       "u": [
+        5.9,
+        7.1
+       ],
+       "z": [
+        2.35,
+        3.1
+       ],
+       "of": "DM1_WW2"
+      },
+      {
+       "part": "pier",
+       "u": [
+        7.1,
+        8.6
+       ],
+       "z": [
+        0.0,
+        3.1
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DM1_SP",
+     "level": "L1",
+     "start": [
+      -5.05,
+      0.0
+     ],
+     "end": [
+      5.05,
+      0.0
+     ],
+     "thickness": 0.3,
+     "base_z": 0.0,
+     "height": 2.75,
+     "kind": "internal",
+     "material": "brick_loadbearing_300",
+     "finish_left": "plaster_white_painted",
+     "finish_right": "plaster_white_painted",
+     "note": "spine wall (carries floor joists)",
+     "length": 10.1,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        0.725
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        0.725,
+        1.975
+       ],
+       "z": [
+        2.3,
+        2.75
+       ],
+       "of": "DM1_D2"
+      },
+      {
+       "part": "pier",
+       "u": [
+        1.975,
+        6.025
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        6.025,
+        7.275
+       ],
+       "z": [
+        2.3,
+        2.75
+       ],
+       "of": "DM1_D1"
+      },
+      {
+       "part": "pier",
+       "u": [
+        7.275,
+        10.1
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DM0_Pa",
+     "level": "L0",
+     "start": [
+      2.525,
+      0.15
+     ],
+     "end": [
+      2.525,
+      4.3
+     ],
+     "thickness": 0.15,
+     "base_z": 0.0,
+     "height": 2.75,
+     "kind": "internal",
+     "material": "brick_partition_150",
+     "finish_left": "plaster_white_painted",
+     "finish_right": "tiles_kitchen_splash_1500",
+     "note": "living | kitchen",
+     "length": 4.15,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        0.425
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        0.425,
+        1.675
+       ],
+       "z": [
+        2.3,
+        2.75
+       ],
+       "of": "DM0_D8"
+      },
+      {
+       "part": "pier",
+       "u": [
+        1.675,
+        4.15
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DM0_Pb",
+     "level": "L0",
+     "start": [
+      -1.575,
+      -4.3
+     ],
+     "end": [
+      -1.575,
+      -0.15
+     ],
+     "thickness": 0.15,
+     "base_z": 0.0,
+     "height": 2.75,
+     "kind": "internal",
+     "material": "brick_partition_150",
+     "finish_left": "plaster_white_painted",
+     "finish_right": "plaster_white_painted",
+     "note": "rear room | hall",
+     "length": 4.15,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        0.1
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        0.1,
+        1.35
+       ],
+       "z": [
+        2.3,
+        2.75
+       ],
+       "of": "DM0_D6"
+      },
+      {
+       "part": "pier",
+       "u": [
+        1.35,
+        4.15
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DM0_Pc",
+     "level": "L0",
+     "start": [
+      2.375,
+      -4.3
+     ],
+     "end": [
+      2.375,
+      -0.15
+     ],
+     "thickness": 0.15,
+     "base_z": 0.0,
+     "height": 2.75,
+     "kind": "internal",
+     "material": "brick_partition_150",
+     "finish_left": "plaster_white_painted",
+     "finish_right": "tiles_utility_1500",
+     "note": "hall | utility",
+     "length": 4.15,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        1.375
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        1.375,
+        2.625
+       ],
+       "z": [
+        2.3,
+        2.75
+       ],
+       "of": "DM0_D7"
+      },
+      {
+       "part": "pier",
+       "u": [
+        2.625,
+        4.15
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DM0_Pd",
+     "level": "L0",
+     "start": [
+      0.85,
+      -3.24
+     ],
+     "end": [
+      0.85,
+      -0.15
+     ],
+     "thickness": 0.1,
+     "base_z": 0.0,
+     "height": 2.75,
+     "kind": "internal",
+     "material": "timber_stud_board_100",
+     "finish_left": "plaster_white_painted",
+     "finish_right": "plaster_white_painted",
+     "note": "closes the under-stair space (east side)",
+     "length": 3.09,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        3.09
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DM0_Pe",
+     "level": "L0",
+     "start": [
+      -0.4,
+      -3.19
+     ],
+     "end": [
+      0.8,
+      -3.19
+     ],
+     "thickness": 0.1,
+     "base_z": 0.0,
+     "height": 2.75,
+     "kind": "internal",
+     "material": "timber_stud_board_100",
+     "finish_left": "plaster_white_painted",
+     "finish_right": "plaster_white_painted",
+     "note": "closes the under-stair space (south face below flight 2 top and the well)",
+     "length": 1.2,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        1.2
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DM1_Pa",
+     "level": "L1",
+     "start": [
+      0.0,
+      0.15
+     ],
+     "end": [
+      0.0,
+      4.3
+     ],
+     "thickness": 0.15,
+     "base_z": 0.0,
+     "height": 2.75,
+     "kind": "internal",
+     "material": "brick_partition_150",
+     "finish_left": "plaster_white_painted",
+     "finish_right": "plaster_white_painted",
+     "note": "bedroom | bedroom",
+     "length": 4.15,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        2.525
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        2.525,
+        3.775
+       ],
+       "z": [
+        2.3,
+        2.75
+       ],
+       "of": "DM1_D3"
+      },
+      {
+       "part": "pier",
+       "u": [
+        3.775,
+        4.15
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DM1_Pb",
+     "level": "L1",
+     "start": [
+      -1.575,
+      -4.3
+     ],
+     "end": [
+      -1.575,
+      -0.15
+     ],
+     "thickness": 0.15,
+     "base_z": 0.0,
+     "height": 2.75,
+     "kind": "internal",
+     "material": "brick_partition_150",
+     "finish_left": "plaster_white_painted",
+     "finish_right": "plaster_white_painted",
+     "note": "child room | landing",
+     "length": 4.15,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        4.15
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      }
+     ]
+    },
+    {
+     "id": "DM1_Pc",
+     "level": "L1",
+     "start": [
+      2.375,
+      -4.3
+     ],
+     "end": [
+      2.375,
+      -0.15
+     ],
+     "thickness": 0.15,
+     "base_z": 0.0,
+     "height": 2.75,
+     "kind": "internal",
+     "material": "brick_partition_150",
+     "finish_left": "plaster_white_painted",
+     "finish_right": "tiles_bath_1800",
+     "note": "corridor | bathroom",
+     "length": 4.15,
+     "construction_boxes": [
+      {
+       "part": "pier",
+       "u": [
+        0.0,
+        2.675
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      },
+      {
+       "part": "lintel",
+       "u": [
+        2.675,
+        3.925
+       ],
+       "z": [
+        2.3,
+        2.75
+       ],
+       "of": "DM1_D5"
+      },
+      {
+       "part": "pier",
+       "u": [
+        3.925,
+        4.15
+       ],
+       "z": [
+        0.0,
+        2.75
+       ]
+      }
+     ]
+    }
+   ],
+   "openings": [
+    {
+     "id": "DM0_WN1",
+     "wall_id": "DM0_N",
+     "type": "window",
+     "offset_from_start": 8.5,
+     "width": 1.2,
+     "sill_height": 0.85,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom"
+    },
+    {
+     "id": "DM0_WN2",
+     "wall_id": "DM0_N",
+     "type": "window",
+     "offset_from_start": 6.1,
+     "width": 1.2,
+     "sill_height": 0.85,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom"
+    },
+    {
+     "id": "DM0_WN3",
+     "wall_id": "DM0_N",
+     "type": "window",
+     "offset_from_start": 3.7,
+     "width": 1.2,
+     "sill_height": 0.85,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom"
+    },
+    {
+     "id": "DM0_WN4",
+     "wall_id": "DM0_N",
+     "type": "window",
+     "offset_from_start": 1.2,
+     "width": 1.0,
+     "sill_height": 1.0,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom",
+     "note": "kitchen window above the worktop"
+    },
+    {
+     "id": "DM0_D1",
+     "wall_id": "DM0_S",
+     "type": "door",
+     "offset_from_start": 5.675,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "end",
+     "swing": "right",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_panel_glazed_green",
+      "thickness": 0.05,
+      "material": "timber_green_paint"
+     },
+     "note": "main entrance from the rear yard (3 steps, landing + canopy); opens outward onto the landing"
+    },
+    {
+     "id": "DM0_WS1",
+     "wall_id": "DM0_S",
+     "type": "window",
+     "offset_from_start": 1.5,
+     "width": 1.2,
+     "sill_height": 0.85,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom"
+    },
+    {
+     "id": "DM0_WS2",
+     "wall_id": "DM0_S",
+     "type": "window",
+     "offset_from_start": 8.65,
+     "width": 0.9,
+     "sill_height": 1.2,
+     "head_height": 2.2,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom"
+    },
+    {
+     "id": "DM0_WW1",
+     "wall_id": "DM0_W",
+     "type": "window",
+     "offset_from_start": 1.5,
+     "width": 1.2,
+     "sill_height": 0.85,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom"
+    },
+    {
+     "id": "DM0_WW2",
+     "wall_id": "DM0_W",
+     "type": "window",
+     "offset_from_start": 5.9,
+     "width": 1.2,
+     "sill_height": 0.85,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom"
+    },
+    {
+     "id": "DM0_D2",
+     "wall_id": "DM0_E",
+     "type": "door",
+     "offset_from_start": 5.525,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "end",
+     "swing": "left",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_panel_glazed_green",
+      "thickness": 0.05,
+      "material": "timber_green_paint"
+     },
+     "note": "kitchen side door to the side yard (3 steps)"
+    },
+    {
+     "id": "DM0_WE1",
+     "wall_id": "DM0_E",
+     "type": "window",
+     "offset_from_start": 1.65,
+     "width": 0.9,
+     "sill_height": 1.2,
+     "head_height": 2.2,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom"
+    },
+    {
+     "id": "DM0_D3",
+     "wall_id": "DM0_SP",
+     "type": "door",
+     "offset_from_start": 6.025,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "start",
+     "swing": "left",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_panel_white",
+      "thickness": 0.05,
+      "material": "timber_white_paint"
+     },
+     "note": "hall corridor -> living room"
+    },
+    {
+     "id": "DM0_D4",
+     "wall_id": "DM0_SP",
+     "type": "door",
+     "offset_from_start": 8.75,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "end",
+     "swing": "left",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_panel_white",
+      "thickness": 0.05,
+      "material": "timber_white_paint"
+     },
+     "note": "utility -> kitchen"
+    },
+    {
+     "id": "DM0_D5",
+     "wall_id": "DM0_SP",
+     "type": "door",
+     "offset_from_start": 0.725,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "start",
+     "swing": "left",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_panel_white",
+      "thickness": 0.05,
+      "material": "timber_white_paint"
+     },
+     "note": "rear room -> living room"
+    },
+    {
+     "id": "DM0_D6",
+     "wall_id": "DM0_Pb",
+     "type": "door",
+     "offset_from_start": 0.1,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "start",
+     "swing": "left",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_panel_white",
+      "thickness": 0.05,
+      "material": "timber_white_paint"
+     },
+     "note": "vestibule -> rear room (opens into the rear room)"
+    },
+    {
+     "id": "DM0_D7",
+     "wall_id": "DM0_Pc",
+     "type": "door",
+     "offset_from_start": 1.375,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "start",
+     "swing": "right",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_panel_white",
+      "thickness": 0.05,
+      "material": "timber_white_paint"
+     },
+     "note": "hall corridor -> utility"
+    },
+    {
+     "id": "DM0_D8",
+     "wall_id": "DM0_Pa",
+     "type": "door",
+     "offset_from_start": 0.425,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "start",
+     "swing": "right",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_panel_white",
+      "thickness": 0.05,
+      "material": "timber_white_paint"
+     },
+     "note": "living -> kitchen"
+    },
+    {
+     "id": "DM1_WN1",
+     "wall_id": "DM1_N",
+     "type": "window",
+     "offset_from_start": 8.5,
+     "width": 1.2,
+     "sill_height": 0.85,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom"
+    },
+    {
+     "id": "DM1_WN2",
+     "wall_id": "DM1_N",
+     "type": "window",
+     "offset_from_start": 6.1,
+     "width": 1.2,
+     "sill_height": 0.85,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom"
+    },
+    {
+     "id": "DM1_WN3",
+     "wall_id": "DM1_N",
+     "type": "window",
+     "offset_from_start": 3.7,
+     "width": 1.2,
+     "sill_height": 0.85,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom"
+    },
+    {
+     "id": "DM1_WN4",
+     "wall_id": "DM1_N",
+     "type": "window",
+     "offset_from_start": 1.3,
+     "width": 1.2,
+     "sill_height": 0.85,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom"
+    },
+    {
+     "id": "DM1_WS2",
+     "wall_id": "DM1_S",
+     "type": "window",
+     "offset_from_start": 4.6,
+     "width": 1.0,
+     "sill_height": 0.95,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom",
+     "note": "landing window"
+    },
+    {
+     "id": "DM1_WS3",
+     "wall_id": "DM1_S",
+     "type": "window",
+     "offset_from_start": 8.65,
+     "width": 0.9,
+     "sill_height": 1.3,
+     "head_height": 2.2,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom"
+    },
+    {
+     "id": "DM1_WW1",
+     "wall_id": "DM1_W",
+     "type": "window",
+     "offset_from_start": 1.5,
+     "width": 1.2,
+     "sill_height": 0.85,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom"
+    },
+    {
+     "id": "DM1_WW2",
+     "wall_id": "DM1_W",
+     "type": "window",
+     "offset_from_start": 5.9,
+     "width": 1.2,
+     "sill_height": 0.85,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom"
+    },
+    {
+     "id": "DM1_WE1",
+     "wall_id": "DM1_E",
+     "type": "window",
+     "offset_from_start": 5.9,
+     "width": 1.2,
+     "sill_height": 0.85,
+     "head_height": 2.35,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom"
+    },
+    {
+     "id": "DM1_WE2",
+     "wall_id": "DM1_E",
+     "type": "window",
+     "offset_from_start": 1.65,
+     "width": 0.9,
+     "sill_height": 1.3,
+     "head_height": 2.2,
+     "has_leaf": false,
+     "passes": {
+      "movement": false,
+      "bullets": true,
+      "vision": true,
+      "note": "capsule clip plane; v1 glass passes hits"
+     },
+     "glazing": "timber_double_casement_transom"
+    },
+    {
+     "id": "DM1_D6",
+     "wall_id": "DM1_S",
+     "type": "door",
+     "offset_from_start": 1.4,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "start",
+     "swing": "right",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_balcony_door_glazed",
+      "thickness": 0.05,
+      "material": "timber_white_paint"
+     },
+     "note": "child room -> balcony DM_BALK (second way out of the upper floor via garden stair DM_S2)"
+    },
+    {
+     "id": "DM1_D1",
+     "wall_id": "DM1_SP",
+     "type": "door",
+     "offset_from_start": 6.025,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "start",
+     "swing": "left",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_panel_white",
+      "thickness": 0.05,
+      "material": "timber_white_paint"
+     },
+     "note": "corridor -> east bedroom"
+    },
+    {
+     "id": "DM1_D2",
+     "wall_id": "DM1_SP",
+     "type": "door",
+     "offset_from_start": 0.725,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "start",
+     "swing": "left",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_panel_white",
+      "thickness": 0.05,
+      "material": "timber_white_paint"
+     },
+     "note": "child room -> west bedroom"
+    },
+    {
+     "id": "DM1_D3",
+     "wall_id": "DM1_Pa",
+     "type": "door",
+     "offset_from_start": 2.525,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "start",
+     "swing": "left",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_panel_white",
+      "thickness": 0.05,
+      "material": "timber_white_paint"
+     },
+     "note": "east bedroom <-> west bedroom"
+    },
+    {
+     "id": "DM1_D5",
+     "wall_id": "DM1_Pc",
+     "type": "door",
+     "offset_from_start": 2.675,
+     "width": 1.25,
+     "sill_height": 0.0,
+     "head_height": 2.3,
+     "has_leaf": true,
+     "hinge": "end",
+     "swing": "right",
+     "open_deg": 90,
+     "frame_jamb": 0.05,
+     "frame_head": 0.05,
+     "clear_width": 1.1,
+     "clear_height": 2.25,
+     "clear_rule": "1.25 - 2 x 0.05 frame - 1 x 0.05 leaf at 90 deg",
+     "passes": {
+      "movement": true,
+      "bullets": true,
+      "vision": true
+     },
+     "leaf": {
+      "type": "timber_panel_white",
+      "thickness": 0.05,
+      "material": "timber_white_paint"
+     },
+     "note": "corridor -> bathroom"
+    }
+   ],
+   "slabs": [
+    {
+     "level": "L1",
+     "polygon": [
+      [
+       -5.05,
+       -4.3
+      ],
+      [
+       5.05,
+       -4.3
+      ],
+      [
+       5.05,
+       4.3
+      ],
+      [
+       -5.05,
+       4.3
+      ]
+     ],
+     "thickness": 0.25,
+     "top_z": 3.0,
+     "openings": [
+      {
+       "id": "DM_SO1",
+       "polygon": [
+        [
+         -1.5,
+         -3.14
+        ],
+        [
+         0.8,
+         -3.14
+        ],
+        [
+         0.8,
+         -0.15
+        ],
+        [
+         -1.5,
+         -0.15
+        ]
+       ],
+       "reason": "U-stair void (both flights + landing)"
+      }
+     ]
+    }
+   ],
+   "stairs": [
+    {
+     "id": "DM_S1a",
+     "level_from": "L0",
+     "level_to": "Lmid",
+     "start": [
+      -0.95,
+      -3.14
+     ],
+     "direction_deg": 0.0,
+     "direction_vector": [
+      -0.0,
+      1.0
+     ],
+     "width": 1.1,
+     "riser": 0.1875,
+     "tread": 0.27,
+     "count": 8,
+     "treads": 7,
+     "run": 1.89,
+     "rise": 1.5,
+     "z_start": 0.0,
+     "z_end": 1.5,
+     "top_riser_center": [
+      -0.95,
+      -1.25
+     ],
+     "two_r_plus_t": 0.645,
+     "construction": "reinforced_concrete_terrazzo",
+     "waist": 0.16,
+     "handrail": "left",
+     "pitch_deg": 34.7778,
+     "landing": {
+      "id": "DM_LMID",
+      "level": "Lmid",
+      "polygon": [
+       [
+        -1.5,
+        -1.25
+       ],
+       [
+        0.8,
+        -1.25
+       ],
+       [
+        0.8,
+        -0.15
+       ],
+       [
+        -1.5,
+        -0.15
+       ]
+      ],
+      "z": 1.5,
+      "depth": 1.1
+     },
+     "under_stair": {
+      "treatment": "enclosed",
+      "void": "DM_V0_PODSCHODI",
+      "by": [
+       "DM0_Pd",
+       "DM0_Pe",
+       "DM0_Pb",
+       "DM0_SP"
+      ]
+     },
+     "note": "U-stair flight 1 (west), ascending +Y towards the spine wall"
+    },
+    {
+     "id": "DM_S1b",
+     "level_from": "Lmid",
+     "level_to": "L1",
+     "start": [
+      0.25,
+      -1.25
+     ],
+     "direction_deg": 180.0,
+     "direction_vector": [
+      -0.0,
+      -1.0
+     ],
+     "width": 1.1,
+     "riser": 0.1875,
+     "tread": 0.27,
+     "count": 8,
+     "treads": 7,
+     "run": 1.89,
+     "rise": 1.5,
+     "z_start": 1.5,
+     "z_end": 3.0,
+     "top_riser_center": [
+      0.25,
+      -3.14
+     ],
+     "two_r_plus_t": 0.645,
+     "construction": "reinforced_concrete_terrazzo",
+     "waist": 0.16,
+     "handrail": "left",
+     "pitch_deg": 34.7778,
+     "from_landing": "DM_LMID",
+     "under_stair": {
+      "treatment": "enclosed",
+      "void": "DM_V0_PODSCHODI",
+      "by": [
+       "DM0_Pd",
+       "DM0_Pe"
+      ]
+     },
+     "note": "U-stair flight 2 (east), ascending -Y to the L1 landing; 0.10 well between the flights"
+    }
+   ],
+   "exterior_stairs": [
+    {
+     "id": "DM_X1",
+     "level_from": "ground",
+     "level_to": "L0",
+     "start": [
+      0.8,
+      -6.51
+     ],
+     "direction_deg": 0.0,
+     "direction_vector": [
+      -0.0,
+      1.0
+     ],
+     "width": 1.5,
+     "riser": 0.18,
+     "tread": 0.28,
+     "count": 3,
+     "treads": 2,
+     "run": 0.56,
+     "rise": 0.54,
+     "z_start": -0.54,
+     "z_end": 0.0,
+     "top_riser_center": [
+      0.8,
+      -5.95
+     ],
+     "two_r_plus_t": 0.64,
+     "construction": "terrazzo_precast_on_solid_base",
+     "waist": 0.0,
+     "handrail": "left",
+     "pitch_deg": 32.7352,
+     "landing": {
+      "id": "DM_X1_LAND",
+      "level": "L0",
+      "polygon": [
+       [
+        0.05,
+        -5.95
+       ],
+       [
+        1.55,
+        -5.95
+       ],
+       [
+        1.55,
+        -4.75
+       ],
+       [
+        0.05,
+        -4.75
+       ]
+      ],
+      "z": 0.0
+     },
+     "under_stair": {
+      "treatment": "solid_mass"
+     },
+     "note": "entrance steps + landing at DM0_D1"
+    },
+    {
+     "id": "DM_X2",
+     "level_from": "ground",
+     "level_to": "L0",
+     "start": [
+      7.06,
+      1.85
+     ],
+     "direction_deg": 90.0,
+     "direction_vector": [
+      -1.0,
+      0.0
+     ],
+     "width": 1.4,
+     "riser": 0.18,
+     "tread": 0.28,
+     "count": 3,
+     "treads": 2,
+     "run": 0.56,
+     "rise": 0.54,
+     "z_start": -0.54,
+     "z_end": 0.0,
+     "top_riser_center": [
+      6.5,
+      1.85
+     ],
+     "two_r_plus_t": 0.64,
+     "construction": "concrete_on_solid_base",
+     "waist": 0.0,
+     "handrail": "none",
+     "pitch_deg": 32.7352,
+     "landing": {
+      "id": "DM_X2_LAND",
+      "level": "L0",
+      "polygon": [
+       [
+        5.5,
+        1.05
+       ],
+       [
+        6.5,
+        1.05
+       ],
+       [
+        6.5,
+        2.65
+       ],
+       [
+        5.5,
+        2.65
+       ]
+      ],
+      "z": 0.0
+     },
+     "under_stair": {
+      "treatment": "solid_mass"
+     },
+     "note": "kitchen side door steps"
+    },
+    {
+     "id": "DM_S2",
+     "level_from": "ground",
+     "level_to": "L1",
+     "start": [
+      -2.15,
+      -11.21
+     ],
+     "direction_deg": 0.0,
+     "direction_vector": [
+      -0.0,
+      1.0
+     ],
+     "width": 1.1,
+     "riser": 0.1863,
+     "tread": 0.27,
+     "count": 19,
+     "treads": 18,
+     "run": 4.86,
+     "rise": 3.54,
+     "z_start": -0.54,
+     "z_end": 3.0,
+     "top_riser_center": [
+      -2.15,
+      -6.35
+     ],
+     "two_r_plus_t": 0.6426,
+     "construction": "masonry_steps_on_solid_rubble_base_with_cheek_walls",
+     "waist": 0.0,
+     "handrail": "both",
+     "pitch_deg": 34.6079,
+     "landing": {
+      "id": "DM_BALK",
+      "level": "L1",
+      "polygon": [
+       [
+        -5.4,
+        -6.35
+       ],
+       [
+        -1.6,
+        -6.35
+       ],
+       [
+        -1.6,
+        -4.75
+       ],
+       [
+        -5.4,
+        -4.75
+       ]
+      ],
+      "z": 3.0
+     },
+     "under_stair": {
+      "treatment": "solid_mass",
+      "note": "solid rubble base with rendered cheek walls: no space below"
+     },
+     "note": "garden stair from the rear yard up to the balcony (second independent exit of the upper floor)"
+    }
+   ],
+   "balustrades": [
+    {
+     "id": "DM_BAL1",
+     "level": "L1",
+     "polyline": [
+      [
+       -1.5,
+       -3.14
+      ],
+      [
+       -0.3,
+       -3.14
+      ]
+     ],
+     "height": 1.0,
+     "type": "timber_rail_steel_balusters"
+    },
+    {
+     "id": "DM_BAL2",
+     "level": "L1",
+     "polyline": [
+      [
+       0.8,
+       -3.14
+      ],
+      [
+       0.8,
+       -0.15
+      ]
+     ],
+     "height": 1.0,
+     "type": "timber_rail_steel_balusters",
+     "note": "on the void edge above partition DM0_Pd"
+    },
+    {
+     "id": "DM_BAL3",
+     "level": "Lmid",
+     "polyline": [
+      [
+       -0.35,
+       -3.14
+      ],
+      [
+       -0.35,
+       -1.25
+      ]
+     ],
+     "height": 1.0,
+     "type": "handrail_in_well"
+    }
+   ],
+   "balconies": [
+    {
+     "id": "DM_BALK",
+     "level": "L1",
+     "polygon": [
+      [
+       -5.4,
+       -6.35
+      ],
+      [
+       -1.6,
+       -6.35
+      ],
+      [
+       -1.6,
+       -4.75
+      ],
+      [
+       -5.4,
+       -4.75
+      ]
+     ],
+     "top_z": 3.0,
+     "slab_thickness": 0.18,
+     "access_door": "DM1_D6",
+     "stair": "DM_S2",
+     "material": "reinforced_concrete_cantilever_terrazzo_top",
+     "parapet": {
+      "height": 1.0,
+      "thickness": 0.2,
+      "solid": true,
+      "material": "brick_rendered_ochre",
+      "segments": [
+       [
+        [
+         -5.4,
+         -4.75
+        ],
+        [
+         -5.4,
+         -6.35
+        ]
+       ],
+       [
+        [
+         -5.4,
+         -6.35
+        ],
+        [
+         -2.7,
+         -6.35
+        ]
+       ],
+       [
+        [
+         -1.6,
+         -6.35
+        ],
+        [
+         -1.6,
+         -4.75
+        ]
+       ]
+      ],
+      "note": "solid 1.00 m parapet = crouch cover (firing position outside the zone); opening x -2.70..-1.60 for the stair"
+     },
+     "drainage": "falls 2 % to a copper spout at the south-west corner",
+     "gameplay": "firing position over the rear yard and the S ring approach, outside zone_dvur (z 5.94 > z_max 5.54)"
+    }
+   ],
+   "roof": [
+    {
+     "id": "RF_DUM",
+     "type": "hip",
+     "pitch_deg": 40.0,
+     "ridge_axis": "X",
+     "wall_rect": [
+      [
+       -5.5,
+       -4.75
+      ],
+      [
+       5.5,
+       -4.75
+      ],
+      [
+       5.5,
+       4.75
+      ],
+      [
+       -5.5,
+       4.75
+      ]
+     ],
+     "eave_z": 6.1,
+     "ridge_z": 10.0857,
+     "ridge_from": [
+      -0.75,
+      0.0
+     ],
+     "ridge_to": [
+      0.75,
+      0.0
+     ],
+     "overhang_eave": 0.6,
+     "overhang_verge": null,
+     "material": "clay_tile_interlocking_red_brown_weathered",
+     "structure": "timber purlin roof, hips at 45 deg on plan",
+     "fascia": "timber_board_0.18_dark_brown",
+     "soffit": "boarded_painted"
+    }
+   ],
+   "gutters": [
+    {
+     "roof": "RF_DUM",
+     "edge": "+Y",
+     "z": 6.05,
+     "profile": "half_round_125_zinc",
+     "from": [
+      -6.1,
+      5.35
+     ],
+     "to": [
+      6.1,
+      5.35
+     ]
+    },
+    {
+     "roof": "RF_DUM",
+     "edge": "-Y",
+     "z": 6.05,
+     "profile": "half_round_125_zinc",
+     "from": [
+      -6.1,
+      -5.35
+     ],
+     "to": [
+      6.1,
+      -5.35
+     ]
+    },
+    {
+     "roof": "RF_DUM",
+     "edge": "+X",
+     "z": 6.05,
+     "profile": "half_round_125_zinc",
+     "from": [
+      6.1,
+      -5.35
+     ],
+     "to": [
+      6.1,
+      5.35
+     ]
+    },
+    {
+     "roof": "RF_DUM",
+     "edge": "-X",
+     "z": 6.05,
+     "profile": "half_round_125_zinc",
+     "from": [
+      -6.1,
+      -5.35
+     ],
+     "to": [
+      -6.1,
+      5.35
+     ]
+    }
+   ],
+   "downpipes": [
+    {
+     "id": "DM_DP1",
+     "pos": [
+      -5.62,
+      -4.87
+     ],
+     "top_z": 6.05,
+     "dia": 0.1,
+     "outlet": "cast_iron_boot_to_drain_to_soakaway"
+    },
+    {
+     "id": "DM_DP2",
+     "pos": [
+      5.62,
+      -4.87
+     ],
+     "top_z": 6.05,
+     "dia": 0.1,
+     "outlet": "cast_iron_boot_to_drain_to_soakaway"
+    },
+    {
+     "id": "DM_DP3",
+     "pos": [
+      -5.62,
+      4.87
+     ],
+     "top_z": 6.05,
+     "dia": 0.1,
+     "outlet": "cast_iron_boot_to_drain_to_RW_DUM_outlet"
+    },
+    {
+     "id": "DM_DP4",
+     "pos": [
+      5.62,
+      4.87
+     ],
+     "top_z": 6.05,
+     "dia": 0.1,
+     "outlet": "cast_iron_boot_to_drain_to_RW_DUM_outlet"
+    }
+   ],
+   "drainage": {
+    "front": "DM_DP3/DP4 boots -> PVC 110 drains under the garden -> two stone spouts in RW_DUM (local x -8.0 and +10.5, 0.40 m above the square) -> granite gutter along the square -> gully G_NV1 -> culvert to the brook",
+    "rear": "DM_DP1/DP2 -> soakaway under the rear yard; the rear yard gravel falls 1 % away from the house",
+    "balcony": "copper spout at the balcony SW corner onto a splash stone"
+   },
+   "foundation": {
+    "plinth_height_above_floor": 0.0,
+    "plinth_visible_height": 0.54,
+    "plinth_material": "render_cement_grey_plinth",
+    "ground_levels": {
+     "all sides": -0.54
+    },
+    "floor_to_terrain_rule": "terrace pad flat at house floor - 0.54",
+    "footing": "concrete strip footing (hidden), cellar NOT modelled"
+   },
+   "exterior_steps": [
+    {
+     "id": "DM_X1_CANOPY",
+     "at": "DM0_D1",
+     "type": "canopy",
+     "rect": [
+      [
+       -0.15,
+       -5.95
+      ],
+      [
+       1.75,
+       -5.95
+      ],
+      [
+       1.75,
+       -4.75
+      ],
+      [
+       -0.15,
+       -4.75
+      ]
+     ],
+     "z": 2.55,
+     "material": "steel_glass"
+    }
+   ],
+   "chimneys": [
+    {
+     "id": "DM_CH1",
+     "type": "brick",
+     "pos": [
+      3.0,
+      0.0
+     ],
+     "size": [
+      0.6,
+      0.6
+     ],
+     "top_z": 10.3,
+     "note": "kitchen/boiler flue in the spine wall (0.15 proud into kitchen, utility, east bedroom, bathroom), 0.2 m above the ridge"
+    }
+   ],
+   "furniture": [
+    {
+     "id": "DM_F1",
+     "level": "L0",
+     "type": "sofa",
+     "center": [
+      -3.0,
+      3.75
+     ],
+     "size": [
+      2.2,
+      0.9,
+      0.85
+     ],
+     "rotation_deg": 0,
+     "cover": "none",
+     "collision": true,
+     "blocks_bullets": false,
+     "blocks_vision": true,
+     "note": "soft: concealment only"
+    },
+    {
+     "id": "DM_F2",
+     "level": "L0",
+     "type": "table_dining",
+     "center": [
+      -1.2,
+      1.7
+     ],
+     "size": [
+      1.4,
+      0.9,
+      0.75
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DM_F3",
+     "level": "L0",
+     "type": "wall_unit_cabinet",
+     "center": [
+      -4.8,
+      1.6
+     ],
+     "size": [
+      0.5,
+      2.6,
+      2.0
+     ],
+     "rotation_deg": 0,
+     "cover": "high",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DM_F4",
+     "level": "L0",
+     "type": "kitchen_units",
+     "center": [
+      3.85,
+      4.0
+     ],
+     "size": [
+      2.3,
+      0.6,
+      0.9
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DM_F5",
+     "level": "L0",
+     "type": "kitchen_table",
+     "center": [
+      3.5,
+      3.05
+     ],
+     "size": [
+      1.0,
+      0.8,
+      0.75
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DM_F6",
+     "level": "L0",
+     "type": "wardrobe",
+     "center": [
+      -1.95,
+      -2.0
+     ],
+     "size": [
+      0.6,
+      1.6,
+      2.0
+     ],
+     "rotation_deg": 0,
+     "cover": "none",
+     "collision": true,
+     "blocks_bullets": false,
+     "blocks_vision": true,
+     "note": "soft: concealment only"
+    },
+    {
+     "id": "DM_F7",
+     "level": "L0",
+     "type": "bed_single",
+     "center": [
+      -3.85,
+      -3.8
+     ],
+     "size": [
+      1.0,
+      2.0,
+      0.55
+     ],
+     "rotation_deg": 90,
+     "cover": "none",
+     "collision": true,
+     "blocks_bullets": false,
+     "blocks_vision": true
+    },
+    {
+     "id": "DM_F8",
+     "level": "L0",
+     "type": "boiler_washing_machine",
+     "center": [
+      4.65,
+      -3.6
+     ],
+     "size": [
+      0.7,
+      1.3,
+      1.8
+     ],
+     "rotation_deg": 0,
+     "cover": "high",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DM_F9",
+     "level": "L1",
+     "type": "bed_double",
+     "center": [
+      -3.0,
+      3.0
+     ],
+     "size": [
+      1.8,
+      2.0,
+      0.55
+     ],
+     "rotation_deg": 0,
+     "cover": "none",
+     "collision": true,
+     "blocks_bullets": false,
+     "blocks_vision": true
+    },
+    {
+     "id": "DM_F10",
+     "level": "L1",
+     "type": "wardrobe",
+     "center": [
+      -4.75,
+      1.3
+     ],
+     "size": [
+      0.6,
+      2.0,
+      2.1
+     ],
+     "rotation_deg": 0,
+     "cover": "none",
+     "collision": true,
+     "blocks_bullets": false,
+     "blocks_vision": true
+    },
+    {
+     "id": "DM_F11",
+     "level": "L1",
+     "type": "bed_double",
+     "center": [
+      3.0,
+      3.0
+     ],
+     "size": [
+      1.8,
+      2.0,
+      0.55
+     ],
+     "rotation_deg": 0,
+     "cover": "none",
+     "collision": true,
+     "blocks_bullets": false,
+     "blocks_vision": true
+    },
+    {
+     "id": "DM_F12",
+     "level": "L1",
+     "type": "chest_of_drawers",
+     "center": [
+      4.75,
+      1.0
+     ],
+     "size": [
+      0.5,
+      1.2,
+      1.0
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    },
+    {
+     "id": "DM_F13",
+     "level": "L1",
+     "type": "bed_single",
+     "center": [
+      -2.25,
+      -2.0
+     ],
+     "size": [
+      1.0,
+      2.0,
+      0.55
+     ],
+     "rotation_deg": 0,
+     "cover": "none",
+     "collision": true,
+     "blocks_bullets": false,
+     "blocks_vision": true
+    },
+    {
+     "id": "DM_F14",
+     "level": "L1",
+     "type": "bathtub",
+     "center": [
+      4.25,
+      -3.6
+     ],
+     "size": [
+      1.6,
+      0.75,
+      0.6
+     ],
+     "rotation_deg": 0,
+     "cover": "low",
+     "collision": true,
+     "blocks_bullets": true,
+     "blocks_vision": true
+    }
+   ],
+   "zone_notes": "zone_dvur counts the terrace garden, the side and rear yard strips and the ground floor; the upper floor and the balcony (z +3.00, 0.40 m above z_max) are outside"
+  }
+ ]
+}

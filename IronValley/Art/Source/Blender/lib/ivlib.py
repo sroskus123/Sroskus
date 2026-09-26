@@ -1217,31 +1217,68 @@ def uv_scale_islands(obj, factor_fn):
     return changed
 
 
-def uv_snap_degenerate(obj, area_eps=2e-9):
-    """Give (near) zero-area faces the UVs of neighbouring real faces.  Smart projection
-    makes every sliver its own island; packed next to a foreign island's bake margin such a
-    sliver samples a wrong colour (e.g. brass on a polymer edge).  area_eps in world units^2."""
+def uv_snap_degenerate(obj, area_eps=2e-9, tex_size=None, min_island_texels=4.0,
+                       min_thickness_texels=0.8, protect_materials=()):
+    """Collapse faces that cannot receive baked texels onto a neighbouring UV point.
+
+    Smart projection makes slivers and tiny detail faces their own islands.  If such an island
+    is smaller than a few texels (or thinner than one), the bake rasterises no pixel centres
+    inside it, and at render time it samples whatever lies next to it: often the bake margin of a
+    foreign island (brass specks on a polymer edge, red paint on a rail tooth).  Every loop
+    of such a face gets the UV of one neighbouring real face at a shared vertex, so it
+    shows the local surface colour.
+
+    * faces with 3D area < area_eps (world units^2) are always collapsed;
+    * with tex_size, whole islands with UV area < min_island_texels texel^2, or mean
+      thickness (area / bbox diagonal) < min_thickness_texels, are collapsed;
+    * islands using a material whose name contains one of `protect_materials` are kept."""
     me = obj.data
     uv = me.uv_layers.active.data
     s2 = obj.matrix_world.median_scale ** 2
-    degen = set(p.index for p in me.polygons if p.area * s2 < area_eps)
-    if not degen:
+    bad = set(p.index for p in me.polygons if p.area * s2 < area_eps)
+    if tex_size:
+        for isl in uv_islands(obj):
+            if protect_materials:
+                names = set()
+                for fi in isl:
+                    mi = me.polygons[fi].material_index
+                    if mi < len(me.materials) and me.materials[mi]:
+                        names.add(me.materials[mi].name)
+                if any(pm in n for pm in protect_materials for n in names):
+                    continue
+            area = 0.0
+            umin = [1e9, 1e9]; umax = [-1e9, -1e9]
+            for fi in isl:
+                p = me.polygons[fi]
+                pts = [uv[li].uv for li in p.loop_indices]
+                for k in range(1, len(pts) - 1):
+                    a_ = pts[k] - pts[0]; b_ = pts[k + 1] - pts[0]
+                    area += abs(a_.x * b_.y - a_.y * b_.x) * 0.5
+                for q in pts:
+                    umin = [min(umin[0], q.x), min(umin[1], q.y)]
+                    umax = [max(umax[0], q.x), max(umax[1], q.y)]
+            area_t = area * tex_size * tex_size
+            diag_t = math.hypot(umax[0] - umin[0], umax[1] - umin[1]) * tex_size
+            thick_t = area_t / diag_t if diag_t > 0 else 0.0
+            if area_t < min_island_texels or thick_t < min_thickness_texels:
+                bad.update(isl)
+    if not bad:
         return 0
     good_uv = {}
     for p in me.polygons:
-        if p.index in degen:
+        if p.index in bad:
             continue
         for li in p.loop_indices:
             good_uv.setdefault(me.loops[li].vertex_index, uv[li].uv.copy())
     fixed = 0
-    for fi in degen:
+    for fi in bad:
         p = me.polygons[fi]
         known = [good_uv.get(me.loops[li].vertex_index) for li in p.loop_indices]
         known = [v for v in known if v is not None]
         if not known:
             continue
-        # collapse the whole sliver onto ONE neighbouring UV point: zero UV area, so it is
-        # never rasterised by the bake and samples the colour of the adjacent real surface
+        # collapse onto ONE neighbouring UV point: zero UV area, never rasterised by the
+        # bake, samples the colour of the adjacent real surface
         for li in p.loop_indices:
             uv[li].uv = known[0]
         fixed += 1
@@ -1249,7 +1286,7 @@ def uv_snap_degenerate(obj, area_eps=2e-9):
 
 
 def uv_unwrap(objs, angle=60.0, island_margin=0.002, pack_margin=0.004, uv_name="UVMap",
-              shape='CONCAVE', rotate=True, scale_fn=None):
+              shape='CONCAVE', rotate=True, scale_fn=None, tex_size=None, protect_materials=()):
     """Multi-object smart UV project + pack into one shared 0..1 space (consistent texel
     density across all objects of a texture set).  scale_fn(obj, island_info) -> factor
     lets the caller give hidden / tiny islands less texture space before packing."""
@@ -1276,8 +1313,8 @@ def uv_unwrap(objs, angle=60.0, island_margin=0.002, pack_margin=0.004, uv_name=
                             margin_method='FRACTION', scale=True)
     bpy.ops.object.mode_set(mode='OBJECT')
     deselect_all()
-    for o in objs:
-        uv_snap_degenerate(o)
+    snapped = sum(uv_snap_degenerate(o, tex_size=tex_size, protect_materials=protect_materials) for o in objs)
+    log(f"uv: {len(objs)} objects, {snapped} sub-texel / degenerate faces collapsed onto neighbours")
 
 
 def uv_simple(obj, uv_name="UVMap"):
@@ -1354,14 +1391,50 @@ def uv_overlap_estimate(objs, res=1024):
 # =============================================================================
 
 def _float_image(name, size, fill):
+    """Float bake target.  Alpha starts at 0: Cycles writes alpha 1 into every pixel it
+    bakes, which gives an exact coverage mask for our own margin dilation."""
     im = bpy.data.images.get(name)
     if im is not None:
         bpy.data.images.remove(im)
     im = bpy.data.images.new(name, size, size, alpha=True, float_buffer=True)
     im.colorspace_settings.name = 'Non-Color'
-    px = np.empty((size, size, 4), np.float32); px[:] = (*fill, 1.0)
+    px = np.empty((size, size, 4), np.float32); px[:] = (*fill, 0.0)
     im.pixels.foreach_set(px.ravel())
     return im
+
+
+def dilate(arr, iterations, fill=None):
+    """Nearest-texel margin: grow baked pixels (alpha > 0.5) outward `iterations` times,
+    each new pixel = mean of its already-filled 8-neighbours.  Unlike a per-object margin,
+    ownership is purely by distance, so a thin face at an island border takes its own
+    island's colour, never the margin of a neighbouring object's island."""
+    rgb = arr[..., :3].astype(np.float32).copy()
+    m = arr[..., 3] > 0.5
+    H, W = m.shape
+    for _ in range(iterations):
+        if m.all():
+            break
+        pm = np.pad(m, 1, mode='constant')
+        pr = np.pad(rgb, ((1, 1), (1, 1), (0, 0)), mode='edge')
+        acc = np.zeros_like(rgb); cnt = np.zeros((H, W), np.float32)
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                if dy == 0 and dx == 0:
+                    continue
+                sm = pm[1 + dy:1 + dy + H, 1 + dx:1 + dx + W]
+                acc += pr[1 + dy:1 + dy + H, 1 + dx:1 + dx + W] * sm[..., None]
+                cnt += sm
+        new = (~m) & (cnt > 0)
+        if not new.any():
+            break
+        rgb[new] = acc[new] / cnt[new][:, None]
+        m = m | new
+    out = np.empty_like(arr)
+    out[..., :3] = rgb
+    if fill is not None:
+        out[~m, 0], out[~m, 1], out[~m, 2] = fill
+    out[..., 3] = 1.0
+    return out
 
 
 def image_to_array(im):
@@ -1423,7 +1496,9 @@ def _bake(objs, btype, samples, margin):
         sc.render.bake.normal_b = 'POS_Z'
     select(objs, objs[0])
     t0 = time.time()
-    bpy.ops.object.bake(type=btype, margin=margin, use_clear=True)
+    # margin 0 + our own distance-based dilation (see dilate()); no clearing so the alpha-0
+    # initialisation marks unbaked pixels
+    bpy.ops.object.bake(type=btype, margin=0, use_clear=False)
     log("  bake", btype, "%.1fs" % (time.time() - t0))
 
 
@@ -1494,6 +1569,9 @@ def bake_texture_set(set_name, objs, masks_group, tex_dir, prefix, size=2048,
              from the weapon they are removed from.
     Stage 2: switch the mask group to the baked image (noise-free), then bake BaseColor,
              Roughness, Metallic (emission routing) and the tangent-space Normal (OpenGL).
+    Every pass bakes with margin 0; `margin` px of padding are then added by dilate()
+    (distance-based ownership; Blender's per-object margin lets one object's margin
+    overwrite another object's unrasterised island borders).
     Writes <prefix><set>_BaseColor.png (sRGB), _Normal.png (OpenGL), _Normal_DX.png,
     _ORM.png (R AO, G roughness, B metallic).  Returns dict of paths."""
     t_all = time.time()
@@ -1521,7 +1599,8 @@ def bake_texture_set(set_name, objs, masks_group, tex_dir, prefix, size=2048,
     for o, dy in moved:
         o.location.y -= dy
     bpy.context.view_layer.update()
-    mask_arr = image_to_array(im_mask)
+    mask_arr = dilate(image_to_array(im_mask), margin, fill=(0.0, 1.0, 1.0))
+    im_mask.pixels.foreach_set(mask_arr.ravel())     # stage 2 samples the dilated masks
     mask_path = save_png(mask_arr, os.path.join(intermediate_dir, base + "_Masks.png"))
     mask_group_use_image(masks_group, im_mask)
 
@@ -1535,11 +1614,11 @@ def bake_texture_set(set_name, objs, masks_group, tex_dir, prefix, size=2048,
         _route_emission(mats, chan)
         _bake(objs, 'EMIT', final_samples, margin)
         _restore_bsdf(mats)
-        chans[chan] = image_to_array(im)
+        chans[chan] = dilate(image_to_array(im), margin, fill=fill)
     im_n = _float_image(base + "_NormalGL", size, (0.5, 0.5, 1.0))
     _set_target(mats, im_n)
     _bake(objs, 'NORMAL', final_samples, margin)
-    n_arr = image_to_array(im_n)
+    n_arr = dilate(image_to_array(im_n), margin, fill=(0.5, 0.5, 1.0))
 
     bc = chans["Base Color"].copy()
     bc[..., :3] = linear_to_srgb(bc[..., :3])

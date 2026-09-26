@@ -2,7 +2,7 @@
   "schema": "ironvalley.testvectors",
   "version": 1,
   "suite": "respawn",
-  "description": "GAME-02 a pravidla respawnu: alive -> dead (odpocet 5 s) -> respawning (ceka na bezpecny bod, opakuje po 0.5 s) -> alive. Spawnove oblasti: tym 0 body [0..12,0,0] po 4 m, tym 1 [100..112,0,0], tym 2 [0..12,0,100]. Indexy bodu zavisle na semenu nezavisle overuje referencni implementace v Pythonu (Shared/testvectors/tools/seed_reference.py). Zbrane ucastnika, ktery neni alive, jsou vypnute (GUN-03); pokusy o spawn probehnou v presnych okamzicich uvnitr tiku.",
+  "description": "GAME-02 a pravidla respawnu: alive -> dead (odpocet 5 s) -> respawning (ceka na bezpecny bod, opakuje po 0.5 s) -> alive. Spawnove oblasti: tym 0 body [0..12,0,0] po 4 m, tym 1 [100..112,0,0], tym 2 [0..12,0,100]. Indexy bodu zavisle na semenu nezavisle overuje referencni implementace v Pythonu (Shared/testvectors/tools/seed_reference.py). Zbrane ucastnika, ktery neni alive, maji zamek zivota (GUN-03), zamky vstupu enginu (menu, vysledky) jsou na nem nezavisle; pokusy o spawn probehnou v presnych okamzicich uvnitr tiku a bod pouzity pro spawn je rezervovany na retryInterval casu jadra (ne na jeden update).",
   "cases": [
     {
       "id": "RESPAWN/initial-spawn-seed-5",
@@ -317,6 +317,83 @@
         { "op": "kill", "id": "a1" },
         { "op": "run", "durationUs": 5600000, "ticks": "case", "blocked": { "0": [0] }, "expect": { "events": [{ "type": "spawn_blocked", "id": "a1", "point": -1 }, { "type": "spawn_blocked", "id": "a1", "point": -1 }], "participants": { "a1": { "state": "respawning", "respawnInUs": 0, "retryInUs": 400000, "failedSpawnAttempts": 2, "spawnCount": 1 } } } },
         { "op": "run", "durationUs": 400000, "ticks": "case", "blocked": {}, "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 0 }], "participants": { "a1": { "state": "alive", "retryInUs": 0, "failedSpawnAttempts": 2, "spawnCount": 2, "spawnPoint": 0 } } } }
+      ]
+    },
+    {
+      "id": "RESPAWN/new-weapon-inherits-participant-input-lock",
+      "kind": "respawn",
+      "description": "V2-P1-1: zamky vstupu ucastnika (menu, vysledky) plati pro vsechny jeho zbrane, i pro zbran, ktera vznikne az pri spawnu po zmene vybavy. Kazdy duvod se odebira zvlast; reset kola je nezrusi. Hodiny nove pusky po spawnu: 16667, 116667, 133334, 233334, 250001.",
+      "setup": { "seed": 1, "spawnAreas": [[[0, 0, 0]], [[100, 0, 0]], [[0, 0, 100]]], "participants": [{ "id": "a1", "team": 0, "loadout": ["pistol_p9"] }] },
+      "steps": [
+        { "op": "tick", "dtUs": 0, "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 0 }], "participants": { "a1": { "equipped": ["pistol_p9"], "inputLocks": [] } } } },
+        { "op": "disableInput", "id": "a1", "reason": "results", "expect": { "result": "ok", "participants": { "a1": { "inputLocks": ["results"], "weapons": { "pistol_p9": { "enabled": false, "disabledBy": ["results"] } } } } } },
+        { "op": "disableInput", "id": "a1", "reason": "menu", "expect": { "result": "ok", "participants": { "a1": { "inputLocks": ["menu", "results"], "weapons": { "pistol_p9": { "disabledBy": ["menu", "results"] } } } } } },
+        { "op": "setLoadout", "id": "a1", "loadout": ["rifle_iv7", "pistol_p9"], "expect": { "result": "ok" } },
+        { "op": "kill", "id": "a1", "expect": { "result": "killed", "participants": { "a1": { "weapons": { "pistol_p9": { "disabledBy": ["life", "menu", "results"] } } } } } },
+        { "op": "tick", "dtUs": 5000000, "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 0 }], "participants": { "a1": { "state": "alive", "equipped": ["rifle_iv7", "pistol_p9"], "inputLocks": ["menu", "results"], "weapons": { "rifle_iv7": { "enabled": false, "disabledBy": ["menu", "results"], "magazine": 30 }, "pistol_p9": { "enabled": false, "disabledBy": ["menu", "results"] } } } } } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 16667 }, "expect": { "result": 0 } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 100000, "trigger": true }, "expect": { "result": 0, "events": [] } },
+        { "op": "enableInput", "id": "a1", "reason": "menu", "expect": { "result": "ok", "participants": { "a1": { "inputLocks": ["results"], "weapons": { "rifle_iv7": { "enabled": false, "disabledBy": ["results"] }, "pistol_p9": { "enabled": false, "disabledBy": ["results"] } } } } } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 16667 }, "expect": { "result": 0 } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 100000, "trigger": true }, "expect": { "result": 0, "events": [] } },
+        { "op": "enableInput", "id": "a1", "reason": "results", "expect": { "result": "ok", "participants": { "a1": { "inputLocks": [], "weapons": { "rifle_iv7": { "enabled": true, "disabledBy": [] }, "pistol_p9": { "enabled": true, "disabledBy": [] } } } } } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 16667 }, "expect": { "result": 0 } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 16667, "trigger": true }, "expect": { "result": 1, "events": [{ "type": "shot", "atUs": 250001, "detail": "" }], "participants": { "a1": { "weapons": { "rifle_iv7": { "magazine": 29 } } } } } },
+        { "op": "enableInput", "id": "zz", "reason": "menu", "expect": { "result": "unknown_id" } },
+        { "op": "disableInput", "id": "a1", "reason": "jump", "expect": { "result": "invalid_reason", "participants": { "a1": { "inputLocks": [] } } } },
+        { "op": "enableInput", "id": "a1", "reason": "life", "expect": { "result": "invalid_reason" } },
+        { "op": "disableInput", "id": "a1", "reason": "menu", "expect": { "result": "ok" } },
+        { "op": "resetRound", "expect": { "result": "ok", "participants": { "a1": { "state": "respawning", "inputLocks": ["menu"], "weapons": { "rifle_iv7": { "disabledBy": ["life", "menu"] } } } } } },
+        { "op": "tick", "dtUs": 0, "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 0 }], "participants": { "a1": { "state": "alive", "inputLocks": ["menu"], "weapons": { "rifle_iv7": { "enabled": false, "disabledBy": ["menu"] } } } } } }
+      ]
+    },
+    {
+      "id": "RESPAWN/single-free-point-two-spawners-tick-independent",
+      "kind": "respawn",
+      "description": "V2-P2-1: tym A ma volny jen bod 0 (bod 1 blokuje predikat). a1 ho dostane v t = 0 a bod je rezervovany 0,5 s (retryInterval); a2 je v t = 0 odmitnut a v 0,5 s, kdy rezervace skonci, dostane bod 0. Rezervace je casova, ne na dobu jednoho update, takze vysledek nezavisi na deleni casu (drive: jeden dlouhy tik blokoval bod po cely update, a2 by v nem 5x selhal).",
+      "setup": { "seed": 1, "spawnAreas": [[[0, 0, 0], [4, 0, 0]], [[100, 0, 0]], [[0, 0, 100]]], "participants": [{ "id": "a1", "team": 0 }, { "id": "a2", "team": 0 }] },
+      "tickModes": [{ "dtUs": 2000000 }, { "dtUs": 250000 }, { "hz": 60 }, { "hz": 7 }, { "irregular": { "seed": 3, "minUs": 0, "maxUs": 700000 } }],
+      "steps": [
+        { "op": "run", "durationUs": 2000000, "ticks": "case", "blocked": { "0": [1] }, "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 0 }, { "type": "spawn_blocked", "id": "a2", "point": -1 }, { "type": "spawned", "id": "a2", "point": 0 }], "participants": { "a1": { "state": "alive", "spawnPoint": 0, "failedSpawnAttempts": 0 }, "a2": { "state": "alive", "spawnPoint": 0, "spawnCount": 1, "failedSpawnAttempts": 1, "retryInUs": 0 } }, "reservedUs": [[0, 0], [0], [0]] } }
+      ]
+    },
+    {
+      "id": "RESPAWN/spawn-point-reservation-spans-updates",
+      "kind": "respawn",
+      "description": "Rezervace bodu po spawnu trva retryInterval (0,5 s) casu jadra i pres hranice update: a1 se spawnuje v t = 0, v 0,2 s zemre a s nulovou prodlevou hned zkusi spawn - jediny bod je jeste 0,3 s rezervovany, takze pokus selze; rezervace skonci v 0,5 s, dalsi pokus v 0,7 s uspeje.",
+      "rules": { "respawn": { "delay": 0 } },
+      "setup": { "seed": 1, "spawnAreas": [[[0, 0, 0]], [[100, 0, 0]], [[0, 0, 100]]], "participants": [{ "id": "a1", "team": 0 }] },
+      "steps": [
+        { "op": "tick", "dtUs": 0, "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 0 }], "reservedUs": [[500000], [0], [0]] } },
+        { "op": "tick", "dtUs": 200000, "expect": { "events": [], "reservedUs": [[300000], [0], [0]] } },
+        { "op": "kill", "id": "a1", "expect": { "result": "killed", "participants": { "a1": { "state": "dead", "respawnInUs": 0 } } } },
+        { "op": "tick", "dtUs": 0, "expect": { "events": [{ "type": "spawn_blocked", "id": "a1", "point": -1 }], "participants": { "a1": { "state": "respawning", "retryInUs": 500000, "failedSpawnAttempts": 1 } }, "reservedUs": [[300000], [0], [0]] } },
+        { "op": "tick", "dtUs": 300000, "expect": { "events": [], "participants": { "a1": { "state": "respawning", "retryInUs": 200000 } }, "reservedUs": [[0], [0], [0]] } },
+        { "op": "tick", "dtUs": 200000, "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 0 }], "participants": { "a1": { "state": "alive", "spawnCount": 2, "failedSpawnAttempts": 1 } }, "reservedUs": [[500000], [0], [0]] } },
+        { "op": "resetRound", "expect": { "result": "ok", "reservedUs": [[0], [0], [0]] } }
+      ]
+    },
+    {
+      "id": "GUN-01/reload-interrupted-event-survives-reset-and-instant-respawn",
+      "kind": "respawn",
+      "description": "V2-P2-6: preruseni prebiti resetem kola (duvod other) i smrti s okamzitym respawnem (delay 0, duvod death) vyda reload_interrupted a reset zbrane pri spawnu tuto udalost nesmaze. Casy jsou na hodinach zbrane pred resetem (100001).",
+      "rules": { "respawn": { "delay": 0 } },
+      "setup": { "seed": 1, "spawnAreas": [[[0, 0, 0]], [[100, 0, 0]], [[0, 0, 100]]], "participants": [{ "id": "a1", "team": 0 }] },
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 100000, "trigger": true }, "expect": { "result": 2 } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 1 }, "expect": { "result": 0 } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "reload" }, "expect": { "result": "started_tactical", "events": [{ "type": "reload_start", "atUs": 100001, "detail": "tactical" }] } },
+        { "op": "resetRound", "expect": { "result": "ok", "events": [] } },
+        { "op": "weaponEvents", "id": "a1", "weapon": "rifle_iv7", "expect": { "result": "ok", "events": [{ "type": "reload_interrupted", "atUs": 100001, "detail": "other" }], "participants": { "a1": { "weapons": { "rifle_iv7": { "state": "ready", "magazine": 30, "reloadsInterrupted": 0, "clockUs": 0, "disabledBy": ["life"] } } } } } },
+        { "op": "tick", "dtUs": 0, "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 0 }] } },
+        { "op": "tick", "dtUs": 1000000, "expect": { "events": [], "reservedUs": [[0], [0], [0]] } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 100000, "trigger": true }, "expect": { "result": 2, "events": [{ "type": "shot", "atUs": 0, "detail": "" }, { "type": "shot", "atUs": 80000, "detail": "" }] } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 1 }, "expect": { "result": 0 } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "reload" }, "expect": { "result": "started_tactical", "events": [{ "type": "reload_start", "atUs": 100001, "detail": "tactical" }] } },
+        { "op": "kill", "id": "a1", "expect": { "result": "killed", "events": [{ "type": "killed", "id": "a1", "point": -1 }] } },
+        { "op": "tick", "dtUs": 0, "expect": { "events": [{ "type": "spawned", "id": "a1", "point": 0 }], "participants": { "a1": { "state": "alive", "spawnCount": 2 } } } },
+        { "op": "weaponEvents", "id": "a1", "weapon": "rifle_iv7", "expect": { "result": "ok", "events": [{ "type": "reload_interrupted", "atUs": 100001, "detail": "death" }], "participants": { "a1": { "weapons": { "rifle_iv7": { "state": "ready", "magazine": 30, "chamber": 1, "reserve": 90, "enabled": true, "disabledBy": [] } } } } } }
       ]
     }
   ]

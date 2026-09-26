@@ -41,11 +41,17 @@ export class Player {
     this.viewVy = 0;
     this.prevViewY = 0;
 
-    // head bob / landing dip (visual only, scaled by camera motion setting)
+    // head bob / landing dip (visual only, scaled by camera motion setting). They advance on
+    // the simulation tick, so rendering interpolates them between the last two ticks like the
+    // eye position (otherwise they would move in 60 Hz steps on faster displays).
     this.bobPhase = 0;
     this.bobAmount = 0;
     this.landingDip = 0;
     this.landingDipVel = 0;
+    this.prevBobPhase = 0;
+    this.prevBobAmount = 0;
+    this.prevLandingDip = 0;
+    this._bob = { phase: 0, amount: 0, landingDip: 0 };
     this.lastCmd = null;
 
     controller.onEvent = (name, payload) => {
@@ -69,6 +75,7 @@ export class Player {
     this.viewY = this.prevViewY = this.ctrl.position.y + this.ctrl.eyeHeight;
     this.viewVy = 0;
     this.landingDip = this.landingDipVel = 0;
+    this._holdVisuals();
   }
 
   setLook(yawDeg, pitchDeg) {
@@ -105,6 +112,13 @@ export class Player {
     };
   }
 
+  /** Makes the previous-tick snapshots of the visual (bob / dip) state equal to the current one. */
+  _holdVisuals() {
+    this.prevBobPhase = this.bobPhase;
+    this.prevBobAmount = this.bobAmount;
+    this.prevLandingDip = this.landingDip;
+  }
+
   /** One fixed simulation tick. */
   tick(dt, weapon) {
     const c = this.ctrl;
@@ -112,6 +126,7 @@ export class Player {
     this.prevEyeH = this.currEyeH;
     this.prevStep = this.currStep;
     this.prevViewY = this.viewY;
+    this._holdVisuals();
 
     const cmd = this.buildCommand(weapon);
     this.lastCmd = cmd;
@@ -155,6 +170,20 @@ export class Player {
     this.prevEyeH = this.currEyeH;
     this.prevStep = this.currStep;
     this.prevViewY = this.viewY;
+    this._holdVisuals();
+  }
+
+  /**
+   * Head bob phase / amount and landing dip interpolated between the last two ticks (alpha in
+   * [0,1]); shared by the camera and the view model. Returns a reused object.
+   */
+  getRenderBob(alpha) {
+    const a = Math.min(Math.max(alpha, 0), 1);
+    const b = this._bob;
+    b.phase = this.prevBobPhase + (this.bobPhase - this.prevBobPhase) * a;
+    b.amount = this.prevBobAmount + (this.bobAmount - this.prevBobAmount) * a;
+    b.landingDip = this.prevLandingDip + (this.landingDip - this.prevLandingDip) * a;
+    return b;
   }
 
   /** Interpolated eye position for rendering (alpha in [0,1] between ticks). */
@@ -163,9 +192,10 @@ export class Player {
     out.y = this.prevViewY + (this.viewY - this.prevViewY) * alpha;
     const motion = this.settings.get('cameraMotion');
     if (motion > 0) {
-      const bob = this.bobAmount * motion;
-      out.y += Math.sin(this.bobPhase * 2) * 0.012 * bob + this.landingDip * motion;
-      const side = Math.cos(this.bobPhase) * 0.008 * bob;
+      const { phase, amount, landingDip } = this.getRenderBob(alpha);
+      const bob = amount * motion;
+      out.y += Math.sin(phase * 2) * 0.012 * bob + landingDip * motion;
+      const side = Math.cos(phase) * 0.008 * bob;
       out.x += Math.cos(this.yaw) * side;
       out.z -= Math.sin(this.yaw) * side;
     }

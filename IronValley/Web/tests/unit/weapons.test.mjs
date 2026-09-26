@@ -184,3 +184,54 @@ test('headshot multiplier and knock-down after enough damage', () => {
   const d = dummies.byId.get('d_right');
   assert.equal(d.health, 100 - DEF.damage * DEF.headMultiplier);
 });
+
+test('dummy hit wobble runs on simulation time: frozen while paused, continuous between ticks, same at any frame rate', async () => {
+  const { DummyView } = await import('../../src/game/dummyView.js');
+  const { FixedStepLoop } = await import('../../src/engine/loop.js');
+  const run = (fps, pauseAfterTicks) => {
+    const dummies = new TargetDummies(level.dummies);
+    const view = new DummyView(dummies);
+    const d = dummies.dummies[0];
+    let paused = false;
+    let ticks = 0;
+    let pausedSteps = 0;
+    const loop = new FixedStepLoop({
+      step: (dt) => {
+        if (paused) {
+          view.hold();
+          pausedSteps++;
+          return;
+        }
+        if (ticks === 3) dummies.applyHit({ dummyId: d.id, part: 'torso', multiplier: 1 }, 10);
+        dummies.tick(dt);
+        view.tick(dt);
+        ticks++;
+        if (ticks === pauseAfterTicks) paused = true;
+      },
+      render: (alpha) => view.update(alpha),
+    });
+    const samples = [];
+    for (let i = 0; i < Math.round(fps * 0.5); i++) {
+      loop.frame(1 / fps);
+      samples.push({ ticks, pausedSteps, rot: view.items[0].pivot.rotation.x });
+    }
+    return samples;
+  };
+  // paused 3 ticks after the hit (knock 0.35 decays at 3/s): from the first paused tick on,
+  // the pose stays exactly still however many frames are drawn
+  const p = run(144, 6);
+  const frozen = p.filter((s) => s.pausedSteps > 0).map((s) => s.rot);
+  assert.ok(frozen.length > 20, `frames while paused: ${frozen.length}`);
+  assert.ok(Math.abs(frozen[0]) > 0.01, 'dummy is knocked back when paused');
+  for (const r of frozen) assert.equal(r, frozen[0], 'dummy moved while the simulation was paused');
+  // not paused: the drawn pose changes between ticks (interpolated, no 60 Hz steps) ...
+  const a = run(144, Infinity);
+  let sameAsPrev = 0;
+  for (let i = 1; i < a.length; i++) if (a[i].ticks >= 4 && a[i].ticks <= 9 && a[i].rot === a[i - 1].rot) sameAsPrev++;
+  assert.equal(sameAsPrev, 0, 'frames without pose change while the wobble is active');
+  // ... and at tick boundaries the pose is the same at 30 and 144 FPS
+  const b = run(30, Infinity);
+  const at = (arr, k) => arr.find((s) => s.ticks === k);
+  const c = run(60, Infinity);
+  for (const k of [4, 6, 8, 16]) assert.ok(Math.abs(at(b, k).rot - at(c, k).rot) < 1e-9, `tick ${k}: ${at(b, k).rot} vs ${at(c, k).rot}`);
+});

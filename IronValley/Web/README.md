@@ -79,8 +79,11 @@ tenké zdi bez průniku; zásah blokovaný u ústí (roh i nízký kryt); stejn�
 30/60/144 FPS; zákmit zbraně po výstřelu omezený a stejný při 4–144 FPS; obraz za menu pauzy stojí;
 Esc a ztráta fokusu uvolní vstup a zastaví palbu; náhradní rozhlížení tažením myši, když prohlížeč
 zámek kurzoru odmítne; načtení a orientaci modelu IV-7 (GLB), logické ústí = vykreslený socket
-(do 2 mm); spuštění pod přísným CSP hostitele (bez `blob:`) i s texturami zbraně; detail mraků při
-pohledu vzhůru; kontrast malých popisků HUD (≥ 4,5 : 1 i na bílém pozadí).
+(do 2 mm, i během přechodu do míření); spuštění pod přísným CSP hostitele (bez `blob:`) i s texturami
+zbraně; detail mraků při pohledu vzhůru; kontrast malých popisků HUD (≥ 4,5 : 1 i na bílém pozadí);
+žádné přímé slunce pod střechou tunelu (pás stěny stejný se sluncem i bez něj); vnitřek tunelu dostává
+výrazně méně okolního světla než stejná stěna venku; houpání kamery při 144 FPS interpolované (žádné
+60Hz schody); otočka přes hranici úhlu nezaškube zbraní; zasažený terč za menu pauzy stojí.
 
 ## Ovládání (výchozí, `src/data/input_bindings.json`)
 
@@ -107,7 +110,8 @@ kamery, automatické rozlišení nebo pevné měřítko vykreslování 50–100 
 | Oblast | Soubor(y) | Stručně |
 | --- | --- | --- |
 | Smyčka | `src/engine/loop.js` | pevný krok 1/60 s, akumulátor z absolutního času (stejný počet kroků při libovolném FPS), interpolace vykreslení, ořez velkých mezer 0,25 s |
-| Vykreslování | `src/engine/renderer.js`, `environment.js`, `clouds.js`, `heightFog.js` | WebGL2, sRGB, ACES filmic, PBR, jedno slunce s měkkými stíny sledujícími hráče (přichycení na texely), obloha `Sky.js` se *stejným* vektorem slunce jako světlo, vlastní vrstva mraků (zakřivená vrstva, víceoktávový šum s LOD podle derivací, osvětlení pochodem ke slunci), PMREM prostředí z oblohy, vzdálenostní + výšková mlha, adaptivní rozlišení |
+| Vykreslování | `src/engine/renderer.js`, `environment.js`, `clouds.js`, `heightFog.js` | WebGL2, sRGB, ACES filmic, PBR, jedno slunce s měkkými stíny sledujícími hráče (přichycení na texely; rozsah hloubky stínové kamery se každý snímek přizpůsobí výškám scény a posun `shadowBiasMeters` je v metrech, takže světlo neprosakuje pod střechy), obloha `Sky.js` se *stejným* vektorem slunce jako světlo, vlastní vrstva mraků (zakřivená vrstva, víceoktávový šum s LOD podle derivací, osvětlení pochodem ke slunci, vzdušná perspektiva jen pro vzduch pod vrstvou), PMREM prostředí z oblohy se sníženou sytostí a s osluněnou zemí pod horizontem (odražené světlo), vzdálenostní + výšková mlha, adaptivní rozlišení |
+| Nepřímé světlo | `src/engine/indirectBake.js`, `bakedLightingMaterial.js`, `src/level/lightingGeometry.js` | při načtení se pro každý vrchol jemně dělené geometrie úrovně zapeče viditelnost oblohy (tlumí okolní světlo jako AO) a jeden odraz slunce od osluněných ploch (paprsky BVH, cca 0,7 s); dynamické objekty (zbraň v rukou, terče) mají sondu viditelnosti oblohy; adaptace oka zvýší expozici v uzavřeném prostoru (`environment.json` → `bakedLighting`, `eyeAdaptation`) |
 | Události | `src/engine/events.js` | jednoduchá sběrnice událostí |
 | Vstup | `src/player/input.js`, `settings.js`, `player.js` | vazby z JSON, zámek kurzoru s náhradou, Esc/blur uvolní vše, krátké stisky se neztratí |
 | Kolize | `src/physics/collisionWorld.js` | statický svět z geometrie úrovně, BVH (three-mesh-bvh) |
@@ -133,8 +137,11 @@ kamery, automatické rozlišení nebo pevné měřítko vykreslování 50–100 
   bodu opory. Posun se prodlouží směrem ke stěně stupně, takže krok funguje v jakémkoli úhlu náběhu;
   krok se přijme jen tehdy, když kapsle opravdu vystoupala za čelo stupně (u vysoké zdi nikdy — ani
   nezrychlí klouzání podél zdi). Zeď 1,0 m proto nikdy není schod.
-* Přichycení k zemi při chůzi dolů (analytický sweep koule až 0,40 m), jinak pád; letmý dotyk hrany
-  dalšího stupně (úzké schody) sondu neblokuje; detekce dopadu.
+* Krok dolů / přichycení k zemi (analytický sweep koule až 0,40 m): nová opora smí být nejvýš
+  `maxStepHeight` (0,40 m) pod bodem, na kterém kapsle stála — při jakékoli rychlosti, takže strmé
+  schody (0,25–0,40 m) a nízké stupně se scházejí bez pádu, vyšší sráz je vždy pád. Hranu, ze které
+  kapsle sjíždí, obkutálí spodní koulí až na nižší plochu (bez vznášení a bez bočního poskoku); letmý
+  dotyk hrany dalšího stupně (úzké schody) sondu neblokuje; detekce dopadu.
 * Vstát z dřepu lze jen při volném prostoru; skok ~0,45 m s kontrolou kolize.
 
 ### Testovací rozhraní `window.__IV`
@@ -143,8 +150,10 @@ kamery, automatické rozlišení nebo pevné měřítko vykreslování 50–100 
 `keyDown/keyUp/mouseMove/mouseButton`, `teleport(...)`, `teleportToMarker(name)`, `setLook(yaw, pitch)`,
 `lookAt(x, y, z)`, `setRenderOnStep(bool)`, `renderNow()`, `startGame()`, `openMenu()`,
 `setInfiniteAmmo(bool)`, `refillAmmo()`, `setSetting(k, v)`, `muzzleConsistency()`, `setLighting({...})`
-(ladění), `setDrawEnabled(bool)` (celá aktualizace snímku bez volání WebGL — pro rychlé testy v
-SwiftShaderu). `_game` je přímý přístup jen pro interaktivní ladění.
+(ladění; `bounceSun` drží zdroj zapečeného odrazu nezávisle na přímém slunci), `setEyeAdaptation(bool)`
+(vypnutí adaptace oka pro měření nezávislá na expozici), `setDrawEnabled(bool)` (celá aktualizace
+snímku bez volání WebGL — pro rychlé testy v SwiftShaderu). `_game` je přímý přístup jen pro
+interaktivní ladění.
 
 ## Zbraň IV-7
 
@@ -171,3 +180,9 @@ průhledným sklem. Textury vložené v GLB se dekódují přímo z bajtů (`cre
   `src/core` (sdílená s C++) a mají ho nahradit.
 * Nad nízkou hranou (schod, stupeň do 0,40 m) se kapsle smí opřít až 0,32 m od osy; nad vyšším srázem
   jen 0,15 m. Pro boty bude potřeba chodidla umisťovat podle skutečného bodu opory (IK).
+* Zapečené nepřímé světlo počítá jen jeden odraz slunce; další odrazy zastupuje minimum okolního
+  světla (`ambientFloor`). Pečení běží při každém načtení (~0,7 s pro Zkušební prostor, 26 tisíc
+  vrcholů); pro velkou mapu bude potřeba péct při sestavení. Adaptace oka se řídí sondou viditelnosti
+  oblohy u oka, ne skutečným jasem obrazu. Barevné ladění okolního světla (sytost oblohy 0,35, barva
+  země) je výtvarné rozhodnutí k porovnání s fotografiemi. Na přímce styku střechy a stěny mohou
+  zůstat jednotlivé pixely s nepatrným světlem (šum PCF filtru stínů).

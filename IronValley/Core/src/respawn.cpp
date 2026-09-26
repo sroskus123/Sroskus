@@ -23,6 +23,7 @@ const char* toString(AddResult v) {
     case AddResult::InvalidTeam: return "invalid_team";
     case AddResult::InvalidLoadout: return "invalid_loadout";
     case AddResult::TeamFull: return "team_full";
+    case AddResult::InvalidConfig: return "invalid_config";
   }
   return "?";
 }
@@ -59,6 +60,8 @@ const char* toString(LoadoutResult v) {
   return "?";
 }
 
+const char* toString(InputLockResult v) { return v == InputLockResult::Ok ? "ok" : "unknown_id"; }
+
 bool spawnPointSafe(const Vec3& point, int team, const std::vector<Body>& bodies, const RespawnRules& rules) {
   const double enemy2 = rules.minEnemyDistance * rules.minEnemyDistance;
   const double body2 = rules.bodyClearance * rules.bodyClearance;
@@ -76,6 +79,12 @@ bool spawnPointSafe(const Vec3& point, int team, const std::vector<Body>& bodies
 
 RespawnSystem::RespawnSystem(const Rules& rules, std::uint32_t seed, std::vector<std::vector<Vec3>> spawnAreas)
     : rules_(rules), rng_(seed), spawnAreas_(std::move(spawnAreas)) {
+  const std::vector<std::string> errors = validateRules(rules_);
+  if (!errors.empty()) {
+    configError_ = errors.front();
+    spawnAreas_.clear();
+    return;
+  }
   if (static_cast<int>(spawnAreas_.size()) != rules_.teamCount) {
     configError_ = "spawnAreas musi mit jednu oblast pro kazdy tym";
     return;
@@ -92,6 +101,7 @@ RespawnSystem::RespawnSystem(const Rules& rules, std::uint32_t seed, std::vector
       }
     }
   }
+  for (const auto& area : spawnAreas_) reservedUs_.emplace_back(area.size(), 0);
 }
 
 bool RespawnSystem::validLoadout(const std::vector<std::string>& loadout) const {
@@ -124,7 +134,7 @@ WeaponState* RespawnSystem::weapon(const std::string& id, const std::string& wea
 }
 
 AddResult RespawnSystem::addParticipant(const std::string& id, int team, const std::vector<std::string>* loadout) {
-  if (!configError_.empty()) return AddResult::InvalidId;
+  if (!configError_.empty()) return AddResult::InvalidConfig;
   if (id.empty()) return AddResult::InvalidId;
   if (participant(id) != nullptr) return AddResult::DuplicateId;
   if (team < 0 || team >= rules_.teamCount) return AddResult::InvalidTeam;
@@ -160,14 +170,15 @@ WeaponState* RespawnSystem::armoryWeapon(Participant& p, const std::string& weap
     if (entry.first == weaponId) return entry.second.get();
   p.armory.emplace_back(weaponId, std::make_unique<WeaponState>(*rules_.findWeapon(weaponId)));
   WeaponState* w = p.armory.back().second.get();
-  w->disable(InterruptReason::Other);
+  w->setLifeLock(true, InterruptReason::Other);
+  for (DisableReason r : p.inputLocks) w->disable(r);  // nova zbran prevezme zamky vstupu ucastnika
   return w;
 }
 
-// Vybava podle loadoutu v plnem vychozim stavu, vsechny zbrane VYPNUTE (zapne je az spawn). Existujici objekty se
-// resetuji na miste; nic se nekopiruje ani nerusi, takze ukazatele drzene enginem zustavaji platne.
+// Vybava podle loadoutu v plnem vychozim stavu, vsechny zbrane se zamkem zivota (odemkne je az spawn). Existujici
+// objekty se resetuji na miste; nic se nekopiruje ani nerusi, takze ukazatele drzene enginem zustavaji platne.
 void RespawnSystem::rebuildWeapons(Participant& p) {
-  for (auto& entry : p.armory) entry.second->disable(InterruptReason::Other);
+  for (auto& entry : p.armory) entry.second->setLifeLock(true, InterruptReason::Other);
   p.weapons.clear();
   for (const std::string& wid : p.loadout) {
     WeaponState* w = armoryWeapon(p, wid);
@@ -184,6 +195,22 @@ LoadoutResult RespawnSystem::setLoadout(const std::string& id, const std::vector
   return LoadoutResult::Ok;
 }
 
+InputLockResult RespawnSystem::disableInput(const std::string& id, DisableReason reason) {
+  Participant* p = participant(id);
+  if (p == nullptr) return InputLockResult::UnknownId;
+  if (std::find(p->inputLocks.begin(), p->inputLocks.end(), reason) == p->inputLocks.end()) p->inputLocks.push_back(reason);
+  for (auto& entry : p->armory) entry.second->disable(reason);
+  return InputLockResult::Ok;
+}
+
+InputLockResult RespawnSystem::enableInput(const std::string& id, DisableReason reason) {
+  Participant* p = participant(id);
+  if (p == nullptr) return InputLockResult::UnknownId;
+  p->inputLocks.erase(std::remove(p->inputLocks.begin(), p->inputLocks.end(), reason), p->inputLocks.end());
+  for (auto& entry : p->armory) entry.second->enable(reason);
+  return InputLockResult::Ok;
+}
+
 KillResult RespawnSystem::kill(const std::string& id) {
   Participant* p = participant(id);
   if (p == nullptr) return KillResult::UnknownId;
@@ -193,7 +220,7 @@ KillResult RespawnSystem::kill(const std::string& id) {
   p->respawnInUs = rules_.respawn.delayUs;
   p->retryInUs = 0;
   p->deaths += 1;
-  for (auto& entry : p->weapons) entry.second->disable(InterruptReason::Death);
+  for (auto& entry : p->weapons) entry.second->setLifeLock(true, InterruptReason::Death);
   outbox_.push_back(RespawnEvent{"killed", id, -1});
   return KillResult::Killed;
 }
@@ -221,18 +248,15 @@ DamageResult RespawnSystem::applyDamage(const std::string& victimId, long long a
 }
 
 void RespawnSystem::update(Micros dtUs, const SpawnPredicate& predicate) {
-  if (!configError_.empty() || dtUs < 0) return;
-  SpawnClaims claims = newClaims();
-  advance(0, predicate, claims);
+  if (!configError_.empty() || !validDt(dtUs)) return;
+  advance(0, predicate);
   Micros remaining = dtUs;
   while (remaining > 0) {
-    const Micros step = std::min(remaining, nextAttemptInUs());
-    advance(step, predicate, claims);
+    const Micros step = std::min(remaining, nextAttemptInUs());  // > 0: retryInterval >= 1 us (validateRules)
+    advance(step, predicate);
     remaining -= step;
   }
 }
-
-SpawnClaims RespawnSystem::newClaims() const { return SpawnClaims(spawnAreas_.size()); }
 
 Micros RespawnSystem::nextAttemptInUs() const {
   Micros best = kNoAttempt;
@@ -243,8 +267,12 @@ Micros RespawnSystem::nextAttemptInUs() const {
   return best;
 }
 
-void RespawnSystem::advance(Micros dtUs, const SpawnPredicate& predicate, SpawnClaims& claims) {
-  if (!configError_.empty() || dtUs < 0 || claims.size() != spawnAreas_.size()) return;
+void RespawnSystem::advance(Micros dtUs, const SpawnPredicate& predicate) {
+  if (!configError_.empty() || !validDt(dtUs)) return;
+  if (dtUs > 0) {
+    for (auto& area : reservedUs_)
+      for (Micros& r : area) r = r > dtUs ? r - dtUs : 0;
+  }
   for (Participant& p : order_) {
     bool attempt = false;
     if (p.state == LifeState::Dead) {
@@ -257,19 +285,20 @@ void RespawnSystem::advance(Micros dtUs, const SpawnPredicate& predicate, SpawnC
       p.retryInUs = p.retryInUs > dtUs ? p.retryInUs - dtUs : 0;
       attempt = p.retryInUs == 0;
     }
-    if (attempt) trySpawn(p, predicate, claims[static_cast<std::size_t>(p.team)]);
+    if (attempt) trySpawn(p, predicate);
   }
 }
 
-bool RespawnSystem::trySpawn(Participant& p, const SpawnPredicate& predicate, std::vector<int>& claimed) {
+bool RespawnSystem::trySpawn(Participant& p, const SpawnPredicate& predicate) {
   const std::vector<Vec3>& area = spawnAreas_[static_cast<std::size_t>(p.team)];
+  std::vector<Micros>& reserved = reservedUs_[static_cast<std::size_t>(p.team)];
   const std::vector<int> order = rng_.shuffledIndices(static_cast<int>(area.size()));
   for (int idx : order) {
-    if (std::find(claimed.begin(), claimed.end(), idx) != claimed.end()) continue;
+    if (reserved[static_cast<std::size_t>(idx)] > 0) continue;
     const Vec3& point = area[static_cast<std::size_t>(idx)];
     const bool ok = predicate ? predicate(SpawnQuery{p.id, p.team, idx, point}) : true;
     if (!ok) continue;
-    claimed.push_back(idx);
+    reserved[static_cast<std::size_t>(idx)] = rules_.respawn.retryIntervalUs;
     p.state = LifeState::Alive;
     p.health = rules_.combat.maxHealth;
     p.respawnInUs = 0;
@@ -277,7 +306,7 @@ bool RespawnSystem::trySpawn(Participant& p, const SpawnPredicate& predicate, st
     p.spawnPoint = idx;
     p.spawnCount += 1;
     rebuildWeapons(p);
-    for (auto& entry : p.weapons) entry.second->enable();
+    for (auto& entry : p.weapons) entry.second->setLifeLock(false, InterruptReason::Other);
     outbox_.push_back(RespawnEvent{"spawned", p.id, idx});
     return true;
   }
@@ -288,6 +317,7 @@ bool RespawnSystem::trySpawn(Participant& p, const SpawnPredicate& predicate, st
 }
 
 void RespawnSystem::resetRound() {
+  for (auto& area : reservedUs_) std::fill(area.begin(), area.end(), Micros{0});
   for (Participant& p : order_) resetParticipant(p);
   outbox_.clear();
 }

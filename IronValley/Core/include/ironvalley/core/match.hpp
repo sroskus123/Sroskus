@@ -21,16 +21,24 @@ struct MatchWorld {
 
 class Match {
  public:
-  /// Semeno kola = seed, semeno spawnu = seed XOR 0x9E3779B9.
+  /// Semeno kola = seed, semeno spawnu = seed XOR 0x9E3779B9. Neplatna pravidla nebo spawnove oblasti:
+  /// configError() neprazdne, update() vraci InvalidConfig, start() false, addParticipant InvalidConfig.
   Match(const Rules& rules, std::uint32_t seed, std::vector<std::vector<Vec3>> spawnAreas);
+
+  const std::string& configError() const {
+    return round_.configError().empty() ? respawn_.configError() : round_.configError();
+  }
 
   AddResult addParticipant(const std::string& id, int team, const std::vector<std::string>* loadout = nullptr) {
     return respawn_.addParticipant(id, team, loadout);
   }
-  bool start() { return round_.start(); }
+  bool start() { return configError().empty() && round_.start(); }
   KillResult kill(const std::string& id);
   DamageResult applyDamage(const std::string& victimId, long long amount, const std::string* attackerId);
-  /// Vstupy sveta plati po cely tik. Ve stavu ended se nic nedeje. Zaporne dt = InvalidDt bez ucinku.
+  /// Zamek vstupu enginu (menu, vysledkova obrazovka ...) pro vsechny zbrane ucastnika; plati i ve stavu ended.
+  InputLockResult disableInput(const std::string& id, DisableReason reason) { return respawn_.disableInput(id, reason); }
+  InputLockResult enableInput(const std::string& id, DisableReason reason) { return respawn_.enableInput(id, reason); }
+  /// Vstupy sveta plati po cely tik. Ve stavu ended se nic nedeje. Neplatne dt = InvalidDt bez ucinku.
   InputResult update(Micros dtUs, const MatchWorld& world);
   /// Nove kolo: skore, oblast, casovace, odpocty respawnu i stav zbrani se vynuluji.
   void reset();

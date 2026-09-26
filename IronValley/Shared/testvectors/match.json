@@ -2,7 +2,7 @@
   "schema": "ironvalley.testvectors",
   "version": 1,
   "suite": "match",
-  "description": "Integrace kola a respawnu (GAME-01, GAME-02, GUN-03): stav zivota ucastniku v oblasti prebira kolo z respawn systemu; reset vynuluje skore, casovace i odpocty respawnu. Tik se deli v okamzicich spawnu: respawnuty ucastnik se v oblasti pocita presne od okamziku spawnu (R13), takze body nezavisi na delce tiku. Zbrane mrtveho ucastnika jsou vypnute.",
+  "description": "Integrace kola a respawnu (GAME-01, GAME-02, GUN-03): stav zivota ucastniku v oblasti prebira kolo z respawn systemu; reset vynuluje skore, casovace i odpocty respawnu. Tik se deli v okamzicich spawnu: respawnuty ucastnik se v oblasti pocita presne od okamziku spawnu (R13), takze body nezavisi na delce tiku. Zbrane mrtveho ucastnika maji zamek zivota, ktery zavreni menu neodebere; respawn neodebere zamek menu. Skonci-li kolo uprostred useku, odpocty respawnu stoji od okamziku konce.",
   "cases": [
     {
       "id": "GAME-02/full-match-cycle-3x6",
@@ -142,6 +142,101 @@
         { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 100000, "trigger": true }, "expect": { "result": 0, "events": [] } },
         { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 16667 }, "expect": { "result": 0 } },
         { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 16667, "trigger": true }, "expect": { "result": 1 } }
+      ]
+    },
+    {
+      "id": "GUN-03/match-menu-closed-while-dead-weapon-stays-inert",
+      "kind": "match",
+      "description": "V2-P1-1 (a): menu otevrene, hrac zabit, menu zavreno (enable menu). Zamek zivota trva: mrtvy nestrili ani neprebiji. Respawn pak odebere jen zamek zivota.",
+      "rules": { "round": { "preRoundDuration": 0 } },
+      "setup": { "seed": 3, "spawnAreas": [[[0, 0, 0], [4, 0, 0]], [[200, 0, 0], [204, 0, 0]], [[0, 0, 200], [4, 0, 200]]], "participants": [{ "id": "a1", "team": 0 }, { "id": "b1", "team": 1 }] },
+      "steps": [
+        { "op": "tick", "dtUs": 0, "expect": { "respawn": { "participants": { "a1": { "state": "alive" }, "b1": { "state": "alive" } } } } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "disable", "reason": "menu" }, "expect": { "result": "ok", "respawn": { "participants": { "a1": { "weapons": { "rifle_iv7": { "enabled": false, "disabledBy": ["menu"] } } } } } } },
+        { "op": "kill", "id": "a1", "expect": { "result": "killed", "respawn": { "participants": { "a1": { "weapons": { "rifle_iv7": { "enabled": false, "disabledBy": ["life", "menu"] } } } } } } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "enable", "reason": "menu" }, "expect": { "result": "ok", "respawn": { "participants": { "a1": { "weapons": { "rifle_iv7": { "enabled": false, "disabledBy": ["life"] } } } } } } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 1 }, "expect": { "result": 0 } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 500000, "trigger": true }, "expect": { "result": 0, "events": [], "respawn": { "participants": { "a1": { "weapons": { "rifle_iv7": { "magazine": 30, "chamber": 1, "shotsFired": 0 } } } } } } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "reload" }, "expect": { "result": "rejected_disabled", "events": [] } },
+        { "op": "tick", "dtUs": 0, "expect": { "respawn": { "participants": { "a1": { "state": "dead", "respawnInUs": 5000000 } } } } },
+        { "op": "tick", "dtUs": 5000000, "expect": { "respawn": { "participants": { "a1": { "state": "alive", "spawnCount": 2, "weapons": { "rifle_iv7": { "enabled": true, "disabledBy": [], "triggerPrev": true, "holdValid": false } } } } } } }
+      ]
+    },
+    {
+      "id": "GUN-03/match-respawn-keeps-menu-lock",
+      "kind": "match",
+      "description": "V2-P1-1 (b): hrac zemre, otevre menu (disableInput menu), respawn probehne s otevrenym menu. Spawn odebere jen zamek zivota, zamek menu trva; po zavreni menu musi spoust nejdriv pustit. Hodiny pusky po spawnu: 1, 500001, 600001, 616668.",
+      "rules": { "round": { "preRoundDuration": 0 } },
+      "setup": { "seed": 3, "spawnAreas": [[[0, 0, 0], [4, 0, 0]], [[200, 0, 0], [204, 0, 0]], [[0, 0, 200], [4, 0, 200]]], "participants": [{ "id": "a1", "team": 0 }, { "id": "b1", "team": 1 }] },
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "kill", "id": "a1", "expect": { "result": "killed" } },
+        { "op": "disableInput", "id": "a1", "reason": "menu", "expect": { "result": "ok", "respawn": { "participants": { "a1": { "inputLocks": ["menu"], "weapons": { "rifle_iv7": { "disabledBy": ["life", "menu"] }, "pistol_p9": { "disabledBy": ["life", "menu"] } } } } } } },
+        { "op": "tick", "dtUs": 5000000, "expect": { "respawn": { "participants": { "a1": { "state": "alive", "inputLocks": ["menu"], "weapons": { "rifle_iv7": { "enabled": false, "disabledBy": ["menu"] }, "pistol_p9": { "enabled": false, "disabledBy": ["menu"] } } } } } } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 1 }, "expect": { "result": 0 } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 500000, "trigger": true }, "expect": { "result": 0, "events": [], "respawn": { "participants": { "a1": { "weapons": { "rifle_iv7": { "magazine": 30, "shotsFired": 0, "triggerPrev": true } } } } } } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "reload" }, "expect": { "result": "rejected_disabled" } },
+        { "op": "enableInput", "id": "a1", "reason": "menu", "expect": { "result": "ok", "respawn": { "participants": { "a1": { "inputLocks": [], "weapons": { "rifle_iv7": { "enabled": true, "disabledBy": [] }, "pistol_p9": { "enabled": true, "disabledBy": [] } } } } } } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 100000, "trigger": true }, "expect": { "result": 0, "events": [] } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 16667 }, "expect": { "result": 0 } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 16667, "trigger": true }, "expect": { "result": 1, "events": [{ "type": "shot", "atUs": 616668, "detail": "" }], "respawn": { "participants": { "a1": { "weapons": { "rifle_iv7": { "magazine": 29, "chamber": 1 } } } } } } }
+      ]
+    },
+    {
+      "id": "GAME-01/match-time-limit-mid-segment-freezes-pending-respawn",
+      "kind": "match",
+      "description": "V2-P2-2: kolo skonci casovym limitem uprostred useku, kdyz ceka respawn. a1 zabit v t = 8 s (respawn v 13 s), limit 10 s: odpocet dobehne jen 2 s (zbyva 3 s) a pak stoji. Kdyby odpocet bezel cely usek (5 s do pokusu), a1 by se respawnoval.",
+      "rules": { "round": { "preRoundDuration": 0, "timeLimit": 10 } },
+      "setup": { "seed": 9, "spawnAreas": [[[0, 0, 0], [4, 0, 0]], [[200, 0, 0], [204, 0, 0]], [[0, 0, 200], [4, 0, 200]]], "participants": [{ "id": "a1", "team": 0 }, { "id": "b1", "team": 1 }] },
+      "tickModes": [{ "dtUs": 6000000 }, { "dtUs": 4000000 }, { "hz": 60 }, { "hz": 7 }, { "irregular": { "seed": 11, "minUs": 0, "maxUs": 900000 } }],
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "tick", "dtUs": 8000000, "expect": { "round": { "state": "running", "elapsedUs": 8000000 } } },
+        { "op": "kill", "id": "a1", "expect": { "result": "killed", "respawn": { "participants": { "a1": { "state": "dead", "respawnInUs": 5000000 } } } } },
+        { "op": "run", "durationUs": 6000000, "ticks": "case", "expect": { "events": [], "round": { "state": "ended", "endReason": "time_limit", "draw": true, "winner": -1, "elapsedUs": 10000000, "scores": [0, 0, 0] }, "respawn": { "participants": { "a1": { "state": "dead", "health": 0, "respawnInUs": 3000000, "retryInUs": 0, "spawnCount": 1 } } } } },
+        { "op": "tick", "dtUs": 10000000, "expect": { "events": [], "round": { "state": "ended", "elapsedUs": 10000000 }, "respawn": { "participants": { "a1": { "state": "dead", "respawnInUs": 3000000 } } } } }
+      ]
+    },
+    {
+      "id": "GAME-01/match-score-target-mid-segment-freezes-pending-respawn",
+      "kind": "match",
+      "description": "V2-P2-2: kolo skonci dosazenim cile uprostred useku, kdyz ceka respawn. a1 v oblasti od t = 0 (body v 2, 4, 6 s, cil 3). b1 zabit v t = 2 s (respawn v 7 s). Konec v 6 s: odpocet b1 dobehne jen 4 s (zbyva 1 s) a pak stoji.",
+      "rules": { "round": { "preRoundDuration": 0, "scoreTarget": 3 } },
+      "setup": { "seed": 9, "spawnAreas": [[[0, 0, 0], [4, 0, 0]], [[200, 0, 0], [204, 0, 0]], [[0, 0, 200], [4, 0, 200]]], "participants": [{ "id": "a1", "team": 0 }, { "id": "b1", "team": 1 }] },
+      "tickModes": [{ "dtUs": 8000000 }, { "dtUs": 5000000 }, { "hz": 60 }, { "hz": 7 }, { "irregular": { "seed": 12, "minUs": 0, "maxUs": 900000 } }],
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "run", "durationUs": 2000000, "ticks": "case", "inZone": ["a1"], "expect": { "round": { "state": "running", "scores": [1, 0, 0], "progressUs": 0, "elapsedUs": 2000000 } } },
+        { "op": "kill", "id": "b1", "expect": { "result": "killed", "respawn": { "participants": { "b1": { "state": "dead", "respawnInUs": 5000000 } } } } },
+        { "op": "run", "durationUs": 8000000, "ticks": "case", "expect": { "events": [], "round": { "state": "ended", "endReason": "score_target", "winner": 0, "draw": false, "elapsedUs": 6000000, "scores": [3, 0, 0], "progressUs": 0 }, "respawn": { "participants": { "b1": { "state": "dead", "respawnInUs": 1000000, "retryInUs": 0, "spawnCount": 1 } } } } },
+        { "op": "tick", "dtUs": 5000000, "expect": { "events": [], "round": { "state": "ended", "elapsedUs": 6000000 }, "respawn": { "participants": { "b1": { "state": "dead", "respawnInUs": 1000000 } } } } }
+      ]
+    },
+    {
+      "id": "GAME-01/match-single-free-point-scores-tick-independent",
+      "kind": "match",
+      "description": "V2-P2-1: tym A ma jediny spawnovy bod. a1 ho dostane v t = 0 a bod je rezervovany na retryInterval 0,5 s; a2 se v t = 0 nespawnuje a zkusi to znovu presne v 0,5 s, kdy rezervace skonci (staticky predikat telo a1 nevidi). Do 0,5 s spor A1:B1, od 0,5 s kontroluje A (2:1): bod v 2,5 s, v 3 s postup 0,5 s. Totez pri jakemkoli deleni casu.",
+      "rules": { "round": { "preRoundDuration": 0 } },
+      "setup": { "seed": 5, "spawnAreas": [[[0, 0, 0]], [[300, 0, 0], [305, 0, 0]], [[0, 0, 300]]], "participants": [{ "id": "a1", "team": 0 }, { "id": "a2", "team": 0 }, { "id": "b1", "team": 1 }] },
+      "tickModes": [{ "dtUs": 3000000 }, { "dtUs": 250000 }, { "hz": 60 }, { "hz": 7 }, { "irregular": { "seed": 13, "minUs": 0, "maxUs": 700000 } }],
+      "steps": [
+        { "op": "run", "durationUs": 3000000, "ticks": "case", "inZone": ["a1", "a2", "b1"], "expect": { "round": { "state": "running", "status": "controlled", "controller": 0, "counts": [2, 1, 0], "scores": [1, 0, 0], "progressUs": 500000, "elapsedUs": 3000000 }, "respawn": { "participants": { "a1": { "state": "alive", "spawnPoint": 0, "failedSpawnAttempts": 0 }, "a2": { "state": "alive", "spawnPoint": 0, "spawnCount": 1, "failedSpawnAttempts": 1, "retryInUs": 0 }, "b1": { "state": "alive" } }, "reservedUs": [[0], [0, 0], [0]] } } }
+      ]
+    },
+    {
+      "id": "GUN-01/match-reset-reports-interrupted-reload",
+      "kind": "match",
+      "description": "V2-P2-6: Match.reset() uprostred prebiti. Zbran vyda reload_interrupted (duvod other) v case na starych hodinach a reset ji nesmaze, takze animace a zvuk konec akce dostanou.",
+      "rules": { "round": { "preRoundDuration": 0 } },
+      "setup": { "seed": 3, "spawnAreas": [[[0, 0, 0], [4, 0, 0]], [[200, 0, 0], [204, 0, 0]], [[0, 0, 200], [4, 0, 200]]], "participants": [{ "id": "a1", "team": 0 }] },
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 100000, "trigger": true }, "expect": { "result": 2 } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 1 }, "expect": { "result": 0 } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "reload" }, "expect": { "result": "started_tactical", "events": [{ "type": "reload_start", "atUs": 100001, "detail": "tactical" }] } },
+        { "op": "reset", "expect": { "result": "ok" } },
+        { "op": "weaponEvents", "id": "a1", "weapon": "rifle_iv7", "expect": { "result": "ok", "events": [{ "type": "reload_interrupted", "atUs": 100001, "detail": "other" }], "respawn": { "participants": { "a1": { "weapons": { "rifle_iv7": { "state": "ready", "magazine": 30, "chamber": 1, "reserve": 90, "reloadsInterrupted": 0, "clockUs": 0, "disabledBy": ["life"] } } } } } } },
+        { "op": "weaponEvents", "id": "a1", "weapon": "rifle_iv7", "expect": { "result": "ok", "events": [] } }
       ]
     }
   ]

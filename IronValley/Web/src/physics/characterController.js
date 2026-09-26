@@ -28,8 +28,14 @@
 // (<= maxStepHeight, only with headroom). The forward probe is extended towards the blocking
 // face so the step works at any approach angle. A step is accepted only if it really climbed
 // onto something past that face; a 1.0 m wall can never become a step.
-// Ground snapping: after a grounded move without ground contact, the bottom sphere is swept
-// down by groundSnapDistance (stairs / slopes downward); if nothing walkable is hit it falls.
+// Ground snapping (step down): after a grounded move without ground contact, the bottom sphere
+// is swept down by groundSnapDistance (stairs / slopes / low ledges downward). The snap is taken
+// if walkable ground is hit no more than maxStepHeight below the surface point the capsule was
+// last standing on, at any speed; otherwise it falls. So stepping down is limited by
+// maxStepHeight exactly like stepping up. If the edge the capsule is rolling off (beyond the
+// roll-over perch) is still in the way, the capsule is lowered until the sphere touches that
+// edge and keeps rolling down it on the following ticks until it reaches the ground below:
+// no hovering, no airborne phase, no sideways pop.
 
 import { Box3, Line3, Vector3 } from 'three';
 import { approach, DEG2RAD } from '../util/math.js';
@@ -81,7 +87,12 @@ function makeFlags() {
   return {
     ground: false,
     groundNormal: new Vector3(0, 1, 0),
-    groundPointY: 0,
+    // height of the highest supporting contact point (-Infinity: none recorded)
+    groundPointY: -Infinity,
+    // ground snap only (see _probeDown / _snapDown)
+    restOnEdge: false,
+    edgePointY: 0,
+    supportPointY: 0,
     wall: false,
     ceiling: false,
     wallNormals: [new Vector3(), new Vector3(), new Vector3(), new Vector3()],
@@ -92,6 +103,7 @@ function makeFlags() {
 function resetFlags(f) {
   f.ground = false;
   f.groundNormal.set(0, 1, 0);
+  f.groundPointY = -Infinity;
   f.wall = false;
   f.ceiling = false;
   f.wallCount = 0;
@@ -115,6 +127,7 @@ function setGround(f, n) {
 
 function mergeFlags(into, f) {
   if (f.ground) setGround(into, f.groundNormal);
+  if (f.groundPointY > into.groundPointY) into.groundPointY = f.groundPointY;
   if (f.ceiling) into.ceiling = true;
   for (let i = 0; i < f.wallCount; i++) addWallNormal(into, f.wallNormals[i]);
 }
@@ -190,6 +203,8 @@ export class CharacterController {
     this.velocity = new Vector3();
     this.grounded = false;
     this.groundNormal = new Vector3(0, 1, 0);
+    // height of the surface point the capsule stands on (step-down limit reference)
+    this.groundPointY = 0;
     this.crouched = false;
     this.height = this.standHeight;
     this.eyeHeight = this.standEyeHeight;
@@ -210,6 +225,7 @@ export class CharacterController {
     this._subFlags = makeFlags();
     this._stepFlags = makeFlags();
     this._probeFlags = makeFlags();
+    this._snapFlags = makeFlags();
     this._prev = new Vector3();
     this._disp = new Vector3();
     this._sub = new Vector3();
@@ -217,6 +233,7 @@ export class CharacterController {
     this._wish = new Vector3();
     this._jumpTest = new Vector3();
     this._saved = new Vector3();
+    this._snapStart = new Vector3();
   }
 
   get eyePosition() {
@@ -238,6 +255,7 @@ export class CharacterController {
       this.groundNormal.copy(f.groundNormal);
       if (!this._supported(this.position, this.groundNormal)) this.grounded = false;
     }
+    this.groundPointY = Number.isFinite(f.groundPointY) ? f.groundPointY : this.position.y;
   }
 
   // ---------------------------------------------------------------- collision helpers
@@ -353,6 +371,9 @@ export class CharacterController {
           if (isGround) {
             pos.y += depth / n.y;
             setGround(flags, n);
+            // supporting point on the bottom sphere (edge height when perched on an edge)
+            const py = pos.y + r * (1 - n.y);
+            if (py > flags.groundPointY) flags.groundPointY = py;
           } else if (n.y < -0.3) {
             pos.addScaledVector(n, depth);
             flags.ceiling = true;
@@ -401,9 +422,15 @@ export class CharacterController {
   /**
    * Sweeps the bottom sphere straight down by up to maxDist. If the first surface hit is
    * standable ground, moves pos onto it and returns true; otherwise leaves pos unchanged.
+   * flags.groundPointY is the height of the ground contact found.
+   * `restOnEdge` (ground snap only): if a skipped edge would overlap the sphere at that ground,
+   * lower pos only until the sphere touches the edge instead of failing (flags.restOnEdge =
+   * true, flags.edgePointY = height of that edge contact); the capsule then rolls down the edge
+   * on the next ticks exactly like a rounded foot.
    */
-  _probeDown(pos, height, maxDist, flags) {
+  _probeDown(pos, height, maxDist, flags, restOnEdge = false) {
     resetFlags(flags);
+    flags.restOnEdge = false;
     const r = this.radius;
     const n = this._gather(pos, height, 0.05, maxDist + 0.05);
     const tris = this._tris;
@@ -416,6 +443,10 @@ export class CharacterController {
     // ground just below it. Such contacts (nearly horizontal normal) are skipped as long as the
     // bottom sphere would overlap them by no more than PROBE_GLANCE_SKIN at the ground found
     // further down; the next depenetration pass pushes that sliver out sideways.
+    // ground snap: exact contact (roll down the edge instead of pushing a sliver out sideways)
+    const skin = restOnEdge ? 1e-4 : PROBE_GLANCE_SKIN;
+    let firstT = Infinity; // first time of impact overall (always a skipped edge after round 0)
+    let firstPointY = 0;
     for (let round = 0; round < 3; round++) {
       // first time of impact among the remaining triangles
       let best = Infinity;
@@ -425,6 +456,7 @@ export class CharacterController {
         if (t < best) best = t;
       }
       if (!(best <= maxDist)) return false;
+      if (round === 0) firstT = best;
       // Several triangles can be hit at the same time (an edge shared by a tread and a riser):
       // the contact counts as ground if any of them is a standable surface.
       let groundFound = false;
@@ -446,18 +478,25 @@ export class CharacterController {
           groundFound = true;
           flags.groundPointY = _pdPoint.y;
         } else if (_pdNormal.y < PROBE_GLANCE_MAX_NY) {
+          if (round === 0 && skipped.length === 0) firstPointY = _pdPoint.y;
           skipped.push(i);
         } else {
           blocking = true; // e.g. a steep face under the capsule: it must slide / fall
         }
       }
       if (groundFound) {
-        const drop = Math.max(best - 1e-5, 0);
+        let drop = Math.max(best - 1e-5, 0);
         // the skipped wall contacts may only be grazed at the new position
         _pdBest.set(center.x, center.y - drop, center.z);
         for (let k = 0; k < skipped.length; k++) {
           tris[skipped[k]].closestPointToPoint(_pdBest, _pdPoint);
-          if (r - _pdPoint.distanceTo(_pdBest) > PROBE_GLANCE_SKIN) return false;
+          if (r - _pdPoint.distanceTo(_pdBest) <= skin) continue;
+          if (!restOnEdge) return false;
+          // rest on the first edge instead (touching it); the ground below is within reach
+          drop = Math.max(firstT - 1e-5, 0);
+          flags.restOnEdge = true;
+          flags.edgePointY = firstPointY;
+          break;
         }
         pos.y -= drop;
         setGround(flags, _pdNormal);
@@ -537,11 +576,40 @@ export class CharacterController {
     resetFlags(outFlags);
     outFlags.ground = true;
     outFlags.groundNormal.copy(pf.groundNormal);
+    outFlags.groundPointY = pf.groundPointY;
     for (let i = 0; i < f.wallCount; i++) addWallNormal(outFlags, f.wallNormals[i]);
     if (f.ceiling) outFlags.ceiling = true;
     this.position.copy(p);
     if (rise > 0.02) this.stepOffset -= rise;
     this.stats.stepUps++;
+    return true;
+  }
+
+  /**
+   * Ground snap / step down after a grounded move ended without ground contact. On success pos
+   * stands on walkable ground at most maxStepHeight below the previous support point (or rests
+   * on the edge it is rolling off, with that ground right below; see _probeDown restOnEdge),
+   * `flags` holds the ground and flags.supportPointY the actual support height, `wallFlags` the
+   * walls touched by the final depenetration (only float noise normally). On failure pos is
+   * unchanged (the capsule falls).
+   */
+  _snapDown(pos, flags, wallFlags) {
+    const P = this.params;
+    const start = this._snapStart.copy(pos);
+    resetFlags(wallFlags);
+    if (!this._probeDown(pos, this.height, P.groundSnapDistance, flags, true)) return false;
+    // stepping down is limited like stepping up (measured between the support points)
+    if (this.groundPointY - flags.groundPointY > P.maxStepHeight + 1e-3) {
+      pos.copy(start);
+      return false;
+    }
+    flags.supportPointY = flags.restOnEdge ? flags.edgePointY : flags.groundPointY;
+    this._gather(pos, this.height, 0.25);
+    this._resolve(pos, this.height, wallFlags);
+    if (this.overlaps(pos, this.height, 0.01)) {
+      pos.copy(start);
+      return false;
+    }
     return true;
   }
 
@@ -685,12 +753,16 @@ export class CharacterController {
     } else if (flags.ground && (wasGrounded || vel.y <= 0)) {
       this.grounded = true;
       this.groundNormal.copy(flags.groundNormal);
+      if (Number.isFinite(flags.groundPointY)) this.groundPointY = flags.groundPointY;
     } else if (wasGrounded) {
       const y0 = pos.y;
       const pf = this._probeFlags;
-      if (this._probeDown(pos, this.height, P.groundSnapDistance, pf)) {
+      const sf = this._snapFlags;
+      if (this._snapDown(pos, pf, sf)) {
         this.grounded = true;
         this.groundNormal.copy(pf.groundNormal);
+        this.groundPointY = pf.supportPointY;
+        for (let i = 0; i < sf.wallCount; i++) addWallNormal(flags, sf.wallNormals[i]);
         const dy = pos.y - y0;
         if (Math.abs(dy) > 0.03) {
           this.stepOffset -= dy;

@@ -15,6 +15,8 @@ import { AdaptiveResolution } from '../engine/adaptiveResolution.js';
 import { assetStats, hasAsset, listAssets, loadGLTF } from '../engine/assets.js';
 import { buildLevelSolids, listLevelBoxes } from '../level/levelGeometry.js';
 import { buildTestRangeView } from '../level/testRangeView.js';
+import { probeSkyVisibility } from '../engine/indirectBake.js';
+import { updateBakedSun } from '../engine/bakedLightingMaterial.js';
 import { CollisionWorld } from '../physics/collisionWorld.js';
 import { CharacterController } from '../physics/characterController.js';
 import { DynamicsWorld } from '../physics/dynamicsWorld.js';
@@ -28,7 +30,7 @@ import { TargetDummies } from './targetDummies.js';
 import { DummyView } from './dummyView.js';
 import { Hud } from './hud.js';
 import { createRng } from '../util/rng.js';
-import { horizontalToVerticalFov } from '../util/math.js';
+import { horizontalToVerticalFov, wrapAngle } from '../util/math.js';
 
 function safeStorage() {
   try {
@@ -60,6 +62,11 @@ export class Game {
     this._simEye = new Vector3();
     this._sunVis = 1;
     this._sunCheckTimer = 0;
+    this._eyeSky = 1; // sky visibility at the eye (target), smoothed into _ambient
+    this._ambient = 1;
+    this._adapt = 1; // eye adaptation exposure multiplier (smoothed)
+    this.eyeAdaptationEnabled = true; // test hook can freeze it (exposure-independent measurements)
+    this.bounceSunOverride = null; // debug: baked bounce lit by this sun intensity instead of the light's
     this._lastYaw = 0;
     this._lastPitch = 0;
     this._lookSnaps = 0;
@@ -73,6 +80,7 @@ export class Game {
 
     // --- rendering ---
     this.renderer = new Renderer(this.root, { exposure: envCfg.exposure });
+    this.baseExposure = envCfg.exposure;
     this.scene = new Scene();
     this.camera = new PerspectiveCamera(50, this.renderer.aspect, 0.05, 2500);
     this.scene.add(this.camera);
@@ -87,8 +95,18 @@ export class Game {
     this.levelSolids = buildLevelSolids(level);
     this.world = new CollisionWorld(this.levelSolids);
     const maxAniso = this.renderer.renderer.capabilities.getMaxAnisotropy();
-    this.levelView = buildTestRangeView(level, this.levelSolids, { maxAnisotropy: Math.min(8, maxAniso) });
+    // baked indirect light: sky visibility + one sunlight bounce per vertex (ENV: interiors
+    // must not be lit like open ground)
+    const bl = envCfg.bakedLighting || {};
+    this.bakedLighting = bl.enabled === false ? null : { rays: bl.rays ?? 32, ambientFloor: bl.ambientFloor ?? 0.12 };
+    this.levelView = buildTestRangeView(level, this.levelSolids, {
+      maxAnisotropy: Math.min(8, maxAniso),
+      lighting: this.bakedLighting ? { world: this.world, sunDirection: this.env.sunDirection, ...this.bakedLighting } : null,
+    });
     this.scene.add(this.levelView.group);
+    // shadow depth range is fitted to the height span of the level (see Environment)
+    const levelBounds = new Box3().setFromObject(this.levelView.group);
+    this.env.setShadowCasterHeights(levelBounds.min.y, levelBounds.max.y);
 
     // --- physics ---
     this.dynamics = new DynamicsWorld({ gravity: movement.gravity });
@@ -98,6 +116,15 @@ export class Game {
     this.dummies = new TargetDummies(level.dummies);
     this.dummyView = new DummyView(this.dummies);
     this.scene.add(this.dummyView.group);
+    if (this.bakedLighting) {
+      // static targets: one sky-visibility probe at chest height scales their ambient light
+      for (const it of this.dummyView.items) {
+        const p = it.d.base.clone();
+        p.y += 1.1;
+        const sky = probeSkyVisibility(this.world, p, { sunDirection: this.env.sunDirection, rays: this.bakedLighting.rays }).skyVis;
+        it.mat.envMapIntensity = this.bakedLighting.ambientFloor + (1 - this.bakedLighting.ambientFloor) * sky;
+      }
+    }
 
     // --- input + player ---
     this.input = new InputManager(bindings, events);
@@ -236,6 +263,7 @@ export class Game {
       this.player.holdInterpolation();
       this.weapon.recoil.snapshot();
       this.viewModel.holdSim();
+      this.dummyView.hold();
       this.input.consumeTick();
       return;
     }
@@ -257,6 +285,7 @@ export class Game {
       this.player.pitch,
     );
     this.dummies.tick(dt);
+    this.dummyView.tick(dt);
     this.dynamics.step(dt);
     this.effects.tick(dt);
     this.viewModel.tickSim(dt);
@@ -272,18 +301,22 @@ export class Game {
     if (r.contextLost) return;
     r.resize();
     if (this.state === 'playing') this.player.applyLookInput();
-    let lookDX = this.player.yaw - this._lastYaw;
+    // wrapped: Player keeps yaw bounded by subtracting whole turns, which is not a turn
+    let lookDX = wrapAngle(this.player.yaw - this._lastYaw);
     let lookDY = this.player.pitch - this._lastPitch;
     this._lastYaw = this.player.yaw;
     this._lastPitch = this.player.pitch;
+    let snapped = false;
     if (this.player.lookSnaps !== this._lookSnaps) {
       // the view was set directly (teleport / respawn), not turned: no weapon sway from it
       this._lookSnaps = this.player.lookSnaps;
       lookDX = 0;
       lookDY = 0;
+      snapped = true;
     }
 
     const eye = this.player.getRenderEye(alpha, this._eye);
+    const bob = this.player.getRenderBob(alpha);
     const rec = this.weapon.recoil.interpolated(alpha);
     const q = lookQuaternion(this.player.yaw + rec.yaw, this.player.pitch + rec.pitch, this.camera.quaternion);
     this.camera.position.copy(eye);
@@ -297,12 +330,22 @@ export class Game {
 
     this.env.follow(eye, eye);
 
-    // is the eye in sun shadow? (dims the view model's direct light)
+    // is the eye in sun shadow? (dims the view model's direct light) and how much sky does it
+    // see (scales the view model's ambient like the baked level lighting)
     this._sunCheckTimer -= frameDt;
-    if (this._sunCheckTimer <= 0) {
+    if (this._sunCheckTimer <= 0 || snapped) {
       this._sunCheckTimer = 0.1;
       this._sunVis = this.world.raycast(eye, this.env.sunDirection, 400) ? 0 : 1;
+      if (this.bakedLighting) this._eyeSky = probeSkyVisibility(this.world, eye, { sunDirection: this.env.sunDirection, rays: 16 }).skyVis;
     }
+    if (this.bakedLighting) {
+      // teleports / respawns jump straight to the new state; otherwise smooth
+      this._ambient = snapped ? this._eyeSky : this._ambient + (this._eyeSky - this._ambient) * (1 - Math.exp(-6 * frameDt));
+      const f = this.bakedLighting.ambientFloor;
+      this.viewModel.setAmbientScale(f + (1 - f) * this._ambient);
+      updateBakedSun(this.levelView.lighting.uniforms, this.env.sun.color, this.bounceSunOverride ?? this.env.sun.intensity);
+    }
+    this._updateEyeAdaptation(frameDt, snapped);
 
     this.viewModel.update({
       dt: frameDt,
@@ -311,15 +354,15 @@ export class Game {
       aspect: r.aspect,
       ads: ws.ads,
       sprint: this.controller.sprinting ? 1 : 0,
-      bobPhase: this.player.bobPhase,
-      bobAmount: this.player.bobAmount,
+      bobPhase: bob.phase,
+      bobAmount: bob.amount,
       lookDX,
       lookDY,
       reload: ws.state === 'reloading' ? ws.reloadTimer / ws.reloadDuration : 0,
       motion: this.settings.get('cameraMotion'),
       sunVisibility: this._sunVis,
     });
-    this.dummyView.update(frameDt);
+    this.dummyView.update(alpha);
 
     if (this.drawEnabled) {
       const gl = r.renderer;
@@ -342,6 +385,29 @@ export class Game {
       if (s !== null) r.setScale(s);
     }
     this.frameCount++;
+  }
+
+  /**
+   * Eye adaptation: in enclosed spaces (little sky visible from the eye) the exposure rises up
+   * to eyeAdaptation.maxBoost, slowly when going in and faster when coming out, like the eye
+   * (and camera auto-exposure). Driven by the sky-visibility probe instead of a GPU luminance
+   * readback, so it is cheap and deterministic.
+   */
+  _updateEyeAdaptation(frameDt, snapped) {
+    const a = envCfg.eyeAdaptation;
+    let target = 1;
+    if (a && this.bakedLighting && this.eyeAdaptationEnabled) {
+      const [lo, hi] = a.enclosedSky || [0.05, 0.45];
+      const t = Math.min(Math.max((this._eyeSky - lo) / (hi - lo), 0), 1);
+      const open = t * t * (3 - 2 * t);
+      target = 1 + ((a.maxBoost ?? 1) - 1) * (1 - open);
+    }
+    if (snapped || !a || !this.eyeAdaptationEnabled) this._adapt = target;
+    else {
+      const rate = target > this._adapt ? a.brightenRate ?? 1 : a.darkenRate ?? 3;
+      this._adapt += (target - this._adapt) * (1 - Math.exp(-rate * frameDt));
+    }
+    this.renderer.renderer.toneMappingExposure = this.baseExposure * this._adapt;
   }
 
   // ------------------------------------------------------------------ assets
@@ -474,6 +540,18 @@ export class Game {
       },
       settings: { ...this.settings.values },
       sun: this.env.verifySun(),
+      shadow: this.env.getShadowInfo(),
+      bakedLighting: this.levelView.lighting
+        ? {
+            vertices: this.levelView.lighting.vertices,
+            hiddenVertices: this.levelView.lighting.hiddenVertices,
+            ms: this.levelView.lighting.ms,
+            eyeSky: this._eyeSky,
+            viewModelAmbient: this.viewModel.ambientScale,
+            exposure: this.renderer.renderer.toneMappingExposure,
+            adaptation: this._adapt,
+          }
+        : null,
       sky: { detailedClouds: !!this.env.sky.userData.detailedClouds },
       assets: listAssets(),
       effects: { impacts: this.effects.impacts, decals: this.effects.decalCount },

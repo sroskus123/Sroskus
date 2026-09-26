@@ -132,11 +132,22 @@ function genWeaponCase(r, baseRaw, index) {
       trigger = !w.triggerPrev;
       return withTrigger({ op: 'tick', dtUs: r.int(1, 700000) }, trigger);
     }
+    // Prazdna zbran: obcas stisk (pusteni -> stisk) misto prebiti, aby fuzz overil dry_fire i pri nahodnem prubehu.
+    if (w.enabled && w.state === 'ready' && !w.canFireRound() && !w.needsChamberAction && r.chance(0.3)) {
+      trigger = !w.triggerPrev;
+      return withTrigger({ op: 'tick', dtUs: r.int(1, 50000) }, trigger);
+    }
     if (w.state === 'ready' && w.chamber === 0 && w.magazine === 0 && w.reserve > 0 && r.chance(0.5)) return { op: 'reload' };
     if (w.totalAmmo < 3 && r.chance(0.3)) return { op: 'resupply', rounds: r.int(1, 40) };
-    // Vypnuti (smrt, menu) a zapnuti: vypnuta zbran casto dostava spoust i prebiti, ktere musi ignorovat.
-    if (!w.enabled && r.chance(0.3)) return { op: 'enable' };
-    if (r.chance(0.04)) return { op: 'disable', reason: r.pick(['death', 'other', 'sprint', 'switch', 'jump']) };
+    // Zamky (menu, vysledky, sprint ...) a jejich odebrani: vypnuta zbran casto dostava spoust i prebiti, ktere musi
+    // ignorovat. Obcas se odebere jiny duvod nez ten nastaveny (zbran musi zustat vypnuta) nebo neplatny duvod
+    // ('death' a 'life' patri jen RespawnSystem, 'jump' neexistuje).
+    if (!w.enabled && r.chance(0.3)) {
+      const held = w.disabledBy;
+      const reason = held.length > 0 && r.chance(0.75) ? r.pick(held) : r.pick(['menu', 'results', 'other', 'sprint', 'switch', 'death', 'life']);
+      return { op: 'enable', reason };
+    }
+    if (r.chance(0.05)) return { op: 'disable', reason: r.pick(['menu', 'results', 'other', 'sprint', 'switch', 'death', 'jump']) };
     const x = r.int(0, 99);
     if (x < 48) return withTrigger({ op: 'tick', dtUs: randDt(r) }, flip(0.3));
     if (x < 58) return { op: 'reload' };
@@ -248,7 +259,8 @@ function randWeaponStep(r) {
   if (x < 7) return { op: 'reload' };
   if (x < 8) return { op: 'interrupt', reason: r.pick(['sprint', 'switch', 'death']) };
   if (x < 10) return withTrigger({ op: 'run', durationUs: r.int(0, 1500000), ticks: randMode(r) }, r.chance(0.5));
-  return r.chance(0.5) ? { op: 'disable', reason: 'other' } : { op: 'enable' };
+  const reason = r.pick(['menu', 'other', 'switch', 'death']);
+  return r.chance(0.5) ? { op: 'disable', reason } : { op: 'enable', reason };
 }
 
 /**
@@ -295,11 +307,24 @@ function respawnLikeStep(r, session, areas, respawnSys, extra) {
     Object.assign(step, extra(r));
     return step;
   }
-  if (x < 86 && ids.length > 0) {
+  if (x < 82 && ids.length > 0) {
     const p = respawnSys.participant(r.pick(ids));
     const wid = r.pick([...p.weapons.keys()]);
     if (r.chance(0.45)) return weaponMacro(r, p.id, wid);
     return { op: 'weapon', id: p.id, weapon: wid, do: randWeaponStep(r) };
+  }
+  if (x < 86 && ids.length > 0) {
+    // Zamky vstupu na urovni ucastnika (menu, vysledky) a udalosti zbrane nashromazdene mimo kroky "weapon"
+    // (preruseni pri smrti a resetu kola).
+    const y = r.int(0, 3);
+    if (y === 0) return { op: 'disableInput', id: anyId(), reason: r.pick(['menu', 'results', 'other', 'jump']) };
+    if (y === 1) {
+      const p = respawnSys.participant(r.pick(ids));
+      const held = [...p.inputLocks];
+      return { op: 'enableInput', id: p.id, reason: held.length > 0 && r.chance(0.7) ? r.pick(held) : r.pick(['menu', 'results', 'life']) };
+    }
+    const p = respawnSys.participant(r.pick(ids));
+    return { op: 'weaponEvents', id: p.id, weapon: r.pick([...p.weapons.keys()]) };
   }
   if (x < 90 && ids.length > 0) {
     return { op: 'setLoadout', id: r.pick(ids), loadout: r.pick([['rifle_iv7', 'pistol_p9'], ['pistol_p9'], ['rifle_iv7'], ['pistol_p9', 'rifle_iv7'], ['knife']]) };

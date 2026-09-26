@@ -22,11 +22,24 @@ const char* toString(EndReason v) {
   return "?";
 }
 
-Round::Round(const Rules& rules, std::uint32_t seed) : rules_(rules), rng_(seed), zone_(rules) { beginRound(); }
+Round::Round(const Rules& rules, std::uint32_t seed) : rules_(rules), rng_(seed), zone_(rules) {
+  const std::vector<std::string> errors = validateRules(rules_);
+  if (!errors.empty()) configError_ = errors.front();
+  beginRound();
+}
+
+const std::string& Round::zoneId() const {
+  static const std::string kNone;
+  if (!configError_.empty()) return kNone;
+  return rules_.zone.locations[static_cast<std::size_t>(zoneIndex_)].id;
+}
 
 void Round::beginRound() {
   roundNumber_ += 1;
-  zoneIndex_ = static_cast<int>(rng_.pickIndex(static_cast<std::uint32_t>(rules_.zone.locations.size())));
+  // Neplatna pravidla: zadny vyber z (mozna prazdneho) seznamu oblasti a zadny posun generatoru.
+  zoneIndex_ = configError_.empty()
+                   ? static_cast<int>(rng_.pickIndex(static_cast<std::uint32_t>(rules_.zone.locations.size())))
+                   : 0;
   state_ = RoundState::PreRound;
   preRoundRemainingUs_ = rules_.round.preRoundUs;
   elapsedUs_ = 0;
@@ -39,14 +52,15 @@ void Round::beginRound() {
 void Round::reset() { beginRound(); }
 
 bool Round::start() {
-  if (state_ != RoundState::PreRound) return false;
+  if (state_ != RoundState::PreRound || !configError_.empty()) return false;
   preRoundRemainingUs_ = 0;
   state_ = RoundState::Running;
   return true;
 }
 
 InputResult Round::tick(Micros dtUs, const std::vector<ZoneParticipant>& participants) {
-  if (dtUs < 0) return InputResult::InvalidDt;
+  if (!configError_.empty()) return InputResult::InvalidConfig;
+  if (!validDt(dtUs)) return InputResult::InvalidDt;
   const InputResult err = validateParticipants(participants, rules_.teamCount);
   if (err != InputResult::Ok) return err;
   if (state_ == RoundState::Ended) return InputResult::Ok;
@@ -78,12 +92,12 @@ InputResult Round::tick(Micros dtUs, const std::vector<ZoneParticipant>& partici
 }
 
 void Round::finishByTime() {
-  const std::vector<int>& s = zone_.scores();
-  int best = -1;
+  const std::vector<std::int64_t>& s = zone_.scores();
+  std::int64_t best = -1;
   int bestTeam = -1;
   int count = 0;
   for (int t = 0; t < static_cast<int>(s.size()); ++t) {
-    const int v = s[static_cast<std::size_t>(t)];
+    const std::int64_t v = s[static_cast<std::size_t>(t)];
     if (v > best) {
       best = v;
       bestTeam = t;

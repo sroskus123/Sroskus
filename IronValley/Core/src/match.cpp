@@ -34,10 +34,10 @@ std::vector<ZoneParticipant> Match::zoneParticipants(const MatchWorld& world) co
 }
 
 InputResult Match::update(Micros dtUs, const MatchWorld& world) {
-  if (dtUs < 0) return InputResult::InvalidDt;
+  if (!configError().empty()) return InputResult::InvalidConfig;
+  if (!validDt(dtUs)) return InputResult::InvalidDt;
   if (round_.state() == RoundState::Ended) return InputResult::Ok;
-  SpawnClaims claims = respawn_.newClaims();  // jeden rozsah "bod pouzity v tomto update" pro cely tik
-  respawn_.advance(0, world.predicate, claims);  // kdo ma spawn ted, pocita se od zacatku tiku
+  respawn_.advance(0, world.predicate);  // kdo ma spawn ted, pocita se od zacatku tiku
   Micros remaining = dtUs;
   do {
     const Micros step = std::min(remaining, respawn_.nextAttemptInUs());
@@ -45,9 +45,10 @@ InputResult Match::update(Micros dtUs, const MatchWorld& world) {
     const Micros elapsed0 = round_.elapsedUs();
     const InputResult r = round_.tick(step, zoneParticipants(world));
     if (r != InputResult::Ok) return r;
-    // Kolo mohlo skoncit uprostred useku (cil): respawny dobehnou jen do okamziku konce, pak stoji.
+    // Kolo mohlo skoncit uprostred useku (cil nebo casovy limit): odpocty respawnu i rezervace bodu dobehnou jen
+    // do okamziku konce, pak stoji.
     const Micros used = pre0 - round_.preRoundRemainingUs() + (round_.elapsedUs() - elapsed0);
-    respawn_.advance(used, world.predicate, claims);
+    respawn_.advance(used, world.predicate);
     remaining -= step;
   } while (remaining > 0 && round_.state() != RoundState::Ended);
   return InputResult::Ok;

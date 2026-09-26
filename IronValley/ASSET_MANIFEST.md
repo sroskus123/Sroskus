@@ -43,7 +43,10 @@ assets because it is not available (no connector; network blocked).
     separately, and small features on the charging handle, barrel nut and bolt catch are cut
     after bevelling. A "face opposes its vertex normals" check was added to the validator, and
     the count is now 0 across all LODs.
-11. Orange specks on the magazine edges came from sliver faces packed into the cartridges'
-    bake margin. Sliver faces now collapse onto a neighbour's UV point.
+11. Orange specks on the magazine edges, red specks on rail teeth and a dark hairline on the
+    stock all came from foreign bake margins. Blender's multi-object bake margin let one
+    object's margin overwrite the unrasterised border texels of another object's island. The
+    bake now uses margin 0 plus a distance-based numpy dilation (`ivlib.dilate`). Sub-texel
+    islands and slivers are collapsed onto a neighbouring UV point after packing.
 12. Pictograms were illegible (SAFE garbled, SEMI red lost) because tiny-island UV shrinking
     had squeezed them. Markings now get 1.6× texel density.

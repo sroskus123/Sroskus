@@ -9,13 +9,21 @@
 //     fade out (no shimmering or aliasing towards the horizon),
 //   - lighting marched towards the sun through the density field (lit sides facing the sun,
 //     self-shadowed cores), ambient from the sky itself and a forward-scattering silver lining,
-//   - Beer-law opacity and the same aerial-perspective composite as the stock shader.
+//   - Beer-law opacity, and aerial perspective / sunlight for a layer at its real height: the
+//     stock shader dimmed the sunlight on the cloud and blended the cloud into the sky with the
+//     extinction of the WHOLE atmosphere along the view ray, which tints cloud shading
+//     blue-violet. Here the eye leg uses only the air below the layer (Rayleigh / Mie scale
+//     heights 8.4 / 1.25 km, as in Sky.js) and the sun leg only the air above it along the sun
+//     direction; the cloud's ambient is mostly neutral (multiple scattering inside the cloud and
+//     light from the sunlit ground below grey out the blue sky light).
 // The sun direction comes from the same sunPosition uniform as the sky and the light.
 
 const IV_CLOUD_UNIFORMS_GLSL = /* glsl */ `
 		uniform float cloudDetail;
 		uniform float cloudLayerHeight;
 		uniform float cloudSunAbsorption;
+		uniform float cloudAmbientGrey;
+		uniform float cloudGroundBounce;
 `;
 
 const IV_CLOUD_FUNCTIONS_GLSL = /* glsl */ `
@@ -117,6 +125,16 @@ const IV_CLOUD_BLOCK_GLSL = /* glsl */ `
 
 					float horizonFade = smoothstep( 0.0, 0.05, direction.y );
 
+					// optical depth below the layer as a fraction of the whole atmosphere
+					float ivFR = 1.0 - exp( -cloudLayerHeight / rayleighZenithLength );
+					float ivFM = 1.0 - exp( -cloudLayerHeight / mieZenithLength );
+					// eye leg: extinction between the viewer and the cloud only
+					vec3 ivFexCloud = exp( -( vBetaR * sR * ivFR + vBetaM * sM * ivFM ) );
+					// sun leg: sunlight reaching the layer through the air above it
+					float ivSunZen = acos( clamp( vSunDirection.y, 0.0, 1.0 ) );
+					float ivSunMass = 1.0 / ( cos( ivSunZen ) + 0.15 * pow( 93.885 - ( ( ivSunZen * 180.0 ) / pi ), -1.253 ) );
+					vec3 ivFexSun = exp( -( vBetaR * rayleighZenithLength * ( 1.0 - ivFR ) + vBetaM * mieZenithLength * ( 1.0 - ivFM ) ) * ivSunMass );
+
 					// light marched towards the sun through the layer
 					vec2 sunXZ = vSunDirection.xz;
 					float sunLen = length( sunXZ );
@@ -130,15 +148,16 @@ const IV_CLOUD_BLOCK_GLSL = /* glsl */ `
 					float powder = 1.0 - exp( -d * 6.0 );
 
 					float dayFactor = smoothstep( -0.08, 0.3, vSunDirection.y );
-					vec3 sunColor = vSunE * Fex * 0.22 * 0.04;
+					vec3 sunColor = vSunE * ivFexSun * 0.22 * 0.04;
 					vec3 skyAmbient = Lin * 0.04 + vec3( 0.0, 0.0003, 0.00075 );
 					// Seen from below, a thick cloud's base is in its own shadow (grey) while thin
 					// parts transmit light (bright): view-path attenuation through the local density.
 					float viewT = exp( -d * cloudSunAbsorption * 1.1 );
-					// ambient: sky light, less of it reaches the base of thick cores
-					// (partly desaturated: multiple scattering inside the cloud greys the blue sky light)
+					// ambient: sky light, less of it reaches the base of thick cores; mostly grey
+					// (multiple scattering inside the cloud) plus light from the sunlit ground below
 					vec3 ambGrey = vec3( dot( skyAmbient, vec3( 0.2126, 0.7152, 0.0722 ) ) );
-					vec3 ambient = mix( skyAmbient, ambGrey, 0.75 ) * mix( 1.1, 0.45, d ) + sunColor * 0.06;
+					vec3 ambient = mix( skyAmbient, ambGrey, cloudAmbientGrey ) * mix( 1.1, 0.45, d )
+						+ sunColor * ( 0.06 + cloudGroundBounce * max( vSunDirection.y, 0.0 ) );
 
 					// forward scattering towards the sun (silver lining on thin rims)
 					float silver = clamp( 0.51 / pow( 1.49 - cosTheta * 1.4, 1.5 ), 0.0, 3.0 );
@@ -154,8 +173,10 @@ const IV_CLOUD_BLOCK_GLSL = /* glsl */ `
 					texColor -= L0 * 0.04 * alpha;
 					texColor = mix( texColor, texColor * ( 1.0 - alpha ), clamp( sundisc, 0.0, 1.0 ) );
 
-					// composite through the atmosphere so distant clouds dissolve into haze
-					vec3 cloudAerial = mix( texColor, cloudColor, Fex );
+					// composite through the air between the viewer and the layer: the in-scattered
+					// light of that shorter path is the sky's scaled by its share of the extinction
+					vec3 ivPathShare = ( 1.0 - ivFexCloud ) / max( 1.0 - Fex, vec3( 1e-3 ) );
+					vec3 cloudAerial = cloudColor * ivFexCloud + ( Lin * 0.04 + vec3( 0.0, 0.0003, 0.00075 ) ) * min( ivPathShare, vec3( 1.0 ) );
 					texColor = mix( texColor, cloudAerial, alpha );
 
 				}
@@ -167,6 +188,10 @@ export const CLOUD_DEFAULTS = {
   cloudDetail: 1.0,
   cloudLayerHeight: 1800,
   cloudSunAbsorption: 1.6,
+  // share of the cloud's sky ambient replaced by its grey luminance (multiple scattering)
+  cloudAmbientGrey: 0.9,
+  // neutral light from the sunlit ground on the cloud base, relative to the direct sun term
+  cloudGroundBounce: 0.15,
 };
 
 /**
@@ -196,6 +221,8 @@ export function applyDetailedClouds(sky, cfg = {}) {
   mat.uniforms.cloudDetail = { value: c.cloudDetail };
   mat.uniforms.cloudLayerHeight = { value: c.cloudLayerHeight };
   mat.uniforms.cloudSunAbsorption = { value: c.cloudSunAbsorption };
+  mat.uniforms.cloudAmbientGrey = { value: c.cloudAmbientGrey };
+  mat.uniforms.cloudGroundBounce = { value: c.cloudGroundBounce };
   mat.needsUpdate = true;
   sky.userData.detailedClouds = true;
   return true;

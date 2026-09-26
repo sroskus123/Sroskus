@@ -6,14 +6,15 @@ Tento skript nepouziva JS ani C++ jadro. Znovu implementuje (podle Docs/RULES.md
   * vyber aktivni oblasti kola = pickIndex(pocet oblasti) z generatoru se semenem kola, kazde kolo dalsi cislo
     (oddil 4),
   * zivotni cyklus respawnu: odpocet, pokusy o spawn v presnych okamzicich uvnitr tiku, michani kandidatu,
-    body pouzite ve stejnem update, predikat (blokovane body + vzdalenost od tel), poskozeni a friendly fire (oddil 5).
+    rezervace bodu po spawnu na dobu retryInterval (casovy rozsah nezavisly na hranicich update), predikat
+    (blokovane body + vzdalenost od tel), poskozeni, friendly fire a zamky vstupu ucastnika (oddil 5).
 
 Pak prehraje soubory vektoru a porovna s nimi:
   * rng.json: vsechny vystupy generatoru a konecny stav,
   * round/match (rucni i fuzz): zoneIndex a zoneId vsude, kde je vektor ocekava,
-  * respawn (rucni i fuzz): vysledky a udalosti operaci respawnu (vcetne indexu bodu spawnu) a pole zivotniho
+  * respawn (rucni i fuzz): vysledky a udalosti operaci respawnu (vcetne indexu bodu spawnu), pole zivotniho
     cyklu ucastniku ve stavu (state, health, respawnInUs, retryInUs, spawnPoint, spawnCount, deaths,
-    failedSpawnAttempts, loadout, equipped, order).
+    failedSpawnAttempts, loadout, equipped, inputLocks, order) a zbyvajici rezervace bodu (reservedUs).
 Stav zbrani a otisky celeho stavu (snapshotDigest) nekontroluje - ty overuje JS/C++ spoustec.
 
 Pouziti:  python3 Shared/testvectors/tools/seed_reference.py [--shared <adresar Shared>] [-v]
@@ -28,6 +29,8 @@ import sys
 
 MASK32 = 0xFFFFFFFF
 SPAWN_SEED_SALT = 0x9E3779B9
+# Duvody zamku vstupu, ktere smi pouzit engine (RULES.md, oddil 6), v poradi snimku.
+DISABLE_REASONS = ("sprint", "switch", "menu", "results", "other")
 
 
 class Mulberry32:
@@ -137,6 +140,8 @@ class RespawnModel:
         self.rules = rules
         self.rng = Mulberry32(seed)
         self.areas = areas
+        # zbyvajici rezervace kazdeho bodu v us; bod s rezervaci > 0 se nenabidne
+        self.reserved = [[0] * len(a) for a in areas]
         self.order = []
         self.by_id = {}
         self.events = []
@@ -167,7 +172,7 @@ class RespawnModel:
             return "invalid_loadout"
         if sum(1 for p in self.order if p["team"] == team) >= self.rules.team_size:
             return "team_full"
-        p = {"id": pid, "team": int(team), "loadout": list(lo)}
+        p = {"id": pid, "team": int(team), "loadout": list(lo), "inputLocks": []}
         self.reset_participant(p)
         self.order.append(p)
         self.by_id[pid] = p
@@ -180,6 +185,20 @@ class RespawnModel:
         if not self.valid_loadout(lo):
             return "invalid_loadout"
         p["loadout"] = list(lo)
+        return "ok"
+
+    def input_lock(self, pid, reason, locked):
+        p = self.by_id.get(pid) if isinstance(pid, str) else None
+        if p is None:
+            return "unknown_id"
+        if reason not in DISABLE_REASONS:
+            return "invalid_reason"
+        held = set(p["inputLocks"])
+        if locked:
+            held.add(reason)
+        else:
+            held.discard(reason)
+        p["inputLocks"] = [r for r in DISABLE_REASONS if r in held]
         return "ok"
 
     def kill(self, pid):
@@ -235,12 +254,12 @@ class RespawnModel:
                 return False
         return True
 
-    def attempt(self, p, world, claims):
+    def attempt(self, p, world):
         team = p["team"]
         for idx in self.rng.shuffle(len(self.areas[team])):
-            if idx in claims[team] or not self.safe(team, idx, world):
+            if self.reserved[team][idx] > 0 or not self.safe(team, idx, world):
                 continue
-            claims[team].add(idx)
+            self.reserved[team][idx] = self.rules.retry
             p.update(state="alive", health=self.rules.max_health, respawnInUs=0, retryInUs=0, spawnPoint=idx,
                      equipped=list(p["loadout"]))
             p["spawnCount"] += 1
@@ -250,7 +269,10 @@ class RespawnModel:
         p["retryInUs"] = self.rules.retry
         self.events.append({"type": "spawn_blocked", "id": p["id"], "point": -1})
 
-    def pass_time(self, d, world, claims):
+    def pass_time(self, d, world):
+        for area in self.reserved:
+            for i, r in enumerate(area):
+                area[i] = max(0, r - d)
         for p in self.order:
             due = False
             if p["state"] == "dead":
@@ -263,7 +285,7 @@ class RespawnModel:
                 p["retryInUs"] = max(0, p["retryInUs"] - d)
                 due = p["retryInUs"] == 0
             if due:
-                self.attempt(p, world, claims)
+                self.attempt(p, world)
 
     def next_due(self):
         best = None
@@ -274,17 +296,17 @@ class RespawnModel:
         return best
 
     def update(self, dt, world):
-        # Pokusy v presnych okamzicich uvnitr tiku; body pouzite v tomto update se znovu nenabidnou.
-        claims = [set() for _ in self.areas]
-        self.pass_time(0, world, claims)
+        # Pokusy v presnych okamzicich uvnitr tiku; rezervace bodu klesaji s casem (ne s hranicemi update).
+        self.pass_time(0, world)
         remaining = dt
         while remaining > 0:
             nxt = self.next_due()
             step = remaining if nxt is None else min(remaining, nxt)
-            self.pass_time(step, world, claims)
+            self.pass_time(step, world)
             remaining -= step
 
     def reset_round(self):
+        self.reserved = [[0] * len(a) for a in self.areas]
         for p in self.order:
             self.reset_participant(p)
         self.events = []
@@ -292,9 +314,10 @@ class RespawnModel:
 
     def snapshot(self):
         keys = ("team", "state", "health", "respawnInUs", "retryInUs", "spawnPoint", "spawnCount", "deaths",
-                "failedSpawnAttempts", "loadout", "equipped")
+                "failedSpawnAttempts", "loadout", "equipped", "inputLocks")
         return {"order": [p["id"] for p in self.order],
-                "participants": {p["id"]: {k: p[k] for k in keys} for p in self.order}}
+                "participants": {p["id"]: {k: p[k] for k in keys} for p in self.order},
+                "reservedUs": [list(a) for a in self.reserved]}
 
 
 class Checker:
@@ -321,13 +344,13 @@ class Checker:
 
 
 LIFE_KEYS = {"team", "state", "health", "respawnInUs", "retryInUs", "spawnPoint", "spawnCount", "deaths",
-             "failedSpawnAttempts", "loadout", "equipped"}
+             "failedSpawnAttempts", "loadout", "equipped", "inputLocks"}
 RESERVED = ("result", "events", "eventCounts", "snapshot", "snapshotDigest")
-RESPAWN_OPS = ("add", "kill", "damage", "setLoadout", "tick", "run", "resetRound")
+RESPAWN_OPS = ("add", "kill", "damage", "setLoadout", "tick", "run", "resetRound", "disableInput", "enableInput")
 
 
 def life_allowed(participant_ids):
-    return {"order": True, "participants": {pid: LIFE_KEYS for pid in participant_ids}}
+    return {"order": True, "participants": {pid: LIFE_KEYS for pid in participant_ids}, "reservedUs": True}
 
 
 def check_rng(case, ck):
@@ -412,7 +435,9 @@ def run_respawn_case(case, rules, mode, ck):
             return "ok"
         if op == "resetRound":
             return model.reset_round()
-        if op == "weapon":
+        if op in ("disableInput", "enableInput"):
+            return model.input_lock(s.get("id"), s.get("reason"), op == "disableInput")
+        if op in ("weapon", "weaponEvents"):
             return None  # zbrane stav respawnu nemeni
         raise ValueError("%s: neznama operace %s" % (case["id"], op))
 

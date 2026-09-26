@@ -2,8 +2,12 @@
 // Semantika je 1:1 shodna s Web/tests/unit/support/vector_runner.mjs (format: Shared/testvectors/README.md).
 //
 // Pouziti: ivcore_vectors --rules <rules.json> <soubor.json>...
+//          ivcore_vectors --rules <rules.json> --malformed <malformed/cases.json>
+//            (kazdy kontrolni pripad "good" musi projit a kazdy chybny "bad" skoncit chybou pripadu)
 // Navratovy kod 0 = vsechny pripady PASS.
 
+#include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <fstream>
@@ -242,6 +246,7 @@ json weaponSnapshot(const WeaponState& w) {
               {"triggerPrev", w.triggerPrev()},
               {"holdValid", w.holdValid()},
               {"enabled", w.enabled()},
+              {"disabledBy", w.disabledByNames()},
               {"shotsFired", w.shotsFired()},
               {"resupplied", w.resupplied()},
               {"dryFires", w.dryFires()},
@@ -302,6 +307,11 @@ json respawnSnapshot(const RespawnSystem& rs) {
       weapons[entry.first] = weaponSnapshot(*entry.second);
       equipped.push_back(entry.first);
     }
+    json inputLocks = json::array();  // pevne poradi jako JS DISABLE_REASONS
+    for (DisableReason r : {DisableReason::Sprint, DisableReason::Switch, DisableReason::Menu, DisableReason::Results,
+                            DisableReason::Other}) {
+      if (std::find(p.inputLocks.begin(), p.inputLocks.end(), r) != p.inputLocks.end()) inputLocks.push_back(toString(r));
+    }
     participants[p.id] = json{{"team", p.team},
                               {"state", toString(p.state)},
                               {"health", p.health},
@@ -313,9 +323,238 @@ json respawnSnapshot(const RespawnSystem& rs) {
                               {"failedSpawnAttempts", p.failedSpawnAttempts},
                               {"loadout", p.loadout},
                               {"equipped", equipped},
+                              {"inputLocks", inputLocks},
                               {"weapons", weapons}};
   }
-  return json{{"order", order}, {"participants", participants}};
+  return json{{"order", order}, {"participants", participants}, {"reservedUs", rs.reservedUs()}};
+}
+
+// ------------------------------------------------------------------ kontrola tvaru vektoru
+// Stejna pravidla jako validateCaseShape / validateStep ve Web/tests/unit/support/vector_runner.mjs: neznamy nebo
+// spatne umisteny klic (preklep "expcet", "expect" uvnitr "do"/"loop", "trigger": "true") je chyba pripadu,
+// ne tichy PASS.
+
+using KeyList = std::vector<std::string>;
+using OpTable = std::map<std::string, KeyList>;
+
+const std::set<std::string>& fileKeys() {
+  static const std::set<std::string> k{"schema", "version", "suite", "description", "cases", "generated", "generator", "masterSeed"};
+  return k;
+}
+
+const std::map<std::string, KeyList>& setupKeys() {
+  static const std::map<std::string, KeyList> k{{"weapon", {"weapon", "magazine", "chamber", "reserve", "fireMode"}},
+                                                {"zone", {}},
+                                                {"round", {"seed"}},
+                                                {"respawn", {"seed", "spawnAreas", "participants"}},
+                                                {"match", {"seed", "spawnAreas", "participants"}},
+                                                {"rng", {"seed"}},
+                                                {"rules", {}}};
+  return k;
+}
+
+const OpTable& opTable(const std::string& kind) {
+  static const OpTable weapon{{"tick", {"dtUs", "trigger", "repeat"}},
+                              {"run", {"durationUs", "trigger", "ticks"}},
+                              {"reload", {}},
+                              {"interrupt", {"reason"}},
+                              {"disable", {"reason"}},
+                              {"enable", {"reason"}},
+                              {"setFireMode", {"mode"}},
+                              {"resupply", {"rounds"}},
+                              {"resetToLoadout", {}}};
+  static const OpTable zone{{"tick", {"dtUs", "participants", "repeat"}}, {"run", {"durationUs", "ticks", "participants"}}, {"reset", {}}};
+  static const OpTable round{{"tick", {"dtUs", "participants", "repeat"}},
+                             {"run", {"durationUs", "ticks", "participants"}},
+                             {"reset", {}},
+                             {"start", {}}};
+  static const OpTable life{{"add", {"id", "team", "loadout"}},
+                            {"kill", {"id"}},
+                            {"damage", {"id", "amount", "attacker"}},
+                            {"setLoadout", {"id", "loadout"}},
+                            {"weapon", {"id", "weapon", "do"}},
+                            {"weaponEvents", {"id", "weapon"}},
+                            {"disableInput", {"id", "reason"}},
+                            {"enableInput", {"id", "reason"}}};
+  static const OpTable respawn = [] {
+    OpTable t = life;
+    t["tick"] = {"dtUs", "repeat", "bodies", "blocked"};
+    t["run"] = {"durationUs", "ticks", "bodies", "blocked"};
+    t["resetRound"] = {};
+    return t;
+  }();
+  static const OpTable match = [] {
+    OpTable t = life;
+    t["tick"] = {"dtUs", "repeat", "bodies", "blocked", "inZone", "inactive"};
+    t["run"] = {"durationUs", "ticks", "bodies", "blocked", "inZone", "inactive"};
+    t["reset"] = {};
+    t["start"] = {};
+    return t;
+  }();
+  static const OpTable rules{{"compile", {"overrides"}}};
+  static const OpTable rng{{"next", {"count"}}, {"pick", {"n", "count"}}, {"shuffle", {"n"}}};
+  static const OpTable none;
+  if (kind == "weapon") return weapon;
+  if (kind == "zone") return zone;
+  if (kind == "round") return round;
+  if (kind == "respawn") return respawn;
+  if (kind == "match") return match;
+  if (kind == "rules") return rules;
+  if (kind == "rng") return rng;
+  return none;
+}
+
+/// Cele cislo ve smyslu JS Number.isInteger (i 30.0).
+bool isIntegral(const json& v) {
+  if (v.is_number_integer()) return true;
+  if (!v.is_number_float()) return false;
+  const double d = v.get<double>();
+  return std::isfinite(d) && d == std::floor(d);
+}
+
+void checkKeys(const json& obj, const std::set<std::string>& allowed, const std::string& where) {
+  for (auto it = obj.begin(); it != obj.end(); ++it)
+    if (allowed.count(it.key()) == 0) throw CaseError(where + ": neznamy klic \"" + it.key() + "\"");
+}
+
+void checkTickMode(const json& mode, const std::string& where) {
+  if (!mode.is_object()) throw CaseError(where + ": rezim tiku musi byt objekt");
+  if (mode.size() != 1 || !(mode.contains("hz") || mode.contains("dtUs") || mode.contains("irregular"))) {
+    throw CaseError(where + ": rezim tiku musi mit prave jeden klic hz | dtUs | irregular, je " + mode.dump());
+  }
+  if (mode.contains("irregular")) {
+    if (!mode["irregular"].is_object()) throw CaseError(where + ": irregular musi byt objekt");
+    checkKeys(mode["irregular"], {"seed", "minUs", "maxUs"}, where + ".irregular");
+  }
+}
+
+void checkZoneParticipant(const json& p, const std::string& where) {
+  if (p.is_array()) {
+    if (p.size() != 5 || !p[0].is_string() || !isIntegral(p[1]) || !p[2].is_boolean() || !p[3].is_boolean() || !p[4].is_boolean()) {
+      throw CaseError(where + ": ucastnik musi byt [id, tym, alive, active, inZone] (text, cele cislo, 3x bool), je " + p.dump());
+    }
+    return;
+  }
+  if (!p.is_object()) throw CaseError(where + ": ucastnik musi byt pole nebo objekt");
+  checkKeys(p, {"id", "team", "alive", "active", "inZone"}, where);
+  auto boolAt = [&p](const char* k) { return p.contains(k) && p[k].is_boolean(); };
+  if (!p.contains("id") || !p["id"].is_string() || !p.contains("team") || !isIntegral(p["team"]) || !boolAt("alive") ||
+      !boolAt("active") || !boolAt("inZone")) {
+    throw CaseError(where + ": ucastnik ma spatne typy " + p.dump());
+  }
+}
+
+void validateCaseShape(const json& testCase) {
+  if (!testCase.is_object()) throw CaseError("pripad musi byt objekt");
+  const std::string where = "pripad " + (testCase.contains("id") && testCase["id"].is_string() ? testCase["id"].get<std::string>() : "?");
+  checkKeys(testCase, {"id", "kind", "description", "rules", "setup", "tickModes", "steps"}, where);
+  if (!testCase.contains("id") || !testCase["id"].is_string() || testCase["id"].get<std::string>().empty()) {
+    throw CaseError(where + ": chybi id");
+  }
+  const std::string kind = testCase.contains("kind") && testCase["kind"].is_string() ? testCase["kind"].get<std::string>() : "";
+  auto sk = setupKeys().find(kind);
+  if (sk == setupKeys().end()) throw CaseError(where + ": neznamy druh \"" + kind + "\"");
+  if (!testCase.contains("steps") || !testCase["steps"].is_array()) throw CaseError(where + ": steps musi byt pole");
+  if (testCase.contains("rules") && !testCase["rules"].is_object()) throw CaseError(where + ": rules musi byt objekt");
+  if (testCase.contains("setup")) {
+    const json& setup = testCase["setup"];
+    if (!setup.is_object()) throw CaseError(where + ": setup musi byt objekt");
+    checkKeys(setup, std::set<std::string>(sk->second.begin(), sk->second.end()), where + ".setup");
+    if (setup.contains("participants")) {
+      if (!setup["participants"].is_array()) throw CaseError(where + ".setup.participants musi byt pole");
+      for (std::size_t i = 0; i < setup["participants"].size(); ++i) {
+        const json& p = setup["participants"][i];
+        const std::string w = where + ".setup.participants[" + std::to_string(i) + "]";
+        if (!p.is_object()) throw CaseError(w + ": ocekavan objekt");
+        checkKeys(p, {"id", "team", "loadout"}, w);
+      }
+    }
+  }
+  if (testCase.contains("tickModes")) {
+    const json& modes = testCase["tickModes"];
+    if (!modes.is_array() || modes.empty()) throw CaseError(where + ": tickModes musi byt neprazdne pole");
+    for (std::size_t i = 0; i < modes.size(); ++i) checkTickMode(modes[i], where + ".tickModes[" + std::to_string(i) + "]");
+  }
+}
+
+void validateStep(const std::string& kind, const json& step, const std::string& where, bool nested) {
+  if (!step.is_object()) throw CaseError(where + ": krok musi byt objekt");
+  if (!step.contains("op") || !step["op"].is_string()) throw CaseError(where + ": chybi op");
+  const std::string op = step["op"].get<std::string>();
+  const OpTable& table = opTable(kind);
+  std::set<std::string> keys{"op"};
+  if (op == "loop") {
+    keys.insert({"count", "steps"});
+  } else {
+    auto it = table.find(op);
+    if (it == table.end()) throw CaseError(where + ": neznama operace \"" + op + "\" pro " + kind);
+    keys.insert(it->second.begin(), it->second.end());
+  }
+  if (!nested) keys.insert("expect");
+  for (auto it = step.begin(); it != step.end(); ++it) {
+    if (keys.count(it.key()) != 0) continue;
+    if (it.key() == "expect") throw CaseError(where + ": \"expect\" uvnitr vnoreneho kroku (loop/do) se nekontroluje - patri do vnejsiho kroku");
+    throw CaseError(where + ": neznamy klic \"" + it.key() + "\" v operaci " + op);
+  }
+  if (step.contains("expect") && !step["expect"].is_object()) throw CaseError(where + ": expect musi byt objekt");
+  if (step.contains("trigger") && !step["trigger"].is_boolean()) throw CaseError(where + ": trigger musi byt true/false, je " + step["trigger"].dump());
+  if (step.contains("repeat") && !(isIntegral(step["repeat"]) && step["repeat"].get<double>() >= 0)) {
+    throw CaseError(where + ": repeat musi byt cele >= 0");
+  }
+  if (step.contains("ticks") && !(step["ticks"].is_string() && step["ticks"].get<std::string>() == "case")) {
+    checkTickMode(step["ticks"], where + ".ticks");
+  }
+  if (step.contains("participants")) {
+    if (!step["participants"].is_array()) throw CaseError(where + ": participants musi byt pole");
+    for (std::size_t i = 0; i < step["participants"].size(); ++i) {
+      checkZoneParticipant(step["participants"][i], where + ".participants[" + std::to_string(i) + "]");
+    }
+  }
+  if (step.contains("bodies")) {
+    if (!step["bodies"].is_array()) throw CaseError(where + ": bodies musi byt pole");
+    for (std::size_t i = 0; i < step["bodies"].size(); ++i) {
+      const json& b = step["bodies"][i];
+      const std::string w = where + ".bodies[" + std::to_string(i) + "]";
+      if (!b.is_object()) throw CaseError(w + ": ocekavan objekt");
+      checkKeys(b, {"team", "alive", "pos"}, w);
+      bool posOk = b.contains("pos") && b["pos"].is_array() && b["pos"].size() == 3;
+      if (posOk)
+        for (const json& x : b["pos"]) posOk = posOk && x.is_number();
+      if (!b.contains("team") || !isIntegral(b["team"]) || !b.contains("alive") || !b["alive"].is_boolean() || !posOk) {
+        throw CaseError(w + ": {team: cele, alive: bool, pos: [x,y,z]}, je " + b.dump());
+      }
+    }
+  }
+  if (step.contains("blocked")) {
+    if (!step["blocked"].is_object()) throw CaseError(where + ": blocked musi byt objekt {tym: [indexy]}");
+    for (auto it = step["blocked"].begin(); it != step["blocked"].end(); ++it) {
+      bool ok = it.value().is_array();
+      if (ok)
+        for (const json& x : it.value()) ok = ok && isIntegral(x);
+      if (!ok) throw CaseError(where + ": blocked." + it.key() + " musi byt pole celych cisel");
+    }
+  }
+  for (const char* key : {"inZone", "inactive"}) {
+    if (!step.contains(key)) continue;
+    bool ok = step[key].is_array();
+    if (ok)
+      for (const json& x : step[key]) ok = ok && x.is_string();
+    if (!ok) throw CaseError(where + ": " + key + " musi byt pole id");
+  }
+  if (op == "loop") {
+    if (!step.contains("count") || !isIntegral(step["count"]) || step["count"].get<double>() < 0 || !step.contains("steps") ||
+        !step["steps"].is_array()) {
+      throw CaseError(where + ": loop {count: cele >= 0, steps: []}");
+    }
+    for (std::size_t i = 0; i < step["steps"].size(); ++i) {
+      validateStep(kind, step["steps"][i], where + ".steps[" + std::to_string(i) + "]", true);
+    }
+  }
+  if (op == "weapon" && (kind == "respawn" || kind == "match")) {
+    const json& d = step.contains("do") ? step["do"] : json();
+    if (!d.is_object() || (d.contains("op") && d["op"] == "loop")) throw CaseError(where + ": do musi byt jeden krok zbrane");
+    validateStep("weapon", d, where + ".do", true);
+  }
 }
 
 // ------------------------------------------------------------------ session
@@ -372,6 +611,7 @@ std::optional<std::vector<std::string>> parseLoadout(const json& step) {
 class Session {
  public:
   Session(const json& testCase, const json& baseRaw, const json& mode) : mode_(mode) {
+    validateCaseShape(testCase);
     kind_ = testCase.at("kind").get<std::string>();
     caseRaw_ = mergePatch(baseRaw, testCase.value("rules", json::object()));
     const json setup = testCase.value("setup", json::object());
@@ -420,6 +660,7 @@ class Session {
   }
 
   StepOut step(const json& s, std::vector<std::string>& problems) {
+    validateStep(kind_, s, "krok " + (s.is_object() && s.contains("op") ? s["op"].dump() : std::string("?")), false);
     StepOut out = doStep(s, problems);
     out.snapshot = snapshot();
     return out;
@@ -491,14 +732,11 @@ class Session {
       if (!parseInterruptReason(strField(s, "reason"), reason)) return "invalid_reason";
       return toString(w.interrupt(reason));
     }
-    if (op == "disable") {
-      InterruptReason reason;
-      if (!parseInterruptReason(strField(s, "reason"), reason)) return "invalid_reason";
-      w.disable(reason);
-      return "ok";
-    }
-    if (op == "enable") {
-      w.enable();
+    if (op == "disable" || op == "enable") {
+      DisableReason reason;
+      if (!parseDisableReason(strField(s, "reason"), reason)) return "invalid_reason";
+      if (op == "disable") w.disable(reason);
+      else w.enable(reason);
       return "ok";
     }
     if (op == "setFireMode") {
@@ -641,6 +879,26 @@ class Session {
         w->takeEvents();
         out.result = weaponStep(*w, s.at("do"), problems, id + "/" + wid);
         events = weaponEvents(w->takeEvents());
+      } else if (op == "weaponEvents") {
+        // Udalosti nashromazdene od posledniho kroku "weapon" (napr. preruseni pri resetu nebo smrti).
+        const std::string id = strField(s, "id");
+        const std::string wid = strField(s, "weapon");
+        WeaponState* w = rs.weapon(id, wid);
+        if (w == nullptr) throw CaseError("zbran " + id + "/" + wid + " neexistuje");
+        out.result = "ok";
+        events = weaponEvents(w->takeEvents());
+      } else if (op == "disableInput" || op == "enableInput") {
+        const std::string id = strField(s, "id");
+        DisableReason reason;
+        if (rs.participant(id) == nullptr) {
+          out.result = "unknown_id";
+        } else if (!parseDisableReason(strField(s, "reason"), reason)) {
+          out.result = "invalid_reason";
+        } else if (kind_ == "respawn") {
+          out.result = toString(op == "disableInput" ? respawn_->disableInput(id, reason) : respawn_->enableInput(id, reason));
+        } else {
+          out.result = toString(op == "disableInput" ? match_->disableInput(id, reason) : match_->enableInput(id, reason));
+        }
       } else {
         throw CaseError("neznama operace " + op + " pro " + kind_);
       }
@@ -724,13 +982,48 @@ std::vector<std::string> checkCase(const json& testCase, const json& baseRaw, lo
 
 }  // namespace
 
+/// Kontrola spoustece: pripad bez chyby projde, tentyz pripad s preklepem / spatnym klicem skonci chybou pripadu.
+int runMalformed(const std::string& path, const json& baseRaw) {
+  int passed = 0;
+  int failed = 0;
+  long long steps = 0;
+  const json data = loadJson(path);
+  for (const json& pair : data.at("cases")) {
+    const std::string id = pair.value("id", "?");
+    const std::vector<std::string> good = checkCase(pair.at("good"), baseRaw, steps);
+    const std::vector<std::string> bad = checkCase(pair.at("bad"), baseRaw, steps);
+    bool caseError = !bad.empty();
+    for (const std::string& f : bad) caseError = caseError && f.find("chyba pripadu") != std::string::npos;
+    if (good.empty() && caseError) {
+      ++passed;
+      std::cout << "PASS " << id << ": " << bad.front() << "\n";
+    } else {
+      ++failed;
+      std::cout << "FAIL " << id << (good.empty() ? "" : " (kontrolni pripad neprosel: " + good.front() + ")")
+                << (caseError ? "" : " (chybny pripad nebyl odmitnut chybou pripadu)") << "\n";
+    }
+  }
+  std::cout << "souhrn chybnych pripadu: " << passed << " PASS, " << failed << " FAIL\n";
+  return failed == 0 && passed > 0 ? 0 : 1;
+}
+
 int main(int argc, char** argv) {
   std::string rulesPath;
+  std::string malformedPath;
   std::vector<std::string> files;
   for (int i = 1; i < argc; ++i) {
     const std::string a = argv[i];
     if (a == "--rules" && i + 1 < argc) rulesPath = argv[++i];
+    else if (a == "--malformed" && i + 1 < argc) malformedPath = argv[++i];
     else files.push_back(a);
+  }
+  if (!rulesPath.empty() && !malformedPath.empty()) {
+    try {
+      return runMalformed(malformedPath, loadJson(rulesPath));
+    } catch (const std::exception& e) {
+      std::cerr << "FAIL " << malformedPath << ": " << e.what() << "\n";
+      return 1;
+    }
   }
   if (rulesPath.empty() || files.empty()) {
     std::cerr << "pouziti: ivcore_vectors --rules <rules.json> <vektory.json>...\n";
@@ -755,8 +1048,20 @@ int main(int argc, char** argv) {
       ++failed;
       continue;
     }
-    if (data.value("schema", "") != "ironvalley.testvectors" || !data.contains("cases") || data["cases"].empty()) {
+    if (!data.is_object() || data.value("schema", "") != "ironvalley.testvectors" || !data.contains("cases") ||
+        !data["cases"].is_array() || data["cases"].empty()) {
       std::cerr << "FAIL " << file << ": neplatna hlavicka\n";
+      ++failed;
+      continue;
+    }
+    bool headerOk = true;
+    for (auto it = data.begin(); it != data.end(); ++it) {
+      if (fileKeys().count(it.key()) == 0) {
+        std::cout << "FAIL " << file << ": neznamy klic hlavicky \"" << it.key() << "\"\n";
+        headerOk = false;
+      }
+    }
+    if (!headerOk) {
       ++failed;
       continue;
     }

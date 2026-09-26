@@ -164,15 +164,23 @@ export function expandWall(def) {
 }
 
 /**
- * Returns [{ id, parent, mat, collide, geometry }] with non-indexed world-space geometry
- * including normals and world UVs.
+ * Returns [{ id, parent, mat, collide, geometry, box? }] with non-indexed world-space geometry
+ * including normals and world UVs. `box` ({min, max}) is set for box-shaped solids (used by
+ * the render-only lighting geometry, see lightingGeometry.js).
  */
 export function buildLevelSolids(level) {
   const out = [];
   const addBox = (b, parent) => {
     const g = boxGeometry(b.min, b.max);
     applyWorldUVs(g);
-    out.push({ id: b.id, parent: b.parent || parent || b.id, mat: b.mat || 'wall', collide: b.collide !== false, geometry: g });
+    out.push({
+      id: b.id,
+      parent: b.parent || parent || b.id,
+      mat: b.mat || 'wall',
+      collide: b.collide !== false,
+      geometry: g,
+      box: { min: [...b.min], max: [...b.max] },
+    });
   };
   for (const s of level.solids) {
     switch (s.type) {

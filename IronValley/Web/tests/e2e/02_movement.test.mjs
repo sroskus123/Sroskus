@@ -331,3 +331,49 @@ test('the view stands still behind the pause menu after pausing mid-sprint (no i
   }
   assert.ok(maxJump < 1e-6, `camera moved ${maxJump} m between frames while paused`);
 });
+
+test('head bob is interpolated: at 144 FPS with camera motion on, the camera moves every frame while sprinting', async () => {
+  // Real FixedStepLoop.frame -> Game.render path, WebGL draw skipped. Bob and landing dip
+  // advance on the 60 Hz tick; without interpolation 3 of 5 frames at 144 FPS repeat the
+  // previous height and the others jump by a whole tick.
+  const r = await g.page.evaluate(() => {
+    const iv = window.__IV;
+    iv.startGame();
+    iv.pause();
+    iv.setDrawEnabled(false);
+    const out = {};
+    for (const motion of [0, 1]) {
+      iv.setSetting('cameraMotion', motion);
+      iv.releaseAll();
+      iv.teleportToMarker('speed_start');
+      iv.step(2);
+      iv.keyDown('KeyW');
+      iv.keyDown('ShiftLeft');
+      iv.step(120); // full speed
+      iv.resetAccumulator();
+      const cam = [];
+      for (let i = 0; i < 144; i++) {
+        iv.frames(1 / 144, 1, { render: true });
+        cam.push(iv.getState().camera.position);
+      }
+      iv.keyUp('KeyW');
+      iv.keyUp('ShiftLeft');
+      iv.step(60);
+      const d = (k) => cam.slice(1).map((p, i) => p[k] - cam[i][k]);
+      out[motion] = { dx: d(0), dy: d(1) };
+    }
+    iv.setSetting('cameraMotion', 1);
+    iv.setDrawEnabled(true);
+    return out;
+  });
+  const zeros = (a) => a.filter((v) => Math.abs(v) < 1e-9).length;
+  // camera motion off: horizontal eye interpolation is exact (constant step), no vertical motion
+  const dx0 = r[0].dx;
+  assert.ok(Math.max(...dx0) - Math.min(...dx0) < 1e-6, `dx spread ${Math.max(...dx0) - Math.min(...dx0)}`);
+  // camera motion on: vertical bob changes every frame, in small steps
+  const dy1 = r[1].dy;
+  assert.equal(zeros(dy1), 0, `frames without vertical camera change: ${zeros(dy1)}/${dy1.length}`);
+  const maxDy = Math.max(...dy1.map(Math.abs));
+  assert.ok(maxDy < 0.004, `largest vertical camera step between 144 FPS frames ${maxDy} m`);
+  console.log(`# bob at 144 FPS: zero-change frames ${zeros(dy1)}/${dy1.length}, max step ${(maxDy * 1000).toFixed(2)} mm`);
+});

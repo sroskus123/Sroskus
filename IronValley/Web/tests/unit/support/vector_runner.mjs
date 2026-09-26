@@ -155,9 +155,181 @@ export function checkExpect(expect, out) {
   return problems;
 }
 
-// ---------------------------------------------------------------- spousteni
+// ---------------------------------------------------------------- kontrola tvaru vektoru
+// Neznamy nebo spatne umisteny klic (preklep "expcet", "expect" uvnitr "do" nebo "loop", "trigger": "true") by se
+// jinak tise ignoroval a pripad by prosel naprazdno. Oba spoustece proto tvar kontroluji stejne a odmitnou ho
+// chybou pripadu. C++: Core/tests/vector_runner.cpp (validateCaseShape, validateStep).
 
-class CaseError extends Error {}
+export class CaseError extends Error {}
+
+export const FILE_KEYS = new Set(['schema', 'version', 'suite', 'description', 'cases', 'generated', 'generator', 'masterSeed']);
+const CASE_KEYS = new Set(['id', 'kind', 'description', 'rules', 'setup', 'tickModes', 'steps']);
+const SETUP_KEYS = {
+  weapon: ['weapon', 'magazine', 'chamber', 'reserve', 'fireMode'],
+  zone: [],
+  round: ['seed'],
+  respawn: ['seed', 'spawnAreas', 'participants'],
+  match: ['seed', 'spawnAreas', 'participants'],
+  rng: ['seed'],
+  rules: [],
+};
+const SETUP_PARTICIPANT_KEYS = new Set(['id', 'team', 'loadout']);
+const WEAPON_OPS = {
+  tick: ['dtUs', 'trigger', 'repeat'],
+  run: ['durationUs', 'trigger', 'ticks'],
+  reload: [],
+  interrupt: ['reason'],
+  disable: ['reason'],
+  enable: ['reason'],
+  setFireMode: ['mode'],
+  resupply: ['rounds'],
+  resetToLoadout: [],
+};
+const ZONE_OPS = { tick: ['dtUs', 'participants', 'repeat'], run: ['durationUs', 'ticks', 'participants'], reset: [] };
+const LIFE_OPS = {
+  add: ['id', 'team', 'loadout'],
+  kill: ['id'],
+  damage: ['id', 'amount', 'attacker'],
+  setLoadout: ['id', 'loadout'],
+  weapon: ['id', 'weapon', 'do'],
+  weaponEvents: ['id', 'weapon'],
+  disableInput: ['id', 'reason'],
+  enableInput: ['id', 'reason'],
+};
+const OPS = {
+  weapon: WEAPON_OPS,
+  zone: ZONE_OPS,
+  round: { ...ZONE_OPS, start: [] },
+  respawn: { ...LIFE_OPS, tick: ['dtUs', 'repeat', 'bodies', 'blocked'], run: ['durationUs', 'ticks', 'bodies', 'blocked'], resetRound: [] },
+  match: {
+    ...LIFE_OPS,
+    tick: ['dtUs', 'repeat', 'bodies', 'blocked', 'inZone', 'inactive'],
+    run: ['durationUs', 'ticks', 'bodies', 'blocked', 'inZone', 'inactive'],
+    reset: [],
+    start: [],
+  },
+  rules: { compile: ['overrides'] },
+  rng: { next: ['count'], pick: ['n', 'count'], shuffle: ['n'] },
+};
+
+const isPlainObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+const isBool = (v) => typeof v === 'boolean';
+
+// Klic s hodnotou undefined (jen v pripadech sestavenych v JS, JSON ho neumi) se bere jako chybejici.
+const has = (obj, k) => obj[k] !== undefined;
+
+function checkKeys(obj, allowed, where) {
+  for (const k of Object.keys(obj)) if (has(obj, k) && !allowed.has(k)) throw new CaseError(`${where}: neznamy klic "${k}"`);
+}
+
+function checkTickMode(mode, where) {
+  if (!isPlainObject(mode)) throw new CaseError(`${where}: rezim tiku musi byt objekt`);
+  const keys = Object.keys(mode);
+  if (keys.length !== 1 || !['hz', 'dtUs', 'irregular'].includes(keys[0])) {
+    throw new CaseError(`${where}: rezim tiku musi mit prave jeden klic hz | dtUs | irregular, ma ${JSON.stringify(keys)}`);
+  }
+  if (keys[0] === 'irregular') {
+    if (!isPlainObject(mode.irregular)) throw new CaseError(`${where}: irregular musi byt objekt`);
+    checkKeys(mode.irregular, new Set(['seed', 'minUs', 'maxUs']), `${where}.irregular`);
+  }
+}
+
+function checkZoneParticipant(p, where) {
+  if (Array.isArray(p)) {
+    if (p.length !== 5 || typeof p[0] !== 'string' || !Number.isInteger(p[1]) || !isBool(p[2]) || !isBool(p[3]) || !isBool(p[4])) {
+      throw new CaseError(`${where}: ucastnik musi byt [id, tym, alive, active, inZone] (text, cele cislo, 3x bool), je ${JSON.stringify(p)}`);
+    }
+    return;
+  }
+  if (!isPlainObject(p)) throw new CaseError(`${where}: ucastnik musi byt pole nebo objekt`);
+  checkKeys(p, new Set(['id', 'team', 'alive', 'active', 'inZone']), where);
+  if (typeof p.id !== 'string' || !Number.isInteger(p.team) || !isBool(p.alive) || !isBool(p.active) || !isBool(p.inZone)) {
+    throw new CaseError(`${where}: ucastnik ma spatne typy ${JSON.stringify(p)}`);
+  }
+}
+
+/** Kontrola tvaru pripadu (klice pripadu, setup, tickModes). Kroky kontroluje validateStep pri provadeni. */
+export function validateCaseShape(testCase) {
+  if (!isPlainObject(testCase)) throw new CaseError('pripad musi byt objekt');
+  const where = `pripad ${testCase.id ?? '?'}`;
+  checkKeys(testCase, CASE_KEYS, where);
+  if (typeof testCase.id !== 'string' || testCase.id.length === 0) throw new CaseError(`${where}: chybi id`);
+  if (!Object.hasOwn(SETUP_KEYS, testCase.kind)) throw new CaseError(`${where}: neznamy druh "${testCase.kind}"`);
+  if (!Array.isArray(testCase.steps)) throw new CaseError(`${where}: steps musi byt pole`);
+  if (has(testCase, 'rules') && !isPlainObject(testCase.rules)) throw new CaseError(`${where}: rules musi byt objekt`);
+  if (has(testCase, 'setup')) {
+    if (!isPlainObject(testCase.setup)) throw new CaseError(`${where}: setup musi byt objekt`);
+    checkKeys(testCase.setup, new Set(SETUP_KEYS[testCase.kind]), `${where}.setup`);
+    for (const [i, p] of (testCase.setup.participants ?? []).entries()) {
+      if (!isPlainObject(p)) throw new CaseError(`${where}.setup.participants[${i}]: ocekavan objekt`);
+      checkKeys(p, SETUP_PARTICIPANT_KEYS, `${where}.setup.participants[${i}]`);
+    }
+  }
+  if (has(testCase, 'tickModes')) {
+    if (!Array.isArray(testCase.tickModes) || testCase.tickModes.length === 0) throw new CaseError(`${where}: tickModes musi byt neprazdne pole`);
+    testCase.tickModes.forEach((m, i) => checkTickMode(m, `${where}.tickModes[${i}]`));
+  }
+}
+
+/**
+ * Kontrola tvaru kroku pro dany druh. nested = krok uvnitr "loop" nebo "do" (tam se ocekavani nekontroluje,
+ * proto je "expect" zakazane).
+ */
+export function validateStep(kind, step, where, nested = false) {
+  if (!isPlainObject(step)) throw new CaseError(`${where}: krok musi byt objekt`);
+  if (typeof step.op !== 'string') throw new CaseError(`${where}: chybi op`);
+  const table = OPS[kind];
+  let allowed;
+  if (step.op === 'loop') allowed = ['count', 'steps'];
+  else if (Object.hasOwn(table, step.op)) allowed = table[step.op];
+  else throw new CaseError(`${where}: neznama operace "${step.op}" pro ${kind}`);
+  const keys = new Set(['op', ...allowed]);
+  if (!nested) keys.add('expect');
+  for (const k of Object.keys(step)) {
+    if (keys.has(k) || !has(step, k)) continue;
+    if (k === 'expect') throw new CaseError(`${where}: "expect" uvnitr vnoreneho kroku (loop/do) se nekontroluje - patri do vnejsiho kroku`);
+    throw new CaseError(`${where}: neznamy klic "${k}" v operaci ${step.op}`);
+  }
+  if (has(step, 'expect') && !isPlainObject(step.expect)) throw new CaseError(`${where}: expect musi byt objekt`);
+  if (has(step, 'trigger') && !isBool(step.trigger)) throw new CaseError(`${where}: trigger musi byt true/false, je ${JSON.stringify(step.trigger)}`);
+  if (has(step, 'repeat') && !(Number.isInteger(step.repeat) && step.repeat >= 0)) throw new CaseError(`${where}: repeat musi byt cele >= 0`);
+  if (has(step, 'ticks') && step.ticks !== 'case') checkTickMode(step.ticks, `${where}.ticks`);
+  if (has(step, 'participants')) {
+    if (!Array.isArray(step.participants)) throw new CaseError(`${where}: participants musi byt pole`);
+    step.participants.forEach((p, i) => checkZoneParticipant(p, `${where}.participants[${i}]`));
+  }
+  if (has(step, 'bodies')) {
+    if (!Array.isArray(step.bodies)) throw new CaseError(`${where}: bodies musi byt pole`);
+    step.bodies.forEach((b, i) => {
+      const w = `${where}.bodies[${i}]`;
+      if (!isPlainObject(b)) throw new CaseError(`${w}: ocekavan objekt`);
+      checkKeys(b, new Set(['team', 'alive', 'pos']), w);
+      const posOk = Array.isArray(b.pos) && b.pos.length === 3 && b.pos.every((x) => typeof x === 'number');
+      if (!Number.isInteger(b.team) || !isBool(b.alive) || !posOk) throw new CaseError(`${w}: {team: cele, alive: bool, pos: [x,y,z]}, je ${JSON.stringify(b)}`);
+    });
+  }
+  if (has(step, 'blocked')) {
+    if (!isPlainObject(step.blocked)) throw new CaseError(`${where}: blocked musi byt objekt {tym: [indexy]}`);
+    for (const [t, list] of Object.entries(step.blocked)) {
+      if (!Array.isArray(list) || !list.every(Number.isInteger)) throw new CaseError(`${where}: blocked.${t} musi byt pole celych cisel`);
+    }
+  }
+  for (const key of ['inZone', 'inactive']) {
+    if (has(step, key) && !(Array.isArray(step[key]) && step[key].every((x) => typeof x === 'string'))) {
+      throw new CaseError(`${where}: ${key} musi byt pole id`);
+    }
+  }
+  if (step.op === 'loop') {
+    if (!Number.isInteger(step.count) || step.count < 0 || !Array.isArray(step.steps)) throw new CaseError(`${where}: loop {count: cele >= 0, steps: []}`);
+    step.steps.forEach((inner, i) => validateStep(kind, inner, `${where}.steps[${i}]`, true));
+  }
+  if (step.op === 'weapon' && (kind === 'respawn' || kind === 'match')) {
+    if (!isPlainObject(step.do) || step.do.op === 'loop') throw new CaseError(`${where}: do musi byt jeden krok zbrane`);
+    validateStep('weapon', step.do, `${where}.do`, true);
+  }
+}
+
+// ---------------------------------------------------------------- spousteni
 
 function participantsList(v) {
   return v ?? [];
@@ -211,7 +383,7 @@ function weaponStep(w, step, ctx, problems, label) {
     case 'disable':
       return w.disable(step.reason);
     case 'enable':
-      return w.enable();
+      return w.enable(step.reason);
     case 'setFireMode':
       return w.setFireMode(step.mode);
     case 'resupply':
@@ -293,13 +465,14 @@ function snapshotOf(kind, sys, ctx) {
   }
 }
 
-function doStep(kind, sys, step, ctx, rules, problems) {
+function doStep(kind, sys, step, ctx, rules, problems, nested = false) {
   const world = ctx.world;
+  if (!nested) validateStep(kind, step, `krok ${step?.op ?? '?'}`);
   if (step.op === 'loop') {
     // Genericke opakovani vnorenych kroku (bez kontrol uvnitr). Udalosti se spojuji, vysledek je "ok".
     const events = [];
     for (let i = 0; i < step.count; i += 1) {
-      for (const inner of step.steps) events.push(...doStep(kind, sys, inner, ctx, rules, problems).events);
+      for (const inner of step.steps) events.push(...doStep(kind, sys, inner, ctx, rules, problems, true).events);
     }
     return { result: 'ok', events };
   }
@@ -372,6 +545,20 @@ function doStep(kind, sys, step, ctx, rules, problems) {
           events = w.takeEvents();
           break;
         }
+        case 'weaponEvents': {
+          // Udalosti, ktere zbran nashromazdila od posledniho kroku "weapon" (napr. preruseni pri resetu nebo smrti).
+          const w = respawn.weapon(step.id, step.weapon);
+          if (!w) throw new CaseError(`zbran ${step.id}/${step.weapon} neexistuje`);
+          result = 'ok';
+          events = w.takeEvents();
+          break;
+        }
+        case 'disableInput':
+          result = sys.disableInput(step.id, step.reason);
+          break;
+        case 'enableInput':
+          result = sys.enableInput(step.id, step.reason);
+          break;
         default:
           throw new CaseError(`neznama operace "${step.op}" pro ${kind}`);
       }
@@ -407,6 +594,7 @@ function doStep(kind, sys, step, ctx, rules, problems) {
  */
 export class CaseSession {
   constructor(testCase, baseRaw, mode = null) {
+    validateCaseShape(testCase);
     this.kind = testCase.kind;
     const raw = mergePatch(baseRaw, testCase.rules ?? {});
     this.rules = this.kind === 'rules' ? null : compileRules(raw);

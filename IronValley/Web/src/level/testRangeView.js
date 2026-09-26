@@ -1,6 +1,9 @@
 // Visual representation of the graybox test range ("Zkušební prostor"): neutral metric grid
 // materials (1 texture repeat = 1 metre, like an editor dev grid), merged per material for
 // few draw calls, plus labelled signs and a banner. Browser only (uses canvas textures).
+// With `lighting` options the level is drawn from subdivided geometry with baked indirect
+// light (sky visibility + one sunlight bounce per vertex, see engine/indirectBake.js), so
+// enclosed spaces get less ambient light than open ground.
 
 import {
   BoxGeometry,
@@ -9,12 +12,16 @@ import {
   Group,
   LinearMipmapLinearFilter,
   Mesh,
+  MeshBasicMaterial,
   MeshStandardMaterial,
   PlaneGeometry,
   RepeatWrapping,
   SRGBColorSpace,
 } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { buildLightingGeometries } from './lightingGeometry.js';
+import { bakeVertexLighting, srgbHexToLinear } from '../engine/indirectBake.js';
+import { applyBakedLighting, createBakedLightingUniforms } from '../engine/bakedLightingMaterial.js';
 
 export const PALETTE = {
   floor: { base: '#7a7d80', line: '#55595e', roughness: 0.92 },
@@ -125,28 +132,67 @@ function drawSign(text, sub, w = 512, h = 192) {
   return tex;
 }
 
+/** Linear albedo of a level material (grid texture average ~ base colour, lines darken ~5 %). */
+export function paletteAlbedo(mat) {
+  const p = PALETTE[mat] || PALETTE.wall;
+  return srgbHexToLinear(p.base).map((c) => c * 0.95);
+}
+
 /**
  * @param {object} level  test_range.json
  * @param {Array} solids  output of buildLevelSolids
  * @param {object} opts
- * @returns {{group: Group, materials: object, signColliders: Array}}
+ * @param {object} [opts.lighting] { world, sunDirection, ambientFloor, rays } bakes indirect light
+ * @returns {{group: Group, materials: object, lighting: object|null}}
  */
-export function buildTestRangeView(level, solids, { maxAnisotropy = 8 } = {}) {
+export function buildTestRangeView(level, solids, { maxAnisotropy = 8, lighting = null } = {}) {
   const group = new Group();
   group.name = 'test_range';
   const mats = createGridMaterials(maxAnisotropy);
   const byMat = new Map();
-  for (const s of solids) {
-    if (!byMat.has(s.mat)) byMat.set(s.mat, []);
-    byMat.get(s.mat).push(s.geometry);
+  let bake = null;
+  if (lighting) {
+    const t0 = typeof performance !== 'undefined' ? performance.now() : 0;
+    const geos = buildLightingGeometries(solids);
+    let vertices = 0;
+    let hidden = 0;
+    geos.forEach((g, i) => {
+      const r = bakeVertexLighting(g, lighting.world, { sunDirection: lighting.sunDirection, rays: lighting.rays, albedoOf: paletteAlbedo });
+      vertices += r.vertices;
+      hidden += r.inside;
+      const mat = solids[i].mat;
+      if (!byMat.has(mat)) byMat.set(mat, []);
+      byMat.get(mat).push(g);
+    });
+    const uniforms = createBakedLightingUniforms({ ambientFloor: lighting.ambientFloor });
+    for (const m of Object.values(mats)) applyBakedLighting(m, uniforms);
+    bake = { uniforms, vertices, hiddenVertices: hidden, ms: (typeof performance !== 'undefined' ? performance.now() : 0) - t0 };
+  } else {
+    for (const s of solids) {
+      if (!byMat.has(s.mat)) byMat.set(s.mat, []);
+      byMat.get(s.mat).push(s.geometry);
+    }
   }
   for (const [mat, geos] of byMat) {
     const merged = mergeGeometries(geos, false);
     const mesh = new Mesh(merged, mats[mat] || mats.wall);
     mesh.name = `range_${mat}`;
-    mesh.castShadow = mat !== 'floor';
+    // the finely subdivided lighting geometry only receives shadows; the coarse solids below
+    // cast them (same surfaces, a fraction of the triangles in the shadow pass)
+    mesh.castShadow = !bake && mat !== 'floor';
     mesh.receiveShadow = true;
     group.add(mesh);
+  }
+  if (bake) {
+    const casters = solids.filter((s) => s.mat !== 'floor').map((s) => s.geometry);
+    if (casters.length) {
+      const mesh = new Mesh(mergeGeometries(casters, false), new MeshBasicMaterial({ colorWrite: false, depthWrite: false }));
+      mesh.name = 'range_shadow_casters';
+      mesh.castShadow = true;
+      mesh.receiveShadow = false;
+      mesh.renderOrder = -2;
+      group.add(mesh);
+    }
   }
 
   // outer terrain plane (visual only, below the range floor level so it never z-fights)
@@ -192,5 +238,5 @@ export function buildTestRangeView(level, solids, { maxAnisotropy = 8 } = {}) {
     m.receiveShadow = true;
     group.add(m);
   }
-  return { group, materials: mats };
+  return { group, materials: mats, lighting: bake };
 }

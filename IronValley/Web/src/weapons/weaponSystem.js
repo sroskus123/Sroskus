@@ -7,6 +7,7 @@ import { Euler, Quaternion, Vector3 } from 'three';
 import { traceShot } from './hitscan.js';
 import { Recoil } from './recoil.js';
 import { WeaponState } from './weaponState.js';
+import { adsBlend, viewModelPointInCamera } from './viewModelMotion.js';
 
 const _euler = new Euler(0, 0, 0, 'YXZ');
 const _q = new Quaternion();
@@ -44,6 +45,16 @@ export class WeaponSystem {
     this._pitch = 0;
     this._hipOffset = new Vector3().fromArray(def.muzzleOffsetHip);
     this._adsOffset = new Vector3().fromArray(def.muzzleOffsetAds);
+    // Between hip and ADS the muzzle follows the drawn view-model path (eased blend plus the
+    // hip cant), not a straight line between the two data offsets, so shots leave from the
+    // drawn muzzle during the whole transition (GUN-02). The data offsets stay exact at the
+    // end poses: their tiny difference to the drawn pose (< 0.1 mm, unit-tested) is blended.
+    const vm = def.viewModel;
+    this._vm = vm && vm.muzzleLocal && vm.hipPosition && vm.adsPosition ? vm : null;
+    if (this._vm) {
+      this._hipCorr = this._hipOffset.clone().sub(viewModelPointInCamera(vm, vm.muzzleLocal, 0));
+      this._adsCorr = this._adsOffset.clone().sub(viewModelPointInCamera(vm, vm.muzzleLocal, 1));
+    }
     this.raycast = (origin, dir, far) => this._raycast(origin, dir, far);
   }
 
@@ -61,10 +72,18 @@ export class WeaponSystem {
     return best;
   }
 
+  /** Muzzle offset in camera space (x right, y up, -z forward) at the ADS amount 0..1. */
+  muzzleOffset(ads, out = new Vector3()) {
+    if (!this._vm) return out.lerpVectors(this._hipOffset, this._adsOffset, ads);
+    const w = adsBlend(ads);
+    viewModelPointInCamera(this._vm, this._vm.muzzleLocal, ads, out);
+    return out.addScaledVector(this._hipCorr, 1 - w).addScaledVector(this._adsCorr, w);
+  }
+
   /** Muzzle position in world space for the given eye/look (recoil included). */
   muzzleWorld(eye, yaw, pitch, ads, out = new Vector3()) {
     lookQuaternion(yaw + this.recoil.yaw, pitch + this.recoil.pitch, _q);
-    out.lerpVectors(this._hipOffset, this._adsOffset, ads).applyQuaternion(_q);
+    this.muzzleOffset(ads, out).applyQuaternion(_q);
     return out.add(eye);
   }
 

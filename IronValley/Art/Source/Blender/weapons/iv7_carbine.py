@@ -30,6 +30,7 @@ import json
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.dont_write_bytecode = True          # keep the source tree free of __pycache__
 sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..", "lib")))
 
 import bpy            # noqa: E402
@@ -1065,7 +1066,8 @@ def uv_stage():
     for tset in ("Body", "Furniture"):
         objs = set_objects(tset)
         t0 = time.time()
-        L.uv_unwrap(objs, angle=62.0, island_margin=0.002, pack_margin=0.003, scale_fn=uv_scale_policy)
+        L.uv_unwrap(objs, angle=62.0, island_margin=0.002, pack_margin=0.003, scale_fn=uv_scale_policy,
+                    tex_size=TEX_SIZE, protect_materials=("IV7_Paint", "IV7_Engrave"))
         L.log(f"uv {tset}: {len(objs)} objects {time.time() - t0:.1f}s")
     for p in PARTS.values():
         if p["set"] is None:
@@ -1572,6 +1574,7 @@ def main():
         bpy.data.collections[n].hide_viewport = True
     bpy.context.scene.frame_set(1)
     if "save" in STAGES:
+        bpy.context.preferences.filepaths.save_version = 0     # no .blend1 backups
         bpy.ops.wm.save_as_mainfile(filepath=BLEND)
         try:
             bpy.ops.file.make_paths_relative()

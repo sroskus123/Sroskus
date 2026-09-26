@@ -71,6 +71,11 @@ export class ViewModel {
     this.scene = new Scene();
     this.scene.environment = envTexture;
     this.scene.environmentIntensity = envIntensity;
+    // ambient (environment + hemisphere fill) is scaled by the sky visibility at the eye, so the
+    // weapon darkens with the world in tunnels and rooms (see setAmbientScale)
+    this.baseEnvIntensity = envIntensity;
+    this.baseHemiIntensity = 0.35;
+    this.ambientScale = 1;
     this.camera = new PerspectiveCamera(vm.fovVerticalDeg || 50, 16 / 9, 0.01, 10);
     this.scene.add(this.camera);
 
@@ -79,7 +84,7 @@ export class ViewModel {
     this.sun.position.copy(sunDirection).multiplyScalar(5);
     this.scene.add(this.sun);
     this.scene.add(this.sun.target);
-    this.hemi = new HemisphereLight(new Color('#c4d6ea'), new Color('#5d584e'), 0.35);
+    this.hemi = new HemisphereLight(new Color('#c4d6ea'), new Color('#5d584e'), this.baseHemiIntensity);
     this.scene.add(this.hemi);
 
     this.holder = new Group(); // camera-space pose of the weapon grip
@@ -131,6 +136,13 @@ export class ViewModel {
     if (this.flash.parent) this.flash.parent.remove(this.flash);
     this.modelRoot.add(this.flash);
     this.flash.position.copy(this.muzzleLocal).add(new Vector3(0.03, 0, 0));
+  }
+
+  /** Ambient light scale 0..1 (sky visibility at the eye, already smoothed by the caller). */
+  setAmbientScale(s) {
+    this.ambientScale = s;
+    this.scene.environmentIntensity = this.baseEnvIntensity * s;
+    this.hemi.intensity = this.baseHemiIntensity * s;
   }
 
   /** One fixed simulation tick: recoil springs and the muzzle flash timer. */

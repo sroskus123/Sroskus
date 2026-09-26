@@ -317,3 +317,89 @@ test('window blur releases held keys and stops firing', async () => {
   assert.equal(afterBlur.trigger, false);
   assert.ok(afterBlur.speed < 0.01, `still moving at ${afterBlur.speed}`);
 });
+
+test('turning through the yaw wrap (every two full turns) does not twitch the weapon sway', async () => {
+  const r = await g.page.evaluate(() => {
+    const iv = window.__IV;
+    iv.startGame();
+    iv.pause();
+    iv.setDrawEnabled(false);
+    iv.releaseAll();
+    iv.teleportToMarker('spawn');
+    iv.step(2);
+    const k = iv.getConfig().bindings.mouse.baseRadiansPerPixel * iv.getState().settings.mouseSensitivity;
+    const perFrame = -3.0 / 60 / k; // steady left turn at 3 rad/s
+    const rows = [];
+    for (let i = 0; i < 360; i++) {
+      iv._game.input.handleMouseMove(perFrame, 0); // goes through the game's input handler
+      iv.frames(1 / 60, 1, { render: true });
+      const s = iv.getState();
+      rows.push({ yaw: s.player.yawDeg, swayX: s.viewModel.swayX, rotY: s.viewModel.holderRotation[1] });
+    }
+    iv.setDrawEnabled(true);
+    return rows;
+  });
+  let wrapAt = -1;
+  for (let i = 1; i < r.length; i++) if (Math.abs(r[i].yaw - r[i - 1].yaw) > 180) wrapAt = i;
+  assert.ok(wrapAt > 60, `the turn crossed the yaw wrap (at frame ${wrapAt})`);
+  let atWrap = 0;
+  let steady = 0;
+  let rotAtWrap = 0;
+  let rotSteady = 0;
+  for (let i = 61; i < r.length; i++) {
+    const j = Math.abs(r[i].swayX - r[i - 1].swayX);
+    const jr = Math.abs(r[i].rotY - r[i - 1].rotY);
+    if (i >= wrapAt && i <= wrapAt + 2) {
+      atWrap = Math.max(atWrap, j);
+      rotAtWrap = Math.max(rotAtWrap, jr);
+    } else {
+      steady = Math.max(steady, j);
+      rotSteady = Math.max(rotSteady, jr);
+    }
+  }
+  assert.ok(atWrap <= steady + 1e-6, `sway step at the wrap ${atWrap} m vs steady turning ${steady} m`);
+  assert.ok(rotAtWrap <= rotSteady + 1e-6, `holder rotation step at the wrap ${rotAtWrap} vs ${rotSteady} rad`);
+});
+
+test('a dummy that was just hit stands still behind the pause menu', async () => {
+  const r = await g.page.evaluate(() => {
+    const iv = window.__IV;
+    const game = iv._game;
+    iv.startGame();
+    iv.pause();
+    iv.setDrawEnabled(false);
+    iv.releaseAll();
+    iv.refillAmmo();
+    iv.resetRecoil();
+    iv.teleport(-5, 0, -20, 0, 0);
+    iv.lookAt(-5, 1.3, -30);
+    iv.step(10);
+    const hits0 = iv.getState().weapon.hitsOnDummies;
+    iv.mouseButton(0, true);
+    iv.step(1);
+    iv.mouseButton(0, false);
+    const hit = iv.getState().weapon.hitsOnDummies - hits0;
+    iv.openMenu();
+    iv.frames(1 / 60, 2, { render: true }); // first paused tick
+    const rots = [];
+    for (let i = 0; i < 20; i++) {
+      const until = performance.now() + 15; // real time passes between frames
+      while (performance.now() < until) {
+        /* busy wait */
+      }
+      iv.frames(1 / 60, 1, { render: true });
+      rots.push(game.dummyView.items.map((it) => it.pivot.rotation.x));
+    }
+    const state = game.state;
+    iv.startGame();
+    iv.pause();
+    iv.setDrawEnabled(true);
+    return { hit, state, rots, lastShot: iv.getState().weapon.lastShot };
+  });
+  assert.equal(r.hit, 1, `the shot hit a dummy: ${JSON.stringify(r.lastShot)}`);
+  assert.equal(r.state, 'paused');
+  let maxChange = 0;
+  for (let i = 1; i < r.rots.length; i++) for (let k = 0; k < r.rots[i].length; k++) maxChange = Math.max(maxChange, Math.abs(r.rots[i][k] - r.rots[i - 1][k]));
+  assert.ok(Math.max(...r.rots[0].map(Math.abs)) > 0.005, 'the hit dummy is knocked back while paused');
+  assert.equal(maxChange, 0, `dummy rotation changed by ${maxChange} rad between frames while paused`);
+});

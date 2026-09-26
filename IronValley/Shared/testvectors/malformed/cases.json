@@ -1,0 +1,1751 @@
+{
+ "schema": "ironvalley.testvectors.malformed",
+ "version": 1,
+ "description": "Zamerne chybne pripady pro kontrolu spoustecu (V2-P2-5): kazda polozka ma 'bad' (preklep, spatne umisteny klic nebo spatny typ) a 'good' (tentyz pripad bez chyby). Oba spoustece musi 'good' projit a 'bad' odmitnout chybou pripadu (CaseError), ne tichym PASS. Neni to soubor vektoru, spoustece ho ctou jen v techto testech.",
+ "cases": [
+  {
+   "id": "misspelled-expect",
+   "good": {
+    "id": "MALFORMED-CONTROL/misspelled-expect",
+    "kind": "weapon",
+    "setup": {
+     "weapon": "rifle_iv7",
+     "magazine": 20,
+     "chamber": 1,
+     "reserve": 90
+    },
+    "steps": [
+     {
+      "op": "reload",
+      "expect": {
+       "result": "started_tactical"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 16667,
+      "trigger": true,
+      "expect": {
+       "result": 0
+      }
+     },
+     {
+      "op": "loop",
+      "count": 2,
+      "steps": [
+       {
+        "op": "tick",
+        "dtUs": 1000
+       }
+      ],
+      "expect": {
+       "result": "ok"
+      }
+     },
+     {
+      "op": "run",
+      "durationUs": 100000,
+      "ticks": {
+       "hz": 60
+      },
+      "expect": {
+       "result": 0
+      }
+     }
+    ]
+   },
+   "bad": {
+    "id": "MALFORMED/misspelled-expect",
+    "kind": "weapon",
+    "setup": {
+     "weapon": "rifle_iv7",
+     "magazine": 20,
+     "chamber": 1,
+     "reserve": 90
+    },
+    "steps": [
+     {
+      "op": "reload",
+      "expcet": {
+       "result": "started_tactical"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 16667,
+      "trigger": true,
+      "expect": {
+       "result": 0
+      }
+     },
+     {
+      "op": "loop",
+      "count": 2,
+      "steps": [
+       {
+        "op": "tick",
+        "dtUs": 1000
+       }
+      ],
+      "expect": {
+       "result": "ok"
+      }
+     },
+     {
+      "op": "run",
+      "durationUs": 100000,
+      "ticks": {
+       "hz": 60
+      },
+      "expect": {
+       "result": 0
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "trigger-as-string",
+   "good": {
+    "id": "MALFORMED-CONTROL/trigger-as-string",
+    "kind": "weapon",
+    "setup": {
+     "weapon": "rifle_iv7",
+     "magazine": 20,
+     "chamber": 1,
+     "reserve": 90
+    },
+    "steps": [
+     {
+      "op": "reload",
+      "expect": {
+       "result": "started_tactical"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 16667,
+      "trigger": true,
+      "expect": {
+       "result": 0
+      }
+     },
+     {
+      "op": "loop",
+      "count": 2,
+      "steps": [
+       {
+        "op": "tick",
+        "dtUs": 1000
+       }
+      ],
+      "expect": {
+       "result": "ok"
+      }
+     },
+     {
+      "op": "run",
+      "durationUs": 100000,
+      "ticks": {
+       "hz": 60
+      },
+      "expect": {
+       "result": 0
+      }
+     }
+    ]
+   },
+   "bad": {
+    "id": "MALFORMED/trigger-as-string",
+    "kind": "weapon",
+    "setup": {
+     "weapon": "rifle_iv7",
+     "magazine": 20,
+     "chamber": 1,
+     "reserve": 90
+    },
+    "steps": [
+     {
+      "op": "reload",
+      "expect": {
+       "result": "started_tactical"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 16667,
+      "trigger": "true",
+      "expect": {
+       "result": 0
+      }
+     },
+     {
+      "op": "loop",
+      "count": 2,
+      "steps": [
+       {
+        "op": "tick",
+        "dtUs": 1000
+       }
+      ],
+      "expect": {
+       "result": "ok"
+      }
+     },
+     {
+      "op": "run",
+      "durationUs": 100000,
+      "ticks": {
+       "hz": 60
+      },
+      "expect": {
+       "result": 0
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "expect-inside-loop",
+   "good": {
+    "id": "MALFORMED-CONTROL/expect-inside-loop",
+    "kind": "weapon",
+    "setup": {
+     "weapon": "rifle_iv7",
+     "magazine": 20,
+     "chamber": 1,
+     "reserve": 90
+    },
+    "steps": [
+     {
+      "op": "reload",
+      "expect": {
+       "result": "started_tactical"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 16667,
+      "trigger": true,
+      "expect": {
+       "result": 0
+      }
+     },
+     {
+      "op": "loop",
+      "count": 2,
+      "steps": [
+       {
+        "op": "tick",
+        "dtUs": 1000
+       }
+      ],
+      "expect": {
+       "result": "ok"
+      }
+     },
+     {
+      "op": "run",
+      "durationUs": 100000,
+      "ticks": {
+       "hz": 60
+      },
+      "expect": {
+       "result": 0
+      }
+     }
+    ]
+   },
+   "bad": {
+    "id": "MALFORMED/expect-inside-loop",
+    "kind": "weapon",
+    "setup": {
+     "weapon": "rifle_iv7",
+     "magazine": 20,
+     "chamber": 1,
+     "reserve": 90
+    },
+    "steps": [
+     {
+      "op": "reload",
+      "expect": {
+       "result": "started_tactical"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 16667,
+      "trigger": true,
+      "expect": {
+       "result": 0
+      }
+     },
+     {
+      "op": "loop",
+      "count": 2,
+      "steps": [
+       {
+        "op": "tick",
+        "dtUs": 1000,
+        "expect": {
+         "result": 999
+        }
+       }
+      ],
+      "expect": {
+       "result": "ok"
+      }
+     },
+     {
+      "op": "run",
+      "durationUs": 100000,
+      "ticks": {
+       "hz": 60
+      },
+      "expect": {
+       "result": 0
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "unknown-case-key",
+   "good": {
+    "id": "MALFORMED-CONTROL/unknown-case-key",
+    "kind": "weapon",
+    "setup": {
+     "weapon": "rifle_iv7",
+     "magazine": 20,
+     "chamber": 1,
+     "reserve": 90
+    },
+    "steps": [
+     {
+      "op": "reload",
+      "expect": {
+       "result": "started_tactical"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 16667,
+      "trigger": true,
+      "expect": {
+       "result": 0
+      }
+     },
+     {
+      "op": "loop",
+      "count": 2,
+      "steps": [
+       {
+        "op": "tick",
+        "dtUs": 1000
+       }
+      ],
+      "expect": {
+       "result": "ok"
+      }
+     },
+     {
+      "op": "run",
+      "durationUs": 100000,
+      "ticks": {
+       "hz": 60
+      },
+      "expect": {
+       "result": 0
+      }
+     }
+    ]
+   },
+   "bad": {
+    "id": "MALFORMED/unknown-case-key",
+    "kind": "weapon",
+    "setup": {
+     "weapon": "rifle_iv7",
+     "magazine": 20,
+     "chamber": 1,
+     "reserve": 90
+    },
+    "steps": [
+     {
+      "op": "reload",
+      "expect": {
+       "result": "started_tactical"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 16667,
+      "trigger": true,
+      "expect": {
+       "result": 0
+      }
+     },
+     {
+      "op": "loop",
+      "count": 2,
+      "steps": [
+       {
+        "op": "tick",
+        "dtUs": 1000
+       }
+      ],
+      "expect": {
+       "result": "ok"
+      }
+     },
+     {
+      "op": "run",
+      "durationUs": 100000,
+      "ticks": {
+       "hz": 60
+      },
+      "expect": {
+       "result": 0
+      }
+     }
+    ],
+    "tickmodes": [
+     {
+      "hz": 60
+     }
+    ]
+   }
+  },
+  {
+   "id": "unknown-setup-key",
+   "good": {
+    "id": "MALFORMED-CONTROL/unknown-setup-key",
+    "kind": "weapon",
+    "setup": {
+     "weapon": "rifle_iv7",
+     "magazine": 20,
+     "chamber": 1,
+     "reserve": 90
+    },
+    "steps": [
+     {
+      "op": "reload",
+      "expect": {
+       "result": "started_tactical"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 16667,
+      "trigger": true,
+      "expect": {
+       "result": 0
+      }
+     },
+     {
+      "op": "loop",
+      "count": 2,
+      "steps": [
+       {
+        "op": "tick",
+        "dtUs": 1000
+       }
+      ],
+      "expect": {
+       "result": "ok"
+      }
+     },
+     {
+      "op": "run",
+      "durationUs": 100000,
+      "ticks": {
+       "hz": 60
+      },
+      "expect": {
+       "result": 0
+      }
+     }
+    ]
+   },
+   "bad": {
+    "id": "MALFORMED/unknown-setup-key",
+    "kind": "weapon",
+    "setup": {
+     "weapon": "rifle_iv7",
+     "magazine": 20,
+     "chamber": 1,
+     "reserve": 90,
+     "magazin": 5
+    },
+    "steps": [
+     {
+      "op": "reload",
+      "expect": {
+       "result": "started_tactical"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 16667,
+      "trigger": true,
+      "expect": {
+       "result": 0
+      }
+     },
+     {
+      "op": "loop",
+      "count": 2,
+      "steps": [
+       {
+        "op": "tick",
+        "dtUs": 1000
+       }
+      ],
+      "expect": {
+       "result": "ok"
+      }
+     },
+     {
+      "op": "run",
+      "durationUs": 100000,
+      "ticks": {
+       "hz": 60
+      },
+      "expect": {
+       "result": 0
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "tick-mode-with-two-keys",
+   "good": {
+    "id": "MALFORMED-CONTROL/tick-mode-with-two-keys",
+    "kind": "weapon",
+    "setup": {
+     "weapon": "rifle_iv7",
+     "magazine": 20,
+     "chamber": 1,
+     "reserve": 90
+    },
+    "steps": [
+     {
+      "op": "reload",
+      "expect": {
+       "result": "started_tactical"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 16667,
+      "trigger": true,
+      "expect": {
+       "result": 0
+      }
+     },
+     {
+      "op": "loop",
+      "count": 2,
+      "steps": [
+       {
+        "op": "tick",
+        "dtUs": 1000
+       }
+      ],
+      "expect": {
+       "result": "ok"
+      }
+     },
+     {
+      "op": "run",
+      "durationUs": 100000,
+      "ticks": {
+       "hz": 60
+      },
+      "expect": {
+       "result": 0
+      }
+     }
+    ]
+   },
+   "bad": {
+    "id": "MALFORMED/tick-mode-with-two-keys",
+    "kind": "weapon",
+    "setup": {
+     "weapon": "rifle_iv7",
+     "magazine": 20,
+     "chamber": 1,
+     "reserve": 90
+    },
+    "steps": [
+     {
+      "op": "reload",
+      "expect": {
+       "result": "started_tactical"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 16667,
+      "trigger": true,
+      "expect": {
+       "result": 0
+      }
+     },
+     {
+      "op": "loop",
+      "count": 2,
+      "steps": [
+       {
+        "op": "tick",
+        "dtUs": 1000
+       }
+      ],
+      "expect": {
+       "result": "ok"
+      }
+     },
+     {
+      "op": "run",
+      "durationUs": 100000,
+      "ticks": {
+       "hz": 60,
+       "dtUs": 1000
+      },
+      "expect": {
+       "result": 0
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "expect-inside-do",
+   "good": {
+    "id": "MALFORMED-CONTROL/expect-inside-do",
+    "kind": "match",
+    "rules": {
+     "round": {
+      "preRoundDuration": 0
+     }
+    },
+    "setup": {
+     "seed": 1,
+     "spawnAreas": [
+      [
+       [
+        0,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        100,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        100
+       ]
+      ]
+     ],
+     "participants": [
+      {
+       "id": "a1",
+       "team": 0
+      }
+     ]
+    },
+    "steps": [
+     {
+      "op": "tick",
+      "dtUs": 0,
+      "inZone": [
+       "a1"
+      ]
+     },
+     {
+      "op": "weapon",
+      "id": "a1",
+      "weapon": "rifle_iv7",
+      "do": {
+       "op": "reload"
+      },
+      "expect": {
+       "result": "rejected_full"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 2000000,
+      "expect": {
+       "round": {
+        "scores": [
+         1,
+         0,
+         0
+        ]
+       }
+      }
+     }
+    ]
+   },
+   "bad": {
+    "id": "MALFORMED/expect-inside-do",
+    "kind": "match",
+    "rules": {
+     "round": {
+      "preRoundDuration": 0
+     }
+    },
+    "setup": {
+     "seed": 1,
+     "spawnAreas": [
+      [
+       [
+        0,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        100,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        100
+       ]
+      ]
+     ],
+     "participants": [
+      {
+       "id": "a1",
+       "team": 0
+      }
+     ]
+    },
+    "steps": [
+     {
+      "op": "tick",
+      "dtUs": 0,
+      "inZone": [
+       "a1"
+      ]
+     },
+     {
+      "op": "weapon",
+      "id": "a1",
+      "weapon": "rifle_iv7",
+      "do": {
+       "op": "reload",
+       "expect": {
+        "result": "THIS_IS_WRONG"
+       }
+      },
+      "expect": {
+       "result": "rejected_full"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 2000000,
+      "expect": {
+       "round": {
+        "scores": [
+         1,
+         0,
+         0
+        ]
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "unknown-key-inside-do",
+   "good": {
+    "id": "MALFORMED-CONTROL/unknown-key-inside-do",
+    "kind": "match",
+    "rules": {
+     "round": {
+      "preRoundDuration": 0
+     }
+    },
+    "setup": {
+     "seed": 1,
+     "spawnAreas": [
+      [
+       [
+        0,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        100,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        100
+       ]
+      ]
+     ],
+     "participants": [
+      {
+       "id": "a1",
+       "team": 0
+      }
+     ]
+    },
+    "steps": [
+     {
+      "op": "tick",
+      "dtUs": 0,
+      "inZone": [
+       "a1"
+      ]
+     },
+     {
+      "op": "weapon",
+      "id": "a1",
+      "weapon": "rifle_iv7",
+      "do": {
+       "op": "reload"
+      },
+      "expect": {
+       "result": "rejected_full"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 2000000,
+      "expect": {
+       "round": {
+        "scores": [
+         1,
+         0,
+         0
+        ]
+       }
+      }
+     }
+    ]
+   },
+   "bad": {
+    "id": "MALFORMED/unknown-key-inside-do",
+    "kind": "match",
+    "rules": {
+     "round": {
+      "preRoundDuration": 0
+     }
+    },
+    "setup": {
+     "seed": 1,
+     "spawnAreas": [
+      [
+       [
+        0,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        100,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        100
+       ]
+      ]
+     ],
+     "participants": [
+      {
+       "id": "a1",
+       "team": 0
+      }
+     ]
+    },
+    "steps": [
+     {
+      "op": "tick",
+      "dtUs": 0,
+      "inZone": [
+       "a1"
+      ]
+     },
+     {
+      "op": "weapon",
+      "id": "a1",
+      "weapon": "rifle_iv7",
+      "do": {
+       "op": "reload",
+       "trigerr": true
+      },
+      "expect": {
+       "result": "rejected_full"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 2000000,
+      "expect": {
+       "round": {
+        "scores": [
+         1,
+         0,
+         0
+        ]
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "unknown-world-key",
+   "good": {
+    "id": "MALFORMED-CONTROL/unknown-world-key",
+    "kind": "match",
+    "rules": {
+     "round": {
+      "preRoundDuration": 0
+     }
+    },
+    "setup": {
+     "seed": 1,
+     "spawnAreas": [
+      [
+       [
+        0,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        100,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        100
+       ]
+      ]
+     ],
+     "participants": [
+      {
+       "id": "a1",
+       "team": 0
+      }
+     ]
+    },
+    "steps": [
+     {
+      "op": "tick",
+      "dtUs": 0,
+      "inZone": [
+       "a1"
+      ]
+     },
+     {
+      "op": "weapon",
+      "id": "a1",
+      "weapon": "rifle_iv7",
+      "do": {
+       "op": "reload"
+      },
+      "expect": {
+       "result": "rejected_full"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 2000000,
+      "expect": {
+       "round": {
+        "scores": [
+         1,
+         0,
+         0
+        ]
+       }
+      }
+     }
+    ]
+   },
+   "bad": {
+    "id": "MALFORMED/unknown-world-key",
+    "kind": "match",
+    "rules": {
+     "round": {
+      "preRoundDuration": 0
+     }
+    },
+    "setup": {
+     "seed": 1,
+     "spawnAreas": [
+      [
+       [
+        0,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        100,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        100
+       ]
+      ]
+     ],
+     "participants": [
+      {
+       "id": "a1",
+       "team": 0
+      }
+     ]
+    },
+    "steps": [
+     {
+      "op": "tick",
+      "dtUs": 0,
+      "inZone": [
+       "a1"
+      ]
+     },
+     {
+      "op": "weapon",
+      "id": "a1",
+      "weapon": "rifle_iv7",
+      "do": {
+       "op": "reload"
+      },
+      "expect": {
+       "result": "rejected_full"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 2000000,
+      "expect": {
+       "round": {
+        "scores": [
+         1,
+         0,
+         0
+        ]
+       }
+      },
+      "inzone": [
+       "a1"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "id": "operation-of-other-kind",
+   "good": {
+    "id": "MALFORMED-CONTROL/operation-of-other-kind",
+    "kind": "match",
+    "rules": {
+     "round": {
+      "preRoundDuration": 0
+     }
+    },
+    "setup": {
+     "seed": 1,
+     "spawnAreas": [
+      [
+       [
+        0,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        100,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        100
+       ]
+      ]
+     ],
+     "participants": [
+      {
+       "id": "a1",
+       "team": 0
+      }
+     ]
+    },
+    "steps": [
+     {
+      "op": "tick",
+      "dtUs": 0,
+      "inZone": [
+       "a1"
+      ]
+     },
+     {
+      "op": "weapon",
+      "id": "a1",
+      "weapon": "rifle_iv7",
+      "do": {
+       "op": "reload"
+      },
+      "expect": {
+       "result": "rejected_full"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 2000000,
+      "expect": {
+       "round": {
+        "scores": [
+         1,
+         0,
+         0
+        ]
+       }
+      }
+     }
+    ]
+   },
+   "bad": {
+    "id": "MALFORMED/operation-of-other-kind",
+    "kind": "match",
+    "rules": {
+     "round": {
+      "preRoundDuration": 0
+     }
+    },
+    "setup": {
+     "seed": 1,
+     "spawnAreas": [
+      [
+       [
+        0,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        100,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        100
+       ]
+      ]
+     ],
+     "participants": [
+      {
+       "id": "a1",
+       "team": 0
+      }
+     ]
+    },
+    "steps": [
+     {
+      "op": "tick",
+      "dtUs": 0,
+      "inZone": [
+       "a1"
+      ]
+     },
+     {
+      "op": "resetRound"
+     },
+     {
+      "op": "weapon",
+      "id": "a1",
+      "weapon": "rifle_iv7",
+      "do": {
+       "op": "reload"
+      },
+      "expect": {
+       "result": "rejected_full"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 2000000,
+      "expect": {
+       "round": {
+        "scores": [
+         1,
+         0,
+         0
+        ]
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "unknown-setup-participant-key",
+   "good": {
+    "id": "MALFORMED-CONTROL/unknown-setup-participant-key",
+    "kind": "match",
+    "rules": {
+     "round": {
+      "preRoundDuration": 0
+     }
+    },
+    "setup": {
+     "seed": 1,
+     "spawnAreas": [
+      [
+       [
+        0,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        100,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        100
+       ]
+      ]
+     ],
+     "participants": [
+      {
+       "id": "a1",
+       "team": 0
+      }
+     ]
+    },
+    "steps": [
+     {
+      "op": "tick",
+      "dtUs": 0,
+      "inZone": [
+       "a1"
+      ]
+     },
+     {
+      "op": "weapon",
+      "id": "a1",
+      "weapon": "rifle_iv7",
+      "do": {
+       "op": "reload"
+      },
+      "expect": {
+       "result": "rejected_full"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 2000000,
+      "expect": {
+       "round": {
+        "scores": [
+         1,
+         0,
+         0
+        ]
+       }
+      }
+     }
+    ]
+   },
+   "bad": {
+    "id": "MALFORMED/unknown-setup-participant-key",
+    "kind": "match",
+    "rules": {
+     "round": {
+      "preRoundDuration": 0
+     }
+    },
+    "setup": {
+     "seed": 1,
+     "spawnAreas": [
+      [
+       [
+        0,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        100,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        100
+       ]
+      ]
+     ],
+     "participants": [
+      {
+       "id": "a1",
+       "team": 0,
+       "loadot": [
+        "pistol_p9"
+       ]
+      }
+     ]
+    },
+    "steps": [
+     {
+      "op": "tick",
+      "dtUs": 0,
+      "inZone": [
+       "a1"
+      ]
+     },
+     {
+      "op": "weapon",
+      "id": "a1",
+      "weapon": "rifle_iv7",
+      "do": {
+       "op": "reload"
+      },
+      "expect": {
+       "result": "rejected_full"
+      }
+     },
+     {
+      "op": "tick",
+      "dtUs": 2000000,
+      "expect": {
+       "round": {
+        "scores": [
+         1,
+         0,
+         0
+        ]
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "zone-flag-not-boolean",
+   "good": {
+    "id": "MALFORMED-CONTROL/zone-flag-not-boolean",
+    "kind": "zone",
+    "steps": [
+     {
+      "op": "tick",
+      "dtUs": 2000000,
+      "participants": [
+       [
+        "a1",
+        0,
+        true,
+        true,
+        true
+       ]
+      ],
+      "expect": {
+       "scores": [
+        1,
+        0,
+        0
+       ]
+      }
+     }
+    ]
+   },
+   "bad": {
+    "id": "MALFORMED/zone-flag-not-boolean",
+    "kind": "zone",
+    "steps": [
+     {
+      "op": "tick",
+      "dtUs": 2000000,
+      "participants": [
+       [
+        "a1",
+        0,
+        "true",
+        true,
+        true
+       ]
+      ],
+      "expect": {
+       "scores": [
+        1,
+        0,
+        0
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "zone-participant-too-short",
+   "good": {
+    "id": "MALFORMED-CONTROL/zone-participant-too-short",
+    "kind": "zone",
+    "steps": [
+     {
+      "op": "tick",
+      "dtUs": 2000000,
+      "participants": [
+       [
+        "a1",
+        0,
+        true,
+        true,
+        true
+       ]
+      ],
+      "expect": {
+       "scores": [
+        1,
+        0,
+        0
+       ]
+      }
+     }
+    ]
+   },
+   "bad": {
+    "id": "MALFORMED/zone-participant-too-short",
+    "kind": "zone",
+    "steps": [
+     {
+      "op": "tick",
+      "dtUs": 2000000,
+      "participants": [
+       [
+        "a1",
+        0,
+        true,
+        true
+       ]
+      ],
+      "expect": {
+       "scores": [
+        1,
+        0,
+        0
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "body-alive-not-boolean",
+   "good": {
+    "id": "MALFORMED-CONTROL/body-alive-not-boolean",
+    "kind": "respawn",
+    "setup": {
+     "seed": 1,
+     "spawnAreas": [
+      [
+       [
+        0,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        100,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        100
+       ]
+      ]
+     ],
+     "participants": [
+      {
+       "id": "a1",
+       "team": 0
+      }
+     ]
+    },
+    "steps": [
+     {
+      "op": "tick",
+      "dtUs": 0,
+      "bodies": [
+       {
+        "team": 1,
+        "alive": true,
+        "pos": [
+         50,
+         0,
+         0
+        ]
+       }
+      ],
+      "expect": {
+       "participants": {
+        "a1": {
+         "state": "alive"
+        }
+       }
+      }
+     }
+    ]
+   },
+   "bad": {
+    "id": "MALFORMED/body-alive-not-boolean",
+    "kind": "respawn",
+    "setup": {
+     "seed": 1,
+     "spawnAreas": [
+      [
+       [
+        0,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        100,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        100
+       ]
+      ]
+     ],
+     "participants": [
+      {
+       "id": "a1",
+       "team": 0
+      }
+     ]
+    },
+    "steps": [
+     {
+      "op": "tick",
+      "dtUs": 0,
+      "bodies": [
+       {
+        "team": 1,
+        "alive": 1,
+        "pos": [
+         50,
+         0,
+         0
+        ]
+       }
+      ],
+      "expect": {
+       "participants": {
+        "a1": {
+         "state": "alive"
+        }
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "unknown-body-key",
+   "good": {
+    "id": "MALFORMED-CONTROL/unknown-body-key",
+    "kind": "respawn",
+    "setup": {
+     "seed": 1,
+     "spawnAreas": [
+      [
+       [
+        0,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        100,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        100
+       ]
+      ]
+     ],
+     "participants": [
+      {
+       "id": "a1",
+       "team": 0
+      }
+     ]
+    },
+    "steps": [
+     {
+      "op": "tick",
+      "dtUs": 0,
+      "bodies": [
+       {
+        "team": 1,
+        "alive": true,
+        "pos": [
+         50,
+         0,
+         0
+        ]
+       }
+      ],
+      "expect": {
+       "participants": {
+        "a1": {
+         "state": "alive"
+        }
+       }
+      }
+     }
+    ]
+   },
+   "bad": {
+    "id": "MALFORMED/unknown-body-key",
+    "kind": "respawn",
+    "setup": {
+     "seed": 1,
+     "spawnAreas": [
+      [
+       [
+        0,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        100,
+        0,
+        0
+       ]
+      ],
+      [
+       [
+        0,
+        0,
+        100
+       ]
+      ]
+     ],
+     "participants": [
+      {
+       "id": "a1",
+       "team": 0
+      }
+     ]
+    },
+    "steps": [
+     {
+      "op": "tick",
+      "dtUs": 0,
+      "bodies": [
+       {
+        "team": 1,
+        "alive": true,
+        "pos": [
+         50,
+         0,
+         0
+        ],
+        "postion": [
+         1,
+         2,
+         3
+        ]
+       }
+      ],
+      "expect": {
+       "participants": {
+        "a1": {
+         "state": "alive"
+        }
+       }
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,6 +1,8 @@
 // Visuals for target dummies. Meshes match the analytic hitboxes in targetDummies.js exactly
 // (what you see is what you hit). Hit flash, knock-back wobble and knock-down are visual
-// responses to the simulation state.
+// responses to the simulation state. They advance on the fixed simulation tick (tick / hold)
+// and are interpolated when drawn (update), so they stop behind the pause menu, follow the
+// time scale and do not step at 60 Hz on faster displays.
 
 import { CapsuleGeometry, Color, CylinderGeometry, Group, Mesh, MeshStandardMaterial, SphereGeometry } from 'three';
 import { DUMMY_PARTS } from './targetDummies.js';
@@ -44,17 +46,48 @@ export class DummyView {
       stand.castShadow = true;
       root.add(stand);
       this.group.add(root);
-      this.items.push({ d, root, pivot, mat, down: 0 });
+      // visual state after the last tick (curr) and the one before (prev)
+      this.items.push({ d, root, pivot, mat, down: 0, prevDown: 0, knock: 0, prevKnock: 0, flash: 0, prevFlash: 0 });
+    }
+    this.time = dummies.time;
+    this.prevTime = dummies.time;
+  }
+
+  /** One fixed simulation tick, after TargetDummies.tick. */
+  tick(dt) {
+    this.prevTime = this.time;
+    this.time = this.dummies.time;
+    for (const it of this.items) {
+      it.prevDown = it.down;
+      it.prevKnock = it.knock;
+      it.prevFlash = it.flash;
+      const target = it.d.down ? 1 : 0;
+      it.down += (target - it.down) * (1 - Math.exp(-(target ? 9 : 4) * dt));
+      it.knock = it.d.knock;
+      it.flash = it.d.hitFlash;
     }
   }
 
-  update(dt) {
+  /** Simulation not advancing (paused / menu): keep the drawn pose still. */
+  hold() {
+    this.prevTime = this.time;
     for (const it of this.items) {
-      const target = it.d.down ? 1 : 0;
-      it.down += (target - it.down) * (1 - Math.exp(-(target ? 9 : 4) * dt));
-      const wobble = Math.sin(performance.now() * 0.03) * 0.06 * it.d.knock;
-      it.pivot.rotation.x = -(it.down * 1.35) - it.d.knock * 0.12 + wobble;
-      it.mat.emissiveIntensity = it.d.hitFlash * 1.8;
+      it.prevDown = it.down;
+      it.prevKnock = it.knock;
+      it.prevFlash = it.flash;
+    }
+  }
+
+  /** Pose for drawing, interpolated between the last two ticks (alpha in [0, 1]). */
+  update(alpha = 1) {
+    const a = Math.min(Math.max(alpha, 0), 1);
+    const t = this.prevTime + (this.time - this.prevTime) * a;
+    for (const it of this.items) {
+      const down = it.prevDown + (it.down - it.prevDown) * a;
+      const knock = it.prevKnock + (it.knock - it.prevKnock) * a;
+      const wobble = Math.sin(t * 30) * 0.06 * knock;
+      it.pivot.rotation.x = -(down * 1.35) - knock * 0.12 + wobble;
+      it.mat.emissiveIntensity = (it.prevFlash + (it.flash - it.prevFlash) * a) * 1.8;
     }
   }
 }
