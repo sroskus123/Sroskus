@@ -207,6 +207,14 @@ def seg_dist(X, Y, a, b):
     return np.hypot(X - ax - t * dx, Y - ay - t * dy)
 
 
+def level_hash(L, B):
+    """content hash of the level data (layout without navmesh_validation + buildings), used to detect stale nav bakes."""
+    import hashlib
+    Lc = {k: v for k, v in L.items() if k != "navmesh_validation"}
+    s = json.dumps([Lc, B], sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    return hashlib.sha256(s.encode("utf-8")).hexdigest()[:16]
+
+
 def bearing(frm, to):
     return math.degrees(math.atan2(to[0] - frm[0], to[1] - frm[1])) % 360
 
@@ -1725,6 +1733,31 @@ def check_zones_spawns(L, B, W, rep, rules):
             else:
                 n_ok += 1
     rep.check("R03", errs, f"{n_ok} documented entrance points (doors, stairs, bridges, gates, ramps) lie on the main walk component")
+    # ---- R04 approach space in front of every ground-level stair (0.8 m before the first riser, full capsule clearance)
+    errs = []
+    n = 0
+    for bp in L["buildings"]:
+        bd = bdefs[bp["id"]]
+        c, rot = bp["position"][:2], bp["rotation_deg"]
+        for s in bd["exterior_stairs"]:
+            dv = s["direction_vector"]
+            p = xf(c, rot, (s["start"][0] - dv[0] * 0.8, s["start"][1] - dv[1] * 0.8))
+            j, i = W.ij(*p)
+            n += 1
+            if not (W.walk[j, i] and W.lab[j, i] == W.main_comp):
+                errs.append(f"{bp['id']}.{s['id']}: the 0.8 m approach before the first riser at ({p[0]:.2f},{p[1]:.2f}) is blocked or "
+                            "not capsule-clear")
+    for rw in L["retaining_walls"]:
+        for st in rw.get("stairs", []):
+            a_ = np.array(st["bottom_center_world"])
+            b_ = np.array(st["top_center_world"])
+            d_ = (b_ - a_) / np.linalg.norm(b_ - a_)
+            for tag, p in (("bottom", a_ - d_ * 0.8), ("top", b_ + d_ * 0.8)):
+                j, i = W.ij(*p)
+                n += 1
+                if not (W.walk[j, i] and W.lab[j, i] == W.main_comp):
+                    errs.append(f"{st['id']}: {tag} approach at ({p[0]:.2f},{p[1]:.2f}) blocked or not capsule-clear")
+    rep.check("R04", errs, f"{n} stair approaches (exterior building stairs, retaining-wall stairs) are free and capsule-clear")
     return fields
 
 
@@ -1778,7 +1811,7 @@ class LOS:
                 for g in geoms:
                     x0, y0, x1, y1 = g.bounds
                     # decompose into up to a few axis-aligned rectangles by x-strips
-                    xs_ = sorted(set([round(v[0], 4) for v in g.exterior.coords]))
+                    xs_ = sorted(set([round(v[0], 4) for v in g.exterior.coords] + [round(v[0], 4) for r_ in g.interiors for v in r_.coords]))
                     for xa, xb in zip(xs_[:-1], xs_[1:]):
                         strip = g.intersection(sbox(xa, y0 - 1, xb, y1 + 1))
                         for gg in ([strip] if strip.geom_type == "Polygon" else getattr(strip, "geoms", [])):
@@ -2106,6 +2139,8 @@ def check_misc(L, B, W, rep):
     rc = ai["agent"].get("recast", {})
     if rc.get("cs", 1) * rc.get("walkableRadius_cells", 0) < CAPSULE_R - EPS:
         errs.append("recast walkable radius smaller than the capsule")
+    if rc.get("cs", 1) > 0.05 + EPS:
+        errs.append(f"recast cell size {rc.get('cs')} > 0.05 (a 0.10 bake pinches the 1.10 m stair corridors)")
     rep.check("A01", errs, f"{len(cps)} cover points with facing_deg/peek/capacity (>= 40 per zone), AI perception capped at 150 m, "
                            "door reservation/door_link policy, stuck recovery, spawn risk scoring, Recast radius >= capsule")
     errs = []
@@ -2134,6 +2169,8 @@ def check_misc(L, B, W, rep):
         rep.warn("N01", "navmesh_validation missing: the Recast bake (Tools/level/nav) has not been merged -- NOT TESTED")
     else:
         errs = []
+        if nv.get("level_hash") != level_hash(L, B):
+            errs.append("navmesh_validation is stale (level data changed since the bake) -- re-run Tools/level/nav")
         if nv.get("disconnected_entrances"):
             errs.append(f"navmesh: disconnected documented entrances {nv['disconnected_entrances']}")
         for zid, zr in nv.get("balance", {}).items():

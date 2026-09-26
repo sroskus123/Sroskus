@@ -1,0 +1,596 @@
+{
+ "tool": "recast-navigation 0.43.1 (Node v22.22.2)",
+ "config": {
+  "cs": 0.05,
+  "ch": 0.05,
+  "walkableSlopeAngle": 45,
+  "walkableHeight": 36,
+  "walkableClimb": 8,
+  "walkableRadius": 7,
+  "tileSize": 256,
+  "maxEdgeLen": 240,
+  "maxSimplificationError": 1.1,
+  "minRegionArea": 16,
+  "mergeRegionArea": 40,
+  "maxVertsPerPoly": 6,
+  "detailSampleDist": 12,
+  "detailSampleMaxError": 1,
+  "walkableRadius_cells": 7
+ },
+ "input": {
+  "vertices": 1019616,
+  "triangles": 339872
+ },
+ "bake_seconds": 7.5,
+ "tiles": 307,
+ "polys": 7898,
+ "disconnected_entrances": [],
+ "entrances_checked": 83,
+ "entrances": [
+  {
+   "id": "CK_BR_MAIN#0",
+   "ok": true,
+   "path_m": 18.98
+  },
+  {
+   "id": "CK_BR_MAIN#1",
+   "ok": true,
+   "path_m": 29.4
+  },
+  {
+   "id": "CK_FOOT_A#0",
+   "ok": true,
+   "path_m": 60.38
+  },
+  {
+   "id": "CK_FOOT_A#1",
+   "ok": true,
+   "path_m": 58.87
+  },
+  {
+   "id": "CK_FOOT_B#0",
+   "ok": true,
+   "path_m": 59.8
+  },
+  {
+   "id": "CK_FOOT_B#1",
+   "ok": true,
+   "path_m": 61.15
+  },
+  {
+   "id": "CK_RW_DILNA_ST",
+   "ok": true,
+   "path_m": 55.12
+  },
+  {
+   "id": "CK_RW_DUM_ST",
+   "ok": true,
+   "path_m": 18.15
+  },
+  {
+   "id": "CK_DRIVE",
+   "ok": true,
+   "path_m": 25.49
+  },
+  {
+   "id": "CK_DUM_W_GATE",
+   "ok": true,
+   "path_m": 43.34
+  },
+  {
+   "id": "CK_DUM_S_GATE",
+   "ok": true,
+   "path_m": 56.27
+  },
+  {
+   "id": "CK_SKLAD_GATE",
+   "ok": true,
+   "path_m": 21.16
+  },
+  {
+   "id": "CK_DOCK_STEPS",
+   "ok": true,
+   "path_m": 34.2
+  },
+  {
+   "id": "CK_DOCK_MID",
+   "ok": true,
+   "path_m": 42.78
+  },
+  {
+   "id": "CK_DOCK_RAMP",
+   "ok": true,
+   "path_m": 47.65
+  },
+  {
+   "id": "CK_SKLAD_RAMP_E",
+   "ok": true,
+   "path_m": 73.51
+  },
+  {
+   "id": "CK_DL_G1",
+   "ok": true,
+   "path_m": 38.13
+  },
+  {
+   "id": "CK_DL_D2",
+   "ok": true,
+   "path_m": 47.62
+  },
+  {
+   "id": "CK_DL_D3",
+   "ok": true,
+   "path_m": 46.57
+  },
+  {
+   "id": "CK_DL_D4",
+   "ok": true,
+   "path_m": 50.5
+  },
+  {
+   "id": "CK_DL_D5",
+   "ok": true,
+   "path_m": 47.53
+  },
+  {
+   "id": "CK_DL_D6",
+   "ok": true,
+   "path_m": 41.18
+  },
+  {
+   "id": "CK_DL_D7",
+   "ok": true,
+   "path_m": 45.02
+  },
+  {
+   "id": "CK_DL_D8",
+   "ok": true,
+   "path_m": 46.79
+  },
+  {
+   "id": "CK_DL_D9",
+   "ok": true,
+   "path_m": 57.75
+  },
+  {
+   "id": "CK_DL_D10",
+   "ok": true,
+   "path_m": 62.67
+  },
+  {
+   "id": "CK_DL_D11",
+   "ok": true,
+   "path_m": 58.8
+  },
+  {
+   "id": "CK_DL_S1",
+   "ok": true,
+   "path_m": 51.83
+  },
+  {
+   "id": "CK_DL_ES1",
+   "ok": true,
+   "path_m": 55.2
+  },
+  {
+   "id": "CK_SK_RD1",
+   "ok": true,
+   "path_m": 44.12
+  },
+  {
+   "id": "CK_SK_D1",
+   "ok": true,
+   "path_m": 46.59
+  },
+  {
+   "id": "CK_SK_D2",
+   "ok": true,
+   "path_m": 36.92
+  },
+  {
+   "id": "CK_SK_RD3",
+   "ok": true,
+   "path_m": 60.52
+  },
+  {
+   "id": "CK_SK_D4",
+   "ok": true,
+   "path_m": 66.48
+  },
+  {
+   "id": "CK_SK_D5",
+   "ok": true,
+   "path_m": 49.39
+  },
+  {
+   "id": "CK_SK_D6",
+   "ok": true,
+   "path_m": 58.86
+  },
+  {
+   "id": "CK_SK_D3",
+   "ok": true,
+   "path_m": 41.84
+  },
+  {
+   "id": "CK_SK_X1",
+   "ok": true,
+   "path_m": 33.87
+  },
+  {
+   "id": "CK_SK_X2",
+   "ok": true,
+   "path_m": 42.3
+  },
+  {
+   "id": "CK_DM0_D1",
+   "ok": true,
+   "path_m": 55.07
+  },
+  {
+   "id": "CK_DM0_D2",
+   "ok": true,
+   "path_m": 47.04
+  },
+  {
+   "id": "CK_DM0_D3",
+   "ok": true,
+   "path_m": 51.32
+  },
+  {
+   "id": "CK_DM0_D4",
+   "ok": true,
+   "path_m": 49.39
+  },
+  {
+   "id": "CK_DM0_D5",
+   "ok": true,
+   "path_m": 56.5
+  },
+  {
+   "id": "CK_DM0_D6",
+   "ok": true,
+   "path_m": 57.54
+  },
+  {
+   "id": "CK_DM0_D7",
+   "ok": true,
+   "path_m": 52.34
+  },
+  {
+   "id": "CK_DM0_D8",
+   "ok": true,
+   "path_m": 49.85
+  },
+  {
+   "id": "CK_DM1_D6",
+   "ok": true,
+   "path_m": 61.74
+  },
+  {
+   "id": "CK_DM1_D1",
+   "ok": true,
+   "path_m": 67.39
+  },
+  {
+   "id": "CK_DM1_D2",
+   "ok": true,
+   "path_m": 66.2
+  },
+  {
+   "id": "CK_DM1_D3",
+   "ok": true,
+   "path_m": 71.16
+  },
+  {
+   "id": "CK_DM1_D5",
+   "ok": true,
+   "path_m": 66.68
+  },
+  {
+   "id": "CK_DM_S1a",
+   "ok": true,
+   "path_m": 57.14
+  },
+  {
+   "id": "CK_DM_S1b",
+   "ok": true,
+   "path_m": 60.75
+  },
+  {
+   "id": "CK_DM_X1",
+   "ok": true,
+   "path_m": 53.47
+  },
+  {
+   "id": "CK_DM_X2",
+   "ok": true,
+   "path_m": 45.08
+  },
+  {
+   "id": "CK_DM_S2",
+   "ok": true,
+   "path_m": 54.16
+  },
+  {
+   "id": "ST_RW_DILNA_bottom",
+   "ok": true,
+   "path_m": 55.12
+  },
+  {
+   "id": "ST_RW_DILNA_top",
+   "ok": true,
+   "path_m": 61.89
+  },
+  {
+   "id": "ST_RW_DUM_bottom",
+   "ok": true,
+   "path_m": 18.15
+  },
+  {
+   "id": "ST_RW_DUM_top",
+   "ok": true,
+   "path_m": 21.6
+  },
+  {
+   "id": "QA_DL_S1_bottom",
+   "ok": true,
+   "path_m": 51.12
+  },
+  {
+   "id": "QA_DL_S1_top",
+   "ok": true,
+   "path_m": 57.53
+  },
+  {
+   "id": "QA_DL_ES1_bottom",
+   "ok": true,
+   "path_m": 54.39
+  },
+  {
+   "id": "QA_DL_ES1_top",
+   "ok": true,
+   "path_m": 58.58
+  },
+  {
+   "id": "QA_SK_X1_bottom",
+   "ok": true,
+   "path_m": 33.53
+  },
+  {
+   "id": "QA_SK_X1_top",
+   "ok": true,
+   "path_m": 35.58
+  },
+  {
+   "id": "QA_SK_X2_bottom",
+   "ok": true,
+   "path_m": 41.76
+  },
+  {
+   "id": "QA_SK_X2_top",
+   "ok": true,
+   "path_m": 44.21
+  },
+  {
+   "id": "QA_DM_S1a_bottom",
+   "ok": true,
+   "path_m": 56.94
+  },
+  {
+   "id": "QA_DM_S1a_top",
+   "ok": true,
+   "path_m": 60.07
+  },
+  {
+   "id": "QA_DM_S1b_bottom",
+   "ok": true,
+   "path_m": 60.73
+  },
+  {
+   "id": "QA_DM_S1b_top",
+   "ok": true,
+   "path_m": 63.68
+  },
+  {
+   "id": "QA_DM_X1_bottom",
+   "ok": true,
+   "path_m": 53.74
+  },
+  {
+   "id": "QA_DM_X1_top",
+   "ok": true,
+   "path_m": 55.63
+  },
+  {
+   "id": "QA_DM_X2_bottom",
+   "ok": true,
+   "path_m": 44.96
+  },
+  {
+   "id": "QA_DM_X2_top",
+   "ok": true,
+   "path_m": 46.65
+  },
+  {
+   "id": "QA_DM_S2_bottom",
+   "ok": true,
+   "path_m": 54.61
+  },
+  {
+   "id": "QA_DM_S2_top",
+   "ok": true,
+   "path_m": 60.22
+  },
+  {
+   "id": "QA_ST_RW_DILNA_bottom",
+   "ok": true,
+   "path_m": 55.12
+  },
+  {
+   "id": "QA_ST_RW_DILNA_top",
+   "ok": true,
+   "path_m": 61.89
+  },
+  {
+   "id": "QA_ST_RW_DUM_bottom",
+   "ok": true,
+   "path_m": 18.15
+  },
+  {
+   "id": "QA_ST_RW_DUM_top",
+   "ok": true,
+   "path_m": 21.6
+  }
+ ],
+ "balance": {
+  "zone_dilna": {
+   "teams": {
+    "alfa": {
+     "mean_m": 122.75,
+     "points": [
+      119.3,
+      122.24,
+      120.34,
+      123.04,
+      122.06,
+      124.46,
+      124.22,
+      126.3
+     ]
+    },
+    "bravo": {
+     "mean_m": 125.18,
+     "points": [
+      122.57,
+      120.26,
+      124.5,
+      122.73,
+      126.85,
+      125.91,
+      130.05,
+      128.6
+     ]
+    },
+    "charlie": {
+     "mean_m": 125.51,
+     "points": [
+      124.29,
+      121.41,
+      125.41,
+      123.08,
+      127.3,
+      125.14,
+      129.79,
+      127.67
+     ]
+    }
+   },
+   "max_over_min": 1.0225,
+   "unreachable": 0,
+   "run_time_s_3_5": [
+    35.1,
+    35.9
+   ]
+  },
+  "zone_sklad": {
+   "teams": {
+    "alfa": {
+     "mean_m": 125.9,
+     "points": [
+      126.67,
+      123.79,
+      126.5,
+      123.54,
+      127.26,
+      124.54,
+      128.64,
+      126.26
+     ]
+    },
+    "bravo": {
+     "mean_m": 121.5,
+     "points": [
+      117.47,
+      120.32,
+      119,
+      121.48,
+      121.03,
+      123.22,
+      124.19,
+      125.26
+     ]
+    },
+    "charlie": {
+     "mean_m": 122.26,
+     "points": [
+      120.35,
+      119.97,
+      122.9,
+      120.35,
+      124.2,
+      121.5,
+      125.61,
+      123.2
+     ]
+    }
+   },
+   "max_over_min": 1.0362,
+   "unreachable": 0,
+   "run_time_s_3_5": [
+    34.7,
+    36
+   ]
+  },
+  "zone_dvur": {
+   "teams": {
+    "alfa": {
+     "mean_m": 115.93,
+     "points": [
+      114.22,
+      111.57,
+      115.75,
+      113.54,
+      117.77,
+      115.93,
+      120.09,
+      118.55
+     ]
+    },
+    "bravo": {
+     "mean_m": 118.83,
+     "points": [
+      119.69,
+      116.78,
+      119.51,
+      116.53,
+      120.18,
+      117.4,
+      121.49,
+      119.08
+     ]
+    },
+    "charlie": {
+     "mean_m": 120.69,
+     "points": [
+      115.89,
+      118.07,
+      118.44,
+      120.12,
+      121.21,
+      122.54,
+      124.06,
+      125.16
+     ]
+    }
+   },
+   "max_over_min": 1.0411,
+   "unreachable": 0,
+   "run_time_s_3_5": [
+    33.1,
+    34.5
+   ]
+  }
+ },
+ "method": "Detour computePath (straight path length) from each active spawn point to every zone target point (2 m grid of walkable zone cells, exact minimum with straight-line pruning); a target counts as reached only when the path ends within 0.6 m of it; entrances are reached from the village square (0, 0, 0.30)."
+}

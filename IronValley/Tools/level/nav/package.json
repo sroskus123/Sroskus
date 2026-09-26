@@ -1,0 +1,14 @@
+{
+  "name": "iron-valley-level-nav",
+  "version": "0.1.0",
+  "private": true,
+  "description": "IRON VALLEY - design-time Recast navmesh validation bake for Shared/level (build tool only; WASM is allowed here, not in the game runtime - ARCHITECTURE D3/D4).",
+  "type": "module",
+  "license": "UNLICENSED",
+  "scripts": {
+    "bake": "node bake_navmesh.mjs"
+  },
+  "dependencies": {
+    "recast-navigation": "0.43.1"
+  }
+}

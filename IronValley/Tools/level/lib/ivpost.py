@@ -345,7 +345,7 @@ def place_trees(layout):
              ("lipa", -30.0, 4.6, 1.0, "workshop yard SW (brook side)"),
              ("javor", 14.0, -5.0, 0.85, "warehouse yard SE corner"),
              ("dub", -92.0, -18.0, 1.1, "arm A meadow between road and brook"),
-             ("lipa", -74.0, -44.0, 0.95, "arm A behind the pub"),
+             ("lipa", -87.0, -46.5, 0.95, "arm A behind the pub"),
              ("javor", 24.0, 63.0, 1.0, "arm B east verge"),
              ("lipa", -5.0, 82.0, 1.0, "arm B meadow"),
              ("dub", 27.0, 97.0, 1.05, "arm B east meadow"),
@@ -849,7 +849,7 @@ def finish(layout):
                        "charlie": ("E ring from track C -> rear yard", [58.5, 0.0])},
         "zone_dvur": {"alfa": ("S ring path -> rear yard gate", [-26.0, -55.5]),
                       "bravo": ("square -> driveway (E) instead of the wall stairs", [16.0, -19.5]),
-                      "charlie": ("S ring path -> rear yard gate", [12.0, -57.0])},
+                      "charlie": ("S ring -> sunken lane (úvoz) -> north exit -> rear yard gate", [7.2, -58.0])},
     }
     for zid, z in bal["zones"].items():
         zc = snap(walk, g, *next(zz for zz in layout["capture_zones"] if zz["id"] == zid)["center"])
@@ -1070,14 +1070,17 @@ def ai_nav(layout):
             doors.append({"building": bp["id"], "opening": o["id"], "pos": [r2(mid[0]), r2(mid[1]), r2(bp["position"][2] + lvl["floor_z"])],
                           "clear_width": o["clear_width"], "clear_height": o["clear_height"], "initial_open_deg": o.get("open_deg"),
                           "passable_v1": passable, "level": w["level"],
-                          "nav_corridor_m_at_cs010_r4": r2(max(0.0, o["clear_width"] - 0.80))})
+                          "nav_corridor_m": r2(max(0.0, o["clear_width"] - 0.70))})
     return {
         "agent": {"radius": 0.35, "height": 1.80, "crouch_height": 1.20, "max_climb": 0.40, "max_slope_deg": 45.0,
                   "recast": {"tool": "recast-navigation (Node, WASM only in the build tool, ARCHITECTURE D4); JSON navmesh shipped",
-                             "cs": 0.10, "ch": 0.05, "walkableRadius_cells": 4, "walkableHeight_cells": 36, "walkableClimb_cells": 8,
-                             "walkableSlopeAngle": 45.0, "tileSize_cells": 128, "maxEdgeLen": 12.0, "minRegionArea": 8,
-                             "note": "radius 4 cells = 0.40 m (>= 0.35): every walkable door is >= 1.10 m clear, so the eroded "
-                                     "corridor is >= 0.30 m with the leaves in their rest pose; stairs >= 1.10 m wide the same",
+                             "cs": 0.05, "ch": 0.05, "walkableRadius_cells": 7, "walkableHeight_cells": 36, "walkableClimb_cells": 8,
+                             "walkableSlopeAngle": 45.0, "tileSize_cells": 256, "maxEdgeLen_cells": 240, "maxSimplificationError": 1.1,
+                             "minRegionArea_cells": 16, "mergeRegionArea_cells": 40, "detailSampleDist_cells": 12,
+                             "note": "radius 7 cells = 0.35 m = capsule; every walkable door and stair is >= 1.10 m clear, so the "
+                                     "eroded corridor is >= 0.40 m (8 cells) with door leaves in their rest pose. A trial bake at "
+                                     "cs 0.10 / radius 4 pinched the 0.30 m corridor of the house U-stair (contour simplification) -- "
+                                     "do not bake coarser than cs 0.05. Validation bake: Tools/level/nav (results in navmesh_validation)",
                              "input_geometry": "terrain LOD0 + building construction boxes + slabs + stair ramp colliders + prop "
                                                "hulls + fences/hedge cores + retaining walls + bridges; doors in rest pose; roller "
                                                "doors per state; clipped 1 m inside the soft boundary",

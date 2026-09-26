@@ -403,3 +403,37 @@ test('a dummy that was just hit stands still behind the pause menu', async () =>
   assert.ok(Math.max(...r.rots[0].map(Math.abs)) > 0.005, 'the hit dummy is knocked back while paused');
   assert.equal(maxChange, 0, `dummy rotation changed by ${maxChange} rad between frames while paused`);
 });
+
+test('pause menu: an unchanged frame is not redrawn, a settings change is, play draws every frame', async () => {
+  const r = await g.page.evaluate(() => {
+    const iv = window.__IV;
+    iv.startGame();
+    iv.pause();
+    iv.releaseAll();
+    iv.teleportToMarker('spawn');
+    iv.step(2);
+    iv.openMenu();
+    // let per-frame easing (weapon sway / sprint pose left over from earlier input, eye
+    // adaptation) come to rest without the slow software draws, then draw once
+    iv.setDrawEnabled(false);
+    iv.frames(1 / 60, 180, { render: true });
+    iv.setDrawEnabled(true);
+    iv.frames(1 / 60, 2, { render: true });
+    const d0 = iv.getState().draws;
+    iv.frames(1 / 60, 30, { render: true });
+    const d1 = iv.getState().draws;
+    iv.setSetting('fovDeg', 90); // visible change behind the menu
+    iv.frames(1 / 60, 2, { render: true });
+    const d2 = iv.getState().draws;
+    iv.setSetting('fovDeg', 80);
+    iv.startGame();
+    iv.pause();
+    const d3 = iv.getState().draws;
+    iv.frames(1 / 60, 3, { render: true });
+    const d4 = iv.getState().draws;
+    return { state: iv.getState().state, idle: d1 - d0, afterSetting: d2 - d1, playing: d4 - d3 };
+  });
+  assert.equal(r.idle, 0, `redraws of an unchanged paused frame: ${r.idle}`);
+  assert.ok(r.afterSetting >= 1, 'FOV change behind the menu is drawn');
+  assert.equal(r.playing, 3, 'every frame is drawn while playing');
+});

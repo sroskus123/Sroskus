@@ -5814,6 +5814,21 @@
      },
      {
       "kind": "polyline",
+      "src": "RAMP_TERRACE_SW",
+      "pts": [
+       [
+        -45.56,
+        14.51
+       ],
+       [
+        -50.07,
+        17.11
+       ]
+      ],
+      "half_width": 3.7
+     },
+     {
+      "kind": "polyline",
       "src": "RAMP_SKLAD_E",
       "pts": [
        [
@@ -6042,6 +6057,10 @@
        [
         -131.85,
         -73.0
+       ],
+       [
+        -135.76,
+        -74.68
        ]
       ],
       "half_width": 9.0
@@ -6149,6 +6168,14 @@
        [
         32.94,
         151.93
+       ],
+       [
+        34.06,
+        155.82
+       ],
+       [
+        35.17,
+        159.71
        ]
       ],
       "half_width": 9.0
@@ -7001,20 +7028,20 @@
       "src": "P_DL_11",
       "pts": [
        [
-        -45.61,
-        25.62
+        -44.09,
+        24.75
        ],
        [
-        -46.21,
-        24.58
+        -44.69,
+        23.71
        ],
        [
-        -45.35,
-        24.08
+        -43.83,
+        23.21
        ],
        [
-        -44.75,
-        25.12
+        -43.23,
+        24.25
        ]
       ]
      },
@@ -7507,20 +7534,20 @@
       "src": "P_DM_10",
       "pts": [
        [
-        -9.55,
-        -48.76
+        -9.23,
+        -49.83
        ],
        [
-        -3.64,
-        -49.8
+        -3.32,
+        -50.87
        ],
        [
-        -3.25,
-        -47.64
+        -2.93,
+        -48.71
        ],
        [
-        -9.16,
-        -46.6
+        -8.84,
+        -47.67
        ]
       ]
      },
@@ -8714,111 +8741,111 @@
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_ALFA_87_1",
+      "src": "P_SCREEN_ALFA_84_1",
       "pts": [
        [
-        -66.49,
-        -43.41
+        -65.77,
+        -40.17
        ],
        [
-        -68.57,
-        -39.67
+        -66.63,
+        -38.61
        ],
        [
-        -69.53,
-        -40.21
+        -67.59,
+        -39.15
        ],
        [
-        -67.45,
-        -43.95
+        -66.73,
+        -40.71
        ]
       ]
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_ALFA_87_2",
+      "src": "P_SCREEN_ALFA_84_2",
       "pts": [
        [
-        -68.58,
-        -39.67
+        -66.64,
+        -38.62
        ],
        [
-        -70.66,
-        -35.93
+        -68.72,
+        -34.88
        ],
        [
-        -71.62,
-        -36.47
+        -69.68,
+        -35.42
        ],
        [
-        -69.54,
-        -40.21
+        -67.6,
+        -39.16
        ]
       ]
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_ALFA_140_1",
+      "src": "P_SCREEN_ALFA_142_1",
       "pts": [
        [
-        -106.68,
-        -70.26
+        -108.64,
+        -71.12
        ],
        [
-        -109.76,
-        -65.04
+        -111.72,
+        -65.9
        ],
        [
-        -111.86,
-        -66.28
+        -113.82,
+        -67.14
        ],
        [
-        -108.78,
-        -71.5
+        -110.74,
+        -72.36
        ]
       ]
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_ALFA_140_2",
+      "src": "P_SCREEN_ALFA_142_2",
       "pts": [
        [
-        -109.76,
-        -65.04
+        -111.72,
+        -65.9
        ],
        [
-        -112.84,
-        -59.82
+        -114.8,
+        -60.68
        ],
        [
-        -114.94,
-        -61.06
+        -116.9,
+        -61.92
        ],
        [
-        -111.86,
-        -66.28
+        -113.82,
+        -67.14
        ]
       ]
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_ALFA_140_3",
+      "src": "P_SCREEN_ALFA_142_3",
       "pts": [
        [
-        -112.85,
-        -59.83
+        -114.79,
+        -60.68
        ],
        [
-        -115.93,
-        -54.61
+        -117.87,
+        -55.46
        ],
        [
-        -118.03,
-        -55.85
+        -119.97,
+        -56.7
        ],
        [
-        -114.95,
-        -61.07
+        -116.89,
+        -61.92
        ]
       ]
      },
@@ -8850,85 +8877,85 @@
       "pts": [
        [
         9.63,
-        80.78
+        80.77
        ],
        [
-        15.46,
-        79.93
+        14.22,
+        80.1
        ],
        [
-        15.61,
-        81.02
+        14.37,
+        81.19
        ],
        [
         9.78,
-        81.87
+        81.86
        ]
       ]
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_BRAVO_152_1",
+      "src": "P_SCREEN_BRAVO_157_1",
       "pts": [
        [
-        20.78,
-        132.2
+        22.48,
+        137.14
        ],
        [
-        25.29,
-        131.15
+        26.99,
+        136.07
        ],
        [
-        25.54,
-        132.22
+        27.24,
+        137.14
        ],
        [
-        21.03,
-        133.27
+        22.73,
+        138.21
        ]
       ]
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_BRAVO_152_2",
+      "src": "P_SCREEN_BRAVO_157_2",
       "pts": [
        [
-        25.29,
-        131.15
+        26.99,
+        136.06
        ],
        [
-        29.8,
-        130.1
+        31.5,
+        134.99
        ],
        [
-        30.05,
-        131.17
+        31.75,
+        136.06
        ],
        [
-        25.54,
-        132.22
+        27.24,
+        137.13
        ]
       ]
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_BRAVO_152_3",
+      "src": "P_SCREEN_BRAVO_157_3",
       "pts": [
        [
-        29.81,
-        130.09
+        31.5,
+        134.99
        ],
        [
-        34.32,
-        129.04
+        36.01,
+        133.92
        ],
        [
-        34.57,
-        130.11
+        36.26,
+        134.99
        ],
        [
-        30.06,
-        131.16
+        31.75,
+        136.06
        ]
       ]
      },
@@ -8963,82 +8990,82 @@
         -65.88
        ],
        [
-        45.67,
-        -69.91
+        48.66,
+        -67.25
        ],
        [
-        47.3,
-        -71.74
+        50.28,
+        -69.08
        ],
        [
-        51.83,
+        51.82,
         -67.71
        ]
       ]
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_CHARLIE_129_1",
+      "src": "P_SCREEN_CHARLIE_132_1",
       "pts": [
        [
-        92.43,
-        -80.28
+        94.91,
+        -81.7
        ],
        [
-        88.07,
-        -84.49
+        90.58,
+        -85.94
        ],
        [
-        89.77,
-        -86.24
+        92.29,
+        -87.68
        ],
        [
-        94.13,
-        -82.03
+        96.62,
+        -83.44
        ]
       ]
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_CHARLIE_129_2",
+      "src": "P_SCREEN_CHARLIE_132_2",
       "pts": [
        [
-        88.07,
-        -84.49
+        90.58,
+        -85.94
        ],
        [
-        83.71,
-        -88.7
+        86.25,
+        -90.18
        ],
        [
-        85.41,
-        -90.45
+        87.96,
+        -91.92
        ],
        [
-        89.77,
-        -86.24
+        92.29,
+        -87.68
        ]
       ]
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_CHARLIE_129_3",
+      "src": "P_SCREEN_CHARLIE_132_3",
       "pts": [
        [
-        83.71,
-        -88.69
+        86.25,
+        -90.18
        ],
        [
-        79.35,
-        -92.9
+        81.92,
+        -94.42
        ],
        [
-        81.05,
-        -94.65
+        83.63,
+        -96.16
        ],
        [
-        85.41,
-        -90.44
+        87.96,
+        -91.92
        ]
       ]
      },
@@ -9812,6 +9839,26 @@
    },
    {
     "kind": "road",
+    "id": "RAMP_TERRACE_SW",
+    "polyline": [
+     [
+      -45.56,
+      14.51,
+      1.1300000000000001
+     ],
+     [
+      -50.07,
+      17.11,
+      3.13
+     ]
+    ],
+    "width": 2.0,
+    "shoulder": 0.2,
+    "blend": 2.5,
+    "note": "grassed ramp beside the SW end of RW_DILNA: rear pad <-> mill-race terrace (2.0 m over 5.2 m = 21 deg)"
+   },
+   {
+    "kind": "road",
     "id": "RAMP_SKLAD_E",
     "polyline": [
      [
@@ -10025,19 +10072,19 @@
     "id": "MILLRACE",
     "polyline": [
      [
-      -51.14,
-      20.04,
+      -51.49,
+      20.24,
       2.13
      ],
      [
-      -36.14,
-      46.02,
+      -36.49,
+      46.22,
       2.16
      ],
      [
       -30.0,
       52.0,
-      2.37
+      2.39
      ],
      [
       -29.0,
@@ -10057,7 +10104,7 @@
      [
       -22.6,
       116.3,
-      3.87
+      3.88
      ]
     ],
     "bed_width": 0.8,
@@ -10493,12 +10540,12 @@
    "id": "P_MILLRACE",
    "xy": [
     [
-     -46.92,
-     18.76
+     -48.74,
+     19.81
     ],
     [
-     -32.17,
-     44.31
+     -33.99,
+     45.36
     ],
     [
      -27.0,
@@ -10549,12 +10596,16 @@
      4.0
     ],
     [
-     -46.68,
-     14.58
+     -45.39,
+     14.41
     ],
     [
-     -46.92,
-     18.76
+     -50.24,
+     17.21
+    ],
+    [
+     -48.74,
+     19.81
     ]
    ],
    "width": 1.2,
@@ -10653,20 +10704,20 @@
      42.0
     ],
     [
-     57.5,
-     31.0
+     61.0,
+     33.0
     ],
     [
-     60.0,
+     61.3,
      16.0
     ],
     [
-     58.5,
+     61.0,
      0.0
     ],
     [
-     54.0,
-     -16.0
+     56.0,
+     -17.0
     ],
     [
      47.0,
@@ -10871,19 +10922,19 @@
    "id": "MILLRACE",
    "polyline": [
     [
-     -51.14,
-     20.04,
+     -51.49,
+     20.24,
      2.13
     ],
     [
-     -36.14,
-     46.02,
+     -36.49,
+     46.22,
      2.16
     ],
     [
      -30.0,
      52.0,
-     2.37
+     2.39
     ],
     [
      -29.0,
@@ -10903,7 +10954,7 @@
     [
      -22.6,
      116.3,
-     3.87
+     3.88
     ]
    ],
    "bed_width": 0.9,
@@ -11594,6 +11645,26 @@
     ],
     [
      -68.6,
+     -48.6
+    ]
+   ],
+   "height": 1.8,
+   "blocks_movement": true,
+   "blocks_bullets": false,
+   "blocks_vision": true,
+   "cover": "none",
+   "note": "garden hedge S_DOMEK_3 (west, N of the gate)"
+  },
+  {
+   "id": "HEDGE_DOMEK3B",
+   "type": "hedge_privet",
+   "polyline": [
+    [
+     -68.6,
+     -51.4
+    ],
+    [
+     -68.6,
      -52.6
     ],
     [
@@ -11606,7 +11677,7 @@
    "blocks_bullets": false,
    "blocks_vision": true,
    "cover": "none",
-   "note": "garden hedge S_DOMEK_3"
+   "note": "garden hedge S_DOMEK_3 (SW corner + south); 2.8 m garden gate gap at y -48.6..-51.4 (open wooden gate)"
   },
   {
    "id": "HEDGE_DOMEK4",
@@ -13782,8 +13853,8 @@
    "id": "P_DL_11",
    "type": "pallet_stack",
    "position": [
-    -45.48,
-    24.85,
+    -43.96,
+    23.98,
     3.13
    ],
    "rotation_deg": 240.0,
@@ -14222,8 +14293,8 @@
    "id": "P_DM_10",
    "type": "log_pile",
    "position": [
-    -6.4,
-    -48.2,
+    -6.08,
+    -49.27,
     2.4
    ],
    "rotation_deg": 350.0,
@@ -14236,7 +14307,7 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "Z3_rear",
-   "note": "firewood by the entrance"
+   "note": "firewood in the rear yard (keeps 1.2 m in front of the entrance steps)"
   },
   {
    "id": "P_DM_11",
@@ -15280,12 +15351,32 @@
    "note": "roadblock across track C (rear of spawn C)"
   },
   {
-   "id": "P_SCREEN_ALFA_87_1",
+   "id": "P_SCREEN_ALFA_84_1",
    "type": "hesco_line",
    "position": [
-    -68.01,
-    -41.81,
-    -2.0
+    -66.68,
+    -39.66,
+    -1.92
+   ],
+   "rotation_deg": 119.12,
+   "size": [
+    1.78,
+    1.1,
+    2.74
+   ],
+   "cover": "high",
+   "blocks_bullets": true,
+   "blocks_vision": true,
+   "cluster": "spawn_screen_alfa",
+   "note": "hard spawn screen of row s=84 (zone_sklad), 4.5 m in front of the front rank, needs 1.75 m of 2.74 m; ends open as chicane exits"
+  },
+  {
+   "id": "P_SCREEN_ALFA_84_2",
+   "type": "hesco_line",
+   "position": [
+    -68.16,
+    -37.02,
+    -1.95
    ],
    "rotation_deg": 119.12,
    "size": [
@@ -15297,37 +15388,17 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "spawn_screen_alfa",
-   "note": "hard spawn screen of row s=87 (zone_sklad), 4.5 m in front of the front rank, needs 1.71 m of 2.74 m; ends open as chicane exits"
+   "note": "hard spawn screen of row s=84 (zone_sklad), 4.5 m in front of the front rank, needs 1.75 m of 2.74 m; ends open as chicane exits"
   },
   {
-   "id": "P_SCREEN_ALFA_87_2",
-   "type": "hesco_line",
-   "position": [
-    -70.1,
-    -38.07,
-    -2.07
-   ],
-   "rotation_deg": 119.12,
-   "size": [
-    4.28,
-    1.1,
-    2.74
-   ],
-   "cover": "high",
-   "blocks_bullets": true,
-   "blocks_vision": true,
-   "cluster": "spawn_screen_alfa",
-   "note": "hard spawn screen of row s=87 (zone_sklad), 4.5 m in front of the front rank, needs 1.71 m of 2.74 m; ends open as chicane exits"
-  },
-  {
-   "id": "P_SCREEN_ALFA_140_1",
+   "id": "P_SCREEN_ALFA_142_1",
    "type": "container_stack_2",
    "position": [
-    -109.27,
-    -68.27,
-    -3.16
+    -111.23,
+    -69.13,
+    -3.1
    ],
-   "rotation_deg": 120.6,
+   "rotation_deg": 120.48,
    "size": [
     6.06,
     2.44,
@@ -15337,17 +15408,17 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "spawn_screen_alfa",
-   "note": "hard spawn screen of row s=140 (zone_dilna, zone_dvur), 4.5 m in front of the front rank, needs 3.32 m of 5.18 m; ends open as chicane exits"
+   "note": "hard spawn screen of row s=142 (zone_dilna, zone_dvur), 4.5 m in front of the front rank, needs 3.26 m of 5.18 m; ends open as chicane exits"
   },
   {
-   "id": "P_SCREEN_ALFA_140_2",
+   "id": "P_SCREEN_ALFA_142_2",
    "type": "container_stack_2",
    "position": [
-    -112.35,
-    -63.05,
-    -3.37
+    -114.31,
+    -63.91,
+    -3.3
    ],
-   "rotation_deg": 120.6,
+   "rotation_deg": 120.48,
    "size": [
     6.06,
     2.44,
@@ -15357,17 +15428,17 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "spawn_screen_alfa",
-   "note": "hard spawn screen of row s=140 (zone_dilna, zone_dvur), 4.5 m in front of the front rank, needs 3.32 m of 5.18 m; ends open as chicane exits"
+   "note": "hard spawn screen of row s=142 (zone_dilna, zone_dvur), 4.5 m in front of the front rank, needs 3.26 m of 5.18 m; ends open as chicane exits"
   },
   {
-   "id": "P_SCREEN_ALFA_140_3",
+   "id": "P_SCREEN_ALFA_142_3",
    "type": "container_stack_2",
    "position": [
-    -115.44,
-    -57.84,
-    -3.11
+    -117.38,
+    -58.69,
+    -3.03
    ],
-   "rotation_deg": 120.6,
+   "rotation_deg": 120.48,
    "size": [
     6.06,
     2.44,
@@ -15377,7 +15448,7 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "spawn_screen_alfa",
-   "note": "hard spawn screen of row s=140 (zone_dilna, zone_dvur), 4.5 m in front of the front rank, needs 3.32 m of 5.18 m; ends open as chicane exits"
+   "note": "hard spawn screen of row s=142 (zone_dilna, zone_dvur), 4.5 m in front of the front rank, needs 3.26 m of 5.18 m; ends open as chicane exits"
   },
   {
    "id": "P_SCREEN_BRAVO_92_1",
@@ -15403,13 +15474,13 @@
    "id": "P_SCREEN_BRAVO_92_2",
    "type": "hesco_line",
    "position": [
-    12.62,
-    80.9,
+    12.0,
+    80.98,
     1.85
    ],
    "rotation_deg": 351.77,
    "size": [
-    5.89,
+    4.64,
     1.1,
     2.74
    ],
@@ -15420,14 +15491,14 @@
    "note": "hard spawn screen of row s=92 (zone_dvur), 3.5 m in front of the front rank, needs 2.70 m of 2.74 m; ends open as chicane exits"
   },
   {
-   "id": "P_SCREEN_BRAVO_152_1",
+   "id": "P_SCREEN_BRAVO_157_1",
    "type": "hesco_line",
    "position": [
-    23.16,
-    132.21,
-    3.12
+    24.86,
+    137.14,
+    3.14
    ],
-   "rotation_deg": 346.86,
+   "rotation_deg": 346.59,
    "size": [
     4.64,
     1.1,
@@ -15437,17 +15508,17 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "spawn_screen_bravo",
-   "note": "hard spawn screen of row s=152 (zone_dilna, zone_sklad), 4.5 m in front of the front rank, needs 2.20 m of 2.74 m; ends open as chicane exits"
+   "note": "hard spawn screen of row s=157 (zone_dilna, zone_sklad), 4.5 m in front of the front rank, needs 2.27 m of 2.74 m; ends open as chicane exits"
   },
   {
-   "id": "P_SCREEN_BRAVO_152_2",
+   "id": "P_SCREEN_BRAVO_157_2",
    "type": "hesco_line",
    "position": [
-    27.67,
-    131.16,
-    3.06
+    29.37,
+    136.06,
+    3.11
    ],
-   "rotation_deg": 346.86,
+   "rotation_deg": 346.59,
    "size": [
     4.64,
     1.1,
@@ -15457,17 +15528,17 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "spawn_screen_bravo",
-   "note": "hard spawn screen of row s=152 (zone_dilna, zone_sklad), 4.5 m in front of the front rank, needs 2.20 m of 2.74 m; ends open as chicane exits"
+   "note": "hard spawn screen of row s=157 (zone_dilna, zone_sklad), 4.5 m in front of the front rank, needs 2.27 m of 2.74 m; ends open as chicane exits"
   },
   {
-   "id": "P_SCREEN_BRAVO_152_3",
+   "id": "P_SCREEN_BRAVO_157_3",
    "type": "hesco_line",
    "position": [
-    32.19,
-    130.1,
-    3.02
+    33.88,
+    134.99,
+    3.14
    ],
-   "rotation_deg": 346.86,
+   "rotation_deg": 346.59,
    "size": [
     4.64,
     1.1,
@@ -15477,7 +15548,7 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "spawn_screen_bravo",
-   "note": "hard spawn screen of row s=152 (zone_dilna, zone_sklad), 4.5 m in front of the front rank, needs 2.20 m of 2.74 m; ends open as chicane exits"
+   "note": "hard spawn screen of row s=157 (zone_dilna, zone_sklad), 4.5 m in front of the front rank, needs 2.27 m of 2.74 m; ends open as chicane exits"
   },
   {
    "id": "P_SCREEN_CHARLIE_89_1",
@@ -15503,13 +15574,13 @@
    "id": "P_SCREEN_CHARLIE_89_2",
    "type": "container_stack_2",
    "position": [
-    48.75,
-    -68.81,
-    2.13
+    50.24,
+    -67.48,
+    2.11
    ],
    "rotation_deg": 221.64,
    "size": [
-    6.06,
+    2.06,
     2.44,
     5.18
    ],
@@ -15520,14 +15591,14 @@
    "note": "hard spawn screen of row s=89 (zone_dilna), 4.5 m in front of the front rank, needs 3.32 m of 5.18 m; ends open as chicane exits"
   },
   {
-   "id": "P_SCREEN_CHARLIE_129_1",
+   "id": "P_SCREEN_CHARLIE_132_1",
    "type": "container_stack_2",
    "position": [
-    91.1,
-    -83.26,
-    3.44
+    93.6,
+    -84.69,
+    3.54
    ],
-   "rotation_deg": 223.96,
+   "rotation_deg": 224.38,
    "size": [
     6.06,
     2.44,
@@ -15537,17 +15608,17 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "spawn_screen_charlie",
-   "note": "hard spawn screen of row s=129 (zone_sklad, zone_dvur), 4.5 m in front of the front rank, needs 3.05 m of 5.18 m; ends open as chicane exits"
+   "note": "hard spawn screen of row s=132 (zone_sklad, zone_dvur), 4.5 m in front of the front rank, needs 3.02 m of 5.18 m; ends open as chicane exits"
   },
   {
-   "id": "P_SCREEN_CHARLIE_129_2",
+   "id": "P_SCREEN_CHARLIE_132_2",
    "type": "container_stack_2",
    "position": [
-    86.74,
-    -87.47,
-    3.34
+    89.27,
+    -88.93,
+    3.49
    ],
-   "rotation_deg": 223.96,
+   "rotation_deg": 224.38,
    "size": [
     6.06,
     2.44,
@@ -15557,17 +15628,17 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "spawn_screen_charlie",
-   "note": "hard spawn screen of row s=129 (zone_sklad, zone_dvur), 4.5 m in front of the front rank, needs 3.05 m of 5.18 m; ends open as chicane exits"
+   "note": "hard spawn screen of row s=132 (zone_sklad, zone_dvur), 4.5 m in front of the front rank, needs 3.02 m of 5.18 m; ends open as chicane exits"
   },
   {
-   "id": "P_SCREEN_CHARLIE_129_3",
+   "id": "P_SCREEN_CHARLIE_132_3",
    "type": "container_stack_2",
    "position": [
-    82.38,
-    -91.67,
-    3.5
+    84.94,
+    -93.17,
+    3.67
    ],
-   "rotation_deg": 223.96,
+   "rotation_deg": 224.38,
    "size": [
     6.06,
     2.44,
@@ -15577,7 +15648,7 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "spawn_screen_charlie",
-   "note": "hard spawn screen of row s=129 (zone_sklad, zone_dvur), 4.5 m in front of the front rank, needs 3.05 m of 5.18 m; ends open as chicane exits"
+   "note": "hard spawn screen of row s=132 (zone_sklad, zone_dvur), 4.5 m in front of the front rank, needs 3.02 m of 5.18 m; ends open as chicane exits"
   }
  ],
  "capture_zones": [
@@ -15738,24 +15809,24 @@
    "team": "alfa",
    "polygon": [
     [
-     -125.21,
-     -75.02
+     -127.18,
+     -75.88
     ],
     [
-     -128.68,
-     -67.0
+     -130.62,
+     -67.83
     ],
     [
-     -72.21,
-     -37.1
+     -70.27,
+     -36.03
     ],
     [
-     -68.24,
-     -45.04
+     -66.3,
+     -44.0
     ],
     [
-     -114.05,
-     -70.25
+     -116.02,
+     -71.09
     ]
    ],
    "polygon_role": "team staging area (convex hull of all rows + 3 m); enemies inside it never count for respawn selection",
@@ -15763,9 +15834,9 @@
     {
      "id": "ALFA_R1_1",
      "pos": [
-      -116.55,
-      -64.79,
-      -3.23
+      -118.51,
+      -65.63,
+      -3.15
      ],
      "yaw_deg": 293.2,
      "row": "ALFA_R1",
@@ -15778,9 +15849,9 @@
     {
      "id": "ALFA_R1_2",
      "pos": [
-      -115.37,
-      -67.55,
-      -3.2
+      -117.33,
+      -68.39,
+      -3.13
      ],
      "yaw_deg": 293.2,
      "row": "ALFA_R1",
@@ -15793,9 +15864,9 @@
     {
      "id": "ALFA_R1_3",
      "pos": [
-      -119.31,
-      -65.97,
-      -3.12
+      -121.27,
+      -66.82,
+      -3.05
      ],
      "yaw_deg": 293.2,
      "row": "ALFA_R1",
@@ -15808,9 +15879,9 @@
     {
      "id": "ALFA_R1_4",
      "pos": [
-      -118.13,
-      -68.73,
-      -3.11
+      -120.09,
+      -69.57,
+      -3.07
      ],
      "yaw_deg": 293.2,
      "row": "ALFA_R1",
@@ -15823,9 +15894,9 @@
     {
      "id": "ALFA_R1_5",
      "pos": [
-      -122.07,
-      -67.16,
-      -3.04
+      -124.03,
+      -68.0,
+      -2.99
      ],
      "yaw_deg": 293.2,
      "row": "ALFA_R1",
@@ -15838,9 +15909,9 @@
     {
      "id": "ALFA_R1_6",
      "pos": [
-      -120.89,
-      -69.91,
-      -3.05
+      -122.84,
+      -70.76,
+      -3.01
      ],
      "yaw_deg": 293.2,
      "row": "ALFA_R1",
@@ -15853,9 +15924,9 @@
     {
      "id": "ALFA_R1_7",
      "pos": [
-      -124.83,
-      -68.34,
-      -2.97
+      -126.78,
+      -69.18,
+      -2.95
      ],
      "yaw_deg": 293.2,
      "row": "ALFA_R1",
@@ -15868,9 +15939,9 @@
     {
      "id": "ALFA_R1_8",
      "pos": [
-      -123.64,
-      -71.09,
-      -2.99
+      -125.6,
+      -71.94,
+      -2.96
      ],
      "yaw_deg": 293.2,
      "row": "ALFA_R1",
@@ -15883,9 +15954,9 @@
     {
      "id": "ALFA_R2_1",
      "pos": [
-      -73.55,
-      -41.12,
-      -2.34
+      -71.61,
+      -40.06,
+      -2.19
      ],
      "yaw_deg": 296.57,
      "row": "ALFA_R2",
@@ -15897,9 +15968,9 @@
     {
      "id": "ALFA_R2_2",
      "pos": [
-      -72.21,
-      -43.8,
-      -2.34
+      -70.27,
+      -42.75,
+      -2.17
      ],
      "yaw_deg": 296.57,
      "row": "ALFA_R2",
@@ -15911,9 +15982,9 @@
     {
      "id": "ALFA_R2_3",
      "pos": [
-      -76.23,
-      -42.46,
-      -2.57
+      -74.29,
+      -41.41,
+      -2.41
      ],
      "yaw_deg": 296.57,
      "row": "ALFA_R2",
@@ -15925,9 +15996,9 @@
     {
      "id": "ALFA_R2_4",
      "pos": [
-      -74.89,
-      -45.15,
-      -2.57
+      -72.95,
+      -44.09,
+      -2.4
      ],
      "yaw_deg": 296.57,
      "row": "ALFA_R2",
@@ -15939,9 +16010,9 @@
     {
      "id": "ALFA_R2_5",
      "pos": [
-      -78.92,
-      -43.8,
-      -2.78
+      -76.98,
+      -42.75,
+      -2.63
      ],
      "yaw_deg": 296.57,
      "row": "ALFA_R2",
@@ -15953,9 +16024,9 @@
     {
      "id": "ALFA_R2_6",
      "pos": [
-      -77.57,
-      -46.49,
-      -2.77
+      -75.63,
+      -45.43,
+      -2.63
      ],
      "yaw_deg": 296.57,
      "row": "ALFA_R2",
@@ -15967,9 +16038,9 @@
     {
      "id": "ALFA_R2_7",
      "pos": [
-      -81.6,
-      -45.15,
-      -2.98
+      -79.66,
+      -44.09,
+      -2.83
      ],
      "yaw_deg": 296.57,
      "row": "ALFA_R2",
@@ -15981,9 +16052,9 @@
     {
      "id": "ALFA_R2_8",
      "pos": [
-      -80.26,
-      -47.83,
-      -3.0
+      -78.32,
+      -46.77,
+      -2.83
      ],
      "yaw_deg": 296.57,
      "row": "ALFA_R2",
@@ -15996,10 +16067,10 @@
    "rows": [
     {
      "row_id": "ALFA_R1",
-     "s": 140.0,
+     "s": 142.0,
      "center": [
-      -120.1,
-      -67.94
+      -122.06,
+      -68.79
      ],
      "zones": [
       "zone_dilna",
@@ -16007,57 +16078,57 @@
      ],
      "polygon": [
       [
-       -124.43,
-       -73.06
+       -126.39,
+       -73.91
       ],
       [
-       -126.8,
-       -67.55
+       -128.75,
+       -68.39
       ],
       [
-       -122.66,
-       -65.78
+       -124.62,
+       -66.62
       ],
       [
-       -115.77,
-       -62.82
+       -117.72,
+       -63.66
       ],
       [
-       -113.4,
-       -68.34
+       -115.36,
+       -69.18
       ],
       [
-       -117.54,
-       -70.11
+       -119.5,
+       -70.95
       ]
      ]
     },
     {
      "row_id": "ALFA_R2",
-     "s": 87.0,
+     "s": 84.0,
      "center": [
-      -76.9,
-      -44.47
+      -74.96,
+      -43.42
      ],
      "zones": [
       "zone_sklad"
      ],
      "polygon": [
       [
-       -80.93,
-       -49.84
+       -78.99,
+       -48.78
       ],
       [
-       -83.61,
-       -44.47
+       -81.67,
+       -43.42
       ],
       [
-       -72.88,
-       -39.11
+       -70.94,
+       -38.05
       ],
       [
-       -70.2,
-       -44.47
+       -68.26,
+       -43.42
       ]
      ]
     }
@@ -16076,12 +16147,12 @@
      92.5
     ],
     [
-     27.52,
-     148.76
+     29.29,
+     153.66
     ],
     [
-     35.72,
-     145.79
+     37.51,
+     150.66
     ],
     [
      16.84,
@@ -16093,9 +16164,9 @@
     {
      "id": "BRAVO_R1_1",
      "pos": [
-      28.95,
-      135.48,
-      3.1
+      30.72,
+      140.37,
+      3.19
      ],
      "yaw_deg": 160.02,
      "row": "BRAVO_R1",
@@ -16108,9 +16179,9 @@
     {
      "id": "BRAVO_R1_2",
      "pos": [
-      26.13,
-      136.51,
-      3.1
+      27.9,
+      141.39,
+      3.18
      ],
      "yaw_deg": 160.02,
      "row": "BRAVO_R1",
@@ -16123,9 +16194,9 @@
     {
      "id": "BRAVO_R1_3",
      "pos": [
-      29.97,
-      138.3,
-      3.14
+      31.75,
+      143.19,
+      3.27
      ],
      "yaw_deg": 160.02,
      "row": "BRAVO_R1",
@@ -16138,9 +16209,9 @@
     {
      "id": "BRAVO_R1_4",
      "pos": [
-      27.15,
-      139.33,
-      3.13
+      28.93,
+      144.21,
+      3.25
      ],
      "yaw_deg": 160.02,
      "row": "BRAVO_R1",
@@ -16153,9 +16224,9 @@
     {
      "id": "BRAVO_R1_5",
      "pos": [
-      31.0,
-      141.12,
-      3.2
+      32.77,
+      146.01,
+      3.37
      ],
      "yaw_deg": 160.02,
      "row": "BRAVO_R1",
@@ -16168,9 +16239,9 @@
     {
      "id": "BRAVO_R1_6",
      "pos": [
-      28.18,
-      142.15,
-      3.2
+      29.95,
+      147.03,
+      3.36
      ],
      "yaw_deg": 160.02,
      "row": "BRAVO_R1",
@@ -16183,9 +16254,9 @@
     {
      "id": "BRAVO_R1_7",
      "pos": [
-      32.02,
-      143.94,
-      3.29
+      33.8,
+      148.82,
+      3.49
      ],
      "yaw_deg": 160.02,
      "row": "BRAVO_R1",
@@ -16198,9 +16269,9 @@
     {
      "id": "BRAVO_R1_8",
      "pos": [
-      29.2,
-      144.96,
-      3.28
+      30.98,
+      149.85,
+      3.49
      ],
      "yaw_deg": 160.02,
      "row": "BRAVO_R1",
@@ -16326,10 +16397,10 @@
    "rows": [
     {
      "row_id": "BRAVO_R1",
-     "s": 152.0,
+     "s": 157.0,
      "center": [
-      29.07,
-      140.22
+      30.85,
+      145.11
      ],
      "zones": [
       "zone_dilna",
@@ -16337,28 +16408,28 @@
      ],
      "polygon": [
       [
-       29.84,
-       133.56
+       31.62,
+       138.44
       ],
       [
-       24.2,
-       135.61
+       25.98,
+       140.49
       ],
       [
-       26.77,
-       142.66
+       30.08,
+       151.77
       ],
       [
-       28.3,
-       146.89
+       35.72,
+       149.72
       ],
       [
-       33.94,
-       144.84
+       34.18,
+       145.49
       ],
       [
-       31.38,
-       137.79
+       33.16,
+       142.67
       ]
      ]
     },
@@ -16406,8 +16477,8 @@
    "team": "charlie",
    "polygon": [
     [
-     96.79,
-     -102.44
+     99.36,
+     -103.84
     ],
     [
      57.54,
@@ -16419,11 +16490,11 @@
     ],
     [
      53.77,
-     -65.93
+     -65.94
     ],
     [
-     101.05,
-     -94.66
+     103.65,
+     -96.08
     ]
    ],
    "polygon_role": "team staging area (convex hull of all rows + 3 m); enemies inside it never count for respawn selection",
@@ -16543,9 +16614,9 @@
     {
      "id": "CHARLIE_R2_1",
      "pos": [
-      87.71,
-      -94.02,
-      3.82
+      90.29,
+      -95.44,
+      4.02
      ],
      "yaw_deg": 61.19,
      "row": "CHARLIE_R2",
@@ -16558,9 +16629,9 @@
     {
      "id": "CHARLIE_R2_2",
      "pos": [
-      89.16,
-      -91.39,
-      3.68
+      91.74,
+      -92.81,
+      3.85
      ],
      "yaw_deg": 61.19,
      "row": "CHARLIE_R2",
@@ -16573,9 +16644,9 @@
     {
      "id": "CHARLIE_R2_3",
      "pos": [
-      90.34,
-      -95.46,
-      4.02
+      92.92,
+      -96.88,
+      4.22
      ],
      "yaw_deg": 61.19,
      "row": "CHARLIE_R2",
@@ -16588,9 +16659,9 @@
     {
      "id": "CHARLIE_R2_4",
      "pos": [
-      91.79,
-      -92.84,
-      3.85
+      94.37,
+      -94.25,
+      4.05
      ],
      "yaw_deg": 61.19,
      "row": "CHARLIE_R2",
@@ -16603,9 +16674,9 @@
     {
      "id": "CHARLIE_R2_5",
      "pos": [
-      92.97,
-      -96.91,
-      4.22
+      95.55,
+      -98.33,
+      4.38
      ],
      "yaw_deg": 61.19,
      "row": "CHARLIE_R2",
@@ -16618,9 +16689,9 @@
     {
      "id": "CHARLIE_R2_6",
      "pos": [
-      94.42,
-      -94.28,
-      4.06
+      97.0,
+      -95.7,
+      4.24
      ],
      "yaw_deg": 61.19,
      "row": "CHARLIE_R2",
@@ -16633,9 +16704,9 @@
     {
      "id": "CHARLIE_R2_7",
      "pos": [
-      95.6,
-      -98.36,
-      4.38
+      98.18,
+      -99.77,
+      4.52
      ],
      "yaw_deg": 61.19,
      "row": "CHARLIE_R2",
@@ -16648,9 +16719,9 @@
     {
      "id": "CHARLIE_R2_8",
      "pos": [
-      97.04,
-      -95.73,
-      4.24
+      99.63,
+      -97.15,
+      4.39
      ],
      "yaw_deg": 61.19,
      "row": "CHARLIE_R2",
@@ -16701,10 +16772,10 @@
     },
     {
      "row_id": "CHARLIE_R2",
-     "s": 129.0,
+     "s": 132.0,
      "center": [
-      92.38,
-      -94.87
+      94.96,
+      -96.29
      ],
      "zones": [
       "zone_sklad",
@@ -16712,28 +16783,28 @@
      ],
      "polygon": [
       [
-       96.19,
-       -100.39
+       98.77,
+       -101.81
       ],
       [
-       92.25,
-       -98.22
+       94.83,
+       -99.64
       ],
       [
-       85.68,
-       -94.61
+       88.26,
+       -96.03
       ],
       [
-       88.57,
-       -89.35
+       91.15,
+       -90.77
       ],
       [
-       92.51,
-       -91.52
+       95.09,
+       -92.94
       ],
       [
-       99.08,
-       -95.14
+       101.66,
+       -96.55
       ]
      ]
     }
@@ -16747,13 +16818,13 @@
    "offset": 22.0,
    "s_range": [
     80.0,
-    140.0
+    146.0
    ],
    "side": "S of road A behind the pub (timber yard)",
    "fixed_rows": {
-    "zone_dilna": 140.0,
-    "zone_dvur": 140.0,
-    "zone_sklad": 87.0
+    "zone_dilna": 142.0,
+    "zone_dvur": 142.0,
+    "zone_sklad": 84.0
    },
    "spine_polyline": [
     [
@@ -16799,12 +16870,12 @@
    "offset": -10.0,
    "s_range": [
     80.0,
-    155.0
+    160.0
    ],
    "side": "E of road B (gravel works yard)",
    "fixed_rows": {
-    "zone_dilna": 152.0,
-    "zone_sklad": 152.0,
+    "zone_dilna": 157.0,
+    "zone_sklad": 157.0,
     "zone_dvur": 92.0
    },
    "spine_polyline": [
@@ -16860,8 +16931,8 @@
    "side": "SW of track C (farm meadow)",
    "fixed_rows": {
     "zone_dilna": 89.0,
-    "zone_sklad": 129.0,
-    "zone_dvur": 129.0
+    "zone_sklad": 132.0,
+    "zone_dvur": 132.0
    },
    "spine_polyline": [
     [
@@ -17715,12 +17786,12 @@
    {
     "species": "lipa",
     "pos": [
-     -74.0,
-     -44.0,
-     -2.58
+     -87.0,
+     -46.5,
+     -3.38
     ],
     "scale": 0.95,
-    "yaw_deg": 309.0,
+    "yaw_deg": 347.0,
     "group": "feature:arm A behind the pub",
     "id": "TR0005"
    },
@@ -18257,7 +18328,7 @@
     "pos": [
      -56.36,
      16.12,
-     -0.16
+     0.12
     ],
     "scale": 1.055,
     "yaw_deg": 155.0,
@@ -25949,7 +26020,7 @@
     "pos": [
      -133.72,
      -89.26,
-     -2.32
+     -2.34
     ],
     "scale": 0.89,
     "yaw_deg": 352.0,
@@ -37279,24 +37350,24 @@
     "priority": 58,
     "polygon": [
      [
-      -125.21,
-      -75.02
+      -127.18,
+      -75.88
      ],
      [
-      -128.68,
-      -67.0
+      -130.62,
+      -67.83
      ],
      [
-      -72.21,
-      -37.1
+      -70.27,
+      -36.03
      ],
      [
-      -68.24,
-      -45.04
+      -66.3,
+      -44.0
      ],
      [
-      -114.05,
-      -70.25
+      -116.02,
+      -71.09
      ]
     ],
     "note": "spawn alfa timber yard"
@@ -37314,12 +37385,12 @@
       92.5
      ],
      [
-      27.52,
-      148.76
+      29.29,
+      153.66
      ],
      [
-      35.72,
-      145.79
+      37.51,
+      150.66
      ],
      [
       16.84,
@@ -37333,8 +37404,8 @@
     "priority": 58,
     "polygon": [
      [
-      96.79,
-      -102.44
+      99.36,
+      -103.84
      ],
      [
       57.54,
@@ -37346,11 +37417,11 @@
      ],
      [
       53.77,
-      -65.93
+      -65.94
      ],
      [
-      101.05,
-      -94.66
+      103.65,
+      -96.08
      ]
     ],
     "note": "spawn charlie farmyard (mud + straw)"
@@ -37371,11 +37442,11 @@
   "zone_dilna": {
    "alfa": {
     "row": "ALFA_R1",
-    "s": 140.0
+    "s": 142.0
    },
    "bravo": {
     "row": "BRAVO_R1",
-    "s": 152.0
+    "s": 157.0
    },
    "charlie": {
     "row": "CHARLIE_R1",
@@ -37385,7 +37456,7 @@
   "zone_dvur": {
    "alfa": {
     "row": "ALFA_R1",
-    "s": 140.0
+    "s": 142.0
    },
    "bravo": {
     "row": "BRAVO_R2",
@@ -37393,21 +37464,21 @@
    },
    "charlie": {
     "row": "CHARLIE_R2",
-    "s": 129.0
+    "s": 132.0
    }
   },
   "zone_sklad": {
    "alfa": {
     "row": "ALFA_R2",
-    "s": 87.0
+    "s": 84.0
    },
    "bravo": {
     "row": "BRAVO_R1",
-    "s": 152.0
+    "s": 157.0
    },
    "charlie": {
     "row": "CHARLIE_R2",
-    "s": 129.0
+    "s": 132.0
    }
   }
  },
@@ -37418,64 +37489,69 @@
   "zones": {
    "zone_dilna": {
     "rows_s": {
-     "alfa": 140.0,
-     "bravo": 152.0,
+     "alfa": 142.0,
+     "bravo": 157.0,
      "charlie": 89.0
     },
     "distances_center_m": {
-     "alfa": 134.75,
-     "bravo": 135.22,
+     "alfa": 136.78,
+     "bravo": 140.36,
      "charlie": 131.1
     },
     "distances_edge_m": {
-     "alfa": 119.73,
-     "bravo": 120.33,
+     "alfa": 121.78,
+     "bravo": 125.42,
      "charlie": 125.01
     },
-    "mean_center_m": 133.69,
-    "mean_edge_m": 121.69,
+    "mean_center_m": 136.08,
+    "mean_edge_m": 124.07,
     "deviation_center_pct": {
-     "alfa": 0.79,
-     "bravo": 1.14,
-     "charlie": -1.94
+     "alfa": 0.52,
+     "bravo": 3.14,
+     "charlie": -3.66
     },
     "deviation_edge_pct": {
-     "alfa": -1.61,
-     "bravo": -1.12,
-     "charlie": 2.73
+     "alfa": -1.85,
+     "bravo": 1.09,
+     "charlie": 0.76
     },
-    "max_deviation_pct": 2.73,
+    "max_deviation_pct": 3.66,
     "run_time_s_edge": {
-     "alfa": 34.21,
-     "bravo": 34.38,
+     "alfa": 34.79,
+     "bravo": 35.83,
      "charlie": 35.72
     },
     "sprint_time_s_edge": {
-     "alfa": 20.82,
-     "bravo": 20.93,
+     "alfa": 21.18,
+     "bravo": 21.81,
      "charlie": 21.74
     },
     "primary_lanes": {
      "alfa": [
       [
-       -120.0,
-       -68.0,
-       -3.1
+       -122.0,
+       -68.75,
+       -3.05
       ],
       [
-       -118.25,
-       -66.25,
-       -3.15
+       -120.25,
+       -67.0,
+       -3.09
       ],
       [
-       -118.25,
-       -55.75,
-       -2.95
+       -120.25,
+       -56.75,
+       -2.89
       ],
       [
-       -115.25,
-       -52.75,
-       -3.04
+       -116.5,
+       -53.0,
+       -2.99
+      ],
+      [
+       -115.5,
+       -53.0,
+       -3.03
       ],
       [
        -111.5,
@@ -37535,24 +37611,24 @@
      ],
      "bravo": [
       [
-       29.0,
-       140.25,
-       3.16
+       30.75,
+       145.0,
+       3.3
       ],
       [
-       22.25,
-       133.5,
-       3.28
+       24.25,
+       138.5,
+       3.3
       ],
       [
-       21.0,
-       133.5,
-       3.42
+       22.75,
+       138.5,
+       3.51
       ],
       [
        -3.5,
-       109.0,
-       3.33
+       112.25,
+       3.42
       ],
       [
        -3.5,
@@ -37715,47 +37791,42 @@
     "flank_lanes": {
      "alfa": {
       "desc": "P_BANK_TERRACE ramp -> mill-race terrace -> RW stairs",
-      "length_m": 141.28,
-      "extra_vs_primary_pct": 4.85,
+      "length_m": 143.5,
+      "extra_vs_primary_pct": 4.91,
       "via": [
        -45.6,
        15.5
       ],
       "waypoints": [
        [
-        -120.0,
-        -68.0,
-        -3.1
+        -122.0,
+        -68.75,
+        -3.05
        ],
        [
-        -120.0,
-        -57.5,
-        -2.9
+        -122.0,
+        -58.5,
+        -2.84
        ],
        [
-        -117.0,
-        -54.75,
-        -2.99
+        -118.75,
+        -55.5,
+        -2.93
        ],
        [
-        -115.0,
-        -54.25,
-        -3.06
-       ],
-       [
-        -111.0,
-        -50.25,
-        -3.17
-       ],
-       [
-        -104.5,
-        -43.5,
-        -3.19
-       ],
-       [
-        -104.5,
-        -41.5,
+        -116.0,
+        -55.25,
         -3.03
+       ],
+       [
+        -105.75,
+        -44.75,
+        -3.2
+       ],
+       [
+        -105.75,
+        -42.75,
+        -3.09
        ],
        [
         -78.0,
@@ -37763,14 +37834,24 @@
         -1.59
        ],
        [
-        -76.0,
+        -74.5,
         -15.0,
-        -1.54
+        -1.5
+       ],
+       [
+        -47.25,
+        12.25,
+        0.65
+       ],
+       [
+        -47.25,
+        13.75,
+        1.53
        ],
        [
         -45.5,
         15.5,
-        1.13
+        1.3
        ],
        [
         -41.5,
@@ -37806,7 +37887,7 @@
      },
      "bravo": {
       "desc": "footbridge B -> west bank -> gable door DL_D3",
-      "length_m": 135.13,
+      "length_m": 140.28,
       "extra_vs_primary_pct": -0.06,
       "via": [
        -19.5,
@@ -37814,28 +37895,23 @@
       ],
       "waypoints": [
        [
-        29.0,
-        140.25,
-        3.16
+        30.75,
+        145.0,
+        3.3
        ],
        [
-        27.0,
-        139.5,
-        3.13
+        28.5,
+        144.25,
+        3.25
        ],
        [
-        6.0,
-        118.25,
-        3.26
+        7.5,
+        123.25,
+        3.29
        ],
        [
-        6.0,
-        86.75,
-        2.16
-       ],
-       [
-        5.75,
-        84.75,
+        7.25,
+        86.25,
         2.1
        ],
        [
@@ -37995,134 +38071,94 @@
    },
    "zone_sklad": {
     "rows_s": {
-     "alfa": 87.0,
-     "bravo": 152.0,
-     "charlie": 129.0
+     "alfa": 84.0,
+     "bravo": 157.0,
+     "charlie": 132.0
     },
     "distances_center_m": {
-     "alfa": 143.95,
-     "bravo": 129.14,
-     "charlie": 130.31
+     "alfa": 137.93,
+     "bravo": 134.03,
+     "charlie": 132.6
     },
     "distances_edge_m": {
-     "alfa": 127.38,
-     "bravo": 112.94,
-     "charlie": 114.16
+     "alfa": 121.36,
+     "bravo": 117.82,
+     "charlie": 116.45
     },
-    "mean_center_m": 134.47,
-    "mean_edge_m": 118.16,
+    "mean_center_m": 134.85,
+    "mean_edge_m": 118.54,
     "deviation_center_pct": {
-     "alfa": 7.05,
-     "bravo": -3.96,
-     "charlie": -3.09
+     "alfa": 2.28,
+     "bravo": -0.61,
+     "charlie": -1.67
     },
     "deviation_edge_pct": {
-     "alfa": 7.8,
-     "bravo": -4.42,
-     "charlie": -3.38
+     "alfa": 2.37,
+     "bravo": -0.61,
+     "charlie": -1.77
     },
-    "max_deviation_pct": 7.8,
+    "max_deviation_pct": 2.37,
     "run_time_s_edge": {
-     "alfa": 36.39,
-     "bravo": 32.27,
-     "charlie": 32.62
+     "alfa": 34.67,
+     "bravo": 33.66,
+     "charlie": 33.27
     },
     "sprint_time_s_edge": {
-     "alfa": 22.15,
-     "bravo": 19.64,
-     "charlie": 19.85
+     "alfa": 21.11,
+     "bravo": 20.49,
+     "charlie": 20.25
     },
     "primary_lanes": {
      "alfa": [
       [
-       -77.0,
-       -44.5,
-       -2.7
-      ],
-      [
-       -69.5,
-       -52.0,
-       -1.48
+       -75.0,
+       -43.5,
+       -2.54
       ],
       [
        -69.0,
-       -53.5,
-       -1.23
+       -49.5,
+       -1.67
       ],
       [
-       -54.75,
-       -53.5,
-       0.65
-      ],
-      [
-       -38.75,
-       -37.5,
-       -0.11
-      ],
-      [
-       -35.0,
-       -36.25,
-       -0.0
-      ],
-      [
-       -33.0,
-       -34.25,
+       -57.5,
+       -49.5,
        -0.16
       ],
       [
-       -22.25,
-       -34.25,
-       2.4
+       -40.75,
+       -32.75,
+       -0.71
       ],
       [
-       -7.25,
-       -20.25,
-       2.4
+       -38.75,
+       -32.5,
+       -0.63
       ],
       [
-       -6.0,
-       -20.25,
-       2.31
+       4.5,
+       10.75,
+       0.47
       ],
       [
-       -5.0,
-       -18.0,
-       0.68
+       8.75,
+       10.75,
+       0.39
       ],
       [
-       6.25,
-       -6.75,
-       0.42
-      ],
-      [
-       17.25,
-       -6.75,
-       0.38
-      ],
-      [
+       20.5,
        22.5,
-       -1.5,
-       1.27
-      ],
-      [
-       24.0,
-       -1.5,
-       1.27
-      ],
-      [
-       29.75,
-       4.25,
        1.3
       ],
       [
-       29.75,
-       15.25,
+       23.5,
+       22.5,
        1.3
       ],
       [
-       30.5,
+       30.0,
        16.0,
-       1.81
+       1.42
       ],
       [
        33.5,
@@ -38132,24 +38168,29 @@
      ],
      "bravo": [
       [
-       29.0,
-       140.25,
-       3.16
+       30.75,
+       145.0,
+       3.3
       ],
       [
-       35.0,
-       134.25,
+       36.25,
+       139.5,
+       3.29
+      ],
+      [
+       36.5,
+       137.5,
+       3.24
+      ],
+      [
+       36.5,
+       134.0,
        3.13
       ],
       [
-       35.0,
-       130.0,
-       3.0
-      ],
-      [
        34.25,
-       128.75,
-       2.96
+       131.75,
+       3.06
       ],
       [
        34.5,
@@ -38199,24 +38240,24 @@
      ],
      "charlie": [
       [
-       92.5,
-       -94.75,
-       4.03
+       95.0,
+       -96.25,
+       4.22
       ],
       [
-       94.5,
-       -92.75,
-       3.94
+       97.0,
+       -94.25,
+       4.13
       ],
       [
-       94.5,
-       -82.0,
-       3.44
+       97.0,
+       -83.5,
+       3.57
       ],
       [
        91.25,
-       -78.75,
-       3.05
+       -77.75,
+       2.97
       ],
       [
        91.25,
@@ -38292,42 +38333,37 @@
     "flank_lanes": {
      "alfa": {
       "desc": "track C start -> warehouse yard S gate (P_SKLAD_S)",
-      "length_m": 145.78,
-      "extra_vs_primary_pct": 1.27,
+      "length_m": 139.75,
+      "extra_vs_primary_pct": 1.32,
       "via": [
        30.0,
        -4.0
       ],
       "waypoints": [
        [
-        -77.0,
-        -44.5,
-        -2.7
-       ],
-       [
-        -76.25,
-        -46.25,
-        -2.67
+        -75.0,
+        -43.5,
+        -2.54
        ],
        [
         -69.0,
-        -53.5,
-        -1.23
+        -49.5,
+        -1.67
        ],
        [
-        -54.75,
-        -53.5,
-        0.65
+        -57.25,
+        -49.5,
+        -0.13
        ],
        [
-        -51.0,
-        -49.75,
-        0.47
+        -49.0,
+        -41.25,
+        -0.56
        ],
        [
-        -44.25,
-        -49.75,
-        1.09
+        -35.75,
+        -41.25,
+        0.46
        ],
        [
         -31.5,
@@ -38403,37 +38439,27 @@
      },
      "bravo": {
       "desc": "E ring hedgerow -> field ramp -> rear yard -> RD3/D4",
-      "length_m": 160.05,
-      "extra_vs_primary_pct": 23.94,
+      "length_m": 164.95,
+      "extra_vs_primary_pct": 23.07,
       "via": [
        63.0,
        17.0
       ],
       "waypoints": [
        [
-        29.0,
-        140.25,
-        3.16
+        30.75,
+        145.0,
+        3.3
        ],
        [
-        29.0,
-        139.5,
-        3.15
+        30.75,
+        144.25,
+        3.28
        ],
        [
-        51.0,
-        117.5,
-        3.79
-       ],
-       [
-        51.0,
-        106.25,
-        3.41
-       ],
-       [
-        53.25,
-        104.0,
-        4.09
+        52.75,
+        122.25,
+        4.06
        ],
        [
         53.25,
@@ -38510,42 +38536,42 @@
      },
      "charlie": {
       "desc": "E ring from track C -> rear yard",
-      "length_m": 135.35,
-      "extra_vs_primary_pct": 3.87,
+      "length_m": 137.66,
+      "extra_vs_primary_pct": 3.82,
       "via": [
        58.5,
        0.0
       ],
       "waypoints": [
        [
-        92.5,
-        -94.75,
-        4.03
+        95.0,
+        -96.25,
+        4.22
        ],
        [
-        92.5,
-        -84.0,
-        3.5
+        95.0,
+        -85.5,
+        3.6
        ],
        [
-        94.5,
-        -82.0,
-        3.44
+        97.0,
+        -83.5,
+        3.57
        ],
        [
-        94.5,
-        -74.0,
-        2.87
+        97.0,
+        -76.75,
+        3.06
        ],
        [
-        87.0,
-        -66.5,
-        2.7
+        88.5,
+        -68.25,
+        2.8
        ],
        [
-        87.0,
-        -47.75,
-        2.01
+        88.5,
+        -49.25,
+        2.17
        ],
        [
         57.5,
@@ -38603,79 +38629,79 @@
    },
    "zone_dvur": {
     "rows_s": {
-     "alfa": 140.0,
+     "alfa": 142.0,
      "bravo": 92.0,
-     "charlie": 129.0
+     "charlie": 132.0
     },
     "distances_center_m": {
-     "alfa": 122.49,
+     "alfa": 124.76,
      "bravo": 126.67,
-     "charlie": 128.66
+     "charlie": 131.36
     },
     "distances_edge_m": {
-     "alfa": 111.64,
+     "alfa": 113.91,
      "bravo": 116.81,
-     "charlie": 116.54
+     "charlie": 119.24
     },
-    "mean_center_m": 125.94,
-    "mean_edge_m": 115.0,
+    "mean_center_m": 127.6,
+    "mean_edge_m": 116.66,
     "deviation_center_pct": {
-     "alfa": -2.74,
-     "bravo": 0.58,
-     "charlie": 2.16
+     "alfa": -2.22,
+     "bravo": -0.72,
+     "charlie": 2.95
     },
     "deviation_edge_pct": {
-     "alfa": -2.92,
-     "bravo": 1.58,
-     "charlie": 1.34
+     "alfa": -2.35,
+     "bravo": 0.14,
+     "charlie": 2.21
     },
-    "max_deviation_pct": 2.92,
+    "max_deviation_pct": 2.95,
     "run_time_s_edge": {
-     "alfa": 31.9,
+     "alfa": 32.55,
      "bravo": 33.38,
-     "charlie": 33.3
+     "charlie": 34.07
     },
     "sprint_time_s_edge": {
-     "alfa": 19.42,
+     "alfa": 19.81,
      "bravo": 20.32,
-     "charlie": 20.27
+     "charlie": 20.74
     },
     "primary_lanes": {
      "alfa": [
       [
-       -120.0,
-       -68.0,
-       -3.1
+       -122.0,
+       -68.75,
+       -3.05
       ],
       [
-       -116.25,
-       -71.75,
-       -2.95
+       -117.5,
+       -72.75,
+       -2.89
       ],
       [
-       -108.5,
-       -71.75,
-       -2.77
+       -110.75,
+       -72.75,
+       -2.73
       ],
       [
-       -106.75,
-       -70.75,
-       -2.84
+       -109.75,
+       -72.25,
+       -2.75
       ],
       [
-       -89.75,
-       -53.75,
-       -3.65
+       -87.0,
+       -49.75,
+       -3.46
       ],
       [
-       -54.75,
-       -53.5,
-       0.65
+       -57.5,
+       -49.5,
+       -0.16
       ],
       [
-       -41.5,
+       -48.25,
        -40.25,
-       -0.1
+       -0.71
       ],
       [
        -35.25,
@@ -38782,19 +38808,19 @@
      ],
      "charlie": [
       [
-       92.5,
-       -94.75,
-       4.03
+       95.0,
+       -96.25,
+       4.22
       ],
       [
-       81.0,
-       -95.0,
-       3.66
+       83.5,
+       -96.5,
+       3.86
       ],
       [
        57.25,
-       -71.25,
-       2.58
+       -70.25,
+       2.53
       ],
       [
        56.75,
@@ -38870,42 +38896,42 @@
     "flank_lanes": {
      "alfa": {
       "desc": "S ring path -> rear yard gate",
-      "length_m": 133.29,
-      "extra_vs_primary_pct": 8.82,
+      "length_m": 135.52,
+      "extra_vs_primary_pct": 8.62,
       "via": [
        -26.0,
        -55.5
       ],
       "waypoints": [
        [
-        -120.0,
-        -68.0,
-        -3.1
+        -122.0,
+        -68.75,
+        -3.05
        ],
        [
-        -112.5,
-        -68.0,
-        -3.19
+        -114.75,
+        -68.75,
+        -3.14
        ],
        [
-        -108.75,
-        -71.75,
-        -2.78
+        -110.75,
+        -72.75,
+        -2.73
        ],
        [
-        -107.5,
-        -71.75,
-        -2.74
+        -109.25,
+        -72.75,
+        -2.68
        ],
        [
-        -94.5,
-        -59.0,
-        -3.63
+        -96.5,
+        -60.25,
+        -3.62
        ],
        [
-        -29.25,
-        -58.75,
-        4.58
+        -30.5,
+        -60.0,
+        4.64
        ],
        [
         -26.0,
@@ -39041,38 +39067,38 @@
       ]
      },
      "charlie": {
-      "desc": "S ring path -> rear yard gate",
-      "length_m": 142.46,
-      "extra_vs_primary_pct": 10.73,
+      "desc": "S ring -> sunken lane (úvoz) -> north exit -> rear yard gate",
+      "length_m": 144.31,
+      "extra_vs_primary_pct": 9.86,
       "via": [
-       12.0,
-       -57.0
+       7.2,
+       -58.0
       ],
       "waypoints": [
        [
-        92.5,
-        -94.75,
-        4.03
+        95.0,
+        -96.25,
+        4.22
        ],
        [
-        80.75,
-        -95.0,
-        3.65
+        83.0,
+        -96.5,
+        3.84
        ],
        [
-        71.5,
-        -85.75,
-        3.26
+        68.75,
+        -82.25,
+        3.24
        ],
        [
-        70.5,
-        -85.75,
-        3.26
+        63.25,
+        -82.25,
+        3.23
        ],
        [
-        66.25,
-        -81.5,
-        3.22
+        62.25,
+        -81.25,
+        3.2
        ],
        [
         41.25,
@@ -39085,29 +39111,19 @@
         1.12
        ],
        [
-        11.5,
+        10.75,
         -61.5,
-        2.06
+        2.13
        ],
        [
-        9.5,
-        -59.5,
-        2.46
+        7.25,
+        -58.0,
+        2.86
        ],
        [
-        9.25,
-        -58.75,
-        2.94
-       ],
-       [
-        12.0,
-        -57.0,
-        3.0
-       ],
-       [
-        12.0,
-        -38.25,
-        1.78
+        10.25,
+        -36.5,
+        2.38
        ],
        [
         9.75,
@@ -39120,18 +39136,18 @@
         2.4
        ],
        [
-        2.0,
+        2.5,
         -37.25,
         2.4
        ],
        [
-        0.75,
-        -36.0,
+        1.75,
+        -36.5,
         2.4
        ],
        [
-        -2.75,
-        -35.5,
+        -1.0,
+        -36.5,
         2.4
        ],
        [
@@ -39147,52 +39163,58 @@
   "spine_samples": {
    "alfa": [
     [
-     87.0,
-     106.63,
-     143.95,
-     79.96
+     84.0,
+     102.21,
+     137.93,
+     73.94
     ],
     [
-     94.0,
-     103.85,
-     145.92,
-     81.93
+     89.0,
+     103.83,
+     139.56,
+     75.57
     ],
     [
-     99.0,
-     103.1,
-     148.26,
-     84.27
+     95.0,
+     103.64,
+     142.53,
+     78.54
     ],
     [
-     104.0,
-     103.7,
-     151.02,
-     87.03
+     100.0,
+     103.17,
+     145.56,
+     81.58
     ],
     [
-     109.0,
-     105.96,
-     154.52,
-     90.53
+     105.0,
+     103.88,
+     148.83,
+     84.84
     ],
     [
-     114.0,
-     109.8,
-     159.05,
-     95.06
+     110.0,
+     106.64,
+     153.27,
+     89.29
     ],
     [
-     119.0,
-     114.43,
-     163.49,
-     99.5
+     115.0,
+     110.6,
+     157.86,
+     93.87
     ],
     [
-     124.0,
-     118.06,
-     168.26,
-     104.27
+     120.0,
+     115.31,
+     162.85,
+     98.86
+    ],
+    [
+     125.0,
+     119.01,
+     167.67,
+     103.68
     ]
    ],
    "bravo": [
@@ -39257,10 +39279,16 @@
      162.72
     ],
     [
-     154.0,
-     137.11,
-     130.58,
-     182.11
+     142.0,
+     123.53,
+     117.73,
+     167.76
+    ],
+    [
+     158.0,
+     141.38,
+     134.67,
+     186.23
     ]
    ],
    "charlie": [
@@ -39295,22 +39323,22 @@
      106.46
     ],
     [
-     129.0,
-     171.92,
-     130.31,
-     128.66
+     130.0,
+     172.97,
+     132.05,
+     129.71
     ],
     [
-     134.0,
-     176.34,
-     132.8,
-     133.08
+     135.0,
+     177.18,
+     133.92,
+     133.92
     ],
     [
-     139.0,
-     180.69,
-     136.16,
-     137.49
+     140.0,
+     181.77,
+     137.08,
+     138.51
     ]
    ]
   },
@@ -39326,24 +39354,29 @@
    "primary": {
     "alfa": [
      [
-      -120.0,
-      -68.0,
-      -3.1
+      -122.0,
+      -68.75,
+      -3.05
      ],
      [
-      -118.25,
-      -66.25,
-      -3.15
+      -120.25,
+      -67.0,
+      -3.09
      ],
      [
-      -118.25,
-      -55.75,
-      -2.95
+      -120.25,
+      -56.75,
+      -2.89
      ],
      [
-      -115.25,
-      -52.75,
-      -3.04
+      -116.5,
+      -53.0,
+      -2.99
+     ],
+     [
+      -115.5,
+      -53.0,
+      -3.03
      ],
      [
       -111.5,
@@ -39403,24 +39436,24 @@
     ],
     "bravo": [
      [
-      29.0,
-      140.25,
-      3.16
+      30.75,
+      145.0,
+      3.3
      ],
      [
-      22.25,
-      133.5,
-      3.28
+      24.25,
+      138.5,
+      3.3
      ],
      [
-      21.0,
-      133.5,
-      3.42
+      22.75,
+      138.5,
+      3.51
      ],
      [
       -3.5,
-      109.0,
-      3.33
+      112.25,
+      3.42
      ],
      [
       -3.5,
@@ -39579,47 +39612,42 @@
    "flank": {
     "alfa": {
      "desc": "P_BANK_TERRACE ramp -> mill-race terrace -> RW stairs",
-     "length_m": 141.28,
-     "extra_vs_primary_pct": 4.85,
+     "length_m": 143.5,
+     "extra_vs_primary_pct": 4.91,
      "via": [
       -45.6,
       15.5
      ],
      "waypoints": [
       [
-       -120.0,
-       -68.0,
-       -3.1
+       -122.0,
+       -68.75,
+       -3.05
       ],
       [
-       -120.0,
-       -57.5,
-       -2.9
+       -122.0,
+       -58.5,
+       -2.84
       ],
       [
-       -117.0,
-       -54.75,
-       -2.99
+       -118.75,
+       -55.5,
+       -2.93
       ],
       [
-       -115.0,
-       -54.25,
-       -3.06
-      ],
-      [
-       -111.0,
-       -50.25,
-       -3.17
-      ],
-      [
-       -104.5,
-       -43.5,
-       -3.19
-      ],
-      [
-       -104.5,
-       -41.5,
+       -116.0,
+       -55.25,
        -3.03
+      ],
+      [
+       -105.75,
+       -44.75,
+       -3.2
+      ],
+      [
+       -105.75,
+       -42.75,
+       -3.09
       ],
       [
        -78.0,
@@ -39627,14 +39655,24 @@
        -1.59
       ],
       [
-       -76.0,
+       -74.5,
        -15.0,
-       -1.54
+       -1.5
+      ],
+      [
+       -47.25,
+       12.25,
+       0.65
+      ],
+      [
+       -47.25,
+       13.75,
+       1.53
       ],
       [
        -45.5,
        15.5,
-       1.13
+       1.3
       ],
       [
        -41.5,
@@ -39670,7 +39708,7 @@
     },
     "bravo": {
      "desc": "footbridge B -> west bank -> gable door DL_D3",
-     "length_m": 135.13,
+     "length_m": 140.28,
      "extra_vs_primary_pct": -0.06,
      "via": [
       -19.5,
@@ -39678,28 +39716,23 @@
      ],
      "waypoints": [
       [
-       29.0,
-       140.25,
-       3.16
+       30.75,
+       145.0,
+       3.3
       ],
       [
-       27.0,
-       139.5,
-       3.13
+       28.5,
+       144.25,
+       3.25
       ],
       [
-       6.0,
-       118.25,
-       3.26
+       7.5,
+       123.25,
+       3.29
       ],
       [
-       6.0,
-       86.75,
-       2.16
-      ],
-      [
-       5.75,
-       84.75,
+       7.25,
+       86.25,
        2.1
       ],
       [
@@ -39861,94 +39894,54 @@
    "primary": {
     "alfa": [
      [
-      -77.0,
-      -44.5,
-      -2.7
-     ],
-     [
-      -69.5,
-      -52.0,
-      -1.48
+      -75.0,
+      -43.5,
+      -2.54
      ],
      [
       -69.0,
-      -53.5,
-      -1.23
+      -49.5,
+      -1.67
      ],
      [
-      -54.75,
-      -53.5,
-      0.65
-     ],
-     [
-      -38.75,
-      -37.5,
-      -0.11
-     ],
-     [
-      -35.0,
-      -36.25,
-      -0.0
-     ],
-     [
-      -33.0,
-      -34.25,
+      -57.5,
+      -49.5,
       -0.16
      ],
      [
-      -22.25,
-      -34.25,
-      2.4
+      -40.75,
+      -32.75,
+      -0.71
      ],
      [
-      -7.25,
-      -20.25,
-      2.4
+      -38.75,
+      -32.5,
+      -0.63
      ],
      [
-      -6.0,
-      -20.25,
-      2.31
+      4.5,
+      10.75,
+      0.47
      ],
      [
-      -5.0,
-      -18.0,
-      0.68
+      8.75,
+      10.75,
+      0.39
      ],
      [
-      6.25,
-      -6.75,
-      0.42
-     ],
-     [
-      17.25,
-      -6.75,
-      0.38
-     ],
-     [
+      20.5,
       22.5,
-      -1.5,
-      1.27
-     ],
-     [
-      24.0,
-      -1.5,
-      1.27
-     ],
-     [
-      29.75,
-      4.25,
       1.3
      ],
      [
-      29.75,
-      15.25,
+      23.5,
+      22.5,
       1.3
      ],
      [
-      30.5,
+      30.0,
       16.0,
-      1.81
+      1.42
      ],
      [
       33.5,
@@ -39958,24 +39951,29 @@
     ],
     "bravo": [
      [
-      29.0,
-      140.25,
-      3.16
+      30.75,
+      145.0,
+      3.3
      ],
      [
-      35.0,
-      134.25,
+      36.25,
+      139.5,
+      3.29
+     ],
+     [
+      36.5,
+      137.5,
+      3.24
+     ],
+     [
+      36.5,
+      134.0,
       3.13
      ],
      [
-      35.0,
-      130.0,
-      3.0
-     ],
-     [
       34.25,
-      128.75,
-      2.96
+      131.75,
+      3.06
      ],
      [
       34.5,
@@ -40025,24 +40023,24 @@
     ],
     "charlie": [
      [
-      92.5,
-      -94.75,
-      4.03
+      95.0,
+      -96.25,
+      4.22
      ],
      [
-      94.5,
-      -92.75,
-      3.94
+      97.0,
+      -94.25,
+      4.13
      ],
      [
-      94.5,
-      -82.0,
-      3.44
+      97.0,
+      -83.5,
+      3.57
      ],
      [
       91.25,
-      -78.75,
-      3.05
+      -77.75,
+      2.97
      ],
      [
       91.25,
@@ -40114,42 +40112,37 @@
    "flank": {
     "alfa": {
      "desc": "track C start -> warehouse yard S gate (P_SKLAD_S)",
-     "length_m": 145.78,
-     "extra_vs_primary_pct": 1.27,
+     "length_m": 139.75,
+     "extra_vs_primary_pct": 1.32,
      "via": [
       30.0,
       -4.0
      ],
      "waypoints": [
       [
-       -77.0,
-       -44.5,
-       -2.7
-      ],
-      [
-       -76.25,
-       -46.25,
-       -2.67
+       -75.0,
+       -43.5,
+       -2.54
       ],
       [
        -69.0,
-       -53.5,
-       -1.23
+       -49.5,
+       -1.67
       ],
       [
-       -54.75,
-       -53.5,
-       0.65
+       -57.25,
+       -49.5,
+       -0.13
       ],
       [
-       -51.0,
-       -49.75,
-       0.47
+       -49.0,
+       -41.25,
+       -0.56
       ],
       [
-       -44.25,
-       -49.75,
-       1.09
+       -35.75,
+       -41.25,
+       0.46
       ],
       [
        -31.5,
@@ -40225,37 +40218,27 @@
     },
     "bravo": {
      "desc": "E ring hedgerow -> field ramp -> rear yard -> RD3/D4",
-     "length_m": 160.05,
-     "extra_vs_primary_pct": 23.94,
+     "length_m": 164.95,
+     "extra_vs_primary_pct": 23.07,
      "via": [
       63.0,
       17.0
      ],
      "waypoints": [
       [
-       29.0,
-       140.25,
-       3.16
+       30.75,
+       145.0,
+       3.3
       ],
       [
-       29.0,
-       139.5,
-       3.15
+       30.75,
+       144.25,
+       3.28
       ],
       [
-       51.0,
-       117.5,
-       3.79
-      ],
-      [
-       51.0,
-       106.25,
-       3.41
-      ],
-      [
-       53.25,
-       104.0,
-       4.09
+       52.75,
+       122.25,
+       4.06
       ],
       [
        53.25,
@@ -40332,42 +40315,42 @@
     },
     "charlie": {
      "desc": "E ring from track C -> rear yard",
-     "length_m": 135.35,
-     "extra_vs_primary_pct": 3.87,
+     "length_m": 137.66,
+     "extra_vs_primary_pct": 3.82,
      "via": [
       58.5,
       0.0
      ],
      "waypoints": [
       [
-       92.5,
-       -94.75,
-       4.03
+       95.0,
+       -96.25,
+       4.22
       ],
       [
-       92.5,
-       -84.0,
-       3.5
+       95.0,
+       -85.5,
+       3.6
       ],
       [
-       94.5,
-       -82.0,
-       3.44
+       97.0,
+       -83.5,
+       3.57
       ],
       [
-       94.5,
-       -74.0,
-       2.87
+       97.0,
+       -76.75,
+       3.06
       ],
       [
-       87.0,
-       -66.5,
-       2.7
+       88.5,
+       -68.25,
+       2.8
       ],
       [
-       87.0,
-       -47.75,
-       2.01
+       88.5,
+       -49.25,
+       2.17
       ],
       [
        57.5,
@@ -40427,39 +40410,39 @@
    "primary": {
     "alfa": [
      [
-      -120.0,
-      -68.0,
-      -3.1
+      -122.0,
+      -68.75,
+      -3.05
      ],
      [
-      -116.25,
-      -71.75,
-      -2.95
+      -117.5,
+      -72.75,
+      -2.89
      ],
      [
-      -108.5,
-      -71.75,
-      -2.77
+      -110.75,
+      -72.75,
+      -2.73
      ],
      [
-      -106.75,
-      -70.75,
-      -2.84
+      -109.75,
+      -72.25,
+      -2.75
      ],
      [
-      -89.75,
-      -53.75,
-      -3.65
+      -87.0,
+      -49.75,
+      -3.46
      ],
      [
-      -54.75,
-      -53.5,
-      0.65
+      -57.5,
+      -49.5,
+      -0.16
      ],
      [
-      -41.5,
+      -48.25,
       -40.25,
-      -0.1
+      -0.71
      ],
      [
       -35.25,
@@ -40566,19 +40549,19 @@
     ],
     "charlie": [
      [
-      92.5,
-      -94.75,
-      4.03
+      95.0,
+      -96.25,
+      4.22
      ],
      [
-      81.0,
-      -95.0,
-      3.66
+      83.5,
+      -96.5,
+      3.86
      ],
      [
       57.25,
-      -71.25,
-      2.58
+      -70.25,
+      2.53
      ],
      [
       56.75,
@@ -40650,42 +40633,42 @@
    "flank": {
     "alfa": {
      "desc": "S ring path -> rear yard gate",
-     "length_m": 133.29,
-     "extra_vs_primary_pct": 8.82,
+     "length_m": 135.52,
+     "extra_vs_primary_pct": 8.62,
      "via": [
       -26.0,
       -55.5
      ],
      "waypoints": [
       [
-       -120.0,
-       -68.0,
-       -3.1
+       -122.0,
+       -68.75,
+       -3.05
       ],
       [
-       -112.5,
-       -68.0,
-       -3.19
+       -114.75,
+       -68.75,
+       -3.14
       ],
       [
-       -108.75,
-       -71.75,
-       -2.78
+       -110.75,
+       -72.75,
+       -2.73
       ],
       [
-       -107.5,
-       -71.75,
-       -2.74
+       -109.25,
+       -72.75,
+       -2.68
       ],
       [
-       -94.5,
-       -59.0,
-       -3.63
+       -96.5,
+       -60.25,
+       -3.62
       ],
       [
-       -29.25,
-       -58.75,
-       4.58
+       -30.5,
+       -60.0,
+       4.64
       ],
       [
        -26.0,
@@ -40821,38 +40804,38 @@
      ]
     },
     "charlie": {
-     "desc": "S ring path -> rear yard gate",
-     "length_m": 142.46,
-     "extra_vs_primary_pct": 10.73,
+     "desc": "S ring -> sunken lane (úvoz) -> north exit -> rear yard gate",
+     "length_m": 144.31,
+     "extra_vs_primary_pct": 9.86,
      "via": [
-      12.0,
-      -57.0
+      7.2,
+      -58.0
      ],
      "waypoints": [
       [
-       92.5,
-       -94.75,
-       4.03
+       95.0,
+       -96.25,
+       4.22
       ],
       [
-       80.75,
-       -95.0,
-       3.65
+       83.0,
+       -96.5,
+       3.84
       ],
       [
-       71.5,
-       -85.75,
-       3.26
+       68.75,
+       -82.25,
+       3.24
       ],
       [
-       70.5,
-       -85.75,
-       3.26
+       63.25,
+       -82.25,
+       3.23
       ],
       [
-       66.25,
-       -81.5,
-       3.22
+       62.25,
+       -81.25,
+       3.2
       ],
       [
        41.25,
@@ -40865,29 +40848,19 @@
        1.12
       ],
       [
-       11.5,
+       10.75,
        -61.5,
-       2.06
+       2.13
       ],
       [
-       9.5,
-       -59.5,
-       2.46
+       7.25,
+       -58.0,
+       2.86
       ],
       [
-       9.25,
-       -58.75,
-       2.94
-      ],
-      [
-       12.0,
-       -57.0,
-       3.0
-      ],
-      [
-       12.0,
-       -38.25,
-       1.78
+       10.25,
+       -36.5,
+       2.38
       ],
       [
        9.75,
@@ -40900,18 +40873,18 @@
        2.4
       ],
       [
-       2.0,
+       2.5,
        -37.25,
        2.4
       ],
       [
-       0.75,
-       -36.0,
+       1.75,
+       -36.5,
        2.4
       ],
       [
-       -2.75,
-       -35.5,
+       -1.0,
+       -36.5,
        2.4
       ],
       [
@@ -41847,9 +41820,9 @@
    },
    {
     "pos": [
-     -46.38,
-     25.49,
-     2.88
+     -44.86,
+     24.62,
+     3.13
     ],
     "facing": [
      0.866,
@@ -41869,8 +41842,8 @@
    },
    {
     "pos": [
-     -46.08,
-     23.81,
+     -44.56,
+     22.94,
      3.13
     ],
     "facing": [
@@ -41891,30 +41864,8 @@
    },
    {
     "pos": [
-     -44.58,
-     24.21,
-     3.13
-    ],
-    "facing": [
-     -0.866,
-     0.5
-    ],
-    "facing_deg": 60.0,
-    "height": "low",
-    "peek": "left",
-    "capacity": 1,
-    "kind": "object",
-    "object": "P_DL_11",
-    "zones": [
-     "zone_dilna"
-    ],
-    "inside_zone": [],
-    "id": "CP0041"
-   },
-   {
-    "pos": [
-     -44.88,
-     25.89,
+     -43.36,
+     25.02,
      3.13
     ],
     "facing": [
@@ -41931,7 +41882,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0042"
+    "id": "CP0041"
    },
    {
     "pos": [
@@ -41955,12 +41906,36 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0043"
+    "id": "CP0042"
    },
    {
     "pos": [
      24.18,
      10.47,
+     1.3
+    ],
+    "facing": [
+     -1.0,
+     0.0
+    ],
+    "facing_deg": 90.0,
+    "height": "high",
+    "peek": "none",
+    "capacity": 1,
+    "kind": "object",
+    "object": "P_SK_1",
+    "zones": [
+     "zone_sklad"
+    ],
+    "inside_zone": [
+     "zone_sklad"
+    ],
+    "id": "CP0043"
+   },
+   {
+    "pos": [
+     24.18,
+     12.05,
      1.3
     ],
     "facing": [
@@ -41984,7 +41959,7 @@
    {
     "pos": [
      24.18,
-     12.05,
+     13.62,
      1.3
     ],
     "facing": [
@@ -42008,7 +41983,7 @@
    {
     "pos": [
      24.18,
-     13.62,
+     15.2,
      1.3
     ],
     "facing": [
@@ -42032,7 +42007,7 @@
    {
     "pos": [
      24.18,
-     15.2,
+     16.77,
      1.3
     ],
     "facing": [
@@ -42056,7 +42031,7 @@
    {
     "pos": [
      24.18,
-     16.77,
+     18.35,
      1.3
     ],
     "facing": [
@@ -42080,7 +42055,7 @@
    {
     "pos": [
      24.18,
-     18.35,
+     19.93,
      1.3
     ],
     "facing": [
@@ -42104,30 +42079,6 @@
    {
     "pos": [
      24.18,
-     19.93,
-     1.3
-    ],
-    "facing": [
-     -1.0,
-     0.0
-    ],
-    "facing_deg": 90.0,
-    "height": "high",
-    "peek": "none",
-    "capacity": 1,
-    "kind": "object",
-    "object": "P_SK_1",
-    "zones": [
-     "zone_sklad"
-    ],
-    "inside_zone": [
-     "zone_sklad"
-    ],
-    "id": "CP0050"
-   },
-   {
-    "pos": [
-     24.18,
      21.5,
      1.3
     ],
@@ -42147,7 +42098,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0051"
+    "id": "CP0050"
    },
    {
     "pos": [
@@ -42169,7 +42120,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0052"
+    "id": "CP0051"
    },
    {
     "pos": [
@@ -42191,7 +42142,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0053"
+    "id": "CP0052"
    },
    {
     "pos": [
@@ -42213,7 +42164,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0054"
+    "id": "CP0053"
    },
    {
     "pos": [
@@ -42235,7 +42186,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0055"
+    "id": "CP0054"
    },
    {
     "pos": [
@@ -42257,7 +42208,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0056"
+    "id": "CP0055"
    },
    {
     "pos": [
@@ -42279,7 +42230,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0057"
+    "id": "CP0056"
    },
    {
     "pos": [
@@ -42301,7 +42252,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0058"
+    "id": "CP0057"
    },
    {
     "pos": [
@@ -42323,7 +42274,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0059"
+    "id": "CP0058"
    },
    {
     "pos": [
@@ -42345,7 +42296,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0060"
+    "id": "CP0059"
    },
    {
     "pos": [
@@ -42367,7 +42318,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0061"
+    "id": "CP0060"
    },
    {
     "pos": [
@@ -42389,7 +42340,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0062"
+    "id": "CP0061"
    },
    {
     "pos": [
@@ -42411,11 +42362,33 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0063"
+    "id": "CP0062"
    },
    {
     "pos": [
      16.36,
+     28.78,
+     1.3
+    ],
+    "facing": [
+     -0.0,
+     1.0
+    ],
+    "facing_deg": 0.0,
+    "height": "high",
+    "peek": "none",
+    "capacity": 1,
+    "kind": "object",
+    "object": "P_SK_2",
+    "zones": [
+     "zone_sklad"
+    ],
+    "inside_zone": [],
+    "id": "CP0063"
+   },
+   {
+    "pos": [
+     18.04,
      28.78,
      1.3
     ],
@@ -42437,28 +42410,6 @@
    },
    {
     "pos": [
-     18.04,
-     28.78,
-     1.3
-    ],
-    "facing": [
-     -0.0,
-     1.0
-    ],
-    "facing_deg": 0.0,
-    "height": "high",
-    "peek": "none",
-    "capacity": 1,
-    "kind": "object",
-    "object": "P_SK_2",
-    "zones": [
-     "zone_sklad"
-    ],
-    "inside_zone": [],
-    "id": "CP0065"
-   },
-   {
-    "pos": [
      19.73,
      28.78,
      1.3
@@ -42477,7 +42428,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0066"
+    "id": "CP0065"
    },
    {
     "pos": [
@@ -42499,7 +42450,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0067"
+    "id": "CP0066"
    },
    {
     "pos": [
@@ -42521,7 +42472,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0068"
+    "id": "CP0067"
    },
    {
     "pos": [
@@ -42543,7 +42494,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0069"
+    "id": "CP0068"
    },
    {
     "pos": [
@@ -42565,7 +42516,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0070"
+    "id": "CP0069"
    },
    {
     "pos": [
@@ -42587,7 +42538,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0071"
+    "id": "CP0070"
    },
    {
     "pos": [
@@ -42609,7 +42560,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0072"
+    "id": "CP0071"
    },
    {
     "pos": [
@@ -42633,7 +42584,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0073"
+    "id": "CP0072"
    },
    {
     "pos": [
@@ -42657,7 +42608,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0074"
+    "id": "CP0073"
    },
    {
     "pos": [
@@ -42681,7 +42632,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0075"
+    "id": "CP0074"
    },
    {
     "pos": [
@@ -42705,7 +42656,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0076"
+    "id": "CP0075"
    },
    {
     "pos": [
@@ -42727,7 +42678,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0077"
+    "id": "CP0076"
    },
    {
     "pos": [
@@ -42749,7 +42700,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0078"
+    "id": "CP0077"
    },
    {
     "pos": [
@@ -42771,7 +42722,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0079"
+    "id": "CP0078"
    },
    {
     "pos": [
@@ -42793,7 +42744,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0080"
+    "id": "CP0079"
    },
    {
     "pos": [
@@ -42817,7 +42768,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0081"
+    "id": "CP0080"
    },
    {
     "pos": [
@@ -42841,7 +42792,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0082"
+    "id": "CP0081"
    },
    {
     "pos": [
@@ -42865,7 +42816,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0083"
+    "id": "CP0082"
    },
    {
     "pos": [
@@ -42889,7 +42840,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0084"
+    "id": "CP0083"
    },
    {
     "pos": [
@@ -42911,7 +42862,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0085"
+    "id": "CP0084"
    },
    {
     "pos": [
@@ -42933,7 +42884,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0086"
+    "id": "CP0085"
    },
    {
     "pos": [
@@ -42955,7 +42906,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0087"
+    "id": "CP0086"
    },
    {
     "pos": [
@@ -42977,7 +42928,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0088"
+    "id": "CP0087"
    },
    {
     "pos": [
@@ -42999,7 +42950,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0089"
+    "id": "CP0088"
    },
    {
     "pos": [
@@ -43021,7 +42972,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0090"
+    "id": "CP0089"
    },
    {
     "pos": [
@@ -43043,7 +42994,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0091"
+    "id": "CP0090"
    },
    {
     "pos": [
@@ -43065,7 +43016,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0092"
+    "id": "CP0091"
    },
    {
     "pos": [
@@ -43087,7 +43038,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0093"
+    "id": "CP0092"
    },
    {
     "pos": [
@@ -43109,7 +43060,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0094"
+    "id": "CP0093"
    },
    {
     "pos": [
@@ -43131,7 +43082,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0095"
+    "id": "CP0094"
    },
    {
     "pos": [
@@ -43153,7 +43104,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0096"
+    "id": "CP0095"
    },
    {
     "pos": [
@@ -43175,7 +43126,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0097"
+    "id": "CP0096"
    },
    {
     "pos": [
@@ -43197,7 +43148,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0098"
+    "id": "CP0097"
    },
    {
     "pos": [
@@ -43219,7 +43170,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0099"
+    "id": "CP0098"
    },
    {
     "pos": [
@@ -43241,7 +43192,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0100"
+    "id": "CP0099"
    },
    {
     "pos": [
@@ -43263,7 +43214,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0101"
+    "id": "CP0100"
    },
    {
     "pos": [
@@ -43285,7 +43236,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0102"
+    "id": "CP0101"
    },
    {
     "pos": [
@@ -43307,7 +43258,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0103"
+    "id": "CP0102"
    },
    {
     "pos": [
@@ -43329,7 +43280,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0104"
+    "id": "CP0103"
    },
    {
     "pos": [
@@ -43351,7 +43302,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0105"
+    "id": "CP0104"
    },
    {
     "pos": [
@@ -43373,7 +43324,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0106"
+    "id": "CP0105"
    },
    {
     "pos": [
@@ -43395,7 +43346,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0107"
+    "id": "CP0106"
    },
    {
     "pos": [
@@ -43417,7 +43368,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0108"
+    "id": "CP0107"
    },
    {
     "pos": [
@@ -43439,7 +43390,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0109"
+    "id": "CP0108"
    },
    {
     "pos": [
@@ -43461,7 +43412,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0110"
+    "id": "CP0109"
    },
    {
     "pos": [
@@ -43483,7 +43434,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0111"
+    "id": "CP0110"
    },
    {
     "pos": [
@@ -43505,7 +43456,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0112"
+    "id": "CP0111"
    },
    {
     "pos": [
@@ -43527,7 +43478,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0113"
+    "id": "CP0112"
    },
    {
     "pos": [
@@ -43549,7 +43500,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0114"
+    "id": "CP0113"
    },
    {
     "pos": [
@@ -43571,7 +43522,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0115"
+    "id": "CP0114"
    },
    {
     "pos": [
@@ -43593,7 +43544,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0116"
+    "id": "CP0115"
    },
    {
     "pos": [
@@ -43615,7 +43566,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0117"
+    "id": "CP0116"
    },
    {
     "pos": [
@@ -43637,7 +43588,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0118"
+    "id": "CP0117"
    },
    {
     "pos": [
@@ -43661,7 +43612,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0119"
+    "id": "CP0118"
    },
    {
     "pos": [
@@ -43685,7 +43636,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0120"
+    "id": "CP0119"
    },
    {
     "pos": [
@@ -43709,7 +43660,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0121"
+    "id": "CP0120"
    },
    {
     "pos": [
@@ -43733,7 +43684,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0122"
+    "id": "CP0121"
    },
    {
     "pos": [
@@ -43755,7 +43706,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0123"
+    "id": "CP0122"
    },
    {
     "pos": [
@@ -43777,7 +43728,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0124"
+    "id": "CP0123"
    },
    {
     "pos": [
@@ -43799,7 +43750,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0125"
+    "id": "CP0124"
    },
    {
     "pos": [
@@ -43821,7 +43772,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0126"
+    "id": "CP0125"
    },
    {
     "pos": [
@@ -43843,7 +43794,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0127"
+    "id": "CP0126"
    },
    {
     "pos": [
@@ -43865,7 +43816,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0128"
+    "id": "CP0127"
    },
    {
     "pos": [
@@ -43887,7 +43838,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0129"
+    "id": "CP0128"
    },
    {
     "pos": [
@@ -43909,7 +43860,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0130"
+    "id": "CP0129"
    },
    {
     "pos": [
@@ -43931,7 +43882,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0131"
+    "id": "CP0130"
    },
    {
     "pos": [
@@ -43953,7 +43904,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0132"
+    "id": "CP0131"
    },
    {
     "pos": [
@@ -43975,7 +43926,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0133"
+    "id": "CP0132"
    },
    {
     "pos": [
@@ -43997,7 +43948,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0134"
+    "id": "CP0133"
    },
    {
     "pos": [
@@ -44019,7 +43970,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0135"
+    "id": "CP0134"
    },
    {
     "pos": [
@@ -44041,12 +43992,12 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0136"
+    "id": "CP0135"
    },
    {
     "pos": [
-     -9.16,
-     -49.44,
+     -8.84,
+     -50.51,
      2.4
     ],
     "facing": [
@@ -44063,12 +44014,34 @@
      "zone_dvur"
     ],
     "inside_zone": [],
+    "id": "CP0136"
+   },
+   {
+    "pos": [
+     -7.2,
+     -50.8,
+     2.4
+    ],
+    "facing": [
+     0.174,
+     0.985
+    ],
+    "facing_deg": 350.0,
+    "height": "low",
+    "peek": "over",
+    "capacity": 1,
+    "kind": "object",
+    "object": "P_DM_10",
+    "zones": [
+     "zone_dvur"
+    ],
+    "inside_zone": [],
     "id": "CP0137"
    },
    {
     "pos": [
-     -7.52,
-     -49.73,
+     -5.55,
+     -51.09,
      2.4
     ],
     "facing": [
@@ -44089,52 +44062,8 @@
    },
    {
     "pos": [
-     -5.87,
-     -50.02,
-     2.4
-    ],
-    "facing": [
-     0.174,
-     0.985
-    ],
-    "facing_deg": 350.0,
-    "height": "low",
-    "peek": "over",
-    "capacity": 1,
-    "kind": "object",
-    "object": "P_DM_10",
-    "zones": [
-     "zone_dvur"
-    ],
-    "inside_zone": [],
-    "id": "CP0139"
-   },
-   {
-    "pos": [
-     -4.23,
-     -50.31,
-     2.4
-    ],
-    "facing": [
-     0.174,
-     0.985
-    ],
-    "facing_deg": 350.0,
-    "height": "low",
-    "peek": "right",
-    "capacity": 1,
-    "kind": "object",
-    "object": "P_DM_10",
-    "zones": [
-     "zone_dvur"
-    ],
-    "inside_zone": [],
-    "id": "CP0140"
-   },
-   {
-    "pos": [
-     -2.96,
-     -49.42,
+     -2.64,
+     -50.49,
      2.4
     ],
     "facing": [
@@ -44151,12 +44080,12 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0141"
+    "id": "CP0139"
    },
    {
     "pos": [
-     -3.64,
-     -46.96,
+     -3.32,
+     -48.03,
      2.4
     ],
     "facing": [
@@ -44173,57 +44102,57 @@
      "zone_dvur"
     ],
     "inside_zone": [],
+    "id": "CP0140"
+   },
+   {
+    "pos": [
+     -4.96,
+     -47.74,
+     2.4
+    ],
+    "facing": [
+     -0.174,
+     -0.985
+    ],
+    "facing_deg": 170.0,
+    "height": "low",
+    "peek": "over",
+    "capacity": 1,
+    "kind": "object",
+    "object": "P_DM_10",
+    "zones": [
+     "zone_dvur"
+    ],
+    "inside_zone": [],
+    "id": "CP0141"
+   },
+   {
+    "pos": [
+     -6.61,
+     -47.45,
+     2.4
+    ],
+    "facing": [
+     -0.174,
+     -0.985
+    ],
+    "facing_deg": 170.0,
+    "height": "low",
+    "peek": "over",
+    "capacity": 1,
+    "kind": "object",
+    "object": "P_DM_10",
+    "zones": [
+     "zone_dvur"
+    ],
+    "inside_zone": [],
     "id": "CP0142"
    },
    {
     "pos": [
-     -5.28,
-     -46.67,
+     -8.25,
+     -47.16,
      2.4
-    ],
-    "facing": [
-     -0.174,
-     -0.985
-    ],
-    "facing_deg": 170.0,
-    "height": "low",
-    "peek": "over",
-    "capacity": 1,
-    "kind": "object",
-    "object": "P_DM_10",
-    "zones": [
-     "zone_dvur"
-    ],
-    "inside_zone": [],
-    "id": "CP0143"
-   },
-   {
-    "pos": [
-     -6.93,
-     -46.38,
-     2.4
-    ],
-    "facing": [
-     -0.174,
-     -0.985
-    ],
-    "facing_deg": 170.0,
-    "height": "low",
-    "peek": "over",
-    "capacity": 1,
-    "kind": "object",
-    "object": "P_DM_10",
-    "zones": [
-     "zone_dvur"
-    ],
-    "inside_zone": [],
-    "id": "CP0144"
-   },
-   {
-    "pos": [
-     -8.57,
-     -46.09,
-     2.9
     ],
     "facing": [
      -0.174,
@@ -44239,12 +44168,12 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0145"
+    "id": "CP0143"
    },
    {
     "pos": [
-     -9.84,
-     -46.98,
+     -9.52,
+     -48.05,
      2.4
     ],
     "facing": [
@@ -44261,7 +44190,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0146"
+    "id": "CP0144"
    },
    {
     "pos": [
@@ -44283,7 +44212,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0147"
+    "id": "CP0145"
    },
    {
     "pos": [
@@ -44305,7 +44234,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0148"
+    "id": "CP0146"
    },
    {
     "pos": [
@@ -44327,7 +44256,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0149"
+    "id": "CP0147"
    },
    {
     "pos": [
@@ -44349,7 +44278,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0150"
+    "id": "CP0148"
    },
    {
     "pos": [
@@ -44371,7 +44300,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0151"
+    "id": "CP0149"
    },
    {
     "pos": [
@@ -44393,7 +44322,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0152"
+    "id": "CP0150"
    },
    {
     "pos": [
@@ -44415,7 +44344,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0153"
+    "id": "CP0151"
    },
    {
     "pos": [
@@ -44437,7 +44366,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0154"
+    "id": "CP0152"
    },
    {
     "pos": [
@@ -44459,7 +44388,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0155"
+    "id": "CP0153"
    },
    {
     "pos": [
@@ -44481,7 +44410,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0156"
+    "id": "CP0154"
    },
    {
     "pos": [
@@ -44503,7 +44432,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0157"
+    "id": "CP0155"
    },
    {
     "pos": [
@@ -44525,7 +44454,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0158"
+    "id": "CP0156"
    },
    {
     "pos": [
@@ -44547,7 +44476,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0159"
+    "id": "CP0157"
    },
    {
     "pos": [
@@ -44569,7 +44498,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0160"
+    "id": "CP0158"
    },
    {
     "pos": [
@@ -44591,7 +44520,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0161"
+    "id": "CP0159"
    },
    {
     "pos": [
@@ -44613,7 +44542,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0162"
+    "id": "CP0160"
    },
    {
     "pos": [
@@ -44636,7 +44565,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0163"
+    "id": "CP0161"
    },
    {
     "pos": [
@@ -44659,7 +44588,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0164"
+    "id": "CP0162"
    },
    {
     "pos": [
@@ -44682,7 +44611,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0165"
+    "id": "CP0163"
    },
    {
     "pos": [
@@ -44705,7 +44634,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0166"
+    "id": "CP0164"
    },
    {
     "pos": [
@@ -44728,7 +44657,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0167"
+    "id": "CP0165"
    },
    {
     "pos": [
@@ -44751,7 +44680,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0168"
+    "id": "CP0166"
    },
    {
     "pos": [
@@ -44774,7 +44703,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0169"
+    "id": "CP0167"
    },
    {
     "pos": [
@@ -44797,7 +44726,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0170"
+    "id": "CP0168"
    },
    {
     "pos": [
@@ -44820,7 +44749,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0171"
+    "id": "CP0169"
    },
    {
     "pos": [
@@ -44843,7 +44772,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0172"
+    "id": "CP0170"
    },
    {
     "pos": [
@@ -44866,7 +44795,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0173"
+    "id": "CP0171"
    },
    {
     "pos": [
@@ -44889,7 +44818,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0174"
+    "id": "CP0172"
    },
    {
     "pos": [
@@ -44911,7 +44840,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0175"
+    "id": "CP0173"
    },
    {
     "pos": [
@@ -44933,7 +44862,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0176"
+    "id": "CP0174"
    },
    {
     "pos": [
@@ -44955,7 +44884,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0177"
+    "id": "CP0175"
    },
    {
     "pos": [
@@ -44978,7 +44907,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0178"
+    "id": "CP0176"
    },
    {
     "pos": [
@@ -45001,7 +44930,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0179"
+    "id": "CP0177"
    },
    {
     "pos": [
@@ -45024,7 +44953,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0180"
+    "id": "CP0178"
    },
    {
     "pos": [
@@ -45047,7 +44976,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0181"
+    "id": "CP0179"
    },
    {
     "pos": [
@@ -45070,7 +44999,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0182"
+    "id": "CP0180"
    },
    {
     "pos": [
@@ -45093,7 +45022,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0183"
+    "id": "CP0181"
    },
    {
     "pos": [
@@ -45116,7 +45045,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0184"
+    "id": "CP0182"
    },
    {
     "pos": [
@@ -45138,7 +45067,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0185"
+    "id": "CP0183"
    },
    {
     "pos": [
@@ -45160,7 +45089,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0186"
+    "id": "CP0184"
    },
    {
     "pos": [
@@ -45182,7 +45111,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0187"
+    "id": "CP0185"
    },
    {
     "pos": [
@@ -45204,7 +45133,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0188"
+    "id": "CP0186"
    },
    {
     "pos": [
@@ -45226,7 +45155,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0189"
+    "id": "CP0187"
    },
    {
     "pos": [
@@ -45248,7 +45177,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0190"
+    "id": "CP0188"
    },
    {
     "pos": [
@@ -45270,7 +45199,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0191"
+    "id": "CP0189"
    },
    {
     "pos": [
@@ -45292,7 +45221,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0192"
+    "id": "CP0190"
    },
    {
     "pos": [
@@ -45315,7 +45244,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0193"
+    "id": "CP0191"
    },
    {
     "pos": [
@@ -45338,7 +45267,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0194"
+    "id": "CP0192"
    },
    {
     "pos": [
@@ -45361,7 +45290,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0195"
+    "id": "CP0193"
    },
    {
     "pos": [
@@ -45384,7 +45313,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0196"
+    "id": "CP0194"
    },
    {
     "pos": [
@@ -45407,7 +45336,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0197"
+    "id": "CP0195"
    },
    {
     "pos": [
@@ -45430,7 +45359,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0198"
+    "id": "CP0196"
    },
    {
     "pos": [
@@ -45453,7 +45382,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0199"
+    "id": "CP0197"
    },
    {
     "pos": [
@@ -45476,7 +45405,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0200"
+    "id": "CP0198"
    },
    {
     "pos": [
@@ -45499,7 +45428,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0201"
+    "id": "CP0199"
    },
    {
     "pos": [
@@ -45522,7 +45451,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0202"
+    "id": "CP0200"
    },
    {
     "pos": [
@@ -45545,7 +45474,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0203"
+    "id": "CP0201"
    },
    {
     "pos": [
@@ -45568,7 +45497,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0204"
+    "id": "CP0202"
    },
    {
     "pos": [
@@ -45591,7 +45520,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0205"
+    "id": "CP0203"
    },
    {
     "pos": [
@@ -45614,7 +45543,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0206"
+    "id": "CP0204"
    },
    {
     "pos": [
@@ -45637,7 +45566,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0207"
+    "id": "CP0205"
    },
    {
     "pos": [
@@ -45659,7 +45588,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0208"
+    "id": "CP0206"
    },
    {
     "pos": [
@@ -45681,7 +45610,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0209"
+    "id": "CP0207"
    },
    {
     "pos": [
@@ -45703,7 +45632,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0210"
+    "id": "CP0208"
    },
    {
     "pos": [
@@ -45725,7 +45654,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0211"
+    "id": "CP0209"
    },
    {
     "pos": [
@@ -45747,7 +45676,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0212"
+    "id": "CP0210"
    },
    {
     "pos": [
@@ -45769,7 +45698,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0213"
+    "id": "CP0211"
    },
    {
     "pos": [
@@ -45791,7 +45720,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0214"
+    "id": "CP0212"
    },
    {
     "pos": [
@@ -45813,7 +45742,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0215"
+    "id": "CP0213"
    },
    {
     "pos": [
@@ -45835,7 +45764,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0216"
+    "id": "CP0214"
    },
    {
     "pos": [
@@ -45857,7 +45786,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0217"
+    "id": "CP0215"
    },
    {
     "pos": [
@@ -45879,7 +45808,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0218"
+    "id": "CP0216"
    },
    {
     "pos": [
@@ -45902,7 +45831,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0219"
+    "id": "CP0217"
    },
    {
     "pos": [
@@ -45925,7 +45854,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0220"
+    "id": "CP0218"
    },
    {
     "pos": [
@@ -45948,7 +45877,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0221"
+    "id": "CP0219"
    },
    {
     "pos": [
@@ -45971,7 +45900,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0222"
+    "id": "CP0220"
    },
    {
     "pos": [
@@ -45994,7 +45923,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0223"
+    "id": "CP0221"
    },
    {
     "pos": [
@@ -46017,7 +45946,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0224"
+    "id": "CP0222"
    },
    {
     "pos": [
@@ -46040,7 +45969,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0225"
+    "id": "CP0223"
    },
    {
     "pos": [
@@ -46063,7 +45992,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0226"
+    "id": "CP0224"
    },
    {
     "pos": [
@@ -46086,7 +46015,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0227"
+    "id": "CP0225"
    },
    {
     "pos": [
@@ -46109,7 +46038,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0228"
+    "id": "CP0226"
    },
    {
     "pos": [
@@ -46132,7 +46061,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0229"
+    "id": "CP0227"
    },
    {
     "pos": [
@@ -46155,7 +46084,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0230"
+    "id": "CP0228"
    },
    {
     "pos": [
@@ -46178,7 +46107,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0231"
+    "id": "CP0229"
    },
    {
     "pos": [
@@ -46200,7 +46129,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0232"
+    "id": "CP0230"
    },
    {
     "pos": [
@@ -46222,7 +46151,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0233"
+    "id": "CP0231"
    },
    {
     "pos": [
@@ -46244,7 +46173,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0234"
+    "id": "CP0232"
    },
    {
     "pos": [
@@ -46266,7 +46195,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0235"
+    "id": "CP0233"
    },
    {
     "pos": [
@@ -46288,7 +46217,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0236"
+    "id": "CP0234"
    },
    {
     "pos": [
@@ -46310,7 +46239,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0237"
+    "id": "CP0235"
    },
    {
     "pos": [
@@ -46332,7 +46261,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0238"
+    "id": "CP0236"
    },
    {
     "pos": [
@@ -46354,7 +46283,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0239"
+    "id": "CP0237"
    },
    {
     "pos": [
@@ -46376,7 +46305,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0240"
+    "id": "CP0238"
    },
    {
     "pos": [
@@ -46398,7 +46327,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0241"
+    "id": "CP0239"
    },
    {
     "pos": [
@@ -46420,7 +46349,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0242"
+    "id": "CP0240"
    },
    {
     "pos": [
@@ -46442,7 +46371,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0243"
+    "id": "CP0241"
    },
    {
     "pos": [
@@ -46464,7 +46393,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0244"
+    "id": "CP0242"
    },
    {
     "pos": [
@@ -46486,7 +46415,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0245"
+    "id": "CP0243"
    },
    {
     "pos": [
@@ -46508,7 +46437,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0246"
+    "id": "CP0244"
    },
    {
     "pos": [
@@ -46530,7 +46459,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0247"
+    "id": "CP0245"
    },
    {
     "pos": [
@@ -46552,7 +46481,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0248"
+    "id": "CP0246"
    },
    {
     "pos": [
@@ -46574,7 +46503,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0249"
+    "id": "CP0247"
    },
    {
     "pos": [
@@ -46596,7 +46525,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0250"
+    "id": "CP0248"
    },
    {
     "pos": [
@@ -46619,11 +46548,57 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0251"
+    "id": "CP0249"
    },
    {
     "pos": [
      14.75,
+     -0.25,
+     1.3
+    ],
+    "facing": [
+     0.0,
+     -1.0
+    ],
+    "facing_deg": 180.0,
+    "height": "low",
+    "peek": "over",
+    "capacity": 1,
+    "kind": "object",
+    "object": "LW_SKLAD_S",
+    "zones": [
+     "zone_sklad",
+     "zone_dvur"
+    ],
+    "inside_zone": [],
+    "id": "CP0250"
+   },
+   {
+    "pos": [
+     16.5,
+     -0.25,
+     1.3
+    ],
+    "facing": [
+     0.0,
+     -1.0
+    ],
+    "facing_deg": 180.0,
+    "height": "low",
+    "peek": "over",
+    "capacity": 1,
+    "kind": "object",
+    "object": "LW_SKLAD_S",
+    "zones": [
+     "zone_sklad",
+     "zone_dvur"
+    ],
+    "inside_zone": [],
+    "id": "CP0251"
+   },
+   {
+    "pos": [
+     18.25,
      -0.25,
      1.3
     ],
@@ -46646,7 +46621,7 @@
    },
    {
     "pos": [
-     16.5,
+     20.0,
      -0.25,
      1.3
     ],
@@ -46669,7 +46644,7 @@
    },
    {
     "pos": [
-     18.25,
+     21.75,
      -0.25,
      1.3
     ],
@@ -46692,52 +46667,6 @@
    },
    {
     "pos": [
-     20.0,
-     -0.25,
-     1.3
-    ],
-    "facing": [
-     0.0,
-     -1.0
-    ],
-    "facing_deg": 180.0,
-    "height": "low",
-    "peek": "over",
-    "capacity": 1,
-    "kind": "object",
-    "object": "LW_SKLAD_S",
-    "zones": [
-     "zone_sklad",
-     "zone_dvur"
-    ],
-    "inside_zone": [],
-    "id": "CP0255"
-   },
-   {
-    "pos": [
-     21.75,
-     -0.25,
-     1.3
-    ],
-    "facing": [
-     0.0,
-     -1.0
-    ],
-    "facing_deg": 180.0,
-    "height": "low",
-    "peek": "over",
-    "capacity": 1,
-    "kind": "object",
-    "object": "LW_SKLAD_S",
-    "zones": [
-     "zone_sklad",
-     "zone_dvur"
-    ],
-    "inside_zone": [],
-    "id": "CP0256"
-   },
-   {
-    "pos": [
      23.5,
      -0.25,
      1.3
@@ -46756,7 +46685,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0257"
+    "id": "CP0255"
    },
    {
     "pos": [
@@ -46779,7 +46708,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0258"
+    "id": "CP0256"
    },
    {
     "pos": [
@@ -46802,7 +46731,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0259"
+    "id": "CP0257"
    },
    {
     "pos": [
@@ -46825,7 +46754,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0260"
+    "id": "CP0258"
    },
    {
     "pos": [
@@ -46848,7 +46777,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0261"
+    "id": "CP0259"
    },
    {
     "pos": [
@@ -46871,7 +46800,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0262"
+    "id": "CP0260"
    },
    {
     "pos": [
@@ -46894,7 +46823,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0263"
+    "id": "CP0261"
    },
    {
     "pos": [
@@ -46917,7 +46846,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0264"
+    "id": "CP0262"
    },
    {
     "pos": [
@@ -46939,7 +46868,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0265"
+    "id": "CP0263"
    },
    {
     "pos": [
@@ -46961,7 +46890,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0266"
+    "id": "CP0264"
    },
    {
     "pos": [
@@ -46983,7 +46912,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0267"
+    "id": "CP0265"
    },
    {
     "pos": [
@@ -47005,7 +46934,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0268"
+    "id": "CP0266"
    },
    {
     "pos": [
@@ -47027,7 +46956,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0269"
+    "id": "CP0267"
    },
    {
     "pos": [
@@ -47051,7 +46980,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0270"
+    "id": "CP0268"
    },
    {
     "pos": [
@@ -47075,7 +47004,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0271"
+    "id": "CP0269"
    },
    {
     "pos": [
@@ -47099,7 +47028,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0272"
+    "id": "CP0270"
    },
    {
     "pos": [
@@ -47121,7 +47050,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0273"
+    "id": "CP0271"
    },
    {
     "pos": [
@@ -47143,7 +47072,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0274"
+    "id": "CP0272"
    },
    {
     "pos": [
@@ -47165,7 +47094,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0275"
+    "id": "CP0273"
    },
    {
     "pos": [
@@ -47187,7 +47116,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0276"
+    "id": "CP0274"
    },
    {
     "pos": [
@@ -47209,7 +47138,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0277"
+    "id": "CP0275"
    },
    {
     "pos": [
@@ -47231,7 +47160,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0278"
+    "id": "CP0276"
    },
    {
     "pos": [
@@ -47253,7 +47182,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0279"
+    "id": "CP0277"
    },
    {
     "pos": [
@@ -47275,7 +47204,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0280"
+    "id": "CP0278"
    },
    {
     "pos": [
@@ -47297,7 +47226,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0281"
+    "id": "CP0279"
    },
    {
     "pos": [
@@ -47321,7 +47250,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0282"
+    "id": "CP0280"
    },
    {
     "pos": [
@@ -47343,7 +47272,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0283"
+    "id": "CP0281"
    },
    {
     "pos": [
@@ -47365,7 +47294,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0284"
+    "id": "CP0282"
    },
    {
     "pos": [
@@ -47387,7 +47316,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0285"
+    "id": "CP0283"
    },
    {
     "pos": [
@@ -47409,7 +47338,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0286"
+    "id": "CP0284"
    },
    {
     "pos": [
@@ -47432,7 +47361,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0287"
+    "id": "CP0285"
    },
    {
     "pos": [
@@ -47454,7 +47383,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0288"
+    "id": "CP0286"
    },
    {
     "pos": [
@@ -47476,7 +47405,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0289"
+    "id": "CP0287"
    },
    {
     "pos": [
@@ -47498,7 +47427,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0290"
+    "id": "CP0288"
    },
    {
     "pos": [
@@ -47520,7 +47449,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0291"
+    "id": "CP0289"
    },
    {
     "pos": [
@@ -47544,7 +47473,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0292"
+    "id": "CP0290"
    },
    {
     "pos": [
@@ -47568,7 +47497,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0293"
+    "id": "CP0291"
    },
    {
     "pos": [
@@ -47592,7 +47521,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0294"
+    "id": "CP0292"
    },
    {
     "pos": [
@@ -47616,7 +47545,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0295"
+    "id": "CP0293"
    },
    {
     "pos": [
@@ -47640,7 +47569,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0296"
+    "id": "CP0294"
    },
    {
     "pos": [
@@ -47664,7 +47593,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0297"
+    "id": "CP0295"
    },
    {
     "pos": [
@@ -47686,7 +47615,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0298"
+    "id": "CP0296"
    },
    {
     "pos": [
@@ -47708,7 +47637,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0299"
+    "id": "CP0297"
    },
    {
     "pos": [
@@ -47730,7 +47659,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0300"
+    "id": "CP0298"
    },
    {
     "pos": [
@@ -47752,7 +47681,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0301"
+    "id": "CP0299"
    },
    {
     "pos": [
@@ -47774,7 +47703,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0302"
+    "id": "CP0300"
    },
    {
     "pos": [
@@ -47796,7 +47725,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0303"
+    "id": "CP0301"
    },
    {
     "pos": [
@@ -47820,7 +47749,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0304"
+    "id": "CP0302"
    },
    {
     "pos": [
@@ -47843,7 +47772,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0305"
+    "id": "CP0303"
    },
    {
     "pos": [
@@ -47866,7 +47795,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0306"
+    "id": "CP0304"
    },
    {
     "pos": [
@@ -47889,7 +47818,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0307"
+    "id": "CP0305"
    },
    {
     "pos": [
@@ -47912,7 +47841,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0308"
+    "id": "CP0306"
    },
    {
     "pos": [
@@ -47934,7 +47863,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0309"
+    "id": "CP0307"
    },
    {
     "pos": [
@@ -47956,7 +47885,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0310"
+    "id": "CP0308"
    },
    {
     "pos": [
@@ -47979,7 +47908,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0311"
+    "id": "CP0309"
    },
    {
     "pos": [
@@ -48002,7 +47931,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0312"
+    "id": "CP0310"
    },
    {
     "pos": [
@@ -48025,7 +47954,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0313"
+    "id": "CP0311"
    },
    {
     "pos": [
@@ -48048,7 +47977,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0314"
+    "id": "CP0312"
    },
    {
     "pos": [
@@ -48071,7 +48000,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0315"
+    "id": "CP0313"
    },
    {
     "pos": [
@@ -48094,7 +48023,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0316"
+    "id": "CP0314"
    },
    {
     "pos": [
@@ -48117,7 +48046,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0317"
+    "id": "CP0315"
    },
    {
     "pos": [
@@ -48140,7 +48069,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0318"
+    "id": "CP0316"
    },
    {
     "pos": [
@@ -48163,7 +48092,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0319"
+    "id": "CP0317"
    },
    {
     "pos": [
@@ -48186,7 +48115,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0320"
+    "id": "CP0318"
    },
    {
     "pos": [
@@ -48209,7 +48138,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0321"
+    "id": "CP0319"
    },
    {
     "pos": [
@@ -48232,7 +48161,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0322"
+    "id": "CP0320"
    },
    {
     "pos": [
@@ -48255,7 +48184,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0323"
+    "id": "CP0321"
    },
    {
     "pos": [
@@ -48278,7 +48207,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0324"
+    "id": "CP0322"
    },
    {
     "pos": [
@@ -48301,7 +48230,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0325"
+    "id": "CP0323"
    },
    {
     "pos": [
@@ -48324,7 +48253,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0326"
+    "id": "CP0324"
    },
    {
     "pos": [
@@ -48347,7 +48276,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0327"
+    "id": "CP0325"
    },
    {
     "pos": [
@@ -48369,7 +48298,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0328"
+    "id": "CP0326"
    },
    {
     "pos": [
@@ -48391,7 +48320,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0329"
+    "id": "CP0327"
    },
    {
     "pos": [
@@ -48413,7 +48342,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0330"
+    "id": "CP0328"
    },
    {
     "pos": [
@@ -48435,7 +48364,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0331"
+    "id": "CP0329"
    },
    {
     "pos": [
@@ -48457,7 +48386,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0332"
+    "id": "CP0330"
    },
    {
     "pos": [
@@ -48479,7 +48408,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0333"
+    "id": "CP0331"
    },
    {
     "pos": [
@@ -48501,7 +48430,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0334"
+    "id": "CP0332"
    },
    {
     "pos": [
@@ -48523,7 +48452,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0335"
+    "id": "CP0333"
    },
    {
     "pos": [
@@ -48545,7 +48474,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0336"
+    "id": "CP0334"
    },
    {
     "pos": [
@@ -48567,7 +48496,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0337"
+    "id": "CP0335"
    },
    {
     "pos": [
@@ -48589,7 +48518,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0338"
+    "id": "CP0336"
    },
    {
     "pos": [
@@ -48611,7 +48540,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0339"
+    "id": "CP0337"
    },
    {
     "pos": [
@@ -48633,7 +48562,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0340"
+    "id": "CP0338"
    },
    {
     "pos": [
@@ -48655,7 +48584,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0341"
+    "id": "CP0339"
    },
    {
     "pos": [
@@ -48677,7 +48606,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0342"
+    "id": "CP0340"
    },
    {
     "pos": [
@@ -48699,7 +48628,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0343"
+    "id": "CP0341"
    },
    {
     "pos": [
@@ -48721,7 +48650,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0344"
+    "id": "CP0342"
    },
    {
     "pos": [
@@ -48743,7 +48672,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0345"
+    "id": "CP0343"
    },
    {
     "pos": [
@@ -48765,7 +48694,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0346"
+    "id": "CP0344"
    },
    {
     "pos": [
@@ -48787,7 +48716,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0347"
+    "id": "CP0345"
    },
    {
     "pos": [
@@ -48809,7 +48738,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0348"
+    "id": "CP0346"
    },
    {
     "pos": [
@@ -48831,7 +48760,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0349"
+    "id": "CP0347"
    },
    {
     "pos": [
@@ -48853,7 +48782,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0350"
+    "id": "CP0348"
    },
    {
     "pos": [
@@ -48875,7 +48804,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0351"
+    "id": "CP0349"
    },
    {
     "pos": [
@@ -48897,7 +48826,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0352"
+    "id": "CP0350"
    },
    {
     "pos": [
@@ -48919,7 +48848,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0353"
+    "id": "CP0351"
    },
    {
     "pos": [
@@ -48941,7 +48870,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0354"
+    "id": "CP0352"
    },
    {
     "pos": [
@@ -48963,7 +48892,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0355"
+    "id": "CP0353"
    },
    {
     "pos": [
@@ -48985,7 +48914,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0356"
+    "id": "CP0354"
    },
    {
     "pos": [
@@ -49007,7 +48936,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0357"
+    "id": "CP0355"
    },
    {
     "pos": [
@@ -49029,7 +48958,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0358"
+    "id": "CP0356"
    },
    {
     "pos": [
@@ -49051,7 +48980,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0359"
+    "id": "CP0357"
    },
    {
     "pos": [
@@ -49073,7 +49002,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0360"
+    "id": "CP0358"
    },
    {
     "pos": [
@@ -49096,7 +49025,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0361"
+    "id": "CP0359"
    },
    {
     "pos": [
@@ -49119,7 +49048,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0362"
+    "id": "CP0360"
    },
    {
     "pos": [
@@ -49142,7 +49071,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0363"
+    "id": "CP0361"
    },
    {
     "pos": [
@@ -49165,7 +49094,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0364"
+    "id": "CP0362"
    },
    {
     "pos": [
@@ -49188,7 +49117,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0365"
+    "id": "CP0363"
    },
    {
     "pos": [
@@ -49211,7 +49140,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0366"
+    "id": "CP0364"
    },
    {
     "pos": [
@@ -49234,7 +49163,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0367"
+    "id": "CP0365"
    },
    {
     "pos": [
@@ -49257,7 +49186,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0368"
+    "id": "CP0366"
    },
    {
     "pos": [
@@ -49280,7 +49209,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0369"
+    "id": "CP0367"
    },
    {
     "pos": [
@@ -49303,7 +49232,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0370"
+    "id": "CP0368"
    },
    {
     "pos": [
@@ -49326,7 +49255,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0371"
+    "id": "CP0369"
    },
    {
     "pos": [
@@ -49349,7 +49278,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0372"
+    "id": "CP0370"
    },
    {
     "pos": [
@@ -49371,7 +49300,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0373"
+    "id": "CP0371"
    },
    {
     "pos": [
@@ -49393,7 +49322,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0374"
+    "id": "CP0372"
    },
    {
     "pos": [
@@ -49415,7 +49344,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0375"
+    "id": "CP0373"
    },
    {
     "pos": [
@@ -49437,7 +49366,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0376"
+    "id": "CP0374"
    },
    {
     "pos": [
@@ -49459,7 +49388,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0377"
+    "id": "CP0375"
    },
    {
     "pos": [
@@ -49481,7 +49410,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0378"
+    "id": "CP0376"
    },
    {
     "pos": [
@@ -49503,7 +49432,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0379"
+    "id": "CP0377"
    },
    {
     "pos": [
@@ -49525,7 +49454,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0380"
+    "id": "CP0378"
    },
    {
     "pos": [
@@ -49547,7 +49476,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0381"
+    "id": "CP0379"
    },
    {
     "pos": [
@@ -49569,7 +49498,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0382"
+    "id": "CP0380"
    },
    {
     "pos": [
@@ -49591,7 +49520,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0383"
+    "id": "CP0381"
    },
    {
     "pos": [
@@ -49613,7 +49542,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0384"
+    "id": "CP0382"
    },
    {
     "pos": [
@@ -49635,7 +49564,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0385"
+    "id": "CP0383"
    },
    {
     "pos": [
@@ -49657,7 +49586,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0386"
+    "id": "CP0384"
    },
    {
     "pos": [
@@ -49679,7 +49608,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0387"
+    "id": "CP0385"
    },
    {
     "pos": [
@@ -49701,7 +49630,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0388"
+    "id": "CP0386"
    },
    {
     "pos": [
@@ -49723,7 +49652,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0389"
+    "id": "CP0387"
    },
    {
     "pos": [
@@ -49745,7 +49674,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0390"
+    "id": "CP0388"
    },
    {
     "pos": [
@@ -49767,7 +49696,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0391"
+    "id": "CP0389"
    },
    {
     "pos": [
@@ -49789,7 +49718,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0392"
+    "id": "CP0390"
    },
    {
     "pos": [
@@ -49811,7 +49740,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0393"
+    "id": "CP0391"
    },
    {
     "pos": [
@@ -49833,7 +49762,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0394"
+    "id": "CP0392"
    },
    {
     "pos": [
@@ -49855,7 +49784,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0395"
+    "id": "CP0393"
    },
    {
     "pos": [
@@ -49877,7 +49806,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0396"
+    "id": "CP0394"
    },
    {
     "pos": [
@@ -49900,7 +49829,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0397"
+    "id": "CP0395"
    },
    {
     "pos": [
@@ -49923,7 +49852,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0398"
+    "id": "CP0396"
    },
    {
     "pos": [
@@ -49946,7 +49875,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0399"
+    "id": "CP0397"
    },
    {
     "pos": [
@@ -49969,7 +49898,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0400"
+    "id": "CP0398"
    },
    {
     "pos": [
@@ -49992,7 +49921,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0401"
+    "id": "CP0399"
    },
    {
     "pos": [
@@ -50015,7 +49944,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0402"
+    "id": "CP0400"
    },
    {
     "pos": [
@@ -50039,7 +49968,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0403"
+    "id": "CP0401"
    },
    {
     "pos": [
@@ -50063,7 +49992,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0404"
+    "id": "CP0402"
    },
    {
     "pos": [
@@ -50087,7 +50016,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0405"
+    "id": "CP0403"
    },
    {
     "pos": [
@@ -50111,7 +50040,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0406"
+    "id": "CP0404"
    },
    {
     "pos": [
@@ -50135,7 +50064,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0407"
+    "id": "CP0405"
    },
    {
     "pos": [
@@ -50159,7 +50088,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0408"
+    "id": "CP0406"
    },
    {
     "pos": [
@@ -50183,7 +50112,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0409"
+    "id": "CP0407"
    },
    {
     "pos": [
@@ -50207,7 +50136,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0410"
+    "id": "CP0408"
    },
    {
     "pos": [
@@ -50231,7 +50160,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0411"
+    "id": "CP0409"
    },
    {
     "pos": [
@@ -50253,7 +50182,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0412"
+    "id": "CP0410"
    },
    {
     "pos": [
@@ -50275,7 +50204,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0413"
+    "id": "CP0411"
    },
    {
     "pos": [
@@ -50297,7 +50226,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0414"
+    "id": "CP0412"
    },
    {
     "pos": [
@@ -50321,7 +50250,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0415"
+    "id": "CP0413"
    },
    {
     "pos": [
@@ -50345,7 +50274,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0416"
+    "id": "CP0414"
    },
    {
     "pos": [
@@ -50369,7 +50298,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0417"
+    "id": "CP0415"
    },
    {
     "pos": [
@@ -50393,7 +50322,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0418"
+    "id": "CP0416"
    },
    {
     "pos": [
@@ -50417,7 +50346,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0419"
+    "id": "CP0417"
    },
    {
     "pos": [
@@ -50441,7 +50370,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0420"
+    "id": "CP0418"
    },
    {
     "pos": [
@@ -50465,7 +50394,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0421"
+    "id": "CP0419"
    },
    {
     "pos": [
@@ -50489,7 +50418,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0422"
+    "id": "CP0420"
    },
    {
     "pos": [
@@ -50513,7 +50442,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0423"
+    "id": "CP0421"
    },
    {
     "pos": [
@@ -50537,7 +50466,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0424"
+    "id": "CP0422"
    },
    {
     "pos": [
@@ -50561,7 +50490,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0425"
+    "id": "CP0423"
    },
    {
     "pos": [
@@ -50585,7 +50514,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0426"
+    "id": "CP0424"
    },
    {
     "pos": [
@@ -50609,7 +50538,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0427"
+    "id": "CP0425"
    },
    {
     "pos": [
@@ -50633,7 +50562,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0428"
+    "id": "CP0426"
    },
    {
     "pos": [
@@ -50657,7 +50586,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0429"
+    "id": "CP0427"
    },
    {
     "pos": [
@@ -50681,7 +50610,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0430"
+    "id": "CP0428"
    },
    {
     "pos": [
@@ -50705,7 +50634,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0431"
+    "id": "CP0429"
    },
    {
     "pos": [
@@ -50729,7 +50658,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0432"
+    "id": "CP0430"
    },
    {
     "pos": [
@@ -50753,7 +50682,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0433"
+    "id": "CP0431"
    },
    {
     "pos": [
@@ -50777,7 +50706,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0434"
+    "id": "CP0432"
    },
    {
     "pos": [
@@ -50801,7 +50730,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0435"
+    "id": "CP0433"
    },
    {
     "pos": [
@@ -50825,7 +50754,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0436"
+    "id": "CP0434"
    },
    {
     "pos": [
@@ -50847,7 +50776,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0437"
+    "id": "CP0435"
    },
    {
     "pos": [
@@ -50869,7 +50798,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0438"
+    "id": "CP0436"
    },
    {
     "pos": [
@@ -50891,7 +50820,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0439"
+    "id": "CP0437"
    },
    {
     "pos": [
@@ -50913,7 +50842,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0440"
+    "id": "CP0438"
    },
    {
     "pos": [
@@ -50935,7 +50864,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0441"
+    "id": "CP0439"
    },
    {
     "pos": [
@@ -50957,7 +50886,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0442"
+    "id": "CP0440"
    },
    {
     "pos": [
@@ -50979,7 +50908,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0443"
+    "id": "CP0441"
    },
    {
     "pos": [
@@ -51001,7 +50930,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0444"
+    "id": "CP0442"
    },
    {
     "pos": [
@@ -51023,7 +50952,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0445"
+    "id": "CP0443"
    },
    {
     "pos": [
@@ -51045,7 +50974,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0446"
+    "id": "CP0444"
    },
    {
     "pos": [
@@ -51067,7 +50996,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0447"
+    "id": "CP0445"
    },
    {
     "pos": [
@@ -51089,7 +51018,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0448"
+    "id": "CP0446"
    },
    {
     "pos": [
@@ -51111,7 +51040,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0449"
+    "id": "CP0447"
    },
    {
     "pos": [
@@ -51133,7 +51062,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0450"
+    "id": "CP0448"
    },
    {
     "pos": [
@@ -51155,7 +51084,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0451"
+    "id": "CP0449"
    },
    {
     "pos": [
@@ -51177,7 +51106,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0452"
+    "id": "CP0450"
    },
    {
     "pos": [
@@ -51199,7 +51128,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0453"
+    "id": "CP0451"
    },
    {
     "pos": [
@@ -51221,7 +51150,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0454"
+    "id": "CP0452"
    },
    {
     "pos": [
@@ -51243,7 +51172,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0455"
+    "id": "CP0453"
    },
    {
     "pos": [
@@ -51265,7 +51194,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0456"
+    "id": "CP0454"
    },
    {
     "pos": [
@@ -51287,11 +51216,59 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0457"
+    "id": "CP0455"
    },
    {
     "pos": [
      41.19,
+     28.85,
+     2.35
+    ],
+    "facing": [
+     -0.0,
+     -1.0
+    ],
+    "facing_deg": 180.0,
+    "height": "high",
+    "peek": "none",
+    "capacity": 1,
+    "kind": "object",
+    "object": "B_SKLAD",
+    "zones": [
+     "zone_sklad"
+    ],
+    "inside_zone": [
+     "zone_sklad"
+    ],
+    "id": "CP0456"
+   },
+   {
+    "pos": [
+     39.58,
+     28.85,
+     2.35
+    ],
+    "facing": [
+     -0.0,
+     -1.0
+    ],
+    "facing_deg": 180.0,
+    "height": "high",
+    "peek": "none",
+    "capacity": 1,
+    "kind": "object",
+    "object": "B_SKLAD",
+    "zones": [
+     "zone_sklad"
+    ],
+    "inside_zone": [
+     "zone_sklad"
+    ],
+    "id": "CP0457"
+   },
+   {
+    "pos": [
+     37.97,
      28.85,
      2.35
     ],
@@ -51315,7 +51292,7 @@
    },
    {
     "pos": [
-     39.58,
+     36.36,
      28.85,
      2.35
     ],
@@ -51339,54 +51316,6 @@
    },
    {
     "pos": [
-     37.97,
-     28.85,
-     2.35
-    ],
-    "facing": [
-     -0.0,
-     -1.0
-    ],
-    "facing_deg": 180.0,
-    "height": "high",
-    "peek": "none",
-    "capacity": 1,
-    "kind": "object",
-    "object": "B_SKLAD",
-    "zones": [
-     "zone_sklad"
-    ],
-    "inside_zone": [
-     "zone_sklad"
-    ],
-    "id": "CP0460"
-   },
-   {
-    "pos": [
-     36.36,
-     28.85,
-     2.35
-    ],
-    "facing": [
-     -0.0,
-     -1.0
-    ],
-    "facing_deg": 180.0,
-    "height": "high",
-    "peek": "none",
-    "capacity": 1,
-    "kind": "object",
-    "object": "B_SKLAD",
-    "zones": [
-     "zone_sklad"
-    ],
-    "inside_zone": [
-     "zone_sklad"
-    ],
-    "id": "CP0461"
-   },
-   {
-    "pos": [
      34.75,
      28.85,
      2.35
@@ -51407,7 +51336,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0462"
+    "id": "CP0460"
    },
    {
     "pos": [
@@ -51431,7 +51360,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0463"
+    "id": "CP0461"
    },
    {
     "pos": [
@@ -51455,7 +51384,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0464"
+    "id": "CP0462"
    },
    {
     "pos": [
@@ -51479,7 +51408,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0465"
+    "id": "CP0463"
    },
    {
     "pos": [
@@ -51503,7 +51432,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0466"
+    "id": "CP0464"
    },
    {
     "pos": [
@@ -51527,7 +51456,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0467"
+    "id": "CP0465"
    },
    {
     "pos": [
@@ -51551,7 +51480,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0468"
+    "id": "CP0466"
    },
    {
     "pos": [
@@ -51575,7 +51504,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0469"
+    "id": "CP0467"
    },
    {
     "pos": [
@@ -51599,7 +51528,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0470"
+    "id": "CP0468"
    },
    {
     "pos": [
@@ -51623,7 +51552,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0471"
+    "id": "CP0469"
    },
    {
     "pos": [
@@ -51647,7 +51576,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0472"
+    "id": "CP0470"
    },
    {
     "pos": [
@@ -51671,7 +51600,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0473"
+    "id": "CP0471"
    },
    {
     "pos": [
@@ -51695,7 +51624,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0474"
+    "id": "CP0472"
    },
    {
     "pos": [
@@ -51719,7 +51648,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0475"
+    "id": "CP0473"
    },
    {
     "pos": [
@@ -51743,7 +51672,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0476"
+    "id": "CP0474"
    },
    {
     "pos": [
@@ -51767,7 +51696,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0477"
+    "id": "CP0475"
    },
    {
     "pos": [
@@ -51791,7 +51720,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0478"
+    "id": "CP0476"
    },
    {
     "pos": [
@@ -51815,7 +51744,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0479"
+    "id": "CP0477"
    },
    {
     "pos": [
@@ -51839,7 +51768,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0480"
+    "id": "CP0478"
    },
    {
     "pos": [
@@ -51863,7 +51792,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0481"
+    "id": "CP0479"
    },
    {
     "pos": [
@@ -51887,7 +51816,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0482"
+    "id": "CP0480"
    },
    {
     "pos": [
@@ -51909,7 +51838,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0483"
+    "id": "CP0481"
    },
    {
     "pos": [
@@ -51931,7 +51860,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0484"
+    "id": "CP0482"
    },
    {
     "pos": [
@@ -51953,7 +51882,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0485"
+    "id": "CP0483"
    },
    {
     "pos": [
@@ -51975,7 +51904,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0486"
+    "id": "CP0484"
    },
    {
     "pos": [
@@ -51997,7 +51926,7 @@
      "zone_sklad"
     ],
     "inside_zone": [],
-    "id": "CP0487"
+    "id": "CP0485"
    },
    {
     "pos": [
@@ -52021,7 +51950,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0488"
+    "id": "CP0486"
    },
    {
     "pos": [
@@ -52045,7 +51974,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0489"
+    "id": "CP0487"
    },
    {
     "pos": [
@@ -52069,7 +51998,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0490"
+    "id": "CP0488"
    },
    {
     "pos": [
@@ -52093,7 +52022,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0491"
+    "id": "CP0489"
    },
    {
     "pos": [
@@ -52117,7 +52046,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0492"
+    "id": "CP0490"
    },
    {
     "pos": [
@@ -52141,7 +52070,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0493"
+    "id": "CP0491"
    },
    {
     "pos": [
@@ -52165,7 +52094,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0494"
+    "id": "CP0492"
    },
    {
     "pos": [
@@ -52189,7 +52118,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0495"
+    "id": "CP0493"
    },
    {
     "pos": [
@@ -52213,7 +52142,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0496"
+    "id": "CP0494"
    },
    {
     "pos": [
@@ -52237,7 +52166,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0497"
+    "id": "CP0495"
    },
    {
     "pos": [
@@ -52261,7 +52190,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0498"
+    "id": "CP0496"
    },
    {
     "pos": [
@@ -52285,7 +52214,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0499"
+    "id": "CP0497"
    },
    {
     "pos": [
@@ -52309,7 +52238,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0500"
+    "id": "CP0498"
    },
    {
     "pos": [
@@ -52333,7 +52262,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0501"
+    "id": "CP0499"
    },
    {
     "pos": [
@@ -52357,7 +52286,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0502"
+    "id": "CP0500"
    },
    {
     "pos": [
@@ -52381,7 +52310,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0503"
+    "id": "CP0501"
    },
    {
     "pos": [
@@ -52405,7 +52334,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0504"
+    "id": "CP0502"
    },
    {
     "pos": [
@@ -52429,7 +52358,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0505"
+    "id": "CP0503"
    },
    {
     "pos": [
@@ -52453,7 +52382,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0506"
+    "id": "CP0504"
    },
    {
     "pos": [
@@ -52477,7 +52406,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0507"
+    "id": "CP0505"
    },
    {
     "pos": [
@@ -52501,7 +52430,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0508"
+    "id": "CP0506"
    },
    {
     "pos": [
@@ -52525,7 +52454,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0509"
+    "id": "CP0507"
    },
    {
     "pos": [
@@ -52547,7 +52476,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0510"
+    "id": "CP0508"
    },
    {
     "pos": [
@@ -52569,7 +52498,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0511"
+    "id": "CP0509"
    },
    {
     "pos": [
@@ -52591,7 +52520,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0512"
+    "id": "CP0510"
    },
    {
     "pos": [
@@ -52613,29 +52542,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0513"
-   },
-   {
-    "pos": [
-     -44.13,
-     23.28,
-     3.13
-    ],
-    "facing": [
-     0.866,
-     -0.5
-    ],
-    "facing_deg": 240.0,
-    "height": "high",
-    "peek": "none",
-    "capacity": 1,
-    "kind": "object",
-    "object": "RW_DILNA",
-    "zones": [
-     "zone_dilna"
-    ],
-    "inside_zone": [],
-    "id": "CP0514"
+    "id": "CP0511"
    },
    {
     "pos": [
@@ -52657,7 +52564,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0515"
+    "id": "CP0512"
    },
    {
     "pos": [
@@ -52679,7 +52586,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0516"
+    "id": "CP0513"
    },
    {
     "pos": [
@@ -52701,7 +52608,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0517"
+    "id": "CP0514"
    },
    {
     "pos": [
@@ -52723,7 +52630,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0518"
+    "id": "CP0515"
    },
    {
     "pos": [
@@ -52745,7 +52652,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0519"
+    "id": "CP0516"
    },
    {
     "pos": [
@@ -52767,7 +52674,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0520"
+    "id": "CP0517"
    },
    {
     "pos": [
@@ -52789,7 +52696,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0521"
+    "id": "CP0518"
    },
    {
     "pos": [
@@ -52811,7 +52718,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0522"
+    "id": "CP0519"
    },
    {
     "pos": [
@@ -52833,7 +52740,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0523"
+    "id": "CP0520"
    },
    {
     "pos": [
@@ -52855,7 +52762,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0524"
+    "id": "CP0521"
    },
    {
     "pos": [
@@ -52877,7 +52784,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0525"
+    "id": "CP0522"
    },
    {
     "pos": [
@@ -52899,7 +52806,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0526"
+    "id": "CP0523"
    },
    {
     "pos": [
@@ -52921,7 +52828,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0527"
+    "id": "CP0524"
    },
    {
     "pos": [
@@ -52943,7 +52850,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0528"
+    "id": "CP0525"
    },
    {
     "pos": [
@@ -52965,7 +52872,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0529"
+    "id": "CP0526"
    },
    {
     "pos": [
@@ -52987,7 +52894,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0530"
+    "id": "CP0527"
    },
    {
     "pos": [
@@ -53009,7 +52916,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0531"
+    "id": "CP0528"
    },
    {
     "pos": [
@@ -53031,7 +52938,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0532"
+    "id": "CP0529"
    },
    {
     "pos": [
@@ -53053,7 +52960,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0533"
+    "id": "CP0530"
    },
    {
     "pos": [
@@ -53075,7 +52982,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0534"
+    "id": "CP0531"
    },
    {
     "pos": [
@@ -53097,7 +53004,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0535"
+    "id": "CP0532"
    },
    {
     "pos": [
@@ -53119,7 +53026,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0536"
+    "id": "CP0533"
    },
    {
     "pos": [
@@ -53141,7 +53048,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0537"
+    "id": "CP0534"
    },
    {
     "pos": [
@@ -53163,7 +53070,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0538"
+    "id": "CP0535"
    },
    {
     "pos": [
@@ -53185,7 +53092,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0539"
+    "id": "CP0536"
    },
    {
     "pos": [
@@ -53207,7 +53114,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0540"
+    "id": "CP0537"
    },
    {
     "pos": [
@@ -53229,7 +53136,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0541"
+    "id": "CP0538"
    },
    {
     "pos": [
@@ -53251,7 +53158,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0542"
+    "id": "CP0539"
    },
    {
     "pos": [
@@ -53273,7 +53180,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0543"
+    "id": "CP0540"
    },
    {
     "pos": [
@@ -53295,7 +53202,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0544"
+    "id": "CP0541"
    },
    {
     "pos": [
@@ -53317,13 +53224,13 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0545"
+    "id": "CP0542"
    },
    {
     "pos": [
      -47.06,
      16.41,
-     1.13
+     1.99
     ],
     "facing": [
      0.5,
@@ -53339,7 +53246,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0546"
+    "id": "CP0543"
    },
    {
     "pos": [
@@ -53362,7 +53269,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0547"
+    "id": "CP0544"
    },
    {
     "pos": [
@@ -53385,7 +53292,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0548"
+    "id": "CP0545"
    },
    {
     "pos": [
@@ -53408,7 +53315,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0549"
+    "id": "CP0546"
    },
    {
     "pos": [
@@ -53430,7 +53337,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0550"
+    "id": "CP0547"
    },
    {
     "pos": [
@@ -53452,7 +53359,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0551"
+    "id": "CP0548"
    },
    {
     "pos": [
@@ -53474,7 +53381,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0552"
+    "id": "CP0549"
    },
    {
     "pos": [
@@ -53496,7 +53403,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0553"
+    "id": "CP0550"
    },
    {
     "pos": [
@@ -53518,7 +53425,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0554"
+    "id": "CP0551"
    },
    {
     "pos": [
@@ -53541,7 +53448,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0555"
+    "id": "CP0552"
    },
    {
     "pos": [
@@ -53563,7 +53470,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0556"
+    "id": "CP0553"
    },
    {
     "pos": [
@@ -53585,7 +53492,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0557"
+    "id": "CP0554"
    },
    {
     "pos": [
@@ -53607,7 +53514,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0558"
+    "id": "CP0555"
    },
    {
     "pos": [
@@ -53629,7 +53536,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0559"
+    "id": "CP0556"
    },
    {
     "pos": [
@@ -53652,7 +53559,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0560"
+    "id": "CP0557"
    },
    {
     "pos": [
@@ -53675,7 +53582,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0561"
+    "id": "CP0558"
    },
    {
     "pos": [
@@ -53698,7 +53605,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0562"
+    "id": "CP0559"
    },
    {
     "pos": [
@@ -53721,7 +53628,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0563"
+    "id": "CP0560"
    },
    {
     "pos": [
@@ -53744,7 +53651,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0564"
+    "id": "CP0561"
    },
    {
     "pos": [
@@ -53770,7 +53677,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0565"
+    "id": "CP0562"
    },
    {
     "pos": [
@@ -53796,7 +53703,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0566"
+    "id": "CP0563"
    },
    {
     "pos": [
@@ -53822,7 +53729,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0567"
+    "id": "CP0564"
    },
    {
     "pos": [
@@ -53848,7 +53755,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0568"
+    "id": "CP0565"
    },
    {
     "pos": [
@@ -53874,7 +53781,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0569"
+    "id": "CP0566"
    },
    {
     "pos": [
@@ -53900,7 +53807,7 @@
     "inside_zone": [
      "zone_dilna"
     ],
-    "id": "CP0570"
+    "id": "CP0567"
    },
    {
     "pos": [
@@ -53924,7 +53831,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0571"
+    "id": "CP0568"
    },
    {
     "pos": [
@@ -53948,7 +53855,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0572"
+    "id": "CP0569"
    },
    {
     "pos": [
@@ -53972,7 +53879,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0573"
+    "id": "CP0570"
    },
    {
     "pos": [
@@ -53996,7 +53903,7 @@
      "zone_dilna"
     ],
     "inside_zone": [],
-    "id": "CP0574"
+    "id": "CP0571"
    },
    {
     "pos": [
@@ -54022,7 +53929,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0575"
+    "id": "CP0572"
    },
    {
     "pos": [
@@ -54048,7 +53955,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0576"
+    "id": "CP0573"
    },
    {
     "pos": [
@@ -54074,7 +53981,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0577"
+    "id": "CP0574"
    },
    {
     "pos": [
@@ -54100,7 +54007,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0578"
+    "id": "CP0575"
    },
    {
     "pos": [
@@ -54126,7 +54033,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0579"
+    "id": "CP0576"
    },
    {
     "pos": [
@@ -54152,7 +54059,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0580"
+    "id": "CP0577"
    },
    {
     "pos": [
@@ -54178,7 +54085,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0581"
+    "id": "CP0578"
    },
    {
     "pos": [
@@ -54204,7 +54111,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0582"
+    "id": "CP0579"
    },
    {
     "pos": [
@@ -54230,7 +54137,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0583"
+    "id": "CP0580"
    },
    {
     "pos": [
@@ -54256,7 +54163,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0584"
+    "id": "CP0581"
    },
    {
     "pos": [
@@ -54282,7 +54189,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0585"
+    "id": "CP0582"
    },
    {
     "pos": [
@@ -54306,7 +54213,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0586"
+    "id": "CP0583"
    },
    {
     "pos": [
@@ -54330,7 +54237,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0587"
+    "id": "CP0584"
    },
    {
     "pos": [
@@ -54354,7 +54261,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0588"
+    "id": "CP0585"
    },
    {
     "pos": [
@@ -54378,7 +54285,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0589"
+    "id": "CP0586"
    },
    {
     "pos": [
@@ -54402,7 +54309,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0590"
+    "id": "CP0587"
    },
    {
     "pos": [
@@ -54426,7 +54333,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0591"
+    "id": "CP0588"
    },
    {
     "pos": [
@@ -54450,7 +54357,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0592"
+    "id": "CP0589"
    },
    {
     "pos": [
@@ -54474,7 +54381,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0593"
+    "id": "CP0590"
    }
   ]
  },
@@ -55157,16 +55064,19 @@
    "max_slope_deg": 45.0,
    "recast": {
     "tool": "recast-navigation (Node, WASM only in the build tool, ARCHITECTURE D4); JSON navmesh shipped",
-    "cs": 0.1,
+    "cs": 0.05,
     "ch": 0.05,
-    "walkableRadius_cells": 4,
+    "walkableRadius_cells": 7,
     "walkableHeight_cells": 36,
     "walkableClimb_cells": 8,
     "walkableSlopeAngle": 45.0,
-    "tileSize_cells": 128,
-    "maxEdgeLen": 12.0,
-    "minRegionArea": 8,
-    "note": "radius 4 cells = 0.40 m (>= 0.35): every walkable door is >= 1.10 m clear, so the eroded corridor is >= 0.30 m with the leaves in their rest pose; stairs >= 1.10 m wide the same",
+    "tileSize_cells": 256,
+    "maxEdgeLen_cells": 240,
+    "maxSimplificationError": 1.1,
+    "minRegionArea_cells": 16,
+    "mergeRegionArea_cells": 40,
+    "detailSampleDist_cells": 12,
+    "note": "radius 7 cells = 0.35 m = capsule; every walkable door and stair is >= 1.10 m clear, so the eroded corridor is >= 0.40 m (8 cells) with door leaves in their rest pose. A trial bake at cs 0.10 / radius 4 pinched the 0.30 m corridor of the house U-stair (contour simplification) -- do not bake coarser than cs 0.05. Validation bake: Tools/level/nav (results in navmesh_validation)",
     "input_geometry": "terrain LOD0 + building construction boxes + slabs + stair ramp colliders + prop hulls + fences/hedge cores + retaining walls + bridges; doors in rest pose; roller doors per state; clipped 1 m inside the soft boundary",
     "build_gate": "the build FAILS when any documented entrance (door, retaining-wall stair, dock stair, ramp, bridge, sunken-lane exit) is not on the main navmesh component or when the spawn -> zone path balance exceeds max/min 1.06"
    }
@@ -55223,7 +55133,7 @@
      "initial_open_deg": 100,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 2.38
+     "nav_corridor_m": 2.48
     },
     {
      "building": "B_DILNA",
@@ -55238,7 +55148,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DILNA",
@@ -55253,7 +55163,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DILNA",
@@ -55268,7 +55178,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DILNA",
@@ -55283,7 +55193,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DILNA",
@@ -55298,7 +55208,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DILNA",
@@ -55313,7 +55223,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DILNA",
@@ -55328,7 +55238,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DILNA",
@@ -55343,7 +55253,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L1",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DILNA",
@@ -55358,7 +55268,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L1",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DILNA",
@@ -55373,7 +55283,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L1",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_SKLAD",
@@ -55388,7 +55298,7 @@
      "initial_open_deg": null,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 3.1
+     "nav_corridor_m": 3.2
     },
     {
      "building": "B_SKLAD",
@@ -55403,7 +55313,7 @@
      "initial_open_deg": null,
      "passable_v1": false,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 3.1
+     "nav_corridor_m": 3.2
     },
     {
      "building": "B_SKLAD",
@@ -55418,7 +55328,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_SKLAD",
@@ -55433,7 +55343,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_SKLAD",
@@ -55448,7 +55358,7 @@
      "initial_open_deg": null,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 3.1
+     "nav_corridor_m": 3.2
     },
     {
      "building": "B_SKLAD",
@@ -55463,7 +55373,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_SKLAD",
@@ -55478,7 +55388,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_SKLAD",
@@ -55493,7 +55403,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_SKLAD",
@@ -55508,7 +55418,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DUM",
@@ -55523,7 +55433,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DUM",
@@ -55538,7 +55448,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DUM",
@@ -55553,7 +55463,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DUM",
@@ -55568,7 +55478,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DUM",
@@ -55583,7 +55493,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DUM",
@@ -55598,7 +55508,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DUM",
@@ -55613,7 +55523,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DUM",
@@ -55628,7 +55538,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L0",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DUM",
@@ -55643,7 +55553,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L1",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DUM",
@@ -55658,7 +55568,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L1",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DUM",
@@ -55673,7 +55583,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L1",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DUM",
@@ -55688,7 +55598,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L1",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     },
     {
      "building": "B_DUM",
@@ -55703,7 +55613,7 @@
      "initial_open_deg": 90,
      "passable_v1": true,
      "level": "L1",
-     "nav_corridor_m_at_cs010_r4": 0.3
+     "nav_corridor_m": 0.4
     }
    ]
   },
@@ -56017,9 +55927,9 @@
    "id": "QA_ALFA_R1",
    "kind": "spawn_row",
    "pos": [
-    -120.1,
-    -67.94,
-    -3.09
+    -122.06,
+    -68.79,
+    -3.05
    ],
    "note": "row centre; active for zone_dilna, zone_dvur"
   },
@@ -56027,9 +55937,9 @@
    "id": "QA_ALFA_R2",
    "kind": "spawn_row",
    "pos": [
-    -76.9,
-    -44.47,
-    -2.69
+    -74.96,
+    -43.42,
+    -2.53
    ],
    "note": "row centre; active for zone_sklad"
   },
@@ -56037,9 +55947,9 @@
    "id": "QA_ALFA_R1_1",
    "kind": "spawn_point",
    "pos": [
-    -116.55,
-    -64.79,
-    -3.23
+    -118.51,
+    -65.63,
+    -3.15
    ],
    "note": "yaw 293.2"
   },
@@ -56047,9 +55957,9 @@
    "id": "QA_ALFA_R1_2",
    "kind": "spawn_point",
    "pos": [
-    -115.37,
-    -67.55,
-    -3.2
+    -117.33,
+    -68.39,
+    -3.13
    ],
    "note": "yaw 293.2"
   },
@@ -56057,9 +55967,9 @@
    "id": "QA_ALFA_R1_3",
    "kind": "spawn_point",
    "pos": [
-    -119.31,
-    -65.97,
-    -3.12
+    -121.27,
+    -66.82,
+    -3.05
    ],
    "note": "yaw 293.2"
   },
@@ -56067,9 +55977,9 @@
    "id": "QA_ALFA_R1_4",
    "kind": "spawn_point",
    "pos": [
-    -118.13,
-    -68.73,
-    -3.11
+    -120.09,
+    -69.57,
+    -3.07
    ],
    "note": "yaw 293.2"
   },
@@ -56077,9 +55987,9 @@
    "id": "QA_ALFA_R1_5",
    "kind": "spawn_point",
    "pos": [
-    -122.07,
-    -67.16,
-    -3.04
+    -124.03,
+    -68.0,
+    -2.99
    ],
    "note": "yaw 293.2"
   },
@@ -56087,9 +55997,9 @@
    "id": "QA_ALFA_R1_6",
    "kind": "spawn_point",
    "pos": [
-    -120.89,
-    -69.91,
-    -3.05
+    -122.84,
+    -70.76,
+    -3.01
    ],
    "note": "yaw 293.2"
   },
@@ -56097,9 +56007,9 @@
    "id": "QA_ALFA_R1_7",
    "kind": "spawn_point",
    "pos": [
-    -124.83,
-    -68.34,
-    -2.97
+    -126.78,
+    -69.18,
+    -2.95
    ],
    "note": "yaw 293.2"
   },
@@ -56107,9 +56017,9 @@
    "id": "QA_ALFA_R1_8",
    "kind": "spawn_point",
    "pos": [
-    -123.64,
-    -71.09,
-    -2.99
+    -125.6,
+    -71.94,
+    -2.96
    ],
    "note": "yaw 293.2"
   },
@@ -56117,9 +56027,9 @@
    "id": "QA_ALFA_R2_1",
    "kind": "spawn_point",
    "pos": [
-    -73.55,
-    -41.12,
-    -2.34
+    -71.61,
+    -40.06,
+    -2.19
    ],
    "note": "yaw 296.57"
   },
@@ -56127,9 +56037,9 @@
    "id": "QA_ALFA_R2_2",
    "kind": "spawn_point",
    "pos": [
-    -72.21,
-    -43.8,
-    -2.34
+    -70.27,
+    -42.75,
+    -2.17
    ],
    "note": "yaw 296.57"
   },
@@ -56137,9 +56047,9 @@
    "id": "QA_ALFA_R2_3",
    "kind": "spawn_point",
    "pos": [
-    -76.23,
-    -42.46,
-    -2.57
+    -74.29,
+    -41.41,
+    -2.41
    ],
    "note": "yaw 296.57"
   },
@@ -56147,9 +56057,9 @@
    "id": "QA_ALFA_R2_4",
    "kind": "spawn_point",
    "pos": [
-    -74.89,
-    -45.15,
-    -2.57
+    -72.95,
+    -44.09,
+    -2.4
    ],
    "note": "yaw 296.57"
   },
@@ -56157,9 +56067,9 @@
    "id": "QA_ALFA_R2_5",
    "kind": "spawn_point",
    "pos": [
-    -78.92,
-    -43.8,
-    -2.78
+    -76.98,
+    -42.75,
+    -2.63
    ],
    "note": "yaw 296.57"
   },
@@ -56167,9 +56077,9 @@
    "id": "QA_ALFA_R2_6",
    "kind": "spawn_point",
    "pos": [
-    -77.57,
-    -46.49,
-    -2.77
+    -75.63,
+    -45.43,
+    -2.63
    ],
    "note": "yaw 296.57"
   },
@@ -56177,9 +56087,9 @@
    "id": "QA_ALFA_R2_7",
    "kind": "spawn_point",
    "pos": [
-    -81.6,
-    -45.15,
-    -2.98
+    -79.66,
+    -44.09,
+    -2.83
    ],
    "note": "yaw 296.57"
   },
@@ -56187,9 +56097,9 @@
    "id": "QA_ALFA_R2_8",
    "kind": "spawn_point",
    "pos": [
-    -80.26,
-    -47.83,
-    -3.0
+    -78.32,
+    -46.77,
+    -2.83
    ],
    "note": "yaw 296.57"
   },
@@ -56197,9 +56107,9 @@
    "id": "QA_BRAVO_R1",
    "kind": "spawn_row",
    "pos": [
-    29.07,
-    140.22,
-    3.16
+    30.85,
+    145.11,
+    3.31
    ],
    "note": "row centre; active for zone_dilna, zone_sklad"
   },
@@ -56217,9 +56127,9 @@
    "id": "QA_BRAVO_R1_1",
    "kind": "spawn_point",
    "pos": [
-    28.95,
-    135.48,
-    3.1
+    30.72,
+    140.37,
+    3.19
    ],
    "note": "yaw 160.02"
   },
@@ -56227,9 +56137,9 @@
    "id": "QA_BRAVO_R1_2",
    "kind": "spawn_point",
    "pos": [
-    26.13,
-    136.51,
-    3.1
+    27.9,
+    141.39,
+    3.18
    ],
    "note": "yaw 160.02"
   },
@@ -56237,9 +56147,9 @@
    "id": "QA_BRAVO_R1_3",
    "kind": "spawn_point",
    "pos": [
-    29.97,
-    138.3,
-    3.14
+    31.75,
+    143.19,
+    3.27
    ],
    "note": "yaw 160.02"
   },
@@ -56247,9 +56157,9 @@
    "id": "QA_BRAVO_R1_4",
    "kind": "spawn_point",
    "pos": [
-    27.15,
-    139.33,
-    3.13
+    28.93,
+    144.21,
+    3.25
    ],
    "note": "yaw 160.02"
   },
@@ -56257,9 +56167,9 @@
    "id": "QA_BRAVO_R1_5",
    "kind": "spawn_point",
    "pos": [
-    31.0,
-    141.12,
-    3.2
+    32.77,
+    146.01,
+    3.37
    ],
    "note": "yaw 160.02"
   },
@@ -56267,9 +56177,9 @@
    "id": "QA_BRAVO_R1_6",
    "kind": "spawn_point",
    "pos": [
-    28.18,
-    142.15,
-    3.2
+    29.95,
+    147.03,
+    3.36
    ],
    "note": "yaw 160.02"
   },
@@ -56277,9 +56187,9 @@
    "id": "QA_BRAVO_R1_7",
    "kind": "spawn_point",
    "pos": [
-    32.02,
-    143.94,
-    3.29
+    33.8,
+    148.82,
+    3.49
    ],
    "note": "yaw 160.02"
   },
@@ -56287,9 +56197,9 @@
    "id": "QA_BRAVO_R1_8",
    "kind": "spawn_point",
    "pos": [
-    29.2,
-    144.96,
-    3.28
+    30.98,
+    149.85,
+    3.49
    ],
    "note": "yaw 160.02"
   },
@@ -56387,9 +56297,9 @@
    "id": "QA_CHARLIE_R2",
    "kind": "spawn_row",
    "pos": [
-    92.38,
-    -94.87,
-    4.04
+    94.96,
+    -96.29,
+    4.23
    ],
    "note": "row centre; active for zone_sklad, zone_dvur"
   },
@@ -56477,9 +56387,9 @@
    "id": "QA_CHARLIE_R2_1",
    "kind": "spawn_point",
    "pos": [
-    87.71,
-    -94.02,
-    3.82
+    90.29,
+    -95.44,
+    4.02
    ],
    "note": "yaw 61.19"
   },
@@ -56487,9 +56397,9 @@
    "id": "QA_CHARLIE_R2_2",
    "kind": "spawn_point",
    "pos": [
-    89.16,
-    -91.39,
-    3.68
+    91.74,
+    -92.81,
+    3.85
    ],
    "note": "yaw 61.19"
   },
@@ -56497,9 +56407,9 @@
    "id": "QA_CHARLIE_R2_3",
    "kind": "spawn_point",
    "pos": [
-    90.34,
-    -95.46,
-    4.02
+    92.92,
+    -96.88,
+    4.22
    ],
    "note": "yaw 61.19"
   },
@@ -56507,9 +56417,9 @@
    "id": "QA_CHARLIE_R2_4",
    "kind": "spawn_point",
    "pos": [
-    91.79,
-    -92.84,
-    3.85
+    94.37,
+    -94.25,
+    4.05
    ],
    "note": "yaw 61.19"
   },
@@ -56517,9 +56427,9 @@
    "id": "QA_CHARLIE_R2_5",
    "kind": "spawn_point",
    "pos": [
-    92.97,
-    -96.91,
-    4.22
+    95.55,
+    -98.33,
+    4.38
    ],
    "note": "yaw 61.19"
   },
@@ -56527,9 +56437,9 @@
    "id": "QA_CHARLIE_R2_6",
    "kind": "spawn_point",
    "pos": [
-    94.42,
-    -94.28,
-    4.06
+    97.0,
+    -95.7,
+    4.24
    ],
    "note": "yaw 61.19"
   },
@@ -56537,9 +56447,9 @@
    "id": "QA_CHARLIE_R2_7",
    "kind": "spawn_point",
    "pos": [
-    95.6,
-    -98.36,
-    4.38
+    98.18,
+    -99.77,
+    4.52
    ],
    "note": "yaw 61.19"
   },
@@ -56547,9 +56457,9 @@
    "id": "QA_CHARLIE_R2_8",
    "kind": "spawn_point",
    "pos": [
-    97.04,
-    -95.73,
-    4.24
+    99.63,
+    -97.15,
+    4.39
    ],
    "note": "yaw 61.19"
   },
@@ -57629,7 +57539,7 @@
    "pos": [
     -128.0,
     -86.0,
-    -1.94
+    -1.95
    ],
    "note": "walk out: warning band text, then countdown; check the visible barrier"
   }
@@ -57695,5 +57605,98 @@
   },
   "buildings": "per building in buildings.json (downpipes[].outlet, drainage)",
   "mill_race": "dry since 1952; the intake sluice at the weir is closed (a trickle and mud decals in the bed)"
+ },
+ "navmesh_validation": {
+  "tool": "recast-navigation 0.43.1 (Node v22.22.2)",
+  "config": {
+   "cs": 0.05,
+   "ch": 0.05,
+   "walkableSlopeAngle": 45,
+   "walkableHeight": 36,
+   "walkableClimb": 8,
+   "walkableRadius": 7,
+   "tileSize": 256,
+   "maxEdgeLen": 240,
+   "maxSimplificationError": 1.1,
+   "minRegionArea": 16,
+   "mergeRegionArea": 40,
+   "maxVertsPerPoly": 6,
+   "detailSampleDist": 12,
+   "detailSampleMaxError": 1,
+   "walkableRadius_cells": 7
+  },
+  "input": {
+   "vertices": 1019616,
+   "triangles": 339872
+  },
+  "bake_seconds": 7.5,
+  "tiles": 307,
+  "polys": 7898,
+  "disconnected_entrances": [],
+  "entrances_checked": 83,
+  "balance": {
+   "zone_dilna": {
+    "teams": {
+     "alfa": {
+      "mean_m": 122.75
+     },
+     "bravo": {
+      "mean_m": 125.18
+     },
+     "charlie": {
+      "mean_m": 125.51
+     }
+    },
+    "max_over_min": 1.0225,
+    "unreachable": 0,
+    "run_time_s_3_5": [
+     35.1,
+     35.9
+    ]
+   },
+   "zone_sklad": {
+    "teams": {
+     "alfa": {
+      "mean_m": 125.9
+     },
+     "bravo": {
+      "mean_m": 121.5
+     },
+     "charlie": {
+      "mean_m": 122.26
+     }
+    },
+    "max_over_min": 1.0362,
+    "unreachable": 0,
+    "run_time_s_3_5": [
+     34.7,
+     36
+    ]
+   },
+   "zone_dvur": {
+    "teams": {
+     "alfa": {
+      "mean_m": 115.93
+     },
+     "bravo": {
+      "mean_m": 118.83
+     },
+     "charlie": {
+      "mean_m": 120.69
+     }
+    },
+    "max_over_min": 1.0411,
+    "unreachable": 0,
+    "run_time_s_3_5": [
+     33.1,
+     34.5
+    ]
+   }
+  },
+  "method": "Detour computePath (straight path length) from each active spawn point to every zone target point (2 m grid of walkable zone cells, exact minimum with straight-line pruning); a target counts as reached only when the path ends within 0.6 m of it; entrances are reached from the village square (0, 0, 0.30).",
+  "entrances_failed": [],
+  "level_hash": "3d8bbe7693de744d",
+  "status": "PASS",
+  "note": "design-time validation bake from the level JSON proxy geometry (Tools/level/nav). The shipping navmesh is baked the same way from the generated collision meshes (ARCHITECTURE D4) and must reproduce these results."
  }
 }

@@ -50,11 +50,21 @@ cca 29 GB volného disku, **bez GPU** (`/dev/dri` chybí, `nvidia-smi` chybí). 
 ## Hotovo
 
 - Kontrola prostředí a tabulka dostupnosti (výše).
+- **Fáze A (web) — základ enginu** (`Web/`): three.js 0.186.1, pevný krok 1/60 s s interpolací, kapslový kontroler (BVH),
+  zkušební prostor, hitscan ověřovaný od ústí, obloha/slunce/stíny, zapečené světlo zkušebního prostoru, vstup s pointer lock
+  a záložním rozhlížením tažením, `window.__IV` pro testy. Build `npm run build` → `dist/index.html` + `dist/artifact.html`.
+  Ověřeno 2 koly nezávislé kontroly: **e2e 39/39 PASS, unit 278/278 PASS** (headless Chromium, SwiftShader). Výkon na reálném GPU: NOT TESTED.
+- **Jádro pravidel** (`Web/src/core`, `Core/`, `Shared/`): munice + přebíjení s komorou, kontrolní bod, kolo, respawn.
+  JS 217/217, C++ ctest 15/15 (GCC, clang, ASan+UBSan), 149 sdílených vektorů, diferenciální fuzz JS↔C++, 19 injektovaných
+  mutací zachyceno. Pravidla a rozhodnutí: `Docs/RULES.md`.
 
 ## Známé vady / otevřené body
 
 - P0 (vnější blokátor): Unreal Engine 5 není v prostředí dostupný → hra v UE nemůže být spuštěna ani testována.
 - HF-01: BLOCKED — Higgsfield nepřipojen.
+- Munice ve webu (`src/weapons/weaponState.js`) ještě není napojená na autoritativní jádro `src/core/weapon.js` — napojit ve fázi C.
+- Zapečení osvětlení běží při načtení (zkušební prostor ~0,7 s); pro mapu 350 × 350 m přesunout do buildu.
+- Chování uvnitř hostitele Artifact na claude.ai (pointer lock, CSP) NOT TESTED; lokálně simulovaná přísná CSP prochází.
 
 ## Další krok
 

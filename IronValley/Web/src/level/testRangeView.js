@@ -142,7 +142,7 @@ export function paletteAlbedo(mat) {
  * @param {object} level  test_range.json
  * @param {Array} solids  output of buildLevelSolids
  * @param {object} opts
- * @param {object} [opts.lighting] { world, sunDirection, ambientFloor, rays } bakes indirect light
+ * @param {object} [opts.lighting] { world, sunDirection, ambientFloor, rays, cell, largeCell } bakes indirect light
  * @returns {{group: Group, materials: object, lighting: object|null}}
  */
 export function buildTestRangeView(level, solids, { maxAnisotropy = 8, lighting = null } = {}) {
@@ -153,7 +153,7 @@ export function buildTestRangeView(level, solids, { maxAnisotropy = 8, lighting 
   let bake = null;
   if (lighting) {
     const t0 = typeof performance !== 'undefined' ? performance.now() : 0;
-    const geos = buildLightingGeometries(solids);
+    const geos = buildLightingGeometries(solids, { cell: lighting.cell ?? 0.5, largeCell: lighting.largeCell ?? 1.0 });
     let vertices = 0;
     let hidden = 0;
     geos.forEach((g, i) => {

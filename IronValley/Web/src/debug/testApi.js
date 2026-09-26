@@ -146,6 +146,7 @@ export function installTestApi(game, target = window) {
       // a test switch only the direct sunlight)
       if (o.bounceSun !== undefined) game.bounceSunOverride = o.bounceSun;
       if (o.fogDensity !== undefined) game.scene.fog.density = o.fogDensity;
+      game._drawDirty = true;
       return {
         exposure: r.toneMappingExposure,
         sun: game.env.sun.intensity,

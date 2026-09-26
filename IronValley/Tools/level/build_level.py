@@ -201,7 +201,7 @@ DITCH_A_XY = offset_polyline(resample(RA_XY, 30.0, 104.0), -5.3)
 DITCH_A_Z = [r2(z) for z in (np.array(profile_z(resample(RA_XY, 30.0, 104.0), smooth=6)) - 0.80)]
 
 # dry mill race (náhon) along the NW slope, ends on the terrace behind the workshop
-MILL_XY = [DLw((13.0, -14.6)), DLw((-17.0, -14.6)), [-30.0, 52.0], [-29.0, 70.0], [-27.5, 92.0], [-25.5, 112.0], [-22.6, 116.3]]
+MILL_XY = [DLw((13.0, -15.0)), DLw((-17.0, -15.0)), [-30.0, 52.0], [-29.0, 70.0], [-27.5, 92.0], [-25.5, 112.0], [-22.6, 116.3]]
 MILL_XY = [[r2(p[0]), r2(p[1])] for p in MILL_XY]
 MILL_DEPTH = 1.00
 # bed = 1.00 m below the smoothed ground (terrace pad on the terrace part), rising upstream (list order = upstream)
@@ -214,18 +214,18 @@ MILL_Z = _mz
 
 # footpaths (surface + light flattening only)
 PATHS = {
-    "P_MILLRACE": {"xy": [DLw((12.0, -10.3)), DLw((-17.5, -10.3)), [-27.0, 51.0], [-26.0, 70.0], [-24.5, 88.0]],
+    "P_MILLRACE": {"xy": [DLw((12.0, -12.4)), DLw((-17.5, -12.4)), [-27.0, 51.0], [-26.0, 70.0], [-24.5, 88.0]],
                    "width": 1.4, "surface": "dirt", "role": "NW ring/flank: arm B <-> rear of the workshop (terrace behind the retaining wall)"},
     "P_BANK_A": {"xy": [[-58.8, -0.8], [-52.0, 4.0], DLw((14.5, 6.0)), DLw((13.0, 9.0))], "width": 1.4, "surface": "dirt",
                  "role": "footbridge A -> brook north bank -> workshop yard (SW)"},
-    "P_BANK_TERRACE": {"xy": [[-52.0, 4.0], DLw((15.5, -8.0)), DLw((12.0, -10.3))], "width": 1.2, "surface": "dirt",
+    "P_BANK_TERRACE": {"xy": [[-52.0, 4.0], DLw((15.0, -6.8)), DLw((15.0, -12.4)), DLw((12.0, -12.4))], "width": 1.2, "surface": "dirt",
                        "role": "brook bank -> ramp up to the SW end of the mill-race terrace"},
     "P_FOOT_A_ROAD": {"xy": [[-57.3, -9.9], [-56.5, -20.2]], "width": 1.4, "surface": "gravel", "role": "road A -> footbridge A"},
     "P_FOOT_B": {"xy": [[13.2, 58.0], [0.0, 58.4], [-10.3, 58.25]], "width": 1.4, "surface": "dirt", "role": "road B -> footbridge B"},
     "P_FOOT_B_W": {"xy": [[-19.3, 57.75], [-27.0, 57.0]], "width": 1.2, "surface": "dirt", "role": "footbridge B -> mill-race path"},
     "P_BANK_B": {"xy": [[-19.3, 57.75], [-19.5, 45.0], DLw((-14.5, 4.0)), DLw((-12.2, 0.7))], "width": 1.2, "surface": "dirt",
                  "role": "footbridge B -> brook west bank -> workshop gable door DL_D3 (NNE)"},
-    "P_E_RING": {"xy": [[14.5, 60.0], [30.0, 52.0], [47.0, 42.0], [57.5, 31.0], [60.0, 16.0], [58.5, 0.0], [54.0, -16.0], [47.0, -30.0], [44.5, -39.0]],
+    "P_E_RING": {"xy": [[14.5, 60.0], [30.0, 52.0], [47.0, 42.0], [61.0, 33.0], [61.3, 16.0], [61.0, 0.0], [56.0, -17.0], [47.0, -30.0], [44.5, -39.0]],
                  "width": 1.6, "surface": "dirt", "role": "E ring/flank: arm B <-> arm C behind the warehouse (hedgerow side)"},
     "P_S_RING": {"xy": [[46.0, -42.0], [40.0, -57.0], [16.0, -61.5], [-8.0, -60.0], [-26.0, -56.5], [-44.0, -47.0], [-54.0, -36.0], [-59.0, -24.0]],
                  "width": 1.6, "surface": "dirt", "role": "S ring/flank: arm C <-> arm A behind the house (field / wood edge)"},
@@ -307,6 +307,10 @@ stamps.append({"kind": "road", "id": "ROAD_A", "polyline": with_z(RA_XY, RA_Z), 
 stamps.append({"kind": "road", "id": "ROAD_B", "polyline": with_z(RB_XY, RB_Z), "width": 6.0, "shoulder": 0.75, "blend": 4.0})
 stamps.append({"kind": "road", "id": "TRACK_C", "polyline": with_z(TC_XY, TC_Z), "width": 3.6, "shoulder": 0.5, "blend": 3.0})
 stamps.append({"kind": "road", "id": "DRIVE_DUM", "polyline": DRIVE, "width": 3.2, "shoulder": 0.3, "blend": 3.0})
+RAMP_TERRACE_SW = [[r2(DLw((15.0, -7.0))[0]), r2(DLw((15.0, -7.0))[1]), Z_DILNA_PAD],
+                   [r2(DLw((15.0, -12.2))[0]), r2(DLw((15.0, -12.2))[1]), Z_TERRACE_DILNA]]
+stamps.append({"kind": "road", "id": "RAMP_TERRACE_SW", "polyline": RAMP_TERRACE_SW, "width": 2.0, "shoulder": 0.2, "blend": 2.5,
+               "note": "grassed ramp beside the SW end of RW_DILNA: rear pad <-> mill-race terrace (2.0 m over 5.2 m = 21 deg)"})
 RAMP_SKLAD_E = [[54.5, 17.0, Z_SKLAD_REAR], [67.5, 17.0, 7.60]]
 stamps.append({"kind": "road", "id": "RAMP_SKLAD_E", "polyline": RAMP_SKLAD_E, "width": 5.0, "shoulder": 0.3, "blend": 4.0,
                "note": "field access ramp from the warehouse rear yard up to the E ring path (22 deg), through the hedge gaps"})
@@ -523,7 +527,9 @@ fence("HEDGE_SKLAD_REAR2", "hedge_privet", [[57.0, 12.0], [57.0, 3.0]], 1.8, Fal
 fence("HEDGE_TC_NE", "hedgerow_mixed", offset_polyline(resample(TC_XY, 44.0, 76.0), 4.6), 2.2, False, True, note="hedgerow NE of track C (gap 76-86)")
 fence("HEDGE_TC_NE2", "hedgerow_mixed", offset_polyline(resample(TC_XY, 86.0, 118.0), 4.6), 2.2, False, True)
 fence("F_DOMEK1_FRONT", "timber_picket_1m", [[21.5, 57.0], [21.5, 71.0]], 1.1, note="front garden fence S_DOMEK_1")
-fence("HEDGE_DOMEK3", "hedge_privet", [[-68.6, -40.0], [-68.6, -52.6], [-55.0, -52.6]], 1.8, False, True, note="garden hedge S_DOMEK_3")
+fence("HEDGE_DOMEK3", "hedge_privet", [[-68.6, -40.0], [-68.6, -48.6]], 1.8, False, True, note="garden hedge S_DOMEK_3 (west, N of the gate)")
+fence("HEDGE_DOMEK3B", "hedge_privet", [[-68.6, -51.4], [-68.6, -52.6], [-55.0, -52.6]], 1.8, False, True,
+      note="garden hedge S_DOMEK_3 (SW corner + south); 2.8 m garden gate gap at y -48.6..-51.4 (open wooden gate)")
 fence("HEDGE_DOMEK4", "hedge_privet", [[22.0, -58.0], [34.5, -55.5]], 1.8, False, True, note="garden hedge S_DOMEK_4")
 fence("HEDGE_TC_SW1", "hedgerow_mixed", offset_polyline(resample(TC_XY, 40.0, 56.0), -7.6), 2.2, False, True, note="hedgerow SW of track C beyond the ditch")
 fence("HEDGE_TC_SW2", "hedgerow_mixed", offset_polyline(resample(TC_XY, 61.0, 80.0), -7.6), 2.2, False, True)
@@ -683,7 +689,7 @@ lprop("P_DL_7", "pallet_stack", DILNA, (9.6, 6.2), 0, "Z1_yard", z=Z_DILNA_PAD)
 lprop("P_DL_8", "water_wheel_ruin", DILNA, (12.9, -2.2), 0, "Z1_yard", "rusted wheel on the old tailrace at the annex gable", Z_DILNA_PAD)
 lprop("P_DL_9", "harrow_rusty", DILNA, (-6.5, -7.4), 0, "Z1_rear", z=Z_DILNA_PAD)
 lprop("P_DL_10", "gas_bottle_cage", DILNA, (-9.6, -5.8), 0, "Z1_rear", z=Z_DILNA_PAD)
-lprop("P_DL_11", "pallet_stack", DILNA, (6.0, -12.1), 0, "Z1_terrace", "pallets between the terrace path and the race", Z_TERRACE_DILNA)
+lprop("P_DL_11", "pallet_stack", DILNA, (6.0, -10.35), 0, "Z1_terrace", "pallets between the terrace path and the race", Z_TERRACE_DILNA)
 lprop("P_DL_12", "bench", DILNA, (7.8, 6.1), 0, "Z1_yard", z=Z_DILNA_PAD)
 # --- Z2 warehouse yard / dock / rear
 prop("P_SK_1", "semi_trailer_box", [22.3, 15.2], 90, "Z2_yard", "splits the yard into the dock aisle and the outer yard", Z_SKLAD_YARD)
@@ -708,7 +714,7 @@ lprop("P_DM_6", "paving_slab_stack", DUM, (-7.2, 8.0), 0, "Z3_garden", z=Z_TERRA
 lprop("P_DM_7", "paving_slab_stack", DUM, (3.8, 18.6), 0, "Z3_garden", "behind the parapet near the stairs", Z_TERRACE_DUM)
 lprop("P_DM_8", "car_hatchback", DUM, (14.5, 16.3), 90, "Z3_drive", z=Z_TERRACE_DUM)
 lprop("P_DM_9", "compost_bins", DUM, (6.5, -10.5), 0, "Z3_rear", z=Z_TERRACE_DUM)
-lprop("P_DM_10", "log_pile", DUM, (3.0, -7.8), 0, "Z3_rear", "firewood by the entrance", Z_TERRACE_DUM)
+lprop("P_DM_10", "log_pile", DUM, (3.5, -8.8), 0, "Z3_rear", "firewood in the rear yard (keeps 1.2 m in front of the entrance steps)", Z_TERRACE_DUM)
 prop("P_DM_11", "log_pile", [-31.0, -40.5], 80, "Z3_west_approach", "stacked firewood below the terrace west hedge (attacker cover)")
 prop("P_DM_12", "farm_trailer_old", [-37.5, -35.5], 20, "Z3_west_approach", "old trailer by the garden path (attacker cover)")
 # --- square
@@ -822,17 +828,17 @@ zones[2]["excluded"] = "the square below the retaining wall; the upper floor and
 # =================================================================================================
 SPINES = {
     # team: road polyline it follows, lateral offset (+ = left of the road direction away from the square), s range (m along the road)
-    "alfa": {"road": "ROAD_A", "xy": RA_XY, "offset": 22.0, "s_range": [80.0, 140.0], "side": "S of road A behind the pub (timber yard)"},
-    "bravo": {"road": "ROAD_B", "xy": RB_XY, "offset": -10.0, "s_range": [80.0, 155.0], "side": "E of road B (gravel works yard)"},
+    "alfa": {"road": "ROAD_A", "xy": RA_XY, "offset": 22.0, "s_range": [80.0, 146.0], "side": "S of road A behind the pub (timber yard)"},
+    "bravo": {"road": "ROAD_B", "xy": RB_XY, "offset": -10.0, "s_range": [80.0, 160.0], "side": "E of road B (gravel works yard)"},
     "charlie": {"road": "TRACK_C", "xy": TC_XY, "offset": -9.0, "s_range": [80.0, 140.0], "side": "SW of track C (farm meadow)"},
 }
 SPINE_XY = {t: offset_polyline(v["xy"], v["offset"]) for t, v in SPINES.items()}
 # Design-fixed spawn rows (s = metres along the team's road from the square).  They come from the exhaustive geodesic solver
 # (ivpost.solve_spawns without fixed rows); the hard HESCO screens are built around them and the balance is re-measured
 # with the screens present (Tools/level/check_layout.py S03 enforces max/min <= 1.06).
-FIXED_ROWS = {"alfa": {"zone_dilna": 140.0, "zone_dvur": 140.0, "zone_sklad": 87.0},
-              "bravo": {"zone_dilna": 152.0, "zone_sklad": 152.0, "zone_dvur": 92.0},
-              "charlie": {"zone_dilna": 89.0, "zone_sklad": 129.0, "zone_dvur": 129.0}}
+FIXED_ROWS = {"alfa": {"zone_dilna": 142.0, "zone_dvur": 142.0, "zone_sklad": 84.0},
+              "bravo": {"zone_dilna": 157.0, "zone_sklad": 157.0, "zone_dvur": 92.0},
+              "charlie": {"zone_dilna": 89.0, "zone_sklad": 132.0, "zone_dvur": 132.0}}
 for _t, _r in FIXED_ROWS.items():
     SPINES[_t]["fixed_rows"] = _r
 
@@ -1020,11 +1026,29 @@ def spawn_screens():
         mid = (lo + hi) / 2
         lo = mid - seg * nseg / 2
         rot = math.degrees(math.atan2(nrm[1], nrm[0]))
+        from shapely.geometry import Polygon as _Pg, LineString as _Ls
+        blds = [_Pg(b_["footprint_world"]).buffer(0.3) for b_ in SEC + main_buildings]
         for i in range(nseg):
-            u = lo + seg * (i + 0.5)
+            ua, ub = lo + seg * i, lo + seg * (i + 1)
+            line = _Ls([tuple(c + nrm * ua), tuple(c + nrm * ub)]).buffer(1.3, cap_style=2)
+            hit = [bp_ for bp_ in blds if bp_.intersects(line)]
+            if hit:
+                # shrink from the side that touches the building until clear (the building closes the rest)
+                for _ in range(40):
+                    la = _Ls([tuple(c + nrm * ua), tuple(c + nrm * (ua + 0.3))]).buffer(1.3, cap_style=2)
+                    lb = _Ls([tuple(c + nrm * (ub - 0.3)), tuple(c + nrm * ub)]).buffer(1.3, cap_style=2)
+                    if any(h.intersects(la) for h in hit):
+                        ua += 0.25
+                    elif any(h.intersects(lb) for h in hit):
+                        ub -= 0.25
+                    else:
+                        break
+                if ub - ua < 1.0:
+                    continue
+            u = (ua + ub) / 2
             pc = c + nrm * u
             PROPS.append({"id": f"P_SCREEN_{t.upper()}_{int(s_)}_{i + 1}", "type": typ, "position": [r2(pc[0]), r2(pc[1]), None],
-                          "rotation_deg": r2(rot % 360), "size": [r2(seg), 1.1 if typ == "hesco_line" else 2.44, hgt],
+                          "rotation_deg": r2(rot % 360), "size": [r2(ub - ua), 1.1 if typ == "hesco_line" else 2.44, hgt],
                           "cover": "high", "blocks_bullets": True, "blocks_vision": True, "cluster": f"spawn_screen_{t}",
                           "note": f"hard spawn screen of row s={s_:.0f} ({', '.join(zids)}), {dist} m in front of the front rank, "
                                   f"needs {req:.2f} m of {hgt} m; ends open as chicane exits"})

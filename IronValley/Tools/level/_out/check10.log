@@ -1,0 +1,112 @@
+
+== 0. Schema, ids and references
+  PASS C00: schema ok; zones ['zone_dilna', 'zone_sklad', 'zone_dvur'] and teams ['alfa', 'bravo', 'charlie'] match rules.json; ids unique; 103 props typed
+
+== 1. Terrain
+  PASS T01: base grid 71x71 @ 5.0 m covers x[-175.0,175.0] y[-175.0,175.0] >= map extent; 22 stamps of known kinds; detail noise with 6 octaves
+  PASS T02: 3 vertical terrain steps carry both face polylines (generator must insert them as constraint edges -- no sawtooth)
+  PASS T03: detail relief RMS in open terrain 0.36 m (masked to 0 on pads/roads/zones/spawns/buildings)
+  PASS T04: reference bake Shared/level/terrain_ref_0p5m.png (701x701 @ 0.5 m) matches the reference implementation within 0.4 mm (16-bit step 0.76 mm) on 3000 samples
+
+== 2. Buildings (buildings.json, local frames)
+  PASS B01[B_DILNA]: 14 wall thicknesses realistic (masonry 0.30-0.45 ext, cladding 0.25, partitions 0.10-0.15, spine/fire walls 0.30-0.45)
+  PASS B02[B_DILNA]: wall boxes do not overlap
+  PASS B03[B_DILNA]: external 23.0 x 10.0 m = interior + wall thicknesses for every part; ring fully walled
+  PASS B04[B_DILNA]: 27 openings sit in their walls with piers >= 0.10, lintels >= 0.10, no wall or column inside a door span, >= 0.20 m between openings
+  PASS B05[B_DILNA]: 11 doors: clear width/height = structural - frame - leaf, all >= 1.10 x 2.05 m (brief >= 0.90 x 2.05)
+  PASS B06[B_DILNA]: every door leaf rest pose is clear of walls, furniture, stairs and balustrades
+  PASS B07[B_DILNA]: 16 furniture boxes inside rooms, clear of walls, of 1.0 m door zones and of each other; chimneys clear of openings
+  PASS B08[B_DILNA]: construction boxes (piers/sills/lintels) exactly tile every wall minus its openings
+  PASS B09[B_DILNA]: 2 stairs within riser/tread/2R+T/width/headroom limits; direction_deg (0 = +Y) consistent with top_riser_center; arrive at their levels
+       DL_S1: 16 x 0.1875 / 0.27 (2R+T 0.645), width 1.1, min headroom 2.80
+       DL_ES1: 17 x 0.1865 / 0.27 (2R+T 0.643), width 1.1, min headroom open sky
+  PASS B10[B_DILNA]: single steps 0.16-0.19, thresholds <= 0.05, ramps < 45 deg
+  PASS B11[B_DILNA]: 5 rooms: clear height >= 2.10, polygons clear of walls
+  PASS B12[B_DILNA]: walls close into rooms on ['L0', 'L1']: every enclosed region (doors closed) is exactly one room or a declared sealed void
+  PASS B13a[B_DILNA]: all 5 rooms reachable from outside (door/stair graph search)
+  PASS B13b[B_DILNA]: every upper level has >= 2 independent ways down; elevated rooms have >= 2 exits (except declared dead ends without firing windows)
+  PASS B13c[B_DILNA]: capsule (r 0.35) raster connectivity per level: every room and every stair approach reachable with doors open, furniture placed
+  PASS B14[B_DILNA]: every space below stairs/landings with headroom < 2.10 is enclosed, solid or filled (3D check, no crouch-only nooks)
+  PASS B01[B_SKLAD]: 6 wall thicknesses realistic (masonry 0.30-0.45 ext, cladding 0.25, partitions 0.10-0.15, spine/fire walls 0.30-0.45)
+  PASS B02[B_SKLAD]: wall boxes do not overlap
+  PASS B03[B_SKLAD]: external 24.5 x 15.5 m = interior + wall thicknesses for every part; ring fully walled
+  PASS B04[B_SKLAD]: 16 openings sit in their walls with piers >= 0.10, lintels >= 0.10, no wall or column inside a door span, >= 0.20 m between openings
+  PASS B05[B_SKLAD]: 9 doors: clear width/height = structural - frame - leaf, all >= 1.10 x 2.05 m (brief >= 0.90 x 2.05)
+  PASS B06[B_SKLAD]: every door leaf rest pose is clear of walls, furniture, stairs and balustrades
+  PASS B07[B_SKLAD]: 11 furniture boxes inside rooms, clear of walls, of 1.0 m door zones and of each other; chimneys clear of openings
+  PASS B08[B_SKLAD]: construction boxes (piers/sills/lintels) exactly tile every wall minus its openings
+  PASS B09[B_SKLAD]: 2 stairs within riser/tread/2R+T/width/headroom limits; direction_deg (0 = +Y) consistent with top_riser_center; arrive at their levels
+       SK_X1: 6 x 0.1833 / 0.28 (2R+T 0.647), width 1.5, min headroom open sky
+       SK_X2: 6 x 0.1833 / 0.28 (2R+T 0.647), width 2.0, min headroom open sky
+  PASS B10[B_SKLAD]: single steps 0.16-0.19, thresholds <= 0.05, ramps < 45 deg
+  PASS B11[B_SKLAD]: 2 rooms: clear height >= 2.10, polygons clear of walls
+  PASS B12[B_SKLAD]: walls close into rooms on ['L0']: every enclosed region (doors closed) is exactly one room or a declared sealed void
+  PASS B13a[B_SKLAD]: all 2 rooms reachable from outside (door/stair graph search)
+  PASS B13b[B_SKLAD]: every upper level has >= 2 independent ways down; elevated rooms have >= 2 exits (except declared dead ends without firing windows)
+  PASS B13c[B_SKLAD]: capsule (r 0.35) raster connectivity per level: every room and every stair approach reachable with doors open, furniture placed
+  PASS B14[B_SKLAD]: every space below stairs/landings with headroom < 2.10 is enclosed, solid or filled (3D check, no crouch-only nooks)
+  PASS B01[B_DUM]: 18 wall thicknesses realistic (masonry 0.30-0.45 ext, cladding 0.25, partitions 0.10-0.15, spine/fire walls 0.30-0.45)
+  PASS B02[B_DUM]: wall boxes do not overlap
+  PASS B03[B_DUM]: external 11.0 x 9.5 m = interior + wall thicknesses for every part; ring fully walled
+  PASS B04[B_DUM]: 32 openings sit in their walls with piers >= 0.10, lintels >= 0.10, no wall or column inside a door span, >= 0.20 m between openings
+  PASS B05[B_DUM]: 13 doors: clear width/height = structural - frame - leaf, all >= 1.10 x 2.05 m (brief >= 0.90 x 2.05)
+  PASS B06[B_DUM]: every door leaf rest pose is clear of walls, furniture, stairs and balustrades
+  PASS B07[B_DUM]: 14 furniture boxes inside rooms, clear of walls, of 1.0 m door zones and of each other; chimneys clear of openings
+  PASS B08[B_DUM]: construction boxes (piers/sills/lintels) exactly tile every wall minus its openings
+  PASS B09[B_DUM]: 5 stairs within riser/tread/2R+T/width/headroom limits; direction_deg (0 = +Y) consistent with top_riser_center; arrive at their levels
+       DM_S1a: 8 x 0.1875 / 0.27 (2R+T 0.645), width 1.1, min headroom 4.25
+       DM_S1b: 8 x 0.1875 / 0.27 (2R+T 0.645), width 1.1, min headroom 2.75
+       DM_X1: 3 x 0.1800 / 0.28 (2R+T 0.640), width 1.5, min headroom open sky
+       DM_X2: 3 x 0.1800 / 0.28 (2R+T 0.640), width 1.4, min headroom open sky
+       DM_S2: 19 x 0.1863 / 0.27 (2R+T 0.643), width 1.1, min headroom open sky
+  PASS B10[B_DUM]: single steps 0.16-0.19, thresholds <= 0.05, ramps < 45 deg
+  PASS B11[B_DUM]: 10 rooms: clear height >= 2.10, polygons clear of walls
+  PASS B12[B_DUM]: walls close into rooms on ['L0', 'L1']: every enclosed region (doors closed) is exactly one room or a declared sealed void
+  PASS B13a[B_DUM]: all 10 rooms reachable from outside (door/stair graph search)
+  PASS B13b[B_DUM]: every upper level has >= 2 independent ways down; elevated rooms have >= 2 exits (except declared dead ends without firing windows)
+  WARN B13b[B_DUM]: DM_R1_KOUPELNA dead end accepted: bathroom: single door, only high windows (sill 1.30 m) -- not a firing position, not campable over the zone
+  PASS B13c[B_DUM]: capsule (r 0.35) raster connectivity per level: every room and every stair approach reachable with doors open, furniture placed
+  PASS B14[B_DUM]: every space below stairs/landings with headroom < 2.10 is enclosed, solid or filled (3D check, no crouch-only nooks)
+
+== 3. Placement, overlaps, terrain contact
+  PASS L01: 24 buildings (3 main + 21 secondary) do not overlap each other, roads/tracks, retaining walls or props
+  PASS L02: 3 distinct main types (dílna, menší sklad, obytný dům) all fully enterable; every secondary building is flagged enterable:false and reads closed (no fake doors), except the open bus shelter
+  PASS L03: every external ground-floor door meets flat ground, a landing, a step or the dock at <= one riser (0.16-0.19) below the floor, never above it
+  PASS L04: 21 secondary buildings and 103 props sit on the terrain (|dz| <= 0.15 m at their centre; yard props on their pads)
+       walk raster 0.25 m built in 23 s
+
+== 4. Zones, spawns, balance, boundary, routes
+  PASS Z01: zones on walkable ground, fully inside the boundary, unambiguous z bands (>= 0.30 m margin), upper floors, platforms and trench beds excluded
+       zone_dilna: 429 m2, z 0.7..3.8, walkable in band 64 %
+       zone_sklad: 481 m2, z 0.8..5.0, walkable in band 74 %
+       zone_dvur: 494 m2, z 1.9..5.54, walkable in band 74 %
+  PASS S01: each team >= 8 points (16 per team: 2 rows x 8) inside its area; each zone has 8 per team; walkable, slope <= 15 deg, >= 0.85 m from objects, not in buildings, >= 1.5 m apart, >= 10 m inside the soft boundary, active set spread <= 25 m
+  PASS S02: per zone: active spawns of different teams >= 150 m apart, approach bearings >= 80 deg apart, straight-line centre and edge distances within +-10 % of the mean
+       zone_dilna: straight-line centre {'alfa': 128.9, 'bravo': 134.8, 'charlie': 126.5}, edge {'alfa': 114.3, 'bravo': 121.3, 'charlie': 118.6}, bearings {'alfa': 226, 'bravo': 25, 'charlie': 139} (min sep 88 deg)
+       zone_sklad: straight-line centre {'alfa': 123.7, 'bravo': 127.2, 'charlie': 125.6}, edge {'alfa': 108.9, 'bravo': 114.2, 'charlie': 110.1}, bearings {'alfa': 241, 'bravo': 358, 'charlie': 152} (min sep 89 deg)
+       zone_dvur: straight-line centre {'alfa': 119.3, 'bravo': 122.2, 'charlie': 117.4}, edge {'alfa': 103.5, 'bravo': 113.1, 'charlie': 102.6}, bearings {'alfa': 252, 'bravo': 8, 'charlie': 123} (min sep 114 deg)
+  FAIL S03: zone_sklad: grid-path max/min 1.065 > 1.06 (project target)
+       zone_dilna: FMM walk to zone edge {'alfa': 119.5, 'bravo': 123.0, 'charlie': 124.6} m, max dev 2.4 %, max/min 1.043, run 3.5 m/s 34-36 s
+       zone_sklad: FMM walk to zone edge {'alfa': 121.5, 'bravo': 115.5, 'charlie': 114.1} m, max dev 3.8 %, max/min 1.065, run 3.5 m/s 33-35 s
+       zone_dvur: FMM walk to zone edge {'alfa': 111.4, 'bravo': 116.7, 'charlie': 116.0} m, max dev 2.9 %, max/min 1.048, run 3.5 m/s 32-33 s
+  PASS BND: soft boundary (42442 m2) encloses all buildings, zones, spawns, cover points, lanes, chokepoints and QA points; hard polygon encloses it; every boundary section has a physical treatment and a player explanation
+  PASS R01: all primary and flank lanes stay on walkable ground with slopes <= 45 deg (max open-ground slope 44.3 deg); flanks within +10 % of the primary lane unless declared deep flanks
+       deep flank accepted: zone_sklad/bravo +23.4 % (deliberate rear manoeuvre along the E ring hedgerow into the warehouse rear yard; bravo's regular alternatives are the yard north end and the road B verge (both within 10 %))
+  PASS R02: roads/tracks <= 20 deg (ramp <= 45), paths <= 45 deg inside the boundary (worst: P_E_RING 42.7 deg)
+  PASS R03: 49 documented entrance points (doors, stairs, bridges, gates, ramps) lie on the main walk component
+
+== 5. Line of sight with hard geometry only (vegetation ignored), incl. window openings and upper floors
+  PASS V01: 0 visible rays from every active spawn point to its zone (incl. through windows) and to upper-floor windows/balconies next to the zone, and 0 rays between enemy spawn rows -- terrain, buildings, closed buildings, hard props, walls and HESCO only (no foliage)
+       zone_dilna: 69 zone samples x 2 heights + 4 upper-floor window/balcony points vs 8 spawn points per team: 3408 rays tested
+       zone_sklad: 85 zone samples x 2 heights + 0 upper-floor window/balcony points vs 8 spawn points per team: 4080 rays tested
+       zone_dvur: 92 zone samples x 2 heights + 9 upper-floor window/balcony points vs 8 spawn points per team: 4632 rays tested
+       LOS model: 413 oriented boxes + 23 roof volumes, 10 s
+
+== 6. Vegetation, performance budget, AI data, QA points, navmesh
+  PASS G01: 1626 trees: deciduous species only inside the playable area, none on roads or in buildings, all on the terrain; vision-blocking shrubs specified dense to the ground
+  PASS P01: browser budget: 426 <= 450 draw calls, 1,924,000 <= 2,000,000 triangles; 1124 of 1626 trees impostor-only; no KTX2; PERF-01 declared NOT TESTED
+  PASS A01: 592 cover points with facing_deg/peek/capacity (>= 40 per zone), AI perception capped at 150 m, door reservation/door_link policy, stuck recovery, spawn risk scoring, Recast radius >= capsule
+  PASS Q01: 184 QA points ({'zone': 3, 'zone_edge': 19, 'spawn_row': 6, 'spawn_point': 48, 'doorway': 64, 'stair': 22, 'chokepoint': 12, 'boundary': 10}) cover every zone, spawn point, doorway, stair and chokepoint
+  WARN N01: navmesh_validation missing: the Recast bake (Tools/level/nav) has not been merged -- NOT TESTED
+
+== SUMMARY: 69 PASS, 1 FAIL, 2 WARN (50 s)

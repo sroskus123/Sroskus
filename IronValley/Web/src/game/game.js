@@ -56,6 +56,10 @@ export class Game {
     // debug/test switch: run the whole frame update but skip the WebGL draw calls (software
     // rendering in headless tests takes over a second per frame)
     this.drawEnabled = true;
+    // menus (start / pause): the simulation is held, so an unchanged frame is not redrawn
+    this.drawCount = 0;
+    this._drawDirty = true;
+    this._lastDrawSig = '';
     this.eventLog = [];
     this.data = { bindings, movement, weapons, environment: envCfg, level };
     this._eye = new Vector3();
@@ -98,7 +102,8 @@ export class Game {
     // baked indirect light: sky visibility + one sunlight bounce per vertex (ENV: interiors
     // must not be lit like open ground)
     const bl = envCfg.bakedLighting || {};
-    this.bakedLighting = bl.enabled === false ? null : { rays: bl.rays ?? 32, ambientFloor: bl.ambientFloor ?? 0.12 };
+    this.bakedLighting =
+      bl.enabled === false ? null : { rays: bl.rays ?? 32, ambientFloor: bl.ambientFloor ?? 0.12, cell: bl.cell ?? 0.5, largeCell: bl.largeCell ?? 1.0 };
     this.levelView = buildTestRangeView(level, this.levelSolids, {
       maxAnisotropy: Math.min(8, maxAniso),
       lighting: this.bakedLighting ? { world: this.world, sunDirection: this.env.sunDirection, ...this.bakedLighting } : null,
@@ -208,6 +213,7 @@ export class Game {
     });
     ev.on('player:landed', (p) => log('landed', { speed: Number(p.speed.toFixed(3)) }));
     this.settings.onChange((key) => {
+      this._drawDirty = true;
       if (key === 'renderScale' || key === 'adaptiveResolution' || key === '*') this._applyRenderScale();
     });
   }
@@ -365,11 +371,20 @@ export class Game {
     this.dummyView.update(alpha);
 
     if (this.drawEnabled) {
-      const gl = r.renderer;
-      gl.clear();
-      gl.render(this.scene, this.camera);
-      gl.clearDepth();
-      gl.render(this.viewModel.scene, this.viewModel.camera);
+      // In a menu the scene behind the translucent overlay is static: skip the draw when nothing
+      // visible changed (saves the GPU; with software rendering it also keeps the menu responsive).
+      const sig = this._drawSignature();
+      const idle = this.state !== 'playing' && !this._drawDirty && sig === this._lastDrawSig;
+      if (!idle) {
+        const gl = r.renderer;
+        gl.clear();
+        gl.render(this.scene, this.camera);
+        gl.clearDepth();
+        gl.render(this.viewModel.scene, this.viewModel.camera);
+        this._lastDrawSig = sig;
+        this._drawDirty = false;
+        this.drawCount++;
+      }
     }
 
     this.hud.update(frameDt, {
@@ -380,11 +395,35 @@ export class Game {
       sprinting: this.controller.sprinting,
     });
 
-    if (this.settings.get('adaptiveResolution') && !this.loop.frozen) {
+    // only frames actually drawn during play tell the adaptive resolution anything (menus skip draws)
+    if (this.settings.get('adaptiveResolution') && !this.loop.frozen && this.state === 'playing') {
       const s = this.adaptive.update(this.loop.lastFrameMs, frameDt);
       if (s !== null) r.setScale(s);
     }
     this.frameCount++;
+  }
+
+  /** Everything that changes the drawn image while the simulation is held (menu redraw check). */
+  _drawSignature() {
+    const r = this.renderer.renderer;
+    const parts = [
+      ...this.camera.matrixWorld.elements,
+      ...this.camera.projectionMatrix.elements,
+      ...this.viewModel.holder.position.toArray(),
+      this.viewModel.holder.rotation.x,
+      this.viewModel.holder.rotation.y,
+      this.viewModel.holder.rotation.z,
+      r.toneMappingExposure,
+      this.viewModel.ambientScale,
+      this.viewModel.sun.intensity,
+      this.viewModel.flash.visible ? 1 : 0,
+      r.domElement.width,
+      r.domElement.height,
+      this.env.sun.intensity,
+    ];
+    let s = '';
+    for (const v of parts) s += `${Math.round(v * 1e5)},`;
+    return s;
   }
 
   /**
@@ -459,6 +498,7 @@ export class Game {
         obj.add(muzzle);
       }
       this.viewModel.setModel(obj, muzzle, { placeholder: false, name: path.split('/').pop(), adsEye });
+      this._drawDirty = true;
       this.weaponAsset = {
         path,
         loaded: true,
@@ -510,6 +550,7 @@ export class Game {
     return {
       state: this.state,
       frame: this.frameCount,
+      draws: this.drawCount,
       ticks: this.loop.ticks,
       simTicks: this.simTicks,
       simTime: this.loop.simTime,
