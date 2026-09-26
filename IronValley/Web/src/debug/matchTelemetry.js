@@ -66,6 +66,8 @@ export class MatchTelemetry {
     this.respawnDelays = [];
     this.shots = z();
     this.shotsBlockedMuzzle = z();
+    this.blockedDetail = {}; // '<blockedBy>:<hit kind>[:enemy|friend]' -> count
+    this.interruptReasons = {};
     this.hits = z();
     this.headshots = z();
     this.ffBlocked = z();
@@ -98,7 +100,13 @@ export class MatchTelemetry {
     on('weapon:fired', (p) => {
       if (p.team >= 0 && p.team < this.teamCount) {
         this.shots[p.team]++;
-        if (p.result && p.result.blocked) this.shotsBlockedMuzzle[p.team]++;
+        if (p.result && p.result.blocked) {
+          this.shotsBlockedMuzzle[p.team]++;
+          const h = p.result.hit;
+          let k = `${p.result.blockedBy}:${h ? h.kind : 'none'}`;
+          if (h && h.kind === 'combatant') k += h.team === p.team ? ':friend' : ':enemy';
+          this.blockedDetail[k] = (this.blockedDetail[k] || 0) + 1;
+        }
       }
     });
     on('weapon:hit', (p) => {
@@ -149,7 +157,10 @@ export class MatchTelemetry {
     };
     on('weapon:reload_started', reload(this.reloadsStarted));
     on('weapon:reload_finished', reload(this.reloadsFinished));
-    on('weapon:reload_interrupted', reload(this.reloadsInterrupted));
+    on('weapon:reload_interrupted', (p) => {
+      reload(this.reloadsInterrupted)(p);
+      this.interruptReasons[p.kind] = (this.interruptReasons[p.kind] || 0) + 1;
+    });
     on('weapon:dry_fire', reload(this.dryFires));
     on('weapon:switched', reload(this.switches));
     on('zone:control_changed', (p) => {
@@ -398,9 +409,10 @@ export class MatchTelemetry {
       hitRate: rate(this.hits, this.shots),
       headshots: this.headshots.slice(),
       shotsBlockedAtMuzzle: this.shotsBlockedMuzzle.slice(),
+      blockedDetail: { ...this.blockedDetail },
       friendlyFireBlocked: this.ffBlocked.slice(),
       damage: this.damage.slice(),
-      reloads: { started: this.reloadsStarted.slice(), finished: this.reloadsFinished.slice(), interrupted: this.reloadsInterrupted.slice() },
+      reloads: { started: this.reloadsStarted.slice(), finished: this.reloadsFinished.slice(), interrupted: this.reloadsInterrupted.slice(), interruptReasons: { ...this.interruptReasons } },
       dryFires: this.dryFires.slice(),
       weaponSwitches: this.switches.slice(),
       emptyWeapon: { botTicks: this.emptyWeaponTicks, botSeconds: r3(this.emptyWeaponTicks / 60), bots: [...this.emptyWeaponBots] },
