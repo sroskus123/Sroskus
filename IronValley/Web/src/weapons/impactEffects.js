@@ -217,6 +217,26 @@ export class ImpactEffects {
     sp.material.opacity = 0.8;
   }
 
+  /** Removes all decals, sparks and puffs (new round / new session). */
+  clear() {
+    this.decalCursor = 0;
+    this.decalCount = 0;
+    this.decals.count = 0;
+    this.decals.instanceMatrix.needsUpdate = true;
+    const pos = this.sparks.geometry.getAttribute('position');
+    const col = this.sparks.geometry.getAttribute('color');
+    for (let k = 0; k < this.maxSparks; k++) {
+      this.sparkLife[k] = 0;
+      pos.setXYZ(k, 0, -1000, 0);
+      col.setXYZ(k, 0, 0, 0);
+    }
+    pos.needsUpdate = true;
+    col.needsUpdate = true;
+    for (const sp of this.puffs) sp.visible = false;
+    this.muzzleLightTimer = 0;
+    this.muzzleLight.intensity = 0;
+  }
+
   /** Advances effect lifetimes on the fixed simulation tick (deterministic, pauses with the game). */
   tick(dt) {
     const pos = this.sparks.geometry.getAttribute('position');

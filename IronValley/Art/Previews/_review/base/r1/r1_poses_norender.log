@@ -1,0 +1,455 @@
+FBX version: 7400
+shoulder150 {
+ "achieved": {
+  "L_abduction_from_down_deg": 150.0,
+  "L_abduction_projected_frontal_deg": 150.0,
+  "R_flexion_from_down_deg": 149.3,
+  "R_flexion_projected_sagittal_deg": 150.0
+ },
+ "tri_area_ratio_min": 0.0915,
+ "tris_area_lt_0.25": 15,
+ "tris_area_lt_0.10": 1,
+ "tris_area_gt_3": 33,
+ "worst40_tris_by_dominant_bone": {
+  "upperarm_twist_01_r": 30,
+  "upperarm_twist_01_l": 9,
+  "clavicle_r": 1
+ },
+ "inverted_tris(normal vs bone-carried rest normal)": 37,
+ "inverted_tris_by_bone": {
+  "upperarm_twist_01_l": 14,
+  "upperarm_twist_01_r": 23
+ },
+ "edge_ratio_min_max": [
+  0.135,
+  5.261
+ ],
+ "self_intersecting_pairs": 13,
+ "self_intersecting_pairs_new_vs_rest": 5,
+ "self_int_by_bone_pair_top": {
+  "head/head": 8,
+  "upperarm_twist_01_r/upperarm_twist_01_r": 3,
+  "clavicle_r/upperarm_twist_01_r": 2
+ },
+ "body_volume_ratio": 1.0158,
+ "ring_ratio(posed/rest)": {
+  "upperarm_l@0.08": 0.951,
+  "upperarm_r@0.08": 0.836,
+  "upperarm_l@0.95": 1.003,
+  "upperarm_r@0.95": 1.003,
+  "lowerarm_l@0.05": 1.0,
+  "lowerarm_r@0.05": 1.0,
+  "lowerarm_l@0.97": 1.0,
+  "lowerarm_r@0.97": 1.0,
+  "thigh_l@0.95": 1.0,
+  "thigh_r@0.95": 1.0,
+  "calf_l@0.04": 1.0,
+  "calf_r@0.04": 1.0,
+  "thigh_l@0.05": 1.0,
+  "thigh_r@0.05": 1.0
+ },
+ "joint_clearance_ratio(posed/rest)": {
+  "shoulder_l": 0.799,
+  "shoulder_r": 0.699,
+  "elbow_l": 0.999,
+  "elbow_r": 0.999,
+  "wrist_l": 1.0,
+  "wrist_r": 1.0,
+  "hip_l": 1.0,
+  "hip_r": 1.0,
+  "knee_l": 1.0,
+  "knee_r": 1.0
+ }
+}
+elbow140 {
+ "achieved": {
+  "l_elbow_flexion_deg": 140.0,
+  "r_elbow_flexion_deg": 140.0
+ },
+ "tri_area_ratio_min": 0.0368,
+ "tris_area_lt_0.25": 26,
+ "tris_area_lt_0.10": 12,
+ "tris_area_gt_3": 0,
+ "worst40_tris_by_dominant_bone": {
+  "lowerarm_l": 11,
+  "upperarm_r": 11,
+  "lowerarm_r": 9,
+  "upperarm_l": 9
+ },
+ "inverted_tris(normal vs bone-carried rest normal)": 49,
+ "inverted_tris_by_bone": {
+  "lowerarm_l": 16,
+  "lowerarm_r": 12,
+  "upperarm_l": 10,
+  "upperarm_r": 11
+ },
+ "edge_ratio_min_max": [
+  0.202,
+  1.995
+ ],
+ "self_intersecting_pairs": 437,
+ "self_intersecting_pairs_new_vs_rest": 429,
+ "self_int_by_bone_pair_top": {
+  "head/middle_03_r": 166,
+  "lowerarm_r/upperarm_r": 73,
+  "lowerarm_l/upperarm_l": 67,
+  "head/index_03_r": 49,
+  "head/index_02_r": 42,
+  "head/middle_02_r": 22,
+  "head/head": 8,
+  "lowerarm_l/lowerarm_l": 7,
+  "upperarm_r/upperarm_r": 2,
+  "upperarm_l/upperarm_l": 1
+ },
+ "body_volume_ratio": 0.987,
+ "ring_ratio(posed/rest)": {
+  "upperarm_l@0.08": 1.0,
+  "upperarm_r@0.08": 0.911,
+  "upperarm_l@0.95": 0.974,
+  "upperarm_r@0.95": 0.974,
+  "lowerarm_l@0.05": 0.696,
+  "lowerarm_r@0.05": 0.696,
+  "lowerarm_l@0.97": 1.0,
+  "lowerarm_r@0.97": 1.0,
+  "thigh_l@0.95": 1.0,
+  "thigh_r@0.95": 1.0,
+  "calf_l@0.04": 1.0,
+  "calf_r@0.04": 1.0,
+  "thigh_l@0.05": 1.0,
+  "thigh_r@0.05": 1.0
+ },
+ "joint_clearance_ratio(posed/rest)": {
+  "shoulder_l": 1.0,
+  "shoulder_r": 0.99,
+  "elbow_l": 0.535,
+  "elbow_r": 0.535,
+  "wrist_l": 1.0,
+  "wrist_r": 1.0,
+  "hip_l": 1.0,
+  "hip_r": 1.0,
+  "knee_l": 1.0,
+  "knee_r": 1.0
+ }
+}
+wrist70 {
+ "achieved": {
+  "l_wrist_flexion_deg": 70.0,
+  "r_wrist_extension_deg": -70.0
+ },
+ "tri_area_ratio_min": 0.111,
+ "tris_area_lt_0.25": 4,
+ "tris_area_lt_0.10": 0,
+ "tris_area_gt_3": 0,
+ "worst40_tris_by_dominant_bone": {
+  "hand_l": 13,
+  "lowerarm_twist_01_l": 7,
+  "hand_r": 10,
+  "lowerarm_twist_01_r": 9,
+  "thumb_03_l": 1
+ },
+ "inverted_tris(normal vs bone-carried rest normal)": 6,
+ "inverted_tris_by_bone": {
+  "hand_l": 2,
+  "lowerarm_twist_01_l": 4
+ },
+ "edge_ratio_min_max": [
+  0.215,
+  2.343
+ ],
+ "self_intersecting_pairs": 18,
+ "self_intersecting_pairs_new_vs_rest": 10,
+ "self_int_by_bone_pair_top": {
+  "hand_l/lowerarm_twist_01_l": 10,
+  "head/head": 8
+ },
+ "body_volume_ratio": 0.9997,
+ "ring_ratio(posed/rest)": {
+  "upperarm_l@0.08": 1.0,
+  "upperarm_r@0.08": 1.0,
+  "upperarm_l@0.95": 1.0,
+  "upperarm_r@0.95": 1.0,
+  "lowerarm_l@0.05": 1.0,
+  "lowerarm_r@0.05": 1.0,
+  "lowerarm_l@0.97": 1.0,
+  "lowerarm_r@0.97": 1.0,
+  "thigh_l@0.95": 1.0,
+  "thigh_r@0.95": 1.0,
+  "calf_l@0.04": 1.0,
+  "calf_r@0.04": 1.0,
+  "thigh_l@0.05": 1.0,
+  "thigh_r@0.05": 1.0
+ },
+ "joint_clearance_ratio(posed/rest)": {
+  "shoulder_l": 1.0,
+  "shoulder_r": 1.0,
+  "elbow_l": 1.0,
+  "elbow_r": 1.0,
+  "wrist_l": 0.793,
+  "wrist_r": 0.823,
+  "hip_l": 1.0,
+  "hip_r": 1.0,
+  "knee_l": 1.0,
+  "knee_r": 1.0
+ }
+}
+legs {
+ "achieved": {
+  "l_hip_flexion_deg(sagittal)": 100.0,
+  "l_knee_flexion_deg": 128.7,
+  "r_knee_flexion_deg": 128.7
+ },
+ "tri_area_ratio_min": 0.0406,
+ "tris_area_lt_0.25": 33,
+ "tris_area_lt_0.10": 3,
+ "tris_area_gt_3": 12,
+ "worst40_tris_by_dominant_bone": {
+  "thigh_r": 9,
+  "thigh_l": 15,
+  "pelvis": 8,
+  "calf_l": 4,
+  "calf_r": 4
+ },
+ "inverted_tris(normal vs bone-carried rest normal)": 63,
+ "inverted_tris_by_bone": {
+  "calf_l": 5,
+  "calf_r": 4,
+  "pelvis": 30,
+  "thigh_l": 17,
+  "thigh_r": 7
+ },
+ "edge_ratio_min_max": [
+  0.167,
+  7.909
+ ],
+ "self_intersecting_pairs": 226,
+ "self_intersecting_pairs_new_vs_rest": 218,
+ "self_int_by_bone_pair_top": {
+  "calf_l/thigh_l": 66,
+  "calf_r/thigh_r": 66,
+  "spine_01/thigh_l": 49,
+  "pelvis/thigh_l": 29,
+  "head/head": 8,
+  "thigh_r/thigh_r": 3,
+  "thigh_l/thigh_l": 2,
+  "pelvis/pelvis": 2,
+  "calf_l/calf_l": 1
+ },
+ "body_volume_ratio": 0.962,
+ "ring_ratio(posed/rest)": {
+  "upperarm_l@0.08": 1.0,
+  "upperarm_r@0.08": 1.0,
+  "upperarm_l@0.95": 1.0,
+  "upperarm_r@0.95": 1.0,
+  "lowerarm_l@0.05": 1.0,
+  "lowerarm_r@0.05": 1.0,
+  "lowerarm_l@0.97": 1.0,
+  "lowerarm_r@0.97": 1.0,
+  "thigh_l@0.95": 0.75,
+  "thigh_r@0.95": 0.75,
+  "calf_l@0.04": 0.772,
+  "calf_r@0.04": 0.772,
+  "thigh_l@0.05": 0.753,
+  "thigh_r@0.05": 1.0
+ },
+ "joint_clearance_ratio(posed/rest)": {
+  "shoulder_l": 1.0,
+  "shoulder_r": 1.0,
+  "elbow_l": 1.0,
+  "elbow_r": 1.0,
+  "wrist_l": 1.0,
+  "wrist_r": 1.0,
+  "hip_l": 0.926,
+  "hip_r": 1.0,
+  "knee_l": 0.531,
+  "knee_r": 0.531
+ }
+}
+squat130 {
+ "achieved": {
+  "l_hip_flexion_deg(sagittal)": 100.0,
+  "l_knee_flexion_deg": 128.7,
+  "r_hip_flexion_deg(sagittal)": 100.0,
+  "r_knee_flexion_deg": 128.7
+ },
+ "tri_area_ratio_min": 0.0406,
+ "tris_area_lt_0.25": 46,
+ "tris_area_lt_0.10": 2,
+ "tris_area_gt_3": 10,
+ "worst40_tris_by_dominant_bone": {
+  "thigh_l": 9,
+  "thigh_r": 11,
+  "calf_l": 3,
+  "pelvis": 15,
+  "calf_r": 2
+ },
+ "inverted_tris(normal vs bone-carried rest normal)": 105,
+ "inverted_tris_by_bone": {
+  "calf_l": 5,
+  "calf_r": 4,
+  "pelvis": 62,
+  "thigh_l": 13,
+  "thigh_r": 21
+ },
+ "edge_ratio_min_max": [
+  0.167,
+  7.909
+ ],
+ "self_intersecting_pairs": 328,
+ "self_intersecting_pairs_new_vs_rest": 320,
+ "self_int_by_bone_pair_top": {
+  "calf_r/thigh_r": 66,
+  "calf_l/thigh_l": 66,
+  "spine_01/thigh_l": 47,
+  "spine_01/thigh_r": 40,
+  "pelvis/thigh_r": 26,
+  "pelvis/thigh_l": 25,
+  "spine_02/thigh_r": 20,
+  "spine_02/thigh_l": 16,
+  "head/head": 8,
+  "pelvis/pelvis": 8
+ },
+ "body_volume_ratio": 0.9196,
+ "ring_ratio(posed/rest)": {
+  "upperarm_l@0.08": 1.0,
+  "upperarm_r@0.08": 1.0,
+  "upperarm_l@0.95": 1.0,
+  "upperarm_r@0.95": 1.0,
+  "lowerarm_l@0.05": 1.0,
+  "lowerarm_r@0.05": 1.0,
+  "lowerarm_l@0.97": 1.0,
+  "lowerarm_r@0.97": 1.0,
+  "thigh_l@0.95": 0.75,
+  "thigh_r@0.95": 0.75,
+  "calf_l@0.04": 0.772,
+  "calf_r@0.04": 0.772,
+  "thigh_l@0.05": 0.747,
+  "thigh_r@0.05": 0.747
+ },
+ "joint_clearance_ratio(posed/rest)": {
+  "shoulder_l": 1.0,
+  "shoulder_r": 1.0,
+  "elbow_l": 1.0,
+  "elbow_r": 1.0,
+  "wrist_l": 1.0,
+  "wrist_r": 1.0,
+  "hip_l": 0.957,
+  "hip_r": 0.957,
+  "knee_l": 0.531,
+  "knee_r": 0.531
+ }
+}
+twist45 {
+ "achieved": {
+  "spine_twist_total_deg": 45
+ },
+ "tri_area_ratio_min": 0.5277,
+ "tris_area_lt_0.25": 0,
+ "tris_area_lt_0.10": 0,
+ "tris_area_gt_3": 0,
+ "worst40_tris_by_dominant_bone": {
+  "spine_01": 23,
+  "pelvis": 4,
+  "spine_03": 7,
+  "spine_02": 6
+ },
+ "inverted_tris(normal vs bone-carried rest normal)": 0,
+ "inverted_tris_by_bone": {},
+ "edge_ratio_min_max": [
+  0.72,
+  1.383
+ ],
+ "self_intersecting_pairs": 8,
+ "self_intersecting_pairs_new_vs_rest": 0,
+ "self_int_by_bone_pair_top": {
+  "head/head": 8
+ },
+ "body_volume_ratio": 0.9932,
+ "ring_ratio(posed/rest)": {
+  "upperarm_l@0.08": 1.0,
+  "upperarm_r@0.08": 1.0,
+  "upperarm_l@0.95": 1.0,
+  "upperarm_r@0.95": 1.0,
+  "lowerarm_l@0.05": 1.0,
+  "lowerarm_r@0.05": 1.0,
+  "lowerarm_l@0.97": 1.0,
+  "lowerarm_r@0.97": 1.0,
+  "thigh_l@0.95": 1.0,
+  "thigh_r@0.95": 1.0,
+  "calf_l@0.04": 1.0,
+  "calf_r@0.04": 1.0,
+  "thigh_l@0.05": 1.001,
+  "thigh_r@0.05": 0.993
+ },
+ "joint_clearance_ratio(posed/rest)": {
+  "shoulder_l": 1.0,
+  "shoulder_r": 1.0,
+  "elbow_l": 1.0,
+  "elbow_r": 1.0,
+  "wrist_l": 1.0,
+  "wrist_r": 1.0,
+  "hip_l": 1.026,
+  "hip_r": 0.953,
+  "knee_l": 1.0,
+  "knee_r": 1.0
+ }
+}
+armsdown {
+ "achieved": {
+  "l_upperarm_from_vertical_deg": 8.0,
+  "r_upperarm_from_vertical_deg": 8.0
+ },
+ "tri_area_ratio_min": 0.2637,
+ "tris_area_lt_0.25": 0,
+ "tris_area_lt_0.10": 0,
+ "tris_area_gt_3": 0,
+ "worst40_tris_by_dominant_bone": {
+  "upperarm_twist_01_l": 20,
+  "upperarm_twist_01_r": 20
+ },
+ "inverted_tris(normal vs bone-carried rest normal)": 1,
+ "inverted_tris_by_bone": {
+  "upperarm_twist_01_l": 1
+ },
+ "edge_ratio_min_max": [
+  0.327,
+  1.272
+ ],
+ "self_intersecting_pairs": 56,
+ "self_intersecting_pairs_new_vs_rest": 48,
+ "self_int_by_bone_pair_top": {
+  "upperarm_twist_01_l/upperarm_twist_01_l": 15,
+  "spine_03/upperarm_twist_01_r": 15,
+  "spine_03/upperarm_twist_01_l": 9,
+  "upperarm_twist_01_r/upperarm_twist_01_r": 9,
+  "head/head": 8
+ },
+ "body_volume_ratio": 0.9945,
+ "ring_ratio(posed/rest)": {
+  "upperarm_l@0.08": 0.985,
+  "upperarm_r@0.08": 0.985,
+  "upperarm_l@0.95": 1.0,
+  "upperarm_r@0.95": 1.0,
+  "lowerarm_l@0.05": 1.0,
+  "lowerarm_r@0.05": 1.0,
+  "lowerarm_l@0.97": 1.0,
+  "lowerarm_r@0.97": 1.0,
+  "thigh_l@0.95": 1.0,
+  "thigh_r@0.95": 1.0,
+  "calf_l@0.04": 1.0,
+  "calf_r@0.04": 1.0,
+  "thigh_l@0.05": 1.0,
+  "thigh_r@0.05": 1.0
+ },
+ "joint_clearance_ratio(posed/rest)": {
+  "shoulder_l": 0.967,
+  "shoulder_r": 0.967,
+  "elbow_l": 1.0,
+  "elbow_r": 1.0,
+  "wrist_l": 1.0,
+  "wrist_r": 1.0,
+  "hip_l": 1.0,
+  "hip_r": 1.0,
+  "knee_l": 1.0,
+  "knee_r": 1.0
+ }
+}

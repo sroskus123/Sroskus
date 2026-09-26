@@ -1,5 +1,7 @@
-// Weapon logic: cadence from simulation time, ammo accounting, reload, and D8 hitscan on
-// the real test-range geometry.
+// Weapon logic: the engine weapon (WeaponHandle / WeaponSystem) runs the AUTHORITATIVE core weapon
+// state (src/core/weapon.js, rules from Shared/config/rules.json): cadence from accumulated integer
+// microseconds, magazine + separate chamber + reserve, reload commits; plus D8 hitscan on the real
+// test-range geometry.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Vector3 } from 'three';
@@ -12,88 +14,128 @@ import { WeaponState } from '../../src/weapons/weaponState.js';
 import { WeaponSystem } from '../../src/weapons/weaponSystem.js';
 import { TargetDummies } from '../../src/game/targetDummies.js';
 import { createRng } from '../../src/util/rng.js';
+import { baseRulesCompiled } from '../../src/game/gameRules.js';
+import { weaponInvariantViolations } from '../../src/core/weapon.js';
 
 const DT = 1 / 60;
 const DEF = weapons.iv7_carbine;
+const RULES = baseRulesCompiled();
+const RDEF = RULES.weapons[DEF.rulesId];
 const world = new CollisionWorld(buildLevelSolids(level));
 const DEG = Math.PI / 180;
+
+const newHandle = () => new WeaponState({ def: DEF, rulesDef: RDEF });
+const tick = (ws, inp = {}) => {
+  if (inp.reload) ws.reload();
+  const n = ws.tick(DT, { trigger: false, ads: false, ...inp });
+  const v = weaponInvariantViolations(ws.core.snapshot(), RDEF);
+  assert.deepEqual(v, [], `ammo invariant: ${v.join('; ')}`);
+  return n;
+};
 
 function holdFire(ws, seconds, extra = {}) {
   const ticks = Math.round(seconds / DT);
   let shots = 0;
-  for (let i = 0; i < ticks; i++) shots += ws.tick(DT, { trigger: true, ads: false, reload: false, canFire: true, ...extra });
-  ws.tick(DT, { trigger: false });
+  for (let i = 0; i < ticks; i++) shots += tick(ws, { trigger: true, ...extra });
+  tick(ws, { trigger: false });
   return shots;
 }
 
+test('the engine weapon state is the core state machine (rules.json: rifle 30+1, pistol 15+1)', () => {
+  const ws = newHandle();
+  assert.equal(ws.core.constructor.name, 'WeaponState');
+  assert.equal(ws.magazine, 30);
+  assert.equal(ws.chamber, 1);
+  assert.equal(ws.reserve, RDEF.startReserve);
+  const p = new WeaponState({ def: weapons.ivp9_pistol, rulesDef: RULES.weapons.pistol_p9 });
+  assert.equal(p.magazine, 15);
+  assert.equal(p.chamber, 1);
+  assert.equal(p.core.fireMode, 'semi');
+});
+
 test('fire cadence comes from accumulated simulation time (750 rpm -> 38 rounds in 3 s)', () => {
-  const ws = new WeaponState(DEF);
+  const ws = newHandle();
   ws.infiniteAmmo = true;
   const shots = holdFire(ws, 3);
-  const expected = Math.floor(3 / (60 / DEF.rpm) - 1e-9) + 1;
+  const expected = Math.floor(3 / (60 / 750) - 1e-9) + 1;
   assert.equal(expected, 38);
   assert.equal(shots, expected);
+  assert.equal(ws.shotsFired, expected);
 });
 
 test('tapping faster than the cadence cannot exceed the rate of fire', () => {
-  const ws = new WeaponState(DEF);
+  const ws = newHandle();
   ws.infiniteAmmo = true;
   let shots = 0;
   for (let i = 0; i < 600; i++) {
     // press on even ticks, release on odd ticks (30 presses per second)
-    shots += ws.tick(DT, { trigger: i % 2 === 0, canFire: true });
+    shots += ws.tick(DT, { trigger: i % 2 === 0 });
   }
-  const maxAllowed = Math.floor(10 / (60 / DEF.rpm)) + 1;
+  const maxAllowed = Math.floor(10 / (60 / 750)) + 1;
   assert.ok(shots <= maxAllowed, `${shots} > ${maxAllowed}`);
+  assert.ok(shots > 100, `taps fire at all (${shots})`);
 });
 
-test('magazine empties at 30 rounds, dry fire then reload refills from reserve exactly once', () => {
-  const ws = new WeaponState(DEF);
+test('held fire empties magazine + chamber (31 rounds), the bolt locks, dry fire; an empty reload chambers at bolt release exactly once', () => {
+  const ws = newHandle();
   const initial = ws.totalAmmo();
   const shots = holdFire(ws, 5);
-  assert.equal(shots, DEF.magazineSize);
+  assert.equal(shots, RDEF.magazineCapacity + 1);
   assert.equal(ws.magazine, 0);
-  // fresh trigger pull on empty magazine: dry fire + automatic reload start
-  ws.tick(DT, { trigger: true, canFire: true });
-  ws.tick(DT, { trigger: false });
+  assert.equal(ws.chamber, 0);
+  // fresh trigger pull on an empty weapon: dry fire, ammo unchanged
+  tick(ws, { trigger: true });
+  tick(ws, { trigger: false });
   assert.ok(ws.dryFires >= 1);
-  assert.equal(ws.state, 'reloading');
+  assert.equal(ws.reload(), 'started_empty');
   let t = 0;
   while (ws.state === 'reloading' && t < 1000) {
-    ws.tick(DT, { trigger: false, reload: true }); // spamming reload must not add ammo twice
+    tick(ws, { reload: true }); // spamming reload must not add ammo twice
     t++;
   }
-  assert.ok(Math.abs(t * DT - DEF.reloadEmptyTime) < 3 * DT, `empty reload took ${t * DT}`);
-  assert.equal(ws.magazine, DEF.magazineSize);
-  assert.equal(ws.reserve, DEF.reserveAmmo - DEF.magazineSize);
+  assert.ok(Math.abs(t * DT - RDEF.empty.durationUs / 1e6) < 2 * DT, `empty reload took ${t * DT}`);
+  // new magazine (30 from the reserve), then the bolt release moves one round into the chamber: 29 + 1
+  assert.equal(ws.magazine, RDEF.magazineCapacity - 1);
+  assert.equal(ws.chamber, 1);
+  assert.equal(ws.reserve, RDEF.startReserve - RDEF.magazineCapacity);
   assert.equal(ws.totalAmmo() + ws.shotsFired, initial);
 });
 
-test('partial reload uses the tactical time and conserves ammo', () => {
-  const ws = new WeaponState(DEF);
+test('partial reload uses the tactical time, keeps the chambered round and conserves ammo', () => {
+  const ws = newHandle();
   const initial = ws.totalAmmo();
-  for (let i = 0; i < 20; i++) ws.tick(DT, { trigger: i < 18, canFire: true });
+  for (let i = 0; i < 20; i++) tick(ws, { trigger: i < 18 });
   const fired = ws.shotsFired;
-  assert.ok(fired > 0 && fired < DEF.magazineSize);
-  ws.tick(DT, { reload: true });
-  let t = 1;
+  assert.ok(fired > 0 && fired < RDEF.magazineCapacity);
+  assert.equal(ws.reload(), 'started_tactical');
+  let t = 0;
   while (ws.state === 'reloading' && t < 1000) {
-    ws.tick(DT, {});
+    tick(ws, {});
     t++;
   }
-  assert.ok(Math.abs(t * DT - DEF.reloadTime) < 3 * DT, `reload took ${t * DT}`);
-  assert.equal(ws.magazine, DEF.magazineSize);
+  assert.ok(Math.abs(t * DT - RDEF.tactical.durationUs / 1e6) < 2 * DT, `reload took ${t * DT}`);
+  assert.equal(ws.magazine, RDEF.magazineCapacity);
+  assert.equal(ws.chamber, 1);
   assert.equal(ws.totalAmmo() + ws.shotsFired, initial);
 });
 
-test('cannot fire while reloading; reload with full magazine is refused', () => {
-  const ws = new WeaponState(DEF);
-  assert.equal(ws.startReload(), false);
+test('cannot fire while reloading; reload with a full magazine and chamber is refused', () => {
+  const ws = newHandle();
+  assert.equal(ws.reload(), 'rejected_full');
   holdFire(ws, 0.5);
-  assert.ok(ws.startReload());
+  assert.equal(ws.reload(), 'started_tactical');
   const before = ws.shotsFired;
-  for (let i = 0; i < 30; i++) ws.tick(DT, { trigger: true, canFire: true });
+  for (let i = 0; i < 30; i++) tick(ws, { trigger: true });
   assert.equal(ws.shotsFired, before);
+});
+
+test('reload progress for the HUD comes from the core action time', () => {
+  const ws = newHandle();
+  holdFire(ws, 0.3);
+  ws.reload();
+  const half = Math.round(RDEF.tactical.durationUs / 1e6 / 2 / DT);
+  for (let i = 0; i < half; i++) tick(ws, {});
+  assert.ok(Math.abs(ws.reloadProgress - 0.5) < 0.02, `progress ${ws.reloadProgress}`);
 });
 
 function makeSystem() {
@@ -175,14 +217,15 @@ test('shooting through the window opening hits the dummy behind it', () => {
   assert.equal(shot.hitTarget, 'dummy:d_window');
 });
 
-test('headshot multiplier and knock-down after enough damage', () => {
+test('headshot multiplier on a dummy (rules damage x head multiplier)', () => {
   const { ws, dummies } = makeSystem();
   const eye = new Vector3(10, 1.65, -20);
   const { yaw, pitch } = aimAt(eye, new Vector3(10, 1.64, -30));
   const shot = fireOnce(ws, eye, yaw, pitch);
   assert.equal(shot.hitPart, 'head');
   const d = dummies.byId.get('d_right');
-  assert.equal(d.health, 100 - DEF.damage * DEF.headMultiplier);
+  assert.equal(RDEF.damage, 34);
+  assert.equal(d.health, 100 - RDEF.damage * 2.0);
 });
 
 test('dummy hit wobble runs on simulation time: frozen while paused, continuous between ticks, same at any frame rate', async () => {

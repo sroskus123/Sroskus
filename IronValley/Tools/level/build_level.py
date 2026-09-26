@@ -511,13 +511,13 @@ fence("LW_SKLAD_S", "concrete_low_wall", [[12.5, -1.0], [24.0, -1.0]], 0.90, Tru
 fence("LW_DILNA_BANK_1", "concrete_low_wall", [DLw((-14.0, 11.6)), DLw((-5.6, 12.2))], 0.85, True, True, note="yard edge above the brook (NE part)")
 fence("LW_DILNA_BANK_2", "concrete_low_wall", [DLw((-0.5, 12.4)), DLw((6.0, 14.0)), DLw((13.5, 12.4))], 0.85, True, True,
       note="yard edge above the brook (SW part); gap for the bridge landing")
-fence("HEDGE_DUM_W1", "hedge_thuja", [DMw((-15.3, -12.5)), DMw((-15.3, 1.8))], 1.8, False, True, note="terrace west hedge (S of gate)")
-fence("HEDGE_DUM_W2", "hedge_thuja", [DMw((-15.3, 4.2)), DMw((-15.3, 20.5))], 1.8, False, True, note="terrace west hedge (N of gate)")
+fence("HEDGE_DUM_W1", "hedge_hornbeam", [DMw((-15.3, -12.5)), DMw((-15.3, 1.8))], 1.8, False, True, note="terrace west hedge (S of gate)")
+fence("HEDGE_DUM_W2", "hedge_hornbeam", [DMw((-15.3, 4.2)), DMw((-15.3, 20.5))], 1.8, False, True, note="terrace west hedge (N of gate)")
 fence("F_DUM_REAR_1", "timber_picket_1m", [DMw((-15.3, -13.2)), DMw((-2.1, -13.2))], 1.1, note="rear yard picket fence")
 fence("F_DUM_REAR_2", "hedge_privet", [DMw((0.1, -13.2)), DMw((16.5, -13.2))], 1.8, False, True, note="rear yard hedge (SE side, blocks the long view from arm C); gate gap local x -2.1..0.1")
 fence("HEDGE_DUM_E", "hedge_privet", [DMw((16.6, -12.2)), DMw((16.6, 6.0))], 1.8, False, True, note="terrace east edge hedge (S of the driveway)")
-fence("HEDGE_DUM_N1", "hedge_thuja", [DMw((-14.4, 21.3)), DMw((-2.1, 21.3))], 1.8, False, True, note="front-garden hedge behind the parapet (W of the stair gate)")
-fence("HEDGE_DUM_N2", "hedge_thuja", [DMw((0.1, 21.3)), DMw((12.6, 21.3))], 1.8, False, True, note="front-garden hedge behind the parapet (E of the stair gate)")
+fence("HEDGE_DUM_N1", "hedge_hornbeam", [DMw((-14.4, 21.3)), DMw((-2.1, 21.3))], 1.8, False, True, note="front-garden hedge behind the parapet (W of the stair gate)")
+fence("HEDGE_DUM_N2", "hedge_hornbeam", [DMw((0.1, 21.3)), DMw((12.6, 21.3))], 1.8, False, True, note="front-garden hedge behind the parapet (E of the stair gate)")
 fence("LW_DUM_GARDEN", "concrete_low_wall", [DMw((9.8, 5.0)), DMw((9.8, 14.0))], 1.0, True, True,
       note="garden | side yard divider (cover line facing the driveway)")
 fence("HEDGE_E_RING_1", "hedgerow_mixed", [[62.5, 40.0], [63.5, 22.0]], 2.4, False, True, note="field hedgerow E of the warehouse")
@@ -593,6 +593,13 @@ veg_belt("VB_SKLAD_N", [[52.4, 31.0], [37.3, 31.4], [37.6, 44.8]], 2.6, 5.5,
          "no overwatch from the steep E spur slope / E ring path into the square and the workshop yard")
 veg_belt("VB_BROOK_W1", brook_bank(brook_s([-15.3, 62.0]), brook_s([-18.0, 96.0]), -5.2), 2.2, 3.0,
          "west bank N of footbridge B: breaks the long view down the brook corridor")
+# úvoz south crest: hedgerow with young field maples (a typical mez along a sunken lane), 4.5 m, 4.2 m S of the lane axis
+# (bank top is 2.6 m off the axis). It removes the elevated overwatch from the S spur meadow (4-7 m above the zone floor,
+# 32-44 m away) into the house yard/garden. Starts 2 m W of the south exit ramp (s 14.5-18 + taper) and stops 4 m before the
+# lane's west end ramp, so the exit and the ring path stay open.
+veg_belt("VB_UVOZ_S", offset_polyline(resample(UVOZ_XY, 21.5, UVOZ_LEN - 4.0), 4.2), 3.0, 4.5,
+         "hedgerow with field maples on the south crest of the úvoz: no overwatch from the S spur meadow into zone_dvur")
+VEG[-1]["species_mix"] = "hazel 35 %, hornbeam 25 %, field maple (young trees to 6 m) 20 %, blackthorn/hawthorn 20 %"
 veg_belt("VB_SPUR_S1", [[-142.0, -77.0], [-124.0, -78.5], [-106.0, -79.0]], 2.4, 3.5, "shrub belt along the S spur foot (arm A), gap at VK_2")
 veg_belt("VB_SPUR_S2", [[-88.0, -79.0], [-72.0, -78.0], [-58.0, -75.5]], 2.4, 3.5, "shrub belt along the S spur foot (arm A)")
 
@@ -654,11 +661,15 @@ CATALOG = {
     "weir_stone_low": {"size": [3.4, 1.0, 0.35], "cover": "none", "blocks_vision": False,
                        "note": "low stone weir (jez) across the brook, 0.35 m sill (walkable step), mill-race intake beside it"},
     "sluice_gate_frame": {"size": [1.4, 0.4, 1.6], "cover": "low", "note": "timber sluice gate (stavidlo) with a rusty rack at the race intake"},
-    "hesco_line": {"size": [6.0, 1.1, 2.74], "cover": "high",
-                   "note": "two-tier wall of wire-mesh gabion bastions (generic, no brand) filled with gravel, 2.74 m: hard spawn screen"},
+    "hesco_line": {"size": [6.42, 1.1, 2.74], "cover": "high", "module_length": 1.07,
+                   "note": "two-tier wall of wire-mesh gabion bastions (generic, no brand) filled with gravel, 2.74 m: hard spawn "
+                           "screen; built from 1.07 m cells, every placed length is a whole number of cells (1-6)"},
     "container_stack_2": {"size": [6.06, 2.44, 5.18], "cover": "high",
                           "note": "two stacked 20 ft containers (weathered olive/rust, fictional markings): hard spawn screen where a "
-                                  "row looks up at its zone"},
+                                  "row looks up at its zone; always the full 6.06 m (never cut)"},
+    "container_stack_2_10ft": {"size": [2.99, 2.44, 5.18], "cover": "high",
+                               "note": "two stacked 10 ft containers (same finish): used where a 20 ft stack would touch a "
+                                       "building; never cut"},
 }
 
 PROPS = []
@@ -816,9 +827,12 @@ for zn in zones:
     zn["area_m2"] = r2(shoelace(zn["polygon"]))
     zn["inclusion_test"] = ("capsule foot point (x, y, z_foot) counts when inside `polygon` AND z_min <= z_foot <= z_max; every walkable "
                             "surface inside the polygon lies >= 0.30 m inside or >= 0.30 m outside [z_min, z_max] (validated)")
-    zn["marker"] = {"in_world": "yellow smoke marker + olive radio-relay crate (bedna s převaděčem) at `hud_marker`, yellow painted "
-                                "boundary line on the ground along the polygon (decal, 0.12 m wide); enabled only for the active zone",
-                    "hud": "outline + icon 'A' of the active zone, distance in metres"}
+    zn["marker"] = {"in_world": "violet smoke marker (fialový signální kouř) + olive radio-relay crate (bedna s převaděčem) at "
+                                "`hud_marker`, white painted boundary line on the ground along the polygon (decal, 0.12 m wide, like a "
+                                "road marking); enabled only for the active zone. Violet/white because blue, red and yellow are the team "
+                                "colours of Web/src/data/teams.json and stay reserved for ownership",
+                    "hud": "zone outline + zone name and distance in metres; tinted with the controlling team's colour (teams.json), "
+                           "white when contested, neutral grey when empty (as Web/src/game/zoneView.js)"}
 zones[0]["excluded"] = ("annex stair bay/corridor strip and the whole upper floor (office z +4.30 world, 0.50 above z_max); the "
                         "external steel stair; the mill-race terrace; the brook bed and banks beyond the yard low walls")
 zones[2]["excluded"] = "the square below the retaining wall; the upper floor and the balcony of the house (z 5.94, 0.40 above z_max)"
@@ -1016,39 +1030,85 @@ def spawn_screens():
             raise RuntimeError(f"no screen blocks row {t} s={s_}")
         typ, hgt, dist, c, lo, hi, base, req = choice
         L_ = hi - lo
+        HC = 1.07                                        # HESCO cell length
         if typ == "container_stack_2":
-            nseg = int(math.ceil(L_ / 6.06))
-            seg = 6.06
+            seglens = [6.06] * int(math.ceil(L_ / 6.06))
         else:
-            cells = int(math.ceil(L_ / 1.07))           # HESCO cells are 1.07 m
+            cells = int(math.ceil(L_ / HC))
             nseg = int(math.ceil(cells / 6))
-            seg = 1.07 * cells / nseg
+            seglens = [HC * (cells // nseg + (1 if i < cells % nseg else 0)) for i in range(nseg)]
         mid = (lo + hi) / 2
-        lo = mid - seg * nseg / 2
+        lo = mid - sum(seglens) / 2
         rot = math.degrees(math.atan2(nrm[1], nrm[0]))
         from shapely.geometry import Polygon as _Pg, LineString as _Ls
         blds = [_Pg(b_["footprint_world"]).buffer(0.3) for b_ in SEC + main_buildings]
-        for i in range(nseg):
-            ua, ub = lo + seg * i, lo + seg * (i + 1)
-            line = _Ls([tuple(c + nrm * ua), tuple(c + nrm * ub)]).buffer(1.3, cap_style=2)
-            hit = [bp_ for bp_ in blds if bp_.intersects(line)]
+
+        def strip(u0, u1):
+            return _Ls([tuple(c + nrm * u0), tuple(c + nrm * u1)]).buffer(1.3, cap_style=2)
+
+        def trim(ua, ub, hit):
+            """shorten the module from the end nearer to the building until its whole footprint strip is clear"""
+            from shapely.geometry import Point as _Pt
+            da = min(h.distance(_Pt(*(c + nrm * ua))) for h in hit)
+            db = min(h.distance(_Pt(*(c + nrm * ub))) for h in hit)
+            side = "a" if da < db else "b"
+            while ub - ua > 0 and any(h.intersects(strip(ua, ub)) for h in hit):
+                if side == "a":
+                    ua += 0.05
+                else:
+                    ub -= 0.05
+            return ua, ub, side
+
+        def module_up(r):
+            if typ == "hesco_line":
+                return max(1, math.ceil(r / HC - 1e-6)) * HC
+            return 2.99 if r < 2.99 else r
+
+        def module_down(r):
+            if typ == "hesco_line":
+                return math.floor(r / HC + 1e-6) * HC
+            return 2.99 if r >= 2.99 - 1e-6 else 0.0
+
+        def segs(lo_):
+            out, u0 = [], lo_
+            for sl in seglens:
+                out.append((u0, u0 + sl))
+                u0 += sl
+            return out
+
+        # pass 1: where a building cuts a module, shift the whole screen away from it so that the cut module becomes a whole
+        # module (HESCO: whole cells; 20 ft stack -> 10 ft stack) ending where the building begins -- coverage never shrinks
+        shifts = []
+        for ua, ub in segs(lo):
+            hit = [bp_ for bp_ in blds if bp_.intersects(strip(ua, ub))]
             if hit:
-                # shrink from the side that touches the building until clear (the building closes the rest)
-                for _ in range(40):
-                    la = _Ls([tuple(c + nrm * ua), tuple(c + nrm * (ua + 0.3))]).buffer(1.3, cap_style=2)
-                    lb = _Ls([tuple(c + nrm * (ub - 0.3)), tuple(c + nrm * ub)]).buffer(1.3, cap_style=2)
-                    if any(h.intersects(la) for h in hit):
-                        ua += 0.25
-                    elif any(h.intersects(lb) for h in hit):
-                        ub -= 0.25
-                    else:
-                        break
-                if ub - ua < 1.0:
+                ta, tb, side = trim(ua, ub, hit)
+                need = max(0.0, module_up(tb - ta) - (tb - ta))
+                need = need + 0.06 if need > 0 else 0.0          # + one trim step (0.05) of margin
+                shifts.append(-need if side == "b" else need)
+        if shifts and (all(v >= 0 for v in shifts) or all(v <= 0 for v in shifts)):
+            lo += max(shifts, key=abs)
+        # pass 2: place whole modules only; a module still cut by a building is rounded down (anchored to its neighbour)
+        for i, (ua, ub) in enumerate(segs(lo)):
+            typ_i = typ
+            hit = [bp_ for bp_ in blds if bp_.intersects(strip(ua, ub))]
+            if hit:
+                ta, tb, side = trim(ua, ub, hit)
+                m = module_down(tb - ta + 1e-6)
+                if m < 1.0:
                     continue
+                if side == "b":
+                    ub = ua + m
+                else:
+                    ua = ub - m
+                if any(h.intersects(strip(ua, ub)) for h in hit):
+                    continue
+                if typ == "container_stack_2":
+                    typ_i = "container_stack_2_10ft"
             u = (ua + ub) / 2
             pc = c + nrm * u
-            PROPS.append({"id": f"P_SCREEN_{t.upper()}_{int(s_)}_{i + 1}", "type": typ, "position": [r2(pc[0]), r2(pc[1]), None],
-                          "rotation_deg": r2(rot % 360), "size": [r2(ub - ua), 1.1 if typ == "hesco_line" else 2.44, hgt],
+            PROPS.append({"id": f"P_SCREEN_{t.upper()}_{int(s_)}_{i + 1}", "type": typ_i, "position": [r2(pc[0]), r2(pc[1]), None],
+                          "rotation_deg": r2(rot % 360), "size": [round(ub - ua, 3), 1.1 if typ == "hesco_line" else 2.44, hgt],
                           "cover": "high", "blocks_bullets": True, "blocks_vision": True, "cluster": f"spawn_screen_{t}",
                           "note": f"hard spawn screen of row s={s_:.0f} ({', '.join(zids)}), {dist} m in front of the front rank, "
                                   f"needs {req:.2f} m of {hgt} m; ends open as chicane exits"})
@@ -1154,7 +1214,7 @@ def main():
                      "briefing_cs": "Kalné Hamry, údolí Kalného potoka. Obec je evakuovaná a armáda údolí uzavřela kordonem a minovými "
                                     "poli. Každé kolo shodí vrtulník zásobovací bednu s rádiovým převaděčem na jedno ze tří míst v "
                                     "obci. Kdo ji udrží, vyhrává.",
-                     "why_zone_moves": "a supply cache with a radio relay is dropped at one of three places each round (yellow smoke marks it)",
+                     "why_zone_moves": "a supply cache with a radio relay is dropped at one of three places each round (violet smoke marks it)",
                      "why_boundary": "the valley is sealed by an army cordon: roadblocks on the three roads, deer fences with minefield "
                                      "signs on the spurs"},
                  "collision_semantics": {

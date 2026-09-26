@@ -45,7 +45,19 @@
     { "type": "box", "id": "corner_wall_a", "min": [5.0, 0, -16.125], "max": [9.125, 2.6, -15.875], "mat": "wall" },
     { "type": "box", "id": "corner_wall_b", "min": [8.875, 0, -15.875], "max": [9.125, 2.6, -12.0], "mat": "wall" },
 
-    { "type": "box", "id": "backstop", "min": [-22.0, 0, -37.0], "max": [22.0, 4.0, -36.0], "mat": "wall" }
+    { "type": "box", "id": "backstop", "min": [-22.0, 0, -37.0], "max": [22.0, 4.0, -36.0], "mat": "wall" },
+
+    { "type": "box", "id": "spawn_alfa_n", "min": [29.0, 0, 20.85], "max": [39.5, 3.0, 21.15], "mat": "block", "bvhGroup": "spawns" },
+    { "type": "box", "id": "spawn_alfa_w", "min": [28.85, 0, 20.85], "max": [29.15, 3.0, 27.0], "mat": "block", "bvhGroup": "spawns" },
+    { "type": "box", "id": "spawn_alfa_baffle", "min": [30.85, 0, 24.5], "max": [31.15, 3.0, 31.5], "mat": "block", "bvhGroup": "spawns" },
+
+    { "type": "box", "id": "spawn_bravo_s", "min": [-39.5, 0, -31.15], "max": [-29.0, 3.0, -30.85], "mat": "block", "bvhGroup": "spawns" },
+    { "type": "box", "id": "spawn_bravo_e", "min": [-29.15, 0, -36.0], "max": [-28.85, 3.0, -30.85], "mat": "block", "bvhGroup": "spawns" },
+    { "type": "box", "id": "spawn_bravo_baffle", "min": [-31.15, 0, -41.5], "max": [-30.85, 3.0, -34.5], "mat": "block", "bvhGroup": "spawns" },
+
+    { "type": "box", "id": "spawn_charlie_s", "min": [29.0, 0, -31.15], "max": [39.5, 3.0, -30.85], "mat": "block", "bvhGroup": "spawns" },
+    { "type": "box", "id": "spawn_charlie_w", "min": [28.85, 0, -36.0], "max": [29.15, 3.0, -30.85], "mat": "block", "bvhGroup": "spawns" },
+    { "type": "box", "id": "spawn_charlie_baffle", "min": [30.85, 0, -41.5], "max": [31.15, 3.0, -34.5], "mat": "block", "bvhGroup": "spawns" }
   ],
   "signs": [
     { "text": "SCHODY", "sub": "výška 0,18 m · stupeň 0,28 m", "pos": [-24.9, 0, 0.2] },
@@ -90,5 +102,28 @@
     "window_view": { "pos": [-10, 0, -12.0], "yaw": 0 },
     "impact_view": { "pos": [21, 0, -1.2], "yaw": 0 },
     "overview": { "pos": [0, 0, 8], "yaw": 0, "pitch": -4 }
+  },
+  "match": {
+    "_comment": "Zapasova data urovne: tymove spawny v krytych stanovistich s lomenym vstupem (poradi tymu = rules.json teams.list; body >= 2,5 m od sebe) a tri umisteni kontrolni oblasti (valec: stred paty, polomer, vyska). Id oblasti se predaji jadru jako zone.locations. practiceSpawn = marker pro rezim Trenink.",
+    "practiceSpawn": "spawn",
+    "teamSpawns": [
+      [
+        { "pos": [33.0, 0, 22.5], "yaw": 90 }, { "pos": [36.5, 0, 22.5], "yaw": 90 }, { "pos": [33.0, 0, 25.0], "yaw": 90 }, { "pos": [36.5, 0, 25.0], "yaw": 90 },
+        { "pos": [33.0, 0, 27.5], "yaw": 90 }, { "pos": [36.5, 0, 27.5], "yaw": 90 }, { "pos": [33.0, 0, 30.0], "yaw": 90 }, { "pos": [36.5, 0, 30.0], "yaw": 90 }
+      ],
+      [
+        { "pos": [-33.0, 0, -40.0], "yaw": -90 }, { "pos": [-36.5, 0, -40.0], "yaw": -90 }, { "pos": [-33.0, 0, -37.5], "yaw": -90 }, { "pos": [-36.5, 0, -37.5], "yaw": -90 },
+        { "pos": [-33.0, 0, -35.0], "yaw": -90 }, { "pos": [-36.5, 0, -35.0], "yaw": -90 }, { "pos": [-33.0, 0, -32.5], "yaw": -90 }, { "pos": [-36.5, 0, -32.5], "yaw": -90 }
+      ],
+      [
+        { "pos": [33.0, 0, -40.0], "yaw": 90 }, { "pos": [36.5, 0, -40.0], "yaw": 90 }, { "pos": [33.0, 0, -37.5], "yaw": 90 }, { "pos": [36.5, 0, -37.5], "yaw": 90 },
+        { "pos": [33.0, 0, -35.0], "yaw": 90 }, { "pos": [36.5, 0, -35.0], "yaw": 90 }, { "pos": [33.0, 0, -32.5], "yaw": 90 }, { "pos": [36.5, 0, -32.5], "yaw": 90 }
+      ]
+    ],
+    "zones": [
+      { "id": "zone_dilna", "name": "Dílna", "center": [-20, 0, -16], "radius": 4.5, "height": 4.0 },
+      { "id": "zone_sklad", "name": "Sklad", "center": [18, 0, -16], "radius": 4.5, "height": 4.0 },
+      { "id": "zone_dvur", "name": "Dvůr", "center": [0, 0, -22], "radius": 5.0, "height": 4.0 }
+    ]
   }
 }

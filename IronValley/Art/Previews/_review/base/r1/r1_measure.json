@@ -1,0 +1,184 @@
+{
+ "measurements_m": {
+  "stature": 1.8,
+  "menton_z": 1.5901,
+  "head_height_vertex_menton": 0.2099,
+  "heads_tall": 8.5763,
+  "head_breadth_max_x": 0.174,
+  "head_length_y": 0.2112,
+  "nipple_z (forward-most chest point off-midline)": 1.3137,
+  "chest_breadth_at_nipple(excl arm verts)": 0.3527,
+  "chest_depth_at_nipple": 0.2348,
+  "waist_z": 1.04,
+  "waist_breadth_min": 0.1457,
+  "waist_depth": 0.2037,
+  "hip_z": 0.78,
+  "hip_breadth_max": 0.4041,
+  "crotch_height": 0.866,
+  "gh_joint_breadth (upperarm heads)": 0.3874,
+  "upper_arm (shoulder->elbow joint)": 0.2977,
+  "forearm (elbow->wrist joint)": 0.2532,
+  "upper/fore ratio": 1.1759,
+  "thigh (hip->knee joint)": 0.4327,
+  "shank (knee->ankle joint)": 0.455,
+  "thigh/shank ratio": 0.9509,
+  "hip_joint_separation": 0.2266,
+  "shoulder_joint_z": 1.4353,
+  "hip_joint_z": 0.9556,
+  "knee_joint_z": 0.5266,
+  "ankle_joint_z": 0.0742,
+  "neck_joint_z": 1.5441,
+  "head_joint_z": 1.6441,
+  "spine_03_tail_z": 1.4936,
+  "spine_03_tail_to_neck_gap": 0.1037,
+  "clavicle_head": [
+   0.0237,
+   -0.023,
+   1.4664
+  ],
+  "hand_len_from_wrist_joint": 0.21,
+  "wrist_narrowest_offset_from_joint (along hand axis)": -0.034,
+  "hand_len_from_narrowest_wrist": 0.244,
+  "hand_breadth_metacarpal": 0.0901,
+  "foot_length": 0.2696,
+  "foot_breadth": 0.0998,
+  "arm_span_proxy": 1.9092,
+  "elbow_height_arm_hanging": 1.1376,
+  "fingertip_height_arm_hanging": 0.6744
+ },
+ "vs_reference": {
+  "head_height_vertex_menton": {
+   "model_cm": 21.0,
+   "ref_cm": 23.2,
+   "dev_pct": -9.5,
+   "ref_source": "~23.2 cm adult male (vertex-menton), ~0.13H",
+   "flag": true
+  },
+  "head_breadth_max_x": {
+   "model_cm": 17.4,
+   "ref_cm": 15.5,
+   "dev_pct": 12.2,
+   "ref_source": "ANSUR II head breadth ~15.5 cm",
+   "flag": true
+  },
+  "head_length_y": {
+   "model_cm": 21.1,
+   "ref_cm": 19.9,
+   "dev_pct": 6.1,
+   "ref_source": "ANSUR II head length ~19.9 cm (glabella-opisthocranion)",
+   "flag": false
+  },
+  "chest_breadth_at_nipple(excl arm verts)": {
+   "model_cm": 35.3,
+   "ref_cm": 33.0,
+   "dev_pct": 6.9,
+   "ref_source": "ANSUR II chest breadth ~32-33 cm",
+   "flag": false
+  },
+  "waist_breadth_min": {
+   "model_cm": 14.6,
+   "ref_cm": 31.0,
+   "dev_pct": -53.0,
+   "ref_source": "ANSUR II waist breadth ~31 cm (varies with weight)",
+   "flag": true
+  },
+  "hip_breadth_max": {
+   "model_cm": 40.4,
+   "ref_cm": 35.0,
+   "dev_pct": 15.5,
+   "ref_source": "ANSUR II hip breadth ~34.5-35.5 cm",
+   "flag": true
+  },
+  "crotch_height": {
+   "model_cm": 86.6,
+   "ref_cm": 84.6,
+   "dev_pct": 2.4,
+   "ref_source": "~0.47-0.48 H",
+   "flag": false
+  },
+  "shoulder_joint_z": {
+   "model_cm": 143.5,
+   "ref_cm": 144.0,
+   "dev_pct": -0.3,
+   "ref_source": "GH centre ~3-4 cm below acromion height 0.818H",
+   "flag": false
+  },
+  "hip_joint_z": {
+   "model_cm": 95.6,
+   "ref_cm": 95.4,
+   "dev_pct": 0.2,
+   "ref_source": "Drillis 0.530H (greater trochanter)",
+   "flag": false
+  },
+  "knee_joint_z": {
+   "model_cm": 52.7,
+   "ref_cm": 51.3,
+   "dev_pct": 2.7,
+   "ref_source": "Drillis 0.285H",
+   "flag": false
+  },
+  "upper_arm (shoulder->elbow joint)": {
+   "model_cm": 29.8,
+   "ref_cm": 31.0,
+   "dev_pct": -3.8,
+   "ref_source": "GH-centre to elbow-centre ~0.17-0.175H (humerus ~0.196H max length)",
+   "flag": false
+  },
+  "forearm (elbow->wrist joint)": {
+   "model_cm": 25.3,
+   "ref_cm": 26.3,
+   "dev_pct": -3.7,
+   "ref_source": "Drillis 0.146H",
+   "flag": false
+  },
+  "thigh (hip->knee joint)": {
+   "model_cm": 43.3,
+   "ref_cm": 44.1,
+   "dev_pct": -1.9,
+   "ref_source": "Drillis 0.245H",
+   "flag": false
+  },
+  "shank (knee->ankle joint)": {
+   "model_cm": 45.5,
+   "ref_cm": 44.3,
+   "dev_pct": 2.8,
+   "ref_source": "Drillis 0.246H",
+   "flag": false
+  },
+  "hand_len_from_narrowest_wrist": {
+   "model_cm": 24.4,
+   "ref_cm": 19.9,
+   "dev_pct": 22.6,
+   "ref_source": "ANSUR II hand length ~19.4 cm x1.025",
+   "flag": true
+  },
+  "hand_breadth_metacarpal": {
+   "model_cm": 9.0,
+   "ref_cm": 9.1,
+   "dev_pct": -1.0,
+   "ref_source": "ANSUR II hand breadth ~8.9 cm x1.025",
+   "flag": false
+  },
+  "foot_length": {
+   "model_cm": 27.0,
+   "ref_cm": 27.7,
+   "dev_pct": -2.7,
+   "ref_source": "ANSUR II foot length ~27.0 cm x1.025",
+   "flag": false
+  },
+  "hip_joint_separation": {
+   "model_cm": 22.7,
+   "ref_cm": 18.0,
+   "dev_pct": 25.9,
+   "ref_source": "HJC separation ~17-19 cm (Harrington/Bell regression, male)",
+   "flag": true
+  },
+  "arm_span_proxy": {
+   "model_cm": 190.9,
+   "ref_cm": 185.4,
+   "dev_pct": 3.0,
+   "ref_source": "arm span ~1.00-1.06 H",
+   "flag": false
+  }
+ }
+}

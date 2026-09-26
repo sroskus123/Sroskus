@@ -9,6 +9,11 @@
   --iv-danger: #e05a3a;
   /* backing plate for small HUD labels: readable over bright sky or lit walls (>= 4.5:1 even on white) */
   --iv-hud-plate: rgba(10, 12, 14, 0.75);
+  /* HUD scale: readable at 960x540 and 1920x1080 */
+  --iv-fs: clamp(12px, 1.55vh, 17px);
+  --iv-fs-small: clamp(11px, 1.25vh, 14px);
+  --iv-fs-big: clamp(26px, 3.6vh, 40px);
+  --iv-health-h: clamp(40px, 5.6vh, 60px);
   color-scheme: dark;
 }
 html,
@@ -179,7 +184,7 @@ body {
 .iv-stance {
   position: absolute;
   left: 16px;
-  bottom: 18px;
+  bottom: calc(24px + var(--iv-health-h));
   padding: 4px 10px;
   background: var(--iv-hud-plate);
   border-left: 3px solid var(--iv-accent);
@@ -224,8 +229,10 @@ body {
 }
 .iv-placeholder-note {
   position: absolute;
-  right: 16px;
-  bottom: 84px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  bottom: 8px;
   padding: 3px 8px;
   background: var(--iv-hud-plate);
   border-radius: 2px;
@@ -388,4 +395,530 @@ body {
   .iv-row {
     grid-template-columns: 1fr 1fr 48px;
   }
+}
+
+/* ------------------------------------------------------------------ match HUD */
+.iv-top {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  max-width: calc(100% - 520px);
+  min-width: 300px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+}
+.iv-top.iv-show {
+  display: flex;
+}
+.iv-timer {
+  font-size: calc(var(--iv-fs) * 1.25);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 12px;
+  background: var(--iv-hud-plate);
+  border-radius: 2px;
+  white-space: nowrap;
+}
+.iv-timer.iv-urgent {
+  color: var(--iv-danger);
+}
+.iv-scores {
+  display: flex;
+  gap: 6px;
+}
+.iv-team {
+  --team: #888;
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  gap: 2px 8px;
+  padding: 3px 8px 5px;
+  background: var(--iv-hud-plate);
+  border-left: 3px solid var(--team);
+  border-radius: 2px;
+  min-width: clamp(78px, 8vw, 120px);
+}
+.iv-team.iv-own {
+  outline: 1px solid rgba(255, 255, 255, 0.55);
+}
+.iv-team.iv-lead .iv-team-score {
+  color: var(--team);
+}
+.iv-team-name {
+  font-size: var(--iv-fs-small);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--team);
+  white-space: nowrap;
+}
+.iv-team-score {
+  font-size: calc(var(--iv-fs) * 1.2);
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.iv-team-bar,
+.iv-zone-bar {
+  grid-column: 1 / -1;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.15);
+}
+.iv-team-bar i,
+.iv-zone-bar i {
+  display: block;
+  height: 100%;
+  background: var(--team);
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+.iv-zone {
+  --zone: #c8ccd0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 10px 4px;
+  background: var(--iv-hud-plate);
+  border-radius: 2px;
+  border-bottom: 2px solid var(--zone);
+  min-width: 190px;
+}
+.iv-zone-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+  font-size: var(--iv-fs);
+}
+.iv-zone-arrow {
+  display: inline-block;
+  color: var(--zone);
+  font-size: calc(var(--iv-fs) * 0.9);
+}
+.iv-zone-name {
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.iv-zone-dist {
+  color: var(--iv-muted);
+  font-variant-numeric: tabular-nums;
+}
+.iv-zone-state {
+  font-size: var(--iv-fs-small);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.iv-zone-bar {
+  width: 100%;
+}
+.iv-zone-bar i {
+  background: var(--zone);
+}
+.iv-killfeed {
+  position: absolute;
+  right: 12px;
+  top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  max-width: min(360px, 34vw);
+}
+.iv-kf-row {
+  padding: 2px 8px;
+  background: var(--iv-hud-plate);
+  border-radius: 2px;
+  font-size: var(--iv-fs-small);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.iv-kf-weapon {
+  color: var(--iv-muted);
+}
+.iv-health {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  width: clamp(170px, 16vw, 260px);
+  height: var(--iv-health-h);
+  box-sizing: border-box;
+  padding: 4px 10px;
+  background: var(--iv-hud-plate);
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+.iv-health-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.iv-health-label {
+  font-size: var(--iv-fs-small);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--iv-muted);
+}
+.iv-health-num {
+  font-size: calc(var(--iv-fs) * 1.5);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.iv-health-bar {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.15);
+}
+.iv-health-bar i {
+  display: block;
+  height: 100%;
+  background: #7fd18b;
+  transform-origin: left center;
+}
+.iv-health.iv-low .iv-health-bar i {
+  background: var(--iv-danger);
+}
+.iv-health.iv-low .iv-health-num {
+  color: var(--iv-danger);
+}
+.iv-ammo {
+  padding: 4px 10px;
+  background: var(--iv-hud-plate);
+  border-radius: 2px;
+  min-width: clamp(150px, 14vw, 230px);
+}
+.iv-ammo.iv-dim {
+  opacity: 0.35;
+}
+.iv-weapon-name {
+  font-size: var(--iv-fs-small);
+  white-space: nowrap;
+}
+.iv-ammo-mag {
+  font-size: var(--iv-fs-big);
+}
+.iv-ammo-chamber {
+  font-size: var(--iv-fs);
+  font-weight: 700;
+  margin-left: 2px;
+  color: rgba(255, 255, 255, 0.25);
+}
+.iv-ammo-chamber.iv-on {
+  color: var(--iv-accent-light);
+}
+.iv-ammo-res {
+  font-size: var(--iv-fs);
+}
+.iv-fire-mode,
+.iv-reload-text {
+  font-size: var(--iv-fs-small);
+  color: var(--iv-muted);
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.iv-reload-text {
+  color: var(--iv-accent-light);
+  min-height: 1.1em;
+}
+.iv-reload {
+  width: 100%;
+}
+.iv-allies {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.iv-ally {
+  --team: #3d8bfd;
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px;
+  background: rgba(10, 12, 14, 0.55);
+  border-radius: 2px;
+  font-size: var(--iv-fs-small);
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+.iv-ally-pip {
+  width: 8px;
+  height: 8px;
+  background: var(--team);
+  transform: rotate(45deg);
+}
+.iv-ally-name {
+  color: var(--team);
+  font-weight: 700;
+}
+.iv-ally-dist {
+  color: var(--iv-muted);
+}
+.iv-dmg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(140px, 22vh, 240px);
+  height: clamp(140px, 22vh, 240px);
+  transform: translate(-50%, -50%);
+}
+.iv-dmg-arc {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+.iv-dmg-arc::before {
+  content: '';
+  position: absolute;
+  left: 35%;
+  right: 35%;
+  top: 0;
+  height: 6px;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  background: rgba(226, 58, 38, 0.95);
+  box-shadow: 0 0 8px rgba(226, 58, 38, 0.8);
+}
+.iv-vignette {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 55%, rgba(170, 20, 10, 0.75) 100%);
+}
+.iv-banner {
+  position: absolute;
+  left: 50%;
+  top: 24%;
+  transform: translateX(-50%);
+  padding: 6px 16px;
+  background: rgba(10, 12, 14, 0.8);
+  border-top: 2px solid var(--iv-accent);
+  font-size: calc(var(--iv-fs) * 1.25);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: center;
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 150ms linear;
+}
+.iv-banner.iv-show {
+  opacity: 1;
+}
+.iv-death {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  transform: translate(-50%, -50%);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 22px;
+  background: rgba(40, 8, 6, 0.72);
+  border: 1px solid rgba(226, 58, 38, 0.6);
+  text-align: center;
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
+}
+.iv-death.iv-show {
+  display: flex;
+}
+.iv-death-title {
+  font-size: calc(var(--iv-fs) * 1.6);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.iv-death-killer {
+  font-size: var(--iv-fs);
+}
+.iv-death-count {
+  font-size: var(--iv-fs);
+  color: var(--iv-accent-light);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 1100px) {
+  .iv-top {
+    max-width: calc(100% - 380px);
+  }
+}
+
+/* ------------------------------------------------------------------ menus */
+.iv-menu-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: min(320px, 100%);
+  margin-top: 10px;
+}
+.iv-menu-buttons .iv-btn {
+  text-align: left;
+}
+.iv-title-small {
+  font-size: clamp(22px, 3.2vh, 32px);
+}
+.iv-map-row,
+.iv-optics {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.iv-map-row .iv-btn,
+.iv-optics .iv-btn {
+  margin-top: 0;
+}
+.iv-map-label,
+.iv-optics-label {
+  font-size: 12px;
+  color: var(--iv-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-right: 4px;
+}
+.iv-btn.iv-selected {
+  background: var(--iv-accent-light);
+  box-shadow: inset 0 0 0 2px #14171a;
+}
+.iv-loadout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 6px 0;
+}
+.iv-slot {
+  padding: 10px 12px;
+  border: 1px solid var(--iv-line);
+  background: rgba(255, 255, 255, 0.03);
+}
+.iv-slot h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--iv-muted);
+  margin: 0 0 4px;
+}
+.iv-slot-weapon {
+  font-size: 18px;
+  font-weight: 700;
+}
+.iv-slot-ammo,
+.iv-slot-note {
+  font-size: 12px;
+  color: var(--iv-muted);
+  margin: 2px 0 8px;
+}
+.iv-team-tag {
+  font-weight: 700;
+}
+.iv-keybinds h2,
+.iv-goal h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--iv-muted);
+  margin: 0 0 8px;
+}
+.iv-bind-list {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content minmax(0, 1fr);
+  gap: 5px 10px;
+  align-items: center;
+}
+.iv-bind-row {
+  display: contents;
+}
+@media (max-width: 700px) {
+  .iv-bind-list {
+    grid-template-columns: max-content minmax(0, 1fr);
+  }
+}
+.iv-menu[data-screen='settings'] .iv-cols {
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+}
+.iv-bind-label {
+  font-size: 13px;
+  color: var(--iv-muted);
+}
+.iv-bind-list .iv-btn {
+  margin-top: 0;
+  padding: 5px 8px;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.iv-btn.iv-capturing {
+  background: var(--iv-accent);
+}
+.iv-goal p {
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0 0 8px;
+}
+.iv-result-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 4px 0 10px;
+}
+.iv-result-winner {
+  font-size: 24px;
+  font-weight: 700;
+}
+.iv-result-reason {
+  color: var(--iv-muted);
+  font-size: 13px;
+}
+.iv-result-table {
+  border-collapse: collapse;
+  min-width: min(360px, 100%);
+  font-size: 14px;
+}
+.iv-result-table th,
+.iv-result-table td {
+  text-align: left;
+  padding: 4px 14px 4px 0;
+  border-bottom: 1px solid var(--iv-line);
+  font-variant-numeric: tabular-nums;
+}
+.iv-result-table th {
+  color: var(--iv-muted);
+  font-weight: 400;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.iv-result-team {
+  font-weight: 700;
+}
+@media (max-width: 899px) {
+  .iv-loadout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.iv-menu[data-screen='title'] .iv-panel,
+.iv-menu[data-screen='paused'] .iv-panel,
+.iv-menu[data-screen='quit'] .iv-panel,
+.iv-menu[data-screen='loading'] .iv-panel {
+  width: min(560px, 100%);
+}
+.iv-menu[data-screen='results'] .iv-panel,
+.iv-menu[data-screen='loadout'] .iv-panel {
+  width: min(720px, 100%);
 }

@@ -16,6 +16,7 @@ Usage:  python3 Tools/level/check_layout.py [--fast] [--verbose]
 """
 import argparse
 import json
+import re
 import math
 import os
 import sys
@@ -499,7 +500,7 @@ def check_building(bd, rep):
             if o["clear_width"] < DOOR_W_BRIEF - EPS or o["clear_height"] < DOOR_H - EPS:
                 errs.append(f"{o['id']}: clear {o['clear_width']} x {o['clear_height']} below the brief minimum 0.90 x 2.05")
             elif o["clear_width"] < DOOR_W_PROJECT - EPS:
-                errs.append(f"{o['id']}: clear width {o['clear_width']} < 1.10 (project rule: 0.30 m Recast corridor at cs 0.10 / r 4)")
+                errs.append(f"{o['id']}: clear width {o['clear_width']} < 1.10 (project rule: >= 0.40 m Recast corridor at cs 0.05 / radius 7 cells)")
             if o.get("open_deg") is None or o.get("hinge") is None or o.get("swing") not in ("left", "right"):
                 errs.append(f"{o['id']}: hinge/swing/open_deg not fully specified")
         elif o["type"] == "roller_door":
@@ -2163,7 +2164,29 @@ def check_misc(L, B, W, rep):
         for s in b["stairs"] + b["exterior_stairs"]:
             if f"QA_{s['id']}_bottom" not in ids or f"QA_{s['id']}_top" not in ids:
                 errs.append(f"QA stair points for {s['id']} missing")
-    rep.check("Q01", errs, f"{len(qa)} QA points ({dict(kinds)}) cover every zone, spawn point, doorway, stair and chokepoint")
+    for bp in L["buildings"]:
+        bd = next(b for b in B["buildings"] if b["id"] == bp["id"])
+        if bp.get("zone") and any(l_["floor_z"] > 0 for l_ in bd["levels"] if any(r_["level"] == l_["id"] for r_ in bd["rooms"])):
+            if not any(p["kind"] == "zone_z" and p["id"].startswith(f"QA_{bp['zone']}_above_") for p in qa):
+                errs.append(f"QA z-band point (upper floor above {bp['zone']}) missing")
+    rep.check("Q01", errs, f"{len(qa)} QA points ({dict(kinds)}) cover every zone (incl. z-band tests above it), spawn point, doorway, "
+                           "stair and chokepoint")
+    # Q02: the 'testovací body' list in Docs/MAP_DESIGN.md is generated from qa_points (draw_plans.py) and must match them
+    errs = []
+    doc = os.path.join(ROOT, "Docs", "MAP_DESIGN.md")
+    if not os.path.exists(doc):
+        errs.append("Docs/MAP_DESIGN.md missing")
+    else:
+        t = open(doc, encoding="utf-8").read()
+        a, b = t.find("<!-- QA_POINTS:BEGIN -->"), t.find("<!-- QA_POINTS:END -->")
+        if a < 0 or b < a:
+            errs.append("Docs/MAP_DESIGN.md has no generated 'testovací body' section (markers QA_POINTS:BEGIN/END)")
+        else:
+            doc_ids = set(re.findall(r"`(QA_[A-Za-z0-9_]+)`", t[a:b]))
+            if doc_ids != ids:
+                errs.append(f"Docs/MAP_DESIGN.md 'testovací body' differ from layout.qa_points: missing {sorted(ids - doc_ids)[:5]}, "
+                            f"extra {sorted(doc_ids - ids)[:5]} -- run Tools/level/draw_plans.py")
+    rep.check("Q02", errs, "Docs/MAP_DESIGN.md 'testovací body' list matches layout.qa_points one to one")
     nv = L.get("navmesh_validation")
     if not nv:
         rep.warn("N01", "navmesh_validation missing: the Recast bake (Tools/level/nav) has not been merged -- NOT TESTED")

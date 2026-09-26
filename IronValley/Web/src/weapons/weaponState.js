@@ -1,150 +1,156 @@
-// Weapon state machine (pure logic, no rendering): fire cadence from accumulated simulation
-// time (decision D8), magazine / reserve accounting, reload as a single authoritative
-// transition, ADS blend. Ticked on the fixed simulation step only.
-//
-// NOTE: the shared rules core (src/core, owned by another module) will become the
-// authoritative ammo implementation; this class keeps the same semantics (no chamber
-// round, reload moves min(missing, reserve) rounds exactly once).
+// Engine-side handle of one weapon. The AUTHORITATIVE ammo / cadence / reload state machine is the
+// rules core (src/core/weapon.js, shared with the C++ core and its test vectors): magazine + separate
+// chamber + reserve, fire interval from accumulated integer microseconds, reload commits, interrupts and
+// disable locks (life / sprint / switch / menu / results). This handle only adds what the core does not
+// own: the ADS blend, the last trigger input, cumulative engine counters and a test-only infinite-ammo
+// switch. It never changes ammo itself except through the core API.
 
-export class WeaponState {
-  constructor(def) {
+import { WeaponState as CoreWeaponState } from '../core/weapon.js';
+import { TickClock } from '../core/time.js';
+
+export class WeaponHandle {
+  /**
+   * @param {object} o
+   * @param {object} o.def    weapons.json entry (adsTime, ...)
+   * @param {CoreWeaponState} [o.core] core weapon (from Match/RespawnSystem); created standalone from o.rulesDef if absent
+   * @param {object} [o.rulesDef] compiled rules.weapons[id] (needed when o.core is absent)
+   */
+  constructor({ def, core = null, rulesDef = null }) {
     this.def = def;
-    this.interval = 60 / def.rpm;
-    this.magazine = def.magazineSize;
-    this.reserve = def.reserveAmmo;
-    this.state = 'ready'; // 'ready' | 'reloading'
-    this.reloadTimer = 0;
-    this.reloadDuration = 0;
-    this.reloadEmpty = false;
-    this.simTime = 0; // time at the start of the current tick
-    this.nextShotTime = 0;
+    this.core = core || new CoreWeaponState(rulesDef);
+    this.rulesDef = this.core.def;
+    this.clock = new TickClock(); // standalone use only (callers normally pass dtUs)
     this.triggerHeld = false;
     this.adsHeld = false;
     this.ads = 0; // 0 = hip, 1 = fully aimed
-    this.firingStreak = false;
-    this.shotsFired = 0;
-    this.dryFires = 0;
-    this.reloadsCompleted = 0;
+    this.shotsFired = 0; // cumulative for the engine (core counters reset on respawn / refill)
     this.infiniteAmmo = false; // debug / test only
-    this.lastShotTick = -1;
-    this.ticks = 0;
+    this.lastEvents = [];
   }
 
+  get magazine() {
+    return this.core.magazine;
+  }
+  get chamber() {
+    return this.core.chamber;
+  }
+  get reserve() {
+    return this.core.reserve;
+  }
+  /** 'ready' | 'reloading' | 'chambering' */
+  get state() {
+    return this.core.state;
+  }
+  get enabled() {
+    return this.core.enabled;
+  }
+  get dryFires() {
+    return this.core.dryFires;
+  }
+  get reloadsCompleted() {
+    return this.core.reloadsCompleted;
+  }
   get fireIntervalSeconds() {
-    return this.interval;
+    return this.rulesDef.fireIntervalUs / 1e6;
+  }
+  totalAmmo() {
+    return this.core.totalAmmo;
   }
 
-  canReload() {
-    return this.state === 'ready' && this.magazine < this.def.magazineSize && this.reserve > 0;
+  /** Duration of the running action (reload / chambering) in microseconds, 0 when ready. */
+  actionDurationUs() {
+    const c = this.core;
+    const d = this.rulesDef;
+    if (c.state === 'chambering') return d.chamber.durationUs;
+    if (c.state === 'reloading') return c.reloadKind === 'empty' ? d.empty.durationUs : d.tactical.durationUs;
+    return 0;
   }
 
-  startReload() {
-    if (!this.canReload()) return false;
-    this.state = 'reloading';
-    this.reloadEmpty = this.magazine === 0;
-    this.reloadDuration = this.reloadEmpty ? this.def.reloadEmptyTime : this.def.reloadTime;
-    this.reloadTimer = 0;
-    return true;
+  /** Progress 0..1 of the running reload / chambering action. */
+  get reloadProgress() {
+    const dur = this.actionDurationUs();
+    return dur > 0 ? Math.min(1, this.core.actionUs / dur) : 0;
   }
 
-  /** Cancels a reload in progress without changing ammo (e.g. respawn / weapon switch). */
-  cancelReload() {
-    if (this.state !== 'reloading') return;
-    this.state = 'ready';
-    this.reloadTimer = 0;
+  /** Reload request -> core result string (started_tactical / started_empty / started_chamber / rejected_*). */
+  reload() {
+    return this.core.reload();
   }
 
   /**
-   * Advances one fixed tick.
-   * @param {number} dt
-   * @param {{trigger:boolean, ads:boolean, reload:boolean, canFire:boolean, sprinting:boolean}} inp
-   * @param {(shotIndex:number)=>void} onShot  called for each round fired this tick
-   * @returns {number} rounds fired this tick
+   * One fixed tick. Returns the number of rounds fired; for each round `onShot(i)` is called.
+   * The core is updated every tick with the real trigger state, also while locked (core contract).
+   * @param {number} dt  seconds (ADS blend)
+   * @param {object} inp { trigger, ads, sprinting, dtUs? }
    */
-  tick(dt, inp, onShot) {
-    const t = this.simTime;
-    let fired = 0;
-    const freshPress = inp.trigger && !this.triggerHeld;
-    this.triggerHeld = !!inp.trigger;
-    this.adsHeld = !!inp.ads && this.state !== 'reloading' && !inp.sprinting;
-
-    // ADS blend
+  tick(dt, inp, onShot = null) {
+    const dtUs = Number.isSafeInteger(inp.dtUs) ? inp.dtUs : this.clock.advance(dt);
+    const trigger = !!inp.trigger;
+    this.triggerHeld = trigger;
+    const c = this.core;
+    this.adsHeld = !!inp.ads && c.state === 'ready' && !inp.sprinting && !c.disabledBy.includes('switch') && !c.disabledBy.includes('life');
     const target = this.adsHeld ? 1 : 0;
-    const rate = dt / Math.max(this.def.adsTime, 1e-3);
+    const rate = dt / Math.max(this.def.adsTime || 0.2, 1e-3);
     this.ads = this.ads < target ? Math.min(target, this.ads + rate) : Math.max(target, this.ads - rate);
 
-    if (inp.reload) this.startReload();
-
-    // reload progress: ammo transfers exactly once, when the reload completes
-    if (this.state === 'reloading') {
-      this.reloadTimer += dt;
-      if (this.reloadTimer >= this.reloadDuration - 1e-9) {
-        const moved = Math.min(this.def.magazineSize - this.magazine, this.reserve);
-        this.magazine += moved;
-        this.reserve -= moved;
-        this.state = 'ready';
-        this.reloadTimer = 0;
-        this.reloadsCompleted++;
+    if (this.infiniteAmmo && c.state === 'ready') {
+      const cap = this.rulesDef.magazineCapacity;
+      if (c.magazine < cap || (this.rulesDef.hasChamber && c.chamber === 0)) {
+        c.setAmmo({ magazine: cap, chamber: this.rulesDef.hasChamber ? 1 : 0, reserve: c.reserve });
       }
     }
-
-    const able = this.state === 'ready' && inp.canFire !== false;
-    if (this.triggerHeld && able) {
-      if (!this.firingStreak) {
-        // fresh burst: cannot fire earlier than the cadence allows, but no stored-up shots
-        if (this.nextShotTime < t) this.nextShotTime = t;
-      }
-      while (t >= this.nextShotTime - 1e-9) {
-        if (this.magazine <= 0 && !this.infiniteAmmo) {
-          if (freshPress) {
-            this.dryFires++;
-            if (this.reserve > 0) this.startReload();
-          }
-          break;
-        }
-        if (!this.infiniteAmmo) this.magazine--;
-        this.shotsFired++;
-        fired++;
-        this.lastShotTick = this.ticks;
-        if (onShot) onShot(fired - 1);
-        this.nextShotTime += this.interval;
-      }
-      this.firingStreak = true;
-    } else {
-      this.firingStreak = false;
+    const shots = c.update(dtUs, trigger);
+    for (let i = 0; i < shots; i++) {
+      this.shotsFired++;
+      if (onShot) onShot(i);
     }
-
-    this.simTime += dt;
-    this.ticks++;
-    return fired;
+    this.lastEvents = c.takeEvents();
+    return shots;
   }
 
-  /** Releases trigger/ADS immediately (menu, focus loss, death). */
+  /** Releases trigger / ADS input (menu, focus loss, death). The core sees the release on its next update. */
   releaseInputs() {
     this.triggerHeld = false;
     this.adsHeld = false;
-    this.firingStreak = false;
   }
 
-  totalAmmo() {
-    return this.magazine + this.reserve;
+  /** Test helper: full magazine + chamber + start reserve through the core (interrupts a reload). */
+  refill() {
+    this.core.resetToLoadout();
+    this.lastEvents = this.core.takeEvents();
   }
 
   getState() {
+    const c = this.core;
     return {
       id: this.def.id,
-      state: this.state,
-      magazine: this.magazine,
-      reserve: this.reserve,
-      reloadProgress: this.state === 'reloading' ? this.reloadTimer / this.reloadDuration : 0,
+      rulesId: this.rulesDef.id,
+      name: this.def.displayName,
+      state: c.state,
+      reloadKind: c.reloadKind,
+      magazine: c.magazine,
+      chamber: c.chamber,
+      reserve: c.reserve,
+      capacity: this.rulesDef.magazineCapacity,
+      fireMode: c.fireMode,
+      reloadProgress: this.reloadProgress,
       triggerHeld: this.triggerHeld,
       adsHeld: this.adsHeld,
       ads: this.ads,
+      enabled: c.enabled,
+      disabledBy: c.disabledBy,
       shotsFired: this.shotsFired,
-      dryFires: this.dryFires,
-      reloadsCompleted: this.reloadsCompleted,
-      fireInterval: this.interval,
+      coreShotsFired: c.shotsFired,
+      dryFires: c.dryFires,
+      reloadsStarted: c.reloadsStarted,
+      reloadsCompleted: c.reloadsCompleted,
+      reloadsInterrupted: c.reloadsInterrupted,
+      chamberActions: c.chamberActions,
+      fireInterval: this.fireIntervalSeconds,
       infiniteAmmo: this.infiniteAmmo,
     };
   }
 }
+
+// Backwards-compatible name: the engine weapon state IS the core state machine behind a handle.
+export { WeaponHandle as WeaponState };

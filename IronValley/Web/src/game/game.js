@@ -1,12 +1,15 @@
-// Game orchestrator for the test-range build: wires renderer, environment, level, physics,
-// player, weapon, effects, HUD and the fixed-step loop. Systems talk through the event bus.
+// Game orchestrator: renderer, environment, level (loaded by id), input, the player camera, the match
+// session (authoritative rules through the core Match, combatants, AI), weapons' view models, effects,
+// third-person placeholder soldiers, HUD, menus and audio, on the fixed-step loop. Systems talk
+// through the event bus. The round logic itself lives in MatchSession (DOM-free).
 
 import { PerspectiveCamera, Scene, Vector3, Box3, Object3D } from 'three';
-import bindings from '../data/input_bindings.json' with { type: 'json' };
+import defaultBindings from '../data/input_bindings.json' with { type: 'json' };
 import movement from '../data/movement.json' with { type: 'json' };
-import weapons from '../data/weapons.json' with { type: 'json' };
+import weaponsData from '../data/weapons.json' with { type: 'json' };
+import combat from '../data/combat.json' with { type: 'json' };
+import teamsData from '../data/teams.json' with { type: 'json' };
 import envCfg from '../data/environment.json' with { type: 'json' };
-import level from '../data/test_range.json' with { type: 'json' };
 import { EventBus } from '../engine/events.js';
 import { FixedStepLoop } from '../engine/loop.js';
 import { Renderer } from '../engine/renderer.js';
@@ -18,19 +21,27 @@ import { buildTestRangeView } from '../level/testRangeView.js';
 import { probeSkyVisibility } from '../engine/indirectBake.js';
 import { updateBakedSun } from '../engine/bakedLightingMaterial.js';
 import { CollisionWorld } from '../physics/collisionWorld.js';
-import { CharacterController } from '../physics/characterController.js';
 import { DynamicsWorld } from '../physics/dynamicsWorld.js';
 import { InputManager } from '../player/input.js';
 import { Settings } from '../player/settings.js';
+import { BindingsStore } from '../player/bindingsStore.js';
 import { Player } from '../player/player.js';
-import { WeaponSystem, lookQuaternion } from '../weapons/weaponSystem.js';
+import { lookQuaternion } from '../weapons/weaponSystem.js';
 import { ViewModel } from '../weapons/viewModel.js';
+import { createPlaceholderPistol } from '../weapons/placeholderPistol.js';
 import { ImpactEffects } from '../weapons/impactEffects.js';
-import { TargetDummies } from './targetDummies.js';
+import { viewModelPointInCamera } from '../weapons/viewModelMotion.js';
 import { DummyView } from './dummyView.js';
 import { Hud } from './hud.js';
-import { createRng } from '../util/rng.js';
-import { horizontalToVerticalFov, wrapAngle } from '../util/math.js';
+import { Menus } from './menus.js';
+import { GameAudio } from './audio.js';
+import { MatchSession } from './session.js';
+import { CombatantViews } from './combatantViews.js';
+import { ZoneView } from './zoneView.js';
+import { DEFAULT_LEVEL_ID, listAvailableLevels, loadLevelData } from './levels.js';
+import { baseRulesCompiled } from './gameRules.js';
+import { createAISystem } from '../ai/index.js';
+import { horizontalToVerticalFov, wrapAngle, DEG2RAD } from '../util/math.js';
 
 function safeStorage() {
   try {
@@ -45,6 +56,9 @@ function safeStorage() {
 }
 
 const smooth = (t) => t * t * (3 - 2 * t);
+const _v = new Vector3();
+const _fwd = new Vector3();
+const _up = new Vector3();
 
 export class Game {
   constructor(root) {
@@ -56,31 +70,44 @@ export class Game {
     // debug/test switch: run the whole frame update but skip the WebGL draw calls (software
     // rendering in headless tests takes over a second per frame)
     this.drawEnabled = true;
-    // menus (start / pause): the simulation is held, so an unchanged frame is not redrawn
     this.drawCount = 0;
     this._drawDirty = true;
     this._lastDrawSig = '';
     this.eventLog = [];
-    this.data = { bindings, movement, weapons, environment: envCfg, level };
+    this.data = { bindings: defaultBindings, movement, weapons: weaponsData, combat, teams: teamsData, environment: envCfg, level: null };
     this._eye = new Vector3();
-    this._simEye = new Vector3();
     this._sunVis = 1;
     this._sunCheckTimer = 0;
-    this._eyeSky = 1; // sky visibility at the eye (target), smoothed into _ambient
+    this._eyeSky = 1;
     this._ambient = 1;
-    this._adapt = 1; // eye adaptation exposure multiplier (smoothed)
-    this.eyeAdaptationEnabled = true; // test hook can freeze it (exposure-independent measurements)
-    this.bounceSunOverride = null; // debug: baked bounce lit by this sun intensity instead of the light's
+    this._adapt = 1;
+    this.eyeAdaptationEnabled = true;
+    this.bounceSunOverride = null;
     this._lastYaw = 0;
     this._lastPitch = 0;
     this._lookSnaps = 0;
     this.weaponAsset = { path: null, loaded: false, placeholder: true, error: null, size: null };
+    this.pistolAsset = { path: weaponsData.ivp9_pistol.viewModel.asset, loaded: false, placeholder: true, error: null };
+    this.session = null;
+    this.player = null;
+    this.botCounts = teamsData.defaultBots.slice();
+    this.seedOverride = null;
+    this.aiEnabled = true;
+    this.infiniteAmmo = false;
+    this.optic = weaponsData.iv7_carbine.optics.default;
+    this.resultsAt = null;
+    this.deathCam = null;
+    this.levels = [];
+    this.levelId = null;
+    this.matchCount = 0;
   }
 
   async init() {
     const events = this.events;
-    this.settings = new Settings({ storage: safeStorage() });
-    this.rng = createRng(1337);
+    const storage = safeStorage();
+    this.settings = new Settings({ storage });
+    this.bindingsStore = new BindingsStore(defaultBindings, storage);
+    this.rules = baseRulesCompiled();
 
     // --- rendering ---
     this.renderer = new Renderer(this.root, { exposure: envCfg.exposure });
@@ -89,92 +116,73 @@ export class Game {
     this.camera = new PerspectiveCamera(50, this.renderer.aspect, 0.05, 2500);
     this.scene.add(this.camera);
     this.env = new Environment(this.renderer.renderer, this.scene, envCfg);
-    this.adaptive = new AdaptiveResolution({
-      min: this.settings.limits.renderScaleMin,
-      max: this.settings.limits.renderScaleMax,
-    });
+    this.adaptive = new AdaptiveResolution({ min: this.settings.limits.renderScaleMin, max: this.settings.limits.renderScaleMax });
     this._applyRenderScale();
-
-    // --- level ---
-    this.levelSolids = buildLevelSolids(level);
-    this.world = new CollisionWorld(this.levelSolids);
-    const maxAniso = this.renderer.renderer.capabilities.getMaxAnisotropy();
-    // baked indirect light: sky visibility + one sunlight bounce per vertex (ENV: interiors
-    // must not be lit like open ground)
     const bl = envCfg.bakedLighting || {};
-    this.bakedLighting =
-      bl.enabled === false ? null : { rays: bl.rays ?? 32, ambientFloor: bl.ambientFloor ?? 0.12, cell: bl.cell ?? 0.5, largeCell: bl.largeCell ?? 1.0 };
-    this.levelView = buildTestRangeView(level, this.levelSolids, {
-      maxAnisotropy: Math.min(8, maxAniso),
-      lighting: this.bakedLighting ? { world: this.world, sunDirection: this.env.sunDirection, ...this.bakedLighting } : null,
-    });
-    this.scene.add(this.levelView.group);
-    // shadow depth range is fitted to the height span of the level (see Environment)
-    const levelBounds = new Box3().setFromObject(this.levelView.group);
-    this.env.setShadowCasterHeights(levelBounds.min.y, levelBounds.max.y);
+    this.bakedLighting = bl.enabled === false ? null : { rays: bl.rays ?? 32, ambientFloor: bl.ambientFloor ?? 0.12, cell: bl.cell ?? 0.5, largeCell: bl.largeCell ?? 1.0 };
 
-    // --- physics ---
-    this.dynamics = new DynamicsWorld({ gravity: movement.gravity });
-    this.dynamics.addLevelBoxes(listLevelBoxes(level));
-
-    // --- targets ---
-    this.dummies = new TargetDummies(level.dummies);
-    this.dummyView = new DummyView(this.dummies);
-    this.scene.add(this.dummyView.group);
-    if (this.bakedLighting) {
-      // static targets: one sky-visibility probe at chest height scales their ambient light
-      for (const it of this.dummyView.items) {
-        const p = it.d.base.clone();
-        p.y += 1.1;
-        const sky = probeSkyVisibility(this.world, p, { sunDirection: this.env.sunDirection, rays: this.bakedLighting.rays }).skyVis;
-        it.mat.envMapIntensity = this.bakedLighting.ambientFloor + (1 - this.bakedLighting.ambientFloor) * sky;
-      }
-    }
-
-    // --- input + player ---
-    this.input = new InputManager(bindings, events);
+    // --- input ---
+    this.input = new InputManager(this.bindingsStore.get(), events);
     this.input.attach(this.renderer.canvas);
-    this.controller = new CharacterController(this.world, movement);
-    this.player = new Player({ controller: this.controller, input: this.input, settings: this.settings, events, mouse: bindings.mouse });
-    this.spawn();
+    this.bindingsStore.onChange((b) => {
+      this.input.setBindings(b);
+      this.data.bindings = b;
+    });
+    this.data.bindings = this.bindingsStore.get();
 
-    // --- weapon ---
-    this.weaponDef = weapons.iv7_carbine;
-    this.weapon = new WeaponSystem({ def: this.weaponDef, world: this.world, dummies: this.dummies, events, rng: createRng(4242) });
-    this.viewModel = new ViewModel({
-      def: this.weaponDef,
+    // --- weapons (view models) ---
+    const vmOpts = {
       envTexture: this.scene.environment,
       envIntensity: envCfg.environmentIntensity,
       sunDirection: this.env.sunDirection,
       sunColor: this.env.sun.color,
       sunIntensity: envCfg.sun.intensity,
-    });
-    this.effects = new ImpactEffects(this.scene, { rng: createRng(99).next });
+    };
+    this.viewModels = [new ViewModel({ def: weaponsData.iv7_carbine, ...vmOpts }), new ViewModel({ def: weaponsData.ivp9_pistol, ...vmOpts, createPlaceholder: createPlaceholderPistol })];
+    this.effects = new ImpactEffects(this.scene, { rng: Math.random });
+    this.combatantViews = new CombatantViews(this.scene, teamsData);
+    this.zoneView = new ZoneView(this.scene, teamsData);
 
-    // --- HUD ---
-    this.hud = new Hud(this.root, {
-      bindings,
+    // --- HUD, menus, audio ---
+    this.hud = new Hud(this.root, { levelName: '', teamsData });
+    this.menus = new Menus(this.root, {
       settings: this.settings,
-      events,
-      levelName: level.displayName,
-      onStart: () => this.startPlaying(true),
-      onResume: () => this.startPlaying(true),
+      bindingsStore: this.bindingsStore,
+      levels: () => this.levels,
+      currentLevel: () => this.levelId,
+      weaponsData,
+      teamsData,
+      rulesInfo: () => this.rulesInfo(),
+      // "Zpět" / Esc from the loadout returns to the title: keep the game state in sync
+      onScreen: (screen) => {
+        if (screen === 'title' && this.state === 'loadout') this.state = 'start';
+      },
+      actions: {
+        gesture: () => this.audio.unlock(),
+        start: () => this.openLoadout(),
+        practice: () => this.startPractice(true),
+        deploy: (lo) => this.deploy(lo, true),
+        resume: () => this.startPlaying(true),
+        leave: () => this.toTitle(),
+        newRound: () => this.newRound(true),
+        changeLoadout: () => this.openLoadout(),
+        mainMenu: () => this.toTitle(),
+        selectLevel: (id) => this.selectLevel(id),
+        quit: () => this.quit(),
+      },
     });
-    this.hud.setMode('loading');
-    this.hud.weaponName.textContent = this.weaponDef.displayName;
+    this.menus.show('loading');
+    this.audio = new GameAudio(this.settings);
 
     this._wireEvents();
+    this.loop = new FixedStepLoop({ step: (dt) => this.tick(dt), render: (alpha, dt) => this.render(alpha, dt) });
 
-    this.loop = new FixedStepLoop({
-      step: (dt) => this.tick(dt),
-      render: (alpha, dt) => this.render(alpha, dt),
-    });
-
-    await this.loadWeaponAsset();
-    // compile all programs up front so the first frames do not hitch
+    this.levels = await listAvailableLevels();
+    await this.loadLevel(DEFAULT_LEVEL_ID);
+    await this.loadWeaponAssets();
     try {
       this.renderer.renderer.compile(this.scene, this.camera);
-      this.renderer.renderer.compile(this.viewModel.scene, this.viewModel.camera);
+      for (const vm of this.viewModels) this.renderer.renderer.compile(vm.scene, vm.camera);
     } catch {
       /* compile is an optimisation only */
     }
@@ -183,67 +191,208 @@ export class Game {
     return this;
   }
 
-  _wireEvents() {
-    const ev = this.events;
-    const log = (type, payload) => {
-      this.eventLog.push({ type, tick: this.simTicks, ...payload });
-      if (this.eventLog.length > 200) this.eventLog.shift();
-    };
-    ev.on('input:menu', (p) => {
-      log('menu', { reason: p.reason });
-      if (this.state === 'playing') this.pause(p.reason);
-    });
-    ev.on('input:fallback', (p) => {
-      log('pointer-fallback', { reason: p.reason });
-      if (this.state === 'playing') this.hud.showNotice('Ukazatel myši nelze uzamknout — rozhlížej se tažením myši se stisknutým tlačítkem.', 6);
-    });
-    ev.on('input:released', (p) => {
-      if (this.weapon) this.weapon.state.releaseInputs();
-      log('input-released', { reason: p.reason });
-    });
-    ev.on('input:toggleFps', () => this.settings.set('showFps', !this.settings.get('showFps')));
-    ev.on('weapon:fired', (p) => {
-      this.viewModel.onShot();
-      this.effects.onShot(p.muzzle);
-    });
-    ev.on('weapon:hit', (p) => {
-      this.effects.onHit(p.hit);
-      if (p.hit.kind === 'dummy') this.hud.showHitmarker(!!(p.damage && p.damage.killed));
-      log('hit', { target: p.hit.targetKey, blocked: p.blocked });
-    });
-    ev.on('player:landed', (p) => log('landed', { speed: Number(p.speed.toFixed(3)) }));
-    this.settings.onChange((key) => {
-      this._drawDirty = true;
-      if (key === 'renderScale' || key === 'adaptiveResolution' || key === '*') this._applyRenderScale();
-    });
+  // ------------------------------------------------------------------ accessors (legacy names kept)
+
+  get controller() {
+    return this.session && this.session.player ? this.session.player.controller : null;
   }
 
-  _applyRenderScale() {
-    if (!this.renderer) return;
-    if (this.settings.get('adaptiveResolution')) {
-      this.renderer.setScale(this.adaptive.scale);
-    } else {
-      this.renderer.setScale(this.settings.get('renderScale'));
+  get playerCombatant() {
+    return this.session ? this.session.player : null;
+  }
+
+  /** The player's active weapon system (legacy name `weapon`). */
+  get weapon() {
+    const p = this.playerCombatant;
+    return p ? p.weapon : null;
+  }
+
+  get weaponDef() {
+    const w = this.weapon;
+    return w ? w.def : weaponsData.iv7_carbine;
+  }
+
+  get viewModel() {
+    const p = this.playerCombatant;
+    return this.viewModels[p ? p.activeWeapon : 0];
+  }
+
+  get dummies() {
+    return this.session ? this.session.dummies : null;
+  }
+
+  // ------------------------------------------------------------------ level
+
+  async loadLevel(id) {
+    const level = await loadLevelData(id);
+    if (this.levelView) {
+      this.scene.remove(this.levelView.group);
+      this.levelView.group.traverse((o) => {
+        if (o.geometry) o.geometry.dispose();
+      });
     }
+    this.levelId = id;
+    this.level = level;
+    this.data.level = level;
+    this.levelSolids = buildLevelSolids(level);
+    this.world = new CollisionWorld(this.levelSolids);
+    const maxAniso = this.renderer.renderer.capabilities.getMaxAnisotropy();
+    this.levelView = buildTestRangeView(level, this.levelSolids, {
+      maxAnisotropy: Math.min(8, maxAniso),
+      lighting: this.bakedLighting ? { world: this.world, sunDirection: this.env.sunDirection, ...this.bakedLighting } : null,
+    });
+    this.scene.add(this.levelView.group);
+    const levelBounds = new Box3().setFromObject(this.levelView.group);
+    this.env.setShadowCasterHeights(levelBounds.min.y, levelBounds.max.y);
+    this.dynamics = new DynamicsWorld({ gravity: movement.gravity });
+    this.dynamics.addLevelBoxes(listLevelBoxes(level));
+    this.hud.setLevelName(level.displayName || id);
+    this.hud.setLevelTag(id === 'test_range' ? 'vývojová mapa' : level.tag || 'mapa');
+    this.newSession({ mode: 'practice' });
+    return { id, displayName: level.displayName, hasMatch: !!level.match };
   }
 
-  spawn() {
-    const m = level.markers.spawn;
-    this.player.teleport(new Vector3().fromArray(m.pos), m.yaw, 0);
+  async selectLevel(id) {
+    if (id === this.levelId) return;
+    this.menus.setStatus('Načítám mapu…');
+    try {
+      await this.loadLevel(id);
+      this.menus.setStatus('');
+    } catch (err) {
+      this.menus.setStatus(`Mapu nelze načíst: ${err.message}`);
+    }
+    if (this.state === 'start') this.menus.show('title');
   }
+
+  // ------------------------------------------------------------------ session
+
+  nextSeed() {
+    if (this.seedOverride !== null) return this.seedOverride >>> 0;
+    return (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0;
+  }
+
+  /**
+   * Creates a new match / practice session on the current level and hooks views to it.
+   * @param {object} o { mode, bots, seed, optic, rulesPatch, skipPreRound }
+   */
+  newSession(o = {}) {
+    const mode = o.mode || 'match';
+    if (mode === 'match' && !this.level.match) throw new Error(`Mapa ${this.levelId} nemá zápasová data`);
+    const seed = o.seed !== undefined ? o.seed >>> 0 : this.nextSeed();
+    if (o.optic) this.optic = o.optic;
+    const s = new MatchSession({
+      level: this.level,
+      world: this.world,
+      movement,
+      weaponsData,
+      combat,
+      teams: teamsData,
+      events: this.events,
+      createAISystem,
+      mode,
+      seed,
+      bots: mode === 'match' ? (o.bots || this.botCounts) : [0, 0, 0],
+      rulesPatch: o.rulesPatch || null,
+      loadout: { optic: this.optic },
+    });
+    s.aiEnabled = this.aiEnabled;
+    if (this.session) this.session.dispose();
+    this.session = s;
+    this.matchCount += mode === 'match' ? 1 : 0;
+    const pc = s.player;
+    if (!this.player) {
+      this.player = new Player({ controller: pc.controller, input: this.input, settings: this.settings, events: this.events, mouse: this.data.bindings.mouse });
+    } else {
+      this.player.attachController(pc.controller);
+    }
+    s.start({ skipPreRound: !!o.skipPreRound });
+    if (this.infiniteAmmo) for (const w of pc.weapons) w.state.infiniteAmmo = true;
+    // views
+    if (this.dummyView) {
+      this.scene.remove(this.dummyView.group);
+      this.dummyView.group.traverse((o) => {
+        if (o.geometry) o.geometry.dispose();
+      });
+    }
+    this.dummyView = new DummyView(s.dummies);
+    this.scene.add(this.dummyView.group);
+    if (this.bakedLighting) {
+      for (const it of this.dummyView.items) {
+        const p = it.d.base.clone();
+        p.y += 1.1;
+        const sky = probeSkyVisibility(this.world, p, { sunDirection: this.env.sunDirection, rays: this.bakedLighting.rays }).skyVis;
+        it.mat.envMapIntensity = this.bakedLighting.ambientFloor + (1 - this.bakedLighting.ambientFloor) * sky;
+      }
+    }
+    this.combatantViews.setSession(s);
+    this.applyOptic(this.optic);
+    this.effects.clear();
+    this.hud.clearTransient();
+    this.resultsAt = null;
+    this.deathCam = null;
+    this._drawDirty = true;
+    this._updatePlaceholderNote();
+    return s;
+  }
+
+  applyOptic(optic) {
+    this.optic = optic;
+    const opt = weaponsData.iv7_carbine.optics.list.find((x) => x.id === optic) || weaponsData.iv7_carbine.optics.list[0];
+    this.viewModels[0].setHiddenNodes(opt.hideNodes || []);
+    if (this.playerCombatant) this.playerCombatant.optic = opt.id;
+    this._drawDirty = true;
+  }
+
+  rulesInfo() {
+    const r = this.session ? this.session.rules : this.rules;
+    const rw = r.weapons;
+    const zones = (this.level && this.level.match ? this.level.match.zones : []).map((z) => z.name || z.id);
+    return {
+      playerTeamName: r.teams[teamsData.playerTeam].name,
+      levelName: this.level ? this.level.displayName : '',
+      rifleAmmo: `${rw.rifle_iv7.magazineCapacity}+1 nábojů · rezerva ${rw.rifle_iv7.startReserve}`,
+      pistolAmmo: `${rw.pistol_p9.magazineCapacity}+1 nábojů · rezerva ${rw.pistol_p9.startReserve}`,
+      scoreTarget: r.round.scoreTarget,
+      timeLimitS: r.round.timeLimitUs / 1e6,
+      pointInterval: String(r.zone.pointIntervalUs / 1e6).replace('.', ','),
+      pointsPerAward: r.zone.pointsPerAward,
+      respawnDelay: String(r.respawn.delayUs / 1e6).replace('.', ','),
+      zoneNames: zones.join(', ') || '—',
+    };
+  }
+
+  // ------------------------------------------------------------------ flow
 
   setState(s) {
     this.state = s;
     this.hud.setMode(s);
     this.input.setEnabled(s === 'playing');
+    if (s === 'start') this.menus.show('title');
     this.events.emit('game:state', { state: s });
   }
 
-  /** Enter gameplay. fromGesture: request pointer lock (must be inside a user gesture). */
+  openLoadout() {
+    this.setState('loadout');
+    this.menus.show('loadout');
+  }
+
+  /** Start a match from the loadout screen. */
+  deploy(lo = {}, fromGesture = false) {
+    this.newSession({ mode: 'match', optic: lo.optic || this.optic });
+    this.startPlaying(fromGesture);
+  }
+
+  startPractice(fromGesture = false) {
+    this.newSession({ mode: 'practice' });
+    this.startPlaying(fromGesture);
+  }
+
+  /** Enter gameplay (resume). fromGesture: request pointer lock (must be inside a user gesture). */
   startPlaying(fromGesture) {
-    if (this.state === 'loading') return;
+    if (this.state === 'loading' || !this.session) return;
+    this.session.setMenuLock(false);
+    this.menus.hide();
     this.setState('playing');
-    this.hud.setStatus('');
     if (fromGesture) this.input.requestPointerLock();
     try {
       this.renderer.canvas.focus({ preventScroll: true });
@@ -254,169 +403,416 @@ export class Game {
 
   pause(reason = 'menu') {
     if (this.state !== 'playing') return;
-    this.weapon.state.releaseInputs();
+    for (const w of this.playerCombatant.weapons) w.state.releaseInputs();
+    this.session.setMenuLock(true);
     this.setState('paused');
+    this.menus.setStatus(reason === 'pointerlock-lost' ? 'Kurzor uvolněn.' : '');
+    this.menus.show('paused');
     this.input.exitPointerLock();
-    this.hud.setStatus(reason === 'pointerlock-lost' ? 'Kurzor uvolněn.' : '');
+  }
+
+  toTitle() {
+    this.newSession({ mode: 'practice' });
+    this.setState('start');
+    this.input.exitPointerLock();
+  }
+
+  newRound(fromGesture = false) {
+    if (!this.session || this.session.mode !== 'match') return;
+    this.session.resetRound();
+    this.effects.clear();
+    this.hud.clearTransient();
+    this.resultsAt = null;
+    this.deathCam = null;
+    this.startPlaying(fromGesture);
+  }
+
+  showResults() {
+    const s = this.session;
+    const r = s.roundInfo();
+    const kills = [0, 0, 0];
+    for (const c of s.combatants.all()) kills[c.team] += c.kills;
+    const pc = s.player;
+    const data = {
+      draw: r.draw,
+      winnerName: r.winner >= 0 ? r.teams[r.winner].name : '',
+      winnerColor: r.winner >= 0 ? r.teams[r.winner].color : '',
+      reason: r.endReason,
+      scoreTarget: r.scoreTarget,
+      teams: r.teams.map((t, i) => ({ name: t.name, color: t.color, score: r.scores[i], kills: kills[i], own: i === teamsData.playerTeam })),
+      player: pc ? { kills: pc.kills, deaths: pc.participant.deaths } : null,
+    };
+    this.resultsAt = null;
+    this.lastResults = data;
+    this.setState('results');
+    this.menus.show('results', data);
+    this.input.exitPointerLock();
+  }
+
+  /** "Ukončit": a web page cannot close the user's tab reliably, so the cursor is freed and the player told how to quit. */
+  quit() {
+    this.input.exitPointerLock();
+    this.menus.show('quit');
+  }
+
+  // ------------------------------------------------------------------ events
+
+  _wireEvents() {
+    const ev = this.events;
+    const log = (type, payload) => {
+      this.eventLog.push({ type, tick: this.simTicks, ...payload });
+      if (this.eventLog.length > 300) this.eventLog.shift();
+    };
+    const isPlayer = (id) => this.playerCombatant && id === this.playerCombatant.id;
+    ev.on('input:menu', (p) => {
+      log('menu', { reason: p.reason });
+      if (this.state === 'playing') this.pause(p.reason);
+      else if (this.menus.open && p.reason === 'key') this.menus.back();
+    });
+    ev.on('input:fallback', (p) => {
+      log('pointer-fallback', { reason: p.reason });
+      if (this.state === 'playing') this.hud.showNotice('Ukazatel myši nelze uzamknout — rozhlížej se tažením myši se stisknutým tlačítkem.', 6);
+    });
+    ev.on('input:released', (p) => {
+      if (this.playerCombatant) for (const w of this.playerCombatant.weapons) w.state.releaseInputs();
+      log('input-released', { reason: p.reason });
+    });
+    ev.on('input:toggleFps', () => this.settings.set('showFps', !this.settings.get('showFps')));
+    ev.on('weapon:fired', (p) => {
+      if (isPlayer(p.shooterId)) {
+        this.viewModel.onShot();
+        this.effects.onShot(p.muzzle);
+        this.audio.shot(null, p.weaponId === 'iv7_carbine');
+      } else {
+        this.combatantViews.onShot(p.shooterId, p.muzzle);
+        this.audio.shot(p.muzzle, p.weaponId === 'iv7_carbine');
+      }
+    });
+    ev.on('weapon:hit', (p) => {
+      this.effects.onHit(p.hit);
+      const byPlayer = isPlayer(p.shooterId);
+      if (byPlayer) {
+        const d = p.damage;
+        if (p.hit.kind === 'dummy') this.hud.showHitmarker(!!(d && d.killed), combat.hud.hitmarkerSeconds);
+        else if (p.hit.kind === 'combatant' && d && (d.result === 'applied' || d.result === 'killed')) {
+          this.hud.showHitmarker(d.result === 'killed', combat.hud.hitmarkerSeconds);
+          this.audio.hitmarker();
+        }
+      }
+      this.audio.hit(p.point, p.hit.kind === 'combatant');
+      log('hit', { shooter: p.shooterId, target: p.hit.targetKey, part: p.part || null, blocked: p.blocked, result: p.damage ? p.damage.result || null : null });
+    });
+    ev.on('combatant:damaged', (p) => {
+      if (isPlayer(p.victimId) && p.attackerPosition) {
+        const pc = this.playerCombatant;
+        const dx = p.attackerPosition.x - pc.position.x;
+        const dz = p.attackerPosition.z - pc.position.z;
+        this.hud.showDamage(this._relativeAngle(dx, dz, this.player.yaw), combat.hud.damageIndicatorSeconds);
+      }
+      log('damaged', { victim: p.victimId, attacker: p.attackerId, amount: p.amount, part: p.part });
+    });
+    ev.on('combatant:friendly_fire_blocked', (p) => log('ff-blocked', { victim: p.victimId, attacker: p.attackerId }));
+    ev.on('combatant:died', (p) => {
+      if (isPlayer(p.victimId)) {
+        const s = this.session;
+        const k = p.attackerId ? s.combatants.get(p.attackerId) : null;
+        this.deathCam = { t: 0, killerId: p.attackerId, killerName: k ? k.name : null, killerTeam: k ? k.team : -1, weapon: p.weaponId ? weaponsData[p.weaponId].shortName : null, forced: !p.attackerId, from: this.camera.position.clone() };
+        for (const w of this.playerCombatant.weapons) w.state.releaseInputs();
+      }
+      log('died', { victim: p.victimId, attacker: p.attackerId });
+    });
+    ev.on('combatant:spawned', (p) => {
+      if (isPlayer(p.id)) {
+        this.player.teleport(p.position, p.yaw / DEG2RAD, 0);
+        this.deathCam = null;
+        this._drawDirty = true;
+      }
+      log('spawned', { id: p.id, pos: p.position.toArray().map((v) => Math.round(v * 100) / 100) });
+    });
+    ev.on('round:started', (p) => {
+      const z = this.session.activeZone();
+      this.hud.showBanner(`Kolo začalo — obsaď oblast ${z ? z.name : ''}`, 3);
+      log('round-started', { zone: p.zoneId });
+    });
+    ev.on('round:ended', (p) => {
+      const r = this.session.roundInfo();
+      this.hud.showBanner(p.draw ? 'Konec kola — remíza' : `Konec kola — vítězí ${r.teams[p.winner].name}`, combat.hud.roundEndBannerSeconds);
+      this.resultsAt = this.session.simTime + combat.hud.roundEndBannerSeconds;
+      log('round-ended', { winner: p.winner, draw: p.draw, reason: p.reason, scores: p.scores });
+    });
+    ev.on('round:reset', (p) => log('round-reset', { zone: p.zoneId }));
+    ev.on('zone:control_changed', (p) => log('zone', { controller: p.controller, status: p.status }));
+    ev.on('weapon:dry_fire', (p) => {
+      if (isPlayer(p.id)) this.audio.click(null, 'dry');
+    });
+    ev.on('weapon:action', (p) => {
+      if (isPlayer(p.id)) this.audio.click(null, p.type);
+    });
+    ev.on('weapon:reload_started', (p) => log('reload-start', { id: p.id, kind: p.kind }));
+    ev.on('weapon:reload_finished', (p) => log('reload-done', { id: p.id, kind: p.kind }));
+    ev.on('weapon:reload_interrupted', (p) => log('reload-interrupted', { id: p.id, kind: p.kind }));
+    ev.on('footstep', (p) => this.audio.footstep(isPlayer(p.id) ? null : p.position, p.surface, p.loudness));
+    ev.on('player:landed', (p) => log('landed', { speed: Number(p.speed.toFixed(3)) }));
+    this.settings.onChange((key) => {
+      this._drawDirty = true;
+      if (key === 'renderScale' || key === 'adaptiveResolution' || key === '*') this._applyRenderScale();
+    });
+  }
+
+  /** Angle of the horizontal vector (dx, dz) relative to the view yaw: 0 = ahead, + = left. */
+  _relativeAngle(dx, dz, yaw) {
+    const len = Math.hypot(dx, dz) || 1;
+    const vx = dx / len;
+    const vz = dz / len;
+    const fx = -Math.sin(yaw);
+    const fz = -Math.cos(yaw);
+    const lx = -Math.cos(yaw);
+    const lz = Math.sin(yaw);
+    return Math.atan2(vx * lx + vz * lz, vx * fx + vz * fz);
+  }
+
+  _applyRenderScale() {
+    if (!this.renderer) return;
+    if (this.settings.get('adaptiveResolution')) this.renderer.setScale(this.adaptive.scale);
+    else this.renderer.setScale(this.settings.get('renderScale'));
+  }
+
+  _updatePlaceholderNote() {
+    const notes = [];
+    if (this.viewModels[0].isPlaceholder) notes.push('puška: provizorní model');
+    if (this.viewModels[1].isPlaceholder) notes.push('pistole: provizorní model');
+    if (this.session && this.session.mode === 'match') notes.push('postavy: provizorní figuríny');
+    this.hud.setPlaceholderNote(notes.length ? notes.join(' · ') : '');
   }
 
   // ------------------------------------------------------------------ simulation
 
   tick(dt) {
-    if (this.state !== 'playing') {
-      // simulation stands still: keep interpolated visuals still too (otherwise the view
-      // behind the menu would jump between the last two tick states as alpha cycles)
-      this.player.holdInterpolation();
-      this.weapon.recoil.snapshot();
-      this.viewModel.holdSim();
-      this.dummyView.hold();
+    if (this.state !== 'playing' || !this.session) {
+      if (this.player) this.player.holdInterpolation();
+      if (this.weapon) this.weapon.recoil.snapshot();
+      for (const vm of this.viewModels) vm.holdSim();
+      if (this.dummyView) this.dummyView.hold();
+      this.combatantViews.hold();
       this.input.consumeTick();
       return;
     }
-    const inp = this.input;
-    const fire = inp.isActive('fire');
-    const aim = inp.isActive('aim');
-    const reload = inp.wasPressed('reload');
-    if (inp.wasPressed('weapon2')) this.hud.showNotice('Pistole zatím není k dispozici.', 2);
-    if (inp.wasPressed('interact')) this.hud.showNotice('Tady není nic k použití.', 1.5);
-
-    const reloading = this.weapon.state.state === 'reloading';
-    this.player.tick(dt, { triggerHeld: fire, adsHeld: aim && !reloading });
-    const eye = this.player.getSimEye(this._simEye);
-    this.weapon.tick(
-      dt,
-      { trigger: fire, ads: aim, reload, canFire: true, sprinting: this.controller.sprinting },
-      eye,
-      this.player.yaw,
-      this.player.pitch,
-    );
-    this.dummies.tick(dt);
+    const s = this.session;
+    const pc = s.player;
+    this.player.beginTick();
+    // always the real input: a dead combatant ignores movement, and its weapons still need the real
+    // trigger state (core contract), so a trigger held through death does not fire after the respawn
+    const cmd = this.player.buildCommand();
+    s.tick(dt, { playerCmd: cmd });
+    this.player.endTick(dt);
+    this.combatantViews.tick(dt);
     this.dummyView.tick(dt);
     this.dynamics.step(dt);
     this.effects.tick(dt);
-    this.viewModel.tickSim(dt);
+    this.viewModels.forEach((vm, i) => (i === pc.activeWeapon ? vm.tickSim(dt) : vm.holdSim()));
     this.hud.tick(dt);
-    inp.consumeTick();
+    if (this.deathCam) this.deathCam.t += dt;
+    this.input.consumeTick();
     this.simTicks++;
+    if (this.resultsAt !== null && s.simTime >= this.resultsAt - 1e-9) this.showResults();
   }
 
   // ------------------------------------------------------------------ rendering
 
   render(alpha, frameDt) {
     const r = this.renderer;
-    if (r.contextLost) return;
+    if (r.contextLost || !this.session) return;
     r.resize();
+    const s = this.session;
+    const pc = s.player;
+    const alive = pc.alive;
     if (this.state === 'playing') this.player.applyLookInput();
-    // wrapped: Player keeps yaw bounded by subtracting whole turns, which is not a turn
     let lookDX = wrapAngle(this.player.yaw - this._lastYaw);
     let lookDY = this.player.pitch - this._lastPitch;
     this._lastYaw = this.player.yaw;
     this._lastPitch = this.player.pitch;
     let snapped = false;
     if (this.player.lookSnaps !== this._lookSnaps) {
-      // the view was set directly (teleport / respawn), not turned: no weapon sway from it
       this._lookSnaps = this.player.lookSnaps;
       lookDX = 0;
       lookDY = 0;
       snapped = true;
     }
-
+    const w = pc.weapon;
     const eye = this.player.getRenderEye(alpha, this._eye);
     const bob = this.player.getRenderBob(alpha);
-    const rec = this.weapon.recoil.interpolated(alpha);
-    const q = lookQuaternion(this.player.yaw + rec.yaw, this.player.pitch + rec.pitch, this.camera.quaternion);
+    const rec = w.recoil.interpolated(alpha);
+    let camYaw = this.player.yaw + rec.yaw;
+    let camPitch = this.player.pitch + rec.pitch;
+    const q = lookQuaternion(camYaw, camPitch, this.camera.quaternion);
+    if (!alive && this.deathCam) {
+      // short death view: the camera sinks to the ground and tilts
+      const dc = this.deathCam;
+      const u = Math.min(1, (dc.t + alpha / 60) / combat.death.deathCamTime);
+      const e = smooth(u);
+      const feet = pc.position;
+      eye.set(feet.x, feet.y + combat.death.deathCamHeight + (1 - e) * (pc.controller.standEyeHeight - combat.death.deathCamHeight), feet.z);
+      camPitch = this.player.pitch * (1 - e) - 0.25 * e;
+      lookQuaternion(camYaw, camPitch, q);
+      _v.set(0, 0, 1);
+      this.camera.quaternion.multiply(this.camera.quaternion.clone().setFromAxisAngle(_v, 0.35 * e));
+    }
     this.camera.position.copy(eye);
-    const ws = this.weapon.state;
+    const ws = w.state;
     const adsEase = smooth(ws.ads);
-    const hfov = this.settings.get('fovDeg') * (1 + (this.weaponDef.adsFovMultiplier - 1) * adsEase);
+    const hfov = this.settings.get('fovDeg') * (1 + ((w.def.adsFovMultiplier || 1) - 1) * adsEase);
     this.camera.fov = horizontalToVerticalFov(hfov, r.aspect);
     this.camera.aspect = r.aspect;
     this.camera.updateProjectionMatrix();
     this.camera.updateMatrixWorld();
-
     this.env.follow(eye, eye);
 
-    // is the eye in sun shadow? (dims the view model's direct light) and how much sky does it
-    // see (scales the view model's ambient like the baked level lighting)
     this._sunCheckTimer -= frameDt;
     if (this._sunCheckTimer <= 0 || snapped) {
       this._sunCheckTimer = 0.1;
       this._sunVis = this.world.raycast(eye, this.env.sunDirection, 400) ? 0 : 1;
       if (this.bakedLighting) this._eyeSky = probeSkyVisibility(this.world, eye, { sunDirection: this.env.sunDirection, rays: 16 }).skyVis;
     }
+    const vm = this.viewModel;
     if (this.bakedLighting) {
-      // teleports / respawns jump straight to the new state; otherwise smooth
       this._ambient = snapped ? this._eyeSky : this._ambient + (this._eyeSky - this._ambient) * (1 - Math.exp(-6 * frameDt));
       const f = this.bakedLighting.ambientFloor;
-      this.viewModel.setAmbientScale(f + (1 - f) * this._ambient);
+      vm.setAmbientScale(f + (1 - f) * this._ambient);
       updateBakedSun(this.levelView.lighting.uniforms, this.env.sun.color, this.bounceSunOverride ?? this.env.sun.intensity);
     }
     this._updateEyeAdaptation(frameDt, snapped);
 
-    this.viewModel.update({
+    const sw = pc.switchTimer > 0 ? pc.switchTimer / Math.max(1e-3, w.def.switchTime || 0.4) : 0;
+    vm.update({
       dt: frameDt,
       alpha,
       orientation: q,
       aspect: r.aspect,
       ads: ws.ads,
-      sprint: this.controller.sprinting ? 1 : 0,
+      sprint: pc.controller.sprinting ? 1 : 0,
       bobPhase: bob.phase,
       bobAmount: bob.amount,
       lookDX,
       lookDY,
-      reload: ws.state === 'reloading' ? ws.reloadTimer / ws.reloadDuration : 0,
+      reload: ws.state === 'reloading' || ws.state === 'chambering' ? ws.reloadProgress : 0,
+      lower: sw,
       motion: this.settings.get('cameraMotion'),
       sunVisibility: this._sunVis,
     });
     this.dummyView.update(alpha);
+    this.combatantViews.update(alpha);
+    const ri = s.roundInfo();
+    this.zoneView.update(ri.zone, ri.status, ri.controller, s.simTime);
 
     if (this.drawEnabled) {
-      // In a menu the scene behind the translucent overlay is static: skip the draw when nothing
-      // visible changed (saves the GPU; with software rendering it also keeps the menu responsive).
       const sig = this._drawSignature();
       const idle = this.state !== 'playing' && !this._drawDirty && sig === this._lastDrawSig;
       if (!idle) {
         const gl = r.renderer;
         gl.clear();
         gl.render(this.scene, this.camera);
-        gl.clearDepth();
-        gl.render(this.viewModel.scene, this.viewModel.camera);
+        if (alive && (this.state === 'playing' || this.state === 'paused')) {
+          gl.clearDepth();
+          gl.render(vm.scene, vm.camera);
+        }
         this._lastDrawSig = sig;
         this._drawDirty = false;
         this.drawCount++;
       }
     }
 
+    // HUD from real state
+    const part = pc.participant;
+    let zoneVec = null;
+    if (ri.zone) {
+      const dx = ri.zone.center[0] - pc.position.x;
+      const dz = ri.zone.center[2] - pc.position.z;
+      zoneVec = { distance: Math.hypot(dx, dz), angle: this._relativeAngle(dx, dz, this.player.yaw), inside: s.isInZone(pc.position) };
+    }
+    let death = null;
+    if (!alive && part) {
+      const dc = this.deathCam || {};
+      death = {
+        killerName: dc.killerName || null,
+        killerColor: dc.killerTeam >= 0 ? teamsData.teams[dc.killerTeam].color : null,
+        weapon: dc.weapon || null,
+        forced: !!dc.forced,
+        respawnIn: part.respawnInUs / 1e6,
+        waiting: part.state === 'respawning',
+      };
+    }
+    const optic = weaponsData.iv7_carbine.optics.list.find((o) => o.id === this.optic);
+    const weaponLabel = pc.activeWeapon === 0 ? `${w.def.displayName} · ${optic ? optic.name.toLowerCase() : ''}` : w.def.displayName;
     this.hud.update(frameDt, {
       weapon: ws.getState(),
-      player: this.controller,
+      weaponLabel,
+      player: pc.controller,
+      alive,
+      health: pc.health,
+      maxHealth: s.rules.combat.maxHealth,
       fps: this.loop.fps,
       showFps: this.settings.get('showFps'),
-      sprinting: this.controller.sprinting,
+      sprinting: pc.controller.sprinting,
+      round: ri,
+      zoneVec,
+      ownTeam: pc.team,
+      killFeed: s.killFeed,
+      death,
+      allies: this._allyMarkers(pc),
     });
 
-    // only frames actually drawn during play tell the adaptive resolution anything (menus skip draws)
+    // audio listener on the camera
+    _fwd.set(0, 0, -1).applyQuaternion(this.camera.quaternion);
+    _up.set(0, 1, 0).applyQuaternion(this.camera.quaternion);
+    this.audio.setListener(this.camera.position, _fwd, _up);
+
     if (this.settings.get('adaptiveResolution') && !this.loop.frozen && this.state === 'playing') {
-      const s = this.adaptive.update(this.loop.lastFrameMs, frameDt);
-      if (s !== null) r.setScale(s);
+      const sc = this.adaptive.update(this.loop.lastFrameMs, frameDt);
+      if (sc !== null) r.setScale(sc);
     }
     this.frameCount++;
   }
 
-  /** Everything that changes the drawn image while the simulation is held (menu redraw check). */
+  /** Screen positions of living allies (through walls; allies only). */
+  _allyMarkers(pc) {
+    const out = [];
+    const canvas = this.renderer.canvas;
+    const wpx = canvas.clientWidth || 960;
+    const hpx = canvas.clientHeight || 540;
+    for (const c of this.session.combatants.byTeam(pc.team)) {
+      if (c === pc || !c.alive) continue;
+      const p = c.controller.position;
+      _v.set(p.x, p.y + c.controller.height + 0.3, p.z);
+      const dist = _v.distanceTo(this.camera.position);
+      _v.project(this.camera);
+      const onScreen = _v.z > -1 && _v.z < 1 && Math.abs(_v.x) <= 1.05 && Math.abs(_v.y) <= 1.05;
+      out.push({
+        id: c.id,
+        name: c.name,
+        color: teamsData.teams[c.team].color,
+        distance: dist,
+        onScreen,
+        x: ((_v.x + 1) / 2) * wpx,
+        y: ((1 - _v.y) / 2) * hpx,
+      });
+    }
+    return out;
+  }
+
   _drawSignature() {
     const r = this.renderer.renderer;
+    const vm = this.viewModel;
     const parts = [
       ...this.camera.matrixWorld.elements,
       ...this.camera.projectionMatrix.elements,
-      ...this.viewModel.holder.position.toArray(),
-      this.viewModel.holder.rotation.x,
-      this.viewModel.holder.rotation.y,
-      this.viewModel.holder.rotation.z,
+      ...vm.holder.position.toArray(),
+      vm.holder.rotation.x,
+      vm.holder.rotation.y,
+      vm.holder.rotation.z,
       r.toneMappingExposure,
-      this.viewModel.ambientScale,
-      this.viewModel.sun.intensity,
-      this.viewModel.flash.visible ? 1 : 0,
+      vm.ambientScale,
+      vm.sun.intensity,
+      vm.flash.visible ? 1 : 0,
       r.domElement.width,
       r.domElement.height,
       this.env.sun.intensity,
@@ -426,12 +822,6 @@ export class Game {
     return s;
   }
 
-  /**
-   * Eye adaptation: in enclosed spaces (little sky visible from the eye) the exposure rises up
-   * to eyeAdaptation.maxBoost, slowly when going in and faster when coming out, like the eye
-   * (and camera auto-exposure). Driven by the sky-visibility probe instead of a GPU luminance
-   * readback, so it is cheap and deterministic.
-   */
   _updateEyeAdaptation(frameDt, snapped) {
     const a = envCfg.eyeAdaptation;
     let target = 1;
@@ -451,53 +841,62 @@ export class Game {
 
   // ------------------------------------------------------------------ assets
 
-  async loadWeaponAsset() {
-    const path = this.weaponDef.viewModel.asset;
-    this.weaponAsset.path = path;
-    if (!hasAsset(path)) {
-      this.hud.setPlaceholderNote('Zbraň: provizorní model (IV-7 zatím není hotová)');
-      return;
-    }
-    try {
-      const gltf = await loadGLTF(path);
-      const obj = gltf.scene;
-      obj.updateMatrixWorld(true);
-      const sockets = this.weaponDef.viewModel.sockets || {};
-      let muzzle = obj.getObjectByName(sockets.muzzle || 'socket_muzzle') || null;
-      const adsEye = obj.getObjectByName(sockets.adsEye || 'socket_ads') || null;
-      let glassFixed = 0;
-      obj.traverse((o) => {
-        if (!muzzle && !o.isMesh && /muzzle/i.test(o.name)) muzzle = o;
-        if (o.isMesh) {
-          o.castShadow = false;
-          o.receiveShadow = false;
-          o.frustumCulled = false;
-          // KHR_materials_transmission needs a transmission pass that samples the same
-          // scene; the view model pass contains only the weapon, so the lens would render
-          // black. Use a plain thin transparent coated lens instead.
-          const mats = Array.isArray(o.material) ? o.material : [o.material];
-          for (const m of mats) {
-            if (m && m.transmission > 0) {
-              m.transmission = 0;
-              m.transparent = true;
-              m.opacity = 0.16;
-              m.depthWrite = false;
-              m.roughness = Math.min(m.roughness ?? 0.05, 0.08);
-              m.needsUpdate = true;
-              glassFixed++;
-            }
+  async loadWeaponAssets() {
+    await this.loadWeaponAsset();
+    await this.loadPistolAsset();
+    this._updatePlaceholderNote();
+  }
+
+  /** Loads a GLB and prepares it for the view-model pass (glass fix, sockets). */
+  async _loadViewModelGlb(path, sockets) {
+    const gltf = await loadGLTF(path);
+    const obj = gltf.scene;
+    obj.updateMatrixWorld(true);
+    let muzzle = obj.getObjectByName(sockets.muzzle || 'socket_muzzle') || null;
+    const adsEye = obj.getObjectByName(sockets.adsEye || 'socket_ads') || null;
+    let glassFixed = 0;
+    obj.traverse((o) => {
+      if (!muzzle && !o.isMesh && /muzzle/i.test(o.name)) muzzle = o;
+      if (o.isMesh) {
+        o.castShadow = false;
+        o.receiveShadow = false;
+        o.frustumCulled = false;
+        // KHR_materials_transmission needs a transmission pass that samples the same scene; the view
+        // model pass contains only the weapon, so the lens would render black -> thin transparent glass
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        for (const m of mats) {
+          if (m && m.transmission > 0) {
+            m.transmission = 0;
+            m.transparent = true;
+            m.opacity = 0.16;
+            m.depthWrite = false;
+            m.roughness = Math.min(m.roughness ?? 0.05, 0.08);
+            m.needsUpdate = true;
+            glassFixed++;
           }
         }
-      });
-      const box = new Box3().setFromObject(obj);
-      const size = box.getSize(new Vector3());
-      if (!muzzle) {
-        muzzle = new Object3D();
-        muzzle.name = 'Socket_Muzzle_auto';
-        muzzle.position.set(box.max.x, (box.min.y + box.max.y) / 2, (box.min.z + box.max.z) / 2);
-        obj.add(muzzle);
       }
-      this.viewModel.setModel(obj, muzzle, { placeholder: false, name: path.split('/').pop(), adsEye });
+    });
+    const box = new Box3().setFromObject(obj);
+    const size = box.getSize(new Vector3());
+    if (!muzzle) {
+      muzzle = new Object3D();
+      muzzle.name = 'Socket_Muzzle_auto';
+      muzzle.position.set(box.max.x, (box.min.y + box.max.y) / 2, (box.min.z + box.max.z) / 2);
+      obj.add(muzzle);
+    }
+    return { obj, muzzle, adsEye, box, size, glassFixed };
+  }
+
+  async loadWeaponAsset() {
+    const def = weaponsData.iv7_carbine;
+    const path = def.viewModel.asset;
+    this.weaponAsset.path = path;
+    if (!hasAsset(path)) return;
+    try {
+      const { obj, muzzle, adsEye, box, size, glassFixed } = await this._loadViewModelGlb(path, def.viewModel.sockets || {});
+      const vm0 = this.viewModels[0];
+      vm0.setModel(obj, muzzle, { placeholder: false, name: path.split('/').pop(), adsEye });
       this._drawDirty = true;
       this.weaponAsset = {
         path,
@@ -509,11 +908,10 @@ export class Game {
         boundsMax: box.max.toArray(),
         muzzleNode: muzzle.name,
         adsEyeNode: adsEye ? adsEye.name : null,
-        muzzleLocal: this.viewModel.muzzleLocal.toArray(),
-        adsEyeLocal: this.viewModel.adsEyeLocal.toArray(),
+        muzzleLocal: vm0.muzzleLocal.toArray(),
+        adsEyeLocal: vm0.adsEyeLocal.toArray(),
         glassMaterialsAdjusted: glassFixed,
         textures: (() => {
-          // texture maps referenced by the weapon's materials and how many have pixel data
           const seen = new Set();
           let decoded = 0;
           obj.traverse((o) => {
@@ -535,20 +933,52 @@ export class Game {
           return n;
         })(),
       };
-      this.hud.setPlaceholderNote('');
     } catch (err) {
       console.warn('[assets] weapon GLB failed to load, using placeholder:', err && err.message);
       this.weaponAsset.error = String(err && err.message);
-      this.hud.setPlaceholderNote('Zbraň: provizorní model (GLB se nepodařilo načíst)');
+    }
+  }
+
+  /**
+   * IV-P9 pistol GLB (if present in the build): replaces the placeholder. ADS position and the gameplay
+   * muzzle are derived from its sockets, so shots leave from the drawn muzzle.
+   */
+  async loadPistolAsset() {
+    const def = weaponsData.ivp9_pistol;
+    const path = def.viewModel.asset;
+    if (!hasAsset(path)) return;
+    try {
+      const { obj, muzzle, adsEye } = await this._loadViewModelGlb(path, def.viewModel.sockets || {});
+      const vm1 = this.viewModels[1];
+      vm1.setModel(obj, muzzle, { placeholder: false, name: path.split('/').pop(), adsEye });
+      const m = vm1.muzzleLocal;
+      def.viewModel.muzzleLocal = [m.x, m.y, m.z];
+      if (adsEye) {
+        const a = vm1.adsEyeLocal;
+        def.viewModel.adsEyeLocal = [a.x, a.y, a.z];
+        def.viewModel.adsPosition = [-a.z, -a.y, a.x];
+        vm1.adsPos.fromArray(def.viewModel.adsPosition);
+      }
+      def.muzzleOffsetHip = viewModelPointInCamera(def.viewModel, def.viewModel.muzzleLocal, 0).toArray();
+      def.muzzleOffsetAds = viewModelPointInCamera(def.viewModel, def.viewModel.muzzleLocal, 1).toArray();
+      if (this.session) for (const c of this.session.combatants.all()) c.weapons[1].setViewModel(def.viewModel, def.muzzleOffsetHip, def.muzzleOffsetAds);
+      this.pistolAsset = { path, loaded: true, placeholder: false, error: null, muzzleLocal: def.viewModel.muzzleLocal, adsEyeLocal: def.viewModel.adsEyeLocal };
+      this._drawDirty = true;
+    } catch (err) {
+      console.warn('[assets] pistol GLB failed to load, using placeholder:', err && err.message);
+      this.pistolAsset.error = String(err && err.message);
     }
   }
 
   // ------------------------------------------------------------------ state for tests / debug
 
   getState() {
-    const p = this.player.getState();
+    const s = this.session;
+    const p = this.player ? this.player.getState() : null;
+    const pc = this.playerCombatant;
     return {
       state: this.state,
+      menuScreen: this.menus.screen,
       frame: this.frameCount,
       draws: this.drawCount,
       ticks: this.loop.ticks,
@@ -558,9 +988,14 @@ export class Game {
       frozen: this.loop.frozen,
       timeScale: this.loop.timeScale,
       alpha: this.loop.alpha,
-      player: p,
-      weapon: this.weapon.getState(),
-      weaponAsset: { ...this.weaponAsset, viewModel: this.viewModel.assetName, isPlaceholder: this.viewModel.isPlaceholder },
+      levelId: this.levelId,
+      mode: s ? s.mode : null,
+      player: p ? { ...p, alive: pc.alive, health: pc.health, lifeState: pc.lifeState, activeWeapon: pc.activeWeapon, id: pc.id, team: pc.team } : null,
+      weapon: this.weapon ? this.weapon.getState() : null,
+      weapons: pc ? pc.weapons.map((w) => w.getState()) : [],
+      optic: this.optic,
+      weaponAsset: { ...this.weaponAsset, viewModel: this.viewModels[0].assetName, isPlaceholder: this.viewModels[0].isPlaceholder, hiddenNodes: this.viewModels[0].hiddenCount || 0 },
+      pistolAsset: { ...this.pistolAsset, viewModel: this.viewModels[1].assetName, isPlaceholder: this.viewModels[1].isPlaceholder },
       viewModel: {
         kick: this.viewModel.kick,
         kickRot: this.viewModel.kickRot,
@@ -569,9 +1004,10 @@ export class Game {
         holderPosition: this.viewModel.holder.position.toArray(),
         holderRotation: [this.viewModel.holder.rotation.x, this.viewModel.holder.rotation.y, this.viewModel.holder.rotation.z],
         finite: [this.viewModel.holder.position.x, this.viewModel.holder.position.y, this.viewModel.holder.position.z].every(Number.isFinite),
+        name: this.viewModel.assetName,
       },
       input: this.input.getState(),
-      dummies: this.dummies.getState(),
+      dummies: this.dummies ? this.dummies.getState() : [],
       dynamics: this.dynamics.getState(),
       render: this.renderer.getInfo(),
       camera: {
@@ -580,6 +1016,7 @@ export class Game {
         fovHorizontalSetting: this.settings.get('fovDeg'),
       },
       settings: { ...this.settings.values },
+      bindings: this.bindingsStore.get().actions,
       sun: this.env.verifySun(),
       shadow: this.env.getShadowInfo(),
       bakedLighting: this.levelView.lighting
@@ -596,6 +1033,8 @@ export class Game {
       sky: { detailedClouds: !!this.env.sky.userData.detailedClouds },
       assets: listAssets(),
       effects: { impacts: this.effects.impacts, decals: this.effects.decalCount },
+      round: s ? s.roundInfo() : null,
+      audio: this.audio.getState(),
       events: this.eventLog.slice(-50),
     };
   }

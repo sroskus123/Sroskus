@@ -39,7 +39,7 @@
   ],
   "round_fiction": {
    "briefing_cs": "Kalné Hamry, údolí Kalného potoka. Obec je evakuovaná a armáda údolí uzavřela kordonem a minovými poli. Každé kolo shodí vrtulník zásobovací bednu s rádiovým převaděčem na jedno ze tří míst v obci. Kdo ji udrží, vyhrává.",
-   "why_zone_moves": "a supply cache with a radio relay is dropped at one of three places each round (yellow smoke marks it)",
+   "why_zone_moves": "a supply cache with a radio relay is dropped at one of three places each round (violet smoke marks it)",
    "why_boundary": "the valley is sealed by an army cordon: roadblocks on the three roads, deer fences with minefield signs on the spurs"
   },
   "collision_semantics": {
@@ -8748,16 +8748,16 @@
         -40.17
        ],
        [
-        -66.63,
-        -38.61
+        -66.81,
+        -38.3
        ],
        [
-        -67.59,
-        -39.15
+        -67.77,
+        -38.83
        ],
        [
         -66.73,
-        -40.71
+        -40.7
        ]
       ]
      },
@@ -8766,20 +8766,20 @@
       "src": "P_SCREEN_ALFA_84_2",
       "pts": [
        [
-        -66.64,
-        -38.62
+        -66.82,
+        -38.29
        ],
        [
-        -68.72,
-        -34.88
+        -68.9,
+        -34.55
        ],
        [
-        -69.68,
-        -35.42
+        -69.86,
+        -35.09
        ],
        [
-        -67.6,
-        -39.16
+        -67.78,
+        -38.83
        ]
       ]
      },
@@ -8854,20 +8854,20 @@
       "src": "P_SCREEN_BRAVO_92_1",
       "pts": [
        [
-        3.81,
-        81.62
+        2.7,
+        81.78
        ],
        [
-        9.64,
-        80.77
+        9.06,
+        80.86
        ],
        [
-        9.79,
-        81.86
+        9.22,
+        81.94
        ],
        [
-        3.96,
-        82.71
+        2.86,
+        82.86
        ]
       ]
      },
@@ -8876,20 +8876,20 @@
       "src": "P_SCREEN_BRAVO_92_2",
       "pts": [
        [
-        9.63,
-        80.77
+        9.06,
+        80.86
        ],
        [
-        14.22,
-        80.1
+        14.36,
+        80.09
        ],
        [
-        14.37,
-        81.19
+        14.52,
+        81.18
        ],
        [
-        9.78,
-        81.86
+        9.22,
+        81.95
        ]
       ]
      },
@@ -8899,19 +8899,19 @@
       "pts": [
        [
         22.48,
-        137.14
+        137.15
        ],
        [
-        26.99,
-        136.07
+        27.68,
+        135.9
        ],
        [
-        27.24,
-        137.14
+        27.94,
+        136.97
        ],
        [
-        22.73,
-        138.21
+        22.74,
+        138.22
        ]
       ]
      },
@@ -8920,20 +8920,20 @@
       "src": "P_SCREEN_BRAVO_157_2",
       "pts": [
        [
-        26.99,
-        136.06
+        27.68,
+        135.9
        ],
        [
-        31.5,
-        134.99
+        31.84,
+        134.91
        ],
        [
-        31.75,
-        136.06
+        32.1,
+        135.98
        ],
        [
-        27.24,
-        137.13
+        27.94,
+        136.97
        ]
       ]
      },
@@ -8942,11 +8942,11 @@
       "src": "P_SCREEN_BRAVO_157_3",
       "pts": [
        [
-        31.5,
-        134.99
+        31.84,
+        134.91
        ],
        [
-        36.01,
+        36.0,
         133.92
        ],
        [
@@ -8954,8 +8954,8 @@
         134.99
        ],
        [
-        31.75,
-        136.06
+        32.1,
+        135.98
        ]
       ]
      },
@@ -8964,20 +8964,20 @@
       "src": "P_SCREEN_CHARLIE_89_1",
       "pts": [
        [
-        54.73,
-        -61.86
+        55.47,
+        -61.2
        ],
        [
-        50.2,
-        -65.89
+        50.94,
+        -65.23
        ],
        [
-        51.83,
-        -67.72
+        52.57,
+        -67.06
        ],
        [
-        56.36,
-        -63.69
+        57.1,
+        -63.03
        ]
       ]
      },
@@ -8986,20 +8986,20 @@
       "src": "P_SCREEN_CHARLIE_89_2",
       "pts": [
        [
-        50.2,
-        -65.88
+        50.95,
+        -65.22
        ],
        [
-        48.66,
-        -67.25
+        48.71,
+        -67.21
        ],
        [
-        50.28,
-        -69.08
+        50.33,
+        -69.04
        ],
        [
-        51.82,
-        -67.71
+        52.57,
+        -67.05
        ]
       ]
      },
@@ -11320,7 +11320,7 @@
   },
   {
    "id": "HEDGE_DUM_W1",
-   "type": "hedge_thuja",
+   "type": "hedge_hornbeam",
    "polyline": [
     [
      -25.24,
@@ -11340,7 +11340,7 @@
   },
   {
    "id": "HEDGE_DUM_W2",
-   "type": "hedge_thuja",
+   "type": "hedge_hornbeam",
    "polyline": [
     [
      -22.34,
@@ -11420,7 +11420,7 @@
   },
   {
    "id": "HEDGE_DUM_N1",
-   "type": "hedge_thuja",
+   "type": "hedge_hornbeam",
    "polyline": [
     [
      -18.48,
@@ -11440,7 +11440,7 @@
   },
   {
    "id": "HEDGE_DUM_N2",
-   "type": "hedge_thuja",
+   "type": "hedge_hornbeam",
    "polyline": [
     [
      -4.2,
@@ -12236,6 +12236,36 @@
    "blocks_bullets": false,
    "density": "dense to the ground: instanced shrub cards + a continuous core collision box 0.8 x width; leaf gap <= 10 %",
    "note": "west bank N of footbridge B: breaks the long view down the brook corridor"
+  },
+  {
+   "id": "VB_UVOZ_S",
+   "type": "shrub_belt",
+   "polyline": [
+    [
+     19.65,
+     -65.09
+    ],
+    [
+     16.26,
+     -65.69
+    ],
+    [
+     -8.53,
+     -64.17
+    ],
+    [
+     -22.87,
+     -61.38
+    ]
+   ],
+   "width": 3.0,
+   "height": 4.5,
+   "species_mix": "hazel 35 %, hornbeam 25 %, field maple (young trees to 6 m) 20 %, blackthorn/hawthorn 20 %",
+   "blocks_movement": true,
+   "blocks_vision": true,
+   "blocks_bullets": false,
+   "density": "dense to the ground: instanced shrub cards + a continuous core collision box 0.8 x width; leaf gap <= 10 %",
+   "note": "hedgerow with field maples on the south crest of the úvoz: no overwatch from the S spur meadow into zone_dvur"
   },
   {
    "id": "VB_SPUR_S1",
@@ -13639,12 +13669,13 @@
   },
   "hesco_line": {
    "size": [
-    6.0,
+    6.42,
     1.1,
     2.74
    ],
    "cover": "high",
-   "note": "two-tier wall of wire-mesh gabion bastions (generic, no brand) filled with gravel, 2.74 m: hard spawn screen"
+   "module_length": 1.07,
+   "note": "two-tier wall of wire-mesh gabion bastions (generic, no brand) filled with gravel, 2.74 m: hard spawn screen; built from 1.07 m cells, every placed length is a whole number of cells (1-6)"
   },
   "container_stack_2": {
    "size": [
@@ -13653,7 +13684,16 @@
     5.18
    ],
    "cover": "high",
-   "note": "two stacked 20 ft containers (weathered olive/rust, fictional markings): hard spawn screen where a row looks up at its zone"
+   "note": "two stacked 20 ft containers (weathered olive/rust, fictional markings): hard spawn screen where a row looks up at its zone; always the full 6.06 m (never cut)"
+  },
+  "container_stack_2_10ft": {
+   "size": [
+    2.99,
+    2.44,
+    5.18
+   ],
+   "cover": "high",
+   "note": "two stacked 10 ft containers (same finish): used where a 20 ft stack would touch a building; never cut"
   }
  },
  "props": [
@@ -15354,13 +15394,13 @@
    "id": "P_SCREEN_ALFA_84_1",
    "type": "hesco_line",
    "position": [
-    -66.68,
-    -39.66,
-    -1.92
+    -66.77,
+    -39.5,
+    -1.93
    ],
    "rotation_deg": 119.12,
    "size": [
-    1.78,
+    2.14,
     1.1,
     2.74
    ],
@@ -15374,8 +15414,8 @@
    "id": "P_SCREEN_ALFA_84_2",
    "type": "hesco_line",
    "position": [
-    -68.16,
-    -37.02,
+    -68.34,
+    -36.69,
     -1.95
    ],
    "rotation_deg": 119.12,
@@ -15454,13 +15494,13 @@
    "id": "P_SCREEN_BRAVO_92_1",
    "type": "hesco_line",
    "position": [
-    6.8,
-    81.74,
-    1.99
+    5.96,
+    81.86,
+    2.01
    ],
    "rotation_deg": 351.77,
    "size": [
-    5.89,
+    6.42,
     1.1,
     2.74
    ],
@@ -15474,13 +15514,13 @@
    "id": "P_SCREEN_BRAVO_92_2",
    "type": "hesco_line",
    "position": [
-    12.0,
-    80.98,
+    11.79,
+    81.02,
     1.85
    ],
    "rotation_deg": 351.77,
    "size": [
-    4.64,
+    5.35,
     1.1,
     2.74
    ],
@@ -15494,13 +15534,13 @@
    "id": "P_SCREEN_BRAVO_157_1",
    "type": "hesco_line",
    "position": [
-    24.86,
-    137.14,
-    3.14
+    25.21,
+    137.06,
+    3.11
    ],
    "rotation_deg": 346.59,
    "size": [
-    4.64,
+    5.35,
     1.1,
     2.74
    ],
@@ -15514,13 +15554,13 @@
    "id": "P_SCREEN_BRAVO_157_2",
    "type": "hesco_line",
    "position": [
-    29.37,
-    136.06,
+    29.89,
+    135.94,
     3.11
    ],
    "rotation_deg": 346.59,
    "size": [
-    4.64,
+    4.28,
     1.1,
     2.74
    ],
@@ -15534,13 +15574,13 @@
    "id": "P_SCREEN_BRAVO_157_3",
    "type": "hesco_line",
    "position": [
-    33.88,
-    134.99,
+    34.05,
+    134.95,
     3.14
    ],
    "rotation_deg": 346.59,
    "size": [
-    4.64,
+    4.28,
     1.1,
     2.74
    ],
@@ -15554,9 +15594,9 @@
    "id": "P_SCREEN_CHARLIE_89_1",
    "type": "container_stack_2",
    "position": [
-    53.28,
-    -64.79,
-    1.65
+    54.02,
+    -64.13,
+    1.98
    ],
    "rotation_deg": 221.64,
    "size": [
@@ -15572,15 +15612,15 @@
   },
   {
    "id": "P_SCREEN_CHARLIE_89_2",
-   "type": "container_stack_2",
+   "type": "container_stack_2_10ft",
    "position": [
-    50.24,
-    -67.48,
+    50.64,
+    -67.13,
     2.11
    ],
    "rotation_deg": 221.64,
    "size": [
-    2.06,
+    2.99,
     2.44,
     5.18
    ],
@@ -15717,8 +15757,8 @@
    "area_m2": 428.92,
    "inclusion_test": "capsule foot point (x, y, z_foot) counts when inside `polygon` AND z_min <= z_foot <= z_max; every walkable surface inside the polygon lies >= 0.30 m inside or >= 0.30 m outside [z_min, z_max] (validated)",
    "marker": {
-    "in_world": "yellow smoke marker + olive radio-relay crate (bedna s převaděčem) at `hud_marker`, yellow painted boundary line on the ground along the polygon (decal, 0.12 m wide); enabled only for the active zone",
-    "hud": "outline + icon 'A' of the active zone, distance in metres"
+    "in_world": "violet smoke marker (fialový signální kouř) + olive radio-relay crate (bedna s převaděčem) at `hud_marker`, white painted boundary line on the ground along the polygon (decal, 0.12 m wide, like a road marking); enabled only for the active zone. Violet/white because blue, red and yellow are the team colours of Web/src/data/teams.json and stay reserved for ownership",
+    "hud": "zone outline + zone name and distance in metres; tinted with the controlling team's colour (teams.json), white when contested, neutral grey when empty (as Web/src/game/zoneView.js)"
    }
   },
   {
@@ -15758,8 +15798,8 @@
    "area_m2": 481.0,
    "inclusion_test": "capsule foot point (x, y, z_foot) counts when inside `polygon` AND z_min <= z_foot <= z_max; every walkable surface inside the polygon lies >= 0.30 m inside or >= 0.30 m outside [z_min, z_max] (validated)",
    "marker": {
-    "in_world": "yellow smoke marker + olive radio-relay crate (bedna s převaděčem) at `hud_marker`, yellow painted boundary line on the ground along the polygon (decal, 0.12 m wide); enabled only for the active zone",
-    "hud": "outline + icon 'A' of the active zone, distance in metres"
+    "in_world": "violet smoke marker (fialový signální kouř) + olive radio-relay crate (bedna s převaděčem) at `hud_marker`, white painted boundary line on the ground along the polygon (decal, 0.12 m wide, like a road marking); enabled only for the active zone. Violet/white because blue, red and yellow are the team colours of Web/src/data/teams.json and stay reserved for ownership",
+    "hud": "zone outline + zone name and distance in metres; tinted with the controlling team's colour (teams.json), white when contested, neutral grey when empty (as Web/src/game/zoneView.js)"
    }
   },
   {
@@ -15799,8 +15839,8 @@
    "area_m2": 493.51,
    "inclusion_test": "capsule foot point (x, y, z_foot) counts when inside `polygon` AND z_min <= z_foot <= z_max; every walkable surface inside the polygon lies >= 0.30 m inside or >= 0.30 m outside [z_min, z_max] (validated)",
    "marker": {
-    "in_world": "yellow smoke marker + olive radio-relay crate (bedna s převaděčem) at `hud_marker`, yellow painted boundary line on the ground along the polygon (decal, 0.12 m wide); enabled only for the active zone",
-    "hud": "outline + icon 'A' of the active zone, distance in metres"
+    "in_world": "violet smoke marker (fialový signální kouř) + olive radio-relay crate (bedna s převaděčem) at `hud_marker`, white painted boundary line on the ground along the polygon (decal, 0.12 m wide, like a road marking); enabled only for the active zone. Violet/white because blue, red and yellow are the team colours of Web/src/data/teams.json and stay reserved for ownership",
+    "hud": "zone outline + zone name and distance in metres; tinted with the controlling team's colour (teams.json), white when contested, neutral grey when empty (as Web/src/game/zoneView.js)"
    }
   }
  ],
@@ -37495,36 +37535,36 @@
     },
     "distances_center_m": {
      "alfa": 136.78,
-     "bravo": 140.36,
-     "charlie": 131.1
+     "bravo": 140.37,
+     "charlie": 131.74
     },
     "distances_edge_m": {
      "alfa": 121.78,
      "bravo": 125.42,
-     "charlie": 125.01
+     "charlie": 125.65
     },
-    "mean_center_m": 136.08,
-    "mean_edge_m": 124.07,
+    "mean_center_m": 136.3,
+    "mean_edge_m": 124.28,
     "deviation_center_pct": {
-     "alfa": 0.52,
-     "bravo": 3.14,
-     "charlie": -3.66
+     "alfa": 0.36,
+     "bravo": 2.99,
+     "charlie": -3.34
     },
     "deviation_edge_pct": {
-     "alfa": -1.85,
-     "bravo": 1.09,
-     "charlie": 0.76
+     "alfa": -2.01,
+     "bravo": 0.91,
+     "charlie": 1.1
     },
-    "max_deviation_pct": 3.66,
+    "max_deviation_pct": 3.34,
     "run_time_s_edge": {
      "alfa": 34.79,
      "bravo": 35.83,
-     "charlie": 35.72
+     "charlie": 35.9
     },
     "sprint_time_s_edge": {
      "alfa": 21.18,
      "bravo": 21.81,
-     "charlie": 21.74
+     "charlie": 21.85
     },
     "primary_lanes": {
      "alfa": [
@@ -37708,34 +37748,19 @@
        2.7
       ],
       [
-       57.25,
-       -69.25,
-       2.41
-      ],
-      [
-       56.75,
-       -68.75,
-       2.33
-      ],
-      [
-       56.75,
-       -63.75,
-       2.23
+       57.5,
+       -63.0,
+       2.24
       ],
       [
        56.0,
-       -62.75,
-       2.19
+       -61.25,
+       2.15
       ],
       [
        41.0,
-       -47.75,
-       1.69
-      ],
-      [
-       40.5,
-       -45.25,
-       1.66
+       -46.25,
+       1.67
       ],
       [
        29.25,
@@ -37753,24 +37778,14 @@
        0.31
       ],
       [
-       -8.0,
-       5.75,
-       0.3
-      ],
-      [
        -14.75,
        12.5,
        -1.46
       ],
       [
-       -16.5,
-       12.75,
-       -1.46
-      ],
-      [
-       -20.25,
-       16.0,
-       1.11
+       -17.5,
+       13.5,
+       -0.68
       ],
       [
        -24.75,
@@ -37887,8 +37902,8 @@
      },
      "bravo": {
       "desc": "footbridge B -> west bank -> gable door DL_D3",
-      "length_m": 140.28,
-      "extra_vs_primary_pct": -0.06,
+      "length_m": 140.27,
+      "extra_vs_primary_pct": -0.07,
       "via": [
        -19.5,
        45.0
@@ -37911,18 +37926,18 @@
        ],
        [
         7.25,
-        86.25,
-        2.1
+        87.5,
+        2.13
        ],
        [
-        3.5,
-        82.5,
+        2.25,
+        82.0,
         2.07
        ],
        [
-        3.5,
-        70.5,
-        1.64
+        2.25,
+        69.25,
+        1.49
        ],
        [
         -11.0,
@@ -37978,8 +37993,8 @@
      },
      "charlie": {
       "desc": "brook bed from the square culvert (low covered lane)",
-      "length_m": 136.19,
-      "extra_vs_primary_pct": 3.88,
+      "length_m": 136.89,
+      "extra_vs_primary_pct": 3.91,
       "via": [
        -22.0,
        4.0
@@ -37991,19 +38006,19 @@
         2.71
        ],
        [
-        57.25,
-        -64.0,
-        2.25
+        57.5,
+        -62.5,
+        2.22
        ],
        [
-        42.25,
+        43.25,
         -48.25,
-        1.53
+        1.15
        ],
        [
-        42.25,
-        -46.5,
-        1.12
+        43.25,
+        -47.5,
+        1.27
        ],
        [
         37.5,
@@ -38635,36 +38650,36 @@
     },
     "distances_center_m": {
      "alfa": 124.76,
-     "bravo": 126.67,
-     "charlie": 131.36
+     "bravo": 127.35,
+     "charlie": 131.46
     },
     "distances_edge_m": {
      "alfa": 113.91,
-     "bravo": 116.81,
-     "charlie": 119.24
+     "bravo": 117.49,
+     "charlie": 119.34
     },
-    "mean_center_m": 127.6,
-    "mean_edge_m": 116.66,
+    "mean_center_m": 127.86,
+    "mean_edge_m": 116.91,
     "deviation_center_pct": {
-     "alfa": -2.22,
-     "bravo": -0.72,
-     "charlie": 2.95
+     "alfa": -2.42,
+     "bravo": -0.4,
+     "charlie": 2.82
     },
     "deviation_edge_pct": {
-     "alfa": -2.35,
-     "bravo": 0.14,
-     "charlie": 2.21
+     "alfa": -2.57,
+     "bravo": 0.49,
+     "charlie": 2.08
     },
-    "max_deviation_pct": 2.95,
+    "max_deviation_pct": 2.82,
     "run_time_s_edge": {
      "alfa": 32.55,
-     "bravo": 33.38,
-     "charlie": 34.07
+     "bravo": 33.57,
+     "charlie": 34.1
     },
     "sprint_time_s_edge": {
      "alfa": 19.81,
-     "bravo": 20.32,
-     "charlie": 20.74
+     "bravo": 20.43,
+     "charlie": 20.76
     },
     "primary_lanes": {
      "alfa": [
@@ -38746,9 +38761,19 @@
        2.12
       ],
       [
+       5.0,
+       83.25,
+       2.07
+      ],
+      [
+       3.0,
+       83.25,
+       2.1
+      ],
+      [
        -3.5,
-       75.5,
-       1.52
+       76.75,
+       1.58
       ],
       [
        -3.5,
@@ -38818,24 +38843,14 @@
        3.86
       ],
       [
-       57.25,
-       -70.25,
-       2.53
+       57.5,
+       -70.5,
+       2.55
       ],
       [
-       56.75,
-       -63.75,
-       2.23
-      ],
-      [
-       41.0,
-       -47.75,
-       1.69
-      ],
-      [
-       41.0,
-       -46.0,
-       1.67
+       57.5,
+       -63.0,
+       2.24
       ],
       [
        39.75,
@@ -38972,11 +38987,11 @@
      },
      "bravo": {
       "desc": "square -> driveway (E) instead of the wall stairs",
-      "length_m": 138.83,
-      "extra_vs_primary_pct": 9.6,
+      "length_m": 139.7,
+      "extra_vs_primary_pct": 9.7,
       "via": [
-       16.0,
-       -19.5
+       14.6,
+       -21.6
       ],
       "waypoints": [
        [
@@ -38985,28 +39000,28 @@
         2.12
        ],
        [
-        10.25,
-        89.25,
-        2.13
+        8.25,
+        88.5,
+        2.12
        ],
        [
-        3.5,
-        82.5,
-        2.07
+        2.5,
+        82.75,
+        2.09
        ],
        [
-        3.5,
-        67.0,
-        1.53
+        2.25,
+        70.0,
+        1.51
        ],
        [
-        7.75,
-        62.75,
-        1.64
+        8.0,
+        64.25,
+        1.65
        ],
        [
-        7.75,
-        45.0,
+        8.0,
+        44.75,
         1.27
        ],
        [
@@ -39031,26 +39046,21 @@
        ],
        [
         12.0,
-        -15.5,
-        0.33
+        -19.0,
+        1.87
        ],
        [
-        16.0,
-        -19.5,
-        1.57
+        14.5,
+        -21.5,
+        1.9
        ],
        [
-        10.25,
-        -20.25,
-        2.36
-       ],
-       [
-        8.25,
+        10.5,
         -22.25,
-        2.4
+        2.33
        ],
        [
-        5.25,
+        5.75,
         -22.25,
         2.4
        ],
@@ -39069,7 +39079,7 @@
      "charlie": {
       "desc": "S ring -> sunken lane (úvoz) -> north exit -> rear yard gate",
       "length_m": 144.31,
-      "extra_vs_primary_pct": 9.86,
+      "extra_vs_primary_pct": 9.77,
       "via": [
        7.2,
        -58.0
@@ -39220,73 +39230,73 @@
    "bravo": [
     [
      92.0,
-     80.9,
-     84.97,
-     126.67
+     81.4,
+     85.73,
+     127.35
     ],
     [
      97.0,
-     83.38,
-     87.44,
-     129.16
+     83.64,
+     87.72,
+     129.59
     ],
     [
      102.0,
-     86.75,
+     86.92,
      89.2,
-     132.53
+     132.87
     ],
     [
      107.0,
-     90.53,
+     90.64,
      91.31,
-     136.31
+     136.6
     ],
     [
      112.0,
-     94.11,
+     94.2,
      93.72,
-     139.9
+     140.15
     ],
     [
      117.0,
-     98.81,
+     98.89,
      96.78,
-     144.6
+     144.85
     ],
     [
      122.0,
-     103.73,
+     103.81,
      100.54,
-     149.52
+     149.76
     ],
     [
      127.0,
-     108.54,
+     108.62,
      104.34,
      154.25
     ],
     [
      132.0,
-     113.34,
+     113.43,
      108.36,
      158.27
     ],
     [
      137.0,
-     118.26,
+     118.34,
      112.76,
      162.72
     ],
     [
      142.0,
-     123.53,
+     123.6,
      117.73,
      167.76
     ],
     [
      158.0,
-     141.38,
+     141.39,
      134.67,
      186.23
     ]
@@ -39294,51 +39304,51 @@
    "charlie": [
     [
      89.0,
-     131.1,
-     94.05,
-     87.85
+     131.74,
+     94.08,
+     88.49
     ],
     [
      95.0,
-     135.96,
+     136.37,
      98.58,
-     92.7
+     93.13
     ],
     [
      100.0,
-     140.45,
+     140.7,
      102.57,
-     97.19
+     97.45
     ],
     [
      105.0,
-     144.99,
+     145.12,
      106.65,
-     101.73
+     101.88
     ],
     [
      110.0,
-     149.72,
+     149.78,
      111.01,
-     106.46
+     106.54
     ],
     [
      130.0,
-     172.97,
+     173.06,
      132.05,
-     129.71
+     129.81
     ],
     [
      135.0,
-     177.18,
+     177.27,
      133.92,
-     133.92
+     134.03
     ],
     [
      140.0,
-     181.77,
+     181.86,
      137.08,
-     138.51
+     138.61
     ]
    ]
   },
@@ -39533,34 +39543,19 @@
       2.7
      ],
      [
-      57.25,
-      -69.25,
-      2.41
-     ],
-     [
-      56.75,
-      -68.75,
-      2.33
-     ],
-     [
-      56.75,
-      -63.75,
-      2.23
+      57.5,
+      -63.0,
+      2.24
      ],
      [
       56.0,
-      -62.75,
-      2.19
+      -61.25,
+      2.15
      ],
      [
       41.0,
-      -47.75,
-      1.69
-     ],
-     [
-      40.5,
-      -45.25,
-      1.66
+      -46.25,
+      1.67
      ],
      [
       29.25,
@@ -39578,24 +39573,14 @@
       0.31
      ],
      [
-      -8.0,
-      5.75,
-      0.3
-     ],
-     [
       -14.75,
       12.5,
       -1.46
      ],
      [
-      -16.5,
-      12.75,
-      -1.46
-     ],
-     [
-      -20.25,
-      16.0,
-      1.11
+      -17.5,
+      13.5,
+      -0.68
      ],
      [
       -24.75,
@@ -39708,8 +39693,8 @@
     },
     "bravo": {
      "desc": "footbridge B -> west bank -> gable door DL_D3",
-     "length_m": 140.28,
-     "extra_vs_primary_pct": -0.06,
+     "length_m": 140.27,
+     "extra_vs_primary_pct": -0.07,
      "via": [
       -19.5,
       45.0
@@ -39732,18 +39717,18 @@
       ],
       [
        7.25,
-       86.25,
-       2.1
+       87.5,
+       2.13
       ],
       [
-       3.5,
-       82.5,
+       2.25,
+       82.0,
        2.07
       ],
       [
-       3.5,
-       70.5,
-       1.64
+       2.25,
+       69.25,
+       1.49
       ],
       [
        -11.0,
@@ -39799,8 +39784,8 @@
     },
     "charlie": {
      "desc": "brook bed from the square culvert (low covered lane)",
-     "length_m": 136.19,
-     "extra_vs_primary_pct": 3.88,
+     "length_m": 136.89,
+     "extra_vs_primary_pct": 3.91,
      "via": [
       -22.0,
       4.0
@@ -39812,19 +39797,19 @@
        2.71
       ],
       [
-       57.25,
-       -64.0,
-       2.25
+       57.5,
+       -62.5,
+       2.22
       ],
       [
-       42.25,
+       43.25,
        -48.25,
-       1.53
+       1.15
       ],
       [
-       42.25,
-       -46.5,
-       1.12
+       43.25,
+       -47.5,
+       1.27
       ],
       [
        37.5,
@@ -40487,9 +40472,19 @@
       2.12
      ],
      [
+      5.0,
+      83.25,
+      2.07
+     ],
+     [
+      3.0,
+      83.25,
+      2.1
+     ],
+     [
       -3.5,
-      75.5,
-      1.52
+      76.75,
+      1.58
      ],
      [
       -3.5,
@@ -40559,24 +40554,14 @@
       3.86
      ],
      [
-      57.25,
-      -70.25,
-      2.53
+      57.5,
+      -70.5,
+      2.55
      ],
      [
-      56.75,
-      -63.75,
-      2.23
-     ],
-     [
-      41.0,
-      -47.75,
-      1.69
-     ],
-     [
-      41.0,
-      -46.0,
-      1.67
+      57.5,
+      -63.0,
+      2.24
      ],
      [
       39.75,
@@ -40709,11 +40694,11 @@
     },
     "bravo": {
      "desc": "square -> driveway (E) instead of the wall stairs",
-     "length_m": 138.83,
-     "extra_vs_primary_pct": 9.6,
+     "length_m": 139.7,
+     "extra_vs_primary_pct": 9.7,
      "via": [
-      16.0,
-      -19.5
+      14.6,
+      -21.6
      ],
      "waypoints": [
       [
@@ -40722,28 +40707,28 @@
        2.12
       ],
       [
-       10.25,
-       89.25,
-       2.13
+       8.25,
+       88.5,
+       2.12
       ],
       [
-       3.5,
-       82.5,
-       2.07
+       2.5,
+       82.75,
+       2.09
       ],
       [
-       3.5,
-       67.0,
-       1.53
+       2.25,
+       70.0,
+       1.51
       ],
       [
-       7.75,
-       62.75,
-       1.64
+       8.0,
+       64.25,
+       1.65
       ],
       [
-       7.75,
-       45.0,
+       8.0,
+       44.75,
        1.27
       ],
       [
@@ -40768,26 +40753,21 @@
       ],
       [
        12.0,
-       -15.5,
-       0.33
+       -19.0,
+       1.87
       ],
       [
-       16.0,
-       -19.5,
-       1.57
+       14.5,
+       -21.5,
+       1.9
       ],
       [
-       10.25,
-       -20.25,
-       2.36
-      ],
-      [
-       8.25,
+       10.5,
        -22.25,
-       2.4
+       2.33
       ],
       [
-       5.25,
+       5.75,
        -22.25,
        2.4
       ],
@@ -40806,7 +40786,7 @@
     "charlie": {
      "desc": "S ring -> sunken lane (úvoz) -> north exit -> rear yard gate",
      "length_m": 144.31,
-     "extra_vs_primary_pct": 9.86,
+     "extra_vs_primary_pct": 9.77,
      "via": [
       7.2,
       -58.0
@@ -53907,6 +53887,54 @@
    },
    {
     "pos": [
+     -32.3,
+     18.28,
+     4.3
+    ],
+    "facing": [
+     0.5,
+     0.866
+    ],
+    "facing_deg": 330.0,
+    "height": "window",
+    "peek": "over",
+    "capacity": 1,
+    "kind": "window",
+    "object": "B_DILNA:DL_WI1",
+    "level": "L1",
+    "sill": 0.95,
+    "zones": [
+     "zone_dilna"
+    ],
+    "inside_zone": [],
+    "id": "CP0572"
+   },
+   {
+    "pos": [
+     -34.38,
+     19.48,
+     4.3
+    ],
+    "facing": [
+     0.5,
+     0.866
+    ],
+    "facing_deg": 330.0,
+    "height": "window",
+    "peek": "over",
+    "capacity": 1,
+    "kind": "window",
+    "object": "B_DILNA:DL_WI2",
+    "level": "L1",
+    "sill": 0.95,
+    "zones": [
+     "zone_dilna"
+    ],
+    "inside_zone": [],
+    "id": "CP0573"
+   },
+   {
+    "pos": [
      35.1,
      6.8,
      2.4
@@ -53929,7 +53957,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0572"
+    "id": "CP0574"
    },
    {
     "pos": [
@@ -53955,7 +53983,7 @@
     "inside_zone": [
      "zone_sklad"
     ],
-    "id": "CP0573"
+    "id": "CP0575"
    },
    {
     "pos": [
@@ -53981,7 +54009,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0574"
+    "id": "CP0576"
    },
    {
     "pos": [
@@ -54007,7 +54035,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0575"
+    "id": "CP0577"
    },
    {
     "pos": [
@@ -54033,7 +54061,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0576"
+    "id": "CP0578"
    },
    {
     "pos": [
@@ -54059,7 +54087,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0577"
+    "id": "CP0579"
    },
    {
     "pos": [
@@ -54085,7 +54113,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0578"
+    "id": "CP0580"
    },
    {
     "pos": [
@@ -54111,7 +54139,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0579"
+    "id": "CP0581"
    },
    {
     "pos": [
@@ -54137,7 +54165,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0580"
+    "id": "CP0582"
    },
    {
     "pos": [
@@ -54163,7 +54191,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0581"
+    "id": "CP0583"
    },
    {
     "pos": [
@@ -54189,7 +54217,7 @@
     "inside_zone": [
      "zone_dvur"
     ],
-    "id": "CP0582"
+    "id": "CP0584"
    },
    {
     "pos": [
@@ -54213,7 +54241,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0583"
+    "id": "CP0585"
    },
    {
     "pos": [
@@ -54237,7 +54265,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0584"
+    "id": "CP0586"
    },
    {
     "pos": [
@@ -54261,7 +54289,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0585"
+    "id": "CP0587"
    },
    {
     "pos": [
@@ -54285,7 +54313,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0586"
+    "id": "CP0588"
    },
    {
     "pos": [
@@ -54309,7 +54337,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0587"
+    "id": "CP0589"
    },
    {
     "pos": [
@@ -54333,7 +54361,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0588"
+    "id": "CP0590"
    },
    {
     "pos": [
@@ -54357,7 +54385,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0589"
+    "id": "CP0591"
    },
    {
     "pos": [
@@ -54381,7 +54409,7 @@
      "zone_dvur"
     ],
     "inside_zone": [],
-    "id": "CP0590"
+    "id": "CP0592"
    }
   ]
  },
@@ -55655,7 +55683,7 @@
   "spawn_selection": {
    "round_start": "the 6 members take distinct points of the active row, front ranks first",
    "respawn_score": "for each free point of the team's active row: -10 if any enemy has line of sight to it (ray from enemy eye 1.65 m to point + 1.2 m), -5 per enemy within 45 m, +1 per friendly within 30 m; highest score wins, ties broken by the round seed (Mulberry32 as in Shared/testvectors/rng.json)",
-   "hard_rule": "never spawn within rules.json respawn.minEnemyDistance (25 m) of a living enemy or inside bodyClearance (1.0 m) of any character; if the active row fails, use the team's other row, then any row of the team; the forward rows (s 87-92 m) are the most exposed and always apply the hard rule"
+   "hard_rule": "never spawn within rules.json respawn.minEnemyDistance (25 m) of a living enemy or inside bodyClearance (1.0 m) of any character; if the active row fails, use the team's other row, then any row of the team; the forward rows (s 84-92 m: ALFA_R2, BRAVO_R2, CHARLIE_R1) are the most exposed and always apply the hard rule"
   }
  },
  "performance_budget_browser": {
@@ -56684,6 +56712,16 @@
    "note": "B_DILNA L1 clear 1.1 x 2.25 m; walk through, check leaf, frame and capsule clearance"
   },
   {
+   "id": "QA_zone_dilna_above_DL_R_KANCELAR",
+   "kind": "zone_z",
+   "pos": [
+    -34.79,
+    16.64,
+    4.3
+   ],
+   "note": "inside the zone polygon but on L1 (floor z 4.30 > z_max 3.8): must NOT count"
+  },
+  {
    "id": "QA_DL_S1_bottom",
    "kind": "stair",
    "pos": [
@@ -57184,6 +57222,16 @@
    "note": "B_DUM L1 clear 1.1 x 2.25 m; walk through, check leaf, frame and capsule clearance"
   },
   {
+   "id": "QA_zone_dvur_above_DM_R1_LOZ_Z",
+   "kind": "zone_z",
+   "pos": [
+    -10.14,
+    -37.36,
+    5.94
+   ],
+   "note": "inside the zone polygon but on L1 (floor z 5.94 > z_max 5.54): must NOT count"
+  },
+  {
    "id": "QA_DM_S1a_bottom",
    "kind": "stair",
    "pos": [
@@ -57626,12 +57674,12 @@
    "walkableRadius_cells": 7
   },
   "input": {
-   "vertices": 1019616,
-   "triangles": 339872
+   "vertices": 1019724,
+   "triangles": 339908
   },
-  "bake_seconds": 7.3,
+  "bake_seconds": 7.8,
   "tiles": 307,
-  "polys": 7898,
+  "polys": 7937,
   "disconnected_entrances": [],
   "entrances_checked": 83,
   "balance": {
@@ -57644,14 +57692,14 @@
       "mean_m": 125.18
      },
      "charlie": {
-      "mean_m": 125.51
+      "mean_m": 126.92
      }
     },
-    "max_over_min": 1.0225,
+    "max_over_min": 1.034,
     "unreachable": 0,
     "run_time_s_3_5": [
      35.1,
-     35.9
+     36.3
     ]
    },
    "zone_sklad": {
@@ -57663,7 +57711,7 @@
       "mean_m": 121.5
      },
      "charlie": {
-      "mean_m": 122.26
+      "mean_m": 122.45
      }
     },
     "max_over_min": 1.0362,
@@ -57679,23 +57727,23 @@
       "mean_m": 115.93
      },
      "bravo": {
-      "mean_m": 118.83
+      "mean_m": 119.5
      },
      "charlie": {
-      "mean_m": 120.69
+      "mean_m": 121.28
      }
     },
-    "max_over_min": 1.0411,
+    "max_over_min": 1.0461,
     "unreachable": 0,
     "run_time_s_3_5": [
      33.1,
-     34.5
+     34.7
     ]
    }
   },
   "method": "Detour computePath (straight path length) from each active spawn point to every zone target point (2 m grid of walkable zone cells, exact minimum with straight-line pruning); a target counts as reached only when the path ends within 0.6 m of it; entrances are reached from the village square (0, 0, 0.30).",
   "entrances_failed": [],
-  "level_hash": "d84b6e3b75327d73",
+  "level_hash": "93ff8771cb4726d7",
   "status": "PASS",
   "note": "design-time validation bake from the level JSON proxy geometry (Tools/level/nav). The shipping navmesh is baked the same way from the generated collision meshes (ARCHITECTURE D4) and must reproduce these results."
  }

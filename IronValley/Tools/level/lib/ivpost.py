@@ -848,7 +848,7 @@ def finish(layout):
                        "bravo": ("E ring hedgerow -> field ramp -> rear yard -> RD3/D4", [63.0, 17.0]),
                        "charlie": ("E ring from track C -> rear yard", [58.5, 0.0])},
         "zone_dvur": {"alfa": ("S ring path -> rear yard gate", [-26.0, -55.5]),
-                      "bravo": ("square -> driveway (E) instead of the wall stairs", [16.0, -19.5]),
+                      "bravo": ("square -> driveway (E) instead of the wall stairs", [14.6, -21.6]),
                       "charlie": ("S ring -> sunken lane (úvoz) -> north exit -> rear yard gate", [7.2, -58.0])},
     }
     for zid, z in bal["zones"].items():
@@ -973,11 +973,18 @@ def cover_points(layout, ras, walk):
             if o["type"] != "window" or o["sill_height"] > 1.25 or not o.get("passes", {}).get("vision", True):
                 continue
             w = wmap[o["wall_id"]]
-            if w["kind"] != "external":
-                continue
             gg = C.opening_geom(w, o)
             nx, ny = gg["n"]              # left normal = into the building for external walls
             mx, my = gg["mid"]
+            if w["kind"] != "external":
+                # internal window (e.g. the dílna office overlooking the hall): the firing point stands on the side that is a
+                # room of this level; skipped when both sides are rooms (an ordinary internal glazing between two rooms)
+                rooms_l = [Polygon(r_["polygon"]) for r_ in bd["rooms"] if r_["level"] == w["level"]]
+                d_ = w["thickness"] / 2 + 0.60
+                sides = [sg for sg in (1, -1) if any(rp.contains(Point(mx + sg * nx * d_, my + sg * ny * d_)) for rp in rooms_l)]
+                if len(sides) != 1:
+                    continue
+                nx, ny = nx * sides[0], ny * sides[0]
             inside = (mx + nx * (w["thickness"] / 2 + 0.60), my + ny * (w["thickness"] / 2 + 0.60))
             q = R.xf(c0, rot, inside)
             out_dir = R.xf([0, 0], rot, (-nx, -ny))
@@ -1130,7 +1137,7 @@ def ai_nav(layout):
                                              "Shared/testvectors/rng.json)",
                             "hard_rule": "never spawn within rules.json respawn.minEnemyDistance (25 m) of a living enemy or inside "
                                          "bodyClearance (1.0 m) of any character; if the active row fails, use the team's other row, "
-                                         "then any row of the team; the forward rows (s 87-92 m) are the most exposed and always "
+                                         "then any row of the team; the forward rows (s 84-92 m: ALFA_R2, BRAVO_R2, CHARLIE_R1) are the most exposed and always "
                                          "apply the hard rule"},
     }
 
@@ -1223,6 +1230,21 @@ def qa_points(layout):
                 q = R.xf(c0, rot, (gg["mid"][0] + sg * nx * d, gg["mid"][1] + sg * ny * d))
                 add(f"QA_{o['id']}_{side}", "doorway", [q[0], q[1], zl], f"{bp['id']} {w['level']} clear {o['clear_width']} x "
                     f"{o.get('clear_height', '')} m; walk through, check leaf, frame and capsule clearance")
+        # zone z-band test: a walkable upper-floor point that lies inside the zone polygon but above z_max (must NOT count)
+        zid = bp.get("zone")
+        if zid:
+            zz = next(z_ for z_ in layout["capture_zones"] if z_["id"] == zid)
+            zp = Polygon(zz["polygon"])
+            for l_ in bd["levels"]:
+                if l_["floor_z"] <= 0:
+                    continue
+                for r_ in sorted([r_ for r_ in bd["rooms"] if r_["level"] == l_["id"]], key=lambda r_: -Polygon(r_["polygon"]).area):
+                    cpt = Polygon(r_["polygon"]).representative_point()
+                    q = R.xf(c0, rot, (cpt.x, cpt.y))
+                    if zp.contains(Point(q[0], q[1])):
+                        add(f"QA_{zid}_above_{r_['id']}", "zone_z", [q[0], q[1], zf + l_["floor_z"]],
+                            f"inside the zone polygon but on {l_['id']} (floor z {zf + l_['floor_z']:.2f} > z_max {zz['z_max']}): must NOT count")
+                        break
         for sd in bd["stairs"] + bd["exterior_stairs"]:
             b0 = R.xf(c0, rot, (sd["start"][0] - sd["direction_vector"][0] * 0.8, sd["start"][1] - sd["direction_vector"][1] * 0.8))
             t0 = R.xf(c0, rot, (sd["top_riser_center"][0] + sd["direction_vector"][0] * 0.8,

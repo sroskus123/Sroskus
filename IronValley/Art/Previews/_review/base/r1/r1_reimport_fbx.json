@@ -1,0 +1,462 @@
+{
+ "kind": "fbx",
+ "objects": [
+  [
+   "Armature",
+   "ARMATURE",
+   null,
+   [
+    0.01,
+    0.01,
+    0.01
+   ]
+  ],
+  [
+   "SK_Human_Base",
+   "MESH",
+   "Armature",
+   [
+    1.0,
+    1.0,
+    1.0
+   ]
+  ]
+ ],
+ "n_armatures": 1,
+ "n_meshes": 1,
+ "armature_bones": 57,
+ "bone_parents": {
+  "root": null,
+  "pelvis": "root",
+  "spine_01": "pelvis",
+  "spine_02": "spine_01",
+  "spine_03": "spine_02",
+  "clavicle_l": "spine_03",
+  "upperarm_l": "clavicle_l",
+  "upperarm_twist_01_l": "upperarm_l",
+  "lowerarm_l": "upperarm_l",
+  "lowerarm_twist_01_l": "lowerarm_l",
+  "hand_l": "lowerarm_l",
+  "index_01_l": "hand_l",
+  "index_02_l": "index_01_l",
+  "index_03_l": "index_02_l",
+  "middle_01_l": "hand_l",
+  "middle_02_l": "middle_01_l",
+  "middle_03_l": "middle_02_l",
+  "pinky_01_l": "hand_l",
+  "pinky_02_l": "pinky_01_l",
+  "pinky_03_l": "pinky_02_l",
+  "ring_01_l": "hand_l",
+  "ring_02_l": "ring_01_l",
+  "ring_03_l": "ring_02_l",
+  "thumb_01_l": "hand_l",
+  "thumb_02_l": "thumb_01_l",
+  "thumb_03_l": "thumb_02_l",
+  "clavicle_r": "spine_03",
+  "upperarm_r": "clavicle_r",
+  "upperarm_twist_01_r": "upperarm_r",
+  "lowerarm_r": "upperarm_r",
+  "lowerarm_twist_01_r": "lowerarm_r",
+  "hand_r": "lowerarm_r",
+  "index_01_r": "hand_r",
+  "index_02_r": "index_01_r",
+  "index_03_r": "index_02_r",
+  "middle_01_r": "hand_r",
+  "middle_02_r": "middle_01_r",
+  "middle_03_r": "middle_02_r",
+  "pinky_01_r": "hand_r",
+  "pinky_02_r": "pinky_01_r",
+  "pinky_03_r": "pinky_02_r",
+  "ring_01_r": "hand_r",
+  "ring_02_r": "ring_01_r",
+  "ring_03_r": "ring_02_r",
+  "thumb_01_r": "hand_r",
+  "thumb_02_r": "thumb_01_r",
+  "thumb_03_r": "thumb_02_r",
+  "neck_01": "spine_03",
+  "head": "neck_01",
+  "thigh_l": "pelvis",
+  "calf_l": "thigh_l",
+  "foot_l": "calf_l",
+  "ball_l": "foot_l",
+  "thigh_r": "pelvis",
+  "calf_r": "thigh_r",
+  "foot_r": "calf_r",
+  "ball_r": "foot_r"
+ },
+ "bone_heads_world_m": {
+  "root": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "pelvis": [
+   0.0,
+   -0.00295,
+   0.96226
+  ],
+  "spine_01": [
+   0.0,
+   0.03026,
+   1.05293
+  ],
+  "spine_02": [
+   0.0,
+   0.02112,
+   1.12526
+  ],
+  "spine_03": [
+   0.0,
+   0.03119,
+   1.18722
+  ],
+  "clavicle_l": [
+   0.02371,
+   -0.02302,
+   1.46643
+  ],
+  "upperarm_l": [
+   0.19372,
+   -0.01762,
+   1.43525
+  ],
+  "upperarm_twist_01_l": [
+   0.21351,
+   -0.01747,
+   1.41301
+  ],
+  "lowerarm_l": [
+   0.39162,
+   -0.01615,
+   1.21286
+  ],
+  "lowerarm_twist_01_l": [
+   0.47493,
+   -0.0482,
+   1.12312
+  ],
+  "hand_l": [
+   0.55825,
+   -0.08026,
+   1.03338
+  ],
+  "index_01_l": [
+   0.61902,
+   -0.14712,
+   0.95314
+  ],
+  "index_02_l": [
+   0.62878,
+   -0.16048,
+   0.9289
+  ],
+  "index_03_l": [
+   0.63268,
+   -0.17064,
+   0.90497
+  ],
+  "middle_01_l": [
+   0.62853,
+   -0.119,
+   0.94909
+  ],
+  "middle_02_l": [
+   0.64109,
+   -0.12624,
+   0.91371
+  ],
+  "middle_03_l": [
+   0.64805,
+   -0.13372,
+   0.8843
+  ],
+  "pinky_01_l": [
+   0.62228,
+   -0.07271,
+   0.947
+  ],
+  "pinky_02_l": [
+   0.62936,
+   -0.07047,
+   0.92402
+  ],
+  "pinky_03_l": [
+   0.63174,
+   -0.06979,
+   0.90652
+  ],
+  "ring_01_l": [
+   0.62922,
+   -0.09599,
+   0.94835
+  ],
+  "ring_02_l": [
+   0.64173,
+   -0.09669,
+   0.91709
+  ],
+  "ring_03_l": [
+   0.64884,
+   -0.0994,
+   0.88999
+  ],
+  "thumb_01_l": [
+   0.57534,
+   -0.12054,
+   1.00744
+  ],
+  "thumb_02_l": [
+   0.56029,
+   -0.14616,
+   0.98921
+  ],
+  "thumb_03_l": [
+   0.55745,
+   -0.17661,
+   0.96148
+  ],
+  "clavicle_r": [
+   -0.02371,
+   -0.02302,
+   1.46643
+  ],
+  "upperarm_r": [
+   -0.19372,
+   -0.01762,
+   1.43525
+  ],
+  "upperarm_twist_01_r": [
+   -0.21351,
+   -0.01747,
+   1.41301
+  ],
+  "lowerarm_r": [
+   -0.39162,
+   -0.01615,
+   1.21286
+  ],
+  "lowerarm_twist_01_r": [
+   -0.47493,
+   -0.0482,
+   1.12312
+  ],
+  "hand_r": [
+   -0.55825,
+   -0.08026,
+   1.03338
+  ],
+  "index_01_r": [
+   -0.61902,
+   -0.14712,
+   0.95314
+  ],
+  "index_02_r": [
+   -0.62878,
+   -0.16048,
+   0.9289
+  ],
+  "index_03_r": [
+   -0.63268,
+   -0.17064,
+   0.90497
+  ],
+  "middle_01_r": [
+   -0.62853,
+   -0.119,
+   0.94909
+  ],
+  "middle_02_r": [
+   -0.64109,
+   -0.12624,
+   0.91371
+  ],
+  "middle_03_r": [
+   -0.64805,
+   -0.13372,
+   0.8843
+  ],
+  "pinky_01_r": [
+   -0.62228,
+   -0.07271,
+   0.947
+  ],
+  "pinky_02_r": [
+   -0.62936,
+   -0.07047,
+   0.92402
+  ],
+  "pinky_03_r": [
+   -0.63174,
+   -0.06979,
+   0.90652
+  ],
+  "ring_01_r": [
+   -0.62922,
+   -0.09599,
+   0.94835
+  ],
+  "ring_02_r": [
+   -0.64173,
+   -0.09669,
+   0.91709
+  ],
+  "ring_03_r": [
+   -0.64884,
+   -0.0994,
+   0.88999
+  ],
+  "thumb_01_r": [
+   -0.57534,
+   -0.12054,
+   1.00744
+  ],
+  "thumb_02_r": [
+   -0.56029,
+   -0.14616,
+   0.98921
+  ],
+  "thumb_03_r": [
+   -0.55745,
+   -0.17661,
+   0.96148
+  ],
+  "neck_01": [
+   -0.0,
+   -0.01145,
+   1.54412
+  ],
+  "head": [
+   -0.0,
+   -0.04853,
+   1.64407
+  ],
+  "thigh_l": [
+   0.11332,
+   0.00818,
+   0.9556
+  ],
+  "calf_l": [
+   0.15745,
+   -0.02751,
+   0.52665
+  ],
+  "foot_l": [
+   0.20458,
+   -0.01447,
+   0.07425
+  ],
+  "ball_l": [
+   0.20874,
+   -0.14519,
+   0.00869
+  ],
+  "thigh_r": [
+   -0.11332,
+   0.00818,
+   0.9556
+  ],
+  "calf_r": [
+   -0.15745,
+   -0.02751,
+   0.52665
+  ],
+  "foot_r": [
+   -0.20458,
+   -0.01447,
+   0.07425
+  ],
+  "ball_r": [
+   -0.20874,
+   -0.14519,
+   0.00869
+  ]
+ },
+ "world_bbox_min": [
+  -0.6573,
+  -0.2186,
+  -0.0
+ ],
+ "world_bbox_max": [
+  0.6573,
+  0.0989,
+  1.8
+ ],
+ "stature_m": 1.8,
+ "rest_vs_armature_evaluated_max_diff_m": 4.172325134277344e-07,
+ "verts_before_weld": 13380,
+ "verts": 13380,
+ "faces": 26756,
+ "face_sizes": {
+  "3": 26756
+ },
+ "boundary_edges": 0,
+ "non_manifold_edges": 0,
+ "wire_edges": 0,
+ "loose_verts": 0,
+ "zero_area_faces": 0,
+ "inconsistent_winding_edges": 0,
+ "coincident_verts(<0.01mm)": 0,
+ "mesh_islands": [
+  13380
+ ],
+ "signed_volume_m3": 0.07021,
+ "inward_face_centres": [
+  [
+   -0.0128,
+   -0.1611,
+   1.6404
+  ],
+  [
+   0.0128,
+   -0.1611,
+   1.6404
+  ]
+ ],
+ "faces_sampled_for_inward_normal": 8919,
+ "faces_with_inward_normal (odd ray parity)": 2,
+ "uv_layers": [
+  "UVMap"
+ ],
+ "uv_range": [
+  [
+   0.0092,
+   0.0096
+  ],
+  [
+   0.9935,
+   0.9739
+  ]
+ ],
+ "uv_flipped_tris": 0,
+ "uv_zero_area_tris": 0,
+ "uv_density_ratio_percentiles(p1,p5,p50,p95,p99)/median": [
+  0.284,
+  0.419,
+  1.0,
+  5.233,
+  10.12
+ ],
+ "uv_texels_covered": 654441,
+ "uv_texels_overlapping(>1 tri, 1024^2)": 0,
+ "uv_coverage_fraction": 0.6241,
+ "skin": {
+  "unweighted": 0,
+  "max_influences": 4,
+  "sum_min": 0.9999999550636858,
+  "sum_max": 1.0000000447034836,
+  "hist": {
+   "1": 6333,
+   "2": 4314,
+   "3": 1403,
+   "4": 1330
+  },
+  "groups_not_bones": [],
+  "vertex_groups": 56
+ },
+ "armature_modifiers": [
+  [
+   "Armature",
+   "Armature"
+  ]
+ ]
+}

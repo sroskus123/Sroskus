@@ -1,30 +1,400 @@
-// IRON VALLEY — AI system STUB (herní integrace).
-//
-// Tento soubor je jen zástupný stub se závaznou signaturou z Docs/GAMEPLAY_CONTRACTS.md.
-// Nic nedělá. AI agent ho nahradí skutečnou implementací se STEJNÝM rozhraním.
+// IRON VALLEY — AI system (Docs/GAMEPLAY_CONTRACTS.md "AI", Docs/AI.md).
 //
 // createAISystem({ combatants, world, nav, cover, events, match, config }) → {
-//   addBot(combatant), removeBot(id), update(dt), getDebug(), reset()
+//   addBot(combatant), removeBot(id),
+//   update(dt),     fixed tick: perception ~10 Hz staggered across bots, decisions ~4.5 Hz, steering /
+//                   aiming / firing every tick; each living bot is driven with combatant.applyCommand(cmd, dt)
+//   getDebug(),     perception, memory, task, target, path, cover, reaction timer ... (window.__IV.ai)
+//   reset(),        new round: memory, cover reservations, paths, blocks, team claims cleared
 // }
+// `world` = WorldQuery (raycastStatic, lineOfSight), `nav` / `cover` = NavService / CoverService or null
+// (then loaded from the baked navmesh of config.levelId), `config` = context from the session
+// ({ levelId, level, zones, session, rules, tuning? }). AI tunables: Shared/config/ai.json (+ config.tuning).
+//
+// The AI never reads an enemy's position except through its own line-of-sight rays (vision) and the
+// events it may hear/feel (weapon:fired, footstep, combatant:damaged with fromDir only); see memory.js.
 
-export function createAISystem({ combatants, world, nav, cover, events, match, config } = {}) {
-  const bots = new Map();
-  return {
-    isStub: true,
-    addBot(combatant) {
-      if (combatant && combatant.id != null) bots.set(combatant.id, combatant);
-    },
-    removeBot(id) {
-      bots.delete(id);
-    },
-    update(dt) {
-      // no-op: boti v stubu stojí (cmd se neposílá).
-    },
-    getDebug() {
-      return { stub: true, bots: [...bots.keys()] };
-    },
-    reset() {
-      // no-op
-    },
+import { Vector3 } from 'three';
+import { resolveAIConfig } from './config.js';
+import { Bot } from './bot.js';
+import { Tactics } from './tactics.js';
+import { createNavService } from './nav/navService.js';
+import { createCoverService } from './cover/coverService.js';
+import { NAV_DATA } from './nav/navRegistry.generated.js';
+import { installAIDebugApi } from './debug.js';
+
+export { resolveAIConfig } from './config.js';
+export { NavService } from './nav/navService.js';
+export { CoverService } from './cover/coverService.js';
+
+/** Baked navmesh JSON for a level id (bundled at build time), or null. */
+export function navDataForLevel(levelId) {
+  return (levelId && NAV_DATA[levelId]) || null;
+}
+
+export function createAISystem({ combatants, world, nav = null, cover = null, events = null, match = null, config = {} } = {}) {
+  config = config || {};
+  const cfg = resolveAIConfig(config.tuning || config.aiTuning || null);
+  const level = config.level || null;
+  const levelId = config.levelId || (level && level.id) || null;
+  const navData = config.navData || (nav && typeof nav.findPath !== 'function' ? nav : null) || navDataForLevel(levelId);
+  const navService = nav && typeof nav.findPath === 'function' ? nav : navData ? createNavService(navData) : null;
+  const coverService = cover && typeof cover.reserve === 'function' ? cover : createCoverService(navData ? navData.cover : []);
+  const session = config.session || null;
+
+  const sys = {
+    cfg,
+    time: 0,
+    tickCount: 0,
+    seed: ((session && session.seed) || config.seed || 1) >>> 0,
+    combatants,
+    world,
+    nav: navService,
+    cover: coverService,
+    match,
+    events,
+    level,
+    levelId,
+    bots: [],
+    byId: new Map(),
+    runSpeed: 3.5,
+    metrics: { stuck: [], reactions: [], searches: [], ticks: 0, perceptionUpdates: 0, decisions: 0, maxBotsPerceivedInTick: 0, updateMs: 0, updateMsMax: 0 },
+    overlay: null,
+    debugEnabled: true,
   };
+  sys.tactics = new Tactics(sys);
+
+  // ------------------------------------------------------------------ level knowledge
+  const spawnCenters = [];
+  if (level && level.match && Array.isArray(level.match.teamSpawns)) {
+    for (const list of level.match.teamSpawns) {
+      const c = new Vector3();
+      for (const s of list) c.add(new Vector3(s.pos[0], s.pos[1], s.pos[2]));
+      c.divideScalar(Math.max(1, list.length));
+      spawnCenters.push(c);
+    }
+  }
+  sys.enemySpawnCenters = (team) => spawnCenters.filter((_, t) => t !== team);
+  // solids of spawn shelters (level flag spawnShelter): their cover points are never used
+  sys.shelterSolids = new Set(level && Array.isArray(level.solids) ? level.solids.filter((s) => s.spawnShelter).map((s) => s.id) : []);
+
+  sys.guardMode = false; // tests / debugging: ignore the zone objective (bots hold their spot)
+  sys.activeZone = () => {
+    if (sys.guardMode) return null;
+    if (session && typeof session.activeZone === 'function') return session.activeZone();
+    const zones = config.zones || (level && level.match && level.match.zones) || [];
+    const id = match && match.round ? match.round.zoneId : null;
+    return zones.find((z) => z.id === id) || null;
+  };
+  sys.isInZone = (p, z = sys.activeZone()) => {
+    if (!z) return false;
+    const dx = p.x - z.center[0];
+    const dz = p.z - z.center[2];
+    const h = z.height ?? 4;
+    return dx * dx + dz * dz <= z.radius * z.radius && p.y >= z.center[1] - 0.5 && p.y <= z.center[1] + h;
+  };
+  sys.zoneController = () => {
+    const r = match && match.round;
+    if (!r || !r.zone) return null;
+    return r.zone.controller >= 0 ? r.zone.controller : null;
+  };
+  /** The zone needs this bot's team (not controlled by it) and the bot is outside. */
+  sys.zoneUrgent = (bot) => {
+    const z = sys.activeZone();
+    if (!z) return false;
+    return sys.zoneController() !== bot.c.team && !sys.isInZone(bot.c.position, z);
+  };
+  sys.roundState = () => {
+    if (session && session.mode === 'practice') return 'practice';
+    const r = match && match.round;
+    return r ? r.state : 'running';
+  };
+
+  // ------------------------------------------------------------------ team danger map
+  // Where teammates died recently, paths of that team get more expensive (A* node cost multiplier), so a
+  // doorway that became a kill zone is avoided for a while in favour of another route.
+  sys.dangers = []; // { team, pos: Vector3, until }
+  sys.addDanger = (team, pos) => {
+    sys.dangers.push({ team, pos: pos.clone ? pos.clone() : new Vector3(pos.x, pos.y, pos.z), until: sys.time + cfg.danger.duration });
+    if (sys.dangers.length > 40) sys.dangers.shift();
+  };
+  const costFns = new Map();
+  sys.dangerCost = (team) => {
+    const list = sys.dangers.filter((d) => d.team === team && d.until > sys.time);
+    if (!list.length || !sys.nav) return null;
+    const key = `${team}:${list.length}:${list[list.length - 1].until}`;
+    const cached = costFns.get(team);
+    if (cached && cached.key === key) return cached.fn;
+    const nodes = sys.nav.mesh.nodes;
+    const R = cfg.danger.radius;
+    const W = cfg.danger.weight;
+    const fn = (n) => {
+      const c = nodes[n].centroid;
+      let m = 1;
+      for (const d of list) {
+        const dd = Math.hypot(c.x - d.pos.x, c.z - d.pos.z);
+        if (dd < R && Math.abs(c.y - d.pos.y) < 2) m += W * (1 - dd / R);
+      }
+      return Math.min(m, cfg.danger.maxMultiplier);
+    };
+    costFns.set(team, { key, fn });
+    return fn;
+  };
+
+  // ------------------------------------------------------------------ metrics hooks
+  sys.recordStuck = (bot, ev) => {
+    ev.bot = bot.c.id; // same object: the recovery time is filled in later by the path follower
+    sys.metrics.stuck.push(ev);
+    if (sys.metrics.stuck.length > 300) sys.metrics.stuck.shift();
+  };
+  sys.recordReaction = (bot, f, t) => {
+    sys.metrics.reactions.push({ bot: bot.c.id, target: f.targetId, detectedAt: +f.detectedAt.toFixed(3), firstShotAt: +t.toFixed(3), reaction: +(t - f.detectedAt).toFixed(3), delay: +f.delay.toFixed(3), distance: +f.distance.toFixed(2) });
+    if (sys.metrics.reactions.length > 500) sys.metrics.reactions.shift();
+  };
+  sys.recordSearch = (bot, info) => {
+    sys.metrics.searches.push({ bot: bot.c.id, t: +sys.time.toFixed(2), ...info, duration: +info.duration.toFixed(2), pos: info.pos ? info.pos.toArray().map((v) => +v.toFixed(2)) : null });
+    if (sys.metrics.searches.length > 300) sys.metrics.searches.shift();
+  };
+
+  // ------------------------------------------------------------------ events (stimuli)
+  const unsub = [];
+  const on = (type, fn) => {
+    if (events && typeof events.on === 'function') unsub.push(events.on(type, fn));
+  };
+  const livingBots = () => sys.bots.filter((b) => b.c.alive);
+  on('weapon:fired', (p) => {
+    if (!p || !p.muzzle) return;
+    const team = p.team;
+    for (const b of livingBots()) {
+      if (b.c.id === p.shooterId) continue;
+      if (team === b.c.team && cfg.hearing.ignoreFriendly) continue;
+      b.perception.onSound(sys.time, 'gunshot', p.shooterId, team, p.muzzle, p.loudness ?? 1, p.dir || null);
+    }
+  });
+  on('footstep', (p) => {
+    if (!p || !p.position) return;
+    for (const b of livingBots()) {
+      if (b.c.id === p.id || b.c.team === p.team) continue;
+      const d = b.c.position.distanceTo(p.position);
+      if (d > cfg.hearing.footstepRange * (p.loudness ?? 1) + 0.5) continue; // cheap reject before the ray
+      b.perception.onSound(sys.time, 'footstep', p.id, p.team, p.position, p.loudness ?? 0.5, null);
+    }
+  });
+  on('combatant:damaged', (p) => {
+    const b = p && sys.byId.get(p.victimId);
+    if (!b || !b.c.alive) return;
+    const attacker = p.attackerId != null && combatants ? combatants.get(p.attackerId) : null;
+    // only the shot direction is used (attackerPosition in the event is NOT read: no exact position)
+    b.perception.onDamaged(sys.time, p.attackerId ?? null, attacker ? attacker.team : null, p.fromDir || null);
+    b.decisionDirty = true;
+  });
+  const forgetEverywhere = (id) => {
+    for (const b of sys.bots) {
+      b.memory.forget(id);
+      b.perception.forget(id);
+      if (b.targetId === id) {
+        b.targetId = null;
+        b.decisionDirty = true;
+      }
+    }
+  };
+  on('combatant:died', (p) => {
+    if (!p) return;
+    forgetEverywhere(p.victimId);
+    const victim = combatants ? combatants.get(p.victimId) : null;
+    if (victim && p.position) sys.addDanger(victim.team, p.position);
+    const b = sys.byId.get(p.victimId);
+    if (b) b.onDeath(sys.time);
+  });
+  on('combatant:spawned', (p) => {
+    if (!p) return;
+    forgetEverywhere(p.id); // a respawned enemy is a new, unknown contact
+  });
+  on('zone:control_changed', () => {
+    for (const b of sys.bots) b.decisionDirty = true;
+  });
+  on('round:started', () => {
+    for (const b of sys.bots) b.decisionDirty = true;
+  });
+
+  // ------------------------------------------------------------------ API
+  function addBot(combatant) {
+    if (!combatant || combatant.id == null || sys.byId.has(combatant.id)) return;
+    const b = new Bot(sys, combatant, sys.bots.length);
+    // one source of truth for the bot turn rate: ai.json overrides the Combatant default (combat.json)
+    if ('turnRateDegPerSec' in combatant) combatant.turnRateDegPerSec = cfg.turnRateDegPerSec;
+    sys.bots.push(b);
+    sys.byId.set(combatant.id, b);
+    restagger();
+    if (combatant.controller && combatant.controller.params && combatant.controller.params.speeds) sys.runSpeed = combatant.controller.params.speeds.run;
+  }
+
+  function removeBot(id) {
+    const b = sys.byId.get(id);
+    if (!b) return;
+    b.releaseCover();
+    sys.tactics.board.release(id);
+    sys.bots = sys.bots.filter((x) => x !== b);
+    sys.byId.delete(id);
+    restagger();
+  }
+
+  function restagger() {
+    const n = Math.max(1, sys.bots.length);
+    const pp = 1 / cfg.tick.perceptionHz;
+    const dp = 1 / cfg.tick.decisionHz;
+    sys.bots.forEach((b, i) => {
+      b.nextPerception = sys.time + (pp * i) / n;
+      b.nextDecision = sys.time + (dp * i) / n;
+    });
+  }
+
+  function update(dt) {
+    if (!(dt > 0)) return;
+    const t0 = typeof performance !== 'undefined' ? performance.now() : 0;
+    sys.time += dt;
+    sys.tickCount++;
+    sys.metrics.ticks++;
+    if (sys.nav && typeof sys.nav.update === 'function') sys.nav.update(dt);
+    const pp = 1 / cfg.tick.perceptionHz;
+    const dp = 1 / cfg.tick.decisionHz;
+    let perceived = 0;
+    const t = sys.time;
+    for (const b of sys.bots) {
+      const c = b.c;
+      if (!c.alive) {
+        if (b.wasAlive) b.onDeath(t);
+        continue; // the CombatantManager steps dead / undriven combatants
+      }
+      if (!b.wasAlive) {
+        b.onSpawn(t);
+        b.nextPerception = t + ((b.index % sys.bots.length) * pp) / Math.max(1, sys.bots.length);
+      }
+      if (t + 1e-9 >= b.nextPerception) {
+        const since = b.perception.lastUpdate >= 0 ? Math.min(0.5, t - b.perception.lastUpdate) : pp;
+        b.perception.updateVision(t, since);
+        b.nextPerception += pp;
+        if (b.nextPerception < t) b.nextPerception = t + pp;
+        perceived++;
+        sys.metrics.perceptionUpdates++;
+      }
+      b.memory.decay(dt);
+      if (t + 1e-9 >= b.nextDecision || b.decisionDirty) {
+        b.decide(t);
+        const jitter = (b.rng.next() * 2 - 1) * cfg.tick.decisionJitter;
+        b.nextDecision = t + dp + jitter;
+        sys.metrics.decisions++;
+      }
+      const cmd = b.act(dt);
+      c.applyCommand(cmd, dt);
+      b.afterApply(t);
+    }
+    sys.metrics.maxBotsPerceivedInTick = Math.max(sys.metrics.maxBotsPerceivedInTick, perceived);
+    if (sys.overlay && sys.tickCount % 6 === 0) sys.overlay.update(sys);
+    if (sys.debugEnabled) installAIDebugApi(api, sys);
+    if (t0) {
+      const ms = performance.now() - t0;
+      sys.metrics.updateMs = sys.metrics.updateMs * 0.95 + ms * 0.05;
+      sys.metrics.updateMsMax = Math.max(sys.metrics.updateMsMax, ms);
+    }
+  }
+
+  function reset() {
+    sys.dangers.length = 0;
+    if (sys.nav && typeof sys.nav.reset === 'function') sys.nav.reset();
+    if (sys.cover) sys.cover.releaseAll();
+    sys.tactics.reset();
+    for (const b of sys.bots) {
+      b.resetBrain(sys.time);
+      b.wasAlive = false;
+    }
+    restagger();
+  }
+
+  function getDebug() {
+    return {
+      stub: false,
+      time: +sys.time.toFixed(3),
+      ticks: sys.tickCount,
+      levelId,
+      nav: sys.nav ? sys.nav.getDebug() : null,
+      cover: sys.cover ? { points: sys.cover.points.length, reservations: sys.cover.reservations(), stats: { ...sys.cover.stats } } : null,
+      activeZone: (() => {
+        const z = sys.activeZone();
+        return z ? { id: z.id, center: z.center, radius: z.radius, controller: sys.zoneController() } : null;
+      })(),
+      round: sys.roundState(),
+      config: { perceptionHz: cfg.tick.perceptionHz, decisionHz: cfg.tick.decisionHz, turnRateDegPerSec: cfg.turnRateDegPerSec },
+      bots: sys.bots.map((b) => b.snapshot(sys.time)),
+      metrics: {
+        ticks: sys.metrics.ticks,
+        perceptionUpdates: sys.metrics.perceptionUpdates,
+        decisions: sys.metrics.decisions,
+        maxBotsPerceivedInTick: sys.metrics.maxBotsPerceivedInTick,
+        updateMsAvg: +sys.metrics.updateMs.toFixed(3),
+        updateMsMax: +sys.metrics.updateMsMax.toFixed(3),
+        stuck: sys.metrics.stuck.slice(-50),
+        reactions: sys.metrics.reactions.slice(-100),
+        searches: sys.metrics.searches.slice(-50),
+        tactics: { ...sys.tactics.stats },
+      },
+      overlay: !!sys.overlay,
+    };
+  }
+
+  function dispose() {
+    for (const u of unsub) if (typeof u === 'function') u();
+    unsub.length = 0;
+    if (sys.overlay) sys.overlay.dispose();
+  }
+
+  /** Scripted move (tests / debugging): the bot walks to `pos` and stays there, perceiving but not fighting. */
+  function commandMove(id, pos, { tolerance = 0.6, run = true } = {}) {
+    const b = sys.byId.get(id);
+    if (!b) return false;
+    b.scripted = { type: 'move', goal: new Vector3(pos[0] ?? pos.x, pos[1] ?? pos.y, pos[2] ?? pos.z), tolerance, run, startedAt: sys.time, arrivedAt: -1 };
+    b.decisionDirty = true;
+    return true;
+  }
+  function clearCommand(id) {
+    const b = sys.byId.get(id);
+    if (!b) return false;
+    b.scripted = null;
+    b.move.clearGoal();
+    b.decisionDirty = true;
+    return true;
+  }
+  /** Scripted scenarios: a bot with nothing to do looks towards yawDeg for `seconds` (idle look only). */
+  function setLookHint(id, yawDeg, seconds = 30) {
+    const b = sys.byId.get(id);
+    if (!b) return false;
+    b.lookHint = { yaw: (yawDeg * Math.PI) / 180, until: sys.time + seconds };
+    return true;
+  }
+  function setGuardMode(on) {
+    sys.guardMode = !!on;
+    for (const b of sys.bots) b.decisionDirty = true;
+    return sys.guardMode;
+  }
+
+  const api = {
+    isStub: false,
+    commandMove,
+    clearCommand,
+    setGuardMode,
+    setLookHint,
+    addBot,
+    removeBot,
+    update,
+    getDebug,
+    reset,
+    dispose,
+    /** Direct access for tests / debugging (not part of the contract). */
+    _sys: sys,
+    get cfg() {
+      return cfg;
+    },
+    bot: (id) => sys.byId.get(id) || null,
+  };
+  return api;
 }

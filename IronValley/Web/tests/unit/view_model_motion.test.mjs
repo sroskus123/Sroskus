@@ -181,3 +181,26 @@ test('gameplay muzzle follows the drawn view-model pose through the whole hip <-
   const mw = ws.muzzleWorld(eye, 0, 0, 0.25, new Vector3());
   assert.ok(mw.clone().sub(eye).distanceTo(viewModelPointInCamera(vm, vm.muzzleLocal, 0.25)) < 5e-4);
 });
+
+test('pistol (IV-P9): gameplay muzzle offsets are the drawn placeholder pose (hip incl. cant, ADS) and follow it through the transition', async () => {
+  const P = (await import('../../src/data/weapons.json', { with: { type: 'json' } })).default.ivp9_pistol;
+  const { WeaponSystem } = await import('../../src/weapons/weaponSystem.js');
+  const { buildLevelSolids } = await import('../../src/level/levelGeometry.js');
+  const { CollisionWorld } = await import('../../src/physics/collisionWorld.js');
+  const { createRng } = await import('../../src/util/rng.js');
+  const { PISTOL_MUZZLE, PISTOL_ADS_EYE } = await import('../../src/weapons/placeholderPistol.js');
+  const vm = P.viewModel;
+  // placeholder sockets = data sockets
+  assert.deepEqual(vm.muzzleLocal, PISTOL_MUZZLE);
+  assert.deepEqual(vm.adsEyeLocal, PISTOL_ADS_EYE);
+  // data offsets = drawn static pose (within 0.1 mm, data is rounded to 0.1 mm)
+  assert.ok(viewModelPointInCamera(vm, vm.muzzleLocal, 0).distanceTo(new Vector3().fromArray(P.muzzleOffsetHip)) < 1e-4);
+  assert.ok(viewModelPointInCamera(vm, vm.muzzleLocal, 1).distanceTo(new Vector3().fromArray(P.muzzleOffsetAds)) < 1e-4);
+  // ADS puts the sight line (socket_ads) exactly in the camera
+  assert.ok(viewModelPointInCamera(vm, vm.adsEyeLocal, 1).length() < 1e-9);
+  const world = new CollisionWorld(buildLevelSolids({ solids: [{ type: 'box', id: 'g', min: [-5, -0.5, -5], max: [5, 0, 5] }] }));
+  const ws = new WeaponSystem({ def: P, world, rng: createRng(1) });
+  let worst = 0;
+  for (let i = 0; i <= 20; i++) worst = Math.max(worst, ws.muzzleOffset(i / 20).distanceTo(viewModelPointInCamera(vm, vm.muzzleLocal, i / 20)));
+  assert.ok(worst < 2e-4, `pistol muzzle vs drawn pose during ADS: ${worst}`);
+});

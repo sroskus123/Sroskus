@@ -54,13 +54,31 @@ export class Player {
     this._bob = { phase: 0, amount: 0, landingDip: 0 };
     this.lastCmd = null;
 
-    controller.onEvent = (name, payload) => {
+    this._y0 = 0;
+    this.attachController(controller);
+  }
+
+  /**
+   * Uses `controller` for the camera (the player's Combatant owns and moves it; a new match creates a
+   * new combatant with a new controller). Landing events drive the camera dip and are re-published.
+   */
+  attachController(controller) {
+    if (this.ctrl && this.ctrl !== controller && this.ctrl.onEvent === this._onCtrlEvent) this.ctrl.onEvent = null;
+    this.ctrl = controller;
+    this._onCtrlEvent = (name, payload) => {
       if (name === 'landed') {
         const s = Math.min(payload.speed, 8);
         if (s > 1.5) this.landingDipVel -= s * 0.35;
       }
-      events.emit(`player:${name}`, payload);
+      this.events.emit(`player:${name}`, payload);
     };
+    controller.onEvent = this._onCtrlEvent;
+    this.prevFeet.copy(controller.position);
+    this.currFeet.copy(controller.position);
+    this.prevEyeH = this.currEyeH = controller.eyeHeight;
+    this.viewY = this.prevViewY = controller.position.y + controller.eyeHeight;
+    this.viewVy = 0;
+    this._y0 = controller.position.y;
   }
 
   teleport(pos, yawDeg = null, pitchDeg = null) {
@@ -75,6 +93,7 @@ export class Player {
     this.viewY = this.prevViewY = this.ctrl.position.y + this.ctrl.eyeHeight;
     this.viewVy = 0;
     this.landingDip = this.landingDipVel = 0;
+    this._y0 = this.ctrl.position.y;
     this._holdVisuals();
   }
 
@@ -96,20 +115,34 @@ export class Player {
     if (this.yaw > Math.PI * 4 || this.yaw < -Math.PI * 4) this.yaw %= Math.PI * 2;
   }
 
-  /** Builds the movement command from current input. */
+  /**
+   * Builds the combatant command (Docs/GAMEPLAY_CONTRACTS.md cmd format) from the current input.
+   * `weapon` ({ triggerHeld, adsHeld }) overrides fire / ADS (legacy callers); otherwise they come from
+   * the bound actions like everything else.
+   */
   buildCommand(weapon) {
     const inp = this.input;
+    const own = weapon === undefined || weapon === null;
     return {
       moveX: inp.axis('moveRight', 'moveLeft'),
       moveZ: inp.axis('moveForward', 'moveBackward'),
       yaw: this.yaw,
+      pitch: this.pitch,
       sprint: inp.isActive('sprint'),
       walk: inp.isActive('walk'),
       crouch: inp.isActive('crouch'),
       jump: inp.wasPressed('jump'),
-      ads: weapon ? weapon.adsHeld : false,
-      fire: weapon ? weapon.triggerHeld : false,
+      ads: own ? inp.isActive('aim') : !!weapon.adsHeld,
+      fire: own ? inp.isActive('fire') : !!weapon.triggerHeld,
+      reload: inp.wasPressed('reload'),
+      switchTo: inp.wasPressed('weapon1') ? 0 : inp.wasPressed('weapon2') ? 1 : null,
+      interact: inp.wasPressed('interact'),
     };
+  }
+
+  /** Idle command that keeps the current look (dead, menus). */
+  idleCommand() {
+    return { moveX: 0, moveZ: 0, yaw: this.yaw, pitch: this.pitch, sprint: false, walk: false, crouch: false, jump: false, ads: false, fire: false, reload: false, switchTo: null, interact: false };
   }
 
   /** Makes the previous-tick snapshots of the visual (bob / dip) state equal to the current one. */
@@ -119,20 +152,32 @@ export class Player {
     this.prevLandingDip = this.landingDip;
   }
 
-  /** One fixed simulation tick. */
+  /**
+   * One fixed simulation tick that also moves the controller (standalone use and unit tests). In the
+   * game the player's Combatant moves the controller: beginTick() -> combatant.applyCommand -> endTick().
+   */
   tick(dt, weapon) {
-    const c = this.ctrl;
+    this.beginTick();
+    const cmd = this.buildCommand(weapon);
+    this.lastCmd = cmd;
+    this.ctrl.update(dt, cmd);
+    this.endTick(dt);
+  }
+
+  /** Start of a tick: interpolation snapshots of the previous tick. */
+  beginTick() {
     this.prevFeet.copy(this.currFeet);
     this.prevEyeH = this.currEyeH;
     this.prevStep = this.currStep;
     this.prevViewY = this.viewY;
     this._holdVisuals();
+    this._y0 = this.ctrl.position.y;
+  }
 
-    const cmd = this.buildCommand(weapon);
-    this.lastCmd = cmd;
-    const y0 = c.position.y;
-    c.update(dt, cmd);
-
+  /** End of a tick (after the controller moved): camera filter, head bob, landing dip. */
+  endTick(dt) {
+    const c = this.ctrl;
+    const y0 = this._y0;
     this.currFeet.copy(c.position);
     this.currEyeH = c.eyeHeight;
     this.currStep = c.stepOffset;

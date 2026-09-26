@@ -65,7 +65,7 @@ export class ViewModel {
    * @param {Color} o.sunColor
    * @param {number} o.sunIntensity
    */
-  constructor({ def, envTexture, envIntensity = 1, sunDirection, sunColor, sunIntensity }) {
+  constructor({ def, envTexture, envIntensity = 1, sunDirection, sunColor, sunIntensity, createPlaceholder = createPlaceholderRifle }) {
     this.def = def;
     const vm = def.viewModel;
     this.scene = new Scene();
@@ -108,8 +108,9 @@ export class ViewModel {
     this.assetName = 'placeholder';
     this.muzzleLocal = new Vector3().fromArray(vm.muzzleLocal);
     this.adsEyeLocal = new Vector3().fromArray(vm.adsEyeLocal || [0, 0, 0]);
-    const ph = createPlaceholderRifle();
+    const ph = createPlaceholder();
     this.setModel(ph.object, ph.muzzle, { placeholder: true, name: 'placeholder', adsEye: ph.adsEye });
+    this.hiddenPatterns = [];
 
     // animation state (springs on the simulation tick, sway / sprint per frame)
     this.motion = new ViewModelMotion(vm.motion || {});
@@ -136,6 +137,26 @@ export class ViewModel {
     if (this.flash.parent) this.flash.parent.remove(this.flash);
     this.modelRoot.add(this.flash);
     this.flash.position.copy(this.muzzleLocal).add(new Vector3(0.03, 0, 0));
+    if (this.hiddenPatterns && this.hiddenPatterns.length) this.setHiddenNodes(this.hiddenPatterns.map((re) => re.source));
+  }
+
+  /**
+   * Hides model nodes whose name matches one of the patterns (case-insensitive regular expressions),
+   * e.g. the optic for the iron-sights loadout. Everything else is shown.
+   */
+  setHiddenNodes(patterns = []) {
+    this.hiddenPatterns = patterns.map((p) => new RegExp(p, 'i'));
+    let hidden = 0;
+    this.modelRoot.traverse((o) => {
+      if (o === this.modelRoot || o === this.flash) return;
+      const hide = this.hiddenPatterns.some((re) => re.test(o.name || ''));
+      if (o.isMesh || o.isGroup || o.isObject3D) {
+        if (hide) hidden++;
+        o.visible = !hide;
+      }
+    });
+    this.hiddenCount = hidden;
+    return hidden;
   }
 
   /** Ambient light scale 0..1 (sky visibility at the eye, already smoothed by the caller). */
@@ -212,12 +233,15 @@ export class ViewModel {
     // reload dip
     const r = p.reload > 0 ? Math.sin(Math.min(p.reload, 1) * Math.PI) : 0;
     pos.y -= r * 0.07;
+    // weapon switch: lowered out of view (0 = up, 1 = fully lowered)
+    const lower = Math.min(Math.max(p.lower || 0, 0), 1);
+    pos.y -= lower * 0.28;
     this.holder.position.copy(pos);
     // static hip cant (data: viewModel.hipRotation) so the side of the weapon reads, none in
     // ADS; plus recoil, reload, sprint and sway rotations
     const hr = this.hipRotation;
     this.holder.rotation.set(
-      hr[0] * hipW + kickRot * 0.05 + r * -0.5 - sprint * 0.25,
+      hr[0] * hipW + kickRot * 0.05 + r * -0.5 - sprint * 0.25 - lower * 0.7,
       hr[1] * hipW + sprint * 0.55 + swayX * 2 * hipW,
       hr[2] * hipW + sprint * 0.3 + r * 0.35 + swayX * 1.5 * hipW,
     );

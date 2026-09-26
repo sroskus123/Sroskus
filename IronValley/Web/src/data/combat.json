@@ -1,0 +1,44 @@
+{
+  "_comment": "Zasahovy system, smrt a respawn na strane enginu. Zdravi, friendly fire a casy respawnu jsou v Shared/config/rules.json (jadro). Delky v metrech, casy v sekundach, uhly ve stupnich.",
+  "hitZones": {
+    "_comment": "Nasobky poskozeni zbrane (rules.json weapons.*.damage) podle zasahove zony. Vysledek se zaokrouhli na cele cislo >= 1.",
+    "head": 2.0,
+    "torso": 1.0,
+    "arm": 0.7,
+    "leg": 0.75
+  },
+  "hitShapes": {
+    "_comment": "Zasahove tvary postavy (stejne rozmery ma provizorni figurina). Vysky ve stoje; v drepu se trup a nohy skaluji podle vysky kapsle, hlava sleduje oko.",
+    "headRadius": 0.12,
+    "headAboveEye": 0.03,
+    "torso": { "from": 0.95, "to": 1.42, "radius": 0.19 },
+    "leg": { "from": 0.1, "to": 0.9, "radius": 0.085, "side": 0.1 },
+    "arm": { "radius": 0.055, "shoulderHeight": 1.42, "shoulderSide": 0.21 }
+  },
+  "bots": {
+    "_comment": "Vychozi hodnoty pro boty, ktere muze AI prepsat (Shared/config/ai.json). turnRateDegPerSec omezuje otaceni bota v applyCommand.",
+    "turnRateDegPerSec": 300,
+    "pitchLimitDeg": 85
+  },
+  "spawn": {
+    "_comment": "Predikat bezpecneho spawnu v enginu (vola ho jadro RespawnSystem). Pouziva se prisnejsi hodnota z tohoto souboru a z rules.json respawn (minEnemyDistance, bodyClearance).",
+    "minEnemyDistance": 20.0,
+    "bodyClearance": 1.5,
+    "groundProbe": 1.2,
+    "losHeights": [1.65, 1.1]
+  },
+  "death": {
+    "_comment": "Smrt: provizorni stabilni padova poza (fyzikalni ragdoll pozdeji), pohled hrace po smrti.",
+    "fallTime": 0.6,
+    "fallClearance": 1.7,
+    "deathCamHeight": 0.45,
+    "deathCamTime": 0.8
+  },
+  "hud": {
+    "killFeedSeconds": 6.0,
+    "killFeedMax": 5,
+    "damageIndicatorSeconds": 1.6,
+    "hitmarkerSeconds": 0.14,
+    "roundEndBannerSeconds": 2.5
+  }
+}

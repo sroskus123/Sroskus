@@ -28,8 +28,8 @@ Openings:
     the jamb `hinge` ("start"/"end" = jamb nearer to the wall start/end).
     clear_width = width - 2 * frame_jamb - leaf thickness (single leaf) or - 2 * leaf thickness (pair);
     clear_height = head_height - frame_head.  Project rule: clear_width >= 1.10 m (brief >= 0.90 m) so a
-    0.35 m capsule keeps a >= 0.30 m navmesh corridor at Recast cs 0.10 m / radius 4 cells; clear_height
-    >= 2.05 m.
+    0.35 m capsule keeps a >= 0.40 m navmesh corridor at Recast cs 0.05 m / radius 7 cells (the binding bake
+    setting; cs 0.10 / radius 4 would leave only 0.20-0.30 m and pinched the house U-stair); clear_height >= 2.05 m.
   * roller doors: guide rails 0.05 m each side -> clear_width = width - 0.10; clear_height =
     state.open_height - 0.05 (bottom rail).  open_height < 2.10 is never used on a walkable opening.
   * `passes` = {movement, bullets, vision}: windows are capsule-blocking clip planes that pass bullets and

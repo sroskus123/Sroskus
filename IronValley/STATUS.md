@@ -58,6 +58,15 @@ cca 29 GB volného disku, **bez GPU** (`/dev/dri` chybí, `nvidia-smi` chybí). 
   JS 217/217, C++ ctest 15/15 (GCC, clang, ASan+UBSan), 149 sdílených vektorů, diferenciální fuzz JS↔C++, 19 injektovaných
   mutací zachyceno. Pravidla a rozhodnutí: `Docs/RULES.md`.
 
+## Náhled pro uživatele
+
+- Soukromý Artifact: https://claude.ai/artifact/5h5KbXu4z4j3Q2SWxGNZgi (verze 1 = zkušební prostor z commitu eec7150).
+- Hostitel Artifact **neservíruje `.glb`**. Artefaktová verze proto dostává modely jako `<cesta>.glb.b64.txt` (base64 text);
+  `src/engine/assets.js` je dekóduje sám a volá `GLTFLoader.parse` (bez blob:/data: URL). Ověřeno lokálně v Chromiu,
+  0 chyb, puška s texturami. **TODO:** převést tuto úpravu (zatím jen v náhledovém worktree) do hlavního `Web/` a buildu
+  (`dist-artifact/` s `.b64.txt`), zmenšit GLB (WebP textury).
+- Publikační složka: `scratchpad/publish/iron-valley.html` (stejná cesta = stejná URL při dalších verzích).
+
 ## Známé vady / otevřené body
 
 - P0 (vnější blokátor): Unreal Engine 5 není v prostředí dostupný → hra v UE nemůže být spuštěna ani testována.

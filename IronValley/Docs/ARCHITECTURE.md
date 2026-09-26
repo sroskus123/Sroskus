@@ -14,6 +14,8 @@ Závazný kontrakt pro všechny části projektu. Změnu rozhodnutí zapiš sem 
 | D6 | 2026-09-26 | Pravidla (munice, kontrolní bod, kolo, respawn) existují jako **čisté jádro** dvakrát: JS (`Web/src/core`) a C++ (`Core/`), obě implementace procházejí **stejnými testovacími vektory** (`Shared/testvectors/*.json`). | Pravidla se automaticky ověřují; UE5 modul pak použije C++ jádro. |
 | D7 | 2026-09-26 | Pohyb postavy vlastní **kinematický kapslový kontroler** (hráč i boti). Lokomoční animace jsou in-place a jejich rychlost přehrávání se odvozuje od skutečné rychlosti kapsle. Root motion se v první verzi nepoužívá. | Jeden vlastník pohybu, žádné dvojí posouvání (ANIM-01). |
 | D8 | 2026-09-26 | Střelba = hitscan. Kamera určuje zamýšlený bod, zásah se ověřuje paprskem **od ústí hlavně** k tomuto bodu; překážka mezi ústím a cílem zachytí zásah. Totéž platí pro boty. Palebný interval se počítá z akumulovaného času, ne z délky snímku. | GUN-02, GUN-03. |
+| D9 | 2026-09-26 | Mapa **Kalné Hamry** přebírá slunce, oblohu, mraky a expozici beze změny z `Web/src/data/environment.json` (slunce 222°/38°), ale používá **vlastní mlhu**: barva `#c3cfd9`, hustota 0,0012, výšková hustota 0,0006, výškový pokles 0,08 (`layout.json` → `environment.fog.map_override_D9`). | Hodnoty mlhy v `environment.json` (0,0045 / 0,0035) jsou laděné pro 80m střelnici. Na mapě 350 m by na 150 m vzaly 59 % kontrastu a smazaly vzdálené kopce. S D9 je mlha ~10 % na 150 m (limit vnímání AI) a ~40 % na 600 m. |
+| D10 | 2026-09-26 | **Datový kontrakt úrovně:** `Shared/level/layout.json` + `buildings.json` + `terrain_ref_0p5m.png` jsou závazná data mapy. Vytváří je jen `Tools/level/run_pipeline.py` (ruční úpravy JSON jsou zakázané) a platí jen tehdy, když `Tools/level/check_layout.py` hlásí 0 FAIL. Ověřovací bake navmeshe (Recast): **cs 0,05 m, radius 7 buněk (0,35 m), height 36, climb 8, sklon 45°**; hrubší bake je zakázaný. Dveře na trasách mají světlost ≥ 1,10 m. | Zkušební bake s cs 0,10 / r 4 zúžil koridor U-schodiště domu na nulu. Při cs 0,05 zůstává ve dveřích a na schodech koridor ≥ 0,40 m. Kontrola s hashem dat odhalí zastaralý bake. |
 
 ## Jednotky a osy
 
@@ -44,6 +46,7 @@ IronValley/
     public/assets/ GLB a data pro runtime
     tests/unit/    node --test
     tests/e2e/     Playwright
+  Tools/level/     generátor a kontrola mapy (build_level, nav bake Recast, check_layout, draw_plans, analyze_sightlines)
   Unreal/          projekt UE5 (nezkompilovaný, NOT TESTED)
 ```
 

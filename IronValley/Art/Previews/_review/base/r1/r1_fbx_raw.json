@@ -1,0 +1,153 @@
+{
+ "fbx_version": 7400,
+ "GlobalSettings": {
+  "UpAxis": 1,
+  "UpAxisSign": 1,
+  "FrontAxis": 2,
+  "FrontAxisSign": 1,
+  "CoordAxis": 0,
+  "CoordAxisSign": 1,
+  "UnitScaleFactor": 1.0,
+  "OriginalUnitScaleFactor": 1.0
+ },
+ "top_level_models": [
+  [
+   "Armature",
+   "Null",
+   [
+    null,
+    null,
+    null
+   ],
+   [
+    -90.00000250447816,
+    0.0,
+    0.0
+   ]
+  ],
+  [
+   "SK_Human_Base",
+   "Mesh",
+   [
+    null,
+    null,
+    null
+   ],
+   [
+    -90.00000250447816,
+    0.0,
+    0.0
+   ]
+  ]
+ ],
+ "model_type_counts": {
+  "Null": 1,
+  "Mesh": 1,
+  "LimbNode": 57
+ },
+ "children_of_top": {
+  "Armature": [
+   "root:LimbNode"
+  ],
+  "SK_Human_Base": []
+ },
+ "limbnode_count": 57,
+ "root_limb": {
+  "name": "root",
+  "type": "LimbNode",
+  "Lcl Translation": [
+   null,
+   null,
+   null
+  ],
+  "Lcl Rotation": [
+   null,
+   null,
+   null
+  ],
+  "Lcl Scaling": [
+   null,
+   null,
+   null
+  ],
+  "PreRotation": null
+ },
+ "pelvis_limb": {
+  "name": "pelvis",
+  "type": "LimbNode",
+  "Lcl Translation": [
+   5.421010862427522e-18,
+   -0.2947406768798828,
+   96.2260513305664
+  ],
+  "Lcl Rotation": [
+   69.88799139899871,
+   -2.247660531366983e-17,
+   3.2166800624292864e-17
+  ],
+  "Lcl Scaling": [
+   null,
+   null,
+   null
+  ],
+  "PreRotation": null
+ },
+ "limb_scale_range": [
+  0.9999997615814209,
+  1.0000019073486328
+ ],
+ "geometry": {
+  "vertices": 13380,
+  "min": [
+   -65.732,
+   -21.856,
+   -0.0
+  ],
+  "max": [
+   65.732,
+   9.89,
+   180.0
+  ],
+  "extent": [
+   131.464,
+   31.746,
+   180.0
+  ],
+  "polygons": 26756,
+  "max_poly_size": 3,
+  "layers": [
+   "LayerElementSmoothing",
+   "LayerElementNormal",
+   "LayerElementBinormal",
+   "LayerElementTangent",
+   "LayerElementUV",
+   "LayerElementMaterial",
+   "Layer"
+  ]
+ },
+ "skin_deformers": 1,
+ "clusters": 57,
+ "cluster_weights": {
+  "sum_min": 0.9999999550636858,
+  "sum_max": 1.0000000447034836,
+  "unweighted": 0,
+  "influence_hist": {
+   "1": 6333,
+   "2": 4314,
+   "3": 1403,
+   "4": 1330
+  }
+ },
+ "cluster_bones_missing_vs_limbs": [],
+ "bind_poses": [
+  [
+   "SK_Human_Base.001",
+   "BindPose",
+   59
+  ]
+ ],
+ "materials": [
+  "M_Human_Base"
+ ],
+ "textures": 0
+}

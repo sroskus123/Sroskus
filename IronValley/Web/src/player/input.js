@@ -26,9 +26,11 @@ export function keyLabel(code) {
   if (code.startsWith('Digit')) return code.slice(5);
   if (code.startsWith('Numpad')) return `Num ${code.slice(6)}`;
   const map = {
-    Mouse0: 'Levé tlačítko myši',
-    Mouse1: 'Prostřední tlačítko',
-    Mouse2: 'Pravé tlačítko myši',
+    Mouse0: 'Levé tl. myši',
+    Mouse1: 'Prostř. tl. myši',
+    Mouse2: 'Pravé tl. myši',
+    Mouse3: 'Tl. myši 4',
+    Mouse4: 'Tl. myši 5',
     ShiftLeft: 'Shift',
     ShiftRight: 'Pravý Shift',
     ControlLeft: 'Ctrl',
@@ -116,6 +118,19 @@ export class InputManager {
     on(doc, 'visibilitychange', () => {
       if (doc.visibilityState === 'hidden') this.releaseAll('hidden');
     });
+  }
+
+  /** Replaces the bindings (key rebinding); held keys are released so nothing stays stuck. */
+  setBindings(bindings) {
+    const map = buildBindingMap(bindings);
+    this.bindings = bindings;
+    this.codeToActions = map;
+    this.releaseAll('rebind');
+  }
+
+  /** Codes bound to an action (for the controls screen). */
+  codesFor(action) {
+    return (this.bindings.actions && this.bindings.actions[action]) || [];
   }
 
   detach() {

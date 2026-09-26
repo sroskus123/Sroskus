@@ -1,12 +1,16 @@
 // window.__IV — test and debugging interface. Reads state and drives time/input for automated
 // tests. The game never calls into this module; removing it does not change gameplay.
+// Functions marked "test only" change the simulation in ways a player cannot (force kill, placement,
+// seeds, bot counts); they exist so tests can build exact situations.
 
 import { Quaternion, Vector3 } from 'three';
+import { DEG2RAD } from '../util/math.js';
 
 export function installTestApi(game, target = window) {
   let renderOnStep = false;
+  const S = () => game.session;
   const api = {
-    version: 1,
+    version: 2,
     ready: true,
     /** Direct access for interactive debugging only (tests must not rely on internals). */
     _game: game,
@@ -16,16 +20,174 @@ export function installTestApi(game, target = window) {
       id: game.data.level.id,
       displayName: game.data.level.displayName,
       markers: game.data.level.markers,
-      dummies: game.data.level.dummies,
+      dummies: game.data.level.dummies || [],
+      match: game.data.level.match || null,
     }),
-    getConfig: () => ({ movement: game.data.movement, weapon: game.weaponDef, bindings: game.data.bindings }),
+    getConfig: () => ({ movement: game.data.movement, weapon: game.weaponDef, bindings: game.data.bindings, rules: S() ? S().rules : game.rules, combat: game.data.combat }),
 
-    /** Enter the playing state without a user gesture (no pointer lock). */
+    /**
+     * Enter the playing state without a user gesture (no pointer lock) in FREE PRACTICE on the current
+     * level (no bots, no round clock). Resumes a paused practice session; any other session is replaced.
+     */
     startGame: () => {
+      if (!S() || S().mode !== 'practice') game.newSession({ mode: 'practice' });
       game.startPlaying(false);
       return game.state;
     },
     openMenu: () => game.pause('test'),
+
+    // ---- match flow (test only shortcuts; the UI path is title -> loadout -> "Do boje") ----
+    /**
+     * Starts a full match without menus. opts: { level, bots:[t0,t1,t2], seed, optic, skipPreRound,
+     * rules (JSON merge patch over rules.json, test only), ai (bool) }
+     */
+    startMatch: async (opts = {}) => {
+      if (opts.level && opts.level !== game.levelId) await game.loadLevel(opts.level);
+      if (opts.ai !== undefined) game.aiEnabled = !!opts.ai;
+      if (opts.bots) game.botCounts = opts.bots.slice();
+      game.newSession({ mode: 'match', bots: opts.bots, seed: opts.seed, optic: opts.optic, rulesPatch: opts.rules || null, skipPreRound: !!opts.skipPreRound });
+      game.startPlaying(false);
+      return api.getMatchState();
+    },
+    /** Loads a level by id (src/data/<id>.json) and puts a practice session on it. */
+    loadLevel: async (id) => game.loadLevel(id),
+    listLevels: () => game.levels.slice(),
+    /** Bots per team [t0 (besides the player), t1, t2]; restarts the match with the new roster. */
+    setBotCount: (counts) => {
+      game.botCounts = counts.slice();
+      if (S() && S().mode === 'match') {
+        game.newSession({ mode: 'match', bots: game.botCounts, seed: S().seed });
+        if (game.state === 'playing' || game.state === 'paused') game.startPlaying(false);
+      }
+      return api.listCombatants().map((c) => ({ id: c.id, team: c.team }));
+    },
+    /** Deterministic seed for the next sessions (null = random per match). */
+    setSeed: (seed) => {
+      game.seedOverride = seed === null ? null : seed >>> 0;
+      return game.seedOverride;
+    },
+    setAIEnabled: (on) => {
+      game.aiEnabled = !!on;
+      if (S()) S().aiEnabled = game.aiEnabled;
+      return game.aiEnabled;
+    },
+    getAIDebug: () => (S() ? S().ai.getDebug() : null),
+    newRound: () => {
+      game.newRound(false);
+      return api.getMatchState();
+    },
+    toTitle: () => game.toTitle(),
+    openLoadout: () => game.openLoadout(),
+    deploy: (optic) => {
+      game.deploy({ optic }, false);
+      return game.state;
+    },
+
+    getMatchState: () => {
+      const s = S();
+      if (!s) return null;
+      return {
+        gameState: game.state,
+        menuScreen: game.menus.screen,
+        ...s.roundInfo(),
+        tick: s.tickCount,
+        simTime: s.simTime,
+        occupants: s.zoneOccupants(),
+        candidates: s.zoneCandidates(),
+        stats: { ...s.stats },
+        spawnBlocked: s.combatants.spawnBlocked,
+        killFeed: s.killFeed.map((k) => ({ ...k })),
+        results: game.lastResults || null,
+      };
+    },
+    listCombatants: () => (S() ? S().listCombatants() : []),
+    getSpawnHistory: () => (S() ? S().combatants.spawnHistory.map((r) => ({ ...r })) : []),
+    getDeathLog: () => (S() ? S().combatants.deathLog.map((r) => ({ ...r })) : []),
+    /** Engine spawn predicate for a point (test / debug). */
+    evaluateSpawnPoint: (x, y, z, team) => {
+      const r = S().combatants.evaluateSpawnPoint([x, y, z], team, null);
+      return { ...r, nearestEnemy: Number.isFinite(r.nearestEnemy) ? r.nearestEnemy : null, nearestBody: Number.isFinite(r.nearestBody) ? r.nearestBody : null };
+    },
+    /** Test only: kill a combatant through the core (Match.kill). */
+    forceKill: (id = 'player') => S().forceKill(id),
+    /** Test only: put a combatant at a position (scripted placements, e.g. enemies near a spawn). */
+    placeCombatant: (id, x, y, z, yawDeg = null, pitchDeg = 0) => {
+      const c = S().combatants.get(id);
+      if (!c) throw new Error(`Unknown combatant ${id}`);
+      if (c.isPlayer) {
+        game.player.teleport(new Vector3(x, y, z), yawDeg, pitchDeg);
+      } else {
+        c.controller.teleport(new Vector3(x, y, z));
+        if (yawDeg !== null) c.yaw = yawDeg * DEG2RAD;
+        c.pitch = (pitchDeg || 0) * DEG2RAD;
+      }
+      return c.getState().position;
+    },
+    /** Test only: aim a bot at a world point (its next idle command keeps this look). */
+    aimCombatant: (id, x, y, z) => {
+      const c = S().combatants.get(id);
+      const eye = c.getEye(new Vector3());
+      const d = new Vector3(x, y, z).sub(eye);
+      c.yaw = Math.atan2(-d.x, -d.z);
+      c.pitch = Math.atan2(d.y, Math.hypot(d.x, d.z));
+      return { yawDeg: c.yaw / DEG2RAD, pitchDeg: c.pitch / DEG2RAD };
+    },
+    /** Test only: drive a bot for n ticks with a command (AI off), e.g. make it fire. */
+    driveBot: (id, cmd, ticks = 1) => {
+      const s = S();
+      const c = s.combatants.get(id);
+      const prev = s.aiEnabled;
+      s.aiEnabled = false;
+      const orig = s.combatants.stepUndriven.bind(s.combatants);
+      s.combatants.stepUndriven = (dt) => {
+        if (c.lastStepTick !== s.tickCount) c.applyCommand({ yaw: c.yaw, pitch: c.pitch, ...cmd }, dt);
+        orig(dt);
+      };
+      try {
+        game.loop.stepTicks(Math.max(0, ticks | 0), { render: false });
+      } finally {
+        s.combatants.stepUndriven = orig;
+        s.aiEnabled = prev;
+      }
+      return c.getState();
+    },
+    getHud: () => game.hud.getState(),
+    getMenu: () => ({ open: game.menus.open, screen: game.menus.screen, buttons: [...game.menus.panel.querySelectorAll('button')].map((b) => ({ text: b.textContent, action: b.dataset.action || null, primary: b.classList.contains('iv-btn-primary'), disabled: b.disabled })) }),
+    getCombatantViews: () => game.combatantViews.getState(),
+    /** Runs the simulation for `seconds` with the WebGL draw disabled (fast), in chunks. */
+    simulate: (seconds, { render = false } = {}) => {
+      const n = Math.round(seconds * 60);
+      const was = game.drawEnabled;
+      game.drawEnabled = false;
+      try {
+        game.loop.stepTicks(n, { render });
+      } finally {
+        game.drawEnabled = was;
+      }
+      return game.loop.ticks;
+    },
+    /** Steps until the match state / game state matches (or maxSeconds passes). Returns seconds simulated. */
+    simulateUntil: (cond, maxSeconds = 700) => {
+      const was = game.drawEnabled;
+      game.drawEnabled = false;
+      let t = 0;
+      const check = () => {
+        const s = S();
+        if (cond.gameState && game.state === cond.gameState) return true;
+        if (cond.roundState && s.match.round.state === cond.roundState) return true;
+        if (cond.playerAlive !== undefined && s.player.alive === cond.playerAlive) return true;
+        return false;
+      };
+      try {
+        while (!check() && t < maxSeconds) {
+          game.loop.stepTicks(30, { render: false });
+          t += 0.5;
+        }
+      } finally {
+        game.drawEnabled = was;
+      }
+      return t;
+    },
 
     // ---- time control ----
     pause: () => {
@@ -60,17 +222,16 @@ export function installTestApi(game, target = window) {
       renderOnStep = !!on;
       return renderOnStep;
     },
-    /** Eye adaptation on/off (off = fixed base exposure, for exposure-independent pixel checks). */
     setEyeAdaptation: (on) => {
       game.eyeAdaptationEnabled = !!on;
       return game.eyeAdaptationEnabled;
     },
-    /** Skip the WebGL draw calls while keeping the full frame update (pose, HUD). */
     setDrawEnabled: (on) => {
       game.drawEnabled = !!on;
       return game.drawEnabled;
     },
     renderNow: () => {
+      game._drawDirty = true;
       game.render(game.loop.alpha, 0);
       return game.frameCount;
     },
@@ -112,38 +273,42 @@ export function installTestApi(game, target = window) {
 
     // ---- weapon helpers (test / debug only) ----
     setInfiniteAmmo: (on) => {
-      game.weapon.state.infiniteAmmo = !!on;
-      return game.weapon.state.infiniteAmmo;
+      game.infiniteAmmo = !!on;
+      for (const w of game.playerCombatant.weapons) w.state.infiniteAmmo = game.infiniteAmmo;
+      return game.infiniteAmmo;
     },
+    /** Full magazine + chamber + start reserve through the core (resetToLoadout); interrupts a reload. */
     refillAmmo: () => {
-      const s = game.weapon.state;
-      s.cancelReload();
-      s.magazine = game.weaponDef.magazineSize;
-      s.reserve = game.weaponDef.reserveAmmo;
-      return s.getState();
+      game.weapon.state.refill();
+      return game.weapon.state.getState();
     },
     resetRecoil: () => game.weapon.recoil.reset(),
+    /** Core weapon snapshot of the player's active (or given slot) weapon: the authoritative ammo state. */
+    getCoreWeapon: (slot = null) => {
+      const pc = game.playerCombatant;
+      const w = pc.weapons[slot === null ? pc.activeWeapon : slot];
+      return w.state.core.snapshot();
+    },
 
     setSetting: (key, value) => game.settings.set(key, value),
-    /** Debug lighting overrides (tuning only; not persisted). */
     setLighting: (o = {}) => {
       const r = game.renderer.renderer;
       if (o.exposure !== undefined) {
-        game.baseExposure = o.exposure; // eye adaptation multiplies this every frame
+        game.baseExposure = o.exposure;
         r.toneMappingExposure = o.exposure * game._adapt;
       }
       if (o.sun !== undefined) {
         game.env.sun.intensity = o.sun;
-        game.viewModel.sunIntensity = o.sun;
+        for (const vm of game.viewModels) vm.sunIntensity = o.sun;
       }
       if (o.env !== undefined) {
         game.scene.environmentIntensity = o.env;
-        game.viewModel.baseEnvIntensity = o.env;
-        game.viewModel.setAmbientScale(game.viewModel.ambientScale);
+        for (const vm of game.viewModels) {
+          vm.baseEnvIntensity = o.env;
+          vm.setAmbientScale(vm.ambientScale);
+        }
       }
       if (o.hemi !== undefined) game.env.hemi.intensity = o.hemi;
-      // baked sunlight bounce: null = follows the sun light, a number = fixed sun intensity (lets
-      // a test switch only the direct sunlight)
       if (o.bounceSun !== undefined) game.bounceSunOverride = o.bounceSun;
       if (o.fogDensity !== undefined) game.scene.fog.density = o.fogDensity;
       game._drawDirty = true;

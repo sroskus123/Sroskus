@@ -11,9 +11,11 @@ Sections
      modifier weights (MakeHuman 1.x semantics)
   2. Rig: joint positions from rig.*.json exactly as MPFB interprets them (CUBE = mean of the
      joint cube's vertices, MEAN = mean of listed vertices, VERTEX = one vertex; head / tail /
-     roll written to Blender edit bones), weights.*.json loading, influence limiting
+     roll written to Blender edit bones), weights.*.json loading, mirror symmetrisation,
+     twist-bone insertion + weight ramps, (mirror-exact) influence limiting
   3. Mesh construction from arrays (quads + UVs), hole capping
-  4. Posing helpers (world-axis rotations about a bone head, apply pose as rest)
+  4. Posing helpers (world / rest-frame / local-axis rotations, aim, hand poses using the
+     anatomical MPFB rolls, twist-bone runtime rule drive_twist_bones(), apply pose as rest)
   5. Validation: skin report, hierarchy report, deformation metrics
   6. Clay render helpers for characters
   7. Skinned export re-import check (clean subprocess job, weights included)

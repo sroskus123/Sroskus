@@ -1,0 +1,9 @@
+{
+  "_comment": "Seznam uroven pro nabidku. Data kazde urovne jsou v src/data/<id>.json (schema: Docs/GAMEPLAY_CONTRACTS.md, oddil Uroven). Uroven, jejiz soubor v buildu chybi, se v nabidce nezobrazi.",
+  "default": "test_range",
+  "list": [
+    { "id": "test_range", "name": "Zkušební prostor" },
+    { "id": "ai_arena", "name": "AI aréna" },
+    { "id": "kalne_hamry", "name": "Kalné Hamry" }
+  ]
+}

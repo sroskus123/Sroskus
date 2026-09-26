@@ -8,5 +8,6 @@
   "renderScale": 1.0,
   "renderScaleMin": 0.5,
   "renderScaleMax": 1.0,
-  "showFps": false
+  "showFps": false,
+  "masterVolume": 0.8
 }

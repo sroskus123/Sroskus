@@ -456,8 +456,33 @@ def union(target, others, **kw):
     return boolean(target, others, op='UNION', **kw)
 
 
-def bevel(obj, width, segments=1, angle=30.0, profile=0.5, limit='ANGLE', clamp=True,
-          harden=False, miter_outer='MITER_SHARP'):
+def mesh_health(obj, locations=False):
+    """(non-manifold edges, zero-area faces, self-intersecting face pairs) of a mesh.  Self
+    intersections ignore pairs of faces that share a vertex.  locations=True also returns the
+    centres of the intersecting faces."""
+    from mathutils.bvhtree import BVHTree
+    bm = bmesh.new(); bm.from_mesh(obj.data)
+    bm.faces.ensure_lookup_table()
+    nonman = sum(1 for e in bm.edges if len(e.link_faces) != 2)
+    zero = sum(1 for f in bm.faces if f.calc_area() < (CLEAN_DIST * 0.1) ** 2)
+    tree = BVHTree.FromBMesh(bm)
+    inter = 0
+    locs = []
+    for i, j in tree.overlap(tree):
+        if i >= j:
+            continue
+        vi = {v.index for v in bm.faces[i].verts}
+        if any(v.index in vi for v in bm.faces[j].verts):
+            continue
+        inter += 1
+        if locations:
+            locs.append(bm.faces[i].calc_center_median().copy())
+            locs.append(bm.faces[j].calc_center_median().copy())
+    bm.free()
+    return ((nonman, zero, inter), locs) if locations else (nonman, zero, inter)
+
+
+def _bevel_once(obj, width, segments, angle, profile, limit, clamp, harden, miter_outer):
     m = obj.modifiers.new("bevel", 'BEVEL')
     m.width = width
     m.segments = segments
@@ -470,6 +495,221 @@ def bevel(obj, width, segments=1, angle=30.0, profile=0.5, limit='ANGLE', clamp=
     apply_modifiers(obj)
     clean_mesh(obj, CLEAN_DIST)
     return obj
+
+
+def _local_bevel_limits(me, width, angle):
+    """Per-edge bevel width fraction (edge index -> 0..1) limited only by the geometry around
+    each edge: the offset may use at most half of the distance to the opposite side of each
+    adjacent face, and half of each adjacent non-bevelled face edge it slides along.  Also
+    returns the edge segments (for mapping problems back to edges)."""
+    bm = bmesh.new(); bm.from_mesh(me)
+    lim = math.radians(angle)
+    cand = {}
+    for e in bm.edges:
+        if len(e.link_faces) != 2:
+            continue
+        f1, f2 = e.link_faces
+        if f1.normal.length < 0.5 or f2.normal.length < 0.5:
+            continue
+        if f1.normal.angle(f2.normal, 0.0) > lim:
+            cand[e.index] = e
+    wts = {}; segs = {}
+    for idx, e in cand.items():
+        a, b = e.verts[0].co, e.verts[1].co
+        segs[idx] = (a.copy(), b.copy())
+        d = b - a
+        ln = d.length
+        if ln < 1e-12:
+            continue
+        d = d / ln
+        w = width
+        for f in e.link_faces:
+            dmin = 1e9
+            for v in f.verts:
+                if v is e.verts[0] or v is e.verts[1]:
+                    continue
+                r = v.co - a
+                dmin = min(dmin, (r - d * r.dot(d)).length)
+            if dmin < 1e8:
+                w = min(w, 0.5 * dmin)
+            for v in e.verts:
+                for e2 in v.link_edges:
+                    if e2 is e or e2.index in cand or f not in e2.link_faces:
+                        continue
+                    o = e2.other_vert(v).co - v.co
+                    l2 = o.length
+                    if l2 < 1e-12:
+                        continue
+                    sin_t = (o / l2).cross(d).length
+                    # nearly in-line neighbours: the offset vertex moves perpendicular to the
+                    # edge rather than far along the neighbour
+                    w = min(w, 0.5 * l2 * (sin_t if sin_t > 0.26 else 1.0))
+        wts[idx] = min(1.0, w / width)
+    bm.free()
+    return wts, segs
+
+
+def _set_bevel_weights(me, wts, min_frac=0.04):
+    bm = bmesh.new(); bm.from_mesh(me)
+    layer = bm.edges.layers.float.get("bevel_weight_edge") or bm.edges.layers.float.new("bevel_weight_edge")
+    for e in bm.edges:
+        f = wts.get(e.index, 0.0)
+        e[layer] = f if f >= min_frac else 0.0
+    bm.to_mesh(me); bm.free()
+
+
+def _clear_bevel_weights(obj):
+    a = obj.data.attributes.get("bevel_weight_edge")
+    if a:
+        obj.data.attributes.remove(a)
+
+
+BEVEL_RETRIES = 5
+
+
+def _narrow_near(wts, segs, locs, width, attempt):
+    """After a failed local bevel: narrow the edges within 2 bevel widths of any problem spot
+    (x0.4 per retry; the last retry removes their bevel)."""
+    r = 2.0 * width
+    f = 0.4 if attempt < BEVEL_RETRIES - 1 else 0.0
+    for idx, (a, b) in segs.items():
+        if idx in wts and wts[idx] > 0 and any(_seg_dist(p, a, b) < r for p in locs):
+            wts[idx] *= f
+
+
+def _seg_dist(p, a, b):
+    ab = b - a
+    t = 0.0 if ab.length_squared < 1e-20 else max(0.0, min(1.0, (p - a).dot(ab) / ab.length_squared))
+    return (p - (a + ab * t)).length
+
+
+def razor_length(obj, angle=70.0, ignore_below=0.0):
+    """Total length of manifold edges whose faces meet at more than `angle` degrees (object
+    units): unbevelled hard edges.  ignore_below > 0 first collapses geometry smaller than that
+    (a bevel a few microns wide is still a razor edge to the eye)."""
+    bm = bmesh.new(); bm.from_mesh(obj.data)
+    if ignore_below > 0:
+        bmesh.ops.dissolve_degenerate(bm, dist=ignore_below, edges=bm.edges[:])
+    lim = math.radians(angle)
+    tot = 0.0
+    for e in bm.edges:
+        if len(e.link_faces) != 2:
+            continue
+        f1, f2 = e.link_faces
+        if f1.calc_area() < 1e-12 or f2.calc_area() < 1e-12:
+            continue
+        if f1.normal.angle(f2.normal, 0.0) > lim:
+            tot += e.calc_length()
+    bm.free()
+    return tot
+
+
+def bevel(obj, width, segments=1, angle=30.0, profile=0.5, limit='ANGLE', clamp='auto',
+          harden=False, miter_outer='MITER_SHARP'):
+    """Bevel modifier, applied.
+
+    clamp='auto' (default): Blender's "clamp overlap" is global -- one tiny edge anywhere (a
+    boolean sliver, a fine fillet facet) limits the width of EVERY bevel on the object, and the
+    near-zero bevels are then dissolved by clean_mesh, leaving razor edges.  'auto' also builds
+    a bevel where every edge gets its own width, limited only by the geometry around it
+    (_local_bevel_limits, applied through the bevel-weight limit method, unclamped; edges near
+    any self-intersection are narrowed and it retries), and keeps whichever of the two valid
+    results leaves less unbevelled (> 70 deg) edge length.  clamp=True / False forces one mode
+    with the angle limit."""
+    if clamp != 'auto' or limit != 'ANGLE':
+        return _bevel_once(obj, width, segments, angle, profile, limit, bool(clamp), harden, miter_outer)
+    before = mesh_health(obj)
+    src = obj.data.copy()
+    # candidate A: Blender's clamped bevel
+    _bevel_once(obj, width, segments, angle, profile, 'ANGLE', True, harden, miter_outer)
+    res_clamped = obj.data
+    ign = min(0.2 * width, 10.0 * CLEAN_DIST)       # bevels narrower than this still read as razor edges
+    razor_c = razor_length(obj, ignore_below=ign)
+    # candidate B: local per-edge widths
+    wts, segs = _local_bevel_limits(src, width, angle)
+    res_local = None
+    for attempt in range(BEVEL_RETRIES + 1):
+        work = src.copy()
+        obj.data = work
+        _set_bevel_weights(work, wts)
+        _bevel_once(obj, width, segments, angle, profile, 'WEIGHT', False, harden, miter_outer)
+        _clear_bevel_weights(obj)
+        after, locs = mesh_health(obj, locations=True)
+        if all(x <= y for x, y in zip(after, before)):
+            res_local = obj.data
+            break
+        bad = obj.data
+        obj.data = src                     # never remove an object's current data (kills the object)
+        bpy.data.meshes.remove(bad)
+        _narrow_near(wts, segs, locs, width, attempt)
+    razor_l = None
+    if res_local is not None:
+        obj.data = res_local
+        razor_l = razor_length(obj, ignore_below=ign)
+    if res_local is not None and razor_l < razor_c - 1e-9:
+        keep, drop, mode = res_local, res_clamped, "local"
+    else:
+        keep, drop, mode = res_clamped, res_local, "clamped"
+    obj.data = keep
+    keep.name = src.name
+    for m in (drop, src):
+        if m is not None:
+            bpy.data.meshes.remove(m)
+    obj["iv_bevel_mode"] = mode
+    if os.environ.get("IV_BEVEL_DEBUG"):
+        log(f"  bevel {obj.name}: clamped razor {razor_c:.3f}, local razor "
+            f"{'failed' if razor_l is None else round(razor_l, 3)} -> {mode}")
+    return obj
+
+
+def boolean_bevelled(target, cutters, width, segments=1, angle=30.0, profile=0.5, op='DIFFERENCE'):
+    """Boolean difference, then bevel ONLY the edges the cut created (edges touching a face that
+    came from a cutter), with per-edge local widths.  For small details cut into an already
+    bevelled part (knurl flutes, grooves): they get their own narrow, low-segment bevel instead
+    of razor edges, and the part's existing bevels are left alone."""
+    me = target.data
+    a = me.attributes.get("iv_pre") or me.attributes.new("iv_pre", 'INT', 'FACE')
+    a.data.foreach_set("value", [1] * len(me.polygons))
+    boolean(target, cutters, op=op)
+    me = target.data
+    bm = bmesh.new(); bm.from_mesh(me)
+    pre = bm.faces.layers.int.get("iv_pre")
+    new_edges = set()
+    for e in bm.edges:
+        if any(f[pre] == 0 for f in e.link_faces):
+            new_edges.add(e.index)
+    bm.free()
+    before = mesh_health(target)
+    src = me.copy()
+    # uniform (narrow) width on every new hard edge; only spots that self-intersect get
+    # narrowed.  (Neighbourhood limits are too pessimistic here: the cut's rim crosses the
+    # part's existing bevel strips and is split into many short segments.)
+    wts, segs = _local_bevel_limits(src, width, angle)
+    wts = {k: 1.0 for k in wts if k in new_edges}
+    ok = False
+    for attempt in range(BEVEL_RETRIES + 1):
+        work = src.copy()
+        target.data = work
+        _set_bevel_weights(work, wts)
+        _bevel_once(target, width, segments, angle, profile, 'WEIGHT', False, False, 'MITER_SHARP')
+        _clear_bevel_weights(target)
+        after, locs = mesh_health(target, locations=True)
+        if all(x <= y for x, y in zip(after, before)):
+            ok = True
+            break
+        bad = target.data
+        target.data = src
+        bpy.data.meshes.remove(bad)
+        _narrow_near(wts, segs, locs, width, attempt)
+    if ok:
+        target.data.name = src.name
+        bpy.data.meshes.remove(src)
+    else:
+        log(f"  boolean_bevelled {target.name}: new-edge bevel failed; cut left unbevelled")
+    at = target.data.attributes.get("iv_pre")
+    if at:
+        target.data.attributes.remove(at)
+    return target
 
 
 def weld(obj, dist):
@@ -485,16 +725,50 @@ def transform_mesh(obj, matrix):
     return obj
 
 
-def finish_shading(obj, sharp_angle=50.0, weighted=True, weight=50, triangulate=True, clean_dist=None):
+def mark_sharp_between_flats(obj, min_angle, max_angle, min_area):
+    """Mark edges sharp where two LARGE faces (area >= min_area, object units^2) meet at an angle
+    between min_angle and max_angle degrees: a shallow design crease (e.g. a 26 deg chamfer)
+    that is below the bevel limit.  Left smooth, face-area weighting bends the normals of the big
+    flat faces towards each other (visible as a bent reflection on glossy finishes).  Thin bevel
+    or fillet strips never qualify, so rounded edges stay smooth."""
+    me = obj.data
+    bm = bmesh.new(); bm.from_mesh(me)
+    lo, hi = math.radians(min_angle), math.radians(max_angle)
+    sharp = []
+    for e in bm.edges:
+        if len(e.link_faces) != 2:
+            continue
+        f1, f2 = e.link_faces
+        if f1.calc_area() < min_area or f2.calc_area() < min_area:
+            continue
+        a = f1.normal.angle(f2.normal, 0.0)
+        if lo <= a <= hi:
+            sharp.append(e.index)
+    bm.free()
+    attr = me.attributes.get("sharp_edge") or me.attributes.new("sharp_edge", 'BOOLEAN', 'EDGE')
+    vals = [False] * len(me.edges)
+    attr.data.foreach_get("value", vals)
+    for i in sharp:
+        vals[i] = True
+    attr.data.foreach_set("value", vals)
+    return len(sharp)
+
+
+def finish_shading(obj, sharp_angle=50.0, weighted=True, weight=50, triangulate=True, clean_dist=None,
+                   sharp_flats=None):
     """Smooth shading + sharp edges above `sharp_angle` + face-area weighted normals (on the
     n-gon mesh, so large flat faces shade flat) + triangulation that keeps custom normals.
-    Triangulating before UV/bake guarantees bake and export share the same tangent basis."""
+    Triangulating before UV/bake guarantees bake and export share the same tangent basis.
+    sharp_flats=(min_angle, max_angle, min_area) additionally marks shallow creases between
+    large flat faces sharp (see mark_sharp_between_flats)."""
     if clean_dist:
         clean_mesh(obj, clean_dist)
     me = obj.data
     me.shade_smooth()
     if sharp_angle is not None:
         me.set_sharp_from_angle(angle=math.radians(sharp_angle))
+    if sharp_flats:
+        mark_sharp_between_flats(obj, *sharp_flats)
     if weighted:
         w = obj.modifiers.new("wn", 'WEIGHTED_NORMAL')
         w.mode = 'FACE_AREA'
@@ -825,41 +1099,81 @@ def _seed_w(seed):
     return (seed * 7.123) % 97.0
 
 
-def mat_anodized(name, masks, base=(0.021, 0.021, 0.023), rough=0.44, wear=1.0,
-                 scratches=0.6, seed=0):
-    """Black hard-anodised aluminium.  The dyed oxide is treated as a dielectric (metallic
-    0, dark base, satin roughness); only the outermost convex edges wear through to bare
-    aluminium (metallic 1), in patches.  Handling polish = low-frequency anisotropic
-    roughness streaks (no sub-pixel scratch speckle)."""
+def _contact(nb, attr, default=0.35):
+    """Per-vertex 'handling contact' attribute (0..1, written by the generator: where hands, gear
+    and slings touch the part).  Falls back to `default` when the attribute is absent."""
+    if not attr:
+        return default
+    n = nb.node('ShaderNodeAttribute', attribute_type='GEOMETRY', attribute_name=attr)
+    fac = n.outputs['Fac']
+    # attribute missing -> Fac 0 -> use the default (generators write values >= 0.02)
+    return nb.lerp(nb.math('GREATER_THAN', fac, 0.0005), default, fac)
+
+
+def _micro_normal(nb, co, w, h_extra=None, strength=1.0, milling=0.0, scuff=None):
+    """Normal detail that survives an 8-bit normal map (2-6 deg tilt) at ~25-45 px/cm:
+    orange-peel (~2 mm features), optional milling lines along X (~1.3 mm pitch) and optional
+    handling scuffs (short streaks) where scuff (0..1 socket) is high."""
+    peel = nb.noise(co, 420.0, 3.0, 0.55, w + 21.0)
+    h = nb.mul(peel, 0.55)
+    if milling:
+        mill = nb.wave(nb.mapping(co, scale=(1.0, 1.0, 1.0)), 780.0, 'X', distortion=1.5, detail=1.0)
+        h = nb.add(h, nb.mul(mill, 0.18 * milling))
+    if scuff is not None:
+        sco = nb.mapping(co, scale=(1.0, 9.0, 9.0))
+        st = nb.remap(nb.noise(sco, 160.0, 2.0, 0.5, w + 31.0), 0.62, 0.72, smooth=True)
+        h = nb.sub(h, nb.mul(nb.mul(st, scuff), 0.8))
+    if h_extra is not None:
+        h = nb.add(h, h_extra)
+    return nb.bump(h, strength, 0.00022)
+
+
+def mat_anodized(name, masks, base=(0.042, 0.042, 0.046), rough=0.34, wear=1.0,
+                 scratches=0.6, seed=0, contact_attr="iv_contact", contact_default=0.35,
+                 bare=(0.62, 0.63, 0.65)):
+    """Black hard-anodised aluminium, metallic workflow: the dyed oxide over aluminium reads as a
+    dark metal (metallic 1, base ~0.04 linear) with a satin, slightly broken-up roughness
+    (~0.30-0.38), crisper and slightly lighter on bevel highlights.  Wear-through to bright bare
+    aluminium (base ~0.6, roughness ~0.27) sits on convex edges, driven by a wide convexity mask
+    and the per-vertex contact attribute (hands, sling, magazine changes).  Handling polish
+    lowers roughness in contact areas.  Micro normal: orange-peel, milling marks, scuffs."""
     m, nb, bsdf = _new_material(name)
     co = nb.coords('Object')
     w = _seed_w(seed)
     edge, cav, ao = _masks(nb, masks)
+    contact = _contact(nb, contact_attr, contact_default)
     n_big = nb.noise(co, 9.0, 3.0, 0.5, w)
     n_mid = nb.noise(co, 60.0, 4.0, 0.55, w + 3.1)
-    n_fine = nb.noise(co, 900.0, 2.0, 0.5, w + 5.7)
-    patch = nb.remap(nb.noise(co, 25.0, 3.0, 0.6, w + 8.0), 0.42, 0.62)          # where wear happens
-    e = nb.mul(edge, nb.lerp(patch, 0.55, 1.25))
-    e = nb.mul(e, nb.remap(n_mid, 0.3, 0.7, 0.75, 1.2))
-    worn = nb.remap(e, 0.56 / max(wear, 1e-3), 0.78 / max(wear, 1e-3), smooth=True)
-    # handling polish: streaks along X, low frequency
+    n_fine = nb.noise(co, 700.0, 2.0, 0.5, w + 5.7)
+    patch = nb.remap(nb.noise(co, 22.0, 3.0, 0.6, w + 8.0), 0.38, 0.62)          # where wear happens
+    gain = nb.lerp(contact, 0.45, 1.55)
+    e = nb.mul(edge, nb.lerp(patch, 0.55, 1.2))
+    e = nb.mul(e, nb.remap(n_mid, 0.3, 0.7, 0.8, 1.15))
+    e = nb.mul(e, gain)
+    worn = nb.remap(e, 0.50 / max(wear, 1e-3), 0.66 / max(wear, 1e-3), smooth=True)
+    hl = nb.remap(edge, 0.25, 0.55, smooth=True)                                   # bevel highlight
+    # handling polish: streaks along X, low frequency, stronger where handled
     sco = nb.mapping(co, scale=(6.0, 160.0, 160.0))
-    polish = nb.mul(nb.remap(nb.noise(sco, 1.0, 3.0, 0.6, w + 11.0), 0.5, 0.75, smooth=True), scratches)
+    polish = nb.mul(nb.remap(nb.noise(sco, 1.0, 3.0, 0.6, w + 11.0), 0.45, 0.75, smooth=True),
+                    nb.mul(scratches, nb.lerp(contact, 0.4, 1.0)))
     dirt = nb.mul(nb.remap(cav, 0.55, 0.15, smooth=True), 0.55)
-    coat = nb.ramp(nb.add(nb.mul(n_big, 0.75), nb.mul(n_fine, 0.25)),
-                   [(0.35, [c * 0.88 for c in base]), (0.65, [c * 1.14 for c in base])])
-    coat = nb.mix_col(nb.mul(polish, 0.35), coat, [c * 1.35 for c in base])
-    bare = nb.ramp(n_fine, [(0.3, (0.42, 0.43, 0.45)), (0.7, (0.60, 0.61, 0.63))])
-    col = nb.mix_col(worn, coat, bare)
-    col = nb.mix_col(dirt, col, (0.060, 0.056, 0.050))
-    r = nb.add(rough, nb.remap(n_big, 0.3, 0.7, -0.035, 0.035))
-    r = nb.add(r, nb.remap(n_fine, 0.3, 0.7, -0.02, 0.02))
-    r = nb.sub(r, nb.mul(polish, 0.12))
-    r = nb.lerp(worn, r, 0.3)
+    coat = nb.ramp(nb.add(nb.mul(n_big, 0.7), nb.mul(n_mid, 0.3)),
+                   [(0.3, [c * 0.85 for c in base]), (0.7, [c * 1.15 for c in base])])
+    coat = nb.mix_col(nb.add(nb.mul(hl, 0.35), nb.mul(polish, 0.25)), coat, [c * 1.6 for c in base])
+    bare_c = nb.ramp(n_fine, [(0.3, [c * 0.88 for c in bare]), (0.7, [min(1.0, c * 1.08) for c in bare])])
+    col = nb.mix_col(worn, coat, bare_c)
+    col = nb.mix_col(dirt, col, (0.050, 0.046, 0.040))
+    r = nb.add(rough, nb.remap(n_big, 0.3, 0.7, -0.045, 0.045))
+    r = nb.add(r, nb.remap(n_mid, 0.3, 0.7, -0.025, 0.025))
+    r = nb.sub(r, nb.mul(polish, 0.09))
+    r = nb.sub(r, nb.mul(hl, 0.05))
+    r = nb.lerp(worn, r, 0.27)
     r = nb.lerp(dirt, r, 0.72)
-    metal = nb.mul(worn, nb.inv(dirt))
-    h = nb.add(nb.mul(n_fine, 0.15), nb.mul(worn, -0.3))
-    nrm = nb.bump(h, 0.08, 0.0003)
+    # metallic: binary per material; only heavy grime in crevices turns dielectric (narrow step)
+    grime = nb.remap(dirt, 0.42, 0.5)
+    metal = nb.inv(grime)
+    nrm = _micro_normal(nb, co, w, nb.mul(worn, -0.35), strength=1.0, milling=1.0,
+                        scuff=nb.mul(contact, 1.0))
     nb.set(bsdf.inputs['Base Color'], col)
     nb.set(bsdf.inputs['Roughness'], r)
     nb.set(bsdf.inputs['Metallic'], metal)
@@ -869,39 +1183,44 @@ def mat_anodized(name, masks, base=(0.021, 0.021, 0.023), rough=0.44, wear=1.0,
 
 
 def mat_steel(name, masks, base=(0.048, 0.048, 0.052), rough=0.36, metal=1.0, wear=1.0,
-              grain=0.5, soot=None, seed=0):
-    """Nitrided / blackened steel (metallic).  soot = dict(axis='X', start, end) adds
-    carbon fouling increasing from start to end along the axis (object coords, metres)."""
+              grain=0.5, soot=None, seed=0, contact_attr="iv_contact", contact_default=0.3,
+              bright=(0.30, 0.30, 0.31)):
+    """Nitrided / blackened steel (metallic 1).  Wear to brighter steel on edges (contact
+    driven).  Cavity grime and carbon fouling are dielectric layers with a NARROW transition, so
+    metallic stays essentially binary.  soot = dict(axis='X', start, end) adds carbon fouling
+    increasing from start to end along the axis (object coords, metres)."""
     m, nb, bsdf = _new_material(name)
     co = nb.coords('Object')
     w = _seed_w(seed)
     edge, cav, ao = _masks(nb, masks)
+    contact = _contact(nb, contact_attr, contact_default)
     n_big = nb.noise(co, 14.0, 3.0, 0.5, w)
     n_mid = nb.noise(co, 80.0, 4.0, 0.55, w + 2.2)
-    n_fine = nb.noise(co, 1600.0, 2.0, 0.5, w + 4.4)
+    n_fine = nb.noise(co, 900.0, 2.0, 0.5, w + 4.4)
     patch = nb.remap(nb.noise(co, 30.0, 3.0, 0.6, w + 6.0), 0.4, 0.62)
-    e = nb.mul(edge, nb.lerp(patch, 0.55, 1.25))
-    worn = nb.remap(e, 0.52 / max(wear, 1e-3), 0.75 / max(wear, 1e-3), smooth=True)
+    e = nb.mul(nb.mul(edge, nb.lerp(patch, 0.55, 1.2)), nb.lerp(contact, 0.5, 1.5))
+    worn = nb.remap(e, 0.5 / max(wear, 1e-3), 0.68 / max(wear, 1e-3), smooth=True)
     dirt = nb.mul(nb.remap(cav, 0.55, 0.15, smooth=True), 0.6)
     coat = nb.ramp(nb.add(nb.mul(n_big, 0.7), nb.mul(n_fine, 0.3)),
                    [(0.35, [c * 0.88 for c in base]), (0.65, [c * 1.14 for c in base])])
-    col = nb.mix_col(worn, coat, (0.26, 0.26, 0.27))
+    col = nb.mix_col(worn, coat, bright)
     col = nb.mix_col(dirt, col, (0.040, 0.037, 0.032))
     r = nb.add(rough, nb.remap(n_big, 0.3, 0.7, -0.04, 0.04))
     r = nb.add(r, nb.remap(n_fine, 0.3, 0.7, -0.03, 0.03))
     r = nb.lerp(worn, r, 0.24)
     r = nb.lerp(dirt, r, 0.65)
-    mt = nb.lerp(dirt, metal, metal * 0.6)
+    diel = nb.remap(dirt, 0.44, 0.52)                  # heavy grime layer (narrow edge)
     if soot:
         ax = {'X': 0, 'Y': 1, 'Z': 2}[soot.get('axis', 'X')]
         comp = nb.xyz(co)[ax]
-        s = nb.remap(comp, soot['start'], soot['end'], smooth=True)
-        s = nb.mul(s, nb.remap(n_mid, 0.25, 0.65, 0.5, 1.0))
-        col = nb.mix_col(s, col, (0.016, 0.015, 0.014))
-        r = nb.lerp(s, r, 0.72)
-        mt = nb.lerp(s, mt, 0.3)
-    h = nb.add(nb.mul(n_fine, grain * 0.6), nb.mul(worn, -0.2))
-    nrm = nb.bump(h, 0.07, 0.0003)
+        sv = nb.remap(comp, soot['start'], soot['end'], smooth=True)
+        sv = nb.mul(sv, nb.remap(n_mid, 0.25, 0.65, 0.5, 1.0))
+        col = nb.mix_col(sv, col, (0.016, 0.015, 0.014))
+        r = nb.lerp(sv, r, 0.72)
+        diel = nb.maxf(diel, nb.remap(sv, 0.62, 0.72))   # thick carbon: dielectric, narrow step
+    mt = nb.mul(metal, nb.inv(diel))
+    h_extra = nb.add(nb.mul(n_fine, grain * 0.25), nb.mul(worn, -0.25))
+    nrm = _micro_normal(nb, co, w + 1.0, h_extra, strength=0.8, milling=0.5)
     nb.set(bsdf.inputs['Base Color'], col)
     nb.set(bsdf.inputs['Roughness'], r)
     nb.set(bsdf.inputs['Metallic'], mt)
@@ -911,13 +1230,13 @@ def mat_steel(name, masks, base=(0.048, 0.048, 0.052), rough=0.36, metal=1.0, we
 
 
 def mat_phosphate(name, masks, seed=0):
-    """Manganese-phosphate (parkerized) small parts: dark, grainy, rougher, less metallic."""
-    return mat_steel(name, masks, base=(0.070, 0.072, 0.066), rough=0.6, metal=0.55,
-                     wear=0.9, grain=0.9, seed=seed)
+    """Manganese-phosphate (parkerized) small parts: dark, grainy, rougher metal (metallic 1)."""
+    return mat_steel(name, masks, base=(0.060, 0.061, 0.057), rough=0.6, metal=1.0,
+                     wear=0.9, grain=0.9, seed=seed, bright=(0.24, 0.24, 0.24))
 
 
 def mat_polymer(name, masks, base=(0.200, 0.140, 0.080), rough=0.66, seed=0, stipple=None,
-                grain_scale=2600.0, grain_strength=0.14, texture=None):
+                grain_scale=1300.0, grain_strength=0.14, texture=None):
     """Glass-filled polymer.  stipple = dict(zmax=..., [zmin=...], [normal_axis='Y'], scale=900)
     masks a stippled region (object coords, metres; optional restriction to faces facing
     along an axis).  texture='ribs_z' adds horizontal ribs."""
@@ -949,12 +1268,15 @@ def mat_polymer(name, masks, base=(0.200, 0.140, 0.080), rough=0.66, seed=0, sti
             ax = {'X': 0, 'Y': 1, 'Z': 2}[stipple['normal_axis']]
             ncomp = nb.xyz(nb.node('ShaderNodeTexCoord').outputs['Normal'])[ax]
             smask = nb.mul(smask, nb.remap(nb.math('ABSOLUTE', ncomp), 0.75, 0.9, smooth=True))
-        vd = nb.voronoi(co, stipple.get('scale', 900.0), w + 7.0, 0.85)
-        dimple = nb.remap(vd, 0.0, 0.55, smooth=True)
-        rnd = nb.voronoi(co, stipple.get('scale', 900.0), w + 7.0, 0.85, out='Color')
+        # even field of round dimples ~2.5 mm apart (>= 10 texels at ~45 px/cm, so they survive
+        # the bake and the first mips): low Voronoi randomness, spherical dimple profile
+        sc = stipple.get('scale', 400.0)
+        vd = nb.voronoi(co, sc, w + 7.0, stipple.get('randomness', 0.55))
+        dimple = nb.math('POWER', nb.remap(vd, 0.0, 0.42), 2.0)       # 0 at the cell centre -> 1
+        rnd = nb.voronoi(co, sc, w + 7.0, stipple.get('randomness', 0.55), out='Color')
         rr = nb.sep(rnd)[0]
-        dimple = nb.mul(dimple, nb.remap(rr, 0.0, 1.0, 0.7, 1.0))
-        h = nb.add(h, nb.mul(dimple, nb.mul(smask, 1.6)))
+        depth = nb.remap(rr, 0.0, 1.0, 0.8, 1.0)
+        h = nb.add(h, nb.mul(nb.mul(dimple, depth), nb.mul(smask, stipple.get('height', 1.0))))
         r = nb.lerp(nb.mul(smask, 0.9), r, min(0.92, rough + 0.14))
     if texture == 'ribs_z':
         rib = nb.wave(co, 180.0, 'Z', profile='SIN')
@@ -1071,6 +1393,16 @@ def mat_emissive(name, color=(1.0, 0.03, 0.02), strength=40.0, illuminate=True):
     bsdf.inputs['Emission Strength'].default_value = strength
     bsdf.inputs['Roughness'].default_value = 0.4
     m["iv_preset"] = "emissive"
+    return m
+
+
+def mat_constant(name, color, rough=0.5, metal=0.0):
+    """Constant (untextured) opaque material; survives export as plain factors."""
+    m, nb, bsdf = _new_material(name)
+    bsdf.inputs['Base Color'].default_value = (*color, 1.0)
+    bsdf.inputs['Roughness'].default_value = rough
+    bsdf.inputs['Metallic'].default_value = metal
+    m["iv_preset"] = "constant"
     return m
 
 
@@ -1217,51 +1549,33 @@ def uv_scale_islands(obj, factor_fn):
     return changed
 
 
-def uv_snap_degenerate(obj, area_eps=2e-9, tex_size=None, min_island_texels=4.0,
-                       min_thickness_texels=0.8, protect_materials=()):
-    """Collapse faces that cannot receive baked texels onto a neighbouring UV point.
+def uv_snap_degenerate(obj, area_eps=5e-8, tex_size=None, min_island_texels=0.0,
+                       min_thickness_texels=0.0, protect_materials=(), island_pixels=None):
+    """Collapse faces that cannot carry texture onto a neighbouring UV point.
 
-    Smart projection makes slivers and tiny detail faces their own islands.  If such an island
-    is smaller than a few texels (or thinner than one), the bake rasterises no pixel centres
-    inside it, and at render time it samples whatever lies next to it: often the bake margin of a
-    foreign island (brass specks on a polymer edge, red paint on a rail tooth).  Every loop
-    of such a face gets the UV of one neighbouring real face at a shared vertex, so it
-    shows the local surface colour.
-
-    * faces with 3D area < area_eps (world units^2) are always collapsed;
-    * with tex_size, whole islands with UV area < min_island_texels texel^2, or mean
-      thickness (area / bbox diagonal) < min_thickness_texels, are collapsed;
-    * islands using a material whose name contains one of `protect_materials` are kept."""
+    Only for geometry that is truly degenerate: faces with 3D area < area_eps (world units^2;
+    default 0.05 mm^2), plus -- as a last resort -- islands that still rasterise no pixel centre at
+    all after uv_unwrap enlarged the small islands (island_pixels: {frozenset(faces): count}).
+    Islands that use (or touch, e.g. the counter of a glyph) a material whose name contains one of
+    `protect_materials` are never collapsed."""
     me = obj.data
     uv = me.uv_layers.active.data
     s2 = obj.matrix_world.median_scale ** 2
     bad = set(p.index for p in me.polygons if p.area * s2 < area_eps)
-    if tex_size:
-        for isl in uv_islands(obj):
-            if protect_materials:
-                names = set()
-                for fi in isl:
-                    mi = me.polygons[fi].material_index
-                    if mi < len(me.materials) and me.materials[mi]:
-                        names.add(me.materials[mi].name)
-                if any(pm in n for pm in protect_materials for n in names):
-                    continue
-            area = 0.0
-            umin = [1e9, 1e9]; umax = [-1e9, -1e9]
-            for fi in isl:
-                p = me.polygons[fi]
-                pts = [uv[li].uv for li in p.loop_indices]
-                for k in range(1, len(pts) - 1):
-                    a_ = pts[k] - pts[0]; b_ = pts[k + 1] - pts[0]
-                    area += abs(a_.x * b_.y - a_.y * b_.x) * 0.5
-                for q in pts:
-                    umin = [min(umin[0], q.x), min(umin[1], q.y)]
-                    umax = [max(umax[0], q.x), max(umax[1], q.y)]
-            area_t = area * tex_size * tex_size
-            diag_t = math.hypot(umax[0] - umin[0], umax[1] - umin[1]) * tex_size
-            thick_t = area_t / diag_t if diag_t > 0 else 0.0
-            if area_t < min_island_texels or thick_t < min_thickness_texels:
-                bad.update(isl)
+    if island_pixels:
+        prot_verts = set()
+        if protect_materials:
+            for p in me.polygons:
+                mi = p.material_index
+                if mi < len(me.materials) and me.materials[mi] and \
+                        any(pm in me.materials[mi].name for pm in protect_materials):
+                    prot_verts.update(p.vertices)
+        for isl, px in island_pixels.items():
+            if px > 0:
+                continue
+            if any(v in prot_verts for fi in isl for v in me.polygons[fi].vertices):
+                continue
+            bad.update(isl)
     if not bad:
         return 0
     good_uv = {}
@@ -1277,19 +1591,252 @@ def uv_snap_degenerate(obj, area_eps=2e-9, tex_size=None, min_island_texels=4.0,
         known = [v for v in known if v is not None]
         if not known:
             continue
-        # collapse onto ONE neighbouring UV point: zero UV area, never rasterised by the
-        # bake, samples the colour of the adjacent real surface
         for li in p.loop_indices:
             uv[li].uv = known[0]
         fixed += 1
     return fixed
 
 
+# ---- UV rasterisation (pixel-centre coverage, the same rule the bake uses) -------------------
+
+def _raster_tris(P, res):
+    """P: (n, 3, 2) triangle corners in pixel units.  Returns (tri_index, pixel_index) arrays of
+    every pixel centre inside a triangle (edge-inclusive)."""
+    out_t = []; out_p = []
+    if len(P) == 0:
+        return np.zeros(0, np.int64), np.zeros(0, np.int64)
+    x0 = np.floor(P[:, :, 0].min(1) - 0.5).astype(np.int64)
+    y0 = np.floor(P[:, :, 1].min(1) - 0.5).astype(np.int64)
+    x1 = np.ceil(P[:, :, 0].max(1) - 0.5).astype(np.int64)
+    y1 = np.ceil(P[:, :, 1].max(1) - 0.5).astype(np.int64)
+    w = x1 - x0 + 1; h = y1 - y0 + 1
+    size = np.maximum(w, h)
+    d = ((P[:, 1, 1] - P[:, 2, 1]) * (P[:, 0, 0] - P[:, 2, 0]) +
+         (P[:, 2, 0] - P[:, 1, 0]) * (P[:, 0, 1] - P[:, 2, 1]))
+    ok = np.abs(d) > 1e-12
+    for K in (2, 4, 8, 16, 32, 64, 128):
+        sel = np.nonzero(ok & (size <= K) & (size > K // 2 if K > 2 else True))[0]
+        if len(sel) == 0:
+            continue
+        gx, gy = np.meshgrid(np.arange(K), np.arange(K))
+        gx = gx.ravel(); gy = gy.ravel()
+        for chunk in range(0, len(sel), max(1, 2000000 // (K * K))):
+            t = sel[chunk:chunk + max(1, 2000000 // (K * K))]
+            X = x0[t, None] + gx[None, :] + 0.5
+            Y = y0[t, None] + gy[None, :] + 0.5
+            Q = P[t]
+            dd = d[t][:, None]
+            l0 = ((Q[:, 1, 1] - Q[:, 2, 1])[:, None] * (X - Q[:, 2, 0][:, None]) +
+                  (Q[:, 2, 0] - Q[:, 1, 0])[:, None] * (Y - Q[:, 2, 1][:, None])) / dd
+            l1 = ((Q[:, 2, 1] - Q[:, 0, 1])[:, None] * (X - Q[:, 2, 0][:, None]) +
+                  (Q[:, 0, 0] - Q[:, 2, 0])[:, None] * (Y - Q[:, 2, 1][:, None])) / dd
+            l2 = 1.0 - l0 - l1
+            e = -1e-7
+            inside = (l0 >= e) & (l1 >= e) & (l2 >= e) & (X >= 0) & (Y >= 0) & (X < res) & (Y < res)
+            ti, gi = np.nonzero(inside)
+            out_t.append(t[ti])
+            out_p.append((Y[ti, gi] - 0.5).astype(np.int64) * res + (X[ti, gi] - 0.5).astype(np.int64))
+    big = np.nonzero(ok & (size > 128))[0]
+    for t in big:
+        xs = np.arange(max(0, x0[t]), min(res - 1, x1[t]) + 1) + 0.5
+        ys = np.arange(max(0, y0[t]), min(res - 1, y1[t]) + 1) + 0.5
+        if len(xs) == 0 or len(ys) == 0:
+            continue
+        X, Y = np.meshgrid(xs, ys)
+        (ax, ay), (bx, by), (cx, cy) = P[t]
+        dd = d[t]
+        l0 = ((by - cy) * (X - cx) + (cx - bx) * (Y - cy)) / dd
+        l1 = ((cy - ay) * (X - cx) + (ax - cx) * (Y - cy)) / dd
+        l2 = 1 - l0 - l1
+        inside = (l0 >= -1e-7) & (l1 >= -1e-7) & (l2 >= -1e-7)
+        pix = ((Y[inside] - 0.5).astype(np.int64) * res + (X[inside] - 0.5).astype(np.int64))
+        out_t.append(np.full(len(pix), t, np.int64)); out_p.append(pix)
+    if not out_t:
+        return np.zeros(0, np.int64), np.zeros(0, np.int64)
+    return np.concatenate(out_t), np.concatenate(out_p)
+
+
+def uv_island_raster(objs, res):
+    """Rasterise every UV island of objs at res x res (pixel centres).  Returns a dict with
+    per-island records (object, faces, pixel count, UV area in px^2, mean thickness in px), the
+    coverage fraction and the number of pixels claimed by more than one island (overlap)."""
+    islands = []           # (obj, faces)
+    gid_of = []            # per object: array poly -> global island id
+    all_t = []; all_p = []; all_g = []
+    for o in objs:
+        me = o.data
+        if not me.uv_layers:
+            continue
+        isl = uv_islands(o)
+        g = np.full(len(me.polygons), -1, np.int64)
+        for fs in isl:
+            g[fs] = len(islands)
+            islands.append((o, fs))
+        me.calc_loop_triangles()
+        nt = len(me.loop_triangles)
+        tl = np.empty(nt * 3, np.int32); me.loop_triangles.foreach_get("loops", tl)
+        tp = np.empty(nt, np.int32); me.loop_triangles.foreach_get("polygon_index", tp)
+        uv = np.empty(len(me.loops) * 2, np.float64); me.uv_layers.active.data.foreach_get("uv", uv)
+        P = uv.reshape(-1, 2)[tl.reshape(-1, 3)] * res
+        t, pix = _raster_tris(P, res)
+        all_t.append(t); all_p.append(pix); all_g.append(g[tp[t]])
+        gid_of.append((o, g, P, tp))
+    n = len(islands)
+    if all_p:
+        pix = np.concatenate(all_p); gid = np.concatenate(all_g)
+    else:
+        pix = np.zeros(0, np.int64); gid = np.zeros(0, np.int64)
+    pairs = np.unique(pix * (n + 1) + gid)
+    upix = pairs // (n + 1); ugid = pairs % (n + 1)
+    counts = np.bincount(ugid, minlength=n)
+    per_pix = np.bincount(upix, minlength=res * res)
+    covered = int((per_pix > 0).sum()); overlap = int((per_pix > 1).sum())
+    # UV area and bbox per island (px units)
+    area = np.zeros(n); bmin = np.full((n, 2), 1e18); bmax = np.full((n, 2), -1e18)
+    for o, g, P, tp in gid_of:
+        a = 0.5 * np.abs((P[:, 1, 0] - P[:, 0, 0]) * (P[:, 2, 1] - P[:, 0, 1]) -
+                         (P[:, 2, 0] - P[:, 0, 0]) * (P[:, 1, 1] - P[:, 0, 1]))
+        gi = g[tp]
+        np.add.at(area, gi, a)
+        np.minimum.at(bmin, gi, P.min(1)); np.maximum.at(bmax, gi, P.max(1))
+    diag = np.hypot(*(bmax - bmin).T)
+    thick = np.where(diag > 0, area / np.maximum(diag, 1e-9), 0.0)
+    over_pix = np.nonzero(per_pix > 1)[0]
+    over_islands = set()
+    if len(over_pix):
+        m = np.isin(upix, over_pix)
+        over_islands = set(int(x) for x in ugid[m])
+    return {"islands": islands, "pixels": counts, "area_px": area, "thick_px": thick,
+            "coverage": covered / float(res * res), "overlap_px": overlap,
+            "overlap_islands": over_islands, "res": res}
+
+
+def _scale_island_uv(obj, faces, f):
+    me = obj.data
+    uv = me.uv_layers.active.data
+    loops = [li for fi in faces for li in me.polygons[fi].loop_indices]
+    c = Vector((0.0, 0.0))
+    for li in loops:
+        c += uv[li].uv
+    c /= len(loops)
+    for li in loops:
+        uv[li].uv = c + (uv[li].uv - c) * f
+
+
+def _pack(objs, margin, shape, rotate):
+    select(objs, objs[0])
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.uv.select_all(action='SELECT')
+    bpy.ops.uv.pack_islands(rotate=rotate, rotate_method='ANY', margin=margin, shape_method=shape,
+                            margin_method='FRACTION', scale=True)
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+
+def uv_planar_groups(obj, axis, max_angle=12.0, min_area=0.0):
+    """Re-project connected face groups whose normals lie within max_angle of +-axis (object
+    space) as single planar islands at the object's current UV density.  Smart projection can
+    split a flat round face (a lathe pole fan) into wedge islands with stretch."""
+    me = obj.data
+    uvl = me.uv_layers.active.data
+    ax = Vector(axis).normalized()
+    cosl = math.cos(math.radians(max_angle))
+    # current density (uv units per object unit)
+    a3 = sum(p.area for p in me.polygons)
+    auv = 0.0
+    for p in me.polygons:
+        pts = [uvl[li].uv for li in p.loop_indices]
+        for k in range(1, len(pts) - 1):
+            d1 = pts[k] - pts[0]; d2 = pts[k + 1] - pts[0]
+            auv += abs(d1.x * d2.y - d1.y * d2.x) * 0.5
+    if a3 <= 0 or auv <= 0:
+        return 0
+    s = math.sqrt(auv / a3)
+    t1 = ax.orthogonal().normalized(); t2 = ax.cross(t1).normalized()
+    cand = set(p.index for p in me.polygons if abs(p.normal.dot(ax)) >= cosl)
+    bm = bmesh.new(); bm.from_mesh(me); bm.faces.ensure_lookup_table()
+    groups = []; seen = set()
+    for fi in cand:
+        if fi in seen:
+            continue
+        st = [fi]; seen.add(fi); grp = []
+        while st:
+            f = st.pop(); grp.append(f)
+            for e in bm.faces[f].edges:
+                for g in e.link_faces:
+                    if g.index in cand and g.index not in seen and \
+                            (g.normal.dot(ax) > 0) == (bm.faces[f].normal.dot(ax) > 0):
+                        seen.add(g.index); st.append(g.index)
+        groups.append(grp)
+    bm.free()
+    n = 0
+    for k, grp in enumerate(groups):
+        if sum(me.polygons[f].area for f in grp) < min_area:
+            continue
+        off = Vector((5.0 + 0.37 * k, 5.0))        # arbitrary: pack places it
+        for f in grp:
+            for li in me.polygons[f].loop_indices:
+                co = me.vertices[me.loops[li].vertex_index].co
+                uvl[li].uv = off + Vector((co.dot(t1), co.dot(t2))) * s
+        n += 1
+    return n
+
+
+def uv_cylinder_group(obj, axis, center, max_dev=15.0):
+    """Unwrap the faces of a cylindrical surface around `axis` through `center` (object space)
+    as one strip: u = radius * angle, v = position along the axis, at the object's current UV
+    density.  Faces qualify when their normal is within max_dev degrees of perpendicular to the
+    axis and they lie on the side surface (not the end caps).  Smart projection cuts a thin
+    cylinder into quadrant islands with up to 2x stretch."""
+    me = obj.data
+    uvl = me.uv_layers.active.data
+    ax = Vector(axis).normalized(); c0 = Vector(center)
+    a3 = sum(p.area for p in me.polygons)
+    auv = 0.0
+    for p in me.polygons:
+        pts = [uvl[li].uv for li in p.loop_indices]
+        for k in range(1, len(pts) - 1):
+            d1 = pts[k] - pts[0]; d2 = pts[k + 1] - pts[0]
+            auv += abs(d1.x * d2.y - d1.y * d2.x) * 0.5
+    if a3 <= 0 or auv <= 0:
+        return 0
+    s = math.sqrt(auv / a3)
+    t1 = ax.orthogonal().normalized(); t2 = ax.cross(t1).normalized()
+    sin_dev = math.sin(math.radians(max_dev))
+    faces = [p for p in me.polygons if abs(p.normal.dot(ax)) <= sin_dev]
+    if not faces:
+        return 0
+    off = Vector((7.0, 5.0))
+    for p in faces:
+        th = []; vs = []
+        for li in p.loop_indices:
+            co = me.vertices[me.loops[li].vertex_index].co - c0
+            th.append(math.atan2(co.dot(t2), co.dot(t1)))
+            vs.append(co.dot(ax))
+        if max(th) - min(th) > math.pi:
+            th = [t + 2 * math.pi if t < 0 else t for t in th]
+        r = sum(((me.vertices[me.loops[li].vertex_index].co - c0) - ax * vs[k]).length
+                for k, li in enumerate(p.loop_indices)) / len(th)
+        for k, li in enumerate(p.loop_indices):
+            uvl[li].uv = off + Vector((th[k] * r, vs[k])) * s
+    return len(faces)
+
+
 def uv_unwrap(objs, angle=60.0, island_margin=0.002, pack_margin=0.004, uv_name="UVMap",
-              shape='CONCAVE', rotate=True, scale_fn=None, tex_size=None, protect_materials=()):
+              shape='CONCAVE', rotate=True, scale_fn=None, tex_size=None, protect_materials=(),
+              planar_fn=None, min_island_px=12.0, min_thick_px=1.6, max_enlarge=6.0, report=None):
     """Multi-object smart UV project + pack into one shared 0..1 space (consistent texel
-    density across all objects of a texture set).  scale_fn(obj, island_info) -> factor
-    lets the caller give hidden / tiny islands less texture space before packing."""
+    density across all objects of a texture set).
+
+    scale_fn(obj, island_info) -> factor gives hidden / interior islands less texture space.
+    planar_fn(obj) -> [(axis, max_angle), ...] re-projects flat face groups as single islands;
+    an entry ('CYL', axis, centre[, max_dev]) unwraps a cylindrical surface as one strip.
+    With tex_size: islands that would rasterise fewer than `min_island_px` pixel centres (or are
+    thinner than `min_thick_px`) are enlarged (up to max_enlarge x) and everything is re-packed,
+    twice, instead of collapsing them onto a neighbour texel (which left them untextured and with
+    undefined tangents).  After packing, islands of different parts must not share a pixel: if
+    they do, the set is re-packed with a safer shape method.  Only faces < 0.05 mm^2 (and islands
+    that still get no pixel at all) are collapsed.  `report` (dict) receives the statistics."""
     for o in objs:
         me = o.data
         while len(me.uv_layers) > 0:
@@ -1302,19 +1849,60 @@ def uv_unwrap(objs, angle=60.0, island_margin=0.002, pack_margin=0.004, uv_name=
                              area_weight=0.0, correct_aspect=True, scale_to_bounds=False)
     bpy.ops.uv.select_all(action='SELECT')
     bpy.ops.uv.average_islands_scale()
+    bpy.ops.object.mode_set(mode='OBJECT')
+    if planar_fn is not None:
+        for o in objs:
+            for spec in (planar_fn(o) or []):
+                if spec[0] == 'CYL':
+                    uv_cylinder_group(o, spec[1], spec[2], spec[3] if len(spec) > 3 else 15.0)
+                else:
+                    uv_planar_groups(o, spec[0], spec[1])
     if scale_fn is not None:
-        bpy.ops.object.mode_set(mode='OBJECT')
         for o in objs:
             uv_scale_islands(o, scale_fn)
-        bpy.ops.object.mode_set(mode='EDIT')
-        bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.uv.select_all(action='SELECT')
-    bpy.ops.uv.pack_islands(rotate=rotate, margin=pack_margin, shape_method=shape,
-                            margin_method='FRACTION', scale=True)
-    bpy.ops.object.mode_set(mode='OBJECT')
+    _pack(objs, pack_margin, shape, rotate)
+    stats = {"enlarged": [], "shape": shape}
+    if tex_size:
+        for it in range(2):
+            r = uv_island_raster(objs, tex_size)
+            n = 0
+            for i, (o, fs) in enumerate(r["islands"]):
+                px = r["pixels"][i]; ar = r["area_px"][i]
+                if px >= min_island_px:
+                    continue
+                # too few pixel centres: enlarge about the island centre (a long thin strip that
+                # already covers enough pixels is left alone -- enlarging it wastes space)
+                f = math.sqrt(min_island_px / max(ar, 0.5))
+                f = min(max(f, 1.25), max_enlarge)
+                if f > 1.001:
+                    _scale_island_uv(o, fs, f); n += 1
+            stats["enlarged"].append(n)
+            _pack(objs, pack_margin, shape, rotate)
+        # islands of different parts must never share a pixel
+        for sh in ([shape] + [x for x in ('CONVEX', 'AABB') if x != shape]):
+            r = uv_island_raster(objs, tex_size)
+            if r["overlap_px"] == 0:
+                break
+            log(f"uv: {r['overlap_px']} px shared by different islands with shape {sh}; re-packing")
+            _pack(objs, pack_margin, 'CONVEX' if sh == shape else 'AABB', rotate)
+            stats["shape"] = 'CONVEX' if sh == shape else 'AABB'
+        r = uv_island_raster(objs, tex_size)
+        stats.update({"coverage": round(r["coverage"], 4), "overlap_px": r["overlap_px"],
+                      "islands": len(r["islands"]),
+                      "islands_without_pixels": int((r["pixels"] == 0).sum())})
+        per_obj = {}
+        for i, (o, fs) in enumerate(r["islands"]):
+            per_obj.setdefault(o.name, {})[frozenset(fs)] = int(r["pixels"][i])
+    else:
+        per_obj = {}
     deselect_all()
-    snapped = sum(uv_snap_degenerate(o, tex_size=tex_size, protect_materials=protect_materials) for o in objs)
-    log(f"uv: {len(objs)} objects, {snapped} sub-texel / degenerate faces collapsed onto neighbours")
+    snapped = sum(uv_snap_degenerate(o, protect_materials=protect_materials,
+                                     island_pixels=per_obj.get(o.name)) for o in objs)
+    stats["collapsed_faces"] = snapped
+    log(f"uv: {len(objs)} objects, stats {stats}")
+    if report is not None:
+        report.update(stats)
+    return stats
 
 
 def uv_simple(obj, uv_name="UVMap"):
@@ -1449,10 +2037,15 @@ def linear_to_srgb(x):
     return np.where(x <= 0.0031308, x * 12.92, 1.055 * np.power(x, 1 / 2.4) - 0.055)
 
 
-def save_png(arr01, path, mode='RGB'):
-    """arr01: HxWxC float 0..1, Blender row order (bottom row first)."""
+def save_png(arr01, path, mode='RGB', dither_seed=None):
+    """arr01: HxWxC float 0..1, Blender row order (bottom row first).  dither_seed: add +-0.5 LSB
+    of deterministic noise before quantising (subtle normal-map slopes then survive 8 bits as
+    an unbanded average instead of snapping to the flat value)."""
     from PIL import Image
     a = np.flipud(arr01)
+    if dither_seed is not None:
+        rng = np.random.default_rng(dither_seed)
+        a = a + (rng.random(a.shape, dtype=np.float32) - 0.5) / 255.0
     a = np.clip(np.round(a * 255.0), 0, 255).astype(np.uint8)
     if mode == 'L':
         img = Image.fromarray(a[..., 0], 'L')
@@ -1710,6 +2303,20 @@ def mesh_checks(obj, tex_size=None):
         if avg.dot(p.normal) < 0:
             opposing += 1
     zero = sum(1 for f in bm.faces if f.calc_area() < 1e-11)
+    # connected shells (face-connected components)
+    bm.faces.ensure_lookup_table()
+    seen = set(); shells = 0
+    for f in bm.faces:
+        if f.index in seen:
+            continue
+        shells += 1
+        st = [f]; seen.add(f.index)
+        while st:
+            g = st.pop()
+            for e in g.edges:
+                for h in e.link_faces:
+                    if h.index not in seen:
+                        seen.add(h.index); st.append(h)
     keys = {}
     dup = 0
     for f in bm.faces:
@@ -1730,6 +2337,9 @@ def mesh_checks(obj, tex_size=None):
         "loose_edges": loose_e,
         "zero_area_faces": zero,
         "duplicate_faces": dup,
+        "shells": shells,
+        "deform_weights_without_groups": (sum(1 for v in me.vertices if len(v.groups))
+                                          if len(obj.vertex_groups) == 0 else 0),
         "uv_layers": [u.name for u in me.uv_layers],
         "missing_uvs": len(me.uv_layers) == 0,
         "has_custom_normals": bool(me.has_custom_normals),
@@ -1745,6 +2355,20 @@ def mesh_checks(obj, tex_size=None):
         d["uv_min"] = [round(float(x), 5) for x in uv.min(0)] if len(uv) else None
         d["uv_max"] = [round(float(x), 5) for x in uv.max(0)] if len(uv) else None
         d["uv_out_of_bounds_loops"] = int(((uv < -1e-5) | (uv > 1 + 1e-5)).any(1).sum())
+        # faces whose UVs have (numerically) zero area: they carry no texels / no tangent basis
+        s2 = obj.matrix_world.median_scale ** 2
+        zc = 0; za = 0.0; zmax = 0.0
+        for p in me.polygons:
+            pts = [uv[li] for li in p.loop_indices]
+            a_uv = 0.0
+            for k in range(1, len(pts) - 1):
+                a_uv += abs((pts[k][0] - pts[0][0]) * (pts[k + 1][1] - pts[0][1]) -
+                            (pts[k + 1][0] - pts[0][0]) * (pts[k][1] - pts[0][1])) * 0.5
+            if a_uv < 1e-12:
+                zc += 1; a3 = p.area * s2; za += a3; zmax = max(zmax, a3)
+        d["zero_uv_faces"] = zc
+        d["zero_uv_area_mm2"] = round(za * 1e6, 3)
+        d["zero_uv_max_face_mm2"] = round(zmax * 1e6, 4)
         if tex_size:
             d["texel_density_px_per_cm"] = round(texel_density(obj, tex_size), 2)
     for m in me.materials:
@@ -1780,9 +2404,13 @@ def mesh_checks(obj, tex_size=None):
     return d
 
 
-def validate(report_path, objs, armature=None, texture_sets=None, extra=None):
+def validate(report_path, objs, armature=None, texture_sets=None, extra=None, shells=None,
+             max_zero_uv_face_mm2=None):
     """Write a JSON validation report.  texture_sets = {name: {"objects": [...],
-    "size": 2048}} enables texel density and UV overlap checks per set."""
+    "size": 2048}} enables texel density and UV checks per set: any pixel shared by two
+    different UV islands is a problem.  shells = {base object name: expected shell count}
+    (every other object must be exactly ONE connected shell; LOD suffixes are ignored).
+    max_zero_uv_face_mm2: faces with zero UV area must all be smaller than this."""
     t0 = time.time()
     set_of = {}
     for sname, sd in (texture_sets or {}).items():
@@ -1815,18 +2443,35 @@ def validate(report_path, objs, armature=None, texture_sets=None, extra=None):
         sk = d.get("skin")
         if sk and (sk["groups_without_bone"] or sk["unweighted_verts"] or sk["non_rigid_verts"]):
             problems.append(f"{o.name}: skin issues {sk}")
+        if d.get("deform_weights_without_groups"):
+            problems.append(f"{o.name}: {d['deform_weights_without_groups']} vertices carry deform weights "
+                            f"but the object has no vertex groups")
+        if shells is not None:
+            base = o.name.split("_LOD")[0]
+            exp = shells.get(base, 1)
+            if d["shells"] != exp:
+                problems.append(f"{o.name}: {d['shells']} connected shells, expected {exp}")
+        if max_zero_uv_face_mm2 is not None and d.get("zero_uv_max_face_mm2", 0) > max_zero_uv_face_mm2:
+            problems.append(f"{o.name}: zero-UV-area face of {d['zero_uv_max_face_mm2']} mm2 "
+                            f"(limit {max_zero_uv_face_mm2})")
     rep["summary"]["total_tris"] = tot
     if texture_sets:
         rep["texture_sets"] = {}
         for sname, sd in texture_sets.items():
-            ov = uv_overlap_estimate(sd["objects"], 1024)
+            r = uv_island_raster(sd["objects"], sd["size"])
             dens = [texel_density(o, sd["size"]) for o in sd["objects"]]
+            ov = {"resolution": sd["size"], "covered_fraction": round(r["coverage"], 4),
+                  "pixels_shared_by_different_islands": r["overlap_px"],
+                  "islands": len(r["islands"]),
+                  "islands_without_pixel_centres": int(((r["pixels"] == 0) & (r["area_px"] > 1e-6)).sum()),
+                  "collapsed_degenerate_faces": int((r["area_px"] <= 1e-6).sum()),
+                  "method": "pixel-centre rasterisation per island at the texture size"}
             rep["texture_sets"][sname] = {"objects": [o.name for o in sd["objects"]],
                                           "size": sd["size"], "uv_overlap": ov,
                                           "texel_density_min": round(min(dens), 2),
                                           "texel_density_max": round(max(dens), 2)}
-            if ov["overlap_fraction_of_covered"] > 0.005:
-                problems.append(f"set {sname}: UV overlap {ov['overlap_fraction_of_covered']:.4f}")
+            if r["overlap_px"] > 0:
+                problems.append(f"set {sname}: {r['overlap_px']} px shared by different UV islands")
     if armature:
         bones = armature.data.bones
         rep["armature"] = {"name": armature.name, "bone_count": len(bones),
@@ -2111,7 +2756,10 @@ def side_by_side(paths, out_path, labels=None, bg=(40, 40, 42)):
 #   armature_nodetype='NULL'         standard; the armature object becomes the FBX root node.
 #   use_armature_deform_only=False   keep non-deforming socket bones.
 #   bake_anim=False                  no animation in the asset file.
-#   path_mode='RELATIVE', embed_textures=False  texture paths stay relative to the FBX.
+#   path_mode='RELATIVE', embed_textures=False  texture paths stay relative to the FBX; the export
+#                                    job also writes the RELATIVE path into FileName / Path (the
+#                                    stock exporter puts an absolute machine path there) and points
+#                                    the normal map at *_Normal_DX.png (Unreal's convention).
 #   object_types = {'ARMATURE','MESH'} (skeletal) or {'MESH'} (static).
 #
 # GLB: glTF is always metres / Y-up; the exporter converts.  export_apply=False (the only
@@ -2183,11 +2831,39 @@ def _job_export(job):
             select(objs, roots[0])
             bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
             # static roots: keep object origin; locations were scaled with the matrix
+        if job.get("normal_dx", True):
+            # Unreal reads tangent-space normals DirectX-style (-Y): reference the _Normal_DX map
+            for m in bpy.data.materials:
+                if not (m.get("iv_export") and m.use_nodes):
+                    continue
+                n = m.node_tree.nodes.get("T_Normal")
+                if n and n.image and n.image.filepath:
+                    p = bpy.path.abspath(n.image.filepath)
+                    dx = p.replace("_Normal.png", "_Normal_DX.png")
+                    if dx != p and os.path.exists(dx):
+                        im = bpy.data.images.load(dx, check_existing=True)
+                        im.colorspace_settings.name = 'Non-Color'
+                        n.image = im
+        if job.get("relative_paths_only", True):
+            # the stock exporter writes an absolute FileName / Path next to RelativeFilename; keep
+            # only the path relative to the FBX so no machine path is embedded
+            import io_scene_fbx.export_fbx_bin as _efb
+            _orig = _efb._gen_vid_path
+
+            def _rel_only(img, scene_data):
+                a, r = _orig(img, scene_data)
+                return r, r
+            _efb._gen_vid_path = _rel_only
         opts = dict(FBX_UNREAL_OPTS)
         opts["object_types"] = set(job.get("object_types", ["ARMATURE", "MESH"]))
         bpy.ops.export_scene.fbx(filepath=job["path"], use_selection=True, **opts)
     else:
         opts = dict(GLB_OPTS)
+        if job["path"].lower().endswith(".gltf"):
+            # .gltf + .bin with external images in a shared folder (several files reference the
+            # same texture files instead of each embedding its own copy)
+            opts["export_format"] = 'GLTF_SEPARATE'
+            opts["export_texture_dir"] = job.get("texture_dir", "textures")
         bpy.ops.export_scene.gltf(filepath=job["path"], use_selection=True, **opts)
     return {"ok": True, "path": job["path"], "bytes": os.path.getsize(job["path"])}
 
@@ -2269,9 +2945,11 @@ def export_fbx(blend, objects, path, object_types=("ARMATURE", "MESH"), bake_cm=
                     "path": path, "object_types": list(object_types), "bake_cm": bake_cm})
 
 
-def export_glb(blend, objects, path):
+def export_glb(blend, objects, path, texture_dir="textures"):
+    """GLB (self-contained) for *.glb paths; for *.gltf paths a .gltf + .bin whose images are
+    written to (and shared through) `texture_dir`, relative to the .gltf."""
     return run_job({"type": "export", "format": "GLB", "blend": blend, "objects": list(objects),
-                    "path": path})
+                    "path": path, "texture_dir": texture_dir})
 
 
 def reimport_check(path):

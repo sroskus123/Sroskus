@@ -1,4 +1,4 @@
-// Player settings (sensitivity, FOV, camera motion, render scale) with validation and
+// Player settings (sensitivity, FOV, camera motion, render scale, master volume) with validation and
 // best-effort persistence in localStorage (which may be unavailable in sandboxed frames).
 
 import defaults from '../data/settings_defaults.json' with { type: 'json' };
@@ -21,6 +21,7 @@ export function sanitizeSettings(raw) {
     adaptiveResolution: typeof s.adaptiveResolution === 'boolean' ? s.adaptiveResolution : d.adaptiveResolution,
     renderScale: clampNum(s.renderScale, d.renderScaleMin, d.renderScaleMax, d.renderScale),
     showFps: typeof s.showFps === 'boolean' ? s.showFps : d.showFps,
+    masterVolume: clampNum(s.masterVolume, 0, 1, d.masterVolume),
   };
 }
 

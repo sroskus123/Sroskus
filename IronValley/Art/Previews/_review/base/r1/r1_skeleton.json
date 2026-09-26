@@ -1,0 +1,137 @@
+{
+ "mirror_axis_sign_patterns (x,y,z) counts": {
+  "(-1, 1, 1)": 25
+ },
+ "mirror_frame_max_err_top": [
+  [
+   "clavicle_l",
+   0.0
+  ],
+  [
+   "upperarm_l",
+   0.0
+  ],
+  [
+   "upperarm_twist_01_l",
+   0.0
+  ],
+  [
+   "lowerarm_l",
+   0.0
+  ],
+  [
+   "lowerarm_twist_01_l",
+   0.0
+  ]
+ ],
+ "root_matrix_local": [
+  [
+   1.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   1.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   1.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   1.0
+  ]
+ ],
+ "upperarm_twist_01_l_vs_parent_axis_dot(x,y,z)": [
+  1.0,
+  1.0,
+  1.0
+ ],
+ "lowerarm_twist_01_l_vs_parent_axis_dot(x,y,z)": [
+  1.0,
+  1.0,
+  1.0
+ ],
+ "upperarm_twist_01_r_vs_parent_axis_dot(x,y,z)": [
+  1.0,
+  1.0,
+  1.0
+ ],
+ "lowerarm_twist_01_r_vs_parent_axis_dot(x,y,z)": [
+  1.0,
+  1.0,
+  1.0
+ ],
+ "lowerarm_l: |dot(localX, hinge_normal)| / |dot(localZ, hinge)|": [
+  0.996,
+  0.084
+ ],
+ "lowerarm_l: rest flexion deg": 15.0,
+ "calf_l: |dot(localX, hinge_normal)| / |dot(localZ, hinge)|": [
+  1.0,
+  0.0
+ ],
+ "calf_l: rest flexion deg": 6.37,
+ "lowerarm_r: |dot(localX, hinge_normal)| / |dot(localZ, hinge)|": [
+  0.996,
+  0.084
+ ],
+ "lowerarm_r: rest flexion deg": 15.0,
+ "calf_r: |dot(localX, hinge_normal)| / |dot(localZ, hinge)|": [
+  1.0,
+  0.0
+ ],
+ "calf_r: rest flexion deg": 6.37,
+ "thigh_l localX_world": [
+  0.891,
+  0.451,
+  0.054
+ ],
+ "calf_l localX_world": [
+  0.995,
+  -0.012,
+  0.103
+ ],
+ "foot_l localX_world": [
+  0.999,
+  0.011,
+  0.042
+ ],
+ "thigh_r localX_world": [
+  0.891,
+  -0.451,
+  -0.054
+ ],
+ "calf_r localX_world": [
+  0.995,
+  0.012,
+  -0.103
+ ],
+ "foot_r localX_world": [
+  0.999,
+  -0.011,
+  -0.042
+ ],
+ "UE4_mannequin_bones_missing": [
+  "calf_twist_01_l",
+  "thigh_twist_01_l",
+  "calf_twist_01_r",
+  "thigh_twist_01_r",
+  "ik_foot_root",
+  "ik_foot_l",
+  "ik_foot_r",
+  "ik_hand_root",
+  "ik_hand_gun",
+  "ik_hand_l",
+  "ik_hand_r"
+ ],
+ "extra_bones_not_in_UE4": []
+}

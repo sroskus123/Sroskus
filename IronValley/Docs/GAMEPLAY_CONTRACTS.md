@@ -85,8 +85,76 @@ export function createAISystem({ combatants, world, nav, cover, events, match, c
 Herní integrace nejdřív vytvoří **stub** `src/ai/index.js` se stejnou signaturou (nic nedělá) a zapojí ho do smyčky.
 AI stub nahradí skutečnou implementací se stejným rozhraním.
 
+Stav (AI, 2026-09-26): stub nahrazen, rozhraní beze změny. Doplňky, které rozhraní nemění: při `nav`/`cover` = `null`
+si AI vezme zapečený navmesh a kryty podle `config.levelId` (`src/ai/nav/navRegistry.generated.js`, generuje
+`tools/bake_navmesh.mjs`, peče se každá úroveň s blokem `match`); `config.tuning` přepisuje `ai.json` (testy);
+`addBot` zapíše `ai.json turnRateDegPerSec` do `combatant.turnRateDegPerSec`; `dispose()` odhlásí události;
+ladicí API `window.__IV.ai`; v datech úrovně příznaky `"nav": false` (solid mimo navmesh) a `"spawnShelter": true`
+(kryty se v něm nevybírají) a bloky `nav`, `aiTest`. AI z `combatant:damaged` čte jen `fromDir`, ne `attackerPosition`.
+Podrobnosti a naměřené hodnoty: `Docs/AI.md`.
+
 ## Konfigurace
 
 - `Shared/config/rules.json` — pravidla zápasu a zbraní (jádro)
 - `Shared/config/ai.json` — reakční doba, chyba míření, dávky, zorné pole, dosah sluchu, paměť, intervaly, rychlost otáčení
 - `src/data/*.json` — pohyb, vstup, nastavení, prostředí
+
+## Doplnění z herní integrace (2026-09-26, stav implementace)
+
+Upřesnění, jak je kontrakt implementovaný v `src/game/**`. Nic z výše uvedeného se nemění, jen se doplňuje.
+
+### Krok simulace a řízení bojovníků
+
+- `MatchSession.tick(dt)` (`src/game/session.js`, bez DOM, běží i v Node): přítomnost v oblasti → `Match.update`
+  (respawny v přesných okamžicích, bodování, čas kola) → `player.applyCommand` → `ai.update(dt)` → nečinný příkaz
+  pro každého bojovníka, kterého v tomto tiku nikdo neřídil (`CombatantManager.stepUndriven`) → terče.
+- **Každý bojovník dostane `applyCommand` právě jednou za tik.** AI volá `applyCommand` jen pro živé boty, které řídí;
+  mrtvé a neřízené krokuje hra (zbraně se aktualizují každý tik se skutečným stavem spouště, jak vyžaduje jádro).
+  Ověřuje unit test „AI contract“ se skutečnou AI.
+- `applyCommand` mrtvého bojovníka ignoruje pohyb, pohled i přebití; spoušť se jádru předává dál (zámek `life`
+  střelbu blokuje a spoušť držená přes smrt po respawnu nevystřelí).
+- `combatant.turnRateDegPerSec` (výchozí `src/data/combat.json` → `bots.turnRateDegPerSec`) omezuje otáčení bota;
+  AI ho smí nastavit v `addBot`. Hráč se otáčí bez omezení.
+- Poškození: zásah bojovníka → `Match.applyDamage(oběť, round(damage × násobek zóny), střelec)`; násobky
+  `src/data/combat.json` → `hitZones`, poškození zbraně z `rules.json`. Friendly fire řeší jádro (`rules.json`).
+
+### Parametry `createAISystem` od hry
+
+`nav` a `cover` předává hra jako `null` (AI si je vytvoří z napečeného navmeshe `config.levelId`), `world` =
+`WorldQuery`, `combatants` = `CombatantManager`, `match` = `Match`. `config = { levelId, level, rules, zones,
+session }` (`session.activeZone()`, `session.mode` = `'match' | 'practice'`, `session.seed`). Při zahození
+relace hra volá `ai.dispose()`, pokud existuje (odhlášení z event busu).
+
+### Další události
+
+| Název | Data |
+| --- | --- |
+| `combatant:friendly_fire_blocked` | `{ victimId, attackerId, amount }` |
+| `weapon:switched` | `{ id, weaponId, slot }` |
+| `weapon:dry_fire` | `{ id, weaponId }` |
+| `weapon:action` | `{ id, weaponId, type: 'mag_insert' \| 'bolt_release' \| 'chamber_commit' }` |
+| `round:pre` | `{ zoneId, preRoundS }` |
+
+`combatant:damaged` nese navíc `attackerPosition` (jen pro HUD hráče; AI ho podle kontraktu nečte) a `health`;
+`combatant:died` nese `weaponId`, `part`, `team`. Háček pro fyzikální ragdoll: `combatant:died` +
+`Combatant.deathPose` (zatím stabilní procedurální pád v `characterView.js`).
+
+### Úroveň (`src/data/<id>.json`)
+
+Stávající schéma (`solids`, `signs`, `banners`, `dummies`, `markers`) + volitelný blok `match`:
+
+```json
+"match": {
+  "practiceSpawn": "spawn",
+  "teamSpawns": [ [ { "pos": [x, y, z], "yaw": deg }, ... ], [ ... ], [ ... ] ],
+  "zones": [ { "id": "zone_x", "name": "Název", "center": [x, y, z], "radius": 5, "height": 4 }, ... ]
+}
+```
+
+- `teamSpawns[t]` = kandidátní body týmu `t` (pořadí týmů = `rules.json teams.list`), body ≥ 2,5 m od sebe, kryté
+  před výhledem z mapy (predikát spawnu odmítá body viditelné živým nepřítelem).
+- `zones` = tři umístění oblasti; hra je předá jádru jako `zone.locations` (jádro vybírá aktivní oblast semenem).
+- Pevné těleso smí mít `"bvhGroup": "<název>"` — dostane vlastní kolizní BVH. Přidaná geometrie (např. kryty spawnů)
+  tak nemění pořadí kontaktů kontroleru v základní úrovni.
+- Načtení: `loadLevelData(id)` (`src/game/levels.js`), v prohlížeči `window.__IV.loadLevel(id)`; seznam pro nabídku
+  `src/data/levels.json`.

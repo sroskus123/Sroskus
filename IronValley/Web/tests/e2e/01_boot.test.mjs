@@ -17,7 +17,9 @@ after(async () => {
 });
 
 test('page loads with zero console errors and zero failed requests', async () => {
-  // real user flow: click the start button (requests pointer lock; headless may refuse -> drag fallback)
+  // real user flow: title "Začít" -> loadout "Do boje" (requests pointer lock; headless may refuse -> drag fallback)
+  await g.page.click('.iv-btn-primary');
+  await g.page.waitForFunction(() => window.__IV.getState().menuScreen === 'loadout', null, { timeout: 20_000 });
   await g.page.click('.iv-btn-primary');
   await g.page.waitForFunction(() => window.__IV.getState().state === 'playing', null, { timeout: 20_000 });
   // let the real-time loop run a few frames

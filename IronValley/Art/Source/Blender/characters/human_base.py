@@ -26,10 +26,15 @@ Pipeline
      helper geometry (eyes, eyelashes, teeth, tongue, tights, skirt, hair, genital helpers, joint
      cubes)
   6. skin with weights.game_engine.json (vertex indices are unchanged by targets, body indices
-     0..13379 are kept 1:1), limited to 4 influences per vertex, renormalised to 1
+     0..13379 are kept 1:1): symmetrised across the mirror plane (hm08.mirror), 4 UE4-mannequin
+     twist bones added (upperarm/lowerarm_twist_01_l/r) with ramped weights, limited to 4
+     influences per vertex (mirror-exact), renormalised to 1
   7. rest pose: A-pose -- upper arms as modelled by hm08 (~50 deg below horizontal), elbows
      straightened from the modelled ~47 deg to 15 deg flexion, pose applied as the new rest
-  8. validate, save .blend, render evidence, export FBX (Unreal) + GLB, re-import both
+  8. validate (geometry, stature, facing, skeleton names/hierarchy, skin, joints vs mesh,
+     proportions, 12 deformation test poses + 2 with driven twist bones), save .blend, render
+     evidence, export FBX (Unreal) + GLB, re-import both
+Spec: Art/Reference/HUMAN_BASE_spec.md
 """
 
 import argparse
@@ -371,8 +376,8 @@ def validate(arm, body, info):
     checks["skin_all_weighted_max4_sum1"] = "PASS" if sk["ok"] else "FAIL"
 
     # bone placement vs mesh: every joint (bone head) must lie INSIDE the closed body; the tail
-    # of a leaf bone (fingertips, toe tip, top of head) is MPFB's tip marker and must lie within
-    # 1 cm of the surface (inside or outside).
+    # of an MPFB leaf bone (fingertips, toe tip, top of head) is MPFB's tip marker and must lie
+    # within 1 cm of the surface (inside or outside); twist-bone tails must be inside.
     bvh = C.mesh_bvh(body, co)
     jin = {}
     bad = []
@@ -386,7 +391,10 @@ def validate(arm, body, info):
         if not b.children:
             inside, dist = C.inside_mesh(bvh, b.tail_local)
             jin[f"{b.name}.tail"] = {"inside": inside, "dist_to_surface_m": round(dist, 4)}
-            if dist > 0.01:
+            if "_twist_" in b.name:
+                if not inside:          # twist bones lie on the limb axis: tail must be inside
+                    bad.append(f"{b.name}.tail outside")
+            elif dist > 0.01:           # MPFB terminal bones: tail = tip marker on the surface
                 bad.append(f"{b.name}.tail {dist * 100:.1f} cm from surface")
     rep["joints_vs_mesh"] = {"problems": bad, "detail": jin}
     checks["joints_inside_mesh_tips_on_surface"] = "PASS" if not bad else "FAIL"
@@ -650,7 +658,12 @@ def R(path, cam, res=(1280, 720), samples=None):
     return ivlib.render(path, cam, res=res, samples=samples or RENDER_SAMPLES)
 
 
-def renders(arm, body):
+def want(only, key):
+    return only is None or any(key == o or key.startswith(o) for o in only)
+
+
+def renders(arm, body, only=None):
+    """only: None = everything, else a list of prefixes: rest, skeleton, pose:<name>, hands."""
     os.makedirs(PREV, exist_ok=True)
     render_setup(body)
     made = []
@@ -658,7 +671,8 @@ def renders(arm, body):
     # ---- rest pose, orthographic front / side / back with a 1.80 m ruler (10 cm bands)
     rul_fb = ruler(x=0.95, y=0.0, name="IVC_RulerFB")
     rul_s = ruler(x=0.0, y=0.62, name="IVC_RulerS")
-    for view, loc in (("front", (0, -8, 0.95)), ("side", (8, 0, 0.95)), ("back", (0, 8, 0.95))):
+    for view, loc in ((("front", (0, -8, 0.95)), ("side", (8, 0, 0.95)), ("back", (0, 8, 0.95)))
+                      if want(only, "rest") else ()):
         for o in rul_fb:
             o.hide_render = view == "side"
         for o in rul_s:
@@ -669,25 +683,50 @@ def renders(arm, body):
     for o in rul_fb + rul_s:
         o.hide_render = True
     # ---- rest pose perspective 3/4
-    cam = cam_persp("cam_q34", (0, 0, 0.93), (-0.55, -1, 0.12), 4.6, lens=50)
-    made.append(R(os.path.join(PREV, "HumanBase_rest_persp.png"), cam, res=(1600, 900)))
+    if want(only, "rest"):
+        cam = cam_persp("cam_q34", (0, 0, 0.93), (-0.55, -1, 0.12), 4.6, lens=50)
+        made.append(R(os.path.join(PREV, "HumanBase_rest_persp.png"), cam, res=(1600, 900)))
     # ---- skeleton overlay (x-ray body + joints/bones)
-    made += skeleton_overlay(arm, body)
+    if want(only, "skeleton"):
+        made += skeleton_overlay(arm, body)
     # ---- deformation poses
-    for name, fn, desc in POSES:
-        if name in ("fist", "fingers_half", "fingers_spread"):
+    runs = [(n, f, False) for n, f, d in POSES] + [(n, f, True) for n, f, d in POSES if n in DRIVEN]
+    for name, fn, drive in runs:
+        if name in ("fist", "fingers_half", "fingers_spread") or not want(only, "pose:" + name):
             continue
         C.reset_pose(arm)
         fn(arm)
+        if drive:
+            C.drive_twist_bones(arm, lower=TWIST_DRIVE["lower"], upper=TWIST_DRIVE["upper"])
         bpy.context.view_layer.update()
+        tag = name + ("_driven" if drive else "")
         for shot in pose_shots(arm, name):
             sname, tgt, dirv, dist, lens = shot
-            cam = cam_persp(f"cam_{name}_{sname}", tgt, dirv, dist, lens=lens)
-            made.append(R(os.path.join(PREV, f"HumanBase_pose_{name}_{sname}.png"), cam))
+            if drive and sname == "full":
+                continue
+            cam = cam_persp(f"cam_{tag}_{sname}", tgt, dirv, dist, lens=lens)
+            made.append(R(os.path.join(PREV, f"HumanBase_pose_{tag}_{sname}.png"), cam))
     # ---- hands
-    made += hand_renders(arm, body)
+    if want(only, "hands"):
+        made += hand_renders(arm, body)
+    if want(only, "pose:wrist_twist"):
+        made += twist_compare()
     C.reset_pose(arm)
     return made
+
+
+def twist_compare():
+    """Undriven vs driven twist bones, same camera, side by side."""
+    out = []
+    for sd in ("l", "r"):
+        a = os.path.join(PREV, f"HumanBase_pose_wrist_twist_wrist_{sd}.png")
+        b = os.path.join(PREV, f"HumanBase_pose_wrist_twist_driven_wrist_{sd}.png")
+        if os.path.exists(a) and os.path.exists(b):
+            o = os.path.join(PREV, f"HumanBase_compare_wrist_twist_{sd}.png")
+            ivlib.side_by_side([a, b], o, labels=[f"hand turned 80 deg, plain LBS (twist bones not driven) - {sd}",
+                                                  f"same pose, lowerarm_twist_01_{sd} driven 0.5 x - {sd}"])
+            out.append(o)
+    return out
 
 
 def pose_shots(arm, name):
@@ -722,8 +761,16 @@ def pose_shots(arm, name):
         shots.append(("wrist_l", wl, (1, -0.25, 0.1), 0.6, 50))
         shots.append(("wrist_r", wr, (-1, -0.25, 0.1), 0.6, 50))
     elif name == "wrist_twist":
-        shots.append(("wrist_l", (wl + el) * 0.5, (0.9, -0.5, 0.2), 0.75, 50))
-        shots.append(("wrist_r", (wr + er) * 0.5, (-0.9, -0.5, 0.2), 0.75, 50))
+        for sd, w, e, sx in (("l", wl, el, 1), ("r", wr, er, -1)):
+            fa = (w - e).normalized()
+            view = fa.cross(Vector((0, 0, 1))).normalized()
+            if view.y > 0:
+                view = -view                       # look from the front side
+            view = (view + Vector((0.25 * sx, 0, 0.15))).normalized()
+            shots.append((f"wrist_{sd}", w + fa * 0.02, view, 0.42, 50))
+    elif name == "upperarm_roll":
+        shots.append(("shoulder_l", sl * 0.7 + el * 0.3, (0.75, -1, 0.35), 0.8, 50))
+        shots.append(("shoulder_back", sl * 0.7 + el * 0.3, (0.5, 1, 0.3), 0.8, 50))
     return shots
 
 
@@ -781,8 +828,22 @@ def hand_cams(arm, side, tag):
             (f"{tag}_side", tc + r * dist + n * 0.05, tc, n)]
 
 
+def arm_mask(body, arm):
+    """Temporary Mask modifier: show only forearms and hands (clean hand close-ups)."""
+    names = [b.name for b in arm.data.bones]
+    D = C.read_weights(body, names)
+    keep = [n for n in names if any(k in n for k in ("lowerarm", "hand", "thumb", "index", "middle", "ring", "pinky"))]
+    m = C.dominant_bone_mask(D, names, keep)
+    vg = body.vertex_groups.new(name="IVC_ArmMask")
+    vg.add([int(i) for i in np.nonzero(m)[0]], 1.0, 'REPLACE')
+    mod = body.modifiers.new("IVC_Mask", 'MASK')
+    mod.vertex_group = "IVC_ArmMask"
+    return mod, vg
+
+
 def hand_renders(arm, body):
     made = []
+    mod, vg = arm_mask(body, arm)
     bpy.data.objects["IVC_Ground"].hide_render = True
     for pname, fn in (("open", None), ("fist", p_fist), ("half", p_half), ("spread", p_spread)):
         C.reset_pose(arm)
@@ -795,14 +856,16 @@ def hand_renders(arm, body):
                 made.append(R(os.path.join(PREV, f"HumanBase_hand_{pname}_{vname}.png"), cam,
                               res=(720, 720)))
     bpy.data.objects["IVC_Ground"].hide_render = False
+    body.modifiers.remove(mod)
+    body.vertex_groups.remove(vg)
     C.reset_pose(arm)
     return made
 
 
 def sheets(paths):
     """Contact sheets for quick review."""
-    hands = sorted(p for p in paths if "_hand_" in os.path.basename(p))
-    poses = sorted(p for p in paths if "_pose_" in os.path.basename(p))
+    hands = sorted(p for p in paths if os.path.basename(p).startswith("HumanBase_hand_"))
+    poses = sorted(p for p in paths if os.path.basename(p).startswith("HumanBase_pose_"))
     out = []
     if hands:
         items = [(p, os.path.basename(p)[len("HumanBase_hand_"):-4]) for p in hands]
@@ -828,9 +891,16 @@ def export_all():
     return res
 
 
-def reimport_verdict(r, expected_bones):
+def reimport_verdict(r, expected_bones, source_heads=None):
     ok = True
     notes = []
+    if source_heads:
+        dev = max((Vector(r["bone_heads_world_m"][n]) - Vector(h)).length
+                  for n, h in source_heads.items() if n in r["bone_heads_world_m"])
+        r["max_bone_head_deviation_m"] = round(dev, 5)
+        if dev > 0.001:
+            ok = False
+            notes.append(f"bone heads deviate up to {dev * 1000:.2f} mm")
     dims = r["dimensions_m"]
     if abs(dims[2] - STATURE) > 0.002 and abs(dims[1] - STATURE) > 0.002:
         ok = False
@@ -857,6 +927,7 @@ def reimport_verdict(r, expected_bones):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--stages", default="build,validate,render,export")
+    ap.add_argument("--only", default=None, help="render subset: comma list of rest,skeleton,pose:<name>,hands")
     a = ap.parse_args([x for x in sys.argv[1:]])
     stages = a.stages.split(",")
     t0 = time.time()
@@ -879,22 +950,28 @@ def main():
         with open(REPORT) as f:
             rep = json.load(f)
     if "render" in stages:
-        made = renders(arm, body)
-        made += sheets(made)
+        renders(arm, body, a.only.split(",") if a.only else None)
+        import glob
+        allp = sorted(glob.glob(os.path.join(PREV, "HumanBase_*.png")))
+        sheets(allp)
         if rep is not None:
-            rep["renders"] = [os.path.relpath(p, IV) for p in made]
+            rep["renders"] = [os.path.relpath(p, IV) for p in sorted(glob.glob(os.path.join(PREV, "HumanBase_*.png")))]
         # renders changed materials / added helpers: reload the clean saved file afterwards
         arm, body = load_scene()
     if "export" in stages:
         ex = export_all()
         names = [b.name for b in arm.data.bones]
+        heads = {b.name: list(arm.matrix_world @ b.head_local) for b in arm.data.bones}
         for k in ("fbx_reimport", "glb_reimport"):
-            ex[k + "_verdict"], ex[k + "_notes"] = reimport_verdict(ex[k], names)
+            ex[k + "_verdict"], ex[k + "_notes"] = reimport_verdict(ex[k], names, heads)
         if rep is not None:
             rep["export"] = ex
             rep.setdefault("checks", {})["fbx_reimport"] = ex["fbx_reimport_verdict"]
             rep["checks"]["glb_reimport"] = ex["glb_reimport_verdict"]
     if rep is not None:
+        import glob
+        # renders on disk (from this or an earlier run of the same deterministic build)
+        rep["renders"] = [os.path.relpath(p, IV) for p in sorted(glob.glob(os.path.join(PREV, "HumanBase_*.png")))]
         rep["total_seconds_this_run"] = round(time.time() - t0, 1)
         os.makedirs(PREV, exist_ok=True)
         with open(REPORT, "w") as f:

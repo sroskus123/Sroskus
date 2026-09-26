@@ -170,33 +170,38 @@ export function expandWall(def) {
  */
 export function buildLevelSolids(level) {
   const out = [];
-  const addBox = (b, parent) => {
+  // `bvhGroup` (optional): solids of another group get their own collision BVH (see CollisionWorld)
+  const addBox = (b, parent, group) => {
     const g = boxGeometry(b.min, b.max);
     applyWorldUVs(g);
-    out.push({
+    const solid = {
       id: b.id,
       parent: b.parent || parent || b.id,
       mat: b.mat || 'wall',
       collide: b.collide !== false,
       geometry: g,
       box: { min: [...b.min], max: [...b.max] },
-    });
+    };
+    if (group) solid.bvhGroup = group;
+    out.push(solid);
   };
   for (const s of level.solids) {
     switch (s.type) {
       case 'box':
-        addBox(s, s.id);
+        addBox(s, s.id, s.bvhGroup);
         break;
       case 'stairs':
-        for (const b of expandStairs(s)) addBox(b, s.id);
+        for (const b of expandStairs(s)) addBox(b, s.id, s.bvhGroup);
         break;
       case 'wall':
-        for (const b of expandWall(s)) addBox(b, s.id);
+        for (const b of expandWall(s)) addBox(b, s.id, s.bvhGroup);
         break;
       case 'ramp': {
         const g = rampGeometry(s.x[0], s.x[1], s.zToe, s.zTop, s.height, s.baseY ?? 0);
         applyWorldUVs(g);
-        out.push({ id: s.id, parent: s.id, mat: s.mat || 'ramp', collide: s.collide !== false, geometry: g });
+        const solid = { id: s.id, parent: s.id, mat: s.mat || 'ramp', collide: s.collide !== false, geometry: g };
+        if (s.bvhGroup) solid.bvhGroup = s.bvhGroup;
+        out.push(solid);
         break;
       }
       default:

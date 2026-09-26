@@ -128,7 +128,7 @@ test('shots in 3 s of held fire are identical at 30, 60 and 144 FPS frame pacing
   assert.equal(results[60].shots, expected);
 });
 
-test('held fire with the real magazine stops at 30 rounds', async () => {
+test('held fire with the real magazine stops at 30 + 1 rounds (magazine + chamber, rules core)', async () => {
   const r = await g.page.evaluate(() => {
     const iv = window.__IV;
     iv.refillAmmo();
@@ -140,10 +140,12 @@ test('held fire with the real magazine stops at 30 rounds', async () => {
     iv.mouseButton(0, false);
     iv.step(1);
     const s = iv.getState().weapon;
-    return { shots: s.shotsFired - before, magazine: s.magazine };
+    return { shots: s.shotsFired - before, magazine: s.magazine, chamber: s.chamber, capacity: s.capacity };
   });
-  assert.equal(r.shots, 30);
+  assert.equal(r.capacity, 30);
+  assert.equal(r.shots, 31);
   assert.equal(r.magazine, 0);
+  assert.equal(r.chamber, 0);
 });
 
 test('view model recoil stays bounded and frame-rate independent through the real loop (4-144 FPS)', async () => {

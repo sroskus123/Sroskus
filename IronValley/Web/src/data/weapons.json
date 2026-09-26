@@ -1,18 +1,17 @@
 {
-  "_comment": "Datove definice zbrani. Offsety jsou v prostoru kamery (x vpravo, y nahoru, -z dopredu), v metrech.",
+  "_comment": "Datove definice zbrani pro zasahy a vzhled. Munice, kadence a prebijeni jsou AUTORITATIVNE v Shared/config/rules.json (rulesId) a ridi je jadro src/core/weapon.js; zde je jen dosah, zasahovy system, recoil a pohled zbrane. Offsety jsou v prostoru kamery (x vpravo, y nahoru, -z dopredu), v metrech.",
+  "loadout": {
+    "primary": "iv7_carbine",
+    "secondary": "ivp9_pistol"
+  },
   "iv7_carbine": {
     "id": "iv7_carbine",
+    "rulesId": "rifle_iv7",
     "displayName": "IV-7 karabina",
+    "shortName": "IV-7",
     "slot": 1,
-    "rpm": 750,
-    "magazineSize": 30,
-    "reserveAmmo": 120,
-    "chamberRound": false,
-    "reloadTime": 2.3,
-    "reloadEmptyTime": 2.9,
-    "damage": 34,
-    "headMultiplier": 2.0,
     "range": 400,
+    "loudness": 1.0,
     "muzzleOffsetHip": [
       0.1207,
       -0.1538,
@@ -25,11 +24,30 @@
     ],
     "adsTime": 0.22,
     "adsFovMultiplier": 0.82,
+    "switchTime": 0.5,
     "recoil": {
       "pitchDeg": 0.55,
       "yawDeg": 0.18,
       "recoveryRate": 7.0,
       "maxPitchDeg": 6.0
+    },
+    "optics": {
+      "_comment": "Volba v nabidce vybavy. 'hideNodes' = uzly GLB (regularni vyraz nazvu), ktere se pro danou volbu skryji. IV-7 ma kolimator a mechanicka miridla v souose (co-witness), bod oka pri mireni je pro obe volby stejny.",
+      "default": "collimator",
+      "list": [
+        {
+          "id": "collimator",
+          "name": "Kolimátor",
+          "hideNodes": []
+        },
+        {
+          "id": "irons",
+          "name": "Mechanická mířidla",
+          "hideNodes": [
+            "^Optic"
+          ]
+        }
+      ]
     },
     "viewModel": {
       "asset": "assets/weapons/IV7_Carbine.glb",
@@ -67,10 +85,66 @@
       }
     }
   },
-  "pistol_placeholder": {
-    "id": "pistol_placeholder",
-    "displayName": "Pistole",
+  "ivp9_pistol": {
+    "id": "ivp9_pistol",
+    "rulesId": "pistol_p9",
+    "displayName": "IV-P9 pistole",
+    "shortName": "IV-P9",
     "slot": 2,
-    "available": false
+    "range": 150,
+    "loudness": 0.8,
+    "muzzleOffsetHip": [
+      0.1148,
+      -0.0921,
+      -0.6131
+    ],
+    "muzzleOffsetAds": [
+      0.0,
+      -0.026,
+      -0.577
+    ],
+    "adsTime": 0.16,
+    "adsFovMultiplier": 0.9,
+    "switchTime": 0.4,
+    "recoil": {
+      "pitchDeg": 1.1,
+      "yawDeg": 0.3,
+      "recoveryRate": 9.0,
+      "maxPitchDeg": 8.0
+    },
+    "viewModel": {
+      "asset": "assets/weapons/IVP9_Pistol.glb",
+      "_comment": "Provizorni model z primitiv, dokud nebude IVP9_Pistol.glb (stejne konvence jako puska: usti +X, nahoru +Y, pocatek na uchopu). Kdyz GLB existuje, poloha pro mireni a logicke usti se odvodi z jeho socketu socket_ads / socket_muzzle.",
+      "hipPosition": [
+        0.15,
+        -0.16,
+        -0.46
+      ],
+      "adsPosition": [
+        0.0,
+        -0.094,
+        -0.42
+      ],
+      "hipRotation": [
+        0.0,
+        0.2,
+        0.06
+      ],
+      "muzzleLocal": [
+        0.157,
+        0.068,
+        0.0
+      ],
+      "adsEyeLocal": [
+        -0.42,
+        0.094,
+        0.0
+      ],
+      "fovVerticalDeg": 50.5,
+      "sockets": {
+        "muzzle": "socket_muzzle",
+        "adsEye": "socket_ads"
+      }
+    }
   }
 }

@@ -37,6 +37,12 @@ const _vb = new Vector3();
 const _vc = new Vector3();
 const _o = new Vector3();
 
+/** Fallback for world-like objects with a single `bvh` (no groups). */
+function rawFromBvh(world, ray, far) {
+  const hit = world.bvh.raycastFirst(ray, DoubleSide, 0, far);
+  return hit ? { hit, part: world } : null;
+}
+
 function tangentFrame(n, t, b) {
   if (Math.abs(n.y) < 0.99) t.set(0, 1, 0).cross(n).normalize();
   else t.set(1, 0, 0).cross(n).normalize();
@@ -49,8 +55,8 @@ function tangentFrame(n, t, b) {
  */
 function samplePoint(world, p, n, dirs, opts, out, inward = null) {
   const { sunDirection, maxDistance, albedoOf, ambientShare, originOffset } = opts;
-  const bvh = world.bvh;
-  const posAttr = world.geometry.getAttribute('position');
+  // all BVH groups of the world (a world without groups behaves exactly like the single main BVH)
+  const cast = (ray, far) => (world.raycastFirstRaw ? world.raycastFirstRaw(ray, 0, far) : rawFromBvh(world, ray, far));
   tangentFrame(n, _t, _bt);
   _o.copy(p).addScaledVector(n, originOffset);
   // vertices on a face edge start slightly towards the face centre, so a vertex on a boundary
@@ -66,11 +72,13 @@ function samplePoint(world, p, n, dirs, opts, out, inward = null) {
     _dir.set(0, 0, 0).addScaledVector(_t, d[0]).addScaledVector(_bt, d[1]).addScaledVector(n, d[2]).normalize();
     _ray.origin.copy(_o);
     _ray.direction.copy(_dir);
-    const hit = bvh.raycastFirst(_ray, DoubleSide, 0, maxDistance);
-    if (!hit) {
+    const r = cast(_ray, maxDistance);
+    if (!r) {
       sky++;
       continue;
     }
+    const hit = r.hit;
+    const posAttr = r.part.geometry.getAttribute('position');
     // geometric normal of the triangle as authored (outward): a back face means we are inside
     _va.fromBufferAttribute(posAttr, hit.face.a);
     _vb.fromBufferAttribute(posAttr, hit.face.b);
@@ -80,13 +88,13 @@ function samplePoint(world, p, n, dirs, opts, out, inward = null) {
       back++;
       continue;
     }
-    const alb = albedoOf(world.solids[world.solidOfVertex[hit.face.a]].mat);
+    const alb = albedoOf(r.part.solids[r.part.solidOfVertex[hit.face.a]].mat);
     let e = ambientShare;
     const cosSun = _hn.dot(sunDirection);
     if (cosSun > 0) {
       _ray.origin.copy(hit.point).addScaledVector(_hn, 0.01);
       _ray.direction.copy(sunDirection);
-      if (!bvh.raycastFirst(_ray, DoubleSide, 0, 400)) e += cosSun;
+      if (!cast(_ray, 400)) e += cosSun;
     }
     br += alb[0] * e;
     bg += alb[1] * e;

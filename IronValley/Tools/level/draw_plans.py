@@ -31,7 +31,10 @@ import ivterrain as T                                              # noqa: E402
 LAYOUT = os.path.join(ROOT, "Shared", "level", "layout.json")
 BUILDINGS = os.path.join(ROOT, "Shared", "level", "buildings.json")
 IMG = os.path.join(ROOT, "Docs", "img")
-TEAM_COL = {"alfa": "#C8A03C", "bravo": "#4E7FB8", "charlie": "#B8574E"}
+# team colours come from the game data (Web/src/data/teams.json, order = Shared/config/rules.json teams.list)
+_TEAMS = json.load(open(os.path.join(ROOT, "Web", "src", "data", "teams.json")))["teams"]
+_ORDER = [t["id"] for t in json.load(open(os.path.join(ROOT, "Shared", "config", "rules.json")))["teams"]["list"]]
+TEAM_COL = {tid: _TEAMS[i]["color"] for i, tid in enumerate(_ORDER)}
 ZONE_COL = {"zone_dilna": "#7B4FA0", "zone_sklad": "#2E8B7A", "zone_dvur": "#C0607E"}
 BNAME = {"B_DILNA": "dilna", "B_SKLAD": "sklad", "B_DUM": "dum"}
 BLABEL = {"B_DILNA": "Dílna", "B_SKLAD": "Menší sklad", "B_DUM": "Obytný dům"}
@@ -567,7 +570,8 @@ def draw_floorplan(L, bd, level, fname):
         ax.add_patch(MPoly(loc, closed=True, fc="none", ec=ZONE_COL[z["id"]], lw=2.0, ls="-" if inband else ":", zorder=15))
         note = (f"zóna {z['name']}: počítá se" if inband else f"zóna {z['name']}: toto podlaží se NEPOČÍTÁ") + \
                f" (z {cz(z['z_min'])}–{cz(z['z_max'])} m, podlaha {cz(zf_world + lv['floor_z'])} m)"
-        ax.text(0.01, 0.01, note, transform=ax.transAxes, fontsize=8, color=ZONE_COL[z["id"]], weight="bold", zorder=30)
+        ax.text(0.99, 0.01, note, transform=ax.transAxes, fontsize=8, color=ZONE_COL[z["id"]], weight="bold", ha="right", zorder=30,
+                bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=0.85))
     # dimensions
     ext = np.array([p for part in bd["footprint_parts"] for p in part["external_rect"]])
     ex0, ey0 = ext.min(axis=0)
@@ -578,7 +582,7 @@ def draw_floorplan(L, bd, level, fname):
         q = np.array(q, float)
         o = np.array([off, 0]) if vertical else np.array([0, off])
         ax.annotate("", xy=tuple(q + o), xytext=tuple(p + o), arrowprops=dict(arrowstyle="<->", lw=0.7, color="#333"), zorder=25)
-        m = (p + q) / 2 + o * 1.25
+        m = (p + q) / 2 + o                              # label sits on the dimension line (white box), never outside the axes
         ax.text(m[0], m[1], txt, fontsize=7, ha="center", va="center", rotation=90 if vertical else 0, zorder=25,
                 bbox=dict(boxstyle="round,pad=0.1", fc="white", ec="none", alpha=0.85))
     dim((ex0, ey1), (ex1, ey1), (y1 - 0.8) - ey1, f"{cz(ex1 - ex0)} m (vnější)")
@@ -611,8 +615,11 @@ def draw_floorplan(L, bd, level, fname):
         rest = fp.difference(Polygon(lv["extent"]).buffer(0.46))
         for g in (rest.geoms if rest.geom_type == "MultiPolygon" else [rest]):
             ax.add_patch(MPoly(list(g.exterior.coords), closed=True, fc="#E4E4E4", ec="none", hatch="..", zorder=0.5))
+            if g.area < 6.0:                                 # thin slivers along the walls: hatch only, no label
+                continue
             c = g.representative_point()
-            ax.text(c.x, c.y, "pod střechou haly (hala bez stropu, nepřístupné)", fontsize=8, ha="center", va="center", color="#777", zorder=3)
+            ax.text(c.x, c.y, "pod střechou haly (hala bez stropu, nepřístupné)", fontsize=8, ha="center", va="center", color="#555", zorder=3,
+                    bbox=dict(boxstyle="round,pad=0.25", fc="white", ec="none", alpha=0.9))
     ax.set_title(f"{BLABEL[bd['id']]} – {LVLABEL.get(level, level)} ({level}), podlaha +{cz(lv['floor_z'])} = z {cz(zfl)} m; "
                  f"lokální souřadnice budovy (+Y = průčelí), řez 1,25 m nad podlahou", fontsize=10)
     leg = [MPoly([[0, 0]], fc="#2B2622", label="obvodová zeď v řezu"), MPoly([[0, 0]], fc="#3F3934", label="nosná vnitřní zeď"),
@@ -630,6 +637,164 @@ def draw_floorplan(L, bd, level, fname):
     ax.legend(handles=leg, loc="upper left", bbox_to_anchor=(1.01, 1.0), fontsize=7, frameon=True, title="Legenda")
     fig.savefig(fname, dpi=120)
     plt.close(fig)
+
+
+# ================================================================================================
+# generated tables of Docs/MAP_DESIGN.md (between <!-- NAME:BEGIN --> and <!-- NAME:END --> markers), so the document
+# always matches the data; check_layout.py Q02 compares the 'testovací body' list with layout.qa_points
+DOC = os.path.join(ROOT, "Docs", "MAP_DESIGN.md")
+ZNAME = {"zone_dilna": "Dílna", "zone_sklad": "Sklad", "zone_dvur": "Dvůr"}
+BNAME_CS = {"B_DILNA": "dílna", "B_SKLAD": "sklad", "B_DUM": "dům"}
+
+
+def _cz(v, nd=2):
+    return f"{v:.{nd}f}".replace(".", ",")
+
+
+def _qa_text(p):
+    import re as _re
+    k, n = p["kind"], p.get("note", "")
+    if k == "zone":
+        return "střed zóny: postav se sem, musí se počítat"
+    if k == "zone_edge":
+        return "vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne"
+    if k == "zone_z":
+        m = _re.search(r"on (\S+) \(floor z ([\d.\-]+) > z_max ([\d.\-]+)\)", n)
+        if m:
+            return f"uvnitř polygonu, ale v patře {m.group(1)} (podlaha z {_cz(float(m.group(2)))} > z_max {_cz(float(m.group(3)))}): nesmí se počítat"
+        return "test výškového pásma zóny: nesmí se počítat"
+    if k == "spawn_row":
+        zs = [ZNAME.get(z, z) for z in _re.findall(r"zone_\w+", n)]
+        return "střed spawn řady; aktivní pro zóny " + ", ".join(zs)
+    if k == "spawn_point":
+        m = _re.search(r"yaw ([\d.]+)", n)
+        return (f"spawn bod, natočení {_cz(float(m.group(1)), 1)}°: " if m else "spawn bod: ") + \
+            "nesmí být v objektu, na svahu ani na dohled zóny či nepřítele"
+    if k == "doorway":
+        m = _re.search(r"(\S+) (\S+) clear ([\d.]+) x ([\d.]*) m", n)
+        if m:
+            return (f"{BNAME_CS.get(m.group(1), m.group(1))} {m.group(2)}, světlost {_cz(float(m.group(3)))} × "
+                    f"{_cz(float(m.group(4))) if m.group(4) else '?'} m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle")
+        return "dveře: projít oběma směry"
+    if k == "stair":
+        m = _re.search(r"(\d+) x ([\d.]+) / ([\d.]+)", n)
+        if m:
+            return (f"spodek schodiště, {m.group(1)} × {_cz(float(m.group(2)) * 1000, 1)} mm / {_cz(float(m.group(3)) * 1000, 0)} mm: "
+                    "vyjít a sejít, výška nad stupni, došlap")
+        return "horní konec schodiště: sejít, podesta, zábradlí"
+    if k == "chokepoint":
+        m = _re.search(r"width ([\d.]+) m", n)
+        if m:
+            return f"úzké místo, šířka {_cz(float(m.group(1)))} m: průchod 3 botů najednou, kryt z obou stran"
+        if "sunken lane" in n:
+            return "výstup z úvozu: vyjít bez skoku, nahoře volno"
+        return "úzké místo"
+    if k == "boundary":
+        return "vyjít ven: text varovného pásu, pak odpočet 10 s; ověřit viditelnou bariéru a vysvětlení"
+    return n
+
+
+QA_KIND_ORDER = [("zone", "Zóny – střed"), ("zone_edge", "Zóny – okraje"), ("zone_z", "Zóny – výškové pásmo (nesmí se počítat)"),
+                 ("spawn_row", "Spawn řady"), ("spawn_point", "Spawn body"), ("doorway", "Dveře (obě strany)"),
+                 ("stair", "Schodiště (spodek a vršek)"), ("chokepoint", "Úzká místa"), ("boundary", "Hranice mapy")]
+
+
+def _md_qa(L):
+    qa = L["qa_points"]
+    lines = [f"Celkem **{len(qa)}** bodů. Souřadnice jsou ve světě mapy (m, +X východ, +Y sever, z = podlaha / terén). "
+             "Tabulky generuje `Tools/level/draw_plans.py` z `layout.json` (`qa_points`); `check_layout.py` (Q02) hlídá shodu.", ""]
+    for kind, title in QA_KIND_ORDER:
+        pts = [p for p in qa if p["kind"] == kind]
+        if not pts:
+            continue
+        lines += [f"#### {title} ({len(pts)})", "", "| ID | x | y | z | co ověřit |", "| --- | ---: | ---: | ---: | --- |"]
+        for p in pts:
+            x, y, z = p["pos"]
+            lines.append(f"| `{p['id']}` | {_cz(x)} | {_cz(y)} | {_cz(z)} | {_qa_text(p)} |")
+        lines.append("")
+    other = [p for p in qa if p["kind"] not in dict(QA_KIND_ORDER)]
+    if other:
+        lines += ["#### Ostatní", "", "| ID | x | y | z | poznámka |", "| --- | ---: | ---: | ---: | --- |"]
+        lines += [f"| `{p['id']}` | {_cz(p['pos'][0])} | {_cz(p['pos'][1])} | {_cz(p['pos'][2])} | {p.get('note', '')} |" for p in other]
+    return "\n".join(lines)
+
+
+def _md_balance(L):
+    from shapely.geometry import Polygon as _P, Point as _Pt
+    nv = L.get("navmesh_validation", {}).get("balance", {})
+    lines = []
+    rows = {}
+    for sa in L["spawn_areas"]:
+        for rw in sa["rows"]:
+            for z in rw["zones"]:
+                rows[(z, sa["team"])] = rw
+    pts = {}
+    for sa in L["spawn_areas"]:
+        for p in sa["candidate_points"]:
+            for z in p["zones"]:
+                pts.setdefault((z, sa["team"]), []).append(p["pos"])
+    for z in L["capture_zones"]:
+        zid = z["id"]
+        bz = L["balance"]["zones"][zid]
+        poly = _P(z["polygon"])
+        lanes = L["lanes"][zid]
+        lines += [f"**{ZNAME[zid]}** ({_cz(z['area_m2'], 0)} m², z {_cz(z['z_min'])}–{_cz(z['z_max'])} m)", "",
+                  "| tým | spawn řada (s) | přímo ke středu / k okraji | FMM chůze k okraji | Recast cesta k okraji | běh 3,5 m/s | obchvat |",
+                  "| --- | --- | ---: | ---: | ---: | ---: | --- |"]
+        for t in ("alfa", "bravo", "charlie"):
+            rw = rows[(zid, t)]
+            P = pts[(zid, t)]
+            dc = sum(math.hypot(p[0] - z["center"][0], p[1] - z["center"][1]) for p in P) / len(P)
+            de = sum(poly.exterior.distance(_Pt(p[0], p[1])) for p in P) / len(P)
+            rc = nv.get(zid, {}).get("teams", {}).get(t, {}).get("mean_m")
+            fl = lanes["flank"].get(t, {})
+            fl_txt = (f"{fl.get('desc', '')}: {_cz(fl['length_m'], 1)} m ({'+' if fl['extra_vs_primary_pct'] >= 0 else ''}"
+                      f"{_cz(fl['extra_vs_primary_pct'], 1)} %{', hluboký obchvat' if fl.get('deep_flank') else ''})") if fl else "–"
+            lines.append(f"| {t} | {rw['row_id']} ({_cz(rw['s'], 0)} m) | {_cz(dc, 1)} / {_cz(de, 1)} m | {_cz(bz['distances_edge_m'][t], 1)} m | "
+                         f"{_cz(rc, 1) + ' m' if rc else 'NOT TESTED'} | {_cz(bz['run_time_s_edge'][t], 1)} s | {fl_txt} |")
+        mo = nv.get(zid, {}).get("max_over_min")
+        e = list(bz["distances_edge_m"].values())
+        lines += ["", f"Poměr nejdelší/nejkratší: FMM {_cz(max(e) / min(e), 3)}, Recast {_cz(mo, 3) if mo else 'NOT TESTED'} "
+                      f"(cíl ≤ 1,06; zadání ±10 %).", ""]
+    return "\n".join(lines)
+
+
+def _md_sightlines():
+    out = []
+    data = {}
+    for key, fn in (("hard", "sightlines.json"), ("veg", "sightlines_veg.json")):
+        f = os.path.join(HERE, "_out", fn)
+        if os.path.exists(f):
+            data[key] = json.load(open(f))
+    if not data:
+        return "Metriky výhledů zatím nebyly spočteny (`python3 Tools/level/analyze_sightlines.py [--vegetation]`): NOT TESTED."
+    out += ["| zóna | model | plocha, odkud je vidět (m²) | nejdál (m) | > 100 m a vidí ≥ 25 % zóny (m²) | sektory útoku 20–80 m | "
+            "vyvýšené pozorovatelny | okna v patře: podíl viditelné zóny |",
+            "| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |"]
+    for zid in ("zone_dilna", "zone_sklad", "zone_dvur"):
+        for key, label in (("hard", "jen pevná geometrie"), ("veg", "+ keře, živé ploty, remízky")):
+            if key not in data:
+                continue
+            r = data[key]["zones"][zid]
+            wf = ", ".join(f"{k.split(':')[1]} {_cz(v * 100, 0)} %" for k, v in r["upper_window_fraction_seen"].items()) or "–"
+            th = lambda n: f"{n:,}".replace(",", " ")          # noqa: E731  (thousands separator, Czech style)
+            out.append(f"| {ZNAME[zid]} | {label} | {th(r['area_seeing_any_m2'])} | {_cz(r['max_dist_seeing_any_m'], 0)} | "
+                       f"{th(r['area_gt100m_seeing_ge25pct_m2'])} | {r['attack_sectors_20_80m_ge10pct']} / 8 | {r['elevated_overwatch_cells']} | {wf} |")
+    return "\n".join(out)
+
+
+def update_map_design(L):
+    if not os.path.exists(DOC):
+        return False
+    t = open(DOC, encoding="utf-8").read()
+    for name, fn in (("QA_POINTS", lambda: _md_qa(L)), ("BALANCE", lambda: _md_balance(L)), ("SIGHTLINES", _md_sightlines)):
+        a, b = f"<!-- {name}:BEGIN -->", f"<!-- {name}:END -->"
+        i, j = t.find(a), t.find(b)
+        if i < 0 or j < i:
+            continue
+        t = t[:i + len(a)] + "\n" + fn() + "\n" + t[j:]
+    open(DOC, "w", encoding="utf-8").write(t)
+    return True
 
 
 def main():
@@ -655,6 +820,8 @@ def main():
             out.append(f)
     for f in out:
         print("written", os.path.relpath(f, ROOT))
+    if update_map_design(L):
+        print("updated generated tables in", os.path.relpath(DOC, ROOT))
 
 
 if __name__ == "__main__":
