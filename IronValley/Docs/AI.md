@@ -323,11 +323,13 @@ rozhoduje) a po novém kole (rezervace, blokace, paměti, cesty smazány; ≥ 12
 
 ### Výkon (orientačně)
 
-AI 17 botů: průměr ~0,6–0,9 ms na tik (Node i Chromium bez vykreslování, když byl stroj méně vytížený); vnímání bota
-medián 0,13 ms. Stroj je sdílený (Blender a další úlohy, load average 11–20 na 4 jádrech), proto maxima jednotlivých
-tiků (desítky až stovky ms) odpovídají přeplánování procesu, ne kódu (GC pauzy ≤ 10 ms). Největší položky profilu:
-`Combatant.updateHitShapes` (klíč mezipaměti jako řetězec, volá se u každého paprsku viditelnosti) a GC — navržen
-samostatný úkol pro herní integraci. Výkon ve skutečném prohlížeči s GPU **NOT TESTED**.
+`ai.update` pro 17 botů **včetně** jejich `applyCommand` (fyzika kapsle, zbraně, hitscan): průměr 1,0 ms (čas stěny) /
+1,2 ms (čas CPU) na tik, medián 0,9 ms, 99. percentil 6,8 ms (Node 22, Xeon 2,1 GHz, 120 s zápasu, `process.cpuUsage`);
+celá simulace zápasu 1,38 ms CPU na tik. V Chromiu (SwiftShader, bez vykreslování) průměr 0,6–1,1 ms. Vnímání jednoho
+bota: medián 0,13 ms. Stroj je sdílený (Blender a další úlohy, load average 6–20 na 4 jádrech), proto maxima jednotlivých
+tiků v čase stěny (desítky až stovky ms) odpovídají přeplánování procesu, ne kódu (GC pauzy ≤ 10 ms). Největší položky
+profilu: `Combatant.updateHitShapes` (klíč mezipaměti jako řetězec, volá se u každého paprsku viditelnosti i výstřelu)
+a GC — navržen samostatný úkol pro herní integraci. Výkon ve skutečném prohlížeči s GPU **NOT TESTED**.
 
 ## 12. Testy
 
