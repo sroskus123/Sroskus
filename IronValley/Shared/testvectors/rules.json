@@ -33,6 +33,7 @@
         { "op": "compile", "overrides": { "respawn": { "delay": 0 } }, "expect": { "result": "valid", "respawn": { "delayUs": 0 } } },
         { "op": "compile", "overrides": { "zone": { "pointInterval": 1.0000005 } }, "expect": { "result": "valid", "zone": { "pointIntervalUs": 1000001 } } },
         { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "roundsPerMinute": 700 } } }, "expect": { "result": "valid", "weapons": { "rifle_iv7": { "fireIntervalUs": 85714 } } } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "roundsPerMinute": 1 } } }, "expect": { "result": "valid", "weapons": { "rifle_iv7": { "fireIntervalUs": 60000000 } } } },
         { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "hasChamber": false, "reload": { "chamber": null, "empty": { "boltRelease": null } } } } }, "expect": { "result": "valid", "weapons": { "rifle_iv7": { "hasChamber": false, "empty": { "durationUs": 2900000, "insertUs": 1300000, "boltUs": 0 }, "chamber": { "durationUs": 0, "commitUs": 0 } } } } },
         { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "reload": { "empty": { "boltRelease": 1.3 } } } } }, "expect": { "result": "valid", "weapons": { "rifle_iv7": { "empty": { "boltUs": 1300000 } } } } },
         { "op": "compile", "overrides": { "unknownFutureKey": { "x": 1 } }, "expect": { "result": "valid" } }
@@ -68,6 +69,8 @@
         { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "startReserve": 200 } } }, "expect": { "result": "invalid" } },
         { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "startReserve": -1 } } }, "expect": { "result": "invalid" } },
         { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "roundsPerMinute": 0 } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "roundsPerMinute": 0.9999999999999999 } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "roundsPerMinute": 1e-300 } } }, "expect": { "result": "invalid" } },
         { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "fireModes": ["burst"] } } }, "expect": { "result": "invalid" } },
         { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "fireModes": [] } } }, "expect": { "result": "invalid" } },
         { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "fireModes": ["auto", "auto"] } } }, "expect": { "result": "invalid" } },

@@ -110,7 +110,7 @@ std::vector<std::string> validateWeaponDef(const WeaponDef& w) {
   check(e, w.magazineCapacity >= 1 && w.magazineCapacity <= 1000, "magazineCapacity mimo 1..1000");
   check(e, w.startReserve >= 0 && w.maxReserve >= 0 && w.maxReserve <= 1000000 && w.startReserve <= w.maxReserve,
         "rezerva mimo rozsah");
-  check(e, w.fireIntervalUs >= 1, "palebny interval < 1 us");
+  check(e, w.fireIntervalUs >= 1 && w.fireIntervalUs <= kMaxFireIntervalUs, "palebny interval mimo 1 us..60 s");
   check(e, !w.fireModes.empty() && w.fireModes.size() <= 2, "fireModes");
   check(e, !(w.fireModes.size() == 2 && w.fireModes[0] == w.fireModes[1]), "duplicitni fireModes");
   check(e, w.supportsFireMode(w.defaultFireMode), "defaultFireMode neni ve fireModes");

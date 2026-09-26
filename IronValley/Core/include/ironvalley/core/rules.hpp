@@ -40,6 +40,12 @@ struct ChamberTimeline {
   Micros commitUs = 0;
 };
 
+/// Nejnizsi kadence (ran/min) = nejdelsi palebny interval 60 s, stejna mez jako JS compileRules. JSON vrstva ji kontroluje
+/// na kadenci pred prevodem na mikrosekundy (i engine s vlastnim parserem to musi udelat pred secondsToMicros);
+/// validateRules() kontroluje jen vysledny interval proti kMaxFireIntervalUs, a proto neni prisnejsi.
+constexpr double kMinRoundsPerMinute = 1.0;
+constexpr Micros kMaxFireIntervalUs = 60 * kMicrosPerSecond;
+
 struct WeaponDef {
   std::string id;
   std::string name;

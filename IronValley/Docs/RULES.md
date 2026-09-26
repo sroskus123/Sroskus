@@ -95,6 +95,23 @@ Kontrola konfigurace (JS `compileRules`, C++ `rulesFromJson` + `validateRules`) 
 duplicitní id atd. Neznámé klíče se ignorují (dopředná kompatibilita). Přepisy pravidel v testech jsou JSON Merge Patch
 (RFC 7386: objekty se slučují, `null` klíč odstraní).
 
+Obě implementace musí o každé konfiguraci rozhodnout stejně (platná / neplatná); ověřuje to `Shared/testvectors/rules.json`.
+Proto se každá hodnota v sekundách kontroluje **před** převodem na mikrosekundy a převádí se jen hodnota v rozsahu
+(časy kola, oblasti a respawnu nejvýše 86 400 s, časy přebití nejvýše 60 s). Výsledek je pak v JS vždy bezpečné celé
+číslo a C++ `std::llround` nikdy nepřeteče `int64` (mimo rozsah je jeho výsledek nespecifikovaný).
+
+- **Kadence** `roundsPerMinute`: číslo v rozsahu **1 až 100 000 ran/min**, tedy palebný interval `60 / roundsPerMinute`
+  mezi 600 µs a 60 s (stejná horní mez jako časy přebití). Dolní mez platí pro zapsanou kadenci, ne pro zaokrouhlený
+  interval: `1` je platná (interval 60 000 000 µs), největší double pod 1 (`0.9999999999999999`) je neplatná, přestože
+  by se její interval zaokrouhlil také na 60 000 000 µs. Kadenci pod 1 ran/min odmítnou JS i C++ se shodným hlášením
+  `weapons.<id>.roundsPerMinute: musi byt alespon 1 rana/min (palebny interval nejvyse 60 s)`, aniž by počítaly interval.
+  (Dříve JS přijal např. `1e-300` s intervalem 6·10^307 µs, který není bezpečné celé číslo, a C++ ho odmítl jen díky
+  nespecifikovanému přetečení `llround`.)
+- C++ `validateRules` (bezpečnostní kontrola zkompilovaných hodnot, volá ji i engine s vlastním parserem JSON) navíc
+  kontroluje palebný interval v rozsahu 1 µs až 60 s. Tato mez je volnější než kontrola kadence (kadence ≥ 1 dává
+  interval ≤ 60 s), takže nikdy neodmítne pravidla, která JS přijme. Engine s vlastním parserem musí kadenci
+  zkontrolovat před voláním `secondsToMicros` (konstanty `kMinRoundsPerMinute`, `kMaxFireIntervalUs` v `rules.hpp`).
+
 ## 3. Kontrolní oblast
 
 - Každý tik dostane seznam účastníků `{id, team, alive, active, inZone}`. **Počítá se jen `alive && active && inZone`.**

@@ -156,6 +156,29 @@ int main(int argc, char** argv) {
     check(!validateRules(Rules{}).empty(), "validateRules odmitne prazdna pravidla");
   }
 
+  // --- dolni mez kadence: odmitnuti pred prevodem na us, hlaseni shodne s JS (core_rules.test.mjs) ---
+  {
+    const json base = loadJson(shared + "/config/rules.json");
+    for (double rpm : {1e-300, 0.9999999999999999}) {
+      Rules r;
+      std::vector<std::string> errors;
+      const bool ok = rulesFromJson(mergePatch(base, {{"weapons", {{"rifle_iv7", {{"roundsPerMinute", rpm}}}}}}), r, errors);
+      check(!ok && errors == std::vector<std::string>{"weapons.rifle_iv7.roundsPerMinute: musi byt alespon 1 rana/min "
+                                                      "(palebny interval nejvyse 60 s)"},
+            "roundsPerMinute < 1 odmitnuto se shodnym hlasenim");
+    }
+    Rules r;
+    std::vector<std::string> errors;
+    const bool ok = rulesFromJson(mergePatch(base, {{"weapons", {{"rifle_iv7", {{"roundsPerMinute", 1}}}}}}), r, errors);
+    const WeaponDef* rifle = r.findWeapon("rifle_iv7");
+    check(ok && rifle && rifle->fireIntervalUs == kMaxFireIntervalUs, "roundsPerMinute = 1 -> interval 60 s");
+    // validateRules: horni mez intervalu (volnejsi nez kontrola kadence, nikdy prisnejsi nez JS).
+    check(validateRules(r).empty(), "validateRules prijme interval 60 s");
+    for (WeaponDef& w : r.weapons)
+      if (w.id == "rifle_iv7") w.fireIntervalUs = kMaxFireIntervalUs + 1;
+    check(!validateRules(r).empty(), "validateRules odmitne interval nad 60 s");
+  }
+
   // --- vsechny sdilene soubory vektoru existuji ---
   for (const char* name : {"weapon", "zone", "round", "respawn", "match", "rules", "rng", "fuzz_weapon", "fuzz_zone",
                            "fuzz_round", "fuzz_respawn", "fuzz_match"}) {

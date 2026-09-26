@@ -39,6 +39,15 @@ test('neplatna pravidla vyhodi RulesError se seznamem chyb', () => {
   assert.throws(() => compileRules(bad), (e) => e instanceof RulesError && e.errors.length === 2);
 });
 
+test('roundsPerMinute pod 1 rana/min je odmitnuto pred prevodem na us (hlaseni shodne s C++ unit_tests.cpp)', () => {
+  for (const rpm of [1e-300, 0.9999999999999999]) {
+    const errors = validateRules(mergePatch(raw, { weapons: { rifle_iv7: { roundsPerMinute: rpm } } }));
+    assert.deepEqual(errors, ['weapons.rifle_iv7.roundsPerMinute: musi byt alespon 1 rana/min (palebny interval nejvyse 60 s)']);
+  }
+  const r = compileRules(mergePatch(raw, { weapons: { rifle_iv7: { roundsPerMinute: 1 } } }));
+  assert.equal(r.weapons.rifle_iv7.fireIntervalUs, 60 * 1e6);
+});
+
 test('mergePatch: objekty se slucuji, null maze, pole se nahrazuji, vstup se nemeni', () => {
   const base = { a: { b: 1, c: [1, 2] }, d: 1 };
   const out = mergePatch(base, { a: { c: [3] }, d: null, e: 2 });

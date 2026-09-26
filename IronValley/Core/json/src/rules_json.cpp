@@ -135,7 +135,10 @@ void compileWeapon(Checker& c, const std::string& id, const json& raw, const std
   w.startReserve = static_cast<int>(startReserve.value_or(0));
   w.maxReserve = static_cast<int>(maxReserve.value_or(0));
   auto rpm = c.num(r, "roundsPerMinute", path + ".roundsPerMinute", 0.0, 100000.0, true);
-  if (rpm) {
+  if (rpm && *rpm < kMinRoundsPerMinute) {
+    // Kontrola pred prevodem: jinak by 60 / rpm mohlo byt mimo rozsah int64 a vysledek llround nespecifikovany.
+    c.fail(path + ".roundsPerMinute", "musi byt alespon 1 rana/min (palebny interval nejvyse 60 s)");
+  } else if (rpm) {
     w.fireIntervalUs = secondsToMicros(60.0 / *rpm);
     if (w.fireIntervalUs < 1) c.fail(path + ".roundsPerMinute", "interval kratsi nez 1 us");
   }

@@ -99,6 +99,10 @@ class Checker {
 }
 
 const LIMIT_SECONDS = 86400;
+// Nejnizsi kadence 1 rana/min = palebny interval nejvyse 60 s (stejna mez jako casy prebiti). Kontroluje se na vstupu,
+// pred prevodem na us, takze interval 60 / rpm je vzdy 600 us az 60 s: bezpecne cele cislo a C++ (llround)
+// nepretece int64. Hlaseni je shodne s Core/json/src/rules_json.cpp.
+const MIN_ROUNDS_PER_MINUTE = 1;
 
 function compileWeapon(c, id, raw, path) {
   if (!isObj(raw)) return c.fail(path, 'ocekavan objekt');
@@ -113,7 +117,9 @@ function compileWeapon(c, id, raw, path) {
     c.fail(`${path}.startReserve`, 'nesmi byt vetsi nez maxReserve');
   }
   const rpm = c.num(raw, 'roundsPerMinute', `${path}.roundsPerMinute`, 0, 100000, { minExclusive: true });
-  if (rpm !== undefined) {
+  if (rpm !== undefined && rpm < MIN_ROUNDS_PER_MINUTE) {
+    c.fail(`${path}.roundsPerMinute`, 'musi byt alespon 1 rana/min (palebny interval nejvyse 60 s)');
+  } else if (rpm !== undefined) {
     w.fireIntervalUs = secondsToMicros(60 / rpm);
     if (w.fireIntervalUs < 1) c.fail(`${path}.roundsPerMinute`, 'palebny interval je kratsi nez 1 us');
   }

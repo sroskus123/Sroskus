@@ -18,6 +18,8 @@ constexpr Micros kMaxDtUs = 9007199254740991LL;
 constexpr bool validDt(Micros dtUs) { return dtUs >= 0 && dtUs <= kMaxDtUs; }
 
 /// Prevod sekund na cele mikrosekundy se stejnym zaokrouhlenim jako JS Math.round (polovina smerem k +nekonecnu).
+/// Predpoklad: seconds * 10^6 lezi v rozsahu int64, jinak je vysledek std::llround nespecifikovany. Volajici hodnotu
+/// kontroluje predem (rulesFromJson: kazdy cas je omezeny rozsahem a kadence >= 1 rana/min, Docs/RULES.md oddil 2).
 inline Micros secondsToMicros(double seconds) {
   const double x = seconds * 1e6;
   Micros r = static_cast<Micros>(std::llround(x));  // polovina od nuly
