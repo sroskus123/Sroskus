@@ -118,3 +118,20 @@ merged navmesh_validation: PASS {'zone_dilna': 1.0225, 'zone_sklad': 1.0362, 'zo
   PASS R04: 10 stair approaches (exterior building stairs, retaining-wall stairs) are free and capsule-clear
 
 == 5. Line of sight with hard geometry only (vegetation ignored), incl. window openings and upper floors
+  PASS V01: 0 visible rays from every active spawn point to its zone (incl. through windows) and to upper-floor windows/balconies next to the zone, and 0 rays between enemy spawn rows -- terrain, buildings, closed buildings, hard props, walls and HESCO only (no foliage)
+       zone_dilna: 69 zone samples x 2 heights + 4 upper-floor window/balcony points vs 8 spawn points per team: 3408 rays tested
+       zone_sklad: 85 zone samples x 2 heights + 0 upper-floor window/balcony points vs 8 spawn points per team: 4080 rays tested
+       zone_dvur: 92 zone samples x 2 heights + 9 upper-floor window/balcony points vs 8 spawn points per team: 4632 rays tested
+       LOS model: 416 oriented boxes + 23 roof volumes, 9 s
+
+== 6. Vegetation, performance budget, AI data, QA points, navmesh
+  PASS G01: 1626 trees: deciduous species only inside the playable area, none on roads or in buildings, all on the terrain; vision-blocking shrubs specified dense to the ground
+  PASS P01: browser budget: 426 <= 450 draw calls, 1,924,000 <= 2,000,000 triangles; 1124 of 1626 trees impostor-only; no KTX2; PERF-01 declared NOT TESTED
+  PASS A01: 591 cover points with facing_deg/peek/capacity (>= 40 per zone), AI perception capped at 150 m, door reservation/door_link policy, stuck recovery, spawn risk scoring, Recast radius >= capsule
+  PASS Q01: 184 QA points ({'zone': 3, 'zone_edge': 19, 'spawn_row': 6, 'spawn_point': 48, 'doorway': 64, 'stair': 22, 'chokepoint': 12, 'boundary': 10}) cover every zone, spawn point, doorway, stair and chokepoint
+  PASS N01: Recast navmesh (0.05 m cells, radius 7 cells): all documented entrances connected, spawn -> zone path balance max/min <= 1.06 ({'zone_dilna': 1.0225, 'zone_sklad': 1.0362, 'zone_dvur': 1.0411})
+
+== SUMMARY: 72 PASS, 0 FAIL, 1 WARN (49 s)
+<<< exit 0 (49 s)
+
+>>> /usr/local/bin/python3 draw_plans.py

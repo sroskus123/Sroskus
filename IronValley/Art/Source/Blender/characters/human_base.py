@@ -77,6 +77,14 @@ SKELETON_DATA_NAME = "SKEL_Human_Base"
 MESH_NAME = "SK_Human_Base"
 BODY_VERTS = 13380
 RENDER_SAMPLES = 24
+# UE4-mannequin twist bones added on top of the MPFB rig (see spec 'Twist bones'):
+# (name, parent, head fraction, tail fraction along the parent)
+TWIST_SPECS = [(f"{b}_twist_01_{s}", f"{b}_{s}", fh, ft) for s in ("l", "r")
+               for b, fh, ft in (("upperarm", 0.10, 0.60), ("lowerarm", 0.50, 1.00))]
+# weight ramps: share of the parent's weight moved to the twist bone
+TWIST_RAMPS = {"lowerarm": (0.30, 0.70, True),     # 0 -> 1 from 30 % to 70 % of the forearm
+               "upperarm": (0.20, 0.55, False)}    # 1 -> 0 from 20 % to 55 % of the upper arm
+TWIST_DRIVE = {"lower": 0.5, "upper": 0.5}
 
 
 def log(*a):
@@ -136,6 +144,7 @@ def build():
                              "reason": "Root carries zero skin weight in weights.game_engine.json; "
                                        "placed at the origin with world-aligned axes like the "
                                        "Unreal mannequin root. No deformation change."}
+    bones = C.add_twist_bones(bones, TWIST_SPECS)
     bone_names = list(bones.keys())
 
     # ---- mesh: body group only
@@ -159,12 +168,17 @@ def build():
                                    with_flags=True)
     asym_src = C.weight_asymmetry(D / np.maximum(D.sum(1, keepdims=True), 1e-12), bone_names, mirror)
     Ds = C.symmetrize_weights(D, bone_names, mirror)
+    for side in ("l", "r"):
+        for seg, (s0, s1, tt) in TWIST_RAMPS.items():
+            b = bones[f"{seg}_{side}"]
+            Ds = C.split_weights_along_bone(Ds, bone_names, V3[:BODY_VERTS], b["head"], b["tail"],
+                                            f"{seg}_{side}", f"{seg}_twist_01_{side}", s0, s1, tt)
     _, lst = C.limit_and_normalize(Ds, MAX_INFLUENCES)        # stats only
     D4 = C.limit_symmetric(Ds, bone_names, mirror, mflags, MAX_INFLUENCES)
     chg = np.abs(D4 - Ds).sum(1)
     info["weights"] = dict(lst, source_bones=len(wj["weights"]),
                            source_lr_asymmetry=asym_src,
-                           symmetrized=True,
+                           symmetrized=True, twist_ramps=TWIST_RAMPS,
                            after_symmetrize_and_limit_lr_asymmetry=C.weight_asymmetry(D4, bone_names, mirror),
                            limit_change_L1_mean=round(float(chg.mean()), 6),
                            limit_change_L1_max=round(float(chg.max()), 5))
@@ -323,7 +337,10 @@ def validate(arm, body, info):
     checks["facing_minus_Y"] = "PASS" if (co[inose, 1] < -0.05 and abs(co[inose, 0]) < 0.01) else "FAIL"
 
     # skeleton
-    hr = C.hierarchy_report(arm)
+    parents = dict(C.UE_MANNEQUIN_PARENTS)
+    parents.update(C.UE_MANNEQUIN_TWIST_PARENTS)
+    hr = C.hierarchy_report(arm, expected=list(C.UE_MANNEQUIN_CORE) + C.UE_MANNEQUIN_TWIST,
+                            parents=parents)
     rep["skeleton"] = hr
     rep["skeleton"]["bones"] = {b.name: {"parent": b.parent.name if b.parent else None,
                                          "head_m": [round(v, 4) for v in b.head_local],
@@ -469,6 +486,18 @@ HALF = dict(curl=(42, 48, 30), thumb=(14, 8, 12, 18))
 SPREAD = dict(spread=14.0, curl=(-6, 0, 0), thumb=(-18, 0, -5, 0))
 
 
+def p_upperarm_roll(arm):
+    # elbows 90 deg forward, then the upper arm rolled 70 deg about its own axis (internal
+    # rotation: forearm swings towards the belly) -- stress test for the shoulder / upper arm
+    for side, sg in (("l", 1.0), ("r", -1.0)):
+        u = C.bone_dir(arm, f"upperarm_{side}")
+        C.aim_bone(arm, f"lowerarm_{side}", u)
+        fwd = Vector((0, -1, 0))
+        fwd_p = (fwd - u * fwd.dot(u)).normalized()
+        C.rotate_bone_world(arm, f"lowerarm_{side}", u.cross(fwd_p), 90.0)
+        C.rotate_bone_world(arm, f"upperarm_{side}", u, 70.0 * sg)
+
+
 def p_fist(arm):
     for side in ("l", "r"):
         C.pose_hand(arm, side, **FIST)
@@ -492,35 +521,89 @@ POSES = [
     ("squat_knees_120", p_squat, "hip flexion 100 deg, knee flexion 120 deg, ankle dorsiflexion 20 deg, feet planted"),
     ("spine_twist", p_spine_twist, "spine axial rotation 55 deg (15+20+20) + neck 5 deg, pelvis fixed"),
     ("wrist_flex", p_wrist_flex, "left wrist flexion 70 deg, right wrist extension 60 deg"),
-    ("wrist_twist", p_wrist_twist, "hand rotated 80 deg about the forearm axis (no twist bones)"),
+    ("wrist_twist", p_wrist_twist, "hand rotated 80 deg about the forearm axis"),
+    ("upperarm_roll", p_upperarm_roll, "elbows 90 deg, upper arm rolled 70 deg about its axis (internal rotation)"),
     ("fist", p_fist, "fist: fingers MCP/PIP/DIP 80/90/45 deg, thumb 01 folded 45 + out 10, 02/03 flex 35/40"),
     ("fingers_half", p_half, "transition: fingers 42/48/30 deg, thumb 14/8/12/18"),
     ("fingers_spread", p_spread, "fingers spread 14 deg (pinky 22), MCP extension 6 deg, thumb radial abduction 18 deg"),
 ]
 
 
+DRIVEN = ("wrist_twist", "upperarm_roll")      # also measured / rendered with driven twist bones
+
+
+def ring_ratio(co_rest, co_pose, head, tail, fracs, mask, radius=0.08):
+    """Mean radial distance of limb cross-section rings (posed / rest) around a static axis."""
+    h, t = np.asarray(head), np.asarray(tail)
+    ax = t - h
+    L = np.linalg.norm(ax)
+    ax = ax / L
+    out = {}
+    for f in fracs:
+        p = h + ax * L * f
+        r = []
+        for co in (co_rest, co_pose):
+            rel = co - p
+            al = rel @ ax
+            rad = np.linalg.norm(rel - np.outer(al, ax), axis=1)
+            m = mask & (np.abs(al) < 0.006) & (rad < radius)
+            r.append(rad[m].mean())
+        out[str(f)] = round(float(r[1] / r[0]), 3)
+    return out
+
+
 def pose_metrics(arm, body):
     C.reset_pose(arm)
     rest = C.mesh_arrays(body, evaluated=True)
     out = {}
-    for name, fn, desc in POSES:
+    names = [b.name for b in arm.data.bones]
+    D = C.read_weights(body, names)
+    armmask = {sd: C.dominant_bone_mask(D, names, [f"{b}_{sd}" for b in (
+        "upperarm", "upperarm_twist_01", "lowerarm", "lowerarm_twist_01", "hand", "clavicle")])
+        for sd in ("l", "r")}
+    bvh0 = C.mesh_bvh(body, rest)
+    runs = [(n, f, d, False) for n, f, d in POSES] + [(n, f, d, True) for n, f, d in POSES if n in DRIVEN]
+    for name, fn, desc, drive in runs:
         C.reset_pose(arm)
         fn(arm)
+        tw = C.drive_twist_bones(arm, lower=TWIST_DRIVE["lower"], upper=TWIST_DRIVE["upper"]) if drive else None
         bpy.context.view_layer.update()
         co = C.mesh_arrays(body, evaluated=True)
         r = C.deformation_report(body, rest, co)
         n_int, _ = C.self_intersections(body, co)
         r["self_intersecting_face_pairs"] = n_int
-        r["description"] = desc
-        # bone length stability (pose must not scale bones)
+        r["description"] = desc + (" -- twist bones driven" if drive else "")
         maxdl = 0.0
         for pb in arm.pose.bones:
             L = (C.bone_world(arm, pb.name, "tail") - C.bone_world(arm, pb.name, "head")).length
             maxdl = max(maxdl, abs(L - pb.bone.length) / max(pb.bone.length, 1e-9))
         r["max_bone_length_change_rel"] = round(maxdl, 8)
         r["min_z_m"] = round(float(co[:, 2].min()), 4)
-        out[name] = r
-        log(f"pose {name}: {r}")
+        if drive:
+            r["twist_bones_driven_deg"] = tw
+        if name == "wrist_twist":
+            for sd in ("l", "r"):
+                b = arm.data.bones[f"lowerarm_{sd}"]
+                r[f"forearm_ring_ratio_{sd}"] = ring_ratio(rest, co, b.head_local, b.tail_local,
+                                                           (0.3, 0.5, 0.7, 0.85, 0.95, 1.0, 1.05), armmask[sd])
+        if name == "upperarm_roll":
+            for sd in ("l", "r"):
+                b = arm.data.bones[f"upperarm_{sd}"]
+                r[f"upperarm_ring_ratio_{sd}"] = ring_ratio(rest, co, b.head_local, b.tail_local,
+                                                            (0.1, 0.2, 0.35, 0.5, 0.7), armmask[sd], 0.09)
+        if name in ("elbows_120", "squat_knees_120", "upperarm_roll"):
+            bvh = C.mesh_bvh(body, co)
+            jc = {}
+            for jn in (("lowerarm_l", "lowerarm_r") if name != "squat_knees_120" else ("calf_l", "calf_r", "thigh_l")):
+                p0 = arm.data.bones[jn].head_local
+                p1 = C.bone_world(arm, jn)
+                d0 = bvh0.find_nearest(p0)[3]
+                d1 = bvh.find_nearest(p1)[3]
+                jc[jn] = {"rest_clearance_m": round(d0, 4), "posed_clearance_m": round(d1, 4),
+                          "ratio": round(d1 / d0, 3)}
+            r["joint_clearance"] = jc
+        out[name + ("_driven" if drive else "")] = r
+        log(f"pose {name}{' (driven)' if drive else ''}: tris<25%={r['tris_below_25pct_area']} int={r['self_intersecting_face_pairs']}")
     C.reset_pose(arm)
     n_int, _ = C.self_intersections(body, rest)
     out["_rest_self_intersecting_face_pairs"] = n_int
