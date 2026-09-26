@@ -21,7 +21,7 @@
   "vertices": 1019616,
   "triangles": 339872
  },
- "bake_seconds": 7.5,
+ "bake_seconds": 7.3,
  "tiles": 307,
  "polys": 7898,
  "disconnected_entrances": [],
@@ -265,7 +265,7 @@
   {
    "id": "CK_DM1_D6",
    "ok": true,
-   "path_m": 61.74
+   "path_m": 61.75
   },
   {
    "id": "CK_DM1_D1",
@@ -275,7 +275,7 @@
   {
    "id": "CK_DM1_D2",
    "ok": true,
-   "path_m": 66.2
+   "path_m": 66.21
   },
   {
    "id": "CK_DM1_D3",

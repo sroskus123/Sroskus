@@ -8219,11 +8219,11 @@
         -6.35
        ],
        [
-        -1.6,
+        -1.4,
         -6.35
        ],
        [
-        -1.6,
+        -1.4,
         -4.75
        ],
        [
@@ -8301,11 +8301,11 @@
        -6.35
       ],
       [
-       -1.6,
+       -1.4,
        -6.35
       ],
       [
-       -1.6,
+       -1.4,
        -4.75
       ],
       [
@@ -8326,35 +8326,36 @@
       "segments": [
        [
         [
-         -5.4,
+         -5.3,
          -4.75
         ],
         [
-         -5.4,
+         -5.3,
          -6.35
         ]
        ],
        [
         [
-         -5.4,
-         -6.35
+         -5.2,
+         -6.25
         ],
         [
          -2.7,
-         -6.35
+         -6.25
         ]
        ],
        [
         [
-         -1.6,
+         -1.5,
          -6.35
         ],
         [
-         -1.6,
+         -1.5,
          -4.75
         ]
        ]
       ],
+      "segment_rule": "segments are the parapet centre lines, boxes of `thickness` inside the slab edge",
       "note": "solid 1.00 m parapet = crouch cover (firing position outside the zone); opening x -2.70..-1.60 for the stair"
      },
      "drainage": "falls 2 % to a copper spout at the south-west corner",

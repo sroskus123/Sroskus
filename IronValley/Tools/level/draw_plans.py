@@ -382,7 +382,7 @@ def draw_floorplan(L, bd, level, fname):
     bp = next(b for b in L["buildings"] if b["id"] == bd["id"])
     lv = next(l for l in bd["levels"] if l["id"] == level)
     zf_world = bp["position"][2]
-    CUT = 1.20
+    CUT = 1.25
     pts = [p for part in bd["footprint_parts"] for p in part["external_rect"]]
     for s in bd["stairs"] + bd["exterior_stairs"]:
         pts += stair_poly(s)
@@ -435,7 +435,7 @@ def draw_floorplan(L, bd, level, fname):
         if "polygon" in st:
             ax.add_patch(MPoly(st["polygon"], closed=True, fc="#E3DED3", ec="#444", lw=0.6, zorder=2))
             c = Polygon(st["polygon"]).centroid
-            lab = {"ramp": f"rampa {cz(st.get('slope_pct', 0), 1)} %", "step": f"stupeň {cz(st.get('riser', 0))}", "threshold": "práh"}.get(st["type"], "")
+            lab = {"ramp": f"rampa {cz(st.get('slope_pct', 0), 1)} %"}.get(st["type"], "")
             if st.get("apron"):
                 ax.add_patch(MPoly(st["apron"]["polygon"], closed=True, fc="none", ec="#999", lw=0.5, ls=":", zorder=2))
             ax.text(c.x, c.y, lab, fontsize=5.5, ha="center", va="center", zorder=3, color="#333")
@@ -581,7 +581,7 @@ def draw_floorplan(L, bd, level, fname):
         m = (p + q) / 2 + o * 1.25
         ax.text(m[0], m[1], txt, fontsize=7, ha="center", va="center", rotation=90 if vertical else 0, zorder=25,
                 bbox=dict(boxstyle="round,pad=0.1", fc="white", ec="none", alpha=0.85))
-    dim((ex0, ey1), (ex1, ey1), 1.0, f"{cz(ex1 - ex0)} m (vnější)")
+    dim((ex0, ey1), (ex1, ey1), (y1 - 0.8) - ey1, f"{cz(ex1 - ex0)} m (vnější)")
     dim((ex1, ey0), (ex1, ey1), 1.0, f"{cz(ey1 - ey0)} m", vertical=True)
     for part in bd["footprint_parts"]:
         ir = np.array(part["interior_rect"])
@@ -606,8 +606,15 @@ def draw_floorplan(L, bd, level, fname):
     ax.tick_params(labelsize=7)
     ax.grid(alpha=0.15)
     zfl = zf_world + lv["floor_z"]
+    if lv.get("extent"):
+        fp = Polygon(ext).buffer(0) if False else Polygon([(ex0, ey0), (ex1, ey0), (ex1, ey1), (ex0, ey1)])
+        rest = fp.difference(Polygon(lv["extent"]).buffer(0.46))
+        for g in (rest.geoms if rest.geom_type == "MultiPolygon" else [rest]):
+            ax.add_patch(MPoly(list(g.exterior.coords), closed=True, fc="#E4E4E4", ec="none", hatch="..", zorder=0.5))
+            c = g.representative_point()
+            ax.text(c.x, c.y, "pod střechou haly (hala bez stropu, nepřístupné)", fontsize=8, ha="center", va="center", color="#777", zorder=3)
     ax.set_title(f"{BLABEL[bd['id']]} – {LVLABEL.get(level, level)} ({level}), podlaha +{cz(lv['floor_z'])} = z {cz(zfl)} m; "
-                 f"lokální souřadnice budovy (+Y = průčelí), řez 1,20 m nad podlahou", fontsize=10)
+                 f"lokální souřadnice budovy (+Y = průčelí), řez 1,25 m nad podlahou", fontsize=10)
     leg = [MPoly([[0, 0]], fc="#2B2622", label="obvodová zeď v řezu"), MPoly([[0, 0]], fc="#3F3934", label="nosná vnitřní zeď"),
            MPoly([[0, 0]], fc="#6B6258", label="příčka 0,15"), MPoly([[0, 0]], fc="#8C8276", label="lehká příčka / podstupňová stěna 0,10"),
            MPoly([[0, 0]], fc="#CFC8BC", ec="#2B2622", label="parapet pod řezem"),

@@ -57629,7 +57629,7 @@
    "vertices": 1019616,
    "triangles": 339872
   },
-  "bake_seconds": 7.5,
+  "bake_seconds": 7.3,
   "tiles": 307,
   "polys": 7898,
   "disconnected_entrances": [],
@@ -57695,7 +57695,7 @@
   },
   "method": "Detour computePath (straight path length) from each active spawn point to every zone target point (2 m grid of walkable zone cells, exact minimum with straight-line pruning); a target counts as reached only when the path ends within 0.6 m of it; entrances are reached from the village square (0, 0, 0.30).",
   "entrances_failed": [],
-  "level_hash": "3d8bbe7693de744d",
+  "level_hash": "d84b6e3b75327d73",
   "status": "PASS",
   "note": "design-time validation bake from the level JSON proxy geometry (Tools/level/nav). The shipping navmesh is baked the same way from the generated collision meshes (ARCHITECTURE D4) and must reproduce these results."
  }

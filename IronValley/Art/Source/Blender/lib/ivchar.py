@@ -405,6 +405,48 @@ def weight_asymmetry(D, bone_names, mirror):
     return {"max_abs_diff": round(float(diff.max()), 5), "vertices_over_0.01": int((diff > 0.01).sum())}
 
 
+def add_twist_bones(bones, specs):
+    """Insert twist bones into a compute_bones() dict.  specs: [(name, parent, f_head, f_tail)]
+    -- the twist bone lies on the parent's axis between fractions f_head..f_tail of its length
+    and gets the parent's roll, so its local frame equals the parent's (a rotation about local Y
+    is a pure twist about the segment axis).  Order is kept parents-first."""
+    out = {}
+    for n, b in bones.items():
+        out[n] = b
+        for tn, par, fh, ft in specs:
+            if par == n:
+                h, t = np.asarray(b["head"]), np.asarray(b["tail"])
+                out[tn] = {"head": h + (t - h) * fh, "tail": h + (t - h) * ft, "roll": b["roll"],
+                           "parent": par, "use_connect": False, "inherit_scale": "FULL",
+                           "use_inherit_rotation": True, "use_local_location": True,
+                           "source_name": None, "head_strategy": "TWIST", "tail_strategy": "TWIST"}
+    return out
+
+
+def smoothstep(x):
+    x = np.clip(x, 0.0, 1.0)
+    return x * x * (3 - 2 * x)
+
+
+def split_weights_along_bone(D, bone_names, co, head, tail, src, dst, s0, s1, towards_tail=True):
+    """Move a share of bone `src`'s weight to `dst` by a smoothstep ramp of the vertex position
+    along the src bone axis (s = 0 at head, 1 at tail): share = smoothstep((s-s0)/(s1-s0)) if
+    towards_tail else 1 - that.  Row sums are unchanged."""
+    D = np.array(D, copy=True)
+    h, t = np.asarray(head), np.asarray(tail)
+    ax = t - h
+    L = np.linalg.norm(ax)
+    s = ((co - h) @ ax) / (L * L)
+    share = smoothstep((s - s0) / (s1 - s0))
+    if not towards_tail:
+        share = 1.0 - share
+    i, j = bone_names.index(src), bone_names.index(dst)
+    moved = D[:, i] * share
+    D[:, i] -= moved
+    D[:, j] += moved
+    return D
+
+
 def bind_mesh(mesh_obj, arm_obj, D, bone_names, threshold=1e-6):
     """Create one vertex group per bone (every bone, so the FBX/glTF skin carries the full
     skeleton), write weights (> threshold) and add an Armature modifier; parent to armature."""
@@ -652,6 +694,54 @@ def pose_hand(arm, side, curl=(0.0, 0.0, 0.0), spread=0.0, thumb=(0.0, 0.0, 0.0,
         rotate_local(arm, f"thumb_03_{side}", (1, 0, 0), t3)
 
 
+def twist_angle(q, axis=1):
+    """Swing-twist decomposition: signed twist angle (rad) of quaternion q about local axis
+    0/1/2 (X/Y/Z)."""
+    comp = (q.x, q.y, q.z)[axis]
+    return 2.0 * math.atan2(comp, q.w)
+
+
+def relative_rotation(arm, parent, child):
+    """Child's rotation relative to `parent`, in the parent's local frame, with respect to
+    the rest relation (identity at rest)."""
+    bpy.context.view_layer.update()
+    Pp = (arm.matrix_world @ arm.pose.bones[parent].matrix).to_3x3().normalized()
+    Cp = (arm.matrix_world @ arm.pose.bones[child].matrix).to_3x3().normalized()
+    Pr = rest_world_matrix(arm, parent).to_3x3().normalized()
+    Cr = rest_world_matrix(arm, child).to_3x3().normalized()
+    rel_pose = Pp.inverted() @ Cp
+    rel_rest = Pr.inverted() @ Cr
+    # rotation in the parent's frame taking the rest relation to the posed one
+    return (rel_pose @ rel_rest.inverted()).to_quaternion()
+
+
+def drive_twist_bones(arm, sides=("l", "r"), lower=0.5, upper=0.5):
+    """Runtime rule for the Iron Valley twist bones (same rule must be used in engine):
+      lowerarm_twist_01_s : local Y rotation = lower * twist(hand_s relative to lowerarm_s, Y)
+      upperarm_twist_01_s : local Y rotation = -upper * twist(upperarm_s own local rotation, Y)
+    (upperarm_twist_01 is a child of upperarm, so it keeps (1 - upper) of the upper-arm roll).
+    Returns the applied angles in degrees."""
+    out = {}
+    for sd in sides:
+        la, ha, ua = f"lowerarm_{sd}", f"hand_{sd}", f"upperarm_{sd}"
+        lt, ut = f"lowerarm_twist_01_{sd}", f"upperarm_twist_01_{sd}"
+        if lt in arm.pose.bones:
+            ang = twist_angle(relative_rotation(arm, la, ha), 1) * lower
+            pb = arm.pose.bones[lt]
+            pb.rotation_mode = 'QUATERNION'
+            pb.rotation_quaternion = Quaternion((0, 1, 0), ang)
+            out[lt] = round(math.degrees(ang), 2)
+        if ut in arm.pose.bones:
+            q = arm.pose.bones[ua].matrix_basis.to_quaternion()      # own local rotation
+            ang = -twist_angle(q, 1) * upper
+            pb = arm.pose.bones[ut]
+            pb.rotation_mode = 'QUATERNION'
+            pb.rotation_quaternion = Quaternion((0, 1, 0), ang)
+            out[ut] = round(math.degrees(ang), 2)
+    bpy.context.view_layer.update()
+    return out
+
+
 def apply_pose_as_rest(arm, meshes):
     """Bake the current pose into the meshes (apply Armature modifier on a copy of the
     modifier stack) and make it the armature rest pose.  Vertex groups are kept."""
@@ -706,6 +796,12 @@ for _s in ("l", "r"):
         UE_MANNEQUIN_PARENTS[f"{_f}_01_{_s}"] = f"hand_{_s}"
         UE_MANNEQUIN_PARENTS[f"{_f}_02_{_s}"] = f"{_f}_01_{_s}"
         UE_MANNEQUIN_PARENTS[f"{_f}_03_{_s}"] = f"{_f}_02_{_s}"
+
+
+# Twist bones of the UE4 mannequin that the Iron Valley skeleton adds (same names/parents).
+UE_MANNEQUIN_TWIST = [f"{b}_twist_01_{s}" for s in ("l", "r") for b in ("upperarm", "lowerarm")]
+UE_MANNEQUIN_TWIST_PARENTS = {f"{b}_twist_01_{s}": f"{b}_{s}" for s in ("l", "r")
+                              for b in ("upperarm", "lowerarm")}
 
 
 def hierarchy_report(arm, expected=UE_MANNEQUIN_CORE, parents=UE_MANNEQUIN_PARENTS):
