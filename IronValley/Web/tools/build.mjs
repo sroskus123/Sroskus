@@ -5,6 +5,10 @@
 //   dist/artifact.html  same page body without <!doctype>/<html>/<head>/<body>, for hosts
 //                       that wrap the page in their own skeleton (claude.ai Artifact)
 // Both reference game.js and assets with relative URLs.
+// It also writes dist-artifact/, a self-contained copy for the claude.ai Artifact host, which
+// refuses binary model files: every .glb becomes <name>.glb.b64.txt (base64 text) and the bundle
+// there is built with that asset list (src/engine/assets.js decodes it). Publish
+// dist-artifact/iron-valley.html together with every other file in dist-artifact/.
 
 import { build } from 'esbuild';
 import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
@@ -15,6 +19,7 @@ import { fileURLToPath } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const webRoot = path.resolve(here, '..');
 const dist = path.join(webRoot, 'dist');
+const distArtifact = path.join(webRoot, 'dist-artifact');
 const publicDir = path.join(webRoot, 'public');
 const dev = process.argv.includes('--dev');
 
@@ -38,23 +43,24 @@ async function main() {
   const assets = publicFiles.filter((f) => f.startsWith('assets/') && !f.endsWith('.gitkeep') && !f.endsWith('README.md'));
 
   const pkg = JSON.parse(await readFile(path.join(webRoot, 'package.json'), 'utf8'));
-  const result = await build({
+  const bundleOptions = (outfile, assetList) => ({
     entryPoints: [path.join(webRoot, 'src/main.js')],
     bundle: true,
     format: 'iife',
     platform: 'browser',
     target: ['es2020', 'chrome100', 'firefox100', 'safari15'],
-    outfile: path.join(dist, 'game.js'),
+    outfile,
     minify: !dev,
     sourcemap: dev ? 'linked' : false,
     legalComments: 'none',
     metafile: true,
     define: {
-      __IV_ASSETS__: JSON.stringify(assets),
+      __IV_ASSETS__: JSON.stringify(assetList),
       __IV_VERSION__: JSON.stringify(pkg.version),
     },
     logLevel: 'warning',
   });
+  const result = await build(bundleOptions(path.join(dist, 'game.js'), assets));
 
   // CSP / runtime guards: no dynamic code evaluation and no WebAssembly in the runtime bundle.
   const js = await readFile(path.join(dist, 'game.js'), 'utf8');
@@ -96,6 +102,33 @@ ${body}
 `;
   await writeFile(path.join(dist, 'index.html'), indexHtml);
   await writeFile(path.join(dist, 'artifact.html'), artifactHtml);
+
+  // Artifact-host variant: .glb -> .glb.b64.txt, bundle built with the renamed asset list.
+  await rm(distArtifact, { recursive: true, force: true });
+  await mkdir(distArtifact, { recursive: true });
+  const artifactAssets = assets.map((a) => (a.endsWith('.glb') ? a + '.b64.txt' : a));
+  await build(bundleOptions(path.join(distArtifact, 'game.js'), artifactAssets));
+  const artifactJs = await readFile(path.join(distArtifact, 'game.js'), 'utf8');
+  for (const [re, name] of forbidden) {
+    if (re.test(artifactJs)) throw new Error(`Forbidden construct in artifact bundle: ${name}`);
+  }
+  for (const a of assets) {
+    const src = path.join(publicDir, a);
+    const dst = path.join(distArtifact, a);
+    await mkdir(path.dirname(dst), { recursive: true });
+    if (a.endsWith('.glb')) {
+      await writeFile(dst + '.b64.txt', (await readFile(src)).toString('base64'));
+    } else {
+      await cp(src, dst);
+    }
+  }
+  await writeFile(path.join(distArtifact, 'iron-valley.html'), artifactHtml);
+  const tooBig = [];
+  for (const f of await listFiles(distArtifact)) {
+    const bytes = (await stat(path.join(distArtifact, f))).size;
+    if (bytes > 15 * 1024 * 1024) tooBig.push(`${f} (${(bytes / 1048576).toFixed(1)} MiB)`);
+  }
+  if (tooBig.length) console.warn(`warning: files over the artifact host's 15 MiB limit: ${tooBig.join(', ')}`);
 
   const size = (await stat(path.join(dist, 'game.js'))).size;
   const info = {

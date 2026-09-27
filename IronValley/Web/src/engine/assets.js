@@ -9,8 +9,23 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 /* global __IV_ASSETS__ */
 const AVAILABLE = new Set(typeof __IV_ASSETS__ !== 'undefined' ? __IV_ASSETS__ : []);
 
+// Hosts that do not serve binary model files (the claude.ai Artifact host refuses .glb) get each
+// GLB as "<path>.b64.txt": the same bytes, base64-encoded as plain text (see tools/build.mjs,
+// dist-artifact/). The game decodes it itself and hands the ArrayBuffer to GLTFLoader.parse, so no
+// blob:/data: URL is ever fetched and a strict connect-src CSP still works.
+const B64_SUFFIX = '.b64.txt';
+
 export function hasAsset(path) {
-  return AVAILABLE.has(path);
+  return AVAILABLE.has(path) || AVAILABLE.has(path + B64_SUFFIX);
+}
+
+function base64ToArrayBuffer(text) {
+  const clean = text.replace(/\s+/g, '');
+  if (typeof Uint8Array.fromBase64 === 'function') return Uint8Array.fromBase64(clean).buffer;
+  const bin = atob(clean);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out.buffer;
 }
 
 export function listAssets() {
@@ -87,7 +102,17 @@ export function loadGLTF(path) {
       return plugin;
     });
   }
+  const fail = (reject) => (err) => reject(err instanceof Error ? err : new Error(String(err)));
+  if (!AVAILABLE.has(path) && AVAILABLE.has(path + B64_SUFFIX)) {
+    const base = path.slice(0, path.lastIndexOf('/') + 1);
+    return fetch(path + B64_SUFFIX)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status} for ${path + B64_SUFFIX}`);
+        return res.text();
+      })
+      .then((text) => new Promise((resolve, reject) => loader.parse(base64ToArrayBuffer(text), base, resolve, fail(reject))));
+  }
   return new Promise((resolve, reject) => {
-    loader.load(path, resolve, undefined, (err) => reject(err instanceof Error ? err : new Error(String(err))));
+    loader.load(path, resolve, undefined, fail(reject));
   });
 }
