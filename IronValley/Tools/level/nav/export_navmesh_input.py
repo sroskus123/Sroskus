@@ -318,6 +318,14 @@ def main():
             ztop = max(prof[i0], prof[i1]) if prof else rw["top_z"]
             S.add_obox(m[0], m[1], math.dist(a, b), rw["thickness"], math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])),
                        rw["bottom_z"] - 0.5, ztop)
+    # ---------------- wing walls at retaining-wall ends (stepped tops: modelled to the wall top, conservative for movement)
+    for rw in L["retaining_walls"]:
+        for wg in rw.get("wing_walls", []):
+            for a, b in zip(wg["polyline"][:-1], wg["polyline"][1:]):
+                m = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
+                za = float(np.min(T.height_at(L, np.array([a[0], b[0]]), np.array([a[1], b[1]]))))
+                S.add_obox(m[0], m[1], math.dist(a, b), wg["thickness"], math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])),
+                           za - 0.5, za + 2.5)
     # ---------------- retaining-wall stairs as explicit ramps (the terrain stamp alone is too coarse at 0.5 m)
     for rw in L["retaining_walls"]:
         for st in rw.get("stairs", []):

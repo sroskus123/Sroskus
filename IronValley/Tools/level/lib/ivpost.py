@@ -212,8 +212,9 @@ def boundary(layout):
                            "sign_quarry": "Štěrkovna Kalný Vrch - vstup zakázán",
                            "sign_road_a": "Nové Kalno 2 km",
                            "sign_hunting": "Honitba - vstup se psy zakázán",
-                           "toponyms_note": "all names are fictional (review P2-REAL-TOPONYMS: the former 'Horní/Dolní Hamry' are real "
-                                            "places and were replaced)"},
+                           "toponyms_note": "all names are fictional (review P2-REAL-TOPONYMS: the former quarry and road-sign names were "
+                                            "real local parts of a Vysočina municipality and were replaced; check_layout.py C01 keeps a "
+                                            "blacklist)"},
         "treatment": [
             {"section": "arm A end (WSW, behind spawn alfa)", "physical": "roadblock section BND_*_ROADBLOCK on ROAD_A (jersey barriers + razor "
              "wire + boom gate) joined to the deer fence of the spurs; team alfa truck, timber-yard hut and log stacks; the brook enters "
@@ -536,7 +537,7 @@ def place_trees(layout):
         p = P[k] + t * (P[k + 1] - P[k])
         d = (P[k + 1] - P[k]) / seg[k]
         n = np.array([-d[1], d[0]])
-        for off in (3.3, -6.7):
+        for off in (3.3, -8.4):
             q = p + n * off
             if rng.random() < 0.15:
                 continue
@@ -641,7 +642,7 @@ def place_trees(layout):
             "riparian": "both brook banks, 5.2-6.8 m from the centre line, every 9-14 m, 35 % skipped; alder 60 %, willow 30 %, ash 10 %; "
                         "never within 5 m of bridges, zone polygons or yards",
             "orchard_NW": "old orchard on the NW spur between the mill-race terrace and the soft boundary, 6 m staggered grid, +-1 m jitter, 15 % missing; apple/pear/plum (low crowns 1.6-2.0 m: they break eye-level sightlines)",
-            "alley_C": "fruit alley along TRACK_C every 11 m (NE side +3.3 m, SW side -6.7 m beyond the 1.25 m ditch), 15 % missing",
+            "alley_C": "fruit alley along TRACK_C every 11 m (NE side +3.3 m, SW side -8.4 m beyond the 1.25 m ditch), 15 % missing",
             "forest": "Poisson disk r = 5.5 m outside the soft boundary (+3 m), except open areas (gravel works, farm fields, road corridor A); "
                       "refs 01-03: Norway spruce 34 %, Scots pine 14 %, beech 14 %, birch 12 %, oak 8 %, hornbeam 7 %, maple 6 %, ash 5 %; "
                       "edge band <= 12 m outside the soft line: birch 30 %, young birch 20 %, spruce 20 %, hornbeam 15 %, pine 15 %; "
@@ -1009,7 +1010,7 @@ def finish(layout):
                        "charlie": ("brook bed from the square culvert (low covered lane)", [-22.0, 4.0])},
         "zone_sklad": {"alfa": ("track C start -> warehouse yard S gate (P_SKLAD_S)", [30.0, -4.0]),
                        "bravo": ("E ring track -> rear yard at grade (SE corner) -> rear sliding door SK_SD3 / SK_D4", [59.0, 12.0]),
-                       "charlie": ("E ring from track C -> rear yard at grade (SE corner)", [55.0, 2.5])},
+                       "charlie": ("E ring from track C -> rear-yard branch track -> rear yard at grade (SE corner)", [54.5, -3.5])},
         "zone_dvur": {"alfa": ("S ring path -> rear yard gate", [-26.0, -55.5]),
                       "bravo": ("square -> driveway (E) instead of the wall stairs", [14.6, -21.6]),
                       "charlie": ("S ring -> sunken lane (úvoz) -> north exit -> rear yard gate", [7.2, -58.0])},
@@ -1175,6 +1176,9 @@ def cover_points(layout, ras, walk):
                          "low" if rw.get("parapet") else "high", rw["id"]))
     zones = [(z["id"], Polygon(z["polygon"])) for z in layout["capture_zones"]]
     zdef = {z["id"]: z for z in layout["capture_zones"]}
+    # outdoor points only on the main walk component (pockets behind walls / hedges that a capsule cannot reach are dropped)
+    lab_, nlab_ = ndimage.label(walk)
+    main_lab = int(np.argmax(np.bincount(lab_.ravel())[1:])) + 1 if nlab_ else 0
     out = []
     for poly, cls, oid in objs:
         P = np.array(poly)
@@ -1197,7 +1201,7 @@ def cover_points(layout, ras, walk):
                 if not near:
                     continue
                 j, i = g.ij(q[0], q[1])
-                if not (0 <= j < g.shape[0] and 0 <= i < g.shape[1]) or not walk[j, i]:
+                if not (0 <= j < g.shape[0] and 0 <= i < g.shape[1]) or not walk[j, i] or lab_[j, i] != main_lab:
                     continue
                 if any(Polygon(bb["footprint_world"]).contains(Point(q[0], q[1])) for bb in layout["buildings"]):
                     continue

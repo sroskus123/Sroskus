@@ -351,16 +351,13 @@ def apply_stamps(H, X, Y, stamps):
 
 
 def _within_extent(X, Y, pl):
-    """True where the perpendicular foot of the point lies strictly inside some segment."""
-    m = np.zeros(np.shape(X), dtype=bool)
-    for k in range(len(pl) - 1):
-        ax, ay = pl[k]
-        bx, by = pl[k + 1]
-        dx, dy = bx - ax, by - ay
-        L2 = dx * dx + dy * dy
-        t = ((X - ax) * dx + (Y - ay) * dy) / L2
-        m |= (t > 0.0) & (t < 1.0)
-    return m
+    """True where the nearest point of the polyline is not one of its two END points, i.e. the point lies beside the wall
+    (perpendicular foot inside a segment) or in the wedge of an interior vertex (outer corner of a bent wall).  (Before
+    2026-09-27 points whose foot fell exactly on an interior vertex were excluded, which left a one-cell notch on grid rows
+    through the vertices.)"""
+    _, _, s, _ = polyline_query(X, Y, [[p[0], p[1]] for p in pl])
+    total = sum(math.hypot(pl[k + 1][0] - pl[k][0], pl[k + 1][1] - pl[k][1]) for k in range(len(pl) - 1))
+    return (s > 1e-9) & (s < total - 1e-9)
 
 
 def heightfield(layout, res=1.0, x0=-EXT, x1=EXT, y0=-EXT, y1=EXT):

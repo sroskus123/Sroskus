@@ -1,7 +1,8 @@
 # IRON VALLEY – výtvarný směr mapy „Kalné Hamry“
 
 Stav: **závazné** pro tvůrce assetů (Blender skripty), pro webový renderer (three.js) a pro pozdější přenos do UE5.
-Datum: 2026-09-26. Související data: `Shared/level/layout.json`, `Shared/level/buildings.json`, `Web/src/data/environment.json`,
+Datum: 2026-09-27 (revize podle referencí uživatele `Docs/navrhy/01`–`05` a R06–R17; rozbor v `Docs/REFERENCE_ANALYSIS.md`,
+rozhodnutí v `Docs/REFERENCE_DECISIONS.md`). Související data: `Shared/level/layout.json`, `Shared/level/buildings.json`, `Web/src/data/environment.json`,
 `Web/src/data/teams.json`. Návrh mapy a herní zdůvodnění je v `Docs/MAP_DESIGN.md`.
 
 Pořadí pravdy při rozporu:
@@ -18,12 +19,15 @@ Pořadí pravdy při rozporu:
 ## 1. Vizuální identita
 
 **Kalné Hamry** jsou fiktivní česká obec v údolí Kalného potoka. Stojí na soutoku tří údolí ve tvaru Y. Hamr zde stál od
-18. století, dnes je z něj zámečnická dílna. Dále tu je sklad stavebnin z doby JZD, dům mistra z roku 1934, hostinec,
-hasičská zbrojnice, garáže, kaplička, trafostanice a několik chalup. Obec byla před několika dny evakuována a armáda údolí
-uzavřela kordonem.
+18. století, dnes je z něj zámečnická dílna (ref. 04). Dále tu je cihlový sklad stavebnin z doby JZD se zeleno-šedou
+vlnitou střechou (ref. 01, 03), dvoupodlažní dům mistra s červenou taškovou střechou v zahradě obehnané zdí (ref. 01),
+kaple se zvoničkou v klínu silnic, hostinec, hasičská zbrojnice, garáže, sloupová trafostanice, zděné kůlny (ref. 05)
+a několik chalup. Obec byla před několika dny evakuována a armáda údolí uzavřela kordonem.
 
-Situace: **10. září 2026, 15:05 SELČ**, suché teplé odpoledne na konci léta. Slunce svítí z jihozápadu, na obloze jsou asi
-3/8 kupovité oblačnosti a vzduch je lehce zakalený. Nic neprší a nic se nehýbe rychleji než listí.
+Situace: **10. září 2026, 15:05 SELČ**, teplé odpoledne na konci léta **těsně po přeháňce**: asfalt, beton a kovové plochy
+jsou ještě mokré, v prohlubních silnice a dvorů stojí kaluže (ref. 02, 03), tráva a omítky už oschly. Slunce svítí
+z jihozápadu, na obloze jsou asi 3/8 kupovité oblačnosti. Nic neprší a nic se nehýbe rychleji než listí. (Reference ukazují
+nižší pozdní slunce; světlo zůstává z `environment.json`, viz `REFERENCE_DECISIONS.md` R-10.)
 
 Tři slova pro celou mapu: **užívané, klidné, čitelné.**
 
@@ -33,7 +37,7 @@ Tři slova pro celou mapu: **užívané, klidné, čitelné.**
 - **Klidné:** barvy jsou přírodní, nasycení střední, kontrast odpovídá slunečnému dni. Filmovost dává jen tone mapping,
   mírně teplé světlo a vzdušná perspektiva, nikdy barevný filtr.
 - **Čitelné:** hráč musí za 0,5 s rozeznat postavu od pozadí, kryt od zakrytí a průchozí dveře od zamčených. Proto platí
-  barevná rezerva v oddílu 2.3 a pravidla pro zavřené budovy v oddílu 6.4.
+  barevná rezerva v oddílu 2.3 a pravidla pro zavřené budovy v oddílu 6.5.
 
 Měřítko: vše se odvozuje od dospělého člověka 1,80 m (kapsle r 0,35 m). Dveře mají světlou výšku ≥ 2,05 m, kliky jsou ve
 výšce 1,05 m, parapety oken obytných místností 0,85–0,95 m, zábradlí 1,00 m, schodišťový stupeň 0,16–0,19 m. Rekvizity
@@ -63,32 +67,38 @@ střední hodnoty, rozsahy pro celou rodinu jsou v oddílu 3.
 | voda potoka (v tůňkách / na mělčině) | `#3F4A3C` / `#6B6A55` | mělká, hnědozelená, bez pěny |
 | listí (lípa, javor, buk) v plném světle | `#5E7A36` | na přechodu k podzimu |
 | podzimní akcent (bříza, lípa, max. 5 % korun) | `#B8923A` | jen jednotlivé větve, žádné celé žluté stromy |
+| smrk – jehličí (R11) / kůra | `#2F3D26` / `#5E5448` | tmavší a studenější než listnáče; les na svazích a u hranice |
+| bříza – kůra (R10, R15) | `#D8D4C8`, trhliny `#2E2B28` | bílá kůra s černými trhlinami u paty |
+| luční květy (R17): řebříček, heřmánek | `#E8E4D6` / `#F2E9A0` | jen drobné akcenty v trávě |
+| mokrý štěrk a beton dvorů (ref. 02) | `#7E6E62` | tmavší o 15 % než suché, kaluže v prohlubních |
 | vzdálené kopce (vzdušná perspektiva, 1–2 km) | `#7D8C86` | výsledný tón po mlze, nikoli barva textury |
 
 ### 2.2 Stavby a infrastruktura
 
 | Materiál | Hex | Kde |
 | --- | --- | --- |
-| vápenná omítka lomená bílá, zvětralá | `#D8D1C1` | dílna vně, chalupy varianta C |
-| omítka okrová světlá | `#C8A56E` | dům mistra, chalupa varianta A |
-| cementová šedá omítka (sokly, varianta B) | `#9A968D` | |
-| cihla režná (zděné pilíře, trafostanice) | `#9B5A43` | tmavší kusy `#7B4434` |
-| droba – lomový kámen (sokl dílny, opěrná zeď dílny, jez) | `#6F6D63` | šedozelená |
-| pískovec (opěrná zeď a schody domu) | `#B39F80` | |
-| beton nový / zvětralý | `#A9A59C` / `#8F8B83` | rampa skladu, zátarasy, schody |
-| vlnitý fibrocement (střecha haly) | `#8C8F8A` | s lišejníkem na severní ploše |
-| pálená taška bobrovka / drážková, zvětralá | `#9A4B35` / `#7F4A3A` | přístavek dílny, dům |
-| trapézový plech a sandwich panel šedozelený | `#7C857A` / `#818B80` | sklad (blízké RAL 7033) |
-| vnitřní líc sandwich panelu | `#E3E2DC` | sklad uvnitř |
-| ocel natřená modrošedá (zárubně, zábradlí, vrata) | `#5D6B77` | |
-| pozinkovaný plech (okapy, svody, rošty) | `#A7ABAA` | kov, viz 3.4 |
-| rez | `#7A4B2E` | jen na hranách a spojích |
-| dřevo natřené zelené (dveře dílny, okenice) | `#3F5B45` | |
-| dřevo natřené krémové / bílé (dveře a okna domu) | `#D6CCAE` / `#E6E2D8` | |
-| dřevo tmavě hnědé (štítová prkna, ploty, kůlny) | `#5A4231` | |
+| **zvětralá vápenná omítka přes cihlu** (krémová, opadaná 20–40 %) | `#D9CBB3` (lit `#E3C4A4`–`#F9E8D2`) | dílna, kůlny R05, kaple, chalupy; odhalená cihla v ostrovech na soklu, rozích a pod okapem |
+| omítka krémová hladší (dům) | `#D6C8A8` | dům mistra, zahradní zeď (šedší ve stínu `#756B5F`) |
+| cementová šedá omítka (sokly) | `#9A968D` | |
+| **cihla režná** (odhalená v omítce, zdivo skladu) | `#A0573D`; sklad sazemi tmavší `#7A4E3C` | komíny `#8A4A38`; spára malta `#A59C8C` |
+| omítnuté pilastry a římsa skladu | `#CFC3AC` | ref. 03 |
+| droba – lomový kámen (opěrná zeď dílny, kamenná chalupa) | `#6F6D63` | šedozelená |
+| **beton** (rampa, zídky, lávky, sokly kůlen, opěrné zdi) | `#A5A19A` / zvětralý s mechem `#8C877E` | ref. 02: lávka `#979294` |
+| **tmavý vlnitý plech** (dílna, kůlny, zastávka) | `#55524F` (lit `#52535A`) | rezavé skvrny a stékání `#7A4B2E` na 10–25 % |
+| **zelený vlnitý plech** (sklad) | `#687468` (ve stínu `#5F6565`) | vybledlý, na hřebeni a u okapu rez |
+| **pálená drážková taška** (dům, křídlo) | `#A5553A` (ve stínu `#805848`) | mech a lišejník na severní straně |
+| **rezavá ocelová vrata** (dílna) | `#8E5038` (lit `#B6674C`) | rám a výplň z plechu, nátěr zbyl ve skvrnách `#5D6B77` |
+| šedá ocel posuvných vrat a dveří kůlen | `#56616A` (ref. 03 `#3F494F`, ref. 05 `#9C948E`) | |
+| ocel natřená modrošedá (zárubně, zábradlí) | `#5D6B77` | |
+| pozinkovaný plech (okapy, svody, rošty) | `#A7ABAA` | kov, viz 3.3 |
+| rez | `#7A4B2E` | hrany, spoje, trubky zábradlí R16 |
+| ocelová dělená okna (dílna, sklad) | rám `#3A3A3C`, sklo špinavé | |
+| dřevo natřené krémové / bílé (okna a dveře domu) | `#D6CCAE` / `#E6E2D8` | |
+| šedé zvětralé dřevo (zastávka R06, ploty, kůlny) | `#8C8579` | tmavší u země `#5A4231` |
 | olejový sokl v dílně (zelená „olejová“ barva do 1,5 m) | `#5E7358` | nad ním bílá vápenná malba `#E4E0D4` |
-| asfalt / ojetý pruh / záplata | `#4E4E4F` / `#605F5B` / `#3E3E40` | silnice A a B |
-| žulové kostky návsi | `#8A8680` | |
+| **mokrý asfalt** / suchý okraj / záplata | `#44474C` / `#56565A` / `#3E3E40` | silnice A a B, kaluže jako dekály (roughness 0,05–0,15) |
+| vodorovné značení (bílé, ojeté) | `#D9D6CC` | středová přerušovaná a okrajové čáry |
+| žulové kostky návsi, obrubníky | `#8A8680` | |
 
 ### 2.3 Herní a vojenské barvy (rezervované)
 
@@ -143,7 +153,8 @@ Hodnoty base colour jsou uvedené jako **rozsah jasu v sRGB (0–255)** a typick
 | bláto mokré (`mud`) | 45–80, `#4B3F31` | 0,35–0,60 | 0 | jediný „lesklý“ přírodní povrch; lokálně louže 0,05–0,15 |
 | štěrk (`gravel`) | 120–165, `#9C978C` | 0,90–1,00 | 0 | normála s výraznými zrny, žádné opakování menší než 4 m |
 | lesní hrabanka (`forest_floor`) | 60–100, `#5A4A36` | 0,90–1,00 | 0 | jen za hranicí a na okrajích |
-| asfalt (`asphalt`) | 55–95, `#4E4E4F` | 0,80–0,92 (ojetý pruh 0,72–0,80) | 0 | trhliny a záplaty jako dekály |
+| asfalt (`asphalt`) | 55–95, `#4E4E4F` | suchý 0,80–0,92 (ojetý pruh 0,72–0,80) | 0 | trhliny a záplaty jako dekály |
+| **mokrý asfalt** (stav mapy, ref. 02/03) | base colour −15 % jasu, `#44474C` | 0,25–0,40; kaluže 0,03–0,10 (dekály s maskou výšky, jen v prohlubních a u obrubníků) | 0 | odlesk oblohy a slunce, žádná pěna; beton a kovy ve venkovních plochách o 0,15 hladší |
 | beton, betonové desky (`concrete`, `concrete_slabs`, `concrete_broom`) | 130–185, `#A9A59C` | 0,75–0,90 | 0 | povrch „koště“ = jemné rýhy v normále |
 | kostky, dlažba (`paving`, `paving_granite_setts`) | 110–150, `#8A8680` | 0,70–0,85 | 0 | spáry tmavší, s mechem na okrajích |
 | kámen, droba, pískovec (`stone`, `stone_rubble_*`, `stone_lined_dry`) | 90–185 | 0,70–0,90 | 0 | pískovec světlejší a drsnější než droba |
@@ -164,7 +175,10 @@ Hodnoty base colour jsou uvedené jako **rozsah jasu v sRGB (0–255)** a typick
 | dřevo natřené (`timber_*_paint*`) | podle nátěru | 0,45–0,65 (oprýskané místo 0,85) | 0 | nátěr je dielektrikum, nikdy metallic |
 | parkety (`timber_parquet`) | 100–160 | 0,40–0,60 | 0 | vyšlapaná dráha matnější |
 | pálená taška (`clay_tile_*`) | 90–150 | 0,70–0,85 | 0 | lišejník a mech na severní straně |
-| fibrocement vlnitý (`fibre_cement_*`) | 120–160 | 0,80–0,92 | 0 | |
+| fibrocement vlnitý (`fibre_cement_*`) | 120–160 | 0,80–0,92 | 0 | jen vedlejší budovy (chalupy B) |
+| **vlnitý plech tmavý** (`corrugated_sheet_dark_grey_weathered`: dílna, kůlny R05, zastávka) | 70–100, `#55524F` | nátěr 0,55–0,70, rez 0,80–0,95 | 0 (holý plech na hranách 1) | vlna 76 mm jako geometrie na LOD0, rezavé skvrny a stékání od šroubů |
+| **vlnitý plech zelený** (`corrugated_steel_green_weathered`: sklad) | 90–125, `#687468` | 0,50–0,65 | 0 | vybledlý na jižní ploše, lišejník u okapu |
+| **pálená drážková taška** (`clay_tile_interlocking_red_orange_weathered`: dům) | 110–170, `#A5553A` | 0,70–0,85 | 0 | mech na severní ploše, tmavší hřebenáče |
 | sklo okenní | tónování `#9AA7A6`, α 0,15–0,25 | 0,03–0,10 | 0 | odraz oblohy, ve v1 nerozbitné; špinavé sklo až 0,30 |
 | polykarbonát (světlíky skladu) | 190–220, průsvitný | 0,25–0,40 | 0 | propouští světlo, neprůhledný pro výhled |
 
@@ -172,7 +186,7 @@ Hodnoty base colour jsou uvedené jako **rozsah jasu v sRGB (0–255)** a typick
 
 | Rodina | Base colour sRGB | Roughness | Metallic | Poznámka |
 | --- | --- | --- | --- | --- |
-| ocel natřená (`steel_*_paint*`, `steel_blue_grey`, trapézový plech, sandwich) | podle nátěru 70–150 | 0,40–0,65 | **0** | nátěr je nekov |
+| ocel natřená (`steel_*_paint*`, `steel_blue_grey`, posuvná vrata, zárubně) | podle nátěru 70–150 | 0,40–0,65 | **0** | nátěr je nekov |
 | odřený nátěr, holá ocel na hranách | 150–190 | 0,35–0,55 | 1 | maska jen na hranách, klikách, schodnicích |
 | pozink (`galvanised_*`, okapy, svody, rošty) | 165–200 | 0,35–0,55 | 1 | skvrnitá variace (spangle) jen v roughness |
 | rez (`rust` maska) | 70–120, `#7A4B2E` | 0,75–0,95 | 0 | rez je oxid, tedy nekov |
@@ -214,58 +228,72 @@ terén. Konstrukce se generuje **bez booleovských operací**: zeď je kvádr ro
 
 Společné detaily:
 
-- **Okna:** rám je osazen 0,12 m za líc fasády (hloubka ostění musí být vidět). Vnější parapet přečnívá 0,04 m
-  s okapničkou. Pod parapety jsou jemné stopy stékání. Okna dílny jsou ocelová členěná (tabulky cca 0,30 × 0,40),
-  v domě dřevěná zdvojená okna bílá nebo krémová, ve skladu hliníková nebo PVC s drátoskem v kanceláři.
+- **Okna:** rám je osazen 0,12 m za líc fasády (`reveal_depth` 0,12 v `buildings.json`, hloubka ostění musí být vidět).
+  Vnější parapet přečnívá 0,04 m s okapničkou (`sill_overhang`). Pod parapety jsou jemné stopy stékání. Okna dílny a skladu
+  jsou ocelová členěná (ref. 03, 04), v domě dřevěná zdvojená okna bílá nebo krémová. Okna ve štítech (nad korunou zdi)
+  mají vlastní konstrukční polygony štítu (`walls[].gable`).
 - **Dveře:** světlá šířka ≥ 1,10 m a světlá výška ≥ 2,05 m (projektové pravidlo pro navmesh, zadání požaduje 0,90). Zárubeň
   má 0,05 m, křídlo 0,05 m a výrazný práh. Klika je ve výšce 1,05 m. Průchozí dveře stojí otevřené v klidové poloze
-  (`open_deg`) a jejich křídlo se musí vejít k zarážce. Zavřené dveře neprůchozích budov popisuje oddíl 6.4.
-- **Střechy:** přesah okapu 0,5 m, u štítu podle dat (`overhang_verge`). Okapy jsou půlkruhové pozinkované (125 mm), svody
-  100 mm ústí do rozstřikové dlaždice, do vpusti nebo do chrliče v opěrné zdi (`downpipes[].outlet`). Voda musí mít vždy
+  (`open_deg`) a jejich křídlo se musí vejít k zarážce. Zavřené dveře neprůchozích budov popisuje oddíl 6.5.
+- **Střechy:** přesah okapu podle dat (`overhang_eave`: hala dílny 0,45, přístavek 0,35, kůlna 0,30, sklad 0,40, přístřešek
+  rampy 0,35, dům 0,60, křídlo 0,45), u štítu `overhang_verge`. Okapy jsou půlkruhové pozinkované (125 mm) a **visí 0,03 m pod
+  odkapní hranou** střechy (`gutters[].drip_edge_z` = `eave_z` − přesah × tg sklonu, kontroluje `check_layout.py` B16); svody
+  100 mm začínají v žlabu a ústí do rozstřikové dlaždice, do vpusti nebo do chrliče v opěrné zdi (`downpipes[].outlet`). Voda musí mít vždy
   kam odtéct (ENV-01): dvory mají spád 1 % k vpustem nebo k potoku, opěrné zdi mají odvodňovací otvory po 2 m.
 - **Napojení na terén:** terén kolem budovy leží o jeden stupeň (0,17 m) pod podlahou. Každé venkovní dveře končí na
   rovině, podestě, schodu nebo nakládací rampě. Kontroluje to `check_layout.py` (L03).
 
-### 4.1 Dílna (bývalý hamr), `B_DILNA`
+### 4.1 Dílna (bývalý hamr), `B_DILNA` – podle ref. 04 a 02
 
-- Hamr z 18. století byl kolem roku 1924 přestavěn na cihlovou zámečnickou dílnu a od 60. let sloužil jako opravna
-  zemědělských strojů. Stojí u suchého náhonu, který přiváděl vodu od jezu.
-- Hala má 15,1 m světlosti a je bez stropu, s dřevěnými věšadlovými vazníky (táhla v 4,20 m). Střecha je z vlnitého
-  fibrocementu, sklon 30°. Dvoupodlažní přístavek má střechu z bobrovek, sklon 35°. Obvodové zdivo je cihelné 450 mm, bývalý
-  štít je dnes požární zdí.
-- Vnější úprava je vápenná omítka lomená bílá (zvětralá, místy opadaná na cihlu). Sokl z lomové droby je vysoký 0,45 m.
-  Uvnitř je zelený olejový sokl do 1,5 m a bílá vápenná malba nad ním.
-- V kanceláři mistra v patře jsou vnitřní okna do haly (převzato z návrhu „systems“). Kancelář **není součástí zóny** a má dva
-  nezávislé východy: vnitřní schodiště a venkovní ocelové schodiště s pororošty.
-- Poznávací znamení: velká dvoukřídlá vrata (3,18 m světlé šířky) z prken se zeleným nátěrem, ocelový komín kamen
-  a vybledlý nápis na štítu (oddíl 7).
+- Hamr z 18. století byl kolem roku 1924 přestavěn na cihlovou zámečnickou dílnu (Kalina a syn) a od 60. let sloužil jako
+  opravna zemědělských strojů. **Jednopodlažní, půdorys L:** hala 14,5 × 10,0 m (okap 4,60, sedlová střecha 30°, hřeben
+  7,49), ustoupený přístavek 6,5 × 7,8 m (okap 3,00, 30°, výdejna + šatna se stropem z prken 2,85) a pultová kůlna
+  3,5 × 5,0 m (kompresorovna). Hala je bez stropu, vazné trámy krovu 4,20 m.
+- Zdivo cihelné 450 mm (kůlna 300 mm), **zvětralá vápenná omítka přes cihlu**, opadaná v ostrovech (sokl, rohy, pod okapy,
+  kolem vrat). Kamenný sokl 0,47 m viditelný. **Tmavý vlnitý plech** na všech třech střechách, světlík ve střeše haly.
+- Průčelí: okno, **dvoukřídlá rezavá ocelová vrata 3,40 × 3,40** (otevřená, křídla na 100°), větrací štěrbina, druhá vrata
+  2,60 × 3,40, okno; nad vraty dvě smaltované kuželové lampy; 4 pozinkované svody. Dva cihlové komíny s krycí deskou
+  (kovárna a kamna uvnitř). Na štítu vybledlý nápis „KALINA A SYN – ZÁMEČNICTVÍ“.
+- Okna ocelová dělená (tabulky ~0,25 × 0,27), rám 0,12 m za lícem, parapet přečnívá 0,04 m (`reveal_depth`,
+  `sill_overhang` v datech). Uvnitř zelený olejový sokl do 1,5 m a bílá vápenná malba.
 
-### 4.2 Menší sklad (stavebniny), `B_SKLAD`
+### 4.2 Menší sklad (stavebniny), `B_SKLAD` – podle ref. 01 a 03
 
-- Sklad hnojiv JZD z roku 1976 stojí na 1 m vysokém protipovodňovém násypu. V roce 2004 z něj firma **Stavebniny Kalina**
-  udělala ocelovou halu: 5 portálových rámů po 6 m, sloupy HEA240, sandwich panely 120 mm šedozelené na betonovém soklu
-  výšky 1,0 m. Střecha je z trapézového plechu, sklon 10°.
-- Podlaha leží ve výšce ložné plochy nákladního auta (1,10 m nad dvorem), odtud nakládací rampa se schody a nájezdem. Zadní
-  strana je zapuštěná do svahu.
-- Záměrně strohá architektura potřebuje přesto stavební detaily: lemování rohů, okapové žlaby, rolovací vrata s bubnem
-  a vodícími lištami, nárazníky na rampě, světlíky z polykarbonátu a oplocený dvůr (pletivo 2 m).
+- Sklad hnojiv JZD z roku 1976, dnes **Stavebniny Kalina**. Dlouhá **hala z režných cihel 25,0 × 12,5 m** (zdivo 450 mm)
+  s **omítnutými pilastry** 0,6 m po 5 m a římsou, okap 5,50, sedlová střecha 20° z **zeleného vlnitého plechu** s větracím
+  nástavcem na hřebeni, štíty s okny.
+- Průčelí k dvoru: **posuvná ocelová vrata 3,6 × 4,0** (jedna otevřená, křídlo zaparkované přes plnou zeď; jedna zavřená
+  s visacím zámkem), velká ocelová okna 2,4 × 2,2 (parapet 1,5), dveře; vzadu další otevřená posuvná vrata. Cihly sazemi
+  tmavší, pilastry a římsa světlá omítka.
+- Podél průčelí betonová **nakládací rampa 1,10 m** (ocelová hrana, pryžové nárazníky) s pultovým přístřeškem na sloupcích
+  (sloupky stojí mimo osy schodů), dva schody a nájezd 1:6. Plošina skladu je zaříznutá do svahu a drží ji betonové opěrné
+  zdi s ocelovým zábradlím nahoře.
+- Kancelář v rohu haly má strop (`SK_OFFICE_CEILING`, nepochozí) a kamna s komínem.
 
-### 4.3 Obytný dům (dům mistra), `B_DUM`
+### 4.3 Obytný dům (dům mistra), `B_DUM` – podle ref. 01
 
-- Zděný dvoupodlažní dům z roku 1934 má valbovou střechu z drážkových tašek, sklon 40°. Okrová omítka je hladká, šambrány
-  kolem oken jsou v lomené bílé a sokl je z cementové omítky.
-- Dům stojí na terase nad návsí. Terasu drží **pískovcová opěrná zeď** s betonovou krycí deskou, se zapuštěnou garáží
-  (vrata jsou zavřená a vidět je jen čelo ve zdi) a se zahradními schody. Vstup vede ze dvora, kuchyňské dveře ústí do
-  bočního dvorku. Balkon s plným parapetem 1,0 m je nad dvorem a má schody do zahrady.
+- Zděný **dvoupodlažní dům** z roku 1934, 11,0 × 9,5 m, **valbová střecha z červených pálených tašek** 40° (okap 6,10,
+  hřeben 10,09), dva vikýře do zahrady, komín; na západě **přízemní křídlo** 4,5 × 6,0 m s valbou 35° (kuchyně s kamny).
+  Krémová hladší vápenná omítka, šambrány v lomené bílé, sokl cementový šedý 0,54 m.
+- Dům stojí na terase nad návsí v **zahradě obehnané zdí**: terasovou zeď drží lomový kámen s omítnutou zahradní zdí 1,00 m
+  nad terasou (celkem 3,10 m od návsi), boční a zadní zahradní zdi jsou omítnuté 1,8 m s ocelovými brankami. Ve zdi je
+  zapuštěná garáž (jen čelo) a zahradní schody. Balkon s plným parapetem je nad zadním dvorem.
 - Interiér: terrazzo v chodbách, dlažba v kuchyni a koupelně, parkety v pokojích, bílé dveře.
 
 ### 4.4 Vedlejší budovy (vždy `"enterable": false`)
 
-Hostinec U Hamru (zabedněný), Hasičská zbrojnice se sušicí věží, řadové garáže (3 boxy), kaplička sv. Floriána, zděná
-trafostanice, autobusová zastávka (otevřená, jediná přístupná, bez interiéru), stánek s roletami, kůlny, dřevník, seník,
-stodola, kolna na stroje, kancelář štěrkovny (kontejner) a čtyři uzavřené chalupy ve variantách A (okrová, taška), B (šedá
-omítka, eternit) a C (bílá, červená taška, zabedněná okna v přízemí). Tvar, výška a sklon střechy jsou v `layout.json`
-(`secondary_buildings`).
+- **Kůlna R05** (ref. 05) se opakuje 5×: zděná 3,8 × 3,2 m, pultová střecha z rezavého plechu (nízký okap 2,5 u dveří,
+  vzadu 3,4), omítka opadaná na cihlu, betonový sokl 0,30 m, šedé ocelové dveře (zamčené), zamřížované okénko, žaluziová
+  mřížka, lampa v kleci, žlab na nízké straně.
+- **Kaple se zvoničkou** 4,6 × 6,8 m (okap 3,6, hřeben 5,9, zvonička 1,6 m do 8,2 m s křížem), krémová omítka, obloukové
+  dveře a výklenek se sochou; kolem nízká omítnutá betonová zídka 1,1 m.
+- **Zastávka R06** (dřevěná, 3,6 × 2,0 × 2,9 m, jediná přístupná – bez interiéru), **sloupová trafostanice** (transformátor
+  na plošině mezi dvěma dřevěnými sloupy, oplocená pletivem R14).
+- Hostinec U Hamru (zabedněný), hasičská zbrojnice se sušicí věží, řadové garáže, stánek s roletami, dřevník, seník,
+  stodola, **otevřená kolna na stroje** (čelo zaplněné stohem balíků, kolize = celý půdorys), kancelář štěrkovny a čtyři
+  uzavřené chalupy (A okrová/taška, B šedá omítka/eternit, C bílá/červená taška se zabedněnými okny, D kamenná).
+- Každá stojí na srovnané plošině se soklem 0,30 m (patka 0,15 m pod terénem; kde silnice zasahuje do plošiny, sokl je
+  stupňovitý) – `secondary_buildings[].plinth`. Tvar, výšky a sklony jsou v `layout.json`.
 
 ---
 
@@ -328,10 +356,12 @@ Nesmí skrývat hranici mapy, LOD přechody bližší než 250 m ani slabinu vid
 
 ## 6. Vegetace
 
-Uvnitř hrací plochy rostou **jen listnaté dřeviny** (zadání §3). Jehličnany se smějí objevit jen v kulisách vzdálených
-kopců (nad 260 m od středu). Živé ploty uvnitř mapy jsou habrové nebo z ptačího zobu, nikdy z túje.
+Uvnitř hrací plochy rostou **převážně listnaté dřeviny** (zadání §3). Reference R11 a 01–03 ukazují smrky na svazích a na
+okraji mapy, proto: smrk a borovice tvoří les za hranicí a okrajový pás (≤ 12 m za měkkou hranicí), uvnitř hrací plochy
+je jehličnanů **nejvýš 12 %** stromů a žádný nestojí blíž než 3 m od zóny nebo spawnu (`check_layout.py` G01). Živé ploty
+uvnitř mapy jsou habrové nebo z ptačího zobu, nikdy z túje.
 
-### 6.1 Stromy (`trees.species`, 1626 instancí)
+### 6.1 Stromy (`trees.species`, 1650 instancí)
 
 | Id | Druh | Výška / poloměr koruny | Kde |
 | --- | --- | --- | --- |
@@ -344,7 +374,10 @@ kopců (nad 260 m od středu). Živé ploty uvnitř mapy jsou habrové nebo z pt
 | `habr` | habr obecný (*Carpinus betulus*) | 12 / 4,0 m | podrost okraje lesa, meze |
 | `olse` | olše lepkavá (*Alnus glutinosa*) | 14 / 3,5 m | břehy Kalného potoka |
 | `vrba` | vrba křehká (*Salix fragilis*) | 11 / 4,5 m | břehy, u jezu |
-| `briza` | bříza bělokorá (*Betula pendula*) | 15 / 3,5 m | náletové okraje, u štěrkovny |
+| `briza` | bříza bělokorá vzrostlá (*Betula pendula*, R15) | 16 / 3,5 m | solitéry u cest a návsi, u štěrkovny |
+| `briza_mlada` | bříza mladá (R10) | 13 / 2,5 m | náletové skupiny, okraj lesa |
+| `smrk` | smrk ztepilý (*Picea abies*, R11) | 22 / 3,5 m | les na svazích, okrajový pás, 2 u kaple, řada podél východní polní cesty |
+| `borovice` | borovice lesní (*Pinus sylvestris*) | 20 / 3,5 m | les na svazích (ref. 01) |
 | `jablon` | jabloň (stará odrůda) | 6,5 / 3,0 m | starý sad na SZ ostrohu, zahrady |
 | `hruska` | hrušeň | 9 / 3,0 m | sad, alej u cesty C |
 | `svestka` | švestka | 6 / 2,5 m | zahrady, alej u cesty C |
@@ -378,7 +411,25 @@ Instancovaná tráva se zobrazuje do 40 m (3 typy, 2 LOD). U zdí a plotů roste
 okraji potoka orobinec a chrastice a v mokrých kolejích sítina. Tráva nesmí růst přes cesty, dlažbu ani uvnitř budov a nesmí
 zakrývat postavu ležící na zemi víc než do 0,3 m.
 
-### 6.4 Zavřené budovy a čitelnost průchodnosti
+### 6.4 Rekvizity a vegetace z druhé sady referencí (R06–R17) – kolize, průstřelnost, výhled
+
+| Ref. | Objekt | Data | Pohyb | Střela | Výhled |
+| --- | --- | --- | --- | --- | --- |
+| R06 | dřevěná čekárna 3,6 × 2,0 × 2,9 m, šedé smrkové dřevo, tmavý plech, granitové patky | `S_ZASTAVKA` (`bus_shelter_timber`) | blokuje stěny | dřevo **průstřelné** | laťová zadní stěna zakrývá |
+| R07 | dřevěné sloupy vedení 8,5 m, izolátory, lampa se smaltovým kuželem, žluto-černé pruhy u paty | `utility_lines.poles/spans` | sloup r 0,14 m | blokuje | neblokuje |
+| R08 | laťové bedny, europalety, stohy palet | `crate_stack_mixed`, `euro_pallet_stack_4`, `timber_stack_on_pallets` | blokuje | **průstřelné** (nízký kryt jen proti výhledu) | nízké – zakrývá v podřepu |
+| R09 | trsy trávy 0,4 / 1,0 / 0,5 m | `ground_cover.types` | ne | ne | ne (kosmetické) |
+| R10–R12, R15 | bříza mladá / vzrostlá, smrk, lípa, habr | `trees.species` | kmen | kmen | koruna nad 1,8 m |
+| R13 | keře 0,8 / 1,3 / 2,0 m | `vegetation_blocks`, `ground_cover.shrub_*` | husté bloky ano | **ne – keř kulku nezastaví** | zakrývá |
+| R14 | pletivo 1,5 m na betonové podezdívce 0,35 m, branka 1,0 m | `chain_link_on_plinth_1p5m` | blokuje | pletivo ne, podezdívka ano (0,35 m) | **průhledné** |
+| R16 | betonové sloupky 0,25 × 0,25 × 1,0 m s dvěma rezavými trubkami | `BR_MAIN.railing`, `F_RAIL_NAVES` | blokuje | ne | neblokuje |
+| R17 | řebříček, heřmánek, luční směs | `ground_cover` | ne | ne | ne |
+
+Hustoty a pravidla rozmístění (vlhkost, sklon, okraje cest a zdí, nikdy na cestách a v zónách vyšší než 0,5 m) jsou
+v `layout.json` → `ground_cover`; vojenský nákladní vůz, VZV, sudy a palety jsou statické rekvizity (`prop_catalog`).
+Rekvizity na svahu mají `ground_fit` (naklopení `tilt`, přizpůsobení `conform`, svislá patka `upright_footing`).
+
+### 6.5 Zavřené budovy a čitelnost průchodnosti
 
 - Neprůchozí budova se musí **číst jako zavřená na první pohled**. Používá se zavřená okenice, zabedněné okno (OSB,
   zvětralé), visací zámek s řetězem, rezavá rolovací vrata, zatlučené dveře nebo cedule „ZAVŘENO“. Konkrétní řešení každé
@@ -392,19 +443,19 @@ zakrývat postavu ležící na zemi víc než do 0,3 m.
 
 ## 7. Nápisy a značení (vše fiktivní)
 
-Používají se jen **fiktivní** místní názvy a firmy. Nesmí se objevit reálné značky, loga, SPZ ani insignie skutečné armády.
+Používají se jen **fiktivní** místní názvy a firmy (`check_layout.py` C01 hlídá seznam skutečných názvů z okolí). Nesmí se objevit reálné značky, loga, SPZ ani insignie skutečné armády.
 Písmo dopravních značek je bezpatkové technické (volně licencované písmo DIN-like). Starší nápisy jsou ručně malované
 patkovým písmem, vybledlé.
 
 | Nápis | Kde |
 | --- | --- |
 | **Kalné Hamry** | tabule začátku obce na silnicích A a B (bílá s černým lemem) |
-| **Dolní Hamry 2 km** | směrovka na silnici A za zátarasem Alfy |
-| **Štěrkovna Horní Hamry – vstup zakázán** | brána štěrkovny za spawnem Bravo |
+| **Nové Kalno 2 km** | směrovka na silnici A za zátarasem Alfy |
+| **Štěrkovna Kalný Vrch – vstup zakázán** | brána štěrkovny za spawnem Bravo |
 | **Hostinec U Hamru** | štít hostince, pod ním cedule „ZAVŘENO“ a vybledlá reklama na limonádu bez značky |
 | **Stavebniny Kalina** | štít skladu nad rampou, menší cedule „Otevírací doba Po–Pá 7–16“ |
-| **JZD Kalné Hamry – sklad hnojiv 1976** | vybledlý malovaný nápis na betonovém soklu skladu (pod novým obkladem prosvítá) |
-| **Kalina a syn – zámečnictví** | vybledlý nápis na štítu dílny (přestavba 1924) |
+| **JZD Kalné Hamry – sklad hnojiv 1976** | vybledlý malovaný nápis na cihlovém štítu skladu |
+| **Kalina a syn – zámečnictví** | vybledlý nápis na průčelí dílny nad vraty (přestavba 1924) |
 | **SDH Kalné Hamry – Hasičská zbrojnice** | zbrojnice |
 | **Kalné Hamry, náves** | označník autobusové zastávky, jízdní řád fiktivní linky 312 |
 | **Kaplička sv. Floriána 1872** | kamenná deska nad dveřmi |
@@ -485,7 +536,8 @@ Každá stopa má **fyzikální příčinu**. Špína, která nemá kde vzniknou
 3. Hustota texelů odpovídá oddílu 3.5 a vzor se neopakuje v rastru pod 4 m.
 4. Kolize odpovídá sémantice v `layout.json` (`meta.collision_semantics`). Okno je rovina blokující kapsli a propouštějící
    střely, keř blokuje pohyb a výhled, ne střely.
-5. Asset stojí na terénu (±0,15 m), nic nelevituje a nic se náhodně neprotíná.
+5. Asset stojí na terénu: budova na své plošině se soklem (terén mezi patkou a horní hranou soklu po celém obvodu), rekvizita
+   podle `ground_fit` (rohy do 0,12 m, naklopení do 15°), nic nelevituje a nic se náhodně neprotíná (`check_layout.py` L04).
 6. Opotřebení má příčinu (oddíl 8). Nápisy jsou fiktivní (oddíl 7) a paleta respektuje rezervu týmových barev (oddíl 2.3).
 7. LOD zachovávají siluetu (zadání §3.1). Stromy za hranicí dál než 25 m jsou jen impostory.
 8. Asset se zkontroluje na přímém slunci, ve stínu a v interiéru, s post-processingem i bez něj.

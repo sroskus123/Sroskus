@@ -8,6 +8,7 @@ Writes Docs/img/:
   map_plan_core.png       village core 150 x 150 m at larger scale (+ cover points and chokepoints)
   map_routes.png          per zone: active spawn rows, primary and flank lanes
   plan_<building>_<level>.png   floor plan of every walkable level (cut plane 1.20 m above the floor)
+  reference_vs_plan.png   the user's aerial reference (Docs/navrhy/01) beside the plan of the same area, numbered matches
 """
 import json
 import math
@@ -109,6 +110,10 @@ def draw_map(L, B, fname, ext, res, figsize, core=False, routes_zone=None):
                 ex_ = np.interp(sm, cs_, P[:, 0])
                 ey_ = np.interp(sm, cs_, P[:, 1])
                 ax.plot(ex_, ey_, marker="^", color="#3a2c18", ms=5 if core else 3, zorder=4)
+    for fl in L.get("fields", []):
+        fcol = {"hay_meadow_mown": "#C9C77A", "cereal_stubble": "#D8C58C", "vegetable_strips": "#9C8A5E"}.get(fl["crop"], "#C8C080")
+        ax.add_patch(MPoly(fl["polygon"], closed=True, fc=fcol, ec="#8A7F4A", lw=0.4, alpha=0.55, hatch="////" if "stubble" in fl["crop"] else
+                           ("||" if "vegetable" in fl["crop"] else None), zorder=2))
     for sa in L["spawn_areas"]:
         ax.add_patch(MPoly(sa["polygon"], closed=True, fc="#CFC6AE", ec="none", alpha=0.6, zorder=2))
     for rd in L["roads"]:
@@ -155,6 +160,8 @@ def draw_map(L, B, fname, ext, res, figsize, core=False, routes_zone=None):
         segs = rw.get("segments") or [[i, i + 1] for i in range(len(pl) - 1)]
         for i0, i1 in segs:
             band(ax, [pl[i0], pl[i1]], rw["thickness"], 8, fc="#3A332C", ec="none")
+        for wg in rw.get("wing_walls", []):
+            band(ax, wg["polyline"], wg["thickness"], 8, fc="#5A5048", ec="none")
         for st in rw["stairs"]:
             a_, b_ = np.array(st["bottom_center_world"]), np.array(st["top_center_world"])
             band(ax, [a_, b_], st["width"], 8, fc="#CFCBC2", ec="#333", lw=0.4)
@@ -192,7 +199,7 @@ def draw_map(L, B, fname, ext, res, figsize, core=False, routes_zone=None):
                                    ec="none", zorder=11))
         for o in bd["openings"]:
             w = wm[o["wall_id"]]
-            if w["level"] != "L0" or o["type"] not in ("door", "double_door", "roller_door"):
+            if w["level"] != "L0" or o["type"] not in ("door", "double_door", "roller_door", "sliding_door"):
                 continue
             sx, sy, ux, uy, nx, ny, Lw = wall_frame(w)
             a_, b_ = o["offset_from_start"], o["offset_from_start"] + o["width"]
@@ -249,6 +256,22 @@ def draw_map(L, B, fname, ext, res, figsize, core=False, routes_zone=None):
                        ("hard_polygon", dict(color="#D62728", lw=0.8, ls="-"))):
         P = np.array(bnd[key] + [bnd[key][0]])
         ax.plot(P[:, 0], P[:, 1], zorder=17, **style)
+    bcol = {"deer_fence_2m": "#2F5D34", "quarry_fence_2m": "#4B4B4B", "roadblock": "#B03A2E", "pasture_fence_barbed_1p3m": "#7A5C2E",
+            "farm_fence_timber_1p4m": "#8B6B3E"}
+    for bb in bnd.get("barriers", []):
+        P = np.array(bb["polyline"])
+        ax.plot(P[:, 0], P[:, 1], color=bcol.get(bb["type"], "#333"), lw=2.2 if bb["type"] == "roadblock" else 1.3, zorder=17,
+                solid_capstyle="butt")
+        for sg in bb.get("signs", []):
+            ax.plot(sg["pos"][0], sg["pos"][1], marker="D", ms=2.5 if not core else 4, color="#E03A2E", mec="white", mew=0.3, zorder=18)
+    ul = L.get("utility_lines", {})
+    pmap = {po["id"]: po for po in ul.get("poles", [])}
+    for sp_ in ul.get("spans", []):
+        a_, b_ = pmap.get(sp_["from"]), pmap.get(sp_["to"])
+        if a_ and b_:
+            ax.plot([a_["pos"][0], b_["pos"][0]], [a_["pos"][1], b_["pos"][1]], color="#333", lw=0.35, ls=(0, (6, 2)), zorder=16)
+    for po in ul.get("poles", []):
+        ax.plot(po["pos"][0], po["pos"][1], marker="o", ms=2.2 if not core else 3.2, color="#6B4E2E", mec="k", mew=0.3, zorder=16)
     if core:
         for cp in L["cover_points"]["points"]:
             x, y = cp["pos"][:2]
@@ -308,6 +331,11 @@ def draw_map(L, B, fname, ext, res, figsize, core=False, routes_zone=None):
            Line2D([0], [0], marker="s", color="w", markerfacecolor="#D08A3C", ms=8, label="rekvizita – nízký kryt"),
            Line2D([0], [0], marker="s", color="w", markerfacecolor="#4A5A3A", ms=8, label="clona spawnu (HESCO / kontejnery)"),
            Line2D([0], [0], marker="s", color="w", markerfacecolor="#8F877D", ms=8, label="uzavřená budova (neprůchozí)"),
+           Line2D([0], [0], color="#2F5D34", lw=1.5, label="okrajová bariéra: lesní oplocenka / pletivo (◆ cedule)"),
+           Line2D([0], [0], color="#B03A2E", lw=2.2, label="zátaras na silnici (betonové zábrany + žiletkový drát)"),
+           Line2D([0], [0], color="#7A5C2E", lw=1.3, label="pastevní / dřevěný plot na hranici"),
+           Line2D([0], [0], marker="o", color="#333", markerfacecolor="#6B4E2E", lw=0.4, ls="--", ms=4, label="dřevěné sloupy vedení"),
+           MPoly([[0, 0]], fc="#C9C77A", ec="#8A7F4A", alpha=0.55, label="pole / louka / záhumenky (bez kolize)"),
            Line2D([0], [0], color="#D62728", lw=1.5, ls="--", label="hranice měkká / tvrdá (plná)"),
            Line2D([0], [0], color="#E8A33A", lw=1, ls=":", label="pás varování 8 m"),
            Line2D([0], [0], marker="o", color="w", markerfacecolor="#999", ms=6, label="spawn řada (8 bodů) + zóny")]
@@ -489,6 +517,21 @@ def draw_floorplan(L, bd, level, fname):
                     color="#2E86C1", zorder=13, rotation=0)
         elif o["type"] == "vent":
             continue
+        elif o["type"] == "sliding_door":
+            walk = o["passes"]["movement"]
+            ax.plot([p0[0], p1[0]], [p0[1], p1[1]], color="#1F4E79" if walk else "#C0392B", lw=1.2, ls="--" if walk else "-", zorder=12)
+            lr = o.get("leaf_rest")
+            if lr:
+                sd_ = -1.0 if lr["side"] == "right" else 1.0
+                o0 = t + lr["offset_from_face"]
+                o1 = o0 + lr["thickness"] + 0.04
+                u0, u1 = lr["u"]
+                q = [(sx + ux * u0 + nx * sd_ * o0, sy + uy * u0 + ny * sd_ * o0), (sx + ux * u1 + nx * sd_ * o0, sy + uy * u1 + ny * sd_ * o0),
+                     (sx + ux * u1 + nx * sd_ * o1, sy + uy * u1 + ny * sd_ * o1), (sx + ux * u0 + nx * sd_ * o1, sy + uy * u0 + ny * sd_ * o1)]
+                ax.add_patch(MPoly(q, closed=True, fc="#7F8C8D" if walk else "#C0392B", ec="#333", lw=0.3, zorder=12))
+            ax.text(*(mid - n * (t + 0.9)), f"{o['id']} posuvná vrata {cz(o['clear_width'])}×{cz(o['clear_height'])}"
+                    + (" otevřeno" if walk else " ZAVŘENO"), fontsize=6, ha="center", va="center", color="#1F4E79", zorder=13,
+                    bbox=dict(boxstyle="round,pad=0.1", fc="white", ec="none", alpha=0.8))
         elif o["type"] == "roller_door":
             walk = o["passes"]["movement"]
             ax.plot([p0[0], p1[0]], [p0[1], p1[1]], color="#1F4E79" if walk else "#C0392B", lw=1.2, ls="--" if walk else "-", zorder=12)
@@ -558,7 +601,39 @@ def draw_floorplan(L, bd, level, fname):
     for col in bd.get("columns", []):
         ax.add_patch(MPoly(box_poly(col["center"], col["size"], 0), closed=True, fc="k", ec="none", zorder=11))
     for ch in bd.get("chimneys", []):
-        ax.add_patch(MPoly(box_poly(ch["pos"], ch.get("size", [0.3, 0.3]), 0), closed=True, fc="#8B4513", ec="k", lw=0.5, hatch="////", zorder=11))
+        above = ch.get("base_z", 0.0) > lv["floor_z"] + 2.10
+        ax.add_patch(MPoly(box_poly(ch["pos"], ch.get("size", [0.3, 0.3]), 0), closed=True, fc="none" if above else "#8B4513", ec="#8B4513" if above else "k",
+                           lw=0.8 if above else 0.5, ls="--" if above else "-", hatch=None if above else "////", zorder=11))
+        if above:
+            ax.text(ch["pos"][0], ch["pos"][1], f"komín od {cz(ch['base_z'])}", fontsize=5, ha="center", va="center", color="#8B4513", zorder=12)
+    if level == "L0":
+        wm_ = {w["id"]: w for w in bd["walls"]}
+        for pp in bd.get("pilasters", []):
+            w = wm_.get(pp["wall"])
+            if not w:
+                continue
+            sx, sy, ux, uy, nx, ny, Lw = wall_frame(w)
+            u = (pp["x"] - sx) * ux + (pp.get("y", sy) - sy) * uy
+            t = w["thickness"] / 2
+            for sd_ in (1.0, -1.0):
+                probe = (sx + ux * u + nx * sd_ * (t + 0.3), sy + uy * u + ny * sd_ * (t + 0.3))
+                if not any(Polygon(r["polygon"]).contains(Polygon([probe, (probe[0] + 0.01, probe[1]), (probe[0], probe[1] + 0.01)]))
+                           for r in bd["rooms"]):
+                    break
+            q = [(sx + ux * (u - pp["width"] / 2) + nx * sd_ * t, sy + uy * (u - pp["width"] / 2) + ny * sd_ * t),
+                 (sx + ux * (u + pp["width"] / 2) + nx * sd_ * t, sy + uy * (u + pp["width"] / 2) + ny * sd_ * t),
+                 (sx + ux * (u + pp["width"] / 2) + nx * sd_ * (t + pp["proud"]), sy + uy * (u + pp["width"] / 2) + ny * sd_ * (t + pp["proud"])),
+                 (sx + ux * (u - pp["width"] / 2) + nx * sd_ * (t + pp["proud"]), sy + uy * (u - pp["width"] / 2) + ny * sd_ * (t + pp["proud"]))]
+            ax.add_patch(MPoly(q, closed=True, fc="#2B2622", ec="none", zorder=10))
+        for rf in bd["roof"]:
+            for su in rf.get("supports", []):
+                ax.add_patch(MPoly(box_poly(su["pos"], su["size"], 0), closed=True, fc="k", ec="none", zorder=11))
+            if rf.get("supports"):
+                P_ = np.array(rf["rect"])
+                ax.add_patch(Rectangle(P_.min(axis=0), *(P_.max(axis=0) - P_.min(axis=0)), fc="none", ec="#1F4E79", lw=0.7, ls="-.", zorder=3))
+                c_ = P_.mean(axis=0)
+                ax.text(c_[0] + 4, P_.max(axis=0)[1] - 0.25, f"přístřešek {rf['id']} (sloupky mimo osy schodů)", fontsize=6, color="#1F4E79",
+                        ha="center", zorder=21, bbox=dict(boxstyle="round,pad=0.1", fc="white", ec="none", alpha=0.8))
     # zone outline (local frame) on the ground floor
     for z in L["capture_zones"]:
         if bp.get("zone") != z["id"]:
@@ -636,6 +711,68 @@ def draw_floorplan(L, bd, level, fname):
            Line2D([0], [0], color="#7B4FA0", lw=2, label="obrys zóny (plný = počítá se)")]
     ax.legend(handles=leg, loc="upper left", bbox_to_anchor=(1.01, 1.0), fontsize=7, frameon=True, title="Legenda")
     fig.savefig(fname, dpi=120)
+    plt.close(fig)
+
+
+# ================================================================================================
+# reference comparison: the user's aerial view (Docs/navrhy/01) beside the plan of the same area
+REF_AERIAL = os.path.join(ROOT, "Docs", "navrhy", "01_letecky_pohled_vesnice.png")
+# (number, label, pixel position in the 1586 x 992 aerial, data object whose position is marked on the plan)
+REF_MATCHES = [(1, "dílna (ref. 04)", (400, 250), ("building", "B_DILNA")), (2, "sklad, zelená vlnitá střecha", (1050, 290), ("building", "B_SKLAD")),
+               (3, "dům se zděnou zahradou", (680, 700), ("building", "B_DUM")), (4, "kaple se zvoničkou", (922, 478), ("sec", "S_KAPLE")),
+               (5, "zastávka", (612, 512), ("sec", "S_ZASTAVKA")), (6, "betonový most k dílně", (455, 418), ("bridge", "BR_MAIN")),
+               (7, "lávka sever", (650, 80), ("bridge", "BR_FOOT_B")), (8, "lávka západ", (148, 490), ("bridge", "BR_FOOT_A")),
+               (9, "řada garáží", (290, 655), ("sec", "S_GARAZE")), (10, "chalupa (kámen)", (1060, 760), ("sec", "S_DOMEK_4")),
+               (11, "vojenský nákladní vůz", (1105, 400), ("prop", "P_SK_7")), (12, "kůlna R05", (700, 190), ("sec", "S_KULNA_2")),
+               (13, "posečená louka s balíky", (1350, 90), ("field", "FLD_HAY_E"))]
+
+
+def _obj_xy(L, kind, oid):
+    if kind == "building":
+        return np.array(next(b for b in L["buildings"] if b["id"] == oid)["footprint_world"]).mean(axis=0)
+    if kind == "sec":
+        return np.array(next(b for b in L["secondary_buildings"] if b["id"] == oid)["position"][:2])
+    if kind == "bridge":
+        return np.array(next(b for b in L["bridges"] if b["id"] == oid)["ends"]).mean(axis=0)
+    if kind == "prop":
+        return np.array(next(b for b in L["props"] if b["id"] == oid)["position"][:2])
+    return np.array(Polygon(next(b for b in L["fields"] if b["id"] == oid)["polygon"]).centroid.coords[0])
+
+
+def draw_reference_compare(L, core_png, fname):
+    from PIL import Image
+    ref = np.asarray(Image.open(REF_AERIAL).convert("RGB"))
+    core = np.asarray(Image.open(core_png).convert("RGB"))
+    Hh, Ww = core.shape[:2]
+    # map_plan_core axes = [0.04, 0.04, 0.74, 0.90] of the figure, extent x -75..75, y -70..80 (see main)
+    ax0, ay0, aw, ah = 0.04, 0.04, 0.74, 0.90
+    px0, px1 = int(ax0 * Ww), int((ax0 + aw) * Ww)
+    py0, py1 = int((1 - ay0 - ah) * Hh), int((1 - ay0) * Hh)
+    crop = core[py0:py1, px0:px1]
+    ext = (-75, 75, -70, 80)
+    fig, axs = plt.subplots(1, 2, figsize=(26, 11), gridspec_kw={"width_ratios": [1.6, 1.0]})
+    axs[0].imshow(ref)
+    axs[0].set_title("Reference 01 (letecký pohled uživatele, šikmý pohled k severu)", fontsize=12)
+    axs[1].imshow(crop, extent=ext)
+    axs[1].set_xlim(ext[0], ext[1])
+    axs[1].set_ylim(ext[2], ext[3])
+    axs[1].set_title("Nový plán (stejná oblast, sever nahoře, m) -- generováno z layout.json", fontsize=12)
+    for n, lab, (px, py), (kind, oid) in REF_MATCHES:
+        axs[0].plot(px, py, "o", ms=16, mfc="#FFD700", mec="k", mew=1.2)
+        axs[0].text(px, py, str(n), ha="center", va="center", fontsize=9, weight="bold")
+        try:
+            q = _obj_xy(L, kind, oid)
+        except StopIteration:
+            continue
+        axs[1].plot(q[0], q[1], "o", ms=14, mfc="#FFD700", mec="k", mew=1.2, zorder=30)
+        axs[1].text(q[0], q[1], str(n), ha="center", va="center", fontsize=8, weight="bold", zorder=31)
+    for a in axs:
+        a.set_xticks([])
+        a.set_yticks([])
+    txt = "   ".join(f"{n} = {lab}" for n, lab, _, _ in REF_MATCHES)
+    fig.text(0.5, 0.02, txt, ha="center", fontsize=9, wrap=True)
+    fig.tight_layout(rect=(0, 0.05, 1, 1))
+    fig.savefig(fname, dpi=90)
     plt.close(fig)
 
 
@@ -818,6 +955,14 @@ def main():
             f = os.path.join(IMG, f"plan_{BNAME[bd['id']]}_{lv['id']}.png")
             draw_floorplan(L, bd, lv["id"], f)
             out.append(f)
+    # floor plans of levels that no longer exist (e.g. the workshop's former upper floor) are removed, not left stale
+    for fn in os.listdir(IMG):
+        if fn.startswith("plan_") and fn.endswith(".png") and os.path.join(IMG, fn) not in out:
+            os.remove(os.path.join(IMG, fn))
+            print("removed stale", fn)
+    f = os.path.join(IMG, "reference_vs_plan.png")
+    draw_reference_compare(L, os.path.join(IMG, "map_plan_core.png"), f)
+    out.append(f)
     for f in out:
         print("written", os.path.relpath(f, ROOT))
     if update_map_design(L):

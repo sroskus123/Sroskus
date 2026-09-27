@@ -1,6 +1,6 @@
 {
  "schema": "ironvalley.buildings/1",
- "conventions": "ivbuildings -- authoring source for Shared/level/buildings.json (IRON VALLEY, map \"Kalné Hamry\").\n\nReference-matched revision (2026-09-27): the workshop follows the user's reference Docs/navrhy/04 (L-shaped\nsingle-storey hall + lower gabled annex + small lean-to, two rusty double gates, steel multi-pane windows, two brick\nchimneys, roof light, lime plaster peeling off red brick, dark corrugated roof), the warehouse follows 01/03 (long\nbrick hall with plastered pilasters, green corrugated gable roof, big steel sliding doors) and the house follows 01\n(two-storey block with a red clay-tile hip roof, dormers and a lower one-storey wing, walled garden).  Analysis:\nDocs/REFERENCE_ANALYSIS.md, decisions: Docs/REFERENCE_DECISIONS.md.\n\nBuilding-local frame: metres, Z up.  Origin = the point stated in each building's `local_origin` (workshop: centre of\nthe whole external bounding box; warehouse: centre of the hall; house: centre of the two-storey main block, its wing\nextends to -X) at finished ground-floor level (top of the L0 floor finish = 0.00).  Local +Y = FRONT facade\n(rotation_deg 0 in layout.json means local +Y points north).  Local +X = to the right of an observer standing inside\nlooking out of the front.  World = rotate local by layout rotation_deg (counter-clockwise about +Z) and translate by\nlayout position [x, y, z_floor].  layout.json `footprint_world` is the exact union of the `footprint_parts`\nexternal rectangles (L-shaped plans are not reduced to their bounding box).\nAxis conversions (same as layout.json): three.js (x, y, z)_three = (x, z, -y)_blender; Unreal (cm) =\n(100 x, -100 y, 100 z) with FBX 'Y forward, Z up' export (UE import NOT TESTED).\n\nWalls (exact, no implicit extension):\n  * a wall is a box: centre line from `start` to `end` (exact box ends), `thickness` centred on the line,\n    from z = level.floor_z + base_z to + height.\n  * walls running along X run through the corners; walls along Y stop at the inner faces of the X-walls;\n    internal walls stop at the faces of the walls they meet.  Boxes never overlap.\n  * external walls are listed counter-clockwise (seen from above), so their LEFT normal (-dy, dx) points\n    INTO the building.  `finish_left` / `finish_right` = finish on the left / right face.\n  * `construction_boxes` (derived, authoritative for the generator, no booleans): the wall split into\n    full-height piers, sill blocks and lintel blocks; each box = {part, u:[u0,u1] along the wall from\n    `start`, z:[z0,z1] above the level floor}.  Union of boxes = wall box minus openings.\n  * `gable_above: true` -> the wall carries a gable (or a lean-to rake) above `height` up to roof `gable_roof`.\n    The prism is given explicitly in `gable`: `polygon_uz` (u along the wall from `start`, z above the level floor,\n    spanning the outer faces of the crossing walls), the ids of the openings inside it and `construction_polygons`\n    (= gable polygon minus its openings; the generator extrudes each by the wall thickness -- no booleans).\nOpenings:\n  * `offset_from_start` = distance along the centre line from `start` to the near jamb; `width`,\n    `sill_height`, `head_height` = STRUCTURAL (rough) opening, relative to the wall's level floor.\n  * doors: frame jamb 0.05 m each side and 0.05 m head; leaf of `leaf.thickness` resting at `open_deg`\n    (90 = perpendicular to the wall) on the `swing` side (\"left\"/\"right\" of the wall direction), hinged at\n    the jamb `hinge` (\"start\"/\"end\" = jamb nearer to the wall start/end).\n    clear_width = width - 2 * frame_jamb - leaf thickness (single leaf) or - 2 * leaf thickness (pair);\n    clear_height = head_height - frame_head.  Project rule: clear_width >= 1.10 m (brief >= 0.90 m) so a\n    0.35 m capsule keeps a >= 0.40 m navmesh corridor at Recast cs 0.05 m / radius 7 cells (the binding bake\n    setting; cs 0.10 / radius 4 would leave only 0.20-0.30 m and pinched the house U-stair); clear_height >= 2.05 m.\n  * sliding doors (`sliding_door`): top-hung steel leaf on an external track; guides 0.05 m each side ->\n    clear_width = width - 0.10, clear_height = head_height - 0.05.  `state.open` true = the leaf is parked beside the\n    opening over solid wall (`leaf_rest.u` = its span along the wall, `leaf_rest.side` = outside face, 0.12 m off\n    it, clear of the 0.15 m pilasters); false = closed and padlocked (solid collision, blocks bullets and vision, baked as wall in the navmesh).\n  * roller doors: guide rails 0.05 m each side -> clear_width = width - 0.10; clear_height =\n    state.open_height - 0.05 (bottom rail).  open_height < 2.10 is never used on a walkable opening.\n  * windows carry `reveal_depth` (frame set back from the outer face, 0.12 m) and `sill_overhang` (external sill\n    projection, 0.04 m, with a drip groove).\n  * `passes` = {movement, bullets, vision}: windows are capsule-blocking clip planes that pass bullets and\n    vision (v1: glass does not stop hits); translucent polycarbonate strips pass bullets, block vision;\n    louvred vents block everything.\nStairs (`stairs` = internal flights, `exterior_stairs` = every external flight incl. dock and entrance\nsteps; one schema for all):\n  * `start` = local XY of the centre of the FIRST (bottom) riser line; `direction_deg` = direction of\n    ascent, degrees CCW from local +Y (0 = +Y, 90 = -X, 180 = -Y, 270 = +X), i.e. the same convention as\n    building rotations; `direction_vector` = (-sin a, cos a).\n  * `count` = number of risers, `treads` = count - 1 (the last riser lands on the landing/upper floor),\n    `run` = treads * tread, `top_riser_center` = start + direction_vector * run (validated).\n  * `width` = clear width between wall faces / balustrade inner faces (project rule >= 1.10 m).\n  * `waist` = structural depth below the pitch line (soffit = pitch line - waist).\n  * `under_stair` = how the space below the flight is closed: enclosed (walls, listed in `sealed_voids`),\n    solid_mass (built solid to the ground), filled (collision furniture up to where headroom >= 2.10).\n  * exterior flights and ramps declare `foot_ground` (terrain level in front of the first riser, local z); the terrain\n    must meet it within 0.02 m and may never rise above a tread (validated against the terrain contract).\nRoofs: `eave_z` = height of the roof plane on the wall line (wall plate); the drip edge is eave_z - overhang *\ntan(pitch).  Every gutter carries `drip_edge_z` and its rim `z` hangs 0.03 m below it (validated); downpipes start at\nthe gutter.  `dormers`, `roof_lights`, `ridge_vent` are listed per roof.  Chimneys have `base_z` (a stack corbelled\non the tie beams starts above the floor space) and `serves` (the stove / forge that justifies it).\nRooms have polygon, ceiling_height (clear), `ceiling` (what closes it: slab id, joists, roof) and floor_material.\n`sealed_voids` = closed, unreachable spaces (under-stair stores) that are neither rooms nor walkable.  Furniture: box\n{center, size [x, y, z], rotation_deg}, cover low/high/none, blocks bullets/vision (soft furniture = concealment only).\n`fixtures` = wall-mounted lamps / signs (visual only, no collision).  `pilasters` = facade piers (0.15 m proud, never\nacross an opening).",
+ "conventions": "ivbuildings -- authoring source for Shared/level/buildings.json (IRON VALLEY, map \"Kalné Hamry\").\n\nReference-matched revision (2026-09-27): the workshop follows the user's reference Docs/navrhy/04 (L-shaped\nsingle-storey hall + lower gabled annex + small lean-to, two rusty double gates, steel multi-pane windows, two brick\nchimneys, roof light, lime plaster peeling off red brick, dark corrugated roof), the warehouse follows 01/03 (long\nbrick hall with plastered pilasters, green corrugated gable roof, big steel sliding doors) and the house follows 01\n(two-storey block with a red clay-tile hip roof, dormers and a lower one-storey wing, walled garden).  Analysis:\nDocs/REFERENCE_ANALYSIS.md, decisions: Docs/REFERENCE_DECISIONS.md.\n\nBuilding-local frame: metres, Z up.  Origin = the point stated in each building's `local_origin` (workshop: centre of\nthe whole external bounding box; warehouse: centre of the hall; house: centre of the two-storey main block, its wing\nextends to -X) at finished ground-floor level (top of the L0 floor finish = 0.00).  Local +Y = FRONT facade\n(rotation_deg 0 in layout.json means local +Y points north).  Local +X = to the right of an observer standing inside\nlooking out of the front.  World = rotate local by layout rotation_deg (counter-clockwise about +Z) and translate by\nlayout position [x, y, z_floor].  layout.json `footprint_world` is the exact union of the `footprint_parts`\nexternal rectangles (L-shaped plans are not reduced to their bounding box).\nAxis conversions (same as layout.json): three.js (x, y, z)_three = (x, z, -y)_blender; Unreal (cm) =\n(100 x, -100 y, 100 z) with FBX 'Y forward, Z up' export (UE import NOT TESTED).\n\nWalls (exact, no implicit extension):\n  * a wall is a box: centre line from `start` to `end` (exact box ends), `thickness` centred on the line,\n    from z = level.floor_z + base_z to + height.\n  * walls running along X run through the corners; walls along Y stop at the inner faces of the X-walls;\n    internal walls stop at the faces of the walls they meet.  Boxes never overlap.\n  * external walls are listed counter-clockwise (seen from above), so their LEFT normal (-dy, dx) points\n    INTO the building.  `finish_left` / `finish_right` = finish on the left / right face.\n  * `construction_boxes` (derived, authoritative for the generator, no booleans): the wall split into\n    full-height piers, sill blocks and lintel blocks; each box = {part, u:[u0,u1] along the wall from\n    `start`, z:[z0,z1] above the level floor}.  Union of boxes = wall box minus openings.\n  * `gable_above: true` -> the wall carries a gable (or a lean-to rake) above `height` up to roof `gable_roof`.\n    The prism is given explicitly in `gable`: `polygon_uz` (u along the wall from `start`, z above the level floor,\n    spanning the outer faces of the crossing walls), the ids of the openings inside it and `construction_polygons`\n    (= gable polygon minus its openings; the generator extrudes each by the wall thickness -- no booleans).\nOpenings:\n  * `offset_from_start` = distance along the centre line from `start` to the near jamb; `width`,\n    `sill_height`, `head_height` = STRUCTURAL (rough) opening, relative to the wall's level floor.\n  * doors: frame jamb 0.05 m each side and 0.05 m head; leaf of `leaf.thickness` resting at `open_deg`\n    (90 = perpendicular to the wall) on the `swing` side (\"left\"/\"right\" of the wall direction), hinged at\n    the jamb `hinge` (\"start\"/\"end\" = jamb nearer to the wall start/end).\n    clear_width = width - 2 * frame_jamb - leaf thickness (single leaf) or - 2 * leaf thickness (pair);\n    clear_height = head_height - frame_head.  Project rule: clear_width >= 1.10 m (brief >= 0.90 m) so a\n    0.35 m capsule keeps a >= 0.40 m navmesh corridor at Recast cs 0.05 m / radius 7 cells (the binding bake\n    setting; cs 0.10 / radius 4 would leave only 0.20-0.30 m and pinched the house U-stair); clear_height >= 2.05 m.\n  * sliding doors (`sliding_door`): top-hung steel leaf on an external track; guides 0.05 m each side ->\n    clear_width = width - 0.10, clear_height = head_height - 0.05.  `state.open` true = the leaf is parked beside the\n    opening over solid wall (`leaf_rest.u` = its span along the wall, `leaf_rest.side` = outside face, 0.25 m off\n    it, clear of the 0.15 m pilasters); false = closed and padlocked (solid collision, blocks bullets and vision, baked as wall in the navmesh).\n  * roller doors: guide rails 0.05 m each side -> clear_width = width - 0.10; clear_height =\n    state.open_height - 0.05 (bottom rail).  open_height < 2.10 is never used on a walkable opening.\n  * windows carry `reveal_depth` (frame set back from the outer face, 0.12 m) and `sill_overhang` (external sill\n    projection, 0.04 m, with a drip groove).\n  * `passes` = {movement, bullets, vision}: windows are capsule-blocking clip planes that pass bullets and\n    vision (v1: glass does not stop hits); translucent polycarbonate strips pass bullets, block vision;\n    louvred vents block everything.\nStairs (`stairs` = internal flights, `exterior_stairs` = every external flight incl. dock and entrance\nsteps; one schema for all):\n  * `start` = local XY of the centre of the FIRST (bottom) riser line; `direction_deg` = direction of\n    ascent, degrees CCW from local +Y (0 = +Y, 90 = -X, 180 = -Y, 270 = +X), i.e. the same convention as\n    building rotations; `direction_vector` = (-sin a, cos a).\n  * `count` = number of risers, `treads` = count - 1 (the last riser lands on the landing/upper floor),\n    `run` = treads * tread, `top_riser_center` = start + direction_vector * run (validated).\n  * `width` = clear width between wall faces / balustrade inner faces (project rule >= 1.10 m).\n  * `waist` = structural depth below the pitch line (soffit = pitch line - waist).\n  * `under_stair` = how the space below the flight is closed: enclosed (walls, listed in `sealed_voids`),\n    solid_mass (built solid to the ground), filled (collision furniture up to where headroom >= 2.10).\n  * exterior flights and ramps declare `foot_ground` (terrain level in front of the first riser, local z); the terrain\n    must meet it within 0.02 m and may never rise above a tread (validated against the terrain contract).\nRoofs: `eave_z` = height of the roof plane on the wall line (wall plate); the drip edge is eave_z - overhang *\ntan(pitch).  Every gutter carries `drip_edge_z` and its rim `z` hangs 0.03 m below it (validated); downpipes start at\nthe gutter.  `dormers`, `roof_lights`, `ridge_vent` are listed per roof.  Chimneys have `base_z` (a stack corbelled\non the tie beams starts above the floor space) and `serves` (the stove / forge that justifies it).\nRooms have polygon, ceiling_height (clear), `ceiling` (what closes it: slab id, joists, roof) and floor_material.\n`sealed_voids` = closed, unreachable spaces (under-stair stores) that are neither rooms nor walkable.  Furniture: box\n{center, size [x, y, z], rotation_deg}, cover low/high/none, blocks bullets/vision (soft furniture = concealment only).\n`fixtures` = wall-mounted lamps / signs (visual only, no collision).  `pilasters` = facade piers (0.15 m proud, never\nacross an opening).",
  "units": "m",
  "buildings": [
   {
@@ -5354,7 +5354,7 @@
      "front (+Y)": "loading dock SK_DOCK at 0.00 (the yard beyond the dock face is -1.10)",
      "rear (-Y)": -0.05,
      "gables (+-X, 3 m aprons)": -0.05,
-     "note": "building, dock, gable aprons and rear yard sit on one platform cut into the slope (retaining walls RW_SKLAD_N/E); the front yard is the 1976 flood-protection fill, 1.10 lower (truck-bed height)"
+     "note": "building, dock, gable aprons and rear yard sit on one platform cut into the slope (retaining wall RW_SKLAD_NE); the front yard is the 1976 flood-protection fill, 1.10 lower (truck-bed height)"
     },
     "footing": "strip footings under the brick walls and piers (hidden)"
    },
@@ -5383,7 +5383,7 @@
     "bottom_z": -1.1,
     "edge": "steel angle nosing + 4 rubber bumpers (0.25 proud) at x = -8, -3, 3, 8",
     "material": "concrete_broom",
-    "face": "RW_SKLAD_DOCK (the dock face is also the terrain step; gaps at SK_X1, SK_X2, SK_X3)",
+    "face": "RW_SKLAD_DOCK (the dock face and its north return are the terrain step; gaps at SK_X1, SK_X2, SK_X3)",
     "access": [
      "SK_X1 stair (yard, south part)",
      "SK_X2 stair (yard, middle)",
@@ -5565,11 +5565,11 @@
      "level": "L0",
      "type": "pallet_racking_full",
      "center": [
-      8.9,
+      8.55,
       1.15
      ],
      "size": [
-      5.4,
+      4.7,
       1.1,
       3.6
      ],
@@ -5578,7 +5578,7 @@
      "collision": true,
      "blocks_bullets": true,
      "blocks_vision": true,
-     "note": "rack run 1b; gap x 3.9..6.2 = cross aisle"
+     "note": "rack run 1b; gap x 3.9..6.2 = cross aisle; ends 1.1 m short of the gable door SK_D6"
     },
     {
      "id": "SK_F3",
@@ -5605,11 +5605,11 @@
      "level": "L0",
      "type": "pallet_racking_full",
      "center": [
-      7.2,
+      7.1,
       -3.55
      ],
      "size": [
-      8.8,
+      8.2,
       1.1,
       3.6
      ],
@@ -5618,14 +5618,14 @@
      "collision": true,
      "blocks_bullets": true,
      "blocks_vision": true,
-     "note": "rack run 2b; gap x 0.5..2.8 = cross aisle"
+     "note": "rack run 2b; gap x 0.5..3.0 = cross aisle; ends 0.8 m short of the gable window SK_W5"
     },
     {
      "id": "SK_F5",
      "level": "L0",
      "type": "forklift",
      "center": [
-      -10.6,
+      -9.2,
       -0.9
      ],
      "size": [
@@ -5638,7 +5638,7 @@
      "collision": true,
      "blocks_bullets": true,
      "blocks_vision": true,
-     "note": "parked forklift (ref. 02/03)"
+     "note": "parked forklift (ref. 02/03), clear of the gable window SK_W2"
     },
     {
      "id": "SK_F6",
@@ -5684,7 +5684,7 @@
      "type": "big_bags_x3",
      "center": [
       -10.3,
-      -4.8
+      -4.6
      ],
      "size": [
       1.0,
@@ -9932,8 +9932,8 @@
      "level": "L0",
      "type": "kitchen_table",
      "center": [
-      3.5,
-      2.75
+      3.3,
+      2.9
      ],
      "size": [
       1.0,

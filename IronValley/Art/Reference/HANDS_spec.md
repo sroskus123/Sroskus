@@ -41,9 +41,9 @@ pushed the fingertips through the back of the hand and the tested fist had to be
 | Bone axes | per-bone MPFB rolls, X axes of one finger up to 3.1° apart (thumb IP/MCP 4.9°) | every finger chain (and thumb MCP + IP) **shares one flexion axis exactly** (0.000°); the chain was made planar first (joint shifts ≤ 1 mm, reported per finger in `HumanBase_validation.json → finger_axes`) |
 | Pose angles | curls were added on top of the relaxed rest pose (already MCP 11–14°, PIP 8–14° flexed), so "90/100/70" was really ~104/110/73 and drove the fingertips ~15 mm into the palm | poses are **anatomical** (0 = straight finger); the measured rest offsets are stored on the armature (`iv_hand_rest_angles`) and in the data (`Hand_Poses.json → conventions.rest_offsets_deg`) |
 | MCP abduction | (new) | joint-coordinate-system order `q = Rx(flexion) · Rz(abduction)`: abduction turns the finger about its own floating axis, so a flexed finger still moves **sideways**. (The first implementation used `Rz · Rx`; at 90° MCP that turned "abduction" into a twist of the finger about its long axis, which swung the curled fingertips into the neighbour.) Read back exactly (Euler `ZXY`) |
-| Full fist | capped at 80/90/45 (fingertips through the back beyond that) | MCP 90°, PIP 88–100°, DIP 55–70° per finger (index 90/88/55, middle 90/100/70, ring 90/92/60, little 90/100/70): **0 vertices through the back of the hand**, fingertip-into-palm **0.0 mm** on the bare skin (glove: ≤ 1 mm) |
+| Full fist | capped at 80/90/45 (fingertips through the back beyond that) | MCP 90°, PIP 88–100°, DIP 55–70° per finger (index 90/88/55, middle 90/100/70, ring 90/90/57.5, little 90/100/70) with a slight fan (abduction +4 / 0 / −3 / −6°): **0 vertices through the back of the hand**, fingertip-into-palm **0.0 mm** on the bare skin (glove 0.6 mm), neighbouring fingers press ≤ 2.9 mm into each other (without the fan 5.0 mm) |
 | Weights | MPFB finger weights centred on the old joints | procedural finger weights around the re-seated joints (R1), web and thumb splits smoothed |
-| Thumb | CMC 4.3 cm distal of the wrist joint in the thenar, metacarpal 3.5 cm / proximal 4.0 / distal+tip 3.2 cm | kept (the joints coincide with the thumb's weight splits and creases; see §9 for the proportion caveat); thumb MCP + IP now share one axis; rest thumb: metacarpal 40° radial and 46° palmar of the index metacarpal, flexion plane ~77° to the fingers' (opposition) |
+| Thumb | CMC 4.3 cm distal of the wrist joint in the thenar, metacarpal 3.5 cm / proximal 4.0 / distal+tip 3.2 cm | kept (the joints coincide with the thumb's weight splits and creases; see §7 for the proportion caveat); thumb MCP + IP now share one axis; rest thumb: metacarpal 40° radial and 46° palmar of the index metacarpal, flexion plane ~77° to the fingers' (opposition) |
 
 Phalanx lengths (joint to joint, tip marker for the distal; cm): index 4.33 / 2.79 / 2.54,
 middle 5.28 / 3.27 / 2.57, ring 4.82 / 2.97 / 2.54, little 3.89 / 1.97 / 1.76 (proximal /
@@ -104,7 +104,7 @@ action and an exported clip.
 | `relaxed` (`A_Hand_Relaxed`) | both | authored cascade MCP 18–33, PIP 28–40, DIP 10–14 |
 | `open_flat` (`A_Hand_OpenFlat`) | both | all finger joints 0, thumb extended in the palm plane |
 | `spread` (`A_Hand_Spread`) | both | MCP −5, abduction index +12 / middle +2 / ring −10 / little −22, thumb radial abduction |
-| `fist_full` (`A_Hand_FistFull`) | both | MCP 90 / PIP 100 / DIP 70 start, PIP and DIP lowered per finger until the fingertip pad sinks ≤ 1 mm into the palm; thumb across the index / middle middle phalanges (bare-skin contact search) |
+| `fist_full` (`A_Hand_FistFull`) | both | MCP 90 / PIP 100 / DIP 70 start with a slight fan (+4 / 0 / −3 / −6°), PIP and DIP lowered per finger until the fingertip pad sinks ≤ 1 mm into the palm; thumb across the index / middle middle phalanges (bare-skin contact search) |
 | `fist_25`, `fist_50`, `fist_75` | both | linear transition steps open_flat → fist_full |
 | `A_Hand_OpenToFist` | both | clip, frames 1–41: open, 25 %, 50 %, 75 %, fist every 10 frames |
 | `point` (`A_Hand_Point`) | both | index 5 / 5 / 3, other fingers as the fist, thumb on the middle finger |
@@ -160,7 +160,59 @@ max 0.0003 mm difference) and BVH queries on the evaluated IV-7 meshes (appended
 
 ## 4. Validation results (from `Hands_validation.json`)
 
-RESULTS_TABLE_PLACEHOLDER
+How it is measured (`hands_gloves.py --stages validate`, `ivchar.hand_contact_metrics`,
+`ivhands.skin_vs_glove`):
+- **Penetration inside the hand** (bare skin and glove shell): a vertex is buried when the point
+  0.3 mm in front of it lies inside the closed surface (ray-parity vote). For a buried vertex the
+  surfaces of other parts are searched: its depth is the distance to the nearest point of the part
+  it is inside, and it must lie on the inner side of that surface (otherwise it is skin folding
+  into its own joint crease — reported as `crease`, hidden, like real skin). Categories:
+  fingertip→palm, finger↔finger, thumb, crease.
+- **Glove vs skin:** each skin vertex against its own glove patch (the glove faces that lay within
+  8 mm of it at rest), signed by the face normal.
+- **Weapon:** glove vertices inside the weapon (parity) and weapon vertices inside the glove
+  (nearest-face), per finger segment, plus per-segment gaps; the cuff / forearm is reported
+  separately because in the hand-only evaluation it simply follows the hand (its in-game
+  position comes from the arm IK).
+
+| Check (all poses, both hands) | Limit | Worst | Result |
+| --- | --- | --- | --- |
+| Joint angles read back from the posed rig vs the library | < 0.05° | 0.001° | **PASS** |
+| Phalanx (bone) length change | < 0.001 mm | 0.0000 mm | **PASS** |
+| Bare skin: vertices through the back of the hand | 0 | 0 | **PASS** |
+| Bare skin: fingertip into the palm | ≤ 1.5 mm | 0.00 mm | **PASS** |
+| Bare skin: neighbouring fingers pressing into each other | ≤ 4 mm | 2.90 mm | **PASS** |
+| Bare skin: thumb into fingers / palm | ≤ 4 mm | 2.90 mm | **PASS** |
+| Glove: skin poking through (SK_Human_Base_Gloved, skin left under the cuff) | ≤ 0.5 mm | 0.27 mm | **PASS** |
+| Glove: fingertip into the palm | ≤ 1.5 mm | 1.33 mm | **PASS** |
+| Glove: neighbouring finger shells overlapping (bare limit + 2 shells) | ≤ 6.5 mm | 5.51 mm | **PASS** |
+| Glove: thumb shell overlapping fingers / palm | ≤ 6.5 mm | 5.83 mm | **PASS** |
+| Weapon inside the glove (glove vertices in the weapon, weapon vertices in the glove; hand region) | ≤ 2 mm | 0.14 mm | **PASS** |
+| Every holding digit of every grip has a segment within 0–3 mm of the right part | all | all | **PASS** |
+
+Per pose (left hand for two-sided poses; the right hand is the mirror and measures the same within 0.1 mm):
+
+| Pose | Finger angles MCP/PIP/DIP (abd), index · middle · ring · little | Thumb cmc flex/abd/rot, MCP, IP | Bare: tip→palm / finger↔finger / thumb (mm) | Glove: tip→palm / finger↔finger / thumb (mm) |
+| --- | --- | --- | --- | --- |
+| `relaxed` | 18/28/10 (+2) · 24/34/12 · 28/38/14 (-2) · 33/40/14 (-5) | 5/10/5, 12, 15 | 0.0 / 0.0 / 0.0 | 0.0 / 0.2 / 0.0 |
+| `open_flat` | 0/0/0 · 0/0/0 · 0/0/0 · 0/0/0 | -15/0/0, 0, 0 | 0.0 / 0.0 / 0.0 | 0.0 / 0.0 / 0.0 |
+| `spread` | -5/0/0 (+12) · -5/0/0 (+2) · -5/0/0 (-10) · -5/0/0 (-22) | -35/-5/0, 0, -5 | 0.0 / 0.0 / 0.0 | 0.0 / 0.0 / 0.0 |
+| `fist_full` | 90/88/55 (+4) · 90/100/70 · 90/90/58 (-3) · 90/100/70 (-6) | 36/30/0, 40, 20 | 0.0 / 2.9 / 0.8 | 0.6 / 5.5 / 4.2 |
+| `fist_25` | 22/22/14 (+1) · 22/25/18 · 22/22/14 (-1) · 22/25/18 (-2) | -2/8/0, 10, 5 | 0.0 / 0.0 / 0.0 | 0.0 / 0.1 / 0.0 |
+| `fist_50` | 45/44/28 (+2) · 45/50/35 · 45/45/29 (-2) · 45/50/35 (-3) | 10/15/0, 20, 10 | 0.0 / 0.0 / 0.0 | 0.0 / 0.6 / 0.0 |
+| `fist_75` | 68/66/41 (+3) · 68/75/52 · 68/68/43 (-2) · 68/75/52 (-4) | 23/22/0, 30, 15 | 0.0 / 0.0 / 2.9 | 0.0 / 2.8 / 5.8 |
+| `point` | 5/5/3 · 90/100/70 · 90/90/58 (-3) · 90/100/70 (-6) | 36/30/0, 40, 20 | 0.0 / 2.9 / 0.0 | 0.6 / 5.5 / 1.8 |
+
+Weapon grips (glove against the evaluated IV-7 / proxy pistol meshes):
+
+| Grip | Side | Finger angles MCP/PIP/DIP (abd) | Thumb | Deepest glove↔weapon (mm) | Holding segments in contact 0–3 mm |
+| --- | --- | --- | --- | --- | --- |
+| `rifle_grip_index_straight` | r | 0/0/0 (+10) · 8/75/32 · 13/54/53 · 11/23/24 | 22/10/35, 8, 70 | 0.00 | middle: middle_01/middle_02/middle_03, ring: ring_01/ring_02/ring_03, pinky: pinky_01/pinky_02/pinky_03, thumb: thumb_03, index: index_02/index_03 |
+| `rifle_grip_trigger` | r | 0/23/19 (-8) · 8/75/32 · 13/54/53 · 11/23/24 | 22/10/35, 8, 70 | 0.08 | middle: middle_01/middle_02/middle_03, ring: ring_01/ring_02/ring_03, pinky: pinky_01/pinky_02/pinky_03, thumb: thumb_03, index_03: index_03 |
+| `support_handguard` | l | 64/60/21 · 60/75/49 · 84/50/0 · 92/100/70 | -27/-8/35, 12, 35 | 0.00 | index: index_01/index_02/index_03, middle: middle_03, ring: ring_02/ring_03, thumb: thumb_01/thumb_03 |
+| `mag_grasp` | l | -2/17/18 · 7/13/70 · -1/25/25 · 9/16/18 | 27/14/15, 32, 67 | 0.00 | index: index_01/index_02/index_03, middle: middle_01/middle_02, ring: ring_02/ring_03, pinky: pinky_01/pinky_02/pinky_03, thumb: thumb_03 |
+| `pistol_2h` | r | 2/24/33 (-8) · 13/42/9 · 16/30/46 · 18/0/4 | 39/5/31, 9, 37 | 0.14 | middle: middle_01/middle_02, ring: ring_02, pinky: pinky_01/pinky_02/pinky_03, index_03: index_03 |
+| `pistol_2h` | l | 16/0/0 · 13/19/21 · 27/2/8 · 63/38/32 | -30/15/32, 14, 53 | 0.11 | index: index_01/index_02/index_03, middle: middle_02/middle_03, ring: ring_02/ring_03, thumb: thumb_03 |
 
 ## 5. Evidence renders (`Art/Previews/Hands/`)
 
@@ -182,4 +234,16 @@ RENDERS_PLACEHOLDER
 
 ## 7. Known issues and limits
 
-KNOWN_PLACEHOLDER
+| # | Severity | Issue | Status / next step |
+| --- | --- | --- | --- |
+| 1 | P0 (external) | Unreal import, the layered finger-pose blend, hand IK to `hand_attach` and the in-engine look were not tested. HAND-02 items that need animation (idle, walk, sprint, ADS, recoil, both reloads, IK hand-off during a reload) and HAND-03 (FOV, camera, visibility) cannot be tested without the engine / animation set. | **BLOCKED** (no Unreal, no animation system here). The static grips and their `hand_attach` transforms are the inputs for that work. |
+| 2 | P2 | LBS has no soft-tissue contact: in the full fist neighbouring fingers press up to 2.9 mm into each other (bare) and their glove shells up to 5.5 mm; the palmar creases fold into themselves. | Hidden in the contact lines (renders `Hands_hand01_*`, `Hands_sections_fist_*`). A contact corrective shape would be the next step if close-ups demand it. |
+| 3 | P2 | The glove worn over the **full bare hand** of `SK_Human_Base` is pierced by the skin in deep flexion (palmar creases up to 1.9 mm in the fist, `glove_vs_full_bare_hand` in the report). | By design the shipped `SK_Human_Base_Gloved` has the covered skin removed (only the cuff band remains, max 0.27 mm under the cuff). Do not layer the gloves over the bare body mesh. |
+| 4 | P2 | Some fitted fingers break the soft DIP/PIP coupling where the geometry forces it: support hand ring 84/50/0 (flat distal pad on the handguard side), magazine middle 7/13/70 (fingertip hooked round the front edge), pistol: firing little finger 18/0/4 and support index 16/0/0 (straight, lying along the firing fingers). | Visible only at close range; the renders read naturally. Re-fit with a stronger coupling weight or a hand-tuned pose if an animator wants it. |
+| 5 | P2 | `pistol_2h` is fitted to a **proxy** pistol (no pistol asset exists). The support hand holds loosely (mean segment gap 2.8 mm) and its index lies straight under the trigger guard instead of wrapping the firing fingers. | Re-run `--stages poses` once a real pistol exists (only the prop and `fit_pistol_2h` change). |
+| 6 | P2 | The grips are fitted to the IV-7 geometry of 2026-09-27 (grip, trigger, handguard, magazine unchanged by the parallel IV-7 fix round). | If the IV-7's grip, trigger, handguard or magazine change, re-run `--stages poses,validate,render`. |
+| 7 | P2 | First-person stance: the arms are solved by a simple two-bone IK with fixed poles and no wrist limits; the right wrist deviation follows from the fitted grip. | Shown in `Hands_grip_*_fp.png` / `_stance.png`; the engine's arm IK and FP camera replace it. |
+| 8 | info | Thumb proportions: MPFB's CMC joint sits 4.3 cm distal of the wrist inside the thenar and the metacarpal / proximal / distal lengths are 3.5 / 4.0 / 3.2 cm (the proximal phalanx is long relative to the metacarpal). The joints match the mesh's creases and weights, so they were kept. | Revisit with a hand-specific base mesh. |
+| 9 | info | Textures are procedural (numpy per texel); there is no hand-painted wear, no dirt layer and no separate detail map. 2048² for both gloves (mirrored UVs, 55 px/cm). | Enough for first-person distance; add wear masks later. |
+| 10 | info | Right glove = mirrored left glove (identical UVs and texture). A seam, stitch or logo that should differ left / right cannot. | None needed now (no logos). |
+

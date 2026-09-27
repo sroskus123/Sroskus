@@ -69,9 +69,9 @@
    "Black_ORM": "Art/Textures/Characters/Gloves/T_Glove_Black_ORM.png"
   }
  },
- "seconds_this_run": 293.2,
- "time": "2026-09-27 08:05:57",
- "pose_fit_seconds": 1058.1,
+ "seconds_this_run": 266.0,
+ "time": "2026-09-27 09:21:25",
+ "pose_fit_seconds": 1092.3,
  "validate": {
   "limits": {
    "tip_palm_mm": 1.5,
@@ -3252,39 +3252,39 @@
      "r": {
       "joint_angles_deg": {
        "index": {
-        "mcp": 0.407,
-        "abd": 9.915,
+        "mcp": 0.375,
+        "abd": 10.086,
         "pip": 0.0,
-        "dip": 0.001
+        "dip": 0.002
        },
        "middle": {
-        "mcp": 7.344,
+        "mcp": 7.856,
         "abd": -0.0,
-        "pip": 76.356,
-        "dip": 19.881
+        "pip": 75.102,
+        "dip": 31.679
        },
        "ring": {
-        "mcp": 14.194,
+        "mcp": 13.013,
         "abd": -0.0,
-        "pip": 52.235,
-        "dip": 55.622
+        "pip": 54.39,
+        "dip": 52.716
        },
        "pinky": {
-        "mcp": 11.694,
+        "mcp": 11.043,
         "abd": -0.0,
-        "pip": 21.601,
-        "dip": 24.647
+        "pip": 23.363,
+        "dip": 24.337
        },
        "thumb": {
-        "cmc_flex": 13.171,
-        "cmc_abd": 11.591,
-        "cmc_rot": 32.456,
-        "mcp": 32.812,
-        "ip": 22.64
+        "cmc_flex": 22.225,
+        "cmc_abd": 10.176,
+        "cmc_rot": 34.719,
+        "mcp": 7.929,
+        "ip": 69.917
        }
       },
-      "angle_readback_max_dev_deg": 0.0005,
-      "bone_length_change_mm": 1.4e-05,
+      "angle_readback_max_dev_deg": 0.0004,
+      "bone_length_change_mm": 1.7e-05,
       "glove_vs_skin": {
        "skin_verts_tested": 34,
        "poke_through_verts": 12,
@@ -3295,63 +3295,73 @@
       },
       "glove_vs_full_bare_hand": {
        "skin_verts_tested": 1596,
-       "poke_through_verts": 12,
+       "poke_through_verts": 13,
        "poke_through_max_mm": 1.17,
-       "glove_offset_median_mm": 1.19,
+       "glove_offset_median_mm": 1.18,
        "glove_offset_p95_mm": 1.9,
-       "glove_offset_max_mm": 5.36
+       "glove_offset_max_mm": 5.37
       },
       "glove_self_contact": {
-       "buried_vertices": 58,
+       "buried_vertices": 62,
        "fold_vertices": 1,
        "tip_palm_max_mm": 0.0,
-       "finger_finger_max_mm": 0.29,
+       "finger_finger_max_mm": 0.31,
        "thumb_max_mm": 0.0,
-       "crease_max_mm": 11.67,
+       "crease_max_mm": 11.72,
        "other_max_mm": 0.0
       },
       "glove_self_contact_pairs": {
        "middle_01->middle": {
-        "n": 32,
-        "max_mm": 8.22,
-        "p95_mm": 7.91
+        "n": 31,
+        "max_mm": 8.26,
+        "p95_mm": 7.9
        },
        "middle_02->middle": {
-        "n": 18,
-        "max_mm": 8.29,
-        "p95_mm": 7.75
+        "n": 16,
+        "max_mm": 8.37,
+        "p95_mm": 7.89
+       },
+       "pinky_01->pinky": {
+        "n": 1,
+        "max_mm": 11.58,
+        "p95_mm": 11.58
        },
        "pinky_01->ring": {
         "n": 2,
-        "max_mm": 0.29,
-        "p95_mm": 0.27
+        "max_mm": 0.31,
+        "p95_mm": 0.3
        },
        "ring_01->pinky": {
         "n": 3,
-        "max_mm": 0.15,
-        "p95_mm": 0.14
+        "max_mm": 0.13,
+        "p95_mm": 0.12
        },
        "ring_01->ring": {
-        "n": 2,
-        "max_mm": 11.67,
-        "p95_mm": 11.48
+        "n": 4,
+        "max_mm": 11.72,
+        "p95_mm": 11.16
+       },
+       "thumb_02->thumb": {
+        "n": 4,
+        "max_mm": 0.0,
+        "p95_mm": 0.0
        }
       },
       "weapon_contact": {
        "thumb_01": {
-        "min_gap_mm": 14.41,
+        "min_gap_mm": 18.88,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "thumb_02": {
-        "min_gap_mm": 4.55,
+        "min_gap_mm": 4.99,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "thumb_03": {
-        "min_gap_mm": 0.29,
+        "min_gap_mm": 0.62,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3359,13 +3369,13 @@
         ]
        },
        "index_01": {
-        "min_gap_mm": 4.34,
+        "min_gap_mm": 4.32,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "index_02": {
-        "min_gap_mm": 2.91,
+        "min_gap_mm": 2.9,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3373,7 +3383,7 @@
         ]
        },
        "index_03": {
-        "min_gap_mm": 1.49,
+        "min_gap_mm": 1.57,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3382,7 +3392,7 @@
         ]
        },
        "middle_01": {
-        "min_gap_mm": 0.92,
+        "min_gap_mm": 0.87,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3390,7 +3400,7 @@
         ]
        },
        "middle_02": {
-        "min_gap_mm": 0.76,
+        "min_gap_mm": 0.8,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3398,7 +3408,7 @@
         ]
        },
        "middle_03": {
-        "min_gap_mm": 0.82,
+        "min_gap_mm": 0.8,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3406,7 +3416,7 @@
         ]
        },
        "ring_01": {
-        "min_gap_mm": 1.71,
+        "min_gap_mm": 2.31,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3414,7 +3424,7 @@
         ]
        },
        "ring_02": {
-        "min_gap_mm": 0.2,
+        "min_gap_mm": 0.51,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3422,7 +3432,7 @@
         ]
        },
        "ring_03": {
-        "min_gap_mm": 1.1,
+        "min_gap_mm": 0.92,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3430,7 +3440,7 @@
         ]
        },
        "pinky_01": {
-        "min_gap_mm": 1.46,
+        "min_gap_mm": 1.9,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3438,7 +3448,7 @@
         ]
        },
        "pinky_02": {
-        "min_gap_mm": 0.2,
+        "min_gap_mm": 0.48,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3446,7 +3456,7 @@
         ]
        },
        "pinky_03": {
-        "min_gap_mm": 1.05,
+        "min_gap_mm": 0.9,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3454,23 +3464,27 @@
         ]
        },
        "palm": {
-        "min_gap_mm": 7.17,
+        "min_gap_mm": 7.18,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "back_of_hand": {
-        "min_gap_mm": 22.71,
+        "min_gap_mm": 22.72,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        }
       },
       "weapon_verts_inside_glove": {
+       "n": 0,
+       "max_depth_mm": 0.0
+      },
+      "weapon_verts_inside_cuff_forearm_rigid": {
        "n": 2,
        "max_depth_mm": 3.55
       },
-      "max_penetration_mm": 3.55,
+      "max_penetration_mm": 0.0,
       "segments_in_contact": [
        "thumb_03",
        "index_02",
@@ -3493,7 +3507,7 @@
          "middle_03"
         ],
         "ok": true,
-        "min_gap_mm": 0.76
+        "min_gap_mm": 0.8
        },
        "ring": {
         "holding_segments": [
@@ -3502,7 +3516,7 @@
          "ring_03"
         ],
         "ok": true,
-        "min_gap_mm": 0.2
+        "min_gap_mm": 0.51
        },
        "pinky": {
         "holding_segments": [
@@ -3511,14 +3525,14 @@
          "pinky_03"
         ],
         "ok": true,
-        "min_gap_mm": 0.2
+        "min_gap_mm": 0.48
        },
        "thumb": {
         "holding_segments": [
          "thumb_03"
         ],
         "ok": true,
-        "min_gap_mm": 0.29
+        "min_gap_mm": 0.62
        },
        "index": {
         "holding_segments": [
@@ -3526,7 +3540,7 @@
          "index_03"
         ],
         "ok": true,
-        "min_gap_mm": 1.49
+        "min_gap_mm": 1.57
        }
       }
      }
@@ -3538,39 +3552,39 @@
      "r": {
       "joint_angles_deg": {
        "index": {
-        "mcp": 4.431,
-        "abd": -9.176,
-        "pip": 16.564,
-        "dip": 10.7
+        "mcp": 0.044,
+        "abd": -7.896,
+        "pip": 22.749,
+        "dip": 19.032
        },
        "middle": {
-        "mcp": 7.344,
+        "mcp": 7.856,
         "abd": -0.0,
-        "pip": 76.356,
-        "dip": 19.881
+        "pip": 75.102,
+        "dip": 31.679
        },
        "ring": {
-        "mcp": 14.194,
+        "mcp": 13.013,
         "abd": -0.0,
-        "pip": 52.235,
-        "dip": 55.622
+        "pip": 54.39,
+        "dip": 52.716
        },
        "pinky": {
-        "mcp": 11.694,
+        "mcp": 11.043,
         "abd": -0.0,
-        "pip": 21.601,
-        "dip": 24.647
+        "pip": 23.363,
+        "dip": 24.337
        },
        "thumb": {
-        "cmc_flex": 13.171,
-        "cmc_abd": 11.591,
-        "cmc_rot": 32.456,
-        "mcp": 32.812,
-        "ip": 22.64
+        "cmc_flex": 22.225,
+        "cmc_abd": 10.176,
+        "cmc_rot": 34.719,
+        "mcp": 7.929,
+        "ip": 69.917
        }
       },
-      "angle_readback_max_dev_deg": 0.0005,
-      "bone_length_change_mm": 1.4e-05,
+      "angle_readback_max_dev_deg": 0.0004,
+      "bone_length_change_mm": 1.7e-05,
       "glove_vs_skin": {
        "skin_verts_tested": 34,
        "poke_through_verts": 12,
@@ -3581,63 +3595,73 @@
       },
       "glove_vs_full_bare_hand": {
        "skin_verts_tested": 1596,
-       "poke_through_verts": 12,
+       "poke_through_verts": 13,
        "poke_through_max_mm": 1.17,
-       "glove_offset_median_mm": 1.19,
+       "glove_offset_median_mm": 1.18,
        "glove_offset_p95_mm": 1.9,
-       "glove_offset_max_mm": 5.36
+       "glove_offset_max_mm": 5.37
       },
       "glove_self_contact": {
-       "buried_vertices": 58,
+       "buried_vertices": 62,
        "fold_vertices": 1,
        "tip_palm_max_mm": 0.0,
-       "finger_finger_max_mm": 0.29,
+       "finger_finger_max_mm": 0.31,
        "thumb_max_mm": 0.0,
-       "crease_max_mm": 11.67,
+       "crease_max_mm": 11.72,
        "other_max_mm": 0.0
       },
       "glove_self_contact_pairs": {
        "middle_01->middle": {
-        "n": 32,
-        "max_mm": 8.22,
-        "p95_mm": 7.91
+        "n": 31,
+        "max_mm": 8.26,
+        "p95_mm": 7.9
        },
        "middle_02->middle": {
-        "n": 18,
-        "max_mm": 8.27,
-        "p95_mm": 7.75
+        "n": 16,
+        "max_mm": 8.36,
+        "p95_mm": 7.88
+       },
+       "pinky_01->pinky": {
+        "n": 1,
+        "max_mm": 11.58,
+        "p95_mm": 11.58
        },
        "pinky_01->ring": {
         "n": 2,
-        "max_mm": 0.29,
-        "p95_mm": 0.27
+        "max_mm": 0.31,
+        "p95_mm": 0.3
        },
        "ring_01->pinky": {
         "n": 3,
-        "max_mm": 0.15,
-        "p95_mm": 0.14
+        "max_mm": 0.13,
+        "p95_mm": 0.12
        },
        "ring_01->ring": {
-        "n": 2,
-        "max_mm": 11.67,
-        "p95_mm": 11.48
+        "n": 4,
+        "max_mm": 11.72,
+        "p95_mm": 11.16
+       },
+       "thumb_02->thumb": {
+        "n": 4,
+        "max_mm": 0.0,
+        "p95_mm": 0.0
        }
       },
       "weapon_contact": {
        "thumb_01": {
-        "min_gap_mm": 14.41,
+        "min_gap_mm": 18.88,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "thumb_02": {
-        "min_gap_mm": 4.55,
+        "min_gap_mm": 4.99,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "thumb_03": {
-        "min_gap_mm": 0.29,
+        "min_gap_mm": 0.62,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3645,13 +3669,13 @@
         ]
        },
        "index_01": {
-        "min_gap_mm": 4.83,
+        "min_gap_mm": 4.8,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "index_02": {
-        "min_gap_mm": 1.57,
+        "min_gap_mm": 1.6,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3659,7 +3683,7 @@
         ]
        },
        "index_03": {
-        "min_gap_mm": 0.6,
+        "min_gap_mm": 0.31,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3668,7 +3692,7 @@
         ]
        },
        "middle_01": {
-        "min_gap_mm": 1.06,
+        "min_gap_mm": 0.99,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3676,7 +3700,7 @@
         ]
        },
        "middle_02": {
-        "min_gap_mm": 0.76,
+        "min_gap_mm": 0.8,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3684,7 +3708,7 @@
         ]
        },
        "middle_03": {
-        "min_gap_mm": 0.82,
+        "min_gap_mm": 0.8,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3692,7 +3716,7 @@
         ]
        },
        "ring_01": {
-        "min_gap_mm": 1.71,
+        "min_gap_mm": 2.31,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3700,7 +3724,7 @@
         ]
        },
        "ring_02": {
-        "min_gap_mm": 0.2,
+        "min_gap_mm": 0.51,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3708,7 +3732,7 @@
         ]
        },
        "ring_03": {
-        "min_gap_mm": 1.1,
+        "min_gap_mm": 0.92,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3716,7 +3740,7 @@
         ]
        },
        "pinky_01": {
-        "min_gap_mm": 1.46,
+        "min_gap_mm": 1.9,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3724,7 +3748,7 @@
         ]
        },
        "pinky_02": {
-        "min_gap_mm": 0.2,
+        "min_gap_mm": 0.48,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3732,7 +3756,7 @@
         ]
        },
        "pinky_03": {
-        "min_gap_mm": 1.05,
+        "min_gap_mm": 0.9,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -3740,23 +3764,27 @@
         ]
        },
        "palm": {
-        "min_gap_mm": 6.68,
+        "min_gap_mm": 6.31,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "back_of_hand": {
-        "min_gap_mm": 22.34,
+        "min_gap_mm": 22.6,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        }
       },
       "weapon_verts_inside_glove": {
+       "n": 3,
+       "max_depth_mm": 0.08
+      },
+      "weapon_verts_inside_cuff_forearm_rigid": {
        "n": 2,
        "max_depth_mm": 3.55
       },
-      "max_penetration_mm": 3.55,
+      "max_penetration_mm": 0.08,
       "segments_in_contact": [
        "thumb_03",
        "index_02",
@@ -3779,7 +3807,7 @@
          "middle_03"
         ],
         "ok": true,
-        "min_gap_mm": 0.76
+        "min_gap_mm": 0.8
        },
        "ring": {
         "holding_segments": [
@@ -3788,7 +3816,7 @@
          "ring_03"
         ],
         "ok": true,
-        "min_gap_mm": 0.2
+        "min_gap_mm": 0.51
        },
        "pinky": {
         "holding_segments": [
@@ -3797,21 +3825,21 @@
          "pinky_03"
         ],
         "ok": true,
-        "min_gap_mm": 0.2
+        "min_gap_mm": 0.48
        },
        "thumb": {
         "holding_segments": [
          "thumb_03"
         ],
         "ok": true,
-        "min_gap_mm": 0.29
+        "min_gap_mm": 0.62
        },
        "index_03": {
         "holding_segments": [
          "index_03"
         ],
         "ok": true,
-        "min_gap_mm": 0.6
+        "min_gap_mm": 0.31
        }
       }
      }
@@ -3823,22 +3851,22 @@
      "l": {
       "joint_angles_deg": {
        "index": {
-        "mcp": 64.283,
+        "mcp": 64.285,
         "abd": 0.0,
-        "pip": 59.889,
-        "dip": 20.673
+        "pip": 59.884,
+        "dip": 20.687
        },
        "middle": {
-        "mcp": 65.737,
+        "mcp": 59.746,
         "abd": 0.0,
-        "pip": 77.47,
-        "dip": 14.493
+        "pip": 75.289,
+        "dip": 48.688
        },
        "ring": {
-        "mcp": 91.322,
+        "mcp": 84.187,
         "abd": 0.0,
-        "pip": 36.415,
-        "dip": 0.002
+        "pip": 50.463,
+        "dip": 0.052
        },
        "pinky": {
         "mcp": 92.0,
@@ -3847,15 +3875,15 @@
         "dip": 70.0
        },
        "thumb": {
-        "cmc_flex": 45.426,
-        "cmc_abd": -19.794,
-        "cmc_rot": -1.858,
-        "mcp": 36.464,
-        "ip": 0.718
+        "cmc_flex": -26.675,
+        "cmc_abd": -8.356,
+        "cmc_rot": 34.887,
+        "mcp": 11.727,
+        "ip": 34.786
        }
       },
-      "angle_readback_max_dev_deg": 0.0005,
-      "bone_length_change_mm": 1.8e-05,
+      "angle_readback_max_dev_deg": 0.0003,
+      "bone_length_change_mm": 1.4e-05,
       "glove_vs_skin": {
        "skin_verts_tested": 34,
        "poke_through_verts": 12,
@@ -3866,151 +3894,126 @@
       },
       "glove_vs_full_bare_hand": {
        "skin_verts_tested": 1596,
-       "poke_through_verts": 85,
-       "poke_through_max_mm": 1.79,
+       "poke_through_verts": 73,
+       "poke_through_max_mm": 1.57,
        "glove_offset_median_mm": 1.14,
-       "glove_offset_p95_mm": 1.77,
+       "glove_offset_p95_mm": 1.82,
        "glove_offset_max_mm": 5.3
       },
       "glove_self_contact": {
-       "buried_vertices": 1661,
-       "fold_vertices": 247,
-       "tip_palm_max_mm": 1.32,
-       "finger_finger_max_mm": 6.7,
-       "thumb_max_mm": 11.39,
+       "buried_vertices": 853,
+       "fold_vertices": 69,
+       "tip_palm_max_mm": 1.33,
+       "finger_finger_max_mm": 4.65,
+       "thumb_max_mm": 0.0,
        "crease_max_mm": 10.04,
        "other_max_mm": 0.0
       },
       "glove_self_contact_pairs": {
        "hand->hand": {
-        "n": 14,
-        "max_mm": 5.58,
-        "p95_mm": 5.53
-       },
-       "hand->index": {
-        "n": 3,
-        "max_mm": 7.54,
-        "p95_mm": 7.14
+        "n": 1,
+        "max_mm": 5.98,
+        "p95_mm": 5.98
        },
        "hand->middle": {
-        "n": 7,
-        "max_mm": 6.45,
-        "p95_mm": 5.68
+        "n": 9,
+        "max_mm": 4.91,
+        "p95_mm": 4.68
        },
        "hand->pinky": {
-        "n": 5,
-        "max_mm": 3.19,
-        "p95_mm": 3.16
+        "n": 4,
+        "max_mm": 2.98,
+        "p95_mm": 2.76
        },
        "hand->ring": {
         "n": 12,
-        "max_mm": 5.03,
-        "p95_mm": 4.86
-       },
-       "hand->thumb": {
-        "n": 18,
-        "max_mm": 5.65,
-        "p95_mm": 4.84
-       },
-       "index_01->hand": {
-        "n": 1,
-        "max_mm": 1.25,
-        "p95_mm": 1.25
+        "max_mm": 4.84,
+        "p95_mm": 4.64
        },
        "index_01->index": {
-        "n": 20,
+        "n": 21,
         "max_mm": 9.1,
-        "p95_mm": 8.56
-       },
-       "index_01->thumb": {
-        "n": 2,
-        "max_mm": 2.47,
-        "p95_mm": 2.44
+        "p95_mm": 8.53
        },
        "index_02->index": {
-        "n": 17,
-        "max_mm": 8.44,
+        "n": 18,
+        "max_mm": 8.45,
         "p95_mm": 8.39
        },
        "index_02->middle": {
         "n": 18,
-        "max_mm": 1.65,
-        "p95_mm": 1.54
+        "max_mm": 1.42,
+        "p95_mm": 1.36
        },
        "index_03->middle": {
         "n": 43,
-        "max_mm": 3.6,
-        "p95_mm": 3.42
+        "max_mm": 3.58,
+        "p95_mm": 3.17
        },
        "middle_01->hand": {
-        "n": 12,
-        "max_mm": 8.52,
-        "p95_mm": 7.6
+        "n": 6,
+        "max_mm": 4.06,
+        "p95_mm": 3.91
        },
        "middle_01->middle": {
-        "n": 26,
-        "max_mm": 8.15,
-        "p95_mm": 7.62
+        "n": 30,
+        "max_mm": 8.08,
+        "p95_mm": 7.52
        },
        "middle_01->ring": {
         "n": 1,
-        "max_mm": 0.83,
-        "p95_mm": 0.83
-       },
-       "middle_01->thumb": {
-        "n": 76,
-        "max_mm": 9.0,
-        "p95_mm": 6.61
+        "max_mm": 0.0,
+        "p95_mm": 0.0
        },
        "middle_02->index": {
-        "n": 59,
-        "max_mm": 3.6,
-        "p95_mm": 3.22
+        "n": 37,
+        "max_mm": 2.33,
+        "p95_mm": 2.15
        },
        "middle_02->middle": {
         "n": 13,
-        "max_mm": 7.4,
-        "p95_mm": 7.11
+        "max_mm": 7.67,
+        "p95_mm": 7.59
        },
        "middle_03->index": {
-        "n": 27,
-        "max_mm": 3.61,
-        "p95_mm": 3.39
+        "n": 41,
+        "max_mm": 3.41,
+        "p95_mm": 3.2
        },
        "middle_03->ring": {
-        "n": 14,
-        "max_mm": 2.28,
-        "p95_mm": 2.0
+        "n": 11,
+        "max_mm": 1.3,
+        "p95_mm": 1.27
        },
        "pinky_01->hand": {
-        "n": 13,
-        "max_mm": 5.04,
-        "p95_mm": 4.96
+        "n": 12,
+        "max_mm": 4.9,
+        "p95_mm": 4.86
        },
        "pinky_01->pinky": {
-        "n": 50,
+        "n": 52,
         "max_mm": 8.14,
-        "p95_mm": 6.66
+        "p95_mm": 7.19
        },
        "pinky_01->ring": {
-        "n": 173,
-        "max_mm": 6.7,
-        "p95_mm": 6.19
+        "n": 197,
+        "max_mm": 4.54,
+        "p95_mm": 4.12
        },
        "pinky_02->pinky": {
-        "n": 71,
-        "max_mm": 7.98,
-        "p95_mm": 7.04
+        "n": 80,
+        "max_mm": 8.01,
+        "p95_mm": 7.77
        },
        "pinky_02->ring": {
-        "n": 31,
-        "max_mm": 5.65,
-        "p95_mm": 5.15
+        "n": 7,
+        "max_mm": 1.65,
+        "p95_mm": 1.62
        },
        "pinky_03->hand": {
         "n": 22,
-        "max_mm": 1.32,
-        "p95_mm": 1.27
+        "max_mm": 1.33,
+        "p95_mm": 1.28
        },
        "pinky_03->pinky": {
         "n": 13,
@@ -4018,103 +4021,58 @@
         "p95_mm": 7.42
        },
        "ring_01->hand": {
-        "n": 20,
-        "max_mm": 6.47,
-        "p95_mm": 5.41
+        "n": 15,
+        "max_mm": 5.59,
+        "p95_mm": 4.68
+       },
+       "ring_01->middle": {
+        "n": 2,
+        "max_mm": 0.12,
+        "p95_mm": 0.12
        },
        "ring_01->pinky": {
-        "n": 81,
-        "max_mm": 5.75,
-        "p95_mm": 5.16
+        "n": 83,
+        "max_mm": 4.65,
+        "p95_mm": 3.73
        },
        "ring_01->ring": {
-        "n": 18,
+        "n": 15,
         "max_mm": 10.04,
-        "p95_mm": 9.95
-       },
-       "ring_01->thumb": {
-        "n": 92,
-        "max_mm": 6.5,
-        "p95_mm": 5.92
+        "p95_mm": 9.9
        },
        "ring_02->middle": {
-        "n": 25,
-        "max_mm": 2.0,
-        "p95_mm": 1.94
+        "n": 11,
+        "max_mm": 1.17,
+        "p95_mm": 1.11
        },
        "ring_02->pinky": {
-        "n": 13,
-        "max_mm": 3.96,
-        "p95_mm": 3.66
-       },
-       "ring_03->middle": {
-        "n": 6,
-        "max_mm": 1.78,
-        "p95_mm": 1.73
-       },
-       "thumb_01->hand": {
-        "n": 5,
-        "max_mm": 4.35,
-        "p95_mm": 4.15
-       },
-       "thumb_02->hand": {
-        "n": 60,
-        "max_mm": 9.34,
-        "p95_mm": 8.98
-       },
-       "thumb_02->index": {
-        "n": 15,
-        "max_mm": 8.62,
-        "p95_mm": 8.18
-       },
-       "thumb_02->middle": {
-        "n": 33,
-        "max_mm": 11.39,
-        "p95_mm": 10.76
-       },
-       "thumb_02->ring": {
-        "n": 8,
-        "max_mm": 9.16,
-        "p95_mm": 7.9
-       },
-       "thumb_02->thumb": {
-        "n": 55,
-        "max_mm": 0.0,
-        "p95_mm": 0.0
-       },
-       "thumb_03->middle": {
-        "n": 152,
-        "max_mm": 10.9,
-        "p95_mm": 9.79
-       },
-       "thumb_03->ring": {
-        "n": 70,
-        "max_mm": 8.42,
-        "p95_mm": 7.62
+        "n": 10,
+        "max_mm": 2.29,
+        "p95_mm": 2.28
        }
       },
       "weapon_contact": {
        "thumb_01": {
-        "min_gap_mm": -1.27,
-        "penetration_mm": 1.27,
+        "min_gap_mm": 2.99,
+        "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
          "Handguard"
         ]
        },
        "thumb_02": {
-        "min_gap_mm": -1.07,
-        "penetration_mm": 1.07,
+        "min_gap_mm": 10.88,
+        "penetration_mm": 0.0,
+        "in_contact_0_3mm": false,
+        "touches": []
+       },
+       "thumb_03": {
+        "min_gap_mm": 1.31,
+        "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
          "Handguard"
         ]
-       },
-       "thumb_03": {
-        "min_gap_mm": 18.88,
-        "penetration_mm": 0.0,
-        "in_contact_0_3mm": false,
-        "touches": []
        },
        "index_01": {
         "min_gap_mm": 0.8,
@@ -4141,19 +4099,19 @@
         ]
        },
        "middle_01": {
-        "min_gap_mm": 14.92,
+        "min_gap_mm": 16.58,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "middle_02": {
-        "min_gap_mm": 6.66,
+        "min_gap_mm": 14.04,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "middle_03": {
-        "min_gap_mm": 0.17,
+        "min_gap_mm": 0.6,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4161,13 +4119,13 @@
         ]
        },
        "ring_01": {
-        "min_gap_mm": 13.42,
+        "min_gap_mm": 17.52,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "ring_02": {
-        "min_gap_mm": 0.43,
+        "min_gap_mm": 2.2,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4183,7 +4141,7 @@
         ]
        },
        "pinky_01": {
-        "min_gap_mm": 18.87,
+        "min_gap_mm": 18.86,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
@@ -4201,26 +4159,30 @@
         "touches": []
        },
        "palm": {
-        "min_gap_mm": 5.25,
+        "min_gap_mm": 3.27,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "back_of_hand": {
-        "min_gap_mm": 19.29,
+        "min_gap_mm": 19.83,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        }
       },
       "weapon_verts_inside_glove": {
-       "n": 2,
-       "max_depth_mm": 0.53
+       "n": 0,
+       "max_depth_mm": 0.0
       },
-      "max_penetration_mm": 1.27,
+      "weapon_verts_inside_cuff_forearm_rigid": {
+       "n": 0,
+       "max_depth_mm": 0.0
+      },
+      "max_penetration_mm": 0.0,
       "segments_in_contact": [
        "thumb_01",
-       "thumb_02",
+       "thumb_03",
        "index_01",
        "index_02",
        "index_03",
@@ -4243,7 +4205,7 @@
          "middle_03"
         ],
         "ok": true,
-        "min_gap_mm": 0.17
+        "min_gap_mm": 0.6
        },
        "ring": {
         "holding_segments": [
@@ -4256,10 +4218,10 @@
        "thumb": {
         "holding_segments": [
          "thumb_01",
-         "thumb_02"
+         "thumb_03"
         ],
         "ok": true,
-        "min_gap_mm": -1.27
+        "min_gap_mm": 1.31
        }
       }
      }
@@ -4271,10 +4233,10 @@
      "l": {
       "joint_angles_deg": {
        "index": {
-        "mcp": -1.4,
+        "mcp": -1.807,
         "abd": 0.0,
-        "pip": 14.16,
-        "dip": 17.134
+        "pip": 16.675,
+        "dip": 18.165
        },
        "middle": {
         "mcp": 7.003,
@@ -4283,27 +4245,27 @@
         "dip": 70.0
        },
        "ring": {
-        "mcp": -0.042,
+        "mcp": -0.94,
         "abd": 0.0,
-        "pip": 22.8,
-        "dip": 25.036
+        "pip": 24.765,
+        "dip": 25.393
        },
        "pinky": {
-        "mcp": 8.807,
+        "mcp": 8.546,
         "abd": 0.0,
-        "pip": 14.787,
-        "dip": 17.852
+        "pip": 16.021,
+        "dip": 17.912
        },
        "thumb": {
-        "cmc_flex": 52.347,
-        "cmc_abd": 21.889,
-        "cmc_rot": 28.076,
-        "mcp": 35.033,
-        "ip": 49.191
+        "cmc_flex": 26.604,
+        "cmc_abd": 14.257,
+        "cmc_rot": 14.916,
+        "mcp": 32.012,
+        "ip": 67.021
        }
       },
       "angle_readback_max_dev_deg": 0.0005,
-      "bone_length_change_mm": 2e-05,
+      "bone_length_change_mm": 2.1e-05,
       "glove_vs_skin": {
        "skin_verts_tested": 34,
        "poke_through_verts": 12,
@@ -4314,31 +4276,26 @@
       },
       "glove_vs_full_bare_hand": {
        "skin_verts_tested": 1596,
-       "poke_through_verts": 19,
-       "poke_through_max_mm": 1.99,
+       "poke_through_verts": 13,
+       "poke_through_max_mm": 2.09,
        "glove_offset_median_mm": 1.19,
-       "glove_offset_p95_mm": 1.81,
+       "glove_offset_p95_mm": 1.85,
        "glove_offset_max_mm": 5.36
       },
       "glove_self_contact": {
-       "buried_vertices": 56,
-       "fold_vertices": 3,
+       "buried_vertices": 40,
+       "fold_vertices": 2,
        "tip_palm_max_mm": 0.0,
        "finger_finger_max_mm": 0.0,
-       "thumb_max_mm": 2.22,
-       "crease_max_mm": 11.44,
+       "thumb_max_mm": 0.0,
+       "crease_max_mm": 11.39,
        "other_max_mm": 0.0
       },
       "glove_self_contact_pairs": {
-       "hand->hand": {
-        "n": 1,
-        "max_mm": 1.27,
-        "p95_mm": 1.27
-       },
        "hand->thumb": {
-        "n": 8,
-        "max_mm": 2.22,
-        "p95_mm": 2.18
+        "n": 1,
+        "max_mm": 0.0,
+        "p95_mm": 0.0
        },
        "middle_02->middle": {
         "n": 20,
@@ -4352,30 +4309,30 @@
        },
        "pinky_01->pinky": {
         "n": 3,
-        "max_mm": 11.44,
-        "p95_mm": 11.43
+        "max_mm": 11.39,
+        "p95_mm": 11.39
        },
-       "thumb_01->hand": {
-        "n": 8,
-        "max_mm": 4.01,
-        "p95_mm": 3.95
+       "thumb_02->thumb": {
+        "n": 1,
+        "max_mm": 0.0,
+        "p95_mm": 0.0
        }
       },
       "weapon_contact": {
        "thumb_01": {
-        "min_gap_mm": 29.52,
+        "min_gap_mm": 26.93,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "thumb_02": {
-        "min_gap_mm": 8.56,
+        "min_gap_mm": 5.3,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "thumb_03": {
-        "min_gap_mm": 0.29,
+        "min_gap_mm": 0.28,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4383,7 +4340,7 @@
         ]
        },
        "index_01": {
-        "min_gap_mm": 1.11,
+        "min_gap_mm": 1.12,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4391,7 +4348,7 @@
         ]
        },
        "index_02": {
-        "min_gap_mm": 1.12,
+        "min_gap_mm": 1.04,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4400,7 +4357,7 @@
         ]
        },
        "index_03": {
-        "min_gap_mm": 2.96,
+        "min_gap_mm": 2.98,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4408,7 +4365,7 @@
         ]
        },
        "middle_01": {
-        "min_gap_mm": 0.76,
+        "min_gap_mm": 0.78,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4430,13 +4387,13 @@
         "touches": []
        },
        "ring_01": {
-        "min_gap_mm": 3.71,
+        "min_gap_mm": 3.77,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "ring_02": {
-        "min_gap_mm": 0.37,
+        "min_gap_mm": 0.75,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4444,7 +4401,7 @@
         ]
        },
        "ring_03": {
-        "min_gap_mm": 1.04,
+        "min_gap_mm": 0.83,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4452,7 +4409,7 @@
         ]
        },
        "pinky_01": {
-        "min_gap_mm": 2.47,
+        "min_gap_mm": 2.65,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4460,7 +4417,7 @@
         ]
        },
        "pinky_02": {
-        "min_gap_mm": 0.2,
+        "min_gap_mm": 0.25,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4468,7 +4425,7 @@
         ]
        },
        "pinky_03": {
-        "min_gap_mm": 1.64,
+        "min_gap_mm": 1.55,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4476,7 +4433,7 @@
         ]
        },
        "palm": {
-        "min_gap_mm": 0.49,
+        "min_gap_mm": 0.48,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4484,13 +4441,17 @@
         ]
        },
        "back_of_hand": {
-        "min_gap_mm": 19.42,
+        "min_gap_mm": 19.43,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        }
       },
       "weapon_verts_inside_glove": {
+       "n": 0,
+       "max_depth_mm": 0.0
+      },
+      "weapon_verts_inside_cuff_forearm_rigid": {
        "n": 0,
        "max_depth_mm": 0.0
       },
@@ -4517,7 +4478,7 @@
          "index_03"
         ],
         "ok": true,
-        "min_gap_mm": 1.11
+        "min_gap_mm": 1.04
        },
        "middle": {
         "holding_segments": [
@@ -4533,7 +4494,7 @@
          "ring_03"
         ],
         "ok": true,
-        "min_gap_mm": 0.37
+        "min_gap_mm": 0.75
        },
        "pinky": {
         "holding_segments": [
@@ -4542,14 +4503,14 @@
          "pinky_03"
         ],
         "ok": true,
-        "min_gap_mm": 0.2
+        "min_gap_mm": 0.25
        },
        "thumb": {
         "holding_segments": [
          "thumb_03"
         ],
         "ok": true,
-        "min_gap_mm": 0.29
+        "min_gap_mm": 0.28
        }
       }
      }
@@ -4561,39 +4522,39 @@
      "r": {
       "joint_angles_deg": {
        "index": {
-        "mcp": 10.0,
-        "abd": -7.5,
-        "pip": 30.0,
-        "dip": 18.0
+        "mcp": 2.304,
+        "abd": -8.1,
+        "pip": 24.493,
+        "dip": 33.271
        },
        "middle": {
-        "mcp": 18.955,
+        "mcp": 13.109,
         "abd": -0.0,
-        "pip": 74.291,
-        "dip": 29.437
+        "pip": 41.692,
+        "dip": 9.323
        },
        "ring": {
-        "mcp": 23.321,
+        "mcp": 15.886,
         "abd": -0.0,
-        "pip": 52.657,
-        "dip": 54.294
+        "pip": 30.214,
+        "dip": 46.088
        },
        "pinky": {
-        "mcp": 19.323,
+        "mcp": 17.695,
         "abd": -0.0,
-        "pip": 25.514,
-        "dip": 29.547
+        "pip": 0.423,
+        "dip": 3.513
        },
        "thumb": {
-        "cmc_flex": 28.988,
-        "cmc_abd": 12.673,
-        "cmc_rot": 20.142,
-        "mcp": 26.988,
-        "ip": 7.679
+        "cmc_flex": 39.038,
+        "cmc_abd": 5.25,
+        "cmc_rot": 30.519,
+        "mcp": 8.921,
+        "ip": 36.733
        }
       },
       "angle_readback_max_dev_deg": 0.0004,
-      "bone_length_change_mm": 1e-05,
+      "bone_length_change_mm": 1.1e-05,
       "glove_vs_skin": {
        "skin_verts_tested": 34,
        "poke_through_verts": 12,
@@ -4604,51 +4565,56 @@
       },
       "glove_vs_full_bare_hand": {
        "skin_verts_tested": 1596,
-       "poke_through_verts": 13,
-       "poke_through_max_mm": 2.12,
-       "glove_offset_median_mm": 1.18,
-       "glove_offset_p95_mm": 1.84,
+       "poke_through_verts": 5,
+       "poke_through_max_mm": 1.06,
+       "glove_offset_median_mm": 1.19,
+       "glove_offset_p95_mm": 1.86,
        "glove_offset_max_mm": 5.36
       },
       "glove_self_contact": {
-       "buried_vertices": 60,
+       "buried_vertices": 23,
        "fold_vertices": 3,
        "tip_palm_max_mm": 0.0,
-       "finger_finger_max_mm": 0.3,
-       "thumb_max_mm": 0.0,
-       "crease_max_mm": 11.2,
+       "finger_finger_max_mm": 0.23,
+       "thumb_max_mm": 1.45,
+       "crease_max_mm": 11.97,
        "other_max_mm": 0.0
       },
       "glove_self_contact_pairs": {
-       "hand->thumb": {
+       "hand->hand": {
         "n": 1,
-        "max_mm": 0.0,
-        "p95_mm": 0.0
+        "max_mm": 4.54,
+        "p95_mm": 4.54
        },
-       "middle_01->middle": {
-        "n": 31,
-        "max_mm": 8.28,
-        "p95_mm": 7.88
+       "hand->thumb": {
+        "n": 4,
+        "max_mm": 1.45,
+        "p95_mm": 1.4
        },
-       "middle_02->middle": {
-        "n": 16,
-        "max_mm": 8.44,
-        "p95_mm": 7.96
+       "pinky_01->pinky": {
+        "n": 1,
+        "max_mm": 11.97,
+        "p95_mm": 11.97
        },
        "pinky_01->ring": {
-        "n": 1,
-        "max_mm": 0.0,
-        "p95_mm": 0.0
+        "n": 3,
+        "max_mm": 0.23,
+        "p95_mm": 0.21
        },
        "ring_01->pinky": {
-        "n": 5,
-        "max_mm": 0.3,
-        "p95_mm": 0.3
+        "n": 2,
+        "max_mm": 0.02,
+        "p95_mm": 0.01
        },
        "ring_01->ring": {
-        "n": 3,
-        "max_mm": 11.2,
-        "p95_mm": 11.2
+        "n": 4,
+        "max_mm": 11.95,
+        "p95_mm": 11.94
+       },
+       "thumb_01->hand": {
+        "n": 5,
+        "max_mm": 2.97,
+        "p95_mm": 2.92
        }
       },
       "weapon_contact": {
@@ -4659,6 +4625,14 @@
         "touches": []
        },
        "thumb_02": {
+        "min_gap_mm": 1.46,
+        "penetration_mm": 0.0,
+        "in_contact_0_3mm": true,
+        "touches": [
+         "PX_Frame"
+        ]
+       },
+       "thumb_03": {
         "min_gap_mm": 0.3,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
@@ -4667,42 +4641,29 @@
          "PX_Grip"
         ]
        },
-       "thumb_03": {
-        "min_gap_mm": 0.29,
-        "penetration_mm": 0.0,
-        "in_contact_0_3mm": true,
-        "touches": [
-         "PX_Grip"
-        ]
-       },
        "index_01": {
-        "min_gap_mm": 2.22,
+        "min_gap_mm": 3.4,
         "penetration_mm": 0.0,
-        "in_contact_0_3mm": true,
-        "touches": [
-         "PX_Grip"
-        ]
+        "in_contact_0_3mm": false,
+        "touches": []
        },
        "index_02": {
-        "min_gap_mm": -0.35,
-        "penetration_mm": 0.35,
-        "in_contact_0_3mm": true,
-        "touches": [
-         "PX_Frame"
-        ]
+        "min_gap_mm": 6.12,
+        "penetration_mm": 0.0,
+        "in_contact_0_3mm": false,
+        "touches": []
        },
        "index_03": {
-        "min_gap_mm": -0.24,
-        "penetration_mm": 0.24,
+        "min_gap_mm": 0.28,
+        "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
          "PX_Frame",
-         "PX_Trigger",
-         "PX_TriggerGuard"
+         "PX_Trigger"
         ]
        },
        "middle_01": {
-        "min_gap_mm": 0.71,
+        "min_gap_mm": 2.24,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4710,7 +4671,7 @@
         ]
        },
        "middle_02": {
-        "min_gap_mm": 0.68,
+        "min_gap_mm": 0.85,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4719,20 +4680,18 @@
         ]
        },
        "middle_03": {
-        "min_gap_mm": 0.87,
+        "min_gap_mm": 1.51,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
-         "PX_Grip"
+         "PX_TriggerGuard"
         ]
        },
        "ring_01": {
-        "min_gap_mm": 2.64,
+        "min_gap_mm": 4.91,
         "penetration_mm": 0.0,
-        "in_contact_0_3mm": true,
-        "touches": [
-         "PX_Grip"
-        ]
+        "in_contact_0_3mm": false,
+        "touches": []
        },
        "ring_02": {
         "min_gap_mm": 0.2,
@@ -4743,15 +4702,13 @@
         ]
        },
        "ring_03": {
-        "min_gap_mm": 1.05,
+        "min_gap_mm": 4.52,
         "penetration_mm": 0.0,
-        "in_contact_0_3mm": true,
-        "touches": [
-         "PX_Grip"
-        ]
+        "in_contact_0_3mm": false,
+        "touches": []
        },
        "pinky_01": {
-        "min_gap_mm": 2.83,
+        "min_gap_mm": 1.85,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4759,7 +4716,7 @@
         ]
        },
        "pinky_02": {
-        "min_gap_mm": 0.21,
+        "min_gap_mm": 0.47,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4767,7 +4724,7 @@
         ]
        },
        "pinky_03": {
-        "min_gap_mm": 1.12,
+        "min_gap_mm": 0.9,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4775,38 +4732,37 @@
         ]
        },
        "palm": {
-        "min_gap_mm": 0.38,
+        "min_gap_mm": 2.55,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
-         "PX_Frame",
-         "PX_Grip"
+         "PX_Frame"
         ]
        },
        "back_of_hand": {
-        "min_gap_mm": 8.92,
+        "min_gap_mm": 14.34,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        }
       },
       "weapon_verts_inside_glove": {
-       "n": 3,
-       "max_depth_mm": 1.53
+       "n": 1,
+       "max_depth_mm": 0.14
       },
-      "max_penetration_mm": 1.53,
+      "weapon_verts_inside_cuff_forearm_rigid": {
+       "n": 0,
+       "max_depth_mm": 0.0
+      },
+      "max_penetration_mm": 0.14,
       "segments_in_contact": [
        "thumb_02",
        "thumb_03",
-       "index_01",
-       "index_02",
        "index_03",
        "middle_01",
        "middle_02",
        "middle_03",
-       "ring_01",
        "ring_02",
-       "ring_03",
        "pinky_01",
        "pinky_02",
        "pinky_03",
@@ -4816,17 +4772,14 @@
        "middle": {
         "holding_segments": [
          "middle_01",
-         "middle_02",
-         "middle_03"
+         "middle_02"
         ],
         "ok": true,
-        "min_gap_mm": 0.68
+        "min_gap_mm": 0.85
        },
        "ring": {
         "holding_segments": [
-         "ring_01",
-         "ring_02",
-         "ring_03"
+         "ring_02"
         ],
         "ok": true,
         "min_gap_mm": 0.2
@@ -4838,53 +4791,53 @@
          "pinky_03"
         ],
         "ok": true,
-        "min_gap_mm": 0.21
+        "min_gap_mm": 0.47
        },
        "index_03": {
         "holding_segments": [
          "index_03"
         ],
         "ok": true,
-        "min_gap_mm": -0.24
+        "min_gap_mm": 0.28
        }
       }
      },
      "l": {
       "joint_angles_deg": {
        "index": {
-        "mcp": 17.655,
+        "mcp": 16.167,
         "abd": 0.0,
-        "pip": 31.574,
-        "dip": 31.627
+        "pip": 0.0,
+        "dip": 0.013
        },
        "middle": {
-        "mcp": 25.966,
+        "mcp": 12.779,
         "abd": 0.0,
-        "pip": 21.606,
-        "dip": 42.377
+        "pip": 19.179,
+        "dip": 20.749
        },
        "ring": {
-        "mcp": 39.723,
+        "mcp": 26.673,
         "abd": 0.0,
-        "pip": 0.043,
-        "dip": 15.015
+        "pip": 1.928,
+        "dip": 8.492
        },
        "pinky": {
-        "mcp": 52.855,
+        "mcp": 62.985,
         "abd": 0.0,
-        "pip": 0.007,
-        "dip": 10.702
+        "pip": 38.305,
+        "dip": 32.289
        },
        "thumb": {
-        "cmc_flex": 1.943,
-        "cmc_abd": -11.793,
-        "cmc_rot": 29.808,
-        "mcp": 11.753,
-        "ip": 17.297
+        "cmc_flex": -29.76,
+        "cmc_abd": 15.029,
+        "cmc_rot": 31.577,
+        "mcp": 13.698,
+        "ip": 53.101
        }
       },
       "angle_readback_max_dev_deg": 0.0005,
-      "bone_length_change_mm": 1.8e-05,
+      "bone_length_change_mm": 1.4e-05,
       "glove_vs_skin": {
        "skin_verts_tested": 34,
        "poke_through_verts": 12,
@@ -4895,62 +4848,66 @@
       },
       "glove_vs_full_bare_hand": {
        "skin_verts_tested": 1596,
-       "poke_through_verts": 6,
-       "poke_through_max_mm": 1.54,
+       "poke_through_verts": 7,
+       "poke_through_max_mm": 1.28,
        "glove_offset_median_mm": 1.19,
        "glove_offset_p95_mm": 1.85,
-       "glove_offset_max_mm": 5.36
+       "glove_offset_max_mm": 5.35
       },
       "glove_self_contact": {
-       "buried_vertices": 43,
-       "fold_vertices": 10,
+       "buried_vertices": 22,
+       "fold_vertices": 12,
        "tip_palm_max_mm": 0.0,
-       "finger_finger_max_mm": 0.51,
+       "finger_finger_max_mm": 0.34,
        "thumb_max_mm": 0.0,
-       "crease_max_mm": 10.27,
+       "crease_max_mm": 10.01,
        "other_max_mm": 0.0
       },
       "glove_self_contact_pairs": {
        "pinky_01->pinky": {
-        "n": 1,
-        "max_mm": 10.27,
-        "p95_mm": 10.27
+        "n": 3,
+        "max_mm": 7.98,
+        "p95_mm": 7.96
        },
        "pinky_01->ring": {
-        "n": 19,
-        "max_mm": 0.51,
-        "p95_mm": 0.5
+        "n": 3,
+        "max_mm": 0.34,
+        "p95_mm": 0.33
+       },
+       "pinky_02->pinky": {
+        "n": 1,
+        "max_mm": 10.01,
+        "p95_mm": 10.01
        },
        "ring_01->pinky": {
-        "n": 13,
-        "max_mm": 0.5,
-        "p95_mm": 0.5
+        "n": 3,
+        "max_mm": 0.32,
+        "p95_mm": 0.31
        }
       },
       "weapon_contact": {
        "thumb_01": {
-        "min_gap_mm": 8.48,
+        "min_gap_mm": 9.18,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "thumb_02": {
-        "min_gap_mm": 5.31,
+        "min_gap_mm": 8.02,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "thumb_03": {
-        "min_gap_mm": 1.59,
-        "penetration_mm": 0.0,
+        "min_gap_mm": -0.11,
+        "penetration_mm": 0.11,
         "in_contact_0_3mm": true,
         "touches": [
-         "PX_Frame",
-         "PX_Grip"
+         "PX_Slide"
         ]
        },
        "index_01": {
-        "min_gap_mm": 2.79,
+        "min_gap_mm": 1.12,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4958,7 +4915,7 @@
         ]
        },
        "index_02": {
-        "min_gap_mm": 0.75,
+        "min_gap_mm": 2.7,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4966,7 +4923,7 @@
         ]
        },
        "index_03": {
-        "min_gap_mm": 0.81,
+        "min_gap_mm": 0.21,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4974,13 +4931,13 @@
         ]
        },
        "middle_01": {
-        "min_gap_mm": 3.7,
+        "min_gap_mm": 7.4,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "middle_02": {
-        "min_gap_mm": 0.2,
+        "min_gap_mm": 0.34,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4988,7 +4945,7 @@
         ]
        },
        "middle_03": {
-        "min_gap_mm": 1.79,
+        "min_gap_mm": 1.22,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -4996,13 +4953,13 @@
         ]
        },
        "ring_01": {
-        "min_gap_mm": 12.8,
+        "min_gap_mm": 9.06,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "ring_02": {
-        "min_gap_mm": 0.18,
+        "min_gap_mm": 0.2,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -5010,7 +4967,7 @@
         ]
        },
        "ring_03": {
-        "min_gap_mm": 1.55,
+        "min_gap_mm": 2.15,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -5018,13 +4975,13 @@
         ]
        },
        "pinky_01": {
-        "min_gap_mm": 15.23,
+        "min_gap_mm": 7.13,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        },
        "pinky_02": {
-        "min_gap_mm": 0.17,
+        "min_gap_mm": 1.25,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -5032,15 +4989,15 @@
         ]
        },
        "pinky_03": {
-        "min_gap_mm": 0.51,
+        "min_gap_mm": 0.8,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
-         "PX_Grip"
+         "SK_Glove_R_posed"
         ]
        },
        "palm": {
-        "min_gap_mm": 1.58,
+        "min_gap_mm": 1.45,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": true,
         "touches": [
@@ -5048,17 +5005,21 @@
         ]
        },
        "back_of_hand": {
-        "min_gap_mm": 20.62,
+        "min_gap_mm": 26.4,
         "penetration_mm": 0.0,
         "in_contact_0_3mm": false,
         "touches": []
        }
       },
       "weapon_verts_inside_glove": {
+       "n": 1,
+       "max_depth_mm": 0.11
+      },
+      "weapon_verts_inside_cuff_forearm_rigid": {
        "n": 0,
        "max_depth_mm": 0.0
       },
-      "max_penetration_mm": 0.0,
+      "max_penetration_mm": 0.11,
       "segments_in_contact": [
        "thumb_03",
        "index_01",
@@ -5080,7 +5041,7 @@
          "index_03"
         ],
         "ok": true,
-        "min_gap_mm": 0.75
+        "min_gap_mm": 0.21
        },
        "middle": {
         "holding_segments": [
@@ -5088,7 +5049,7 @@
          "middle_03"
         ],
         "ok": true,
-        "min_gap_mm": 0.2
+        "min_gap_mm": 0.34
        },
        "ring": {
         "holding_segments": [
@@ -5096,14 +5057,14 @@
          "ring_03"
         ],
         "ok": true,
-        "min_gap_mm": 0.18
+        "min_gap_mm": 0.2
        },
        "thumb": {
         "holding_segments": [
          "thumb_03"
         ],
         "ok": true,
-        "min_gap_mm": 1.59
+        "min_gap_mm": -0.11
        }
       }
      }
@@ -5119,25 +5080,25 @@
    "bare_finger_finger_overlap_le_4mm": "PASS",
    "bare_thumb_overlap_le_4mm": "PASS",
    "glove_fingertip_into_palm_le_1.5mm": "PASS",
-   "glove_finger_finger_overlap_le_6.5mm": "FAIL",
-   "glove_thumb_overlap_le_6.5mm": "FAIL",
-   "weapon_penetration_le_2mm": "FAIL",
+   "glove_finger_finger_overlap_le_6.5mm": "PASS",
+   "glove_thumb_overlap_le_6.5mm": "PASS",
+   "weapon_penetration_le_2mm": "PASS",
    "grip_digits_in_contact_0_3mm": "PASS",
    "_grip_hold_failures": [],
    "_worst": {
-    "tip_palm": 1.32,
-    "finger_finger": 6.7,
-    "thumb": 11.39,
+    "tip_palm": 1.33,
+    "finger_finger": 5.51,
+    "thumb": 5.83,
     "through_back": 0.0,
     "poke": 0.27,
     "angle_dev": 0.001,
     "bone_len": 0.0,
-    "wpn_pen": 3.55,
+    "wpn_pen": 0.14,
     "bare_tip_palm": 0.0,
     "bare_finger_finger": 2.9,
     "bare_thumb": 2.9
    }
   },
-  "seconds": 293.2
+  "seconds": 266.0
  }
 }

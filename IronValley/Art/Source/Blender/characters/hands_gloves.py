@@ -184,7 +184,8 @@ def textures():
 # =============================================================================
 
 PISTOL = dict(rake_deg=18.0, grip_len=0.108, grip_depth=0.050, grip_width=0.030, grip_top=0.040,
-              slide_len=0.185, slide_h=0.030, slide_w=0.026, bore_z=0.066, trigger_x=0.052, trigger_z=0.028)
+              slide_len=0.185, slide_h=0.030, slide_w=0.026, bore_z=0.066, trigger_x=0.052, trigger_z=0.028,
+              guard_depth=0.034)        # trigger guard bottom below the grip top (inner opening 2.6 cm)
 
 
 def load_props(with_rifle=True, with_pistol=True):
@@ -225,7 +226,8 @@ def build_proxy_pistol():
                    P["bore_z"] - 0.013, P["bore_z"] + P["slide_h"] - 0.013, col=col)
     parts.append(sl)
     # trigger guard: a swept square tube, U-shaped under the frame
-    path = [(0.022, 0, top[2] - 0.002), (0.030, 0, top[2] - 0.030), (0.078, 0, top[2] - 0.030),
+    gd = P["guard_depth"]
+    path = [(0.022, 0, top[2] - 0.002), (0.030, 0, top[2] - gd), (0.078, 0, top[2] - gd),
             (0.082, 0, top[2] - 0.012), (0.080, 0, top[2] + 0.002)]
     sec = [(-0.003, -0.004), (0.003, -0.004), (0.003, 0.004), (-0.003, 0.004)]
     tg = ivlib.sweep("PX_TriggerGuard", sec, path, side=(0.0, 1.0, 0.0), cap=True, col=col)
@@ -382,11 +384,11 @@ def place_frame(model, k, pose, coll, d_t, r_t, pivot_name, pivot_target, contac
     return HN.translate_to_contact(model, k, pose, H, coll, contact_dir, sel, gap=0.0005, max_dist=0.05), B[:, 2]
 
 
-def trigger_contact_point(coll, part):
-    """Front face of the trigger blade 1.0 cm above its tip (where the distal pad presses) and the
-    pad target 0.6 mm in front of it."""
+def trigger_contact_point(coll, part, above_tip=0.010):
+    """Front face of the trigger blade `above_tip` above its tip (where the distal pad presses) and
+    the pad target 0.6 mm in front of it."""
     tb = [p_ for p_ in coll.parts if p_["name"] == part][0]
-    probe = Vector((float(tb["co"][:, 0].max()) + 0.02, float(tb["co"][:, 1].mean()), float(tb["co"][:, 2].min()) + 0.010))
+    probe = Vector((float(tb["co"][:, 0].max()) + 0.02, float(tb["co"][:, 1].mean()), float(tb["co"][:, 2].min()) + above_tip))
     loc, nrm, _, _ = tb["bvh"].find_nearest(probe)
     return np.array(loc) + np.array(nrm) * 0.0006
 
@@ -509,11 +511,8 @@ def fit_thumb(model, k, pose, H, coll, direction, parts=None, starts=None, bound
     moving = masks[("thumb", 1)] & ~masks[("index", 1)]
     # the thumb must not pass through the (already posed) fingers either: they join the collider
     # (contact is still only sought on the weapon parts)
-    parts = parts or [p_["name"] for p_ in coll.parts]
     own = HN.self_collider(model, k, pose, H, "thumb", ("index", "middle", "ring", "pinky"),
                            exclude_near=np.nonzero(masks[("thumb", 1)])[0], near_dist=0.010)
-    coll = HN.Collider([(p_["name"], p_["co"], p_["tris"]) for p_ in coll.parts]
-                       + [("own_fingers", own.parts[0]["co"], own.parts[0]["tris"])])
     best = None
     for x0 in (starts or ([20, 0, 0, 10, 10], [40, 10, 10, 20, 20], [10, 20, 20, 10, 30], [50, -10, 0, 20, 10])):
         p2 = json.loads(json.dumps(pose))
@@ -521,7 +520,7 @@ def fit_thumb(model, k, pose, H, coll, direction, parts=None, starts=None, bound
                            bounds or [(-45, 70), (-25, 50), (-25, 35), (0, 55), (0, 70)], moving,
                            contact=masks[("thumb", 3)] & palmar, contact_gap=0.0008, contact_parts=parts,
                            direction=(np.asarray(direction) / np.linalg.norm(direction), f"thumb_02_{s}", f"thumb_03_{s}"),
-                           w_dir=20.0, x0=x0)
+                           w_dir=20.0, x0=x0, self_coll=own)
         c = sum(v for kk, v in rep["terms"].items() if not kk.startswith("_"))
         if best is None or c < best[0]:
             best = (c, p2, rep)
@@ -744,7 +743,8 @@ def fit_rifle_grip(model, coll, rig, trigger=False, base=None):
                                             ["PistolGrip"], trigger_point=tp, along_parts=["LowerReceiver", "UpperReceiver"],
                                             reach=trigger_contact_point(coll, "Trigger"))
     dirv = S[:3, :3] @ np.array([1.0, 0, -0.25])
-    rep["thumb"] = fit_thumb(model, 0, pose, H, coll, dirv)
+    # the thumb wraps the grip / lower receiver on the left side (not over the buffer tube)
+    rep["thumb"] = fit_thumb(model, 0, pose, H, coll, dirv, parts=["PistolGrip", "LowerReceiver"])
     return H, pose, rep
 
 
@@ -796,14 +796,15 @@ def fit_pistol_2h(models, pistol_parts):
     Y = np.array([0, 1.0, 0])
     top = up * P["grip_top"]
     # same anatomy as the rifle grip: middle MCP joint on the grip's right side about a proximal
-    # phalanx behind the front strap, one finger radius under the trigger guard (guard bottom 3.0 cm
-    # below the grip top)
-    gb = top[2] - 0.030
+    # phalanx behind the front strap, one finger radius under the trigger guard
+    gb = top[2] - P["guard_depth"]
     zc = gb - 0.010
     mcp_ref = up * (zc / up[2]) - fw * 0.025 - Y * 0.037
     # like the rifle: the grip with the index along the frame first, then the index pad onto the
     # trigger face (hand shift <= 8 mm / 6 deg)
-    tpt = trigger_contact_point(coll, "PX_Trigger")
+    # the proxy's guard opening is 2.2 cm high: the pad presses 6 mm above the trigger tip so the
+    # finger clears the frame
+    tpt = trigger_contact_point(coll, "PX_Trigger", above_tip=0.006)
     Hr0, pose_r, rr0 = pistol_grip_frame_search(mr, coll, up, fw, Y, mcp_ref, ["PX_Grip"],
                                                 along_parts=["PX_Frame", "PX_Slide"], reach=tpt)
     rr0["thumb"] = fit_thumb(mr, 0, pose_r, Hr0, coll, np.array([1.0, 0, -0.15]), parts=["PX_Frame", "PX_Slide", "PX_Grip"])
@@ -818,11 +819,11 @@ def fit_pistol_2h(models, pistol_parts):
     # guard penalised
     rco = mr.skin(0, mr.pose(pose_r, Hr_))
     coll2 = collider_of(pistol_parts, extra=[("SK_Glove_R_posed", rco, mr.meshes[0]["tris"])])
-    ref_l = up * ((gb - 0.035) / up[2]) - fw * 0.020 + Y * 0.047
+    ref_l = up * ((gb - 0.025) / up[2]) - fw * 0.020 + Y * 0.047
     Hl_, pose_l, lr = pistol_grip_frame_search(ml, coll2, up, fw, -Y, ref_l, ["PX_Grip", "SK_Glove_R_posed"],
                                                fingers=("index", "middle", "ring", "pinky"),
                                                yaws=(-5.0, 0.0, 5.0), tilts=(-16.0, -8.0, 0.0),
-                                               fwd_offsets=(-0.010, 0.0, 0.010), heights=(-0.006, 0.0, 0.006))
+                                               fwd_offsets=(-0.010, 0.0, 0.010), heights=(-0.004, 0.0, 0.004, 0.008))
     lr["thumb"] = fit_thumb(ml, 0, pose_l, Hl_, coll2, np.array([1.0, 0, -0.05]),
                             parts=["PX_Frame", "PX_Slide", "PX_Grip", "SK_Glove_R_posed"])
     return (Hr_, pose_r), (Hl_, pose_l), {"right": rr, "left": lr}

@@ -310,6 +310,9 @@ def build(layout, bjson, res=0.25, with_trees=True, playable_only=True):
             b1 = st["top_center_world"]
             m = g.seg_mask(b0, b1, st["width"] / 2)
             blocked &= ~m
+        for wg in rw.get("wing_walls", []):
+            for a_, b_ in zip(wg["polyline"][:-1], wg["polyline"][1:]):
+                blocked |= g.seg_mask(a_, b_, wg["thickness"] / 2)
     # ---- bridges: deck is walkable (override brook), railings block
     for br in layout["bridges"]:
         a, b = br["ends"]

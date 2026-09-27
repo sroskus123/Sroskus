@@ -1553,7 +1553,7 @@ def close_fingers(model, k, pose, H, coll, fingers, limits=None, gap=0.0006, mas
 
 def fit_digit(model, k, pose, H, coll, finger, keys, bounds, moving, contact=None, contact_gap=0.0008,
               direction=None, point=None, w_dir=4.0, w_point=2e4, w_contact=3e4, contact_parts=None,
-              maxiter=1500, x0=None):
+              maxiter=1500, x0=None, self_coll=None):
     """Optimise the joint angles `keys` of one digit (Powell, bounded) for a grip:
       moving   : vertex mask of the digit (no penetration: signed gap >= 0.3 mm)
       contact  : vertex mask whose minimum gap should equal contact_gap (to `contact_parts` if given)
@@ -1575,6 +1575,12 @@ def fit_digit(model, k, pose, H, coll, finger, keys, bounds, moving, contact=Non
         P = model.skin(k, S, moving)
         sd, pi = coll.signed(P, 0.04)
         t = {"pen": float(np.sum(np.minimum(sd - 0.0003, 0) ** 2) * 1e7)}
+        if self_coll is not None:
+            # the hand's own (open) surfaces: only faces within 5 mm count, so a far face whose
+            # back happens to be nearest cannot fake a deep penetration
+            sds, _ = self_coll.signed(P, 0.005)
+            t["pen_self"] = float(np.sum(np.minimum(sds - 0.0003, 0) ** 2) * 1e7)
+            t["_min_sd_self"] = float(sds.min())
         if cv is not None and len(cv):
             g = sd[cv]
             if allow is not None:
@@ -1863,19 +1869,20 @@ def coupling_penalty(pip, dip, mcp=None, w=1e-4):
     """Soft anatomical coupling: DIP flexion stays within DIP_PIP_RANGE x PIP (the flexor
     profundus flexes both; a DIP flexed beyond its PIP or a stiff-straight DIP on a strongly
     flexed PIP reads as a broken finger) and, when mcp is given, the MCP does not flex more than
-    25 deg beyond the PIP (a 'hooked' finger).  ~1e-2 (= a 1 mm gap in wrap_finger's cost) per
-    10 deg of violation at w = 1e-4."""
+    25 deg beyond the PIP (a 'hooked' finger, weighted 4x).  ~1e-2 (= a 1 mm gap in wrap_finger's
+    cost) per 10 deg of DIP violation at w = 1e-4."""
     lo, hi = DIP_PIP_RANGE
     over = max(0.0, dip - hi * max(pip, 0.0) - 3.0)
     under = max(0.0, lo * pip - dip - 3.0)
     hook = max(0.0, mcp - pip - 25.0) if mcp is not None else 0.0
-    return w * (over * over + under * under + hook * hook)
+    return w * (over * over + under * under + 4.0 * hook * hook)
 
 
 def wrap_finger(model, k, pose, H, coll, f, gap=0.0008, lim=None, maxiter=400):
-    """Distribute a finger's flexion so that ALL three segments rest on the object: Powell over
-    (mcp, pip, dip) minimising sum_seg (max(gap_seg, 0) - gap)^2 with a no-penetration penalty
-    and the DIP/PIP coupling penalty, starting from the current angles.  lim: per-joint (lo, hi)
+    """Distribute a finger's flexion so that the segments rest on the object: Powell over
+    (mcp, pip, dip) minimising sum_seg w_seg (max(gap_seg, 0) - gap)^2 (w = 0.25 / 1 / 1 for the
+    proximal / middle / distal segment) with a no-penetration penalty and the anatomical coupling
+    penalty, starting from the current angles.  lim: per-joint (lo, hi)
     bounds, e.g. capped at the tuned full fist so a finger that misses the object cannot curl
     into the palm.  Returns a report with the per-segment gaps."""
     from scipy.optimize import minimize
@@ -1895,8 +1902,10 @@ def wrap_finger(model, k, pose, H, coll, f, gap=0.0008, lim=None, maxiter=400):
     def cost(x):
         sd, g = ev(x)
         pen = float(np.sum(np.minimum(sd - 0.0002, 0) ** 2)) * 1e7
-        return (pen + sum((max(gi, 0.0) - gap) ** 2 for gi in g) * 1e4 * np.array([0.6, 1.0, 1.0]).sum() / 2.6
-                + coupling_penalty(x[1], x[2], x[0]))
+        # the middle / distal segments must rest on the object; the proximal one only preferably
+        # (on a large object it stands off, as in a real grasp)
+        return (pen + sum(wg * (max(gi, 0.0) - gap) ** 2 for wg, gi in zip((0.25, 1.0, 1.0), g)) * 1e4
+                + coupling_penalty(x[1], x[2], x[0], w=3e-4))
     x0 = [min(max(pose[f][kk], lim[kk][0]), lim[kk][1]) for kk in keys]
     res = powell_min(cost, x0, [lim[kk] for kk in keys], {"maxiter": maxiter, "xtol": 0.1, "ftol": 1e-10})
     sd, g = ev(res.x)

@@ -227,15 +227,17 @@ def roof_plane_at(rf, x, y):
     tp = math.tan(math.radians(rf["pitch_deg"]))
     if rf["type"] == "gable":
         if rf.get("ridge_axis", "X") == "X":
-            return rf["eave_z"] + ((y1 - y0) / 2 - abs(y - (y0 + y1) / 2)) * tp
-        return rf["eave_z"] + ((x1 - x0) / 2 - abs(x - (x0 + x1) / 2)) * tp
+            return rf["eave_z"] + ((y1 - y0) / 2 - np.abs(y - (y0 + y1) / 2)) * tp
+        return rf["eave_z"] + ((x1 - x0) / 2 - np.abs(x - (x0 + x1) / 2)) * tp
     if rf["type"] == "hip":
-        dy = (y1 - y0) / 2 - abs(y - (y0 + y1) / 2)
-        dx = (x1 - x0) / 2 - abs(x - (x0 + x1) / 2)
+        dy = (y1 - y0) / 2 - np.abs(y - (y0 + y1) / 2)
+        dx = (x1 - x0) / 2 - np.abs(x - (x0 + x1) / 2)
         ab = rf.get("abuts") or {}
-        if ("+X" in ab and x > (x0 + x1) / 2) or ("-X" in ab and x < (x0 + x1) / 2):
-            dx = 1e9
-        return rf["eave_z"] + min(dy, dx) * tp
+        if "+X" in ab:
+            dx = np.where(np.asarray(x) > (x0 + x1) / 2, 1e9, dx)
+        if "-X" in ab:
+            dx = np.where(np.asarray(x) < (x0 + x1) / 2, 1e9, dx)
+        return rf["eave_z"] + np.minimum(dy, dx) * tp
     if rf["type"] == "mono":
         d = rf["slope_direction"]
         return {"-X": rf["high_z"] - (x1 - x) * tp, "+X": rf["high_z"] - (x - x0) * tp,
@@ -726,7 +728,7 @@ def check_building(bd, rep):
                     errs.append(f"{o['id']}: parked leaf covers opening {o2['id']}")
         pil = [pp for pp in bd.get("pilasters", []) if pp["wall"] == w["id"]]
         for pp in pil:
-            pu = (pp["x"] - sx) * ux if abs(ux) > 0.5 else (pp["x"] - sy) * uy
+            pu = (pp["x"] - sx) * ux + (pp.get("y", sy) - sy) * uy
             if u0 - pp["width"] / 2 < pu < u1 + pp["width"] / 2 and lr["offset_from_face"] < pp["proud"] + 0.05 - EPS:
                 errs.append(f"{o['id']}: parked leaf {lr['offset_from_face']} m off the face hits pilaster at {pp['x']} (proud {pp['proud']})")
         side = -1.0 if lr["side"] == "right" else 1.0
@@ -1098,6 +1100,71 @@ def building_level_raster(bd, level, res=0.05, close_doors=True, pad=1.5):
                 if walk:
                     solid &= ~poly_mask(list(opening_poly(w, o, 0.03).exterior.coords)[:-1], X, Y)
     return xs, ys, X, Y, solid, ext
+
+
+def level_capsule_walk(bd, lvl):
+    """capsule-eroded walk raster of one building level with doors open, furniture, stairs, voids, balustrades, low chimneys,
+    parked leaves; returns xs, ys, walk, lab, reachable component ids (connected to the exterior ring or a stair end)."""
+    lv_floor = {l["id"]: l["floor_z"] for l in bd["levels"]}
+    xs, ys, X, Y, solid, ext = building_level_raster(bd, lvl, close_doors=False, pad=6.0)
+    res = xs[1] - xs[0]
+    blocked = solid.copy()
+    for s in bd["stairs"]:
+        lf = s["level_from"] if s["level_from"] != "Lmid" else "L0"
+        if lf == lvl:
+            blocked |= poly_mask(list(stair_poly(s).exterior.coords)[:-1], X, Y)
+    for s in bd["exterior_stairs"]:
+        if s["level_to"] != "L0" and lvl == "L0":
+            blocked |= poly_mask(list(stair_poly(s).exterior.coords)[:-1], X, Y)
+    for f in bd.get("furniture", []):
+        if f["level"] == lvl or (f["level"] == "exterior" and lvl == "L0"):
+            blocked |= poly_mask(list(box_poly(f["center"], f["size"], f.get("rotation_deg", 0)).exterior.coords)[:-1], X, Y)
+    if lvl == "L0":
+        for pl_ in sliding_leaf_polys(bd):
+            blocked |= poly_mask(list(pl_.exterior.coords)[:-1], X, Y)
+    for ch in bd.get("chimneys", []):
+        if ch.get("base_z", 0.0) <= lv_floor.get(lvl, 0.0) + 2.10:
+            blocked |= poly_mask(list(box_poly(ch["pos"], ch.get("size", [0.3, 0.3]), 0).exterior.coords)[:-1], X, Y)
+    for col in bd.get("columns", []):
+        blocked |= poly_mask(list(box_poly(col["center"], col["size"], 0).exterior.coords)[:-1], X, Y)
+    for sl in bd.get("slabs", []):
+        if sl["level"] == lvl:
+            for h in sl.get("openings", []):
+                blocked |= poly_mask(h["polygon"], X, Y)
+    for ba in bd.get("balustrades", []):
+        if ba["level"] == lvl:
+            for a, b in zip(ba["polyline"][:-1], ba["polyline"][1:]):
+                blocked |= seg_dist(X, Y, a, b) <= 0.04
+    for v in bd.get("sealed_voids", []):
+        if v["level"] == lvl:
+            blocked |= poly_mask(v["polygon"], X, Y)
+    extp = poly_mask(list(ext.exterior.coords)[:-1], X, Y)
+    if lvl != "L0":
+        air = ~extp
+        for s in bd["exterior_stairs"]:
+            ld = s.get("landing")
+            if ld and ld["level"] == lvl:
+                air &= ~poly_mask(ld["polygon"], X, Y)
+        blocked |= air
+    dist = ndimage.distance_transform_edt(~blocked) * res
+    walk = dist > CAPSULE_R
+    lab, n = ndimage.label(walk)
+    ok = set()
+    if lvl == "L0":
+        ok |= set(np.unique(lab[~extp & walk])) - {0}
+    for s in bd["stairs"] + bd["exterior_stairs"]:
+        dv = s["direction_vector"]
+        pts = []
+        if s["level_to"] == lvl:
+            pts.append((s["top_riser_center"][0] + dv[0] * 0.5, s["top_riser_center"][1] + dv[1] * 0.5))
+        lf = s["level_from"] if s["level_from"] not in ("ground",) else "L0"
+        if lf == lvl:
+            pts.append((s["start"][0] - dv[0] * 0.5, s["start"][1] - dv[1] * 0.5))
+        for (px, py) in pts:
+            i = int(round((px - xs[0]) / res))
+            j = int(round((py - ys[0]) / res))
+            ok |= set(np.unique(lab[max(0, j - 3):j + 4, max(0, i - 3):i + 4])) - {0}
+    return xs, ys, walk, lab, ok
 
 
 def check_rooms_closed_and_reachable(bd, rep):
@@ -1588,21 +1655,250 @@ def check_placement(L, B, H_at, rep):
                 errs.append(f"{b['id']}.{st['id']}: ground beyond the entrance step is {-zg:.3f} below the floor, declared riser {st['riser']}")
     rep.check("L03", errs, "every external ground-floor door meets flat ground, a landing, a step or the dock at <= one riser "
                            "(0.16-0.19) below the floor, never above it")
+    # ---- L04 terrain contact of secondary buildings (footprint grid + perimeter), main-building perimeters and props (corners)
     errs = []
+    nsb = 0
     for sb in L["secondary_buildings"]:
         if sb.get("embedded_in"):
             continue
-        zc = float(H_at(*sb["position"][:2]))
-        if abs(zc - sb["position"][2]) > 0.15:
-            errs.append(f"{sb['id']}: z {sb['position'][2]} vs terrain {zc:.2f}")
+        pl = sb.get("plinth") or {}
+        z = sb["position"][2]
+        if "top_z" not in pl or not pl.get("ground"):
+            errs.append(f"{sb['id']}: no pad/plinth specification (plinth.top_z / bottom_z / ground) -- review P1-SEC-CONTACT")
+            continue
+        lo = pl.get("bottom_z", z - 0.05)
+        hi = pl["top_z"] - 0.10
+        P = Polygon(sb["footprint_world"])
+        x0, y0, x1, y1 = P.bounds
+        pts = [(x, y) for x in np.linspace(x0, x1, 9) for y in np.linspace(y0, y1, 9) if P.buffer(1e-6).contains(Point(x, y))]
+        ring = P.exterior
+        pts += [ring.interpolate(k * 0.5).coords[0] for k in range(int(ring.length / 0.5) + 1)]
+        hs = np.asarray(T.height_at(L, np.array([q[0] for q in pts]), np.array([q[1] for q in pts])), float)
+        nsb += 1
+        if pl["top_z"] - hs.min() > 0.80 + EPS or pl["top_z"] - z > 0.45 + EPS:
+            errs.append(f"{sb['id']}: plinth shows up to {pl['top_z'] - hs.min():.2f} m (floor raised {pl['top_z'] - z:.2f} m above the pad) "
+                        "-- the pad does not level the site (max 0.80 visible / 0.45 raise)")
+        if hs.min() < lo - EPS:
+            k = int(np.argmin(hs))
+            errs.append(f"{sb['id']}: terrain {hs[k]:.2f} at ({pts[k][0]:.1f},{pts[k][1]:.1f}) below the plinth bottom {lo:.2f} (floats)")
+        if hs.max() > hi + EPS:
+            k = int(np.argmax(hs))
+            errs.append(f"{sb['id']}: terrain {hs[k]:.2f} at ({pts[k][0]:.1f},{pts[k][1]:.1f}) buries the plinth (top {pl['top_z']:.2f}, "
+                        "must show >= 0.10 m)")
+    for bp in L["buildings"]:
+        bd = bdefs[bp["id"]]
+        c, rot, zf = bp["position"][:2], bp["rotation_deg"], bp["position"][2]
+        fnd = bd.get("foundation", {})
+        vis = fnd.get("plinth_visible_height", fnd.get("plinth_height_above_floor", 0.3) + 0.2)
+        ext = unary_union([Polygon(p_["external_rect"]) for p_ in bd["footprint_parts"]])
+        excl = [stair_poly(s_) for s_ in bd["exterior_stairs"]] + \
+               [Polygon(s_["landing"]["polygon"]) for s_ in bd["exterior_stairs"] if s_.get("landing")] + \
+               [Polygon(s_["polygon"]) for s_ in bd.get("exterior_steps", []) if s_.get("polygon")] + \
+               [Polygon(s_["apron"]["polygon"]) for s_ in bd.get("exterior_steps", []) if s_.get("apron")]
+        if bd.get("loading_dock"):
+            excl.append(Polygon(bd["loading_dock"]["polygon"]))
+        exu = unary_union(excl).buffer(0.05) if excl else Polygon()
+        ring = ext.buffer(0.3, join_style=2).exterior
+        for k in range(int(ring.length / 0.5)):
+            q = ring.interpolate(k * 0.5).coords[0]
+            if exu.contains(Point(q)):
+                continue
+            w_ = xf(c, rot, q)
+            dz = float(H_at(*w_)) - zf
+            if dz > 0.02 or dz < -(vis + 0.05):
+                errs.append(f"{bp['id']}: terrain 0.3 m outside the wall at local ({q[0]:.2f},{q[1]:.2f}) is {dz:+.2f} m from the floor "
+                            f"(allowed -{vis + 0.05:.2f}..+0.02: never above the floor, never below the plinth)")
+                break
+    nfloat = 0
     for p in L["props"]:
         zc = float(H_at(*p["position"][:2]))
-        if abs(zc - p["position"][2]) > 0.15 and p["position"][2] < zc:
-            errs.append(f"prop {p['id']}: z {p['position'][2]} is {zc - p['position'][2]:.2f} below the terrain (sunk)")
-        if p["position"][2] - zc > 0.25:
-            errs.append(f"prop {p['id']}: z {p['position'][2]} floats {p['position'][2] - zc:.2f} above the terrain")
-    rep.check("L04", errs, f"{len(L['secondary_buildings'])} secondary buildings and {len(L['props'])} props sit on the terrain "
-                           "(|dz| <= 0.15 m at their centre; yard props on their pads)")
+        cor = list(box_poly(p["position"][:2], p["size"], p["rotation_deg"]).exterior.coords)[:-1]
+        hc = np.asarray(T.height_at(L, np.array([q[0] for q in cor]), np.array([q[1] for q in cor])), float)
+        gf = p.get("ground_fit") or {}
+        mode = gf.get("mode")
+        lo_, hi_ = (-0.15, 0.25) if mode != "tilt" else (-0.20, 0.45)      # tilted vehicles / frames: ground clearance allowed
+        if mode == "upright_footing":
+            lo_, hi_ = (-(gf.get("footing_height", 0.1) + 0.05), 0.05)
+        if p["position"][2] - zc < lo_:
+            errs.append(f"prop {p['id']}: z {p['position'][2]} is {zc - p['position'][2]:.2f} below the terrain at its centre (sunk)")
+        if p["position"][2] - zc > hi_:
+            errs.append(f"prop {p['id']}: z {p['position'][2]} floats {p['position'][2] - zc:.2f} above the terrain at its centre")
+        if mode == "conform":
+            continue
+        if mode == "upright_footing":
+            if abs(p["position"][2] - hc.min()) > 0.05 or gf.get("footing_height", 0) < hc.max() - hc.min() - EPS or \
+                    hc.max() - hc.min() > 0.60:
+                errs.append(f"prop {p['id']} ({p['type']}): upright footing does not reach both the lowest and the highest corner "
+                            f"(corners {hc.min():.2f}..{hc.max():.2f}, footing {gf.get('footing_height')})")
+            continue
+        if mode == "tilt":
+            c_ = p["size"]
+            U = np.array([-c_[0] / 2, c_[0] / 2, c_[0] / 2, -c_[0] / 2])
+            V = np.array([-c_[1] / 2, -c_[1] / 2, c_[1] / 2, c_[1] / 2])
+            zp = p["position"][2] + U * math.tan(math.radians(gf["pitch_deg"])) + V * math.tan(math.radians(gf["roll_deg"]))
+            dev = float(np.max(np.abs(zp - hc)))
+            tilt = max(abs(gf["pitch_deg"]), abs(gf["roll_deg"]))
+            if dev > 0.12 or tilt > 15.0:
+                errs.append(f"prop {p['id']} ({p['type']}): tilted base misses the terrain by {dev:.2f} m (tilt {tilt:.1f} deg; "
+                            "limits 0.12 m / 15 deg)")
+            continue
+        gap = p["position"][2] - hc.min()
+        bur = hc.max() - p["position"][2]
+        if gap > 0.12 or bur > 0.12:
+            nfloat += 1
+            errs.append(f"prop {p['id']} ({p['type']}, ground_fit {mode}): corners {gap:.2f} m above / {bur:.2f} m under the terrain "
+                        "(> 0.12: needs mode tilt or conform)")
+    rep.check("L04", errs, f"{nsb} secondary buildings: terrain over the whole footprint (9x9 grid + perimeter every 0.5 m) stays "
+                           "between the plinth bottom and 0.10 below its top; main buildings: terrain 0.3 m outside every wall "
+                           f"between the plinth foot and the floor; {len(L['props'])} props sit on the terrain at centre and corners")
+    # ---- L05 exterior stairs, ramps, landings, dock edges and retaining-wall stairs meet the terrain (review P1-DOCK-TERRAIN)
+    errs = []
+    nst = 0
+    for bp in L["buildings"]:
+        bd = bdefs[bp["id"]]
+        c, rot, zf = bp["position"][:2], bp["rotation_deg"], bp["position"][2]
+        for s_ in bd["exterior_stairs"]:
+            dv = s_["direction_vector"]
+            nx, ny = -dv[1], dv[0]
+            nst += 1
+            if s_["level_from"] == "ground":
+                zfoot = zf + s_.get("foot_ground", s_["z_start"])
+                for side in (-0.4, 0.0, 0.4):
+                    q = (s_["start"][0] - dv[0] * 0.3 + nx * side * s_["width"], s_["start"][1] - dv[1] * 0.3 + ny * side * s_["width"])
+                    hz = float(H_at(*xf(c, rot, q)))
+                    if abs(hz - zfoot) > 0.02 + EPS:
+                        errs.append(f"{bp['id']}.{s_['id']}: terrain 0.3 m before the first riser is {hz:.2f}, stair foot {zfoot:.2f} "
+                                    f"({hz - zfoot:+.2f})")
+                        break
+            for k in range(1, s_["count"] + 1):
+                d = (k - 1) * s_["tread"] - s_["tread"] / 2 + 0.02
+                zt = zf + s_["z_start"] + k * s_["riser"]
+                bad = False
+                for side in (-0.45, 0.0, 0.45):
+                    q = (s_["start"][0] + dv[0] * max(d, 0.02) + nx * side * s_["width"], s_["start"][1] + dv[1] * max(d, 0.02) + ny * side * s_["width"])
+                    hz = float(H_at(*xf(c, rot, q)))
+                    if hz > zt + 0.02:
+                        errs.append(f"{bp['id']}.{s_['id']}: terrain {hz:.2f} above tread {k} ({zt:.2f}) -- the flight is buried")
+                        bad = True
+                        break
+                if bad:
+                    break
+            ld = s_.get("landing")
+            if ld and s_["level_to"] == "L0":
+                P = Polygon(ld["polygon"])
+                x0, y0, x1, y1 = P.bounds
+                for x in np.linspace(x0 + 0.05, x1 - 0.05, 4):
+                    for y in np.linspace(y0 + 0.05, y1 - 0.05, 4):
+                        hz = float(H_at(*xf(c, rot, (x, y))))
+                        if hz > zf + ld["z"] + 0.02:
+                            errs.append(f"{bp['id']}.{ld['id']}: terrain {hz:.2f} above the landing ({zf + ld['z']:.2f})")
+                            break
+                    else:
+                        continue
+                    break
+        a_ = math.radians(rot)
+        for st in bd.get("exterior_steps", []):
+            if st["type"] != "ramp":
+                continue
+            nst += 1
+            P = Polygon(st["polygon"])
+            x0, y0, x1, y1 = P.bounds
+            XX, YY = np.meshgrid(np.linspace(x0 + 0.05, x1 - 0.05, 7), np.linspace(y0 + 0.05, y1 - 0.05, 7))
+            tt = ramp_param(st, XX, YY)
+            for x, y, t in zip(XX.ravel(), YY.ravel(), tt.ravel()):
+                zr = zf + st["z_top"] + t * (st["z_bottom"] - st["z_top"])
+                hz = float(H_at(*xf(c, rot, (x, y))))
+                if hz > zr + 0.02:
+                    errs.append(f"{bp['id']}.{st['id']}: terrain {hz:.2f} above the ramp surface {zr:.2f} at local ({x:.2f},{y:.2f})")
+                    break
+            # the foot edge meets the ground
+            foot = [(x, y) for x, y, t in zip(XX.ravel(), YY.ravel(), tt.ravel()) if t > 0.999]
+            if "rise_direction_deg" in st and foot:
+                d_ = dirv(st["rise_direction_deg"])
+                fz = zf + st.get("foot_ground", st["z_bottom"])
+                for (x, y) in foot[::2]:
+                    hz = float(H_at(*xf(c, rot, (x - d_[0] * 0.3, y - d_[1] * 0.3))))
+                    if abs(hz - fz) > 0.02 + EPS:
+                        errs.append(f"{bp['id']}.{st['id']}: terrain 0.3 m beyond the ramp foot is {hz:.2f}, ramp foot {fz:.2f}")
+                        break
+        dk = bd.get("loading_dock")
+        if dk:
+            P = Polygon(dk["polygon"])
+            ext = unary_union([Polygon(p_["external_rect"]) for p_ in bd["footprint_parts"]])
+            ztop = zf + dk["top_z"]
+            access = " ".join(dk.get("access", []))
+            gaps = unary_union([stair_poly(s_).buffer(0.15) for s_ in bd["exterior_stairs"]] +
+                               [Polygon(st["polygon"]).buffer(0.15) for st in bd.get("exterior_steps", []) if st.get("polygon")])
+            coords = list(P.exterior.coords)
+            for pa, pb in zip(coords[:-1], coords[1:]):
+                seg = LineString([pa, pb])
+                if seg.distance(ext) < 0.02 and ext.buffer(0.02).contains(seg):
+                    continue                    # edge against the building
+                nx_, ny_ = (pb[1] - pa[1]) / seg.length, -(pb[0] - pa[0]) / seg.length
+                mid = seg.interpolate(0.5, normalized=True)
+                if P.contains(Point(mid.x + nx_ * 0.1, mid.y + ny_ * 0.1)):
+                    nx_, ny_ = -nx_, -ny_
+                kinds = set()
+                for k in range(1, int(seg.length / 0.25)):
+                    q0 = seg.interpolate(k * 0.25)
+                    q = (q0.x + nx_ * 0.3, q0.y + ny_ * 0.3)
+                    if gaps.contains(Point(q)):
+                        continue
+                    drop = ztop - float(H_at(*xf(c, rot, q)))
+                    if drop <= RISER[1]:
+                        kinds.add("grade")          # at grade or one step: walkable edge, must be a declared access
+                    elif drop >= 0.90:
+                        kinds.add("face")
+                    else:
+                        errs.append(f"{bp['id']}.{dk['id']}: dock edge at local ({q[0]:.2f},{q[1]:.2f}) drops only {drop:.2f} m -- a "
+                                    "walk-up blend instead of a face (>= 0.90) or an at-grade apron")
+                        break
+                if "grade" in kinds and "grade" not in access:
+                    errs.append(f"{bp['id']}.{dk['id']}: an at-grade dock edge exists but loading_dock.access does not declare it")
+    for rw in L["retaining_walls"]:
+        for st in rw.get("stairs", []):
+            nst += 1
+            a_ = np.array(st["bottom_center_world"], float)
+            b_ = np.array(st["top_center_world"], float)
+            d_ = (b_ - a_) / np.linalg.norm(b_ - a_)
+            zb = float(H_at(*(a_ - d_ * 0.3)))
+            zt = float(H_at(*(b_ + d_ * 0.3)))
+            rise = st["risers"] * st["riser"]
+            if abs((zt - zb) - rise) > 0.06:
+                errs.append(f"{st['id']}: terrain difference top - bottom {zt - zb:.2f} m != {st['risers']} x {st['riser']} = {rise:.2f} m")
+    rep.check("L05", errs, f"{nst} exterior stairs / ramps / retaining-wall stairs: terrain within 0.02 m of every stair and ramp foot, "
+                           "never above a tread, landing or ramp surface; dock edges are a >= 0.90 m face or a declared at-grade "
+                           "apron (no walk-up blend)")
+    # ---- B15 bridges: deck thickness and the space under the deck (review P2-BRIDGE-UNDERPASS)
+    errs = []
+    info = []
+    for br in L["bridges"]:
+        dt = br.get("deck_thickness")
+        if dt is None or not (0.15 <= dt <= 1.2):
+            errs.append(f"{br['id']}: deck_thickness {dt} missing or unrealistic")
+            continue
+        a_, b_ = np.array(br["ends"][0], float), np.array(br["ends"][1], float)
+        d_ = b_ - a_
+        Lb = float(np.linalg.norm(d_))
+        u_ = d_ / Lb
+        n_ = np.array([-u_[1], u_[0]])
+        cl = []
+        for t in np.linspace(0.02, 0.98, 49):
+            for side in (-0.45, 0.0, 0.45):
+                q = a_ + d_ * t + n_ * side * br["width"]
+                soffit = br["deck_z"][0] + t * (br["deck_z"][1] - br["deck_z"][0]) - dt
+                cl.append(soffit - float(H_at(*q)))
+        opn = [v for v in cl if v > 0.05]          # open space under the deck (abutments: terrain at/above the soffit)
+        cmin = min(opn) if opn else 0.0
+        up = br.get("underpass") or {}
+        if opn and cmin < HEADROOM:
+            if up.get("treatment") != "closed" or up.get("passes", {}).get("movement", True):
+                errs.append(f"{br['id']}: {cmin:.2f} m bed -> soffit (< 2.10) under the deck but the underpass is not closed")
+        info.append(f"{br['id']}: deck {dt} m, open space under the deck {min(opn) if opn else 0:.2f}-{max(opn) if opn else 0:.2f} m "
+                    f"bed -> soffit, underpass {up.get('treatment')}")
+    rep.check("B15", errs, "bridges carry deck_thickness; every space under a deck lower than 2.10 m is closed (no crouch-only passage)")
+    for i in info:
+        rep.info(i)
 
 
 # ================================================================================================
@@ -1741,6 +2037,9 @@ class Walk:
                 blocked |= sm(rw["polyline"][i0], rw["polyline"][i1], rw["thickness"] / 2 + res / 2)
             for st in rw.get("stairs", []):
                 blocked &= ~sm(st["bottom_center_world"], st["top_center_world"], st["width"] / 2 - 0.02)
+            for wg in rw.get("wing_walls", []):
+                for a_, b_ in zip(wg["polyline"][:-1], wg["polyline"][1:]):
+                    blocked |= sm(a_, b_, wg["thickness"] / 2 + res / 2)
         for br in L["bridges"]:
             a, b = br["ends"]
             m = sm(a, b, br["width"] / 2)
@@ -1839,6 +2138,20 @@ def spawn_sets(L):
     return out
 
 
+def spawn_sets_all(L):
+    """{zone_id: {team: [points]}} over EVERY row a team may spawn on for the zone: the active row plus the rows listed in
+    ai_navigation.spawn_selection.fallback_rows (review P2-FALLBACK-SPAWN-LOS)."""
+    fb = L.get("ai_navigation", {}).get("spawn_selection", {}).get("fallback_rows", {})
+    out = defaultdict(lambda: defaultdict(list))
+    for sa in L["spawn_areas"]:
+        for p in sa["candidate_points"]:
+            for z in L["capture_zones"]:
+                rows = fb.get(z["id"], {}).get(sa["team"])
+                if z["id"] in p["zones"] or (rows and p["row"] in rows):
+                    out[z["id"]][sa["team"]].append(p)
+    return out
+
+
 def check_zones_spawns(L, B, W, rep, rules):
     rep.sec("4. Zones, spawns, balance, boundary, routes")
     soft = Polygon(L["boundary"]["soft_polygon"])
@@ -1889,6 +2202,30 @@ def check_zones_spawns(L, B, W, rep, rules):
                     lp = Polygon([xf(c, rot, q) for q in ld["polygon"]])
                     if lp.intersection(P).area > 0.01 and zf + ld["z"] < z["z_max"] + 0.30:
                         errs.append(f"{z['id']}: elevated platform {ld['id']} inside the zone band")
+        # interior stairs / landings inside the polygon (the Walk raster blocks flights, so sample them here; review P2-ZBAND-STAIR)
+        allow_tr = "continuous transition" in (z.get("excluded", "") + z.get("desc", ""))
+        for bp in L["buildings"]:
+            bd = bdefs[bp["id"]]
+            c, rot, zf = bp["position"][:2], bp["rotation_deg"], bp["position"][2]
+            for s_ in bd["stairs"]:
+                dv = s_["direction_vector"]
+                for k in range(1, s_["count"] + 1):
+                    q = (s_["start"][0] + dv[0] * ((k - 1) * s_["tread"] + 0.05), s_["start"][1] + dv[1] * ((k - 1) * s_["tread"] + 0.05))
+                    qw = xf(c, rot, q)
+                    zt = zf + s_["z_start"] + k * s_["riser"]
+                    if not P.contains(Point(qw)):
+                        continue
+                    near_edge = abs(zt - z["z_min"]) < 0.30 or abs(zt - z["z_max"]) < 0.30
+                    if near_edge and not allow_tr:
+                        errs.append(f"{z['id']}: step {k} of {s_['id']} at z {zt:.2f} lies within 0.30 m of the z band and the zone "
+                                    "does not declare stairs as continuous transitions")
+                        break
+                ld = s_.get("landing")
+                if ld:
+                    lp = Polygon([xf(c, rot, q) for q in ld["polygon"]])
+                    zl = zf + ld["z"]
+                    if lp.intersection(P).area > 0.01 and (abs(zl - z["z_min"]) < 0.30 or abs(zl - z["z_max"]) < 0.30):
+                        errs.append(f"{z['id']}: landing {ld['id']} at z {zl:.2f} lies within 0.30 m of the z band (a floor, not a flight)")
         for st in L["terrain"]["stamps"]:
             if st["kind"] in ("channel", "ditch", "sunken_lane"):
                 pl = LineString([p[:2] for p in st["polyline"]])
@@ -1897,7 +2234,8 @@ def check_zones_spawns(L, B, W, rep, rules):
                     if max(zs) >= z["z_min"] - 0.30:
                         errs.append(f"{z['id']}: trench/bed {st['id']} crosses the polygon with bed z up to {max(zs):.2f} >= z_min - 0.30")
         info.append(f"{z['id']}: {P.area:.0f} m2, z {z['z_min']}..{z['z_max']}, walkable in band {100 * frac:.0f} %")
-    rep.check("Z01", errs, "zones on walkable ground, fully inside the boundary, unambiguous z bands (>= 0.30 m margin), upper floors, "
+    rep.check("Z01", errs, "zones on walkable ground, fully inside the boundary, unambiguous z bands (>= 0.30 m margin on every floor, "
+                           "landing and open-ground cell; interior flights only where declared continuous transitions), upper floors, "
                            "platforms and trench beds excluded")
     for i in info:
         rep.info(i)
@@ -2160,6 +2498,274 @@ def check_zones_spawns(L, B, W, rep, rules):
 
 
 # ================================================================================================
+# 4b. terrain realism, map edge, ditches, access clutter, zone outlines, toponyms
+# ================================================================================================
+TOPONYM_BLACKLIST = ["Horní Hamry", "Dolní Hamry", "Hamry nad Sázavou", "Sázav", "Žďár", "Přibyslav", "Nové Město na Moravě",
+                     "Hlinsko", "Chotěboř", "Svratk", "Havlíčkův Brod"]
+
+
+def check_realism(L, B, W, rep):
+    rep.sec("4b. Terrain realism, map edge, ditches, access, zone outlines, names")
+    bdefs = {b["id"]: b for b in B["buildings"]}
+    res = W.res
+    # ---- T05 open terrain steeper than 45 deg only at declared walls / channels / sunken lanes / buildings (review P1-CUT-FACE)
+    gy, gx = np.gradient(W.H, res)
+    sl = np.degrees(np.arctan(np.hypot(gx, gy)))
+    steep = (sl > MAX_SLOPE) & W.soft
+    ok = np.zeros(W.X.shape, bool)
+    for rw in L["retaining_walls"]:
+        segs = rw.get("segments") or [[k, k + 1] for k in range(len(rw["polyline"]) - 1)]
+        for i0, i1 in segs:
+            ok |= W.sm(rw["polyline"][i0], rw["polyline"][i1], rw["thickness"] / 2 + 0.75)
+        for wg in rw.get("wing_walls", []):
+            for a_, b_ in zip(wg["polyline"][:-1], wg["polyline"][1:]):
+                ok |= W.sm(a_, b_, wg["thickness"] / 2 + 1.0)
+        for st_ in rw.get("stairs", []):         # stairs cut into the wall: side walls follow the pitch
+            ok |= W.sm(st_["bottom_center_world"], st_["top_center_world"], st_["width"] / 2 + 0.75)
+    for st in L["terrain"]["stamps"]:
+        if st["kind"] == "wall":
+            pl = st["polyline"]
+            for a_, b_ in zip(pl[:-1], pl[1:]):
+                ok |= W.sm(a_[:2], b_[:2], 1.0)
+        if st["kind"] == "sunken_lane":
+            pl = st["polyline"]
+            hw = st["bed_width"] / 2 + 2.0 * st["bank_slope_h_per_v"] + 0.75
+            for a_, b_ in zip(pl[:-1], pl[1:]):
+                ok |= W.sm(a_[:2], b_[:2], hw)
+    for v in L["terrain"].get("vertical_steps", []):
+        for fk in ("high_face", "low_face", "left_face", "right_face"):
+            pl = v.get(fk) or []
+            for a_, b_ in zip(pl[:-1], pl[1:]):
+                ok |= W.sm(a_[:2], b_[:2], 0.75)
+    bm = np.zeros(W.X.shape, bool)
+    for b_ in L["buildings"] + L["secondary_buildings"]:
+        bm |= W.pm(b_["footprint_world"])
+    ok |= ndimage.binary_dilation(bm, iterations=int(round(0.75 / res)))
+    for br in L["bridges"]:
+        ok |= W.sm(br["ends"][0], br["ends"][1], br["width"] / 2 + 3.0)
+    bad = steep & ~ok
+    lab, n = ndimage.label(bad)
+    errs = []
+    warns = []
+    if n:
+        sizes = ndimage.sum(np.ones_like(lab), lab, index=np.arange(1, n + 1)) * res * res
+        for k in np.argsort(-sizes):
+            if sizes[k] < 0.25:
+                break
+            jj, ii = np.nonzero(lab == k + 1)
+            smax = sl[jj, ii].max()
+            msg = (f"{sizes[k]:.1f} m2 of undeclared terrain steeper than 45 deg (max {smax:.0f} deg) around "
+                   f"({W.xs[int(ii.mean())]:.1f},{W.xs[int(jj.mean())]:.1f})")
+            if sizes[k] >= 1.0 or smax > 55.0:
+                errs.append(msg + " -- needs a retaining wall, vertical step or regrading")
+            else:
+                warns.append(msg + " (small moderate spot: below the 0.5 m terrain bake resolution)")
+    open_max = float(sl[W.soft & ~ok].max()) if (W.soft & ~ok).any() else 0.0
+    rep.check("T05", errs, f"inside the soft boundary, terrain > 45 deg exists only at declared retaining walls (incl. wing walls and "
+                           f"stair cuts), wall stamps, vertical steps, sunken-lane banks, building plinths and bridge abutments (steepest "
+                           f"undeclared cell {open_max:.0f} deg; clusters >= 1.0 m2 or > 55 deg fail, 0.25-1.0 m2 up to 55 deg warn)")
+    for w_ in warns:
+        rep.warn("T05", w_)
+    # ---- R05 realistic longitudinal grades per surface (review P2-STEEP-PATHS): roads <= 8, tracks <= 12, paths <= 20 deg over 1 m
+    errs = []
+    worst = {}
+    lim = {"roads": 8.0, "tracks": 12.0, "paths": 20.0}
+    for coll in ("roads", "tracks", "paths"):
+        for rd in L[coll]:
+            pl = rd.get("polyline") or rd.get("xy")
+            ls = LineString([p_[:2] for p_ in pl])
+            nn = int(ls.length / 0.5)
+            if nn < 2:
+                continue
+            pts = [ls.interpolate(k * 0.5).coords[0] for k in range(nn + 1)]
+            zs = np.asarray(T.height_at(L, np.array([q[0] for q in pts]), np.array([q[1] for q in pts])), float)
+            ins = np.array([W.soft[W.ij(*q)] for q in pts])
+            g = np.degrees(np.arctan(np.abs(zs[2:] - zs[:-2])))          # over 1.0 m
+            g = np.where(ins[2:] & ins[:-2], g, 0.0)
+            k = int(np.argmax(g)) if len(g) else 0
+            worst[rd["id"]] = float(g.max()) if len(g) else 0.0
+            if worst[rd["id"]] > lim[coll] + EPS:
+                errs.append(f"{rd['id']} ({coll}): {worst[rd['id']]:.1f} deg over 1 m at ({pts[k][0]:.1f},{pts[k][1]:.1f}) > {lim[coll]}")
+    rep.check("R05", errs, "centre-line grade over 1 m: roads <= 8 deg, tracks / drives <= 12 deg, footpaths <= 20 deg inside the soft "
+                           f"boundary (worst {max(worst.items(), key=lambda kv: kv[1])[0]} {max(worst.values()):.1f} deg)")
+    # ---- D01 ditches: declared crouch cover only where the ditch really is >= 1.25 m deep (review P2-DITCH-COVER)
+    errs = []
+    info = []
+    stamps_ = {st["id"]: st for st in L["terrain"]["stamps"]}
+    for d in L["ditches"]:
+        st = stamps_.get(d["id"])
+        if st is None:
+            errs.append(f"ditch {d['id']} has no terrain stamp")
+            continue
+        if abs(st.get("bed_width", 0) - d["bed_width"]) > 0.01:
+            errs.append(f"ditch {d['id']}: bed_width {d['bed_width']} != stamp {st.get('bed_width')}")
+        pl = LineString([p_[:2] for p_ in st["polyline"]])
+        off = d["bed_width"] / 2 + d["depth"] * st.get("bank_slope_h_per_v", 1.2) + 0.4
+        depths = []
+        xs_ = [LineString([q[:2] for q in (r.get("polyline") or r.get("xy"))]).intersection(pl)
+               for coll in ("roads", "tracks", "paths") for r in L[coll]]
+        cross = unary_union([g_.buffer(5.0) for g_ in xs_ if not g_.is_empty] + [Point(1e6, 1e6).buffer(0.1)])
+        for k in range(int(pl.length / 2.0) + 1):
+            q = pl.interpolate(k * 2.0)
+            if cross.contains(q) or not W.soft[W.ij(q.x, q.y)] or k * 2.0 < 6.0 or k * 2.0 > pl.length - 6.0:
+                continue            # crossings (culverts) and the 6 m shallow ends (inlet / outfall) are not part of the lane
+            q2 = pl.interpolate(min(pl.length, k * 2.0 + 0.1))
+            tx, ty = q2.x - q.x, q2.y - q.y
+            tl = math.hypot(tx, ty) or 1.0
+            nx_, ny_ = -ty / tl, tx / tl
+            zb = float(T.height_at(L, np.array([q.x]), np.array([q.y]))[0])
+            ee = np.array([0.0, 0.5, 1.0, 1.5])            # bank top = highest ground within 1.5 m beyond the nominal top edge
+            zl = float(np.max(T.height_at(L, q.x + nx_ * (off + ee), q.y + ny_ * (off + ee))))
+            zr = float(np.max(T.height_at(L, q.x - nx_ * (off + ee), q.y - ny_ * (off + ee))))
+            depths.append(min(zl, zr) - zb)
+        if not depths:
+            continue
+        depths = np.array(depths)
+        cov = d.get("crouch_cover")
+        if cov is None:
+            errs.append(f"ditch {d['id']}: crouch_cover flag missing (true only when >= 1.25 m deep)")
+        elif cov:
+            frac = float(np.mean(depths >= 1.20))
+            if d["depth"] < 1.25 or frac < 0.85:
+                errs.append(f"ditch {d['id']}: claims crouch cover but declared depth {d['depth']} / measured >= 1.20 m on only "
+                            f"{100 * frac:.0f} % of its length")
+        eff = d.get("effective_depth_m", d["depth"])
+        med = float(np.median(depths))
+        if abs(med - eff) > max(0.15, 0.35 * eff):
+            errs.append(f"ditch {d['id']}: declared effective depth {eff} m but the terrain gives a median {med:.2f} m bank-to-bed")
+        info.append(f"{d['id']}: declared depth {d['depth']} m (effective {eff}), measured median {med:.2f} m, crouch_cover {cov}")
+    rep.check("D01", errs, "ditches carry a crouch_cover flag; a ditch that claims crouch cover is >= 1.25 m deep (measured >= 1.20 m "
+                           "bank-to-bed on >= 85 % of its length away from crossings); declared effective depths match the terrain")
+    for i in info:
+        rep.info(i)
+    # ---- BND2 physical barrier behind the whole hard line (review P1-EDGE)
+    errs = []
+    hard = LineString(list(Polygon(L["boundary"]["hard_polygon"]).exterior.coords))
+    bars = L["boundary"].get("barriers", [])
+    geoms = []
+    for bb in bars:
+        if not bb.get("blocks_movement"):
+            errs.append(f"barrier {bb['id']} does not block movement")
+        geoms.append(LineString(bb["polyline"]))
+    for fz in L["fences_walls_hedges"]:
+        if fz.get("blocks_movement", True):
+            geoms.append(LineString(fz["polyline"]))
+    for rw in L["retaining_walls"]:
+        geoms.append(LineString([q[:2] for q in rw["polyline"]]))
+    for vb in L["vegetation_blocks"]:
+        geoms.append(LineString(vb["polyline"]) if "polyline" in vb else Polygon(vb["polygon"]).exterior)
+    for b_ in L["buildings"] + L["secondary_buildings"]:
+        geoms.append(Polygon(b_["footprint_world"]).exterior)
+    for pp in L["props"]:
+        geoms.append(box_poly(pp["position"][:2], pp["size"], pp["rotation_deg"]).exterior)
+    gu = unary_union(geoms)
+    miss = 0
+    first = None
+    nsmp = int(hard.length / 2.0)
+    for k in range(nsmp):
+        q = hard.interpolate(k * 2.0)
+        if gu.distance(q) <= 1.5:
+            continue
+        j, i = W.ij(q.x, q.y)
+        sub = sl[max(0, j - 6):j + 7, max(0, i - 6):i + 7]
+        if sub.size and sub.max() > MAX_SLOPE:
+            continue
+        miss += 1
+        first = first or (round(q.x, 1), round(q.y, 1))
+    if miss:
+        errs.append(f"{2 * miss} m of the hard line ({miss} of {nsmp} samples, first at {first}) have no physical barrier or > 45 deg "
+                    "terrain within 1.5 m (invisible wall in open ground)")
+    # continuity of the barrier ring and signs
+    for a_, b_ in zip(bars, bars[1:] + bars[:1]):
+        gap = math.dist(a_["polyline"][-1], b_["polyline"][0])
+        if gap > 0.5:
+            errs.append(f"barrier ring gap {gap:.2f} m between {a_['id']} and {b_['id']}")
+    for bb in bars:
+        ln = LineString(bb["polyline"]).length
+        need = int(ln // 30.0)
+        if len(bb.get("signs", [])) < need:
+            errs.append(f"barrier {bb['id']} ({ln:.0f} m) has {len(bb.get('signs', []))} signs, needs >= {need} (every <= 30 m)")
+    rep.check("BND2", errs, f"the hard line ({hard.length:.0f} m, sampled every 2 m) has a movement-blocking barrier, building, wall, "
+                            f"hedge or > 45 deg slope within 1.5 m everywhere; {len(bars)} barrier sections join end to end; signs every "
+                            "<= 30 m")
+    # ---- L06 access clutter: props clear of door approaches, stair approaches, fences and each other (review P2-ACCESS-CLUTTER)
+    errs = []
+    props = [(pp, box_poly(pp["position"][:2], pp["size"], pp["rotation_deg"])) for pp in L["props"]]
+    approaches = []
+    for bp in L["buildings"]:
+        bd = bdefs[bp["id"]]
+        c, rot = bp["position"][:2], bp["rotation_deg"]
+        wm = {w["id"]: w for w in bd["walls"]}
+        for o in bd["openings"]:
+            w = wm[o["wall_id"]]
+            if not is_walk_opening(o) or w["kind"] != "external" or w["level"] != "L0":
+                continue
+            a0, b0, Lw, mid, (nx, ny), (ux, uy) = opening_span(w, o)
+            pin = (mid[0] + nx * (w["thickness"] / 2 + 0.25), mid[1] + ny * (w["thickness"] / 2 + 0.25))
+            sg = -1.0 if any(Polygon(r["polygon"]).buffer(0.02).contains(Point(*pin)) for r in bd["rooms"] if r["level"] == "L0") else 1.0
+            sx, sy = w["start"]
+            t0 = w["thickness"] / 2
+            quad = [(sx + ux * (a0 - 0.1) + nx * sg * t0, sy + uy * (a0 - 0.1) + ny * sg * t0),
+                    (sx + ux * (b0 + 0.1) + nx * sg * t0, sy + uy * (b0 + 0.1) + ny * sg * t0),
+                    (sx + ux * (b0 + 0.1) + nx * sg * (t0 + 1.2), sy + uy * (b0 + 0.1) + ny * sg * (t0 + 1.2)),
+                    (sx + ux * (a0 - 0.1) + nx * sg * (t0 + 1.2), sy + uy * (a0 - 0.1) + ny * sg * (t0 + 1.2))]
+            approaches.append((f"{bp['id']}.{o['id']}", Polygon([xf(c, rot, q) for q in quad])))
+        for s_ in bd["exterior_stairs"]:
+            dv = s_["direction_vector"]
+            nx, ny = -dv[1], dv[0]
+            hw = s_["width"] / 2
+            x0, y0 = s_["start"]
+            quad = [(x0 + nx * hw, y0 + ny * hw), (x0 - nx * hw, y0 - ny * hw), (x0 - dv[0] * 1.0 - nx * hw, y0 - dv[1] * 1.0 - ny * hw),
+                    (x0 - dv[0] * 1.0 + nx * hw, y0 - dv[1] * 1.0 + ny * hw)]
+            approaches.append((f"{bp['id']}.{s_['id']}", Polygon([xf(c, rot, q) for q in quad])))
+    for rw in L["retaining_walls"]:
+        for st in rw.get("stairs", []):
+            a_ = np.array(st["bottom_center_world"], float)
+            b_ = np.array(st["top_center_world"], float)
+            d_ = (b_ - a_) / np.linalg.norm(b_ - a_)
+            approaches.append((st["id"] + "_bottom", LineString([a_ - d_ * 1.0, a_]).buffer(st["width"] / 2, cap_style=2)))
+            approaches.append((st["id"] + "_top", LineString([b_, b_ + d_ * 1.0]).buffer(st["width"] / 2, cap_style=2)))
+    for pp, pg in props:
+        for aid, ap in approaches:
+            if pg.intersection(ap).area > 0.01:
+                errs.append(f"prop {pp['id']} ({pp['type']}) stands in the 1.2 m approach of {aid}")
+    for i_ in range(len(props)):
+        for j_ in range(i_ + 1, len(props)):
+            if props[i_][1].intersection(props[j_][1]).area > 0.03:        # abutting screen modules share a face (cm rounding)
+                errs.append(f"props {props[i_][0]['id']} x {props[j_][0]['id']} overlap")
+    fz_l = [(fz["id"], LineString(fz["polyline"]).buffer(0.12)) for fz in L["fences_walls_hedges"]]
+    for pp, pg in props:
+        for fid, fg in fz_l:
+            if pg.intersection(fg).area > 0.01:
+                errs.append(f"prop {pp['id']} intersects fence/wall/hedge {fid}")
+    rep.check("L06", errs, f"{len(props)} props clear of {len(approaches)} door (1.2 m) and stair (1.0 m) approaches, of each other and "
+                           "of fences / walls / hedges")
+    # ---- Z02 the painted zone outline runs clear of props (review P2-ZONE-LINE-PROPS)
+    errs = []
+    for z in L["capture_zones"]:
+        ring = LineString(list(Polygon(z["polygon"]).exterior.coords))
+        for pp, pg in props:
+            if ring.intersects(pg.buffer(0.10)):
+                fr = pg.intersection(Polygon(z["polygon"])).area / max(pg.area, 1e-9)
+                errs.append(f"{z['id']}: outline cuts prop {pp['id']} ({pp['type']}, {100 * fr:.0f} % inside)")
+    rep.check("Z02", errs, "zone outlines (painted lines) keep >= 0.10 m from every prop")
+    # ---- C01 fictional names only (review P2-REAL-TOPONYMS)
+    errs = []
+    texts = {"layout.json": json.dumps(L, ensure_ascii=False), "buildings.json": json.dumps(B, ensure_ascii=False)}
+    for doc in ("MAP_DESIGN.md", "ART_DIRECTION.md", "REFERENCE_DECISIONS.md", "REFERENCE_ANALYSIS.md"):
+        fp = os.path.join(ROOT, "Docs", doc)
+        if os.path.exists(fp):
+            texts[doc] = open(fp, encoding="utf-8").read()
+    for name, t in texts.items():
+        for bad in TOPONYM_BLACKLIST:
+            k = t.find(bad)
+            if k >= 0:
+                errs.append(f"{name}: real place name '{bad}' ...{t[max(0, k - 40):k + 40]!r}...")
+    rep.check("C01", errs, f"no real toponyms from the blacklist ({len(TOPONYM_BLACKLIST)} names of the region) in layout, buildings or "
+                           "the design docs")
+
+
+# ================================================================================================
 # 5. line of sight (hard geometry only: terrain, buildings with real window openings, closed buildings, hard props,
 #    walls, retaining walls, HESCO) -- vegetation deliberately ignored for spawn safety
 # ================================================================================================
@@ -2219,15 +2825,17 @@ class LOS:
                             cc = xf(c, rot, ((bx0 + bx1) / 2, (by0 + by1) / 2))
                             addbox(cc[0], cc[1], bx1 - bx0, by1 - by0, rot, zf + sl["top_z"] - sl["thickness"], zf + sl["top_z"])
             for rf in bd["roof"]:
-                if rf["type"] == "mono":
-                    Rr = np.array(rf["rect"])
-                    x0, y0 = Rr.min(axis=0); x1, y1 = Rr.max(axis=0)
-                    cc = xf(c, rot, ((x0 + x1) / 2, (y0 + y1) / 2))
-                    addbox(cc[0], cc[1], x1 - x0, y1 - y0, rot, zf + rf["eave_z"] - 0.15, zf + rf["high_z"])
-                    continue
                 Rr = np.array(rf["wall_rect"])
                 x0, y0 = Rr.min(axis=0); x1, y1 = Rr.max(axis=0)
                 roofs.append((c, rot, zf, rf, x0, y0, x1, y1))
+            for pl_ in sliding_leaf_polys(bd):
+                q = list(pl_.exterior.coords)[:-1]
+                mx_, my_ = sum(p_[0] for p_ in q) / 4, sum(p_[1] for p_ in q) / 4
+                wc = xf(c, rot, (mx_, my_))
+                la = math.dist(q[0], q[1])
+                lb = math.dist(q[1], q[2])
+                ang = math.degrees(math.atan2(q[1][1] - q[0][1], q[1][0] - q[0][0]))
+                addbox(wc[0], wc[1], la, lb, ang + rot, zf, zf + 4.0)
             for f in bd.get("furniture", []):
                 if f.get("blocks_vision") and f["level"] in lvl:
                     fc = xf(c, rot, f["center"])
@@ -2264,21 +2872,32 @@ class LOS:
         for p in L["props"]:
             if not p.get("blocks_vision", True):
                 continue
-            addbox(p["position"][0], p["position"][1], p["size"][0], p["size"][1], p["rotation_deg"], p["position"][2] - 0.3,
-                   p["position"][2] + p["size"][2])
+            cor = list(box_poly(p["position"][:2], p["size"], p["rotation_deg"]).exterior.coords)[:-1]
+            hc = T.height_at(L, np.array([q[0] for q in cor]), np.array([q[1] for q in cor]))
+            ztop = min(p["position"][2], float(np.min(hc))) + p["size"][2]      # the top over the lowest corner (conservative)
+            addbox(p["position"][0], p["position"][1], p["size"][0], p["size"][1], p["rotation_deg"], p["position"][2] - 0.3, ztop)
         for fz in L["fences_walls_hedges"]:
             if not fz["blocks_vision"] or "hedge" in fz["type"]:
                 continue
+            hv = fz.get("solid_height", fz["height"])       # chain-link above a low wall is see-through
+            if hv <= 0.05:
+                continue
             for a, b in zip(fz["polyline"][:-1], fz["polyline"][1:]):
-                mx_, my_ = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
-                z = float(T.height_at(L, mx_, my_)[0])
-                addbox(mx_, my_, math.dist(a, b), 0.25, math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])), z - 0.3, z + fz["height"])
+                n_ = max(1, int(math.dist(a, b) / 4.0))
+                for k in range(n_):
+                    pa = (a[0] + (b[0] - a[0]) * k / n_, a[1] + (b[1] - a[1]) * k / n_)
+                    pb = (a[0] + (b[0] - a[0]) * (k + 1) / n_, a[1] + (b[1] - a[1]) * (k + 1) / n_)
+                    mx_, my_ = (pa[0] + pb[0]) / 2, (pa[1] + pb[1]) / 2
+                    z = float(np.min(T.height_at(L, np.array([pa[0], pb[0], mx_]), np.array([pa[1], pb[1], my_]))))
+                    addbox(mx_, my_, math.dist(pa, pb), 0.25, math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])), z - 0.3, z + hv)
         for rw in L["retaining_walls"]:
             segs = rw.get("segments") or [[k, k + 1] for k in range(len(rw["polyline"]) - 1)]
+            prof = rw.get("top_z_profile")
             for i0, i1 in segs:
                 a, b = rw["polyline"][i0], rw["polyline"][i1]
                 mx_, my_ = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
-                addbox(mx_, my_, math.dist(a, b), rw["thickness"], math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])), rw["bottom_z"] - 0.3, rw["top_z"])
+                top = min(prof[i0], prof[i1]) if prof else rw["top_z"]
+                addbox(mx_, my_, math.dist(a, b), rw["thickness"], math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])), rw["bottom_z"] - 0.3, top)
         self.boxes = np.array(boxes, float)
         self.roofs = roofs
 
@@ -2309,13 +2928,10 @@ class LOS:
             lx = (x - c[0]) * math.cos(a) + (y - c[1]) * math.sin(a)
             ly = -(x - c[0]) * math.sin(a) + (y - c[1]) * math.cos(a)
             inside = (lx >= x0) & (lx <= x1) & (ly >= y0) & (ly <= y1)
-            tp = math.tan(math.radians(rf["pitch_deg"]))
-            if rf["type"] == "gable":
-                zt = rf["eave_z"] + ((y1 - y0) / 2 - np.abs(ly - (y0 + y1) / 2)) * tp
-            else:
-                zt = rf["eave_z"] + np.minimum((y1 - y0) / 2 - np.abs(ly - (y0 + y1) / 2), (x1 - x0) / 2 - np.abs(lx - (x0 + x1) / 2)) * tp
+            zt = roof_plane_at(rf, lx, ly)
+            zb = (zt - 0.30) if rf["type"] == "mono" else (rf["eave_z"] - 0.30)
             top = np.where(inside, np.fmax(top, zf + zt), top)
-            bot = np.where(inside, zf + rf["eave_z"] - 0.30, bot)
+            bot = np.where(inside, zf + zb, bot)
         return top, bot
 
     def visible(self, A, Bs, step=0.4):
@@ -2410,9 +3026,21 @@ def upper_window_points(L, B, zone_id):
     """observer points at upper-floor window firing positions and balconies next to a zone."""
     out = []
     bdefs = {b["id"]: b for b in B["buildings"]}
-    for cp in L["cover_points"]["points"]:
-        if cp.get("kind") == "window" and cp.get("level") not in (None, "L0") and zone_id in cp["zones"]:
-            out.append((cp["pos"][0], cp["pos"][1], cp["pos"][2], cp["id"]))
+    # every upper-floor external window (not only the validated cover points), sampled in the window plane (conservative:
+    # a shooter standing back from the window sees less)
+    for bp in L["buildings"]:
+        if bp.get("zone") != zone_id:
+            continue
+        bd = bdefs[bp["id"]]
+        lvs = {l_["id"]: l_ for l_ in bd["levels"]}
+        wm = {w["id"]: w for w in bd["walls"]}
+        for o in bd["openings"]:
+            w = wm[o["wall_id"]]
+            if o["type"] != "window" or w["kind"] != "external" or w["level"] not in lvs or lvs[w["level"]]["floor_z"] <= 0:
+                continue
+            a0, b0, Lw, mid, nrm, u = opening_span(w, o)
+            qw = xf(bp["position"][:2], bp["rotation_deg"], mid)
+            out.append((qw[0], qw[1], bp["position"][2] + lvs[w["level"]]["floor_z"], o["id"]))
     for bp in L["buildings"]:
         bd = bdefs[bp["id"]]
         for ba in bd.get("balconies", []):
@@ -2427,9 +3055,12 @@ def check_los(L, B, W, rep):
     rep.sec("5. Line of sight with hard geometry only (vegetation ignored), incl. window openings and upper floors")
     t0 = time.time()
     los = LOS(L, B, W)
-    sets = spawn_sets(L)
+    sets = spawn_sets_all(L)
     errs = []
     info = []
+    fb = L.get("ai_navigation", {}).get("spawn_selection", {}).get("fallback_rows")
+    if not fb:
+        errs.append("ai_navigation.spawn_selection.fallback_rows missing: V01 cannot bound the rows a team may spawn on")
     for z in L["capture_zones"]:
         zid = z["id"]
         samp = zone_samples(L, B, W, z)
@@ -2460,9 +3091,9 @@ def check_los(L, B, W, rep):
                     v = los.visible(eye, tg)
                     if v.any():
                         errs.append(f"{zid}: spawn {p['id']} sees enemy spawn row of {teams[b]} ({int(v.sum())} rays)")
-        info.append(f"{zid}: {len(samp)} zone samples x 2 heights + {len(upw)} upper-floor window/balcony points vs 8 spawn points "
-                    f"per team: {tot} rays tested")
-    rep.check("V01", errs, "0 visible rays from every active spawn point to its zone (incl. through windows) and to upper-floor "
+        info.append(f"{zid}: {len(samp)} zone samples x 2 heights + {len(upw)} upper-floor window/balcony points vs "
+                    f"{ {t: len(v) for t, v in tm.items()} } spawn points (active + fallback rows): {tot} rays tested")
+    rep.check("V01", errs, "0 visible rays from every spawn point of the active AND fallback rows to its zone (incl. through windows) and to upper-floor "
                            "windows/balconies next to the zone, and 0 rays between enemy spawn rows -- terrain, buildings, closed "
                            "buildings, hard props, walls and HESCO only (no foliage)")
     for i in info:
@@ -2479,11 +3110,17 @@ def check_misc(L, B, W, rep):
     soft = Polygon(L["boundary"]["soft_polygon"])
     errs = []
     sp = L["trees"]["species"]
-    for k, s in sp.items():
-        if s.get("leaf_type") != "deciduous":
-            n_in = sum(1 for t in L["trees"]["instances"] if t["species"] == k and soft.contains(Point(t["pos"][:2])))
-            if n_in:
-                errs.append(f"species {k} ({s.get('leaf_type')}) used {n_in}x inside the playable area (brief: listnaté stromy)")
+    inside = [t for t in L["trees"]["instances"] if soft.contains(Point(t["pos"][:2]))]
+    con = [t for t in inside if sp[t["species"]].get("leaf_type") != "deciduous"]
+    share = len(con) / max(1, len(inside))
+    if share > 0.12 + EPS:
+        errs.append(f"conifers are {100 * share:.1f} % of the trees inside the playable area (cap 12 %: the brief asks for broadleaf "
+                    "trees, the user reference R11 adds Norway spruce on the slopes and at the map edge)")
+    zu = unary_union([Polygon(z["polygon"]) for z in L["capture_zones"]] +
+                     [Polygon(sa["polygon"]) for sa in L["spawn_areas"]])
+    for t in con:
+        if zu.distance(Point(t["pos"][:2])) < 3.0:
+            errs.append(f"conifer {t['id']} within 3 m of a zone or spawn area")
     roads = unary_union([LineString([p[:2] for p in rd["polyline"]]).buffer(rd["width"] / 2) for rd in L["roads"] + L["tracks"]])
     blds = unary_union([Polygon(b["footprint_world"]) for b in L["buildings"]] + [Polygon(b["footprint_world"]) for b in L["secondary_buildings"]])
     zones = unary_union([Polygon(z["polygon"]) for z in L["capture_zones"]])
@@ -2497,8 +3134,9 @@ def check_misc(L, B, W, rep):
     for vb in L["vegetation_blocks"]:
         if vb.get("blocks_vision") and "dense" not in json.dumps(vb).lower():
             errs.append(f"{vb['id']}: vision-blocking vegetation not specified as dense to the ground")
-    rep.check("G01", errs[:30], f"{len(L['trees']['instances'])} trees: deciduous species only inside the playable area, none on roads "
-                                "or in buildings, all on the terrain; vision-blocking shrubs specified dense to the ground")
+    rep.check("G01", errs[:30], f"{len(L['trees']['instances'])} trees: conifers <= 12 % inside the playable area ({100 * share:.1f} %) "
+                                "and >= 3 m from zones / spawn areas, none on roads or in buildings, all on the terrain; vision-blocking "
+                                "shrubs specified dense to the ground")
     errs = []
     pb = L["performance_budget_browser"]
     dc = pb["draw_calls_worst_view"]
@@ -2541,6 +3179,73 @@ def check_misc(L, B, W, rep):
         errs.append(f"recast cell size {rc.get('cs')} > 0.05 (a 0.10 bake pinches the 1.10 m stair corridors)")
     rep.check("A01", errs, f"{len(cps)} cover points with facing_deg/peek/capacity (>= 40 per zone), AI perception capped at 150 m, "
                            "door reservation/door_link policy, stuck recovery, spawn risk scoring, Recast radius >= capsule")
+    # ---- A02 cover points are usable: reachable, capsule-clear, window shots free, interior cover and stair watches exist
+    errs = []
+    bdefs = {b["id"]: b for b in B["buildings"]}
+    lvl_cache = {}
+    kinds = defaultdict(int)
+    for cp in cps:
+        kinds[cp.get("kind")] += 1
+        if cp.get("kind") in (None, "object"):
+            c_ = W.snap(cp["pos"][0], cp["pos"][1], 0.3)
+            if c_ is None or W.lab[c_] != W.main_comp:
+                errs.append(f"cover point {cp['id']} at {cp['pos'][:2]} is not on the main walk component (capsule)")
+            continue
+        bd = bdefs.get(cp.get("building"))
+        if bd is None:
+            errs.append(f"cover point {cp['id']} ({cp.get('kind')}) without a building")
+            continue
+        bp = next(b for b in L["buildings"] if b["id"] == bd["id"])
+        lvl = cp.get("level")
+        loc = cp.get("local")
+        lvs = {l_["id"]: l_ for l_ in bd["levels"]}
+        if lvl not in lvs:
+            lds = [s_.get("landing") for s_ in bd["exterior_stairs"] + bd["stairs"] if s_.get("landing")]
+            ld = next((l_ for l_ in lds if l_["id"] == cp.get("room") or l_.get("level") == lvl), None)
+            if ld is None or not Polygon(ld["polygon"]).buffer(-0.30).contains(Point(*loc)):
+                errs.append(f"cover point {cp['id']} on {lvl}: not on a capsule-clear platform")
+            continue
+        if abs(cp["pos"][2] - (bp["position"][2] + lvs[lvl]["floor_z"])) > 0.05:
+            errs.append(f"cover point {cp['id']} z {cp['pos'][2]} is not on the {lvl} floor")
+        key = (bd["id"], lvl)
+        if key not in lvl_cache:
+            lvl_cache[key] = level_capsule_walk(bd, lvl)
+        xs, ys, wk, lab, okc = lvl_cache[key]
+        i = int(round((loc[0] - xs[0]) / (xs[1] - xs[0])))
+        j = int(round((loc[1] - ys[0]) / (ys[1] - ys[0])))
+        if not (0 <= j < wk.shape[0] and 0 <= i < wk.shape[1]) or not wk[j, i]:
+            errs.append(f"cover point {cp['id']} ({cp['kind']}, {bd['id']} {lvl} {loc}) overlaps a wall / furniture / void for the 0.35 m capsule")
+            continue
+        if lab[j, i] not in okc:
+            errs.append(f"cover point {cp['id']} ({cp['kind']}) is in a pocket not reachable from the exterior or a stair")
+        if cp["kind"] == "window":
+            oid = cp["object"].split(":")[1]
+            o = next(o_ for o_ in bd["openings"] if o_["id"] == oid)
+            w = next(w_ for w_ in bd["walls"] if w_["id"] == o["wall_id"])
+            a0, b0, Lw, mid, nrm, u = opening_span(w, o)
+            shot = LineString([loc, mid]).buffer(0.20)
+            for f in bd.get("furniture", []):
+                if f["level"] == lvl and f["size"][2] > o["sill_height"] + 0.10 and \
+                        box_poly(f["center"], f["size"], f.get("rotation_deg", 0)).intersects(shot):
+                    errs.append(f"window point {cp['id']} ({oid}): furniture {f['id']} ({f['size'][2]} m) blocks the shot line to the window")
+            for sl_ in bd.get("slabs", []):
+                if sl_["level"] == lvl and any(Polygon(h["polygon"]).contains(Point(*loc)) for h in sl_.get("openings", [])):
+                    errs.append(f"window point {cp['id']} floats over a slab void")
+    for bp in L["buildings"]:
+        if not bp.get("zone"):
+            continue
+        bd = bdefs[bp["id"]]
+        n_int = sum(1 for cp in cps if cp.get("building") == bp["id"] and cp.get("kind") == "interior_object")
+        if n_int < 8:
+            errs.append(f"{bp['id']}: only {n_int} interior cover points (>= 8: the zone's CQB cover is inside)")
+        for s_ in bd["stairs"] + bd["exterior_stairs"]:
+            if s_["level_to"] in ("L0", "Lmid"):
+                continue
+            if not any(cp.get("kind") == "stair_watch" and cp.get("stair") == s_["id"] and cp.get("building") == bp["id"] for cp in cps):
+                errs.append(f"{bp['id']}.{s_['id']}: no stair_watch cover point at the top of the flight (hold-room state needs it)")
+    rep.check("A02", errs, f"cover points usable: {dict(kinds)}; outdoor points on the main walk component, interior / window / "
+                           "stair-watch points capsule-clear on their floor and reachable, window shot lines free of tall furniture "
+                           "and voids, >= 8 interior points per zone building, a stair-watch point on top of every flight to an upper level")
     errs = []
     qa = L["qa_points"]
     kinds = defaultdict(int)
@@ -2633,6 +3338,7 @@ def main():
         W = Walk(L, B)
         rep.info(f"walk raster 0.25 m built in {W.t:.0f} s")
         check_zones_spawns(L, B, W, rep, rules)
+        check_realism(L, B, W, rep)
         check_los(L, B, W, rep)
         check_misc(L, B, W, rep)
     else:

@@ -1,16 +1,51 @@
 # IRON VALLEY – návrh mapy „Kalné Hamry“
 
-Stav: **finální návrh, závazný** pro tvůrce assetů, programátory a QA. Datum: 2026-09-26.
+Stav: **finální návrh, závazný** pro tvůrce assetů, programátory a QA. Datum: 2026-09-27 (revize podle referencí uživatele).
 Data: `Shared/level/layout.json` (mapa), `Shared/level/buildings.json` (hlavní budovy),
 `Shared/level/terrain_ref_0p5m.png` (referenční výšková mapa). Výtvarný směr: `Docs/ART_DIRECTION.md`.
+Reference uživatele: `Docs/navrhy/`, rozbor `Docs/REFERENCE_ANALYSIS.md`, rozhodnutí `Docs/REFERENCE_DECISIONS.md`.
 Výkresy: `Docs/img/` (generuje je `Tools/level/draw_plans.py` z JSON, takže vždy odpovídají datům).
 Kontrola: `python3 Tools/level/check_layout.py`, která při jakémkoli porušení skončí nenulovým kódem.
 
-Obsah: 1. Schéma dat · 2. Výběr a sloučení návrhů · 3. Mapa v číslech · 4. Uspořádání a zdůvodnění · 5. Zóny ·
+Obsah: 0. Revize podle referencí · 1. Schéma dat · 2. Výběr a sloučení návrhů · 3. Mapa v číslech · 4. Uspořádání a zdůvodnění · 5. Zóny ·
 6. Spawny · 7. Trasy a úzká místa · 8. Výhledy · 9. Kryty · 10. Poznámky pro AI · 11. Hranice mapy ·
 12. Výkonový rozpočet prohlížeče · 13. Testovací body · 14. Ověřeno / neověřeno · 15. Regenerace dat
 
 ---
+
+## 0. Revize podle referencí uživatele a opravy z recenze r1 (2026-09-27)
+
+Mapa byla sladěna s referencemi `Docs/navrhy/01`–`05` a R06–R17 (rozbor `Docs/REFERENCE_ANALYSIS.md`, rozhodnutí a kompromisy
+`Docs/REFERENCE_DECISIONS.md`, srovnání `Docs/img/reference_vs_plan.png`) a opraveny všechny vady z
+`Docs/MAP_review_r1_defects.json`. Každá třída vad má v `Tools/level/check_layout.py` vlastní automatický test:
+
+| Vada | Oprava v generátoru | Test |
+| --- | --- | --- |
+| P1-EDGE | souvislý kruh bariér 0,5 m uvnitř tvrdé hranice (oplocenky, ohradníky, plot štěrkovny, zátarasy), cedule po 25 m | BND2 |
+| P1-DOCK-TERRAIN | čelo rampy a její severní konec jsou terénní stupeň (`RW_SKLAD_DOCK`, `RW_SKLAD_DOCK_N`) s mezerami; schody a nájezd stojí na rovném dvoře kolmo k rampě (`foot_ground`) | L05 |
+| P1-SEC-CONTACT | každá vedlejší budova na vlastní plošině se stupňovitým soklem; rekvizity s `ground_fit` | L04 |
+| P1-CUT-FACE | souvislá opěrná zeď `RW_SKLAD_NE` s korunou podle terénu (svah za ní ≤ 30°), křídla zdí na koncích, boční zeď nájezdu u dílny; oprava referenční implementace terénu (zářez na řádcích vrcholů zdí) | T05 |
+| P1-GUTTERS | žlaby 0,03 m pod odkapní hranou, svody od žlabu | B16 |
+| P1-AI-COVER | krycí body u nábytku v budovách, ověřené střelecké pozice u oken, body hlídání schodiště | A02 |
+| P2-FALLBACK-SPAWN-LOS | `spawn_selection.fallback_rows` = jen řady bez výhledu na zónu | V01 (aktivní + záložní řady) |
+| P2-SPAWN-RULE-CONFLICT | jediné normativní pravidlo v `ai_navigation.spawn_selection` | – |
+| P2-DVUR-DOC | popisy zóny Dvůr, balkonu a kolny opraveny | Z01 |
+| P2-ZBAND-STAIR | ramena schodišť deklarována jako spojité přechody, podesty dodržují 0,30 m | Z01 (vzorkuje schody a podesty) |
+| P2-WINDOW-FURNITURE | nábytek přestěhován ke plným zdem | B07 |
+| P2-DOOR-SWING-STAIRS | hlavní dveře domu otevírají dovnitř; dílna jednopodlažní | B06 (výseč křídla) |
+| P2-PIERS | chodba domu rozšířena, dveře posunuty | B04 (k lícům příček) |
+| P2-SKLAD-OFFICE | strop kanceláře `SK_OFFICE_CEILING` | B11 (strop z geometrie) |
+| P2-BRIDGE-UNDERPASS | `deck_thickness`, prostor pod deskami uzavřený česlemi | B15 |
+| P2-CONSTRUCTION-DATA | ostění a parapety v datech, štítové polygony, kamna pod komíny, otevřená kolna, generativní kulisa | B07, B08 |
+| P2-ACCESS-CLUTTER | sloupky přístřešku mimo osy schodů, rekvizity mimo nástupní prostory | B09, L06 |
+| P2-STEEP-PATHS | pěšiny a polní cesty srovnané (≤ 18° / 11°), nájezd 22° zrušen, rovná odbočka k zadnímu dvoru | R05 |
+| P2-DITCH-COVER | `DITCH_C` účinně 1,25 m (vyřezaný po silnicích), ostatní bez nároku na kryt | D01 |
+| P2-REAL-TOPONYMS | Nové Kalno, Štěrkovna Kalný Vrch | C01 |
+| P2-ZONE-LINE-PROPS | rekvizity posunuty, polygon Dílny zkrácen u břehu | Z02 |
+| P2-CHECKER-BLIND-SPOTS | všechny testy výše; B12 už nevynechává budovy se schody, B09 kontroluje i venkovní schody | – |
+
+Poznámka: skript porotce `critic_r1_checks.py` zmiňovaný v recenzi v repozitáři není, jeho kontroly jsou přepsané do
+`check_layout.py`.
 
 ## 1. Schéma dat
 
@@ -40,25 +75,27 @@ Obsah: 1. Schéma dat · 2. Výběr a sloučení návrhů · 3. Mapa v číslech
 | `roads` | [obj] | `ROAD_A`, `ROAD_B`: `polyline` [x, y, z], `width` 6,0, `shoulders`, `surface` asphalt, `leads_to` |
 | `tracks` | [obj] | `TRACK_C` (polní cesta 3,6 m), příjezd k domu a rampy: `polyline`, `width`, `surface`, `detail` |
 | `paths` | [obj] | pěšiny: `xy` [x, y], `width`, `surface`, `role` (okruhy a obchvaty) |
-| `ditches` | [obj] | příkopy a suchý náhon: `polyline`, `bed_width`, `depth`, `bank_slope_h_per_v`, `culverts`, `gameplay` |
-| `bridges` | [obj] | `ends` [[x, y], [x, y]], `width`, `deck_z` [z0, z1], `approach`, `railing` {height, type, blocks_*}, `role` |
-| `retaining_walls` | [obj] | `polyline`, `thickness`, `top_z`, `bottom_z`, `low_side`, `material`, `cap`, `parapet`, `stairs` [{id, risers, riser, tread, width, bottom_center_world, top_center_world, …}] |
-| `fences_walls_hedges` | [obj] | `type` (chain_link_2m, timber_picket_1m, concrete_low_wall, hedge_privet, hedge_hornbeam, hedgerow_mixed), `polyline`, `height`, `blocks_movement`/`blocks_bullets`/`blocks_vision`, `cover` |
+| `ditches` | [obj] | příkopy a suchý náhon: `polyline`, `bed_width`, `depth` (účinná hloubka), `cut_depth_m`, `effective_depth_m`, `bank_slope_h_per_v`, `culverts` (každé křížení s cestou = propustek), **`crouch_cover`** (true jen při hloubce ≥ 1,25 m), `gameplay` |
+| `bridges` | [obj] | `ends` [[x, y], [x, y]], `width`, `deck_z` [z0, z1], **`deck_thickness`**, `approach`, `railing` {height, type, blocks_*}, **`underpass`** {treatment closed, by, passes} (prostor pod deskou < 2,10 m je uzavřený česlemi), `role` |
+| `retaining_walls` | [obj] | `polyline`, `segments` (mezery pro schody a nájezdy), `thickness`, `top_z` (+ `top_z_profile` u zdí, jejichž koruna sleduje terén), `bottom_z` (+ `bottom_z_profile`), `height_range_m`, `low_side`, `material`, `cap`, `parapet`, `guard` (zábradlí), `stairs` [{id, risers, riser, tread, width, bottom_center_world, top_center_world, …}], **`wing_walls`** [{id, polyline, thickness, top}] (křídla na koncích zdí) |
+| `fences_walls_hedges` | [obj] | `type` (chain_link_on_plinth_1p5m R14, concrete_wall_chain_link, garden_wall_rendered_1p8, concrete_low_wall(_rendered), timber_picket_1m, post_and_pipe_rail_1m R16, hedge_privet, hedge_hornbeam, hedgerow_mixed), `polyline`, `height`, **`solid_height`** (plná část; pletivo nad ní je průhledné), `blocks_movement`/`blocks_bullets`/`blocks_vision`, `cover`, `traversal`, `gates`, `reference` |
 | `vegetation_blocks` | [obj] | `shrub_belt`/`windbreak_belt` (`polyline`, `width`) a `shrub_copse` (`polygon`); `height`, `species_mix`, `density` (husté k zemi), `blocks_*` (pohyb a výhled ano, střely ne) |
 | `buildings` | [obj] | hlavní budovy: `id`, `type`, `position` [x, y, z podlahy L0], `rotation_deg`, `footprint` [šířka X, hloubka Y], `enterable: true`, `levels`, `zone`, `pad`, `front_faces_compass_deg`, `footprint_world`. Geometrie je v `buildings.json` |
-| `secondary_buildings` | [obj] | vedlejší budovy: `type`, `name`, `position`, `rotation_deg`, `footprint`, `eave_height`, `roof`, `ridge_height`, **`enterable: false`**, `reads_closed_by` (jak se čtou zavřené, žádné falešné dveře), `footprint_world` |
-| `prop_catalog` | {typ: obj} | `size` [x, y, z] v m, `cover` none/low/high, případně `blocks_bullets`/`blocks_vision`, `module_length`, `note` |
-| `props` | [obj] | instance: `id`, `type` (klíč katalogu), `position` [x, y, z paty], `rotation_deg`, `size`, `cover`, `blocks_bullets`, `blocks_vision`, `cluster`, `note` |
+| `secondary_buildings` | [obj] | vedlejší budovy: `type` (např. `shed_r05` = kůlna podle ref. 05, `chapel` s `tower`, `bus_shelter_timber` R06, `transformer_pole_h`), `name`, `position` [x, y, z plošiny], `rotation_deg`, `footprint`, `eave_height`, `roof`, `ridge_height`, **`enterable: false`**, `reads_closed_by` (jak se čtou zavřené, žádné falešné dveře), **`plinth`** {top_z, bottom_z, visible_height(_range), ground = pad stamp}, `open_side`/`collision_proxy` (otevřené kolny), `reference`, `footprint_world` |
+| `prop_catalog` | {typ: obj} | `size` [x, y, z] v m, `cover` none/low/high, případně `blocks_bullets`/`blocks_vision` (dřevo průstřelné), `module_length`, `reference`, `note` |
+| `props` | [obj] | instance: `id`, `type` (klíč katalogu), `position` [x, y, z paty], `rotation_deg`, `size`, `cover`, `blocks_bullets`, `blocks_vision`, `cluster`, **`ground_fit`** {mode flat / tilt (pitch_deg, roll_deg) / conform / upright_footing, corner_z}, `note` |
+| `utility_lines` | obj | dřevěné sloupy vedení R07 (`poles` [{id, pos, height, crossarm, lamp, collision_radius}]), `spans` (vodiče s průvěsem), přípojky |
+| `fields`, `ground_cover` | [obj], obj | pole a louky bez kolize (`crop`, `polygon`); podrost R09/R13/R17 (`types` s výškou a vlivem na výhled, hustoty a pravidla rozmístění) |
 | `capture_zones` | [obj] | `id`, `name`, `desc`, `polygon` [x, y], `center`, **`z_min`, `z_max`**, `area_m2`, `hud_marker` [x, y, z], `excluded`, `inclusion_test`, `marker` {in_world, hud} |
 | `spawn_areas` | [obj] | pro každý tým: `polygon` (shromaždiště), `rows` [{row_id, s, center, zones, polygon}], `candidate_points` [{id, pos [x, y, z], yaw_deg, row, zones, rank}], `selection_rule` |
 | `spawn_spines`, `zone_spawn_rows` | obj | osa spawnů podél silnice týmu (`s` = metry od návsi); která řada patří ke které zóně |
-| `boundary` | obj | `soft_polygon`, `warning_polygon` (pás 8 m), `hard_polygon` (6 m za měkkou hranicí), `soft_area_m2`, `rules`, `player_text_cs`, `treatment` [{section, physical, explanation}] |
+| `boundary` | obj | `soft_polygon`, `warning_polygon` (pás 8 m), `hard_polygon` (6 m za měkkou hranicí), `soft_area_m2`, `rules`, `player_text_cs`, `treatment` [{section, physical, explanation}], **`barriers`** [{id, type (deer_fence_2m, pasture_fence_barbed_1p3m, farm_fence_timber_1p4m, quarry_fence_2m, roadblock), polyline, height, construction, blocks_*, signs [{pos, text_id}]}] – souvislý kruh 0,5 m uvnitř tvrdé hranice, `barrier_rule` |
 | `environment` | obj | kopie `Web/src/data/environment.json` (slunce, obloha, mraky, expozice) + mlha mapy `fog.map_override_D9` + pravidla post-processingu |
-| `trees` | obj | `species` (14 listnatých druhů: výška, koruna, LOD), `placement_rules`, `counts`, `instances` [{id, species, pos, scale, yaw_deg, group}] |
+| `trees` | obj | `species` (listnaté druhy + smrk a borovice R11 pro les a okraj, `leaf_type`), `placement_rules` (jehličnany uvnitř ≤ 12 %), `counts`, `instances` [{id, species, pos, scale, yaw_deg, group}] |
 | `surfaces` | obj | povrchy pro kroky a zásahy: `footstep_and_impact_types`, `regions` [{surface, priority, from}], `resolution_rule` |
 | `balance` | obj | metoda FMM, `run_speed_mps`, pro každou zónu `rows_s`, `distances_center_m`, `distances_edge_m`, odchylky, `run_time_s_edge`, `primary_lanes`, `flank_lanes` |
 | `lanes` | obj | `{zone: {primary: {team: [[x, y, z]]}, flank: {team: {desc, length_m, extra_vs_primary_pct, via, waypoints, deep_flank?}}}}` |
-| `cover_points` | obj | `rule`, `points` [{id, pos, facing [x, y], facing_deg, height low/high/window, peek left/right/over, capacity 1, kind object/window, object, level?, sill?, zones, inside_zone}] |
+| `cover_points` | obj | `rule`, `points` [{id, pos, facing [x, y], facing_deg, height low/high/window, peek left/right/over, capacity 1, kind object / interior_object / window / stair_watch, object, building?, level?, room?, local?, sill?, zones, inside_zone}], `dropped_windows_and_stairs` (okna bez platné pozice a proč) |
 | `chokepoints` | [obj] | `id`, `at` (bod nebo úsečka), `width`, `type`, `zone`, `note` |
 | `ai_navigation` | obj | `agent` (+ nastavení Recastu), `rules`, `areas` (ceny), `perception`, `doors` (politika a `list` všech dveří), `offmesh_links`, `cover`, `stuck_recovery`, `hold_points`, `hold_room_state`, `lane_usage`, `spawn_selection` |
 | `performance_budget_browser` | obj | rozpočet draw callů, trojúhelníků, stromů, textur, VRAM a CPU, `culling` (NOT TESTED, dokud se neměří) |
@@ -86,8 +123,8 @@ Výška v bodě (x, y) se počítá takto (referenční implementace: `Tools/lev
 5. **`reference_bake`**: `terrain_ref_0p5m.png`, 16bitová šedá mapa 701 × 701 po 0,5 m, z = z_min + v/65535 · (z_max − z_min),
    řádek 0 = sever. **Výstup generátoru musí souhlasit do 0,02 m** (kromě pásma 0,5 m u svislých líců). Shodu referenční
    implementace s bakem ověřuje kontrola T04 (0,4 mm).
-6. `backdrop`: prstenec vzdálených kopců (poloměr 260–2400 m, hřebeny 60–180 m, les). Údolí A se otevírá k ZJZ, kde je vidět věž
-   kostela Dolních Hamrů.
+6. `backdrop`: prstenec vzdálených kopců (poloměr 260–2400 m, hřebeny 60–180 m, les) s generativní specifikací (profil hřebene
+   po 10°, seed). Údolí A se otevírá k ZJZ, kde je vidět věž kostela fiktivního Nového Kalna.
 
 ### 1.4 `buildings.json` (`"schema": "ironvalley.buildings/1"`)
 
@@ -108,7 +145,15 @@ Výška v bodě (x, y) se počítá takto (referenční implementace: `Tools/lev
   zárubeň 0,05 m (každý bok i nadpraží) a tloušťka křídla: **`clear_width` a `clear_height` jsou uvedeny u každých dveří**
   i s pravidlem výpočtu (`clear_rule`). Projektové pravidlo je světlost ≥ 1,10 × 2,05 m (zadání ≥ 0,90). `passes` {movement,
   bullets, vision}: okno je rovina blokující kapsli a propouštějící střely a výhled, žaluzie blokuje vše. Křídlo stojí
-  v klidové poloze `open_deg`.
+  v klidové poloze `open_deg`. **Posuvná vrata** (`sliding_door`, sklad): vodítka 0,05 m, `state.open`, `leaf_rest` (poloha
+  zaparkovaného křídla přes plnou zeď, 0,25 m od líce, mimo pilastry); zavřená vrata jsou zeď. Okna mají `reveal_depth` 0,12
+  a `sill_overhang` 0,04.
+- **Štíty:** zeď, nad jejíž korunou jsou otvory, má `gable` {roof, polygon_uz, apex_z, openings, construction_polygons} –
+  štít je rozřezaný na polygony bez děr (žádné booleovské operace).
+- **Střechy a odvodnění:** `roof[]` (gable / hip s `abuts` / mono, `eave_z` = výška na líci zdi, `overhang_eave`,
+  `supports` u přístřešků), `gutters[]` {roof, edge, from, to, `drip_edge_z` = eave_z − přesah × tg sklonu, z = 0,03 m pod ní},
+  `downpipes[]` {pos, top_z = z žlabu, outlet}, `chimneys[]` {pos, size, `base_z`, top_z, `serves` = kamna/výheň}, `pilasters`,
+  `fixtures` (lampy, nápisy).
 - **Schodiště:** `start` = střed hrany prvního (spodního) stupně, **`direction_deg` = směr výstupu od lokální +Y proti
   směru hodin** (0 = +Y, 90 = −X, 180 = −Y, 270 = +X), `direction_vector` = (−sin, cos), `count` stupňů, `treads` = count − 1,
   `run`, `rise`, `riser`, `tread`, `two_r_plus_t`, `width` (světlá), `waist`, `top_riser_center` (kontroluje se jako start +
@@ -118,6 +163,10 @@ Výška v bodě (x, y) se počítá takto (referenční implementace: `Tools/lev
 ---
 
 ## 2. Výběr a sloučení návrhů
+
+> Historický záznam výběru (2026-09-26). Po revizi podle referencí uživatele (2026-09-27) platí pro dílnu, sklad, dům, kůlny,
+> zídky, okraj mapy a vegetaci oddíly 4–11 a `Docs/REFERENCE_DECISIONS.md`; tabulky níže popisují, jak návrh vznikl
+> (např. kancelář v patře dílny a jehličnany už neplatí).
 
 Hodnotily se tři návrhy dvěma porotci (součet bodů): **„combat“ – Kalné Hamry 82,0** (42,5 + 39,5), „place“ – Kladivná 79,5
 (39,5 + 40), „systems“ – Hamrovec 76,5 (37 + 39,5). **Základem je „combat“**: Y-údolí se třemi rameny, tři zóny mezi rameny
@@ -193,9 +242,9 @@ asi 32 m od návsi, vzorec „dva blízké týmy a jeden vzdálený“, kompaktn
 **Kalné Hamry** leží na soutoku tří údolí ve tvaru Y. Náves s památnou lípou je v počátku souřadnic. Kalný potok obtéká náves
 ze severu na západ a teče k ZJZ.
 
-- **Rameno A (ZJZ):** asfaltová silnice A do Dolních Hamrů. Na jejím konci je zátaras Alfy a pila za hostincem. Týmová
-  identita **Alfa**: dřevo, klády, bouda pily.
-- **Rameno B (S):** asfaltová silnice B ke štěrkovně Horní Hamry. Na konci jsou haldy štěrku, dopravník, kontejner kanceláře
+- **Rameno A (ZJZ):** asfaltová silnice A do (fiktivního) Nového Kalna. Na jejím konci je zátaras Alfy a pila za
+  hostincem. Týmová identita **Alfa**: dřevo, klády, bouda pily.
+- **Rameno B (S):** asfaltová silnice B ke štěrkovně Kalný Vrch. Na konci jsou haldy štěrku, dopravník, kontejner kanceláře
   a zátaras Brava. Identita **Bravo**: štěrk a těžká technika.
 - **Rameno C (JV):** polní cesta C se stromořadím ke statku (stodola, kolna na stroje, seník). Identita **Charlie**: pole,
   balíky, traktor.
@@ -206,19 +255,21 @@ první) a třetí tým přichází „zdaleka“ přes náves do jejich boku. Ka
 | Zóna | Mezi rameny | Blízké týmy | Vzdálený tým (přední řada) |
 | --- | --- | --- | --- |
 | Dílna | A a B | Alfa, Bravo | Charlie (řada s = 89 m) |
-| Sklad | B a C | Bravo, Charlie | Alfa (řada s = 84 m) |
+| Sklad | B a C | Bravo, Charlie | Alfa (řada s = 85 m) |
 | Dvůr | C a A | Charlie, Alfa | Bravo (řada s = 92 m) |
 
 Proč právě takto:
 
-- **Hamr** potřeboval vodu, proto dílna stojí u potoka a za ní vede **suchý náhon** od jezu pod štěrkovnou (vodu přestal
-  vést v roce 1952). Náhon leží na terase, kterou drží opěrná zeď z lomové droby `RW_DILNA` (2,1 m) se schody a s travnatým
-  nájezdem na JZ konci.
-- **Sklad JZD** stojí na 1 m protipovodňovém násypu u silnice. Podlaha je proto ve výšce ložné plochy (1,10 m nad dvorem)
-  a vznikla nakládací rampa se schody a nájezdem. Zadní strana je zapuštěná do svahu a vede k ní polní nájezd z východního
-  okruhu.
-- **Dům mistra** stojí na slunné terase nad návsí. Terasu drží pískovcová zeď `RW_DUM` (2,7 m) se zapuštěnou garáží a
-  zahradními schody. Na dvůr za domem vede příjezd od cesty C.
+- **Hamr** potřeboval vodu, proto dílna (jednopodlažní hala s přístavkem a kůlnou podle ref. 04) stojí u potoka a za ní vede
+  **suchý náhon** od jezu pod štěrkovnou (vodu přestal vést v roce 1952). Náhon leží na terase, kterou drží opěrná zeď
+  z lomové droby `RW_DILNA` (2,1 m) se schody; na JZ konci je travnatý nájezd se zděnou boční zdí `RW_DILNA_RAMP`.
+- **Sklad JZD** (dlouhá cihlová hala se zelenou vlnitou střechou, ref. 01/03) stojí na plošině zaříznuté do svahu; dvůr
+  u silnice je protipovodňový násyp o 1,10 m níž (výška korby), proto nakládací rampa se dvěma schody a nájezdem. Plošinu
+  drží opěrná zeď `RW_SKLAD_NE` (koruna sleduje terén, zábradlí), čelo rampy a její severní konec jsou terénní stupeň.
+  Na zadní dvůr vede po rovině odbočka `TRACK_SKLAD_REAR` z východní polní cesty.
+- **Dům mistra** (dvoupodlažní, červená tašková valba, přízemní křídlo, ref. 01) stojí na slunné terase nad návsí v zahradě
+  obehnané zdí. Terasu drží kamenná zeď `RW_DUM` s omítnutou zahradní zdí 1,0 m nahoře, se zapuštěnou garáží a zahradními
+  schody. Na dvůr za domem vede příjezd od cesty C.
 - Obec kolem je hustá (hostinec, hasičská zbrojnice se sušicí věží, řadové garáže, kaplička, trafostanice, zastávka,
   stánek, čtyři chalupy, kůlny), takže jádro působí jako malá průmyslová vesnice, ne jako samota.
 - **Okruhy za zónami** spojují ramena: SZ náhonová pěšina (A↔B za dílnou), východní okruh podél meze (B↔C za skladem)
@@ -242,13 +293,12 @@ Týmové barvy (modrá, červená, žlutá) jsou vyhrazeny vlastnictví.
 
 | Zóna | Plocha / pásmo z | Co se počítá | Co se nepočítá | Charakter boje | Krycí body uvnitř |
 | --- | --- | --- | --- | --- | --- |
-| **Dílna** `zone_dilna` | 429 m², z 0,70–3,80 | hala (137 m²) a výdejna nářadí v přízemí, dvůr mezi halou a potokem | schodišťový záliv a chodba, celé patro (kancelář z 4,30), venkovní ocelové schodiště, náhonová terasa, koryto potoka | CQB v hale (traktor na špalcích, soustruhy, regál profilů) + dvůr s hromadami materiálu; vrata 3,18 m, 5 dveří | 71 |
-| **Sklad** `zone_sklad` | 481 m², z 0,80–5,00 | nakládací rampa, přední ulička a první řada regálů, předpolí rampy ve dvoře | zadní ulička, zadní dvůr | střední vzdálenost podél rampy (výškový rozdíl 1,10 m, jednosměrný seskok), regály jako kryt; troje rolovací vrata (jedna zavřená) | 44 |
-| **Dvůr** `zone_dvur` | 494 m², z 1,90–5,54 | zahrada na terase, přízemí domu, dvůr za domem | náves pod opěrnou zdí, patro a balkon domu (z 5,94) | smíšený: dům jako pevnost s mnoha vstupy, zahradní zídky a živé ploty, útok z návsi po schodech nebo po příjezdu | 41 |
+| **Dílna** `zone_dilna` | ZONE_DL_AREA m², z 0,70–3,80 | celá jednopodlažní dílna (hala, výdejna, šatna, kompresorovna v kůlně) a dvůr mezi halou a potokem | náhonová terasa za opěrnou zdí (z 3,13), svah břehu a koryto potoka, deska mostu | CQB v hale (výheň, soustruhy, regály, pracovní stoly) + dvůr s hromadami materiálu, VZV a přívěsem; dvoje vrata (3,40 a 2,60 m), zadní dveře, dvoje štítové dveře, dveře přístavku a kůlny | ZONE_DL_CP |
+| **Sklad** `zone_sklad` | ZONE_SK_AREA m², z 0,80–5,00 | nakládací rampa se schody a nájezdem, přední ulička, kancelář a první řada regálů, předpolí rampy ve dvoře | zadní ulička a druhá řada regálů, zadní dvůr, zástěry u štítů dál než 0,5 m | střední vzdálenost podél rampy (výškový rozdíl 1,10 m, jednosměrný seskok nebo vyšplhání 0,5–1,3 m), regály jako kryt; posuvná vrata: vpředu jedna otevřená a jedna zavřená, vzadu otevřená | ZONE_SK_CP |
+| **Dvůr** `zone_dvur` | ZONE_DV_AREA m², z 1,90–5,54 | zděná zahrada na terase, přízemí domu včetně přízemního křídla, pás 1,25 m za domem (podesta zadních dveří) | náves pod opěrnou zdí, zadní dvůr (za pásem 1,25 m), patro a balkon domu (z 5,94); ramena schodiště jsou spojité přechody | smíšený: dům jako pevnost s mnoha vstupy, zahradní zdi 1,0 / 1,8 m, útok z návsi po schodech nebo po příjezdu | ZONE_DV_CP |
 
-Vyvýšené pozice u zón (mimo zónu, dva východy): kancelář mistra nad halou dílny (vnitřní okna do haly, venkovní schodiště)
-a patro domu (okna do zahrady a dvora, balkon se schody do zahrady). Nejsou bezpečné: obojí je dostupné ze dvou stran
-a na dohled z více směrů.
+Vyvýšená pozice u zóny (mimo zónu, dva východy): jen patro domu (okna do zahrady a dvora, balkon se schodištěm do zadního
+dvora). Není bezpečné: je dostupné ze dvou stran a na dohled z více směrů. Dílna je jednopodlažní.
 
 ---
 
@@ -256,7 +306,7 @@ a na dohled z více směrů.
 
 - Každý tým má **dvě řady po 8 bodech** (2 × 4, rozestup 1,5 m a více, rozpětí 9,5 m) na ose podél své silnice
   (`spawn_spines`, `s` = metry od návsi). Pro každou zónu je aktivní jedna řada (`zone_spawn_rows`). Vzdálený tým používá
-  přední řadu (s 84–92 m), blízké týmy zadní (s 132–157 m).
+  přední řadu (s 85–92 m), blízké týmy zadní (s 132–158 m).
 - Body leží na pochozím terénu se sklonem do 15°, ≥ 0,85 m od objektů, ne v budovách, ≥ 10 m uvnitř měkké hranice (mimo pás
   varování; skutečné minimum je 13,9 m).
 - **Clony:** před každou řadou stojí pevná clona kolmo ke směru na zónu, 3,5–4,5 m před první řadou. Konce clony zůstávají
@@ -268,8 +318,10 @@ a na dohled z více směrů.
   nejdřív. Při respawnu se každý volný bod ohodnotí: −10, pokud na něj má nepřítel přímou viditelnost (oči 1,65 m → bod
   + 1,2 m), −5 za každého nepřítele do 45 m, +1 za spojence do 30 m. Vyhrává nejvyšší skóre, shodu rozhodne seed kola
   (Mulberry32, `Shared/testvectors/rng.json`). **Tvrdé pravidlo:** nikdy do 25 m od živého nepřítele
-  (`respawn.minEnemyDistance`) ani do 1,0 m od postavy. Když selže aktivní řada, použije se druhá řada týmu, pak kterýkoli
-  bod týmu. Přední řady (ALFA_R2, BRAVO_R2, CHARLIE_R1) jsou nejexponovanější a pravidlo 25 m se u nich uplatní vždy.
+  (`respawn.minEnemyDistance`) ani do 1,0 m od postavy. Když selže aktivní řada, použijí se jen řady z
+  `spawn_selection.fallback_rows[zóna][tým]` (řady, ze kterých na zónu není vidět – V01 je testuje stejně jako aktivní řady),
+  jinak respawn počká 2 s a skóruje znovu. Toto je **jediné normativní pravidlo**; `spawn_areas[].selection_rule` na ně jen
+  odkazuje. Přední řady (ALFA_R2, BRAVO_R2, CHARLIE_R1) jsou nejexponovanější a pravidlo 25 m se u nich uplatní vždy.
 - Mapa před kolem a mapa v pauze ukazují aktivní řadu týmu, tři zátarasy a měkkou hranici.
 
 ![Trasy](img/map_routes.png)
@@ -329,8 +381,8 @@ podél meze východního okruhu do zadního dvora skladu: jde o manévr do týlu
 | Dílna | Bravo | silnice B → náves → most → dvůr | lávka B → západní břeh → štítové dveře DL_D3 |
 | Dílna | Charlie | cesta C → náves → most | koryto potoka od propustku na návsi (nízká krytá dráha) |
 | Sklad | Alfa | silnice A → náves → dvůr skladu | začátek cesty C → jižní branka dvora (P_SKLAD_S) |
-| Sklad | Bravo | silnice B → vrata dvora | východní okruh podél meze → polní nájezd → zadní dvůr → RD3/D4 (hluboký) |
-| Sklad | Charlie | cesta C → jižní část dvora | východní okruh od cesty C → zadní dvůr |
+| Sklad | Bravo | silnice B → vrata dvora | východní polní cesta → odbočka k zadnímu dvoru (JV roh, po rovině) → posuvná vrata SK_SD3 / dveře SK_D4 (hluboký) |
+| Sklad | Charlie | cesta C → jižní část dvora | východní polní cesta od cesty C → odbočka → zadní dvůr |
 | Dvůr | Alfa | silnice A → zahradní branka na západní hraně terasy | jižní okruh → branka zadního dvora |
 | Dvůr | Bravo | silnice B → náves → schody v opěrné zdi | náves → příjezd (východ) místo schodů |
 | Dvůr | Charlie | cesta C → příjezd → dvůr | jižní okruh → úvoz → severní výstup → branka zadního dvora |
@@ -340,17 +392,19 @@ Terénní prvky tras:
 - **Úvoz** `UVOZ_S`: stará vozová cesta vyjetá 1,8 m do spraše jižního ostrohu. Svahy jsou strmé (55°, kořeny, nepochozí),
   konce se zvedají do terénu přes 12 m a má 3 boční výstupy (rampy 32°), takže **výstup je nejvýš každých 19 m**. Leží celý
   mimo zóny. Jižní hranu lemuje mez s keři a mladými javory (4,5 m), aby z louky na ostrohu nebyl výhled shora do zahrady domu.
-- **Náhonová terasa**: pěšina podél suchého kamenného náhonu (0,6 m, úmyslně mělký, aby nevznikl zákop pro schovávání)
-  na terase 2,1 m nad dvorem dílny, mimo zónu. Vstupy jsou po schodech v opěrné zdi, po nájezdu na JZ konci a od lávky B.
-- **Příkopy** `DITCH_A`, `DITCH_C`: 0,80–0,85 m hluboké, hráč v dřepu je v nich krytý od silnice. Vedou do propustků pod
-  příjezdem a na návsi.
+- **Náhonová terasa**: pěšina podél suchého náhonu (vyhloubený 1,0 m, na svahu účinně 0,3–0,6 m – žádný zákop pro
+  schovávání) na terase 2,1 m nad dvorem dílny, mimo zónu. Vstupy jsou po schodech v opěrné zdi, po nájezdu na JZ konci a od
+  lávky B.
+- **Příkopy:** `DITCH_C` podél cesty C je **1,25 m hluboký** (svahy 1 : 1,5, kamenité dno s pramínkem) – hráč v dřepu
+  (1,20 m) je v něm krytý (`crouch_cover`, ověřuje D01). `DITCH_A` u silnice A je jen mělký odvodňovací žlab (účinně
+  0,2–0,3 m, bez krytu). Každé křížení s cestou nebo pěšinou má propustek.
 - **Potok**: brodit se dá všude (rychlost × 0,75, šplouchání), břehy 1 : 1,5 jsou pochozí, kromě kamenných opěr hlavního
   mostu.
 
 Úzká místa (`chokepoints`, 57 položek se šířkou): hlavní most (4,5 m, zábradlí průhledné), lávky A a B (1,5 m), schody
 v opěrných zdech (1,4 a 1,5 m), příjezd k domu (3,2 m), branky zahrady (2,2–2,4 m), vrata dvora skladu (7 m), schody
-a nájezd rampy (1,5 / 2,0 / 3,0 m), polní nájezd za skladem (5 m), výstupy z úvozu (3,5–4 m), všechny dveře (1,10 m,
-vrata 3,18 m, rolovací vrata 3,90 m) a všechna schodiště (1,1–2,0 m).
+a nájezd rampy (1,5 / 2,0 / 2,8 m), odbočka k zadnímu dvoru skladu (3,0 m), výstupy z úvozu (3,5–4 m), všechny dveře
+(1,10 m, vrata dílny 3,20 a 2,40 m, posuvná vrata 3,50 m) a všechna schodiště (1,1–2,0 m).
 
 ---
 
@@ -401,9 +455,15 @@ zahrady. Obě místa jsou záměrná, mimo zónu a přístupná ze dvou stran.
   jen v dřepu 0,8–1,5 m, high ≥ 1,6 m, window), `peek` (left/right/over) a `capacity` 1. Platí, když je hrozba do ±60°
   od `facing_deg` a oči v dřepu (1,05 m) jsou zakryté.
 - Kryt uvnitř zón: Dílna 71, Sklad 44, Dvůr 41 bodů (požadavek ≥ 40).
-- **Kryt ≠ zakrytí:** živé ploty, keře a měkký nábytek jen zakrývají, střely jimi projdou. Pevný kryt tvoří zdi, zídky,
-  opěrné zdi, HESCO, auta (kola a motor), palety cihel, betonové skruže, kontejnery a těžký nábytek (traktor, soustruhy,
+- **Kryt ≠ zakrytí:** živé ploty, keře (R13) a měkký nábytek jen zakrývají, střely jimi projdou; **dřevěné bedny a palety
+  (R08) jsou průstřelné**; pletivo (R14) je průhledné (kryje jen podezdívka 0,35 m). Pevný kryt tvoří zdi, zídky,
+  opěrné zdi, HESCO, auta (kola a motor), palety cihel, betonové skruže, kontejnery a těžký nábytek (výheň, soustruhy,
   regály, pracovní stoly).
+- **Kryt uvnitř budov** (`kind: interior_object`) leží na kapslovém rastru každého podlaží (0,60 m od těžkého nábytku, nikdy
+  v 1,0 m zóně dveří); **střelecké pozice u oken** (`window`) jsou jen tam, kde je kapsle volná na podlaze, pod ní není
+  průhled a k oknu nestojí nábytek vyšší než parapet (okna s postelí či linkou pod parapetem pozici nemají, seznam
+  `dropped_windows_and_stairs`); **hlídání schodiště** (`stair_watch`) je na horním konci každého ramene do patra
+  a na balkoně (A02).
 - Rozmístění podle boje: každý přístup má kryt pro útočníka (předpolí) i obránce (okraj zóny), tedy aspoň jedno vysoké
   těleso v pásmu 10–25 m před každým vstupem do zóny. Mezi mostem a vraty dílny láme sprint hromada ocelových profilů,
   návěs ve dvoře skladu kryje přístup k rampě, u domu kryjí zahradní zídka a dřevník.
@@ -413,25 +473,26 @@ zahrady. Obě místa jsou záměrná, mimo zónu a přístupná ze dvou stran.
 ## 10. Poznámky pro AI
 
 - **Navmesh:** předpečený při buildu (D4) ze stejné geometrie jako kolize: terén LOD0, `construction_boxes`, desky, rampové
-  kolidery schodů, obálky props, jádra plotů, živých plotů a keřů, opěrné zdi, mosty. Dveře jsou v klidové poloze, rolovací
+  kolidery schodů, obálky props, jádra plotů, živých plotů a keřů, opěrné zdi, mosty. Dveře jsou v klidové poloze, posuvná
   vrata podle stavu. Navmesh je oříznutý 1 m uvnitř měkké hranice. Recast: **cs 0,05, ch 0,05, walkableRadius 7 (0,35 m),
   walkableHeight 36 (1,80 m), walkableClimb 8 (0,40 m), sklon 45°, dlaždice 256 buněk**. Hrubší bake než cs 0,05 je zakázaný
   (D10). Build selže, když je některý dokumentovaný vstup odpojený nebo když bilance překročí 1,06.
 - **Ceny ploch:** voda 1,33, příkop 1,1, úvoz 1,0, schody 1,2, jinak 1,0.
-- **Off-mesh odkazy:** jednosměrný seskok z nakládací rampy (1,10 m) po celé délce, cena 1,5. `door_link` u každých dveří:
+- **Off-mesh odkazy:** jednosměrný seskok z nakládací rampy (1,10 m) po celé délce, cena 1,5; vyšplhání (`traverse`,
+  0,5–1,3 m podle `meta.traversal` a `movement.json`) na rampu a zídky, které umí i hráč. `door_link` u každých dveří:
   otevřené 0, zavřené +2 m.
 - **Dveře** (`ai_navigation.doors`): ve v1 stojí všechny průchozí dveře otevřené v klidové poloze. Jeden agent na portál
   za 1,2 s, ostatní čekají u nástupního bodu. Po 2 s čekání následuje přeplánování. Když je křídlo zablokované déle než
   2,5 s, `door_link` se pro daného bota na 20 s vypne. **Boti dveře nezavírají.** Křídla jsou kinematická (nikdy dynamická).
-  Zavřená rolovací vrata SK_RD2 jsou zamčená a zapečená jako zeď.
+  Zavřená posuvná vrata SK_SD2 jsou zamčená a zapečená jako zeď.
 - **Vnímání:** do 150 m, plná detekce do 60 m, pak lineární pokles na 0 u 150 m. Zakrývají stejné proxy jako střely a výhled
   (`collision_semantics`): živé ploty, keře a remízky blokují výhled AI, koruny stromů blokují 50 % kontrol a mlha je jen
   vizuální.
 - **Rozdělení týmu:** na začátku kola 3 hlavní trasa / 2 obchvat / 1 podpora (podpora jde 15 m za hlavní skupinou). Po
   respawnu volí bot hlavní trasu s pravděpodobností 60 %.
-- **Držení:** `hold_points` = krycí body uvnitř zóny (≥ 8 na zónu), volené podle směru hrozby. Stav „držení místnosti“
-  v kanceláři dílny a v patře domu: jeden bot hlídá horní konec schodiště, ostatní stojí u oken. Odcházejí, když se zóna
-  ztratí.
+- **Držení:** `hold_points` = krycí body uvnitř zóny (≥ 8 na zónu, včetně bodů u nábytku v budovách), volené podle směru
+  hrozby. Stav „držení místnosti“ v patře domu: jeden bot stojí na bodu `stair_watch` nahoře u schodiště, ostatní u platných
+  oken. Odcházejí, když se zóna ztratí.
 - **Zaseknutí** (AI-02): bez pokroku 0,5 m za 2,5 s následuje přeplánování, zablokovaná hrana dostane na 10 s cenu ×10. Po
   dvou neúspěších bot přejde na další trasu (hlavní → obchvat) nebo na nejbližší bod držení. **Nikdy se neteleportuje.**
 - **Pravidla:** žádné průlezy jen v dřepu (všude světlá výška ≥ 2,10 m). Okna jsou roviny blokující kapsli, nikdy navigační
@@ -441,15 +502,18 @@ zahrady. Obě místa jsou záměrná, mimo zónu a přístupná ze dvou stran.
 
 ## 11. Hranice mapy
 
-Tři polygony: **pás varování** (8 m uvnitř měkké hranice), **měkká hranice** (42 442 m²) a **tvrdá hranice** (6 m vně
+Tři polygony: **pás varování** (8 m uvnitř měkké hranice), **měkká hranice** (SOFT_AREA m²) a **tvrdá hranice** (6 m vně
 měkké). Tvrdá hranice je neviditelná kolizní stěna jen pro kapsle, výšky 6 m, a stojí vždy za viditelnou bariérou, nikdy
-na otevřeném terénu.
+na otevřeném terénu: **souvislý kruh fyzických bariér** (`boundary.barriers`, BARRIER_N úseků) vede 0,5 m uvnitř tvrdé
+hranice – lesní oplocenka 2 m na ostrozích, pastevní ohradník s ostnatým drátem a dřevěný plot u polí, plot štěrkovny
+2 m a zátarasy z betonových zábran se žiletkovým drátem přes silnice, cedule po 25 m obrácené do obce. `check_layout.py`
+BND2 vzorkuje tvrdou hranici po 2 m.
 
 | Úsek | Fyzicky | Vysvětlení pro hráče |
 | --- | --- | --- |
-| konec ramene A (ZJZ, za Alfou) | zátaras z betonových zábran a žiletkového drátu přes silnici A, nákladní auto Alfy, bouda pily, klády; potok mizí 30 m dál v propustku pod železničním náspem (kulisa) | vlastní týl; silnice pokračuje do Dolních Hamrů (vidět věž kostela), směrovka „Dolní Hamry 2 km“ |
+| konec ramene A (ZJZ, za Alfou) | zátaras z betonových zábran a žiletkového drátu přes silnici A, nákladní auto Alfy, bouda pily, klády; potok mizí 30 m dál v propustku pod železničním náspem (kulisa) | vlastní týl; silnice pokračuje do Nového Kalna (vidět věž kostela), směrovka „Nové Kalno 2 km“ |
 | SZ ostroh (A↔B, za dílnou) | okraj lesa s 2 m oplocenkou bukové kultury, svah přechází do 25–30°, hustý podrost habru a lísky | červenobílé cedule „POZOR! MINY / VOJENSKÝ PROSTOR“ na oplocence po 25 m, pás varování |
-| konec ramene B (S, za Bravem) | štěrkovna: haldy 5,5 m, rám dopravníku, lomová stěna v kulise, zátaras + nákladní auto Brava | vlastní týl; brána „Štěrkovna Horní Hamry – vstup zakázán“ |
+| konec ramene B (S, za Bravem) | štěrkovna: haldy 5,5 m, rám dopravníku, plot štěrkovny 2 m se zamčenou bránou, lomová stěna v kulise, zátaras + nákladní auto Brava | vlastní týl; brána „Štěrkovna Kalný Vrch – vstup zakázán“ |
 | V ostroh (B↔C, za skladem) | mez a pastevní ohradník, dál zalesněný svah s oplocenkou, stará kamenná zídka podél měkké hranice | cedule min a ostnatý drát na ohradníku, pás varování |
 | konec ramene C (JV, za Charlie) | dvůr statku: stodola, otevřená kolna na stroje, zátaras přes cestu | vlastní týl; cesta stoupá mezi poli na hřeben (kulisa) |
 | J ostroh (C↔A, za domem) | okraj dubohabrového lesa s oplocenkou a cedulí honitby, svah 22–28° | cedule min, pás varování |
@@ -462,8 +526,8 @@ na otevřeném terénu.
 - Za měkkou hranicí: *„Opouštíš bojový prostor! Vrať se: {s} s“*. Odpočet trvá 10 s, obraz se odbarví a přibude červená
   vinětace.
 - Po vypršení hráč zemře s popisem **„Minové pole“**. Nikdo nedostane zabití, skóre se nemění, respawn má běžnou prodlevu.
-- Cedule v prostředí: *„POZOR! MINY / VOJENSKÝ PROSTOR – VSTUP ZAKÁZÁN“*, *„Štěrkovna Horní Hamry – vstup zakázán“*,
-  *„Dolní Hamry 2 km“*.
+- Cedule v prostředí: *„POZOR! MINY / VOJENSKÝ PROSTOR – VSTUP ZAKÁZÁN“*, *„Štěrkovna Kalný Vrch – vstup zakázán“*,
+  *„Nové Kalno 2 km“*, *„KONTROLNÍ STANOVIŠTĚ – STŮJ!“*, *„Honitba – vstup se psy zakázán“* (všechny názvy fiktivní, C01).
 
 Boti nikdy neplánují cestu ven, protože navmesh končí 1 m uvnitř měkké hranice.
 
@@ -745,16 +809,21 @@ Celkem **186** bodů. Souřadnice jsou ve světě mapy (m, +X východ, +Y sever,
 
 ## 14. Ověřeno / neověřeno
 
-**Ověřeno skripty nad daty** (`check_layout.py`, 70+ kontrol):
+**Ověřeno skripty nad daty** (`check_layout.py`, 120+ kontrol):
 
 - terén (pokrytí, šum, svislé skoky, shoda s bakem 0,4 mm);
 - budovy (tloušťky zdí, překryvy, vnější = vnitřní + zdi, otvory, světlost dveří, křídla, nábytek, `construction_boxes`,
   schodiště, stupně, světlé výšky, uzavřenost místností, dosažitelnost grafem i rastrem kapsle, dva východy z pater,
   prostory pod schody ve 3D);
-- umístění (překryvy budov se silnicemi, zdmi a props, zavřené budovy bez falešných dveří, napojení dveří na terén, props
-  na terénu);
-- zóny, spawny, bilance přímo i FMM, hranice, trasy a sklony, LOS ve 3D, vegetace, rozpočet, data AI, testovací body
-  a jejich shoda s tímto dokumentem;
+- umístění (překryvy budov se silnicemi, zdmi a props, zavřené budovy bez falešných dveří, napojení dveří na terén,
+  **celý půdorys vedlejších budov proti soklu, obvod hlavních budov, rohy rekvizit podle `ground_fit`**, venkovní schody,
+  nájezdy, podesty a hrany rampy proti terénu, prostor pod mosty);
+- budovy navíc: piliře k lícům přilehlých zdí, výseč křídel proti nástupům a výstupům schodů, nábytek před okny, štíty,
+  stropy z geometrie, žlaby a svody proti rovině střechy, kamna pod komíny, sloupky a parkovaná křídla posuvných vrat;
+- terén: svahy > 45° jen u deklarovaných zdí a stupňů (T05), realistické podélné sklony cest (R05), účinná hloubka příkopů
+  (D01), fyzická bariéra po celé tvrdé hranici (BND2), rekvizity mimo nástupy a obrysy zón (L06, Z02), fiktivní názvy (C01);
+- zóny, spawny, bilance přímo i FMM, hranice, trasy a sklony, LOS ve 3D (aktivní i záložní řady, všechna okna pater),
+  vegetace, rozpočet, data AI a použitelnost krycích bodů (A02), testovací body a jejich shoda s tímto dokumentem;
 - Recast navmesh (N01).
 
 Kontrola sama je ověřená mutačními testy: úmyslně rozbitá data (dveře 0,90, stupeň 0,20, chybějící podstupňová stěna,

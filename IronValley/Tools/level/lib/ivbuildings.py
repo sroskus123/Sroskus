@@ -794,12 +794,12 @@ def sklad():
                   "ground_levels": {"front (+Y)": "loading dock SK_DOCK at 0.00 (the yard beyond the dock face is -1.10)",
                                     "rear (-Y)": -0.05, "gables (+-X, 3 m aprons)": -0.05,
                                     "note": "building, dock, gable aprons and rear yard sit on one platform cut into the slope "
-                                            "(retaining walls RW_SKLAD_N/E); the front yard is the 1976 flood-protection fill, "
+                                            "(retaining wall RW_SKLAD_NE); the front yard is the 1976 flood-protection fill, "
                                             "1.10 lower (truck-bed height)"},
                   "footing": "strip footings under the brick walls and piers (hidden)"}
     dock = {"id": "SK_DOCK", "type": "loading_dock", "polygon": rect(X0 - 3.0, Y1, X1 + 3.0, Y1 + 3.0), "top_z": 0.0, "bottom_z": -1.10,
             "edge": "steel angle nosing + 4 rubber bumpers (0.25 proud) at x = -8, -3, 3, 8", "material": "concrete_broom",
-            "face": "RW_SKLAD_DOCK (the dock face is also the terrain step; gaps at SK_X1, SK_X2, SK_X3)",
+            "face": "RW_SKLAD_DOCK (the dock face and its north return are the terrain step; gaps at SK_X1, SK_X2, SK_X3)",
             "access": ["SK_X1 stair (yard, south part)", "SK_X2 stair (yard, middle)", "SK_X3 ramp (yard, north end)",
                        "gable aprons at grade (platform: rear yard and the north pocket between the warehouse and the windbreak)"],
             "note": "1.10 m face is NOT a step (max step 0.40): from the yard only via SK_X1/SK_X2/SK_X3; one-way drop down "
