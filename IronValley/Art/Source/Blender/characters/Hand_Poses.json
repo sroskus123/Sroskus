@@ -3073,11 +3073,11 @@
       "abd": 0.0
      },
      "thumb": {
-      "cmc_flex": 45.42631444811012,
-      "cmc_abd": -19.793857815718777,
-      "cmc_rot": -1.8577390645257141,
-      "mcp": 36.464226888557064,
-      "ip": 0.7184308643601338
+      "cmc_flex": -32.45264430291571,
+      "cmc_abd": -0.46329030267409355,
+      "cmc_rot": -22.60852271661609,
+      "mcp": 8.74314260838677,
+      "ip": 6.178008421392088
      }
     }
    },
@@ -3349,24 +3349,23 @@
     "placement": "diagonal power grasp around the handguard, palm centre at socket_support_hand",
     "thumb": {
      "angles": {
-      "cmc_flex": 45.43,
-      "cmc_abd": -19.79,
-      "cmc_rot": -1.86,
-      "mcp": 36.46,
-      "ip": 0.72
+      "cmc_flex": -32.45,
+      "cmc_abd": -0.46,
+      "cmc_rot": -22.61,
+      "mcp": 8.74,
+      "ip": 6.18
      },
      "terms": {
-      "pen": 115.43868,
-      "contact": 6.82187,
-      "_gap": 0.01588,
-      "dir": 20.67671,
-      "_dir_deg": 91.93901,
-      "_min_sd": -0.00127
+      "pen": 3.37719,
+      "contact": 0.64833,
+      "_gap": 0.00545,
+      "dir": 3.04278,
+      "_dir_deg": 32.02021,
+      "_min_sd": -0.00016
      },
-     "evaluations": 196
+     "evaluations": 149
     }
-   },
-   "action": "A_Hand_SupportHandguard"
+   }
   },
   "mag_grasp": {
    "kind": "grip",

@@ -343,9 +343,9 @@ a bone), joint clearance and limb ring ratios.
 | wrist_twist_driven | same, twist bones driven | 0 | 0.61 | 0.68 / 1.48 | 8 | Smooth wrist, ring 0.95 (`HumanBase_compare_wrist_twist_l/r.png`) |
 | upperarm_roll | elbow 90°, humerus rolled 70° | 32 | 0.01 | 0.07 / 2.13 | 255 | Shoulder ring 0.88; the pairs are forearm and hand touching the belly (contact) |
 | upperarm_roll_driven | same, twist bones driven | 28 | 0.01 | 0.07 / 1.66 | 255 | Shoulder ring 0.97, smooth shoulder cap |
-| fist | anatomical full fist FIST_TUNED_ROW | FIST_ROW_METRICS | Reads as a proper fist with the thumb across the index / middle middle phalanges. **No fingertip comes through the back of the hand** (0 vertices); fingertip-into-palm FIST_TIP mm. The pairs are fingers pressing against each other and the palmar creases folding, as in a real fist. |
-| fingers_grip | anatomical 60/80/50 | GRIP_ROW_METRICS | Closed grip without fingertip–palm contact |
-| fingers_half | anatomical 45/50/30 (transition) | HALF_ROW_METRICS | Natural half-curl. The strongest compression is in the palmar creases. |
+| fist | anatomical full fist MCP 90, PIP / DIP index 88/55, middle 100/70, ring 90/57.5, little 100/70, abduction +4 / 0 / −3 / −6°, thumb 36/30/0/40/20 | 84 | 0.03 | 0.04 / 3.64 | 538 | Reads as a proper fist with the thumb across the index / middle middle phalanges. **No fingertip comes through the back of the hand** (0 vertices); fingertip-into-palm 0.0 mm. The pairs are fingers pressing against each other and the palmar creases folding, as in a real fist. |
+| fingers_grip | anatomical 60/80/50 | 82 | 0.06 | 0.07 / 2.39 | 180 | Closed grip without fingertip–palm contact |
+| fingers_half | anatomical 45/50/30 (transition) | 30 | 0.04 | 0.14 / 1.51 | 24 | Natural half-curl. The strongest compression is in the palmar creases. |
 | fingers_spread | 14° spread, thumb 18° radial | 0 | 0.43 | 0.73 / 1.97 | 8 | Clean |
 
 \* Includes the 8 native lip pairs present in the rest pose.
@@ -405,7 +405,7 @@ the saved file is untouched. The skeleton inside the hand: `HumanBase_skeleton_h
    - Drive the twist bones (section 9). Without them, rifle-hold forearm pronation and
      supination will candy-wrapper the wrist.
 4. **Hand poses and grips** (`ivchar.pose_hand_anat`, anatomical angles, section 7):
-   - The full fist is MCP 90 with PIP / DIP tuned per finger (FIST_TUNED_TEXT): no fingertip
+   - The full fist is MCP 90 with PIP / DIP tuned per finger (index 90/88/55, middle 90/100/70, ring 90/90/57.5, little 90/100/70, with a slight fan of +4 / 0 / −3 / −6°): no fingertip
      through the back of the hand and the fingertip pad at most ~1 mm into the palm. The old
      80/90/45 cap is gone (it came from the joints sitting under the dorsal skin, fixed in R1).
    - The pose library, the tactical gloves and the IV-7 grips (fitted to contact on the real

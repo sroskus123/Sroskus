@@ -507,6 +507,13 @@ def fit_thumb(model, k, pose, H, coll, direction, parts=None, starts=None, bound
     masks = HN.finger_masks(model, k, s)
     palmar = fr["z_palm"] > 0.2
     moving = masks[("thumb", 1)] & ~masks[("index", 1)]
+    # the thumb must not pass through the (already posed) fingers either: they join the collider
+    # (contact is still only sought on the weapon parts)
+    parts = parts or [p_["name"] for p_ in coll.parts]
+    own = HN.self_collider(model, k, pose, H, "thumb", ("index", "middle", "ring", "pinky"),
+                           exclude_near=np.nonzero(masks[("thumb", 1)])[0], near_dist=0.010)
+    coll = HN.Collider([(p_["name"], p_["co"], p_["tris"]) for p_ in coll.parts]
+                       + [("own_fingers", own.parts[0]["co"], own.parts[0]["tris"])])
     best = None
     for x0 in (starts or ([20, 0, 0, 10, 10], [40, 10, 10, 20, 20], [10, 20, 20, 10, 30], [50, -10, 0, 20, 10])):
         p2 = json.loads(json.dumps(pose))
@@ -1286,13 +1293,24 @@ def validate():
                 lo, hi = Pw.min(0) - 0.01, Pw.max(0) + 0.01
                 cm = np.all((coll.co > lo) & (coll.co < hi), axis=1)
                 nin, worst = 0, 0.0
+                gt_ = HN.mesh_tris(gl[s].data)
+                fdom = gdom[s][gt_[:, 0]]
+                cuff_face = np.array([str(b).startswith("lowerarm") for b in fdom])
+                ncuff, wcuff = 0, 0.0
                 for q in coll.co[cm]:
                     v = Vector(tuple(map(float, q)))
                     loc, nn, fi, dist = bg.find_nearest(v, 0.006)
                     if loc is not None and (v - loc).dot(nn) < 0:
+                        if cuff_face[fi]:
+                            # the cuff / forearm: its placement comes from the arm IK in the game,
+                            # here the forearm just follows the hand rigidly -> reported apart
+                            ncuff += 1
+                            wcuff = max(wcuff, dist)
+                            continue
                         nin += 1
                         worst = max(worst, dist)
                 r["weapon_verts_inside_glove"] = {"n": nin, "max_depth_mm": round(worst * 1000, 2)}
+                r["weapon_verts_inside_cuff_forearm_rigid"] = {"n": ncuff, "max_depth_mm": round(wcuff * 1000, 2)}
                 r["max_penetration_mm"] = round(max([v["penetration_mm"] for v in reg.values()] + [worst * 1000]), 2)
                 cont = [k for k, v in reg.items() if v["in_contact_0_3mm"]]
                 r["segments_in_contact"] = cont

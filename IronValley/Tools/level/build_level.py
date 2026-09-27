@@ -1155,8 +1155,10 @@ SPINE_XY = {t: offset_polyline(v["xy"], v["offset"]) for t, v in SPINES.items()}
 # Design-fixed spawn rows (s = metres along the team's road from the square).  They come from the exhaustive geodesic solver
 # (ivpost.solve_spawns without fixed rows); the hard HESCO screens are built around them and the balance is re-measured
 # with the screens present (Tools/level/check_layout.py S03 enforces max/min <= 1.06).
-FIXED_ROWS = {"alfa": {"zone_dilna": 142.0, "zone_dvur": 142.0, "zone_sklad": 84.0},
-              "bravo": {"zone_dilna": 157.0, "zone_sklad": 157.0, "zone_dvur": 92.0},
+# Re-solved for the reference revision (warehouse platform, pads under the secondary buildings): alfa 84 -> 85 (the PAD_DOMEK_3
+# blend put one row point on a 17 deg slope), bravo 157 -> 158 (warehouse edge distance 115.3 -> 116.0 m).
+FIXED_ROWS = {"alfa": {"zone_dilna": 142.0, "zone_dvur": 142.0, "zone_sklad": 85.0},
+              "bravo": {"zone_dilna": 158.0, "zone_sklad": 158.0, "zone_dvur": 92.0},
               "charlie": {"zone_dilna": 89.0, "zone_sklad": 132.0, "zone_dvur": 132.0}}
 for _t, _r in FIXED_ROWS.items():
     SPINES[_t]["fixed_rows"] = _r
