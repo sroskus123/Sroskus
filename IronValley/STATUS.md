@@ -71,6 +71,7 @@ cca 29 GB volného disku, **bez GPU** (`/dev/dri` chybí, `nvidia-smi` chybí). 
   - verze 1 = zkušební prostor (commit eec7150);
   - verze 2 = commit 941b72e: zkušební prostor + AI aréna, kolo 3 týmů se 17 boty (provizorní figuríny), opravy pohybu
     a recoilu, zvuk (licencované nahrávky). Plné kolo se 17 boty v tu chvíli ještě NEověřeno nezávislou kontrolou.
+  - verze 3 = commit c92d5be: ověřená kola se 17 boty (12 opravených vad AI), unit 388/388, e2e 73/73.
 - Hostitel Artifact **neservíruje `.glb`**. Artefaktová verze proto dostává modely jako `<cesta>.glb.b64.txt` (base64 text);
   `src/engine/assets.js` je dekóduje sám a volá `GLTFLoader.parse` (bez blob:/data: URL). Ověřeno lokálně v Chromiu,
   0 chyb, puška s texturami. Převedeno do hlavního buildu: `npm run build` vytvoří i `Web/dist-artifact/`

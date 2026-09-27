@@ -1,6 +1,6 @@
 {
   "generated_by": "Art/Source/Blender/weapons/optics.py",
-  "time": "2026-09-27 02:50:41",
+  "time": "2026-09-27 03:20:03",
   "blender": "4.5.14 LTS",
   "quick": false,
   "stages": [
@@ -1188,6 +1188,65 @@
         "lugs_on_slot_centres": true,
         "rail_contact_min_gap_mm": 0.08,
         "rail_intersections": 0
+      },
+      "renders": {
+        "mounted": {
+          "side": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVH1_mounted_side.png",
+          "q34": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVH1_mounted_34.png"
+        },
+        "through": {
+          "game_fov": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVH1_through_game_fov.png",
+          "zoom": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVH1_through_zoom.png",
+          "measure_zoom": {
+            "red_pixels": 4212,
+            "centroid_offset_px": [
+              -0.35,
+              9.81
+            ],
+            "radius_px_p50": 108.32,
+            "radius_px_max": 111.93,
+            "radius_px_min": 0.71,
+            "circle_fit": {
+              "centre_offset_px": [
+                0.004,
+                0.085
+              ],
+              "radius_px": 108.161
+            },
+            "expected_ring_radius_px": 108.28,
+            "expected_ring_stroke_px": 6.66,
+            "expected_dot_diameter_px": 3.33,
+            "zoom_vfov_deg": 4.5,
+            "px_per_moa_in_zoom_render": 3.3316
+          },
+          "measure_game": {
+            "red_pixels": 25,
+            "centroid_offset_px": [
+              0.38,
+              7.94
+            ],
+            "radius_px_p50": 11.42,
+            "radius_px_max": 11.85,
+            "radius_px_min": 10.79,
+            "circle_fit": {
+              "centre_offset_px": [
+                0.021,
+                0.58
+              ],
+              "radius_px": 10.922
+            },
+            "px_per_moa_in_game_fov_render": 0.3463
+          }
+        },
+        "front": {
+          "path": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVH1_front_emitter_check.png",
+          "reticle_faces_facing_front_camera": 0,
+          "reticle_faces": 28,
+          "max_abs_diff_8bit": 20.0,
+          "mean_abs_diff_8bit": 0.0334,
+          "pixels_diff_over_8": 59,
+          "red_reticle_pixels": 0
+        }
       },
       "reticle_meta": {
         "id": "IVH1",
@@ -2417,6 +2476,49 @@
           0.0
         ]
       },
+      "renders": {
+        "mounted": {
+          "side": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVR1_mounted_side.png",
+          "q34": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVR1_mounted_34.png"
+        },
+        "through": {
+          "game_fov": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVR1_through_game_fov.png",
+          "zoom": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVR1_through_zoom.png",
+          "measure_zoom": {
+            "red_pixels": 25,
+            "centroid_offset_px": [
+              -0.06,
+              0.1
+            ],
+            "radius_px_p50": 2.12,
+            "radius_px_max": 2.92,
+            "radius_px_min": 0.71,
+            "circle_fit": {
+              "centre_offset_px": [
+                -0.062,
+                0.103
+              ],
+              "radius_px": 2.002
+            },
+            "expected_dot_radius_px": 3.33,
+            "zoom_vfov_deg": 4.5,
+            "px_per_moa_in_zoom_render": 3.3316
+          },
+          "measure_game": {
+            "red_pixels": 0,
+            "px_per_moa_in_game_fov_render": 0.3463
+          }
+        },
+        "front": {
+          "path": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVR1_front_emitter_check.png",
+          "reticle_faces_facing_front_camera": 0,
+          "reticle_faces": 144,
+          "max_abs_diff_8bit": 18.0,
+          "mean_abs_diff_8bit": 0.0221,
+          "pixels_diff_over_8": 125,
+          "red_reticle_pixels": 0
+        }
+      },
       "reticle_meta": {
         "id": "IVR1",
         "title": "IV-R1 red dot: 2 MOA dot",
@@ -3620,6 +3722,50 @@
         "lugs_on_slot_centres": true,
         "rail_contact_min_gap_mm": 0.08,
         "rail_intersections": 0
+      },
+      "renders": {
+        "mounted": {
+          "side": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVP2_mounted_side.png",
+          "q34": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVP2_mounted_34.png"
+        },
+        "through": {
+          "game_fov": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVP2_through_game_fov.png",
+          "pip": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVP2_through_pip.png",
+          "eyepiece": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVP2_through_eyepiece.png",
+          "zoom_src": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVP2_through_zoomsrc.png",
+          "disc_radius_px": 202.04,
+          "true_fov_used_deg": 9.7,
+          "apparent_half_deg": 9.631,
+          "ocular_half_angle_deg": 9.728,
+          "px_per_unit_in_eyepiece_detail": 1.3336,
+          "measure_eyepiece_centre_x4": {
+            "red_pixels": 143,
+            "centroid_offset_px": [
+              -0.58,
+              9.3
+            ],
+            "radius_px_p50": 10.98,
+            "radius_px_max": 22.64,
+            "radius_px_min": 0.71,
+            "circle_fit": {
+              "centre_offset_px": [
+                -0.524,
+                14.836
+              ],
+              "radius_px": 10.669
+            },
+            "lit_centroid_offset_units": [
+              -0.1087,
+              1.7434
+            ],
+            "expected_lit_centroid_offset_units": [
+              -0.0,
+              1.8825
+            ],
+            "centring_error_units": 0.1765,
+            "px_per_unit_centre_panel": 5.334
+          }
+        }
       },
       "reticle_meta": {
         "id": "IVP2",
@@ -4930,6 +5076,50 @@
         "rail_contact_min_gap_mm": 0.08,
         "rail_intersections": 0
       },
+      "renders": {
+        "mounted": {
+          "side": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS3_mounted_side.png",
+          "q34": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS3_mounted_34.png"
+        },
+        "through": {
+          "game_fov": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS3_through_game_fov.png",
+          "pip": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS3_through_pip.png",
+          "eyepiece": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS3_through_eyepiece.png",
+          "zoom_src": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS3_through_zoomsrc.png",
+          "disc_radius_px": 196.56,
+          "true_fov_used_deg": 6.3,
+          "apparent_half_deg": 9.375,
+          "ocular_half_angle_deg": 9.484,
+          "px_per_unit_in_eyepiece_detail": 7.0684,
+          "measure_eyepiece_centre_x4": {
+            "red_pixels": 221,
+            "centroid_offset_px": [
+              -0.5,
+              -0.5
+            ],
+            "radius_px_p50": 5.7,
+            "radius_px_max": 8.86,
+            "radius_px_min": 0.71,
+            "circle_fit": {
+              "centre_offset_px": [
+                -0.5,
+                -0.5
+              ],
+              "radius_px": 5.929
+            },
+            "lit_centroid_offset_units": [
+              -0.0177,
+              -0.0177
+            ],
+            "expected_lit_centroid_offset_units": [
+              0.0,
+              0.0
+            ],
+            "centring_error_units": 0.025,
+            "px_per_unit_centre_panel": 28.274
+          }
+        }
+      },
       "reticle_meta": {
         "id": "IVS3",
         "title": "IV-S3 3x: illuminated dot + 1 mrad hash reticle",
@@ -6210,6 +6400,70 @@
         "lugs_on_slot_centres": true,
         "rail_contact_min_gap_mm": 0.08,
         "rail_intersections": 0
+      },
+      "renders": {
+        "mounted": {
+          "side": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS6_mounted_side.png",
+          "q34": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS6_mounted_34.png"
+        },
+        "through": {
+          "game_fov": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS6_through_game_fov.png",
+          "pip": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS6_through_pip.png",
+          "eyepiece": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS6_through_eyepiece.png",
+          "zoom_src": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS6_through_zoomsrc.png",
+          "disc_radius_px": 235.1,
+          "true_fov_used_deg": 3.77,
+          "apparent_half_deg": 11.17,
+          "ocular_half_angle_deg": 11.31,
+          "px_per_unit_in_eyepiece_detail": 11.8196,
+          "measure_eyepiece_centre_x4": {
+            "red_pixels": 112,
+            "centroid_offset_px": [
+              0.0,
+              0.0
+            ],
+            "radius_px_p50": 4.3,
+            "radius_px_max": 6.04,
+            "radius_px_min": 0.71,
+            "circle_fit": {
+              "centre_offset_px": [
+                -0.0,
+                0.0
+              ],
+              "radius_px": 4.268
+            },
+            "lit_centroid_offset_units": [
+              0.0,
+              0.0
+            ],
+            "expected_lit_centroid_offset_units": [
+              0.0,
+              0.0
+            ],
+            "centring_error_units": 0.0,
+            "px_per_unit_centre_panel": 47.279
+          }
+        },
+        "overlay": {
+          "path": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS6_ads_overlay_fullscreen.png",
+          "measure": {
+            "red_pixels": 12,
+            "centroid_offset_px": [
+              0.0,
+              0.0
+            ],
+            "radius_px_p50": 1.58,
+            "radius_px_max": 1.58,
+            "radius_px_min": 0.71,
+            "circle_fit": {
+              "centre_offset_px": [
+                0.0,
+                0.0
+              ],
+              "radius_px": 1.354
+            }
+          }
+        }
       },
       "reticle_meta": {
         "id": "IVS6",
