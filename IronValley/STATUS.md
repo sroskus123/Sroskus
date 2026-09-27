@@ -108,6 +108,8 @@ cca 29 GB volného disku, **bez GPU** (`/dev/dri` chybí, `nvidia-smi` chybí). 
   - verze 5 = commit d80fa81: úvodní menu podle návrhu uživatele (obrazovka Autoři), Kalné Hamry jako hratelná pracovní
     verze (provizorní grafika) v nabídce map, opravená puška IV-7; unit 421/421, e2e 85/86 (SND-01 samostatně 3/3).
     Chování přímo v rámci claude.ai (CSP, pointer lock) stále NOT TESTED.
+  - verze 6 = rozpracovaný terén a vegetace Kalných Hamrů (materiály zem, tráva, stromy a keře z Blenderu), budovy
+    stále maketa; unit 425/425, e2e mapy + boot 22/22 (plný e2e v tomto stavu NEspuštěn).
 - Hostitel Artifact **neservíruje `.glb`**. Artefaktová verze proto dostává modely jako `<cesta>.glb.b64.txt` (base64 text);
   `src/engine/assets.js` je dekóduje sám a volá `GLTFLoader.parse` (bez blob:/data: URL). Ověřeno lokálně v Chromiu,
   0 chyb, puška s texturami. Převedeno do hlavního buildu: `npm run build` vytvoří i `Web/dist-artifact/`
@@ -147,6 +149,19 @@ Pokračuje se úsporně: max. 2 agenti na pozadí současně (Agent), bez velký
 Zastaveni agenti: úprava mapy podle referencí uživatele (checker 82 PASS / 5 FAIL) a ruce/rukavice/úchopy
 (uprostřed renderů a exportu). Oba obnoveni se zachovaným kontextem. Hotovo předtím a commitnuto: oprava pušky IV-7
 (745251e, specifikace doplněna baef131), optiky ve hře (5089134), náhled v4.
+
+## Pozastaveno uživatelem (2026-09-27 ~17:00 UTC)
+
+Uživatel požádal o zastavení veškeré práce a o verzi k vyzkoušení (náhled v6). Pokračovat až na jeho pokyn.
+- **Terén a vegetace (fáze 1 grafiky mapy):** zastaveno během 2. kola kritiky (`Docs/MAP_art_r1_defects.json`,
+  `Docs/MAP_art_r2_defects.json`). Hotovo: splat materiál terénu (`Web/src/level/terrainMaterial.js`, generované sady
+  `Tools/environment/terrain_textures.py`), tráva (`grass.js`), stromy a keře z Blenderu (`Art/Source/Blender/environment/
+  vegetation.py`, `vegetation.js`), testy `tests/e2e/12_map_art.test.mjs`, `tests/unit/map_art.test.mjs`. Otevřené:
+  les místy příliš tmavý, tráva nízká / řídká, přechody, závěrečné ověření a zápis do STATUS / manifestu.
+- **Voják + ruce v první osobě:** zastaveno uprostřed přestavby podle referencí uživatele (`Docs/navrhy/REFERENCE_SOLDIER.md`,
+  `REFERENCE_INGAME.md`): nové moduly `soldier_cloth.py`, `soldier_kit.py` rozpracované, soubory v nekonzistentním stavu.
+  Do hry voják zatím NENÍ napojen (boti jsou stále figuríny).
+- Čeká na uživatele: povolení domén Poly Haven / ambientCG, volba světla (zataženo / slunečné pozdní léto / obojí).
 
 ## Známé vady / otevřené body
 
