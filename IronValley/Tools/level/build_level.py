@@ -1467,6 +1467,131 @@ def bake_reference(layout):
                                               "within 0.5 m of a face)"}
 
 
+def backdrop_spec():
+    """review P2-CONSTRUCTION-DATA: the distant hills are a generative spec, not prose.  crest(az) = sum of 3 cosine
+    harmonics + seeded value noise; the generator lofts a ring mesh between inner and outer radius and covers it with the
+    forest mix below (impostor band)."""
+    rng = np.random.default_rng(20260927)
+    az = np.arange(0, 360, 10)
+    base = 115 + 40 * np.cos(np.radians(az - 30)) + 18 * np.cos(np.radians(2 * az + 70)) + 9 * np.cos(np.radians(5 * az))
+    noise = rng.uniform(-12, 12, len(az))
+    crest = base + noise
+    # valley gaps: A opens WSW (az ~250), B continues N into a gorge (az ~5), C climbs SE to fields (az ~130)
+    for gap_az, depth in ((250, 70), (5, 45), (130, 35)):
+        crest -= depth * np.exp(-0.5 * ((((az - gap_az) + 180) % 360 - 180) / 14.0) ** 2)
+    dist = 900 + 500 * np.cos(np.radians(az - 200)) ** 2
+    return {"type": "distant_hills_ring", "inner_radius": 260, "outer_radius": 2400, "seed": 20260927,
+            "crest": [[int(a), r2(d), r2(max(35.0, c))] for a, d, c in zip(az, dist, crest)],
+            "crest_columns": ["azimuth_compass_deg", "crest_distance_m", "crest_height_above_square_m"],
+            "profile": "cross-section from inner radius (terrain height at the map edge) rising with a smoothstep to the crest at "
+                       "crest_distance, falling to 60 % of the crest at the outer radius; azimuth interpolation Catmull-Rom (periodic)",
+            "cover": {"forest_mix": "Norway spruce 45 %, Scots pine 15 %, beech 20 %, birch 10 %, oak 10 % (refs 01-03: dark conifer "
+                                    "woods with birch edges)", "fields": "valley C (az 110-150): strip fields and hay meadows below 70 m",
+                      "lod": "2 LODs + impostor band beyond 600 m"},
+            "landmarks": [{"az": 250, "dist": 2100, "what": "church spire of the next village (Nové Kalno, fictional)"},
+                          {"az": 132, "dist": 1400, "what": "wind-bent lime alley on the ridge line"}],
+            "gaps": "valley A opens WSW (lower valley, a church spire of the next village 2.1 km away), valley B continues N into a "
+                    "wooded gorge, valley C climbs SE to fields and a ridge line with a wind-bent lime alley"}
+
+
+def utility_lines():
+    """reference R07 (+ 01/03): wooden poles 8.5 m with crossarms, porcelain insulators, two sagging wires, some with a street
+    lamp on a curved arm; one line along road A (brook side), one along road B (east side), one along the E ring track.
+    Poles are shifted along the line (+-6 m) until they are >= 1.0 m from every building, prop, fence, wall and tree trunk
+    and >= 0.4 m off the carriageway edge.  Collision: pole cylinder r 0.14 (movement + bullets), wires none."""
+    from shapely.geometry import Point as _Pt, Polygon as _Pg, LineString as _Ls
+    obst = [_Pg(b["footprint_world"]) for b in main_buildings] + [_Pg(b["footprint_world"]) for b in SEC]
+    obst += [_Pg(box_poly_w(p_["position"][:2], p_["size"], p_["rotation_deg"])) for p_ in PROPS]
+    obst += [_Ls(f["polyline"]).buffer(0.3) for f in FENCES]
+    obst += [_Ls(rw["polyline"]).buffer(rw["thickness"] / 2 + 0.2) for rw in retaining_walls]
+    obst += [_Ls([q[:2] for q in st["polyline"]]).buffer(st["width"] / 2 + st.get("shoulder", 0) + 0.4) for st in stamps
+             if st["kind"] == "road"]
+    obst += [_Ls(br["ends"]).buffer(br["width"] / 2 + 1.0) for br in bridges]
+    obst += [_Ls([q[:2] for q in BROOK]).buffer(3.6)]
+    from shapely.ops import unary_union as _uu
+    O = _uu(obst)
+    soft = _Pg(SOFT).buffer(20.0)
+    poles, spans = [], []
+
+    def place(line_id, pl, off, s_list, lamps=()):
+        P = offset_polyline(pl, off)
+        L_ = _Ls(P)
+        ids = []
+        for k, s0 in enumerate(s_list):
+            ok = None
+            for ds_ in (0, 1.5, -1.5, 3, -3, 4.5, -4.5, 6, -6):
+                s1 = min(max(0.0, s0 + ds_), L_.length)
+                q = L_.interpolate(s1)
+                if O.distance(q) >= 1.0 and soft.contains(q):
+                    ok = q
+                    break
+            if ok is None:
+                continue
+            pid = f"POLE_{line_id}_{k + 1}"
+            poles.append({"id": pid, "line": line_id, "pos": [r2(ok.x), r2(ok.y), r2(gz(ok.x, ok.y))], "type": "wood_pole_8p5",
+                          "height": 8.5, "crossarm": {"length": 1.4, "insulators": 2, "z": 8.1},
+                          "lamp": (k in lamps), **({"lamp_arm": {"length": 1.6, "z": 6.8, "shade": "enamel_cone_grey"}} if k in lamps else {}),
+                          "base": "yellow-black warning band 0-1.0 m (R07)", "collision_radius": 0.14})
+            ids.append(pid)
+        for a_, b_ in zip(ids[:-1], ids[1:]):
+            spans.append({"from": a_, "to": b_, "wires": 2, "sag_m": 0.45, "attach_z": 8.05})
+
+    place("A", RA_XY, -4.4, [6.0, 40.0, 74.0, 108.0, 142.0, 176.0], lamps=(0, 1))
+    place("B", RB_XY, -4.4, [12.0, 46.0, 80.0, 114.0, 148.0], lamps=(0,))
+    place("E", TRACK_E_XY, -2.3, [8.0, 40.0, 72.0, 104.0])
+    drops = []
+    for bp, att in (("B_DILNA", (-8.6, 4.9, 4.0)), ("B_SKLAD", (-12.4, 5.5, 5.0)), ("B_DUM", (5.4, 4.6, 5.5))):
+        b_ = next(b for b in main_buildings if b["id"] == bp)
+        w = xf(b_["position"][:2], b_["rotation_deg"], att[:2])
+        near = min(poles, key=lambda q: math.dist(q["pos"][:2], w))
+        drops.append({"from": near["id"], "to_building": bp, "attach_local": list(att), "attach_world": [r2(w[0]), r2(w[1])],
+                      "length_m": r2(math.dist(near["pos"][:2], w)), "min_clearance_m": 3.5})
+    return {"reference": "REFERENCE_PROPS_VEGETATION.md R07; 01 (lines along the roads), 03 (poles, street lamp)",
+            "poles": poles, "spans": spans, "service_drops": drops,
+            "rules": {"clearance_over_roads_m": 5.5, "clearance_elsewhere_m": 4.5, "max_span_m": 45.0,
+                      "collision": "pole: cylinder r 0.14 to the top (blocks movement and bullets, not vision); wires/insulators: none",
+                      "placement": ">= 1.0 m from buildings, props, fences, walls, the brook channel and road edges (+0.4)"}}
+
+
+def box_poly_w(center, size, rot):
+    return xf_poly(center, rot, rect_local(-size[0] / 2, -size[1] / 2, size[0] / 2, size[1] / 2))
+
+
+FIELDS = [
+    {"id": "FLD_HAY_E", "crop": "hay_meadow_mown", "surface": "grass", "polygon": [[64.5, -6.0], [76.0, -2.0], [80.0, 30.0], [72.0, 46.0], [65.0, 42.0], [66.0, 4.0]],
+     "detail": "mown strips with windrows, round bales (P_SK_11/12) -- ref. 01 NE hillside", "collision": "none"},
+    {"id": "FLD_STUBBLE_C", "crop": "cereal_stubble", "surface": "dirt", "polygon": [[60.0, -58.0], [74.0, -50.0], [96.0, -64.0], [116.0, -84.0], [110.0, -93.0], [88.0, -78.0]],
+     "detail": "stubble with straw lines and tractor ruts along arm C (ref. 01 fields)", "collision": "none"},
+    {"id": "FLD_GARDEN_PLOTS", "crop": "vegetable_strips", "surface": "dirt", "polygon": [[37.6, -20.0], [43.0, -20.0], [43.0, -29.0], [38.6, -29.0]],
+     "detail": "allotment strips (potatoes, cabbage) with a wire fence remnant -- ref. 01 garden plots east of the chapel", "collision": "none"},
+]
+GROUND_COVER = {
+    "reference": "REFERENCE_PROPS_VEGETATION.md R09 (grass clumps), R13 (shrubs), R17 (wildflowers)",
+    "types": {
+        "grass_clump_low": {"height": 0.40, "ref": "R09 a", "vision": "none"},
+        "grass_clump_tall": {"height": 1.00, "ref": "R09 b (reed grass / tufted hair-grass)", "vision": "none (cosmetic, sparse clumps only)"},
+        "grass_forb_mix": {"height": 0.50, "ref": "R09 c (cinquefoil / wild strawberry leaves)", "vision": "none"},
+        "yarrow": {"height": 0.70, "ref": "R17 a", "vision": "none"},
+        "meadow_flower_mix": {"height": 0.50, "ref": "R17 b (chamomile, yarrow, grass)", "vision": "none"},
+        "shrub_low": {"height": 0.80, "ref": "R13 a (hazel/currant, spreading)", "vision": "none (below crouched eye 1.05 m)"},
+        "shrub_mid": {"height": 1.30, "ref": "R13 b", "vision": "only inside vegetation_blocks (with collision + vision proxy)"},
+        "shrub_tall_multistem": {"height": 2.00, "ref": "R13 c (viburnum / hazel)", "vision": "only inside vegetation_blocks"}},
+    "density_per_100m2": {
+        "meadow (grass, slope < 25 deg)": {"grass_clump_low": 60, "grass_forb_mix": 25, "meadow_flower_mix": 18, "yarrow": 8, "grass_clump_tall": 6},
+        "verge (<= 3 m from roads/paths/walls)": {"grass_clump_low": 45, "grass_clump_tall": 10, "yarrow": 10, "shrub_low": 2},
+        "damp (<= 8 m from the brook or a ditch)": {"grass_clump_tall": 20, "grass_clump_low": 30, "shrub_low": 4},
+        "yards and pads (gravel/concrete)": {"grass_clump_low": 6, "note": "only along walls and fence plinths, never in door approaches"},
+        "zone floors": {"grass_clump_low": 10, "note": "low clumps only (<= 0.40 m)"},
+        "forest edge (outside the soft boundary)": {"shrub_mid": 8, "shrub_tall_multistem": 4, "grass_clump_tall": 10}},
+    "rules": ["no ground cover on roads, paths, tracks (+0.3 m), floors, stairs, bridge decks or water",
+              "tall grass (1.0 m) never within 3 m of a lane or inside a capture zone; it never hides a crouching character from AI "
+              "(AI vision ignores ground cover) -- therefore it stays sparse and patchy so players cannot rely on it either",
+              "shrubs taller than 0.8 m only inside vegetation_blocks (collision core + vision proxy) or outside the soft boundary",
+              "slope > 35 deg: grass only, no flowers; north-facing / shaded: more forb mix, fewer flowers",
+              "seeded scatter (seed 20260927), Poisson disk 0.6 m for clumps, density maps by surface / slope / moisture as above"],
+}
+
+
 DRAINAGE = {
     "principle": "every surface has somewhere to drain (ENV-01): roofs -> gutters -> downpipes -> gullies / splash blocks / wall "
                  "outlets; yards fall 1 % to channels; roads to ditches; everything ends in the Kalný potok",
@@ -1515,7 +1640,7 @@ def main():
                                     "obci. Kdo ji udrží, vyhrává.",
                      "why_zone_moves": "a supply cache with a radio relay is dropped at one of three places each round (violet smoke marks it)",
                      "why_boundary": "the valley is sealed by an army cordon: roadblocks on the three roads, deer fences with minefield "
-                                     "signs on the spurs"},
+                                     "signs on the spurs (all built as data: boundary.barriers)"},
                  "collision_semantics": {
                      "_columns": ["movement (capsule)", "bullets (hitscan)", "player vision", "AI vision", "proxy"],
                      "terrain": [True, True, True, True, "BVH of 0.5 m LOD0 chunks inside the hard boundary + 10 m"],
@@ -1532,7 +1657,23 @@ def main():
                      "soft_furniture": [True, False, True, True, "concealment, not cover"],
                      "tree_trunks": [True, True, True, True, "cylinder to crown base"],
                      "tree_crowns": [False, False, "partial", "partial (probability 0.5 per crown crossing)", "vision only, never used for spawn safety"],
-                     "boundary_hard": [True, False, False, False, "extruded clip wall 6 m high"]}},
+                     "boundary_hard": [True, False, False, False, "extruded clip wall 6 m high, always <= 1 m behind a boundary.barriers "
+                                                                   "polyline (validated by check_layout.py BND)"],
+                     "chain_link_and_wall_with_mesh": [True, "solid_height only", "solid_height only", "solid_height only",
+                                                       "box to solid_height + mesh quad above (see fences_walls_hedges.solid_height)"],
+                     "utility_poles": [True, True, False, False, "cylinder r 0.14 to the pole top; wires have no collision"],
+                     "wood_crates_pallets_plastic_drums": [True, False, True, True, "boxes; concealment only (R08: wood is penetrable)"]},
+                 "traversal": {"player": "Web/src/data/movement.json traversal: vault/mantle obstacles 0.5-1.3 m high (vault if <= 0.7 m "
+                                         "thick, mantle onto surfaces >= 0.55 m deep), max drop behind 1.0 m",
+                               "vaultable": ["concrete low walls 0.85-1.10 m (LW_*)", "garden parapet of RW_DUM from the terrace side "
+                                             "only as a mantle (drop behind 2.1 m > 1.0 m: refused towards the square)",
+                                             "the loading-dock face 1.10 m (mantle up)", "timber picket and pipe-rail fences 1.0-1.1 m",
+                                             "props with cover 'low'"],
+                               "not_vaultable": ["chain-link fences >= 1.5 m", "concrete wall + mesh 1.8 m", "garden walls 1.8 m",
+                                                 "retaining walls >= 2 m", "hedges and shrub belts (no solid top)", "bridge railings "
+                                                 "(drop behind 1.6-2.3 m)"],
+                               "bots": "bots use the same rule through off-mesh 'traverse' links baked on the declared vaultable edges on "
+                                       "lanes (dock face, zone low walls); see ai_navigation.offmesh_links"}},
         "terrain": {
             "base_grid": {"origin": [-175.0, -175.0], "spacing": 5.0, "size": [71, 71], "order": "heights[j][i]: row j -> y = -175 + 5j, "
                           "column i -> x = -175 + 5i", "interpolation": "Catmull-Rom bicubic, clamped at the border", "heights": GRID.tolist()},
@@ -1543,10 +1684,7 @@ def main():
             "stamps": stamps,
             "reference_bake": {"file": "analysis/terrain_ref_0p5m.png", "encoding": "16-bit grayscale, z = zmin + v/65535*(zmax-zmin)",
                                "resolution": 0.5, "note": "generator output must match within 0.02 m"},
-            "backdrop": {"type": "distant_hills_ring", "inner_radius": 260, "outer_radius": 2400,
-                         "profile": "low-poly ring, crest heights 60-180 m above the square, forested (beech/spruce mix, 2 LODs + impostor band)",
-                         "gaps": "valley A opens WSW (lower valley, a church spire of the next village 2.1 km away), valley B continues N "
-                                 "into a wooded gorge, valley C climbs SE to fields and a ridge line with a wind-bent lime alley"},
+            "backdrop": backdrop_spec(),
         },
         "water": [{"id": "BROOK_WATER", "polyline": [[p[0], p[1], r2(p[2] + 0.25)] for p in BROOK], "width_at_surface": 2.35,
                    "depth": 0.25, "flow": "towards the WSW end", "material": "shallow_brook_water",
@@ -1600,6 +1738,9 @@ def main():
         "spawn_areas": spawn_areas,
         "spawn_spines": {t: {**{k: v for k, v in sp.items() if k != "xy"}, "spine_polyline": SPINE_XY[t]} for t, sp in SPINES.items()},
         "boundary": {"soft_polygon": SOFT},
+        "utility_lines": utility_lines(),
+        "fields": FIELDS,
+        "ground_cover": GROUND_COVER,
     }
     layout["terrain"]["vertical_steps"] = vertical_steps()
     POST.finish(layout)
