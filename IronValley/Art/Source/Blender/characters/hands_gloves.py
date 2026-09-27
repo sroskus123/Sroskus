@@ -1687,7 +1687,9 @@ def render_grips(arm, lib, props):
         else:
             Sock = HN.socket_matrix(rig, e["socket"])
             tgt = Vector(tuple(Sock[:3, 3])) + Vector((0, 0, 0.0 if pn == "mag_grasp" else 0.02))
-            views = (("left", (-0.15, 1, 0.1)), ("right_low", (0.25, -1, -0.45)))
+            # left view from slightly in front (from behind it would look into the open cuff:
+            # the close views show the hand and glove only)
+            views = (("left", (0.35, 1, 0.12)), ("right_low", (0.25, -1, -0.45)))
         for vn, v in views:
             cam = ivlib.camera(f"cg_{pn}_{vn}", tgt + Vector(v).normalized() * 0.34, tgt, lens=50, up=(0, 0, 1))
             pth = os.path.join(PREV, f"Hands_grip_{pn}_{vn}.png")
@@ -1918,7 +1920,10 @@ def _reimport_anim(path, lib):
     a = arms[0]
     acts = {x.name.split("|")[-1]: x for x in bpy.data.actions}
     res = {"actions_found": len(bpy.data.actions), "compared": {}, "max_err_deg": 0.0, "missing": []}
+    # the rest offsets are measured again on the RE-IMPORTED armature (they must match the data)
     rest = {s: C.hand_rest_angles(a, s) for s in ("l", "r")}
+    res["rest_offsets_max_dev_deg"] = round(max(abs(rest[s][n] - lib["conventions"]["rest_offsets_deg"][s][n])
+                                                for s in rest for n in rest[s]), 4)
     a.animation_data_create()
     for pn, e in lib["poses"].items():
         an = e.get("action") or "A_Hand_" + "".join(w.capitalize() for w in pn.split("_"))

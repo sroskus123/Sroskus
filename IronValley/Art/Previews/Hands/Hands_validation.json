@@ -1,5 +1,5 @@
 {
- "generated_by": "hands_gloves.py (ivhands 1.0.0, ivchar 1.2.0, ivlib 1.0.0)",
+ "generated_by": "hands_gloves.py (ivhands 1.1.0, ivchar 1.2.0, ivlib 1.0.0)",
  "blender": "4.5.14 LTS",
  "build": {
   "glove_l": {
@@ -40,7 +40,7 @@
    "vertices": 10042,
    "faces": 10022
   },
-  "build_seconds": 14.2
+  "build_seconds": 17.9
  },
  "textures": {
   "texels": 1999210,
@@ -59,7 +59,7 @@
    -1.403,
    1.396
   ],
-  "seconds": 115.8,
+  "seconds": 115.0,
   "files": {
    "Normal": "Art/Textures/Characters/Gloves/T_Glove_Normal.png",
    "Normal_DX": "Art/Textures/Characters/Gloves/T_Glove_Normal_DX.png",
@@ -69,9 +69,9 @@
    "Black_ORM": "Art/Textures/Characters/Gloves/T_Glove_Black_ORM.png"
   }
  },
- "seconds_this_run": 266.0,
- "time": "2026-09-27 09:21:25",
- "pose_fit_seconds": 1092.3,
+ "seconds_this_run": 2341.8,
+ "time": "2026-09-27 11:11:27",
+ "pose_fit_seconds": 1119.5,
  "validate": {
   "limits": {
    "tip_palm_mm": 1.5,
@@ -5099,6 +5099,317 @@
     "bare_thumb": 2.9
    }
   },
-  "seconds": 266.0
+  "seconds": 258.5
+ },
+ "render": {
+  "images": [
+   "Art/Previews/Hands/Hands_bare_fist_25.png",
+   "Art/Previews/Hands/Hands_bare_fist_50.png",
+   "Art/Previews/Hands/Hands_bare_fist_75.png",
+   "Art/Previews/Hands/Hands_bare_fist_full.png",
+   "Art/Previews/Hands/Hands_bare_open_flat.png",
+   "Art/Previews/Hands/Hands_bare_point.png",
+   "Art/Previews/Hands/Hands_bare_relaxed.png",
+   "Art/Previews/Hands/Hands_bare_spread.png",
+   "Art/Previews/Hands/Hands_black_fist_50.png",
+   "Art/Previews/Hands/Hands_black_fist_full.png",
+   "Art/Previews/Hands/Hands_black_open_flat.png",
+   "Art/Previews/Hands/Hands_closeup_fist_knuckles_bare_l.png",
+   "Art/Previews/Hands/Hands_closeup_fist_knuckles_bare_r.png",
+   "Art/Previews/Hands/Hands_closeup_fist_knuckles_coyote_l.png",
+   "Art/Previews/Hands/Hands_closeup_fist_knuckles_coyote_r.png",
+   "Art/Previews/Hands/Hands_closeup_fist_thumb_bare_l.png",
+   "Art/Previews/Hands/Hands_closeup_fist_thumb_bare_r.png",
+   "Art/Previews/Hands/Hands_closeup_fist_thumb_coyote_l.png",
+   "Art/Previews/Hands/Hands_closeup_fist_thumb_coyote_r.png",
+   "Art/Previews/Hands/Hands_closeup_wrist_ext60_bare.png",
+   "Art/Previews/Hands/Hands_closeup_wrist_ext60_coyote.png",
+   "Art/Previews/Hands/Hands_closeup_wrist_flex70_bare.png",
+   "Art/Previews/Hands/Hands_closeup_wrist_flex70_coyote.png",
+   "Art/Previews/Hands/Hands_closeup_wrist_twist80_bare.png",
+   "Art/Previews/Hands/Hands_closeup_wrist_twist80_coyote.png",
+   "Art/Previews/Hands/Hands_closeup_wrist_ulnar30_bare.png",
+   "Art/Previews/Hands/Hands_closeup_wrist_ulnar30_coyote.png",
+   "Art/Previews/Hands/Hands_coyote_fist_25.png",
+   "Art/Previews/Hands/Hands_coyote_fist_50.png",
+   "Art/Previews/Hands/Hands_coyote_fist_75.png",
+   "Art/Previews/Hands/Hands_coyote_fist_full.png",
+   "Art/Previews/Hands/Hands_coyote_open_flat.png",
+   "Art/Previews/Hands/Hands_coyote_point.png",
+   "Art/Previews/Hands/Hands_coyote_relaxed.png",
+   "Art/Previews/Hands/Hands_coyote_spread.png",
+   "Art/Previews/Hands/Hands_grip_mag_grasp_fp.png",
+   "Art/Previews/Hands/Hands_grip_mag_grasp_left.png",
+   "Art/Previews/Hands/Hands_grip_mag_grasp_right_low.png",
+   "Art/Previews/Hands/Hands_grip_mag_grasp_stance.png",
+   "Art/Previews/Hands/Hands_grip_pistol_2h_fp.png",
+   "Art/Previews/Hands/Hands_grip_pistol_2h_left_low.png",
+   "Art/Previews/Hands/Hands_grip_pistol_2h_right.png",
+   "Art/Previews/Hands/Hands_grip_pistol_2h_stance.png",
+   "Art/Previews/Hands/Hands_grip_rifle_grip_index_straight_fp.png",
+   "Art/Previews/Hands/Hands_grip_rifle_grip_index_straight_left_low.png",
+   "Art/Previews/Hands/Hands_grip_rifle_grip_index_straight_right.png",
+   "Art/Previews/Hands/Hands_grip_rifle_grip_index_straight_stance.png",
+   "Art/Previews/Hands/Hands_grip_rifle_grip_trigger_fp.png",
+   "Art/Previews/Hands/Hands_grip_rifle_grip_trigger_left_low.png",
+   "Art/Previews/Hands/Hands_grip_rifle_grip_trigger_right.png",
+   "Art/Previews/Hands/Hands_grip_rifle_grip_trigger_stance.png",
+   "Art/Previews/Hands/Hands_grip_support_handguard_fp.png",
+   "Art/Previews/Hands/Hands_grip_support_handguard_left.png",
+   "Art/Previews/Hands/Hands_grip_support_handguard_right_low.png",
+   "Art/Previews/Hands/Hands_grip_support_handguard_stance.png",
+   "Art/Previews/Hands/Hands_sections_fist_bare.png",
+   "Art/Previews/Hands/Hands_sections_fist_coyote.png"
+  ],
+  "seconds_this_run": 814.3
+ },
+ "export": {
+  "fbx_hands": {
+   "ok": true,
+   "path": "/home/user/Sroskus/IronValley/Art/Export/FBX/SK_Hands_Gloved.fbx",
+   "bytes": 3261116
+  },
+  "fbx_body_gloved": {
+   "ok": true,
+   "path": "/home/user/Sroskus/IronValley/Art/Export/FBX/SK_Human_Base_Gloved.fbx",
+   "bytes": 5085548
+  },
+  "fbx_anim": {
+   "path": "Art/Export/FBX/A_Hand_Poses.fbx",
+   "bytes": 4053772,
+   "actions": [
+    "A_Hand_Fist25",
+    "A_Hand_Fist50",
+    "A_Hand_Fist75",
+    "A_Hand_FistFull",
+    "A_Hand_MagGrasp",
+    "A_Hand_OpenFlat",
+    "A_Hand_OpenToFist",
+    "A_Hand_Pistol2h",
+    "A_Hand_Point",
+    "A_Hand_Relaxed",
+    "A_Hand_RifleGripIndexStraight",
+    "A_Hand_RifleGripTrigger",
+    "A_Hand_Spread",
+    "A_Hand_SupportHandguard"
+   ]
+  },
+  "glb": {
+   "Coyote": {
+    "path": "Art/Export/GLB/Hands_Gloved_Coyote.glb",
+    "bytes": 12926936
+   },
+   "Black": {
+    "path": "Art/Export/GLB/Hands_Gloved_Black.glb",
+    "bytes": 12455844
+   },
+   "BodyCoyote": {
+    "path": "Art/Export/GLB/Human_Base_Gloved_Coyote.glb",
+    "bytes": 14680208
+   }
+  },
+  "pose_json": [
+   "Art/Export/FBX/Hand_Poses.json",
+   "Art/Export/GLB/Hand_Poses.json"
+  ],
+  "reimport": {
+   "fbx_hands": {
+    "bones": 57,
+    "armature_scale": [
+     0.01,
+     0.01,
+     0.01
+    ],
+    "dimensions_m": [
+     1.3176,
+     0.1641,
+     0.2485
+    ],
+    "meshes": {
+     "SK_Glove_R": {
+      "vertices": 8963,
+      "tris": 17884,
+      "unweighted_vertices": 0,
+      "max_influences": 4,
+      "weight_sum_min": 1.0,
+      "weight_sum_max": 1.0,
+      "armature_modifier": true,
+      "groups_not_bones": []
+     },
+     "SK_Glove_L": {
+      "vertices": 8963,
+      "tris": 17884,
+      "unweighted_vertices": 0,
+      "max_influences": 4,
+      "weight_sum_min": 1.0,
+      "weight_sum_max": 1.0,
+      "armature_modifier": true,
+      "groups_not_bones": []
+     }
+    },
+    "verdict": "PASS"
+   },
+   "fbx_body_gloved": {
+    "bones": 57,
+    "armature_scale": [
+     0.01,
+     0.01,
+     0.01
+    ],
+    "dimensions_m": [
+     1.3176,
+     0.3175,
+     1.8
+    ],
+    "meshes": {
+     "SK_Glove_R": {
+      "vertices": 8963,
+      "tris": 17884,
+      "unweighted_vertices": 0,
+      "max_influences": 4,
+      "weight_sum_min": 1.0,
+      "weight_sum_max": 1.0,
+      "armature_modifier": true,
+      "groups_not_bones": []
+     },
+     "SK_Glove_L": {
+      "vertices": 8963,
+      "tris": 17884,
+      "unweighted_vertices": 0,
+      "max_influences": 4,
+      "weight_sum_min": 1.0,
+      "weight_sum_max": 1.0,
+      "armature_modifier": true,
+      "groups_not_bones": []
+     },
+     "SK_Human_Base_Gloved": {
+      "vertices": 10042,
+      "tris": 20044,
+      "unweighted_vertices": 0,
+      "max_influences": 4,
+      "weight_sum_min": 1.0,
+      "weight_sum_max": 1.0,
+      "armature_modifier": true,
+      "groups_not_bones": []
+     }
+    },
+    "verdict": "PASS"
+   },
+   "glb_coyote": {
+    "bones": 57,
+    "armature_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "dimensions_m": [
+     1.2838,
+     0.1597,
+     0.2528
+    ],
+    "meshes": {
+     "SK_Glove_L": {
+      "vertices": 9834,
+      "tris": 17884,
+      "unweighted_vertices": 0,
+      "max_influences": 4,
+      "weight_sum_min": 1.0,
+      "weight_sum_max": 1.0,
+      "armature_modifier": true,
+      "groups_not_bones": []
+     },
+     "SK_Glove_R": {
+      "vertices": 9834,
+      "tris": 17884,
+      "unweighted_vertices": 0,
+      "max_influences": 4,
+      "weight_sum_min": 1.0,
+      "weight_sum_max": 1.0,
+      "armature_modifier": true,
+      "groups_not_bones": []
+     }
+    },
+    "verdict": "PASS"
+   },
+   "glb_black": {
+    "bones": 57,
+    "armature_scale": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "dimensions_m": [
+     1.2838,
+     0.1597,
+     0.2528
+    ],
+    "meshes": {
+     "SK_Glove_L": {
+      "vertices": 9834,
+      "tris": 17884,
+      "unweighted_vertices": 0,
+      "max_influences": 4,
+      "weight_sum_min": 1.0,
+      "weight_sum_max": 1.0,
+      "armature_modifier": true,
+      "groups_not_bones": []
+     },
+     "SK_Glove_R": {
+      "vertices": 9834,
+      "tris": 17884,
+      "unweighted_vertices": 0,
+      "max_influences": 4,
+      "weight_sum_min": 1.0,
+      "weight_sum_max": 1.0,
+      "armature_modifier": true,
+      "groups_not_bones": []
+     }
+    },
+    "verdict": "PASS"
+   },
+   "fbx_anim": {
+    "actions_found": 14,
+    "compared": {
+     "relaxed": 14.038,
+     "open_flat": 14.038,
+     "spread": 14.038,
+     "fist_full": 14.038,
+     "fist_25": 14.0379,
+     "fist_50": 14.0379,
+     "fist_75": 14.038,
+     "point": 14.038,
+     "rifle_grip_index_straight": 14.038,
+     "rifle_grip_trigger": 14.038,
+     "support_handguard": 14.038,
+     "mag_grasp": 14.0379,
+     "pistol_2h": 14.038
+    },
+    "max_err_deg": 14.038,
+    "missing": [],
+    "verdict": "FAIL"
+   },
+   "glb_anim": {
+    "actions_found": 14,
+    "compared": {
+     "relaxed": 0.0,
+     "open_flat": 0.0,
+     "spread": 0.0,
+     "fist_full": 0.0,
+     "fist_25": 0.0,
+     "fist_50": 0.0,
+     "fist_75": 0.0,
+     "point": 0.0,
+     "rifle_grip_index_straight": 0.0,
+     "rifle_grip_trigger": 0.0,
+     "support_handguard": 0.0,
+     "mag_grasp": 0.0,
+     "pistol_2h": 0.0
+    },
+    "max_err_deg": 0.0,
+    "missing": [],
+    "verdict": "PASS"
+   }
+  },
+  "seconds": 16.3
  }
 }

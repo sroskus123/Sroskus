@@ -22,7 +22,7 @@ the web game does not use the hands yet. Higgsfield was not used (HF-01 BLOCKED)
 
 Rebuild: `python3 Art/Source/Blender/characters/human_base.py` (base, ~20 min with renders) then
 `python3 Art/Source/Blender/characters/hands_gloves.py` (build 15 s, textures ~2 min, poses
-~8 min, validate ~6 min, renders ~35 min, export ~3 min). Stages: `--stages
+~19 min, validate ~5 min, renders ~40 min, export ~3 min; 4 CPU cores). Stages: `--stages
 build,textures,poses,validate,render,export`; render subsets `--only
 hand01,black,closeups,grips,sections`. Everything is deterministic (no unseeded randomness; the
 fitting uses fixed grids and deterministic Powell searches).
@@ -67,7 +67,10 @@ Soldiers always wear gloves, so the glove is the in-game hand surface.
    (1.4 mm plate + 3.0 mm segmented pads over the four MCPs), PIP pads on the four fingers and an IP
    pad on the thumb (1.9 mm), fingertip caps (0.35 mm), palm / thumb-saddle patches (0.55 mm),
    wrist strap (1.6 mm, overlapping end 1.2 mm more, pull tab).
-5. A rolled hem closes the cuff opening (2 mm edge + 9 mm inner lining).
+5. A rolled hem closes the cuff opening (2.2 mm edge + 9 mm inner lining). The lining follows the
+   shell's taper 3 mm under it and takes the weights of the shell above it, so it stays inside the
+   cuff at every wrist extreme (a first version at a constant radius touched the shell where the
+   forearm narrows and showed through at 60° extension).
 6. The right glove is the exact mirror of the left one (same UVs, one texture set).
 
 Weights: the body's weights, interpolated by the subdivision, limited to **4 influences** and
@@ -216,7 +219,21 @@ Weapon grips (glove against the evaluated IV-7 / proxy pistol meshes):
 
 ## 5. Evidence renders (`Art/Previews/Hands/`)
 
-RENDERS_PLACEHOLDER
+All renders: Cycles CPU, neutral studio light, ≤ 1600 × 900. Every image was looked at and the
+digits counted (five per visible hand, thumb opposed, joints bending the right way).
+
+| File(s) | Content | What the renders show |
+| --- | --- | --- |
+| `Hands_bare_<pose>.png`, `Hands_coyote_<pose>.png` (8 poses each: `open_flat`, `fist_25`, `fist_50`, `fist_75`, `fist_full`, `relaxed`, `spread`, `point`) | HAND-01 sheets: both hands, rows left / right, columns palm / back / side | Five digits on every hand in every view; the thumb opposes the fingers; the transition steps close smoothly (MCP, PIP and DIP together); the full fist is compact with the thumb across the index / middle middle phalanges and nothing through the back of the hand; `point` has a straight index with the other fingers in the fist; `spread` shows clean webs. The glove follows the hand exactly: knuckle guard and PIP pads stay on the joints, no floating or piercing, seams and stitches continuous across creases. |
+| `Hands_black_{open_flat,fist_50,fist_full}.png` | the black glove variant | Same shell and normal map with the black BaseColor / ORM |
+| `Hands_closeup_fist_knuckles_{bare,coyote}_{l,r}.png`, `Hands_closeup_fist_thumb_*` | knuckle and thumb close-ups at the full fist | Four knuckles in a row with the segmented guard over them; the fingers press together along clean contact lines; the thumb lies on the index / middle phalanges |
+| `Hands_closeup_wrist_{flex70,ext60,ulnar30,twist80}_{bare,coyote}.png` | wrist extremes (twist bones driven) | Smooth hand-to-forearm transition; the palmar crease folds at 70° flexion as skin does; no candy-wrapper at 80° twist; the cuff, strap and hem stay closed (the cuff lining stays inside the shell, validated per pose) |
+| `Hands_sections_fist_{bare,coyote}.png` | 2D sections through each finger's curl plane at the full fist | The phalanges stay inside the hand outline; no fingertip reaches the back of the hand; the glove shell is a constant-thickness offset of the skin |
+| `Hands_grip_<grip>_<view>.png` (two close views per grip) | `rifle_grip_index_straight`, `rifle_grip_trigger`, `support_handguard`, `mag_grasp`, `pistol_2h` on the real IV-7 (proxy pistol for `pistol_2h`) | Rifle grip: web high under the tang, middle finger right under the trigger guard, fingers wrapping the grip, index straight along the receiver side above the guard (trigger discipline) or its pad on the trigger face; thumb on the left side of the grip. Handguard: the fingers wrap the handguard from the right, thumb along the left side. Magazine: palm on the left flank, fingers round the front edge onto the right flank. Pistol: firing index on the trigger, support fingers over the firing fingers under the guard, both thumbs forward on the left. |
+| `Hands_grip_<grip>_fp.png` | first-person camera (eye at the head, 80° horizontal FOV) with the whole body posed and the arms solved by two-bone IK to the grip transforms | What the player sees: the rifle in the shoulder pocket with the support hand on the handguard (magazine grasp during a reload for `mag_grasp`), the firing hand at the lower right; the pistol held two-handed in front |
+| `Hands_grip_<grip>_stance.png` | outside view of the same stance | Arms continuous from the shoulders to the hands; butt stock in the shoulder pocket |
+
+
 
 ## 6. Engine notes (unverified in Unreal)
 
@@ -237,7 +254,7 @@ RENDERS_PLACEHOLDER
 | # | Severity | Issue | Status / next step |
 | --- | --- | --- | --- |
 | 1 | P0 (external) | Unreal import, the layered finger-pose blend, hand IK to `hand_attach` and the in-engine look were not tested. HAND-02 items that need animation (idle, walk, sprint, ADS, recoil, both reloads, IK hand-off during a reload) and HAND-03 (FOV, camera, visibility) cannot be tested without the engine / animation set. | **BLOCKED** (no Unreal, no animation system here). The static grips and their `hand_attach` transforms are the inputs for that work. |
-| 2 | P2 | LBS has no soft-tissue contact: in the full fist neighbouring fingers press up to 2.9 mm into each other (bare) and their glove shells up to 5.5 mm; the palmar creases fold into themselves. | Hidden in the contact lines (renders `Hands_hand01_*`, `Hands_sections_fist_*`). A contact corrective shape would be the next step if close-ups demand it. |
+| 2 | P2 | LBS has no soft-tissue contact: in the full fist neighbouring fingers press up to 2.9 mm into each other (bare) and their glove shells up to 5.5 mm; the palmar creases fold into themselves. | Hidden in the contact lines (renders `Hands_bare_fist_full.png`, `Hands_coyote_fist_full.png`, `Hands_sections_fist_*`). A contact corrective shape would be the next step if close-ups demand it. |
 | 3 | P2 | The glove worn over the **full bare hand** of `SK_Human_Base` is pierced by the skin in deep flexion (palmar creases up to 1.9 mm in the fist, `glove_vs_full_bare_hand` in the report). | By design the shipped `SK_Human_Base_Gloved` has the covered skin removed (only the cuff band remains, max 0.27 mm under the cuff). Do not layer the gloves over the bare body mesh. |
 | 4 | P2 | Some fitted fingers break the soft DIP/PIP coupling where the geometry forces it: support hand ring 84/50/0 (flat distal pad on the handguard side), magazine middle 7/13/70 (fingertip hooked round the front edge), pistol: firing little finger 18/0/4 and support index 16/0/0 (straight, lying along the firing fingers). | Visible only at close range; the renders read naturally. Re-fit with a stronger coupling weight or a hand-tuned pose if an animator wants it. |
 | 5 | P2 | `pistol_2h` is fitted to a **proxy** pistol (no pistol asset exists). The support hand holds loosely (mean segment gap 2.8 mm) and its index lies straight under the trigger guard instead of wrapping the firing fingers. | Re-run `--stages poses` once a real pistol exists (only the prop and `fit_pistol_2h` change). |

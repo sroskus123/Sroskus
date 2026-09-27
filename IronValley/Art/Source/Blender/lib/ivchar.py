@@ -2042,7 +2042,8 @@ def hand_rest_angles(arm, s):
     _02 / _03 and thumb_02 / thumb_03 = angle to the parent bone about the bone's X."""
     w, d, r, p = hand_frame_rest(arm, s)
     B = arm.data.bones
-    M = lambda n: (arm.matrix_world @ B[n].matrix_local).to_3x3()       # noqa: E731
+    # normalized: an imported armature carries object scale (FBX: 0.01), which would scale the axes
+    M = lambda n: (arm.matrix_world @ B[n].matrix_local).to_3x3().normalized()       # noqa: E731
     out = {}
     for f in FINGERS4:
         y1 = M(f"{f}_01_{s}").col[1]
