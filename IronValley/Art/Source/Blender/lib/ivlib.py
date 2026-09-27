@@ -1917,6 +1917,8 @@ def _nudge_island(obj, faces, res, owner=None, gid=None, max_shift=0.5):
         for dx, dy in ((0.0, 0.0), (0.5, 0.0), (0.0, 0.5), (0.5, 0.5), (-0.5, 0.0), (0.0, -0.5), (-0.5, -0.5),
                        (0.5, -0.5), (-0.5, 0.5), (0.25, 0.25), (-0.25, -0.25), (0.25, -0.25), (-0.25, 0.25)):
             Q = Pg + np.array([dx, dy]) * (max_shift / 0.5)
+            if Q.min() < 0.0 or Q.max() > res:
+                continue                  # never push an island off the 0..1 sheet
             t, pix = _raster_tris(Q, res)
             if len(pix) == 0:
                 continue
