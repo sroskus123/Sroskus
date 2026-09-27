@@ -1,0 +1,105 @@
+{
+  "generated_by": "ivlib 1.0.0",
+  "blender": "4.5.14 LTS",
+  "time": "2026-09-27 02:50:04",
+  "objects": {
+    "SM_IVR1_RedDot": {
+      "tris": 9166,
+      "verts": 4585,
+      "non_manifold_edges": 0,
+      "boundary_edges": 0,
+      "inconsistent_normal_edges": 0,
+      "faces_opposing_vertex_normals": 0,
+      "loose_verts": 0,
+      "loose_edges": 0,
+      "zero_area_faces": 0,
+      "duplicate_faces": 0,
+      "shells": 3,
+      "deform_weights_without_groups": 0,
+      "uv_layers": [
+        "UVMap"
+      ],
+      "missing_uvs": false,
+      "has_custom_normals": true,
+      "bbox_min_m": [
+        -0.055,
+        -0.0266,
+        -0.0073
+      ],
+      "bbox_max_m": [
+        0.014,
+        0.0216,
+        0.0666
+      ],
+      "dimensions_cm": [
+        6.9,
+        4.82,
+        7.39
+      ],
+      "materials": [
+        {
+          "name": "M_IVR1_Body",
+          "images": [
+            {
+              "node": "T_BaseColor",
+              "path": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVR1/T_IVR1_Body_BaseColor.png",
+              "exists": true,
+              "colorspace": "sRGB"
+            },
+            {
+              "node": "T_ORM",
+              "path": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVR1/T_IVR1_Body_ORM.png",
+              "exists": true,
+              "colorspace": "Non-Color"
+            },
+            {
+              "node": "T_Normal",
+              "path": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVR1/T_IVR1_Body_Normal.png",
+              "exists": true,
+              "colorspace": "Non-Color"
+            }
+          ]
+        }
+      ],
+      "uv_min": [
+        0.00293,
+        0.00293
+      ],
+      "uv_max": [
+        0.99108,
+        0.99392
+      ],
+      "uv_out_of_bounds_loops": 0,
+      "zero_uv_faces": 1545,
+      "zero_uv_area_mm2": 34.539,
+      "zero_uv_max_face_mm2": 0.0497,
+      "texel_density_px_per_cm": 46.63,
+      "texture_set": "IVR1"
+    }
+  },
+  "summary": {
+    "total_tris": 9166,
+    "problem_count": 0,
+    "validation_seconds": 0.5
+  },
+  "texture_sets": {
+    "IVR1": {
+      "objects": [
+        "SM_IVR1_RedDot"
+      ],
+      "size": 1024,
+      "uv_overlap": {
+        "resolution": 1024,
+        "covered_fraction": 0.4621,
+        "pixels_shared_by_different_islands": 0,
+        "islands": 1722,
+        "islands_without_pixel_centres": 16,
+        "collapsed_degenerate_faces": 1007,
+        "method": "pixel-centre rasterisation per island at the texture size"
+      },
+      "texel_density_min": 46.63,
+      "texel_density_max": 46.63
+    }
+  },
+  "problems": []
+}

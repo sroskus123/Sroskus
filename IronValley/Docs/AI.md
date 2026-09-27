@@ -119,12 +119,15 @@ detekce × 0,4). Paprsky `worldQuery.lineOfSight` z oka bota ke **třem bodům u
 rychlostí `viditelnost × periferie × (0,8 v dřepu) × (1,25 při pohybu ≥ 2,5 m/s) / T(d)`, kde `T(d)` je doba detekce
 plně viditelného, stojícího cíle: 0,2 s do 8 m, lineárně 0,9 s ve 40 m, dál roste až do dosahu. **Spatřen** = úroveň ≥ 1
 (nenulová reakční doba). Úroveň ≥ 0,35 dá jen **záblesk**: přibližnou polohu (chyba 1 m + 5 % vzdálenosti) a otočení
-tím směrem; na záblesk bot 1,2 s jen hledí (detekce se může dokončit), teprve pak jde pátrat.
+tím směrem; na záblesk bot 1,2 s jen hledí (detekce se může dokončit), teprve pak jde pátrat. V průchodu, ve kterém cíl
+poprvé vidí, se započítá jen polovina intervalu vnímání (cíl se objevil někde mezi průchody) — detekce tak nikdy nepřijde
+dřív než konfigurovaná doba (dříve až o 0,1 s dřív, oprava 2026-09-27).
 
 **Sluch** (události): výstřel dosah 90 m × hlasitost, kroky 16 m × hlasitost (sprint 1,0, běh 0,55, chůze 0,25, dřep 0,15);
 přes statickou geometrii dosah × 0,55. Poloha je **vždy přibližná**: náhodná chyba v kruhu o poloměru
-`(1,5 m + 0,08 × vzdálenost) × (1,6 přes zeď)`. Výstřel, který proletí do 2,5 m od bota („šum kulky“), znamená „pod palbou“.
-Zvuky spoluhráčů se ignorují.
+`(1,5 m + 0,08 × vzdálenost) × (1,6 přes zeď)`. Výstřel, který proletí do 2,5 m od bota („šum kulky“), znamená „pod palbou“ —
+jen když střela opravdu doletěla tak daleko (zastaví se o první zeď / tělo; dříve se počítala 150 m dráha bez ohledu na zásah
+a 25 % „průletů“ šlo skrz zdi). Zvuky spoluhráčů se ignorují.
 
 **Zásah** (`combatant:damaged`): použije se **jen směr střely** `fromDir` s chybou ±15°; vzdálenost se odhadne (20 m),
 nebo se ponechá existující odhad ze sluchu, pokud leží zhruba tím směrem. Pole `attackerPosition` z události AI **nečte**.
@@ -145,13 +148,29 @@ Smrt nebo respawn nepřítele → okamžité zapomenutí u všech botů.
 | `objective` | 0,5 (0,3 bez oblasti) | pozice v aktivní oblasti: volný kryt uvnitř, chránící proti směrům nepřátelských spawnů, jinak náhodný bod navmeshe; rozestup od spoluhráčů ≥ 3 m (TeamBoard); po 9–16 s změna pozice; rozhlížení po přístupech |
 
 Aktuální úkol má +0,07 (hystereze). Bez oblasti (trénink, testy v „hlídacím režimu“) bot drží místo.
-Konec kola → `idle` (a zámek výsledků stejně nedovolí střílet).
+Konec kola → `idle` (a zámek výsledků stejně nedovolí střílet). **Odpočet před kolem** (`pre_round`) → `idle` ve spawnu
+(vnímání a sebeobrana zůstávají), všichni vyrazí na signál `round:started` (dříve boti běželi k oblasti a zabíjeli se už
+během „Start za 5 s“).
+
+**Tlak oblasti (AI-04, 2026-09-27):** když tým nemá v oblasti, kterou nedrží, nikoho déle než `objective.pressureGrace`
+(4 s), roste jeho tlak 0 → 1 za `pressureRamp` (16 s); drží-li oblast nepřítel, je tlak aspoň `pressureEnemyHolds` (0,5).
+Boti toho týmu mimo oblast: `objective` + `pressureWeight` × tlak (až 0,92); kulky létající kolem („pod palbou“ bez zásahu)
+je v krytu drží úměrně méně (skutečný zásah za posledních 2,5 s ano); dobrý kryt opouštějí dřív (max. doba v krytu
+× (1 − 0,6 × tlak)) a nový kryt vybírají blíž k oblasti (skok od krytu ke krytu); pátrání se tlakem potlačí; `engage`
+s postupem pokračuje i pod palbou, když tlak ≥ 0,5 a bot není zasažen ani nepřítel není blíž než 15 m. Držitel oblasti
+nevyráží pátrat po kontaktu dál než 6 m za okraj oblasti. Klidné úkoly (`search` ↔ `objective`) se nepřepínají dřív než po
+`tick.calmTaskMinTime` (2 s), dokud jsou proveditelné, a nový (přibližný) zvukový odhad do 3 m od cíle pátrání trasu
+nemění — jinak bot přepínal mezi dvěma cestami kolem budovy a přešlapoval na místě.
 
 **Palba (vrstva nad každým úkolem, každý tik):** cíl je vidět (nebo byl vidět před ≤ 0,25 s) → sledování s modelem chyby;
 první výstřel až po **reakční prodlevě** 0,25–0,45 s od spatření (znovuzachycení do 1,5 s: poloviční). Spoušť se stiskne,
 když pohled dohnal zamýšlený směr (±2,5°, zblízka 0,45 m), **ústí má volnou čáru** (oko → ústí i ústí → cíl, pro aktuální
 i příkazový pohled a posun o jeden tik), žádný spoluhráč není blíž než 0,75 m (+ rezerva na zákluz) od čáry střelby.
-Dávky podle vzdálenosti (tabulka v oddílu 10); po dávce pauza. Blokované ústí > 0,6 s → úkrok na stranu, kde se čára uvolní.
+Dávky podle vzdálenosti (tabulka v oddílu 10); po dávce pauza — i po dávce **přerušené** (ztráta cíle, spoluhráč v čáře,
+blokované ústí), pokud z ní už vyšla rána; dříve na přerušenou dávku hned navázala další a vznikaly dávky 8–9 ran.
+Spoluhráč v čáře střelby: kontroluje se celá dráha střely až k první zdi (i za cílem), s rezervou 0,75 m + vzdálenost ×
+(kop + 2σ chyby míření); spoluhráč blíž než 0,9 m (těla se překrývají) palbu vždy zastaví.
+Blokované ústí > 0,6 s → úkrok na stranu, kde se čára uvolní.
 Přebití: prázdný zásobník, nebo < 34 % a 2 s bez kontaktu a ne pod palbou; během přebíjení, se zamčenou zbraní
 (výměna, sprint, smrt) nebo při sprintu se **nikdy nestřílí**.
 
@@ -173,13 +192,26 @@ Nový cíl začíná plnou chybou (stav procesu z rozdělení N(0,1)). Test mě�
 - **Cesta**: metrické A\* po navmeshi + funnel; průjezd bodem v okruhu 0,4 m (cíl 0,5 m); obnova cesty po 2,5 s nebo při
   posunu cíle > 1,5 m. Sprint na dlouhých úsecích bez hrozby (pohled se pak drží směru cesty, jinak kontroler sprint nedovolí).
 - **Vyhýbání**: odpuzování těl do 1,4 m (váha 1,6) + úkrok do strany pro těla v koridoru 2,2 m před botem (šířka 0,9 m);
-  strana podle polohy druhého, při čelním střetu podle parity indexu. Kapsle se navzájem fyzicky nesrážejí — odstup drží AI.
-- **Zaseknutí**: chce jet, ale za 1,5 s se posunul < 0,3 m → událost. Obnova (**nikdy teleport**):
-  1. **tělo v cestě** (do 1,3 m, žádná zeď těsně před) → bot s nižší prioritou (vyšší index; hráč má vždy přednost) ustoupí
-     na volnější stranu a 1,2 s počká, pak nová cesta; nikdy se kvůli tělům neblokuje navmesh;
-  2. **statická překážka před dalším bodem cesty** (paprsek 0,5 m nad zemí, jen do vzdálenosti bodu) → oblast navmeshe
-     1,2 m před botem (poloměr 1,1 m) se na **30 s zablokuje pro všechny boty** a hledá se jiná trasa; bez trasy jiný cíl;
+  strana podle polohy druhého, při čelním střetu podle parity indexu. Kapsle se navzájem fyzicky nesrážejí — odstup drží AI:
+  **bot nikdy nejde do těla** blíž než `movement.contactRadius` (0,85 m) — složka pohybu směrem k tělu se odečte (obchází,
+  stojí nebo couvá), platí pro cestu, úkroky i couvání; odpuzování působí i na bota bez cíle (drží místo a střílí), takže
+  spoluhráči v boji nestojí v sobě.
+- **Zaseknutí**: chce jet, ale za 1,5 s se posunul < 0,3 m (nebo se posunul jen podél stěny bez postupu po cestě) → událost.
+  Druhý detektor (kotva): chce jet, ale 3 s neopustí kruh 0,75 m — zachytí bota, kterého dav v úzkém místě posouvá sem a tam.
+  Po couvnutí / čekání se okno měří znovu od konce manévru; už zaseknutý bot (nebo nová událost do 1,5 m od předchozí
+  do 8 s) se znovu vyhodnotí po 1,0 s. Obnova (**nikdy teleport**):
+  1. **tělo v cestě** (do 1,3 m) a před botem není překážka neznámá navmeshi → první událost zácpy: nižší priorita (vyšší
+     index; hráč má vždy přednost) ustoupí na volnější stranu a 1,2 s počká, v úzkém místě (dveře, ulička, na straně < 0,6 m)
+     místo toho couvne od těla; přednost se v jedné zácpě uplatní jen jednou; **druhá událost ve stejné zácpě nebo na stejném
+     místě → couvnutí a nový cíl**; stojí-li tělo v cestě, trasy bota se jeho okolí 6 s vyhýbají (cena ×6, jen tento bot);
+     nikdy se kvůli tělům neblokuje navmesh;
+  2. **překážka, kterou navmesh nezná** (solid s `"nav": false`, např. zátaras, nebo nic z dat úrovně) před dalším bodem
+     cesty → **tvrdá** blokace jejího půdorysu na 30 s pro všechny a nová trasa; opakované zaseknutí u známé překážky
+     na stejném místě bez těl → **měkká** blokace 1,1 m před botem. Měkká blokace nikdy nikoho neodřízne: když přeruší
+     všechny cesty, trasa ji ignoruje (kromě vlastní). Dříve blokoval disk 1,1 m kolem *jakékoli* stěny, o kterou dav bota
+     přitlačil — 10 velkých trojúhelníků u východu ze spawnu týmu Charlie odřízlo spoluhráče na 30 s (412 selhání cesty);
   3. jinak (zachycení o roh, opakované selhání) → 0,6 s couvnutí, nová cesta a rozhodovací vrstva zvolí jiný cíl.
+  Smrt bota uzavře otevřenou událost (`recoveredBy: died`, bez „obnovy“ trvající celou dobu smrti).
 - **Mapa nebezpečí týmu**: kde spoluhráč padl, je 30 s cesta dražší (do 5 m, násobitel až 4) — dveře, které se staly
   „vražednou zónou“, tým chvíli obchází (ulička, průchod).
 
@@ -259,6 +291,10 @@ AI se do `window.__IV` připojí sama při prvním `update` (hra na tom nezávis
 | `movement.repathInterval` / `goalMoveRepath` | 2,5 / 1,5 | obnova cesty |
 | `stuck.window` / `minProgress` | 1,5 / 0,3 | detekce zaseknutí |
 | `stuck.blockRadius` / `blockTtl` / `backoffTime` / `teammateWaitTime` / `maxRecoveries` | 1,1 / 30 / 0,6 / 1,2 / 4 | obnova |
+| `stuck.anchorRadius` / `anchorWindow` / `recheckWindow` | 0,75 / 3,0 / 1,0 | detektor kotvy, rychlejší opakovaná kontrola |
+| `movement.contactRadius` / `bodyAvoidRadius` / `bodyAvoidTime` / `bodyAvoidCost` | 0,85 / 1,5 / 6 / 6 | nejít do těla; vyhnout se stojícímu tělu v cestě |
+| `objective.pressureGrace` / `pressureRamp` / `pressureWeight` / `pressureEnemyHolds` / `pressureCoverTimeCut` / `holderSearchLeash` | 4 / 16 / 0,42 / 0,5 / 0,6 / 6 | tlak oblasti |
+| `tick.calmTaskMinTime` / `memory.searchGoalKeepRadius` | 2,0 / 3,0 | bez přešlapování mezi pátráním a oblastí |
 | `danger.duration` / `radius` / `weight` / `maxMultiplier` | 30 / 5 / 1,5 / 4 | mapa nebezpečí týmu |
 | `debug.overlay` | false | zapnout 3D překryv automaticky |
 
@@ -266,8 +302,7 @@ AI se do `window.__IV` připojí sama při prvním `update` (hra na tom nezávis
 
 Měřeno na skutečné herní integraci (`MatchSession`, `Combatant.applyCommand`, `WorldQuery`, hitscan s ověřením ústí,
 jádro `Match`) v AI aréně: v Node (`tests/unit/ai_*.test.mjs`, deterministicky se semenem) a v sestavené hře v headless
-Chromiu s vypnutým vykreslováním (`tests/e2e/05_ai.test.mjs`). Datum 2026-09-26. Poslední úplný běh `npm test`:
-unit 320/320, e2e 58/58 PASS (včetně testů herní integrace, které teď běží se skutečnou AI místo stubu).
+Chromiu s vypnutým vykreslováním (`tests/e2e/05_ai.test.mjs`). Datum 2026-09-26 (integrace 2026-09-27 viz pododdíl níže). Poslední úplný běh: viz `STATUS.md`.
 
 ### AI-01 — zrak, sluch, paměť
 
@@ -324,6 +359,40 @@ unit 320/320, e2e 58/58 PASS (včetně testů herní integrace, které teď bě�
 Přepočet úkolů po smrti (kryt uvolněn, paměť smazána, všichni zapomněli mrtvého), po respawnu (nový mozek, hned
 rozhoduje) a po novém kole (rezervace, blokace, paměti, cesty smazány; ≥ 12 botů do 2 s míří k oblasti) ověřuje test.
 
+### Integrace: skutečná kola se 3 a 17 boty (2026-09-27)
+
+Skutečná kola v AI aréně (`MatchSession` + AI + hitscan + jádro), nezávislý pozorovatel mimo projekt (skóre, oblast,
+zabití, respawny, zaseknutí podle polohy, posun za tik, otáčení, rány / zásahy / zdi, přebíjení, překryvy těl, kryty),
+v Node (8 semen × 180 s, plná kola) a v sestavené hře v Chromiu s vypnutým vykreslováním (`simulate`, plné kolo časově
+zrychlené přes skutečnou smyčku ×10). Hráč nečinný ve spawnu (tým Alfa má tak o jednoho aktivního bojovníka méně).
+
+| 17 botů, 8 semen × 180 s (Node) | před opravami | po opravách |
+| --- | --- | --- |
+| nejdelší zaseknutí (chce jet, neopustí 0,75 m) | 5,62 s | 2,92 s |
+| nejdelší „plazení“ (6 s chce jet, < 1,5 m) | 9,95 s | 6,77 s |
+| nejdelší obnova detektoru AI | 6,05 s | 2,38 s |
+| selhání cesty „částečná cesta končí u bota“ | 412 / 128 (semena 1, 8) | ≤ 4 |
+| dva boti na jednom místě (< 0,45 m) | až 3,45 s | ≤ 0,5 s |
+| rány do spoluhráče (FF vypnutý, zablokováno) | 4 | 0 |
+| týmy, které byly v oblasti (dvůr, semena 2–5) | „1“, „1“, „12“, „12“ | všechny tři ve všech semenech |
+| nejdelší čekání na respawn | 21 s | 12 s |
+| teleporty / palba při přebíjení / zásah skrz zeď / otočka > 5°/tik | 0 / 0 / 0 / 0 | 0 / 0 / 0 / 0 |
+| cena tiku (CPU, 17 botů, Node) | 1,09–1,66 ms | 1,06–1,57 ms |
+
+| Plné kolo 17 botů (Node) | před | po |
+| --- | --- | --- |
+| Dům (semeno 1) | 94/7/4 časem, oblast prázdná 37 % | 100/15/8 cílem v 475 s, prázdná 21 % |
+| Dvůr (semeno 4) | 0/7/4 časem, prázdná 87 %, Alfa nikdy v oblasti | 1/31/24 časem, prázdná 70 %, všechny týmy oblast držely |
+| Střed (semeno 7) | 9/85/68 časem, prázdná 26 %, spor 45 s | 16/61/41 časem, prázdná 27 %, spor 83 s |
+
+Dalších 9 plných kol (Node, 6× Střed, 3× podle semene) i e2e v prohlížeči: vždy vítěz (cílem nebo časem), všechny tři týmy
+oblast držely, telemetrie (poloměr 1 m) nejdelší zaseknutí 2,9–4,65 s, žádný teleport ani chyba. Prohlížeč (vypnuté
+vykreslování): 3 boti 0,27 ms/tik, 17 botů 0,9–1,1 ms/tik (54–66 ms na simulovanou sekundu), plné kolo časově zrychlené
+10/72/38 (Bravo časem), zaseknutí max 3,3 s. Nezávislé ověření AI-01 (14/14), AI-02 (11/11, čelní proudy 17 botů dveřmi
+domu, uličkou 1,5 m, po schodech a mezerami; nová překážka mimo zapečený navmesh rozpoznána za 1,6 s), AI-03 (7/7:
+dávky ≤ maximum pásma, 0 ran při přebíjení, 5°/tik, otočka 180° ≥ 0,58 s, zásahovost 0,41 / 0,29 / 0,10 / 0,08 v 10 / 20 /
+35 / 50 m), AI-04 (11/11), GAME-01/02 (11/11 + kamera po 3 smrtích v prohlížeči 3/3).
+
 ### Výkon (orientačně)
 
 `ai.update` pro 17 botů **včetně** jejich `applyCommand` (fyzika kapsle, zbraně, hitscan): průměr 1,0 ms (čas stěny) /
@@ -358,7 +427,12 @@ node tests/unit/support/aiSim.mjs --seconds 120 --seed 3  # ruční simulace zá
 ## 13. Známá omezení a nehotové body
 
 - **Vyváženost arény**: tým Alfa (jih) má delší cestu přes úzká místa (dveře domu, ulička) a v krátkých zápasech boduje
-  méně; do oblasti se ale dostává a bojuje (tabulka AI-04). Aréna je testovací mapa, ne herní.
+  méně; do oblasti se ale dostává a bojuje (tabulka AI-04). Aréna je testovací mapa, ne herní. Kandidáti oblasti Dům a Dvůr
+  (jádro je vybírá semenem i ve hře) jsou nevyvážení: Dům je ~10 m od spawnu Alfy (Alfa vyhrává; útočníci stojí u jejího
+  spawnu a Alfa pak čeká na bezpečný respawn až 12–38 s — predikát spawnu funguje, jak má), Dvůr je za jedinou 2m mezerou
+  K2, 57 m od Alfy a ~30 m od ostatních (oblast prázdná ~70 % kola). Rovné podmínky dává jen Střed (testy ho vynucují).
+- Nejdelší zbývající epizody zaseknutí (3–4,7 s, pod limitem 5 s) jsou zácpy spoluhráčů v severních dveřích domu
+  (hrana zárubně + tělo vedle).
 - **Dveře**: jen průchody bez křídel (dveřní křídla zatím nejsou). Střelba oknem funguje (kryty „okno“ jen 2 body).
 - Boti používají jen pušku (pistoli nevytahují), nehází granáty, neskáčou; úzké průchody jen pro dřep navmesh nezná
   (v aréně žádné nejsou).

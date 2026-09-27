@@ -160,8 +160,11 @@ export class Perception {
         this.firstDetect.set(e.id, fd);
       }
       if (rate > 0) {
-        if (fd.visibleSince < 0) fd.visibleSince = t - dt * 0.5; // became visible somewhere in the last interval
-        level = Math.min(1.5, level + rate * dt);
+        // became visible somewhere in the last interval: count half of it (not the whole interval, which would
+        // let a target that appeared just before this pass be detected up to one interval early)
+        const newly = fd.visibleSince < 0;
+        if (newly) fd.visibleSince = t - dt * 0.5;
+        level = Math.min(1.5, level + rate * (newly ? dt * 0.5 : dt));
       } else {
         level = Math.max(0, level - V.detectDecayPerSec * dt);
         if (level === 0) fd.visibleSince = -1;
@@ -223,10 +226,11 @@ export class Perception {
   }
 
   /**
-   * Sound event (gunshot / footstep) from an enemy at `pos` with `loudness`.
+   * Sound event (gunshot / footstep) from an enemy at `pos` with `loudness`. For a gunshot, `shotDir` and
+   * `shotLen` (distance the round flew before it hit something) decide whether it passed close by (near miss).
    * @returns {boolean} heard
    */
-  onSound(t, kind, srcId, srcTeam, pos, loudness, shotDir = null) {
+  onSound(t, kind, srcId, srcTeam, pos, loudness, shotDir = null, shotLen = Infinity) {
     const bot = this.bot;
     const sys = bot.sys;
     const H = sys.cfg.hearing;
@@ -248,7 +252,8 @@ export class Perception {
     if (kind === 'gunshot' && shotDir) {
       _p.subVectors(c.getEye(_q), pos);
       const s = _p.dot(shotDir);
-      if (s > 0 && s < 150) {
+      // the round must have got that far (it stops at the first wall or body it hits)
+      if (s > 0 && s < Math.min(150, shotLen + 0.5)) {
         const closest = Math.sqrt(Math.max(0, _p.lengthSq() - s * s));
         if (closest < H.whizRadius) whiz = true;
       }

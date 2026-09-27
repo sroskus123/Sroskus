@@ -3,9 +3,11 @@
 //   closestPoint(p)             -> Vector3 | null
 //   randomPointNear(p, r, rng)  -> Vector3 | null   (reachable from p)
 //   isReachable(from, to)       -> bool
-// plus temporary blocked areas (stuck recovery, AI-02): blockArea(center, radius, ttl) marks navmesh
-// triangles as impassable for `ttl` seconds, so a path through an obstacle the navmesh does not know
-// (closed door, barricade) is replaced by another route. Blocks are shared by all bots.
+// plus temporary blocked areas (stuck recovery, AI-02): blockFootprint(box, ttl) removes the ground under an
+// obstacle the navmesh does not know (closed door, barricade: a HARD block), blockArea(center, radius, ttl)
+// marks a disc of triangles ahead of a bot that keeps snagging (a SOFT block: only a detour hint). Blocks are
+// shared by all bots; findPath(..., { ignoreSoftBlocks: true }) routes through soft blocks, so a hint placed
+// by one bot never strands another one whose only way out crosses it.
 //
 // The zone data is also registered in a three-pathfinding `Pathfinding` instance (format compatibility
 // and reference queries); the searches themselves use NavMeshData (metric A*, funnel), see navMesh.js.
@@ -27,7 +29,8 @@ export class NavService {
     this.cornerOffset = opts.cornerOffset ?? 0.2;
     this.time = 0;
     this.blocks = []; // { id, center: Vector3, radius, until, reason, nodes: Set }
-    this._blockedNodes = new Map(); // node index -> count
+    this._blockedNodes = new Map(); // node index -> count (all blocks)
+    this._hardNodes = new Map(); // node index -> count (hard blocks: footprints of obstacles the navmesh does not know)
     this._nextBlockId = 1;
     this.stats = { paths: 0, failed: 0, partial: 0, blocksAdded: 0 };
     // three-pathfinding zone (reference implementation, tests compare against it)
@@ -52,14 +55,32 @@ export class NavService {
   reset() {
     for (const b of this.blocks) this._unmark(b);
     this.blocks = [];
+    this._blockedNodes.clear();
+    this._hardNodes.clear();
+  }
+
+  _mark(b) {
+    for (const n of b.nodes) {
+      this._blockedNodes.set(n, (this._blockedNodes.get(n) || 0) + 1);
+      if (!b.soft) this._hardNodes.set(n, (this._hardNodes.get(n) || 0) + 1);
+    }
   }
 
   _unmark(b) {
+    const dec = (map, n) => {
+      const c = (map.get(n) || 0) - 1;
+      if (c <= 0) map.delete(n);
+      else map.set(n, c);
+    };
     for (const n of b.nodes) {
-      const c = (this._blockedNodes.get(n) || 0) - 1;
-      if (c <= 0) this._blockedNodes.delete(n);
-      else this._blockedNodes.set(n, c);
+      dec(this._blockedNodes, n);
+      if (!b.soft) dec(this._hardNodes, n);
     }
+  }
+
+  /** Is any soft (detour hint) block active? */
+  hasSoftBlocks() {
+    return this.blocks.some((b) => b.soft);
   }
 
   /**
@@ -81,8 +102,8 @@ export class NavService {
         if ((k.x - o.x) * d.x + (k.z - o.z) * d.z <= 0) nodes.delete(n);
       }
     }
-    const b = { id: this._nextBlockId++, center: c, radius, until: this.time + ttl, reason, nodes };
-    for (const n of nodes) this._blockedNodes.set(n, (this._blockedNodes.get(n) || 0) + 1);
+    const b = { id: this._nextBlockId++, center: c, radius, until: this.time + ttl, reason, nodes, soft: true };
+    this._mark(b);
     this.blocks.push(b);
     this.stats.blocksAdded++;
     return b.id;
@@ -103,8 +124,8 @@ export class NavService {
     this._keepFree(nodes, keepFree);
     if (nodes.size === 0) return -1;
     const c = new Vector3((mn[0] + mx[0]) / 2, mn[1], (mn[2] + mx[2]) / 2);
-    const b = { id: this._nextBlockId++, center: c, radius: Math.hypot(mx[0] - mn[0], mx[2] - mn[2]) / 2, until: this.time + ttl, reason, nodes, footprint: true };
-    for (const n of nodes) this._blockedNodes.set(n, (this._blockedNodes.get(n) || 0) + 1);
+    const b = { id: this._nextBlockId++, center: c, radius: Math.hypot(mx[0] - mn[0], mx[2] - mn[2]) / 2, until: this.time + ttl, reason, nodes, footprint: true, soft: false };
+    this._mark(b);
     this.blocks.push(b);
     this.stats.blocksAdded++;
     return b.id;
@@ -145,9 +166,10 @@ export class NavService {
   /**
    * Shortest path from `from` to `to` avoiding blocked areas. `points` excludes the start and ends at the
    * (navmesh-projected) goal. With { allowPartial: true } an unreachable goal yields the path to the
-   * reachable node closest to the goal (partial = true).
+   * reachable node closest to the goal (partial = true). { ignoreSoftBlocks: true } respects only the hard
+   * blocks (and the soft blocks whose reason equals `keepSoftReason`, e.g. the asking bot's own).
    */
-  findPath(from, to, { allowPartial = false, ignoreBlocks = false, cost = null } = {}) {
+  findPath(from, to, { allowPartial = false, ignoreBlocks = false, ignoreSoftBlocks = false, keepSoftReason = null, cost = null } = {}) {
     this.stats.paths++;
     const s = this.locate(from, 3);
     const t = this.locate(to, 3);
@@ -155,7 +177,13 @@ export class NavService {
       this.stats.failed++;
       return { ok: false, points: [], length: 0, partial: false, reason: !s ? 'start_off_mesh' : 'goal_off_mesh' };
     }
-    const blocked = ignoreBlocks || this._blockedNodes.size === 0 ? null : (n) => this._blockedNodes.has(n) && n !== s.node;
+    let blocked = null;
+    if (!ignoreBlocks && this._blockedNodes.size) {
+      if (ignoreSoftBlocks) {
+        const own = keepSoftReason ? this.blocks.filter((b) => b.soft && b.reason === keepSoftReason) : [];
+        if (this._hardNodes.size || own.length) blocked = (n) => n !== s.node && (this._hardNodes.has(n) || own.some((b) => b.nodes.has(n)));
+      } else blocked = (n) => this._blockedNodes.has(n) && n !== s.node;
+    }
     let corridor = this.mesh.searchNodes(s.node, s.point, t.node, t.point, { blocked, cost });
     let goal = t.point;
     let partial = false;
@@ -271,7 +299,7 @@ export class NavService {
     return {
       triangles: this.mesh.nodes.length,
       mainGroup: this.mesh.mainGroup,
-      blocks: this.blocks.map((b) => ({ id: b.id, center: b.center.toArray().map((v) => +v.toFixed(2)), radius: b.radius, ttl: +(b.until - this.time).toFixed(2), reason: b.reason, nodes: b.nodes.size })),
+      blocks: this.blocks.map((b) => ({ id: b.id, center: b.center.toArray().map((v) => +v.toFixed(2)), radius: b.radius, ttl: +(b.until - this.time).toFixed(2), reason: b.reason, nodes: b.nodes.size, soft: !!b.soft })),
       stats: { ...this.stats, searches: this.mesh.stats.searches, expanded: this.mesh.stats.expanded },
     };
   }

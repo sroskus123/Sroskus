@@ -116,9 +116,11 @@ export class Tactics {
         const dz = Math.hypot(cp.pos.x - o.zone.center[0], cp.pos.z - o.zone.center[2]);
         score -= Math.max(0, dz - o.zone.radius + 0.5) * 0.8;
         if (o.urgent) {
-          // the zone needs us: do not fall back away from it
+          // the zone needs us: do not fall back away from it; under zone pressure prefer the cover that brings
+          // the bot closer (bounding from cover to cover towards the zone)
           const dzBot = Math.hypot(pos.x - o.zone.center[0], pos.z - o.zone.center[2]);
           score -= Math.max(0, dz - dzBot) * 1.2;
+          if (o.press > 0) score += Math.max(0, dzBot - dz) * 1.5 * o.press;
         }
       }
       const crowd = this.board.nearestTeammateClaim(bot.c.id, bot.c.team, cp.pos);

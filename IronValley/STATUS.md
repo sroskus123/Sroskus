@@ -57,6 +57,13 @@ cca 29 GB volného disku, **bez GPU** (`/dev/dri` chybí, `nvidia-smi` chybí). 
 - **Jádro pravidel** (`Web/src/core`, `Core/`, `Shared/`): munice + přebíjení s komorou, kontrolní bod, kolo, respawn.
   JS 217/217, C++ ctest 15/15 (GCC, clang, ASan+UBSan), 149 sdílených vektorů, diferenciální fuzz JS↔C++, 19 injektovaných
   mutací zachyceno. Pravidla a rozhodnutí: `Docs/RULES.md`.
+- **Integrace 17 botů + nezávislé ověření (2026-09-27, web):** skutečná kola v AI aréně se 3 a 17 boty (Node i sestavená
+  hra v Chromiu, vykreslování vypnuté, časově zrychlené) a celé 10min kolo. Nalezené a opravené vady v `src/ai/**`:
+  blokace navmeshe kolem známé stěny odřízla tým (měkké / tvrdé blokace), zácpy ve dveřích a uličce (kontakt těl, druhý
+  detektor zaseknutí, eskalace), „průlety“ střel skrz zdi, slabý tah na oblast (tlak oblasti), střelba do spoluhráče za cílem,
+  slité dávky, přešlapování, boti bojující během odpočtu, detekce o interval dřív. Nový e2e test „celé kolo se 17 boty“
+  (`Web/tests/e2e/09_full_round.test.mjs`), telemetrie `window.__IV.telemetry*`. Naměřené hodnoty: `Docs/AI.md` oddíl 11. Poslední úplný běh 2026-09-27:
+  **unit 388/388, e2e 73/73 PASS**.
 
 ## Náhled pro uživatele
 
@@ -93,7 +100,7 @@ Stav po obnovení: build OK, unit 368/368 PASS, e2e běží. Nedokončené a neo
   bez podkladů, 5m svah za skladem, okapy nad hranou střechy, krycí body AI uvnitř budov); checker 73/73 je chceme zpřísnit;
 - základ postavy: P1 klouby prstů u hřbetu (pěst proráží hřbet ruky) + P2;
 - ruce/rukavice, pistole, převod pohybů CMU, optiky: rozpracováno/nezačato;
-- integrace 17 botů a nezávislé ověření herního cyklu a AI: nedokončeno;
+- integrace 17 botů a nezávislé ověření herního cyklu a AI: **hotovo 2026-09-27** (viz „Hotovo“);
 - zpětná vazba z hraní: pohyb/recoil rozpracovány (traversal.js, stride.js, cameraEffects.js, muzzleEffects.js), zvuk nezačat.
 Pokračuje se úsporně: max. 2 agenti na pozadí současně (Agent), bez velkých workflowů.
 

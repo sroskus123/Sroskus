@@ -5,6 +5,7 @@
 
 import { Quaternion, Vector3 } from 'three';
 import { DEG2RAD } from '../util/math.js';
+import { MatchTelemetry } from './matchTelemetry.js';
 
 export function installTestApi(game, target = window) {
   let renderOnStep = false;
@@ -75,6 +76,22 @@ export function installTestApi(game, target = window) {
       return game.aiEnabled;
     },
     getAIDebug: () => (S() ? S().ai.getDebug() : null),
+    /**
+     * Match telemetry (src/debug/matchTelemetry.js) on the current session: scores over time, zone control,
+     * kills / deaths / respawns, shots / hits / reloads, stuck episodes, per-tick jumps (teleport check), cost.
+     * telemetryStart(opts) replaces a running one; telemetryReport() returns the report; telemetryStop().
+     */
+    telemetryStart: (opts = {}) => {
+      if (api._telemetry) api._telemetry.detach();
+      api._telemetry = S() ? new MatchTelemetry(S(), game.events, opts).attach() : null;
+      return !!api._telemetry;
+    },
+    telemetryReport: () => (api._telemetry ? api._telemetry.report() : null),
+    telemetryStop: () => {
+      if (api._telemetry) api._telemetry.detach();
+      api._telemetry = null;
+      return true;
+    },
     newRound: () => {
       game.newRound(false);
       return api.getMatchState();

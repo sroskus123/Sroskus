@@ -1,0 +1,6365 @@
+{
+  "generated_by": "Art/Source/Blender/weapons/optics.py",
+  "time": "2026-09-27 02:50:41",
+  "blender": "4.5.14 LTS",
+  "quick": false,
+  "stages": [
+    "build",
+    "bake",
+    "save",
+    "validate",
+    "export",
+    "reimport",
+    "mount",
+    "render",
+    "config"
+  ],
+  "optics": {
+    "IVH1": {
+      "uv": {
+        "enlarged": [
+          160,
+          103
+        ],
+        "shape": "CONCAVE",
+        "nudged": 3,
+        "coverage": 0.5835,
+        "overlap_px": 0,
+        "islands": 534,
+        "islands_without_pixels": 0,
+        "collapsed_faces": 1453,
+        "angle": 45.0,
+        "overlap_px_final": 0,
+        "clamped_uv_coords": 0
+      },
+      "textures": {
+        "BaseColor": "Art/Textures/Optics/IVH1/T_IVH1_Body_BaseColor.png",
+        "Normal": "Art/Textures/Optics/IVH1/T_IVH1_Body_Normal.png",
+        "Normal_DX": "Art/Textures/Optics/IVH1/T_IVH1_Body_Normal_DX.png",
+        "ORM": "Art/Textures/Optics/IVH1/T_IVH1_Body_ORM.png",
+        "Masks_intermediate": "Art/Textures/Optics/IVH1/Intermediate/T_IVH1_Body_Masks.png"
+      },
+      "lod1_image_map": {
+        "T_IVH1_Body_BaseColor.png": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVH1/LOD1/T_IVH1_Body_BaseColor_LOD1.png",
+        "T_IVH1_Body_Normal.png": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVH1/LOD1/T_IVH1_Body_Normal_LOD1.png",
+        "T_IVH1_Body_ORM.png": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVH1/LOD1/T_IVH1_Body_ORM_LOD1.png"
+      },
+      "mesh_validation": "Art/Previews/Optics/IVH1_mesh_validation.json",
+      "mesh_problems": [
+        "SM_IVH1_Holo_LOD1: zero-UV-area face of 0.6 mm2 (limit 0.12)"
+      ],
+      "tris_lod0": 7260,
+      "tris_lod1": 3630,
+      "tris_glass": 56,
+      "tris_reticle": 28,
+      "texture_set": {
+        "objects": [
+          "SM_IVH1_Holo"
+        ],
+        "size": 2048,
+        "uv_overlap": {
+          "resolution": 2048,
+          "covered_fraction": 0.5827,
+          "pixels_shared_by_different_islands": 0,
+          "islands": 1409,
+          "islands_without_pixel_centres": 14,
+          "collapsed_degenerate_faces": 869,
+          "method": "pixel-centre rasterisation per island at the texture size"
+        },
+        "texel_density_min": 90.66,
+        "texel_density_max": 90.66
+      },
+      "sheets": {
+        "IVH1_Glass": {
+          "tris": 56,
+          "boundary_edges": 56,
+          "edges_with_3plus_faces": 0,
+          "zero_area_faces": 0,
+          "shells": 2,
+          "uv_layers": [
+            "UVMap"
+          ],
+          "facing_ok": {
+            "M_IVH1_Glass_Rear": true,
+            "M_IVH1_Glass_Front": true
+          }
+        },
+        "IVH1_Glass_LOD1": {
+          "tris": 24,
+          "boundary_edges": 28,
+          "edges_with_3plus_faces": 0,
+          "zero_area_faces": 0,
+          "shells": 2,
+          "uv_layers": [
+            "UVMap"
+          ],
+          "facing_ok": {
+            "M_IVH1_Glass_Rear": true,
+            "M_IVH1_Glass_Front": true
+          }
+        },
+        "IVH1_Reticle": {
+          "tris": 28,
+          "boundary_edges": 28,
+          "edges_with_3plus_faces": 0,
+          "zero_area_faces": 0,
+          "shells": 1,
+          "uv_layers": [
+            "UVMap"
+          ],
+          "facing_ok": {
+            "M_IVH1_Reticle": true
+          }
+        }
+      },
+      "sheet_problems": [],
+      "transmission_audit": {
+        "M_IVH1_Reticle": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 1.0,
+          "alpha_linked": true,
+          "render_method": "BLENDED",
+          "backface_culling": true
+        },
+        "M_IVH1_Body": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 1.0,
+          "alpha_linked": false,
+          "render_method": "DITHERED",
+          "backface_culling": false
+        },
+        "M_IVH1_Glass_Front": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 0.1,
+          "alpha_linked": false,
+          "render_method": "BLENDED",
+          "backface_culling": false
+        },
+        "M_IVH1_Glass_Rear": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 0.1,
+          "alpha_linked": false,
+          "render_method": "BLENDED",
+          "backface_culling": false
+        }
+      },
+      "transmission_problems": [],
+      "reticle_uv_check": {
+        "uv_at_axis": [
+          0.5,
+          0.5
+        ],
+        "u_runs_to_shooters_right": true,
+        "v_runs_up": true,
+        "eye_to_sheet_m": 0.1145,
+        "texture_units_per_radian_seen_from_eye": 3437.747,
+        "expected_units_per_radian": 3437.747,
+        "scale_error_pct": 0.0
+      },
+      "reticle_metrics": {
+        "px_per_unit": 25.6,
+        "units": "MOA",
+        "size_px": 2048,
+        "edge_10_90_px_first_edges": [
+          1.397,
+          1.583
+        ],
+        "lit_area_units2": 409.2083,
+        "etch_area_units2": 0.0,
+        "border_alpha_max": 0.0,
+        "lit_centroid_offset_px": [
+          0.0002,
+          0.0002
+        ]
+      },
+      "dimensions_cm": {
+        "length_x": 9.8,
+        "width_y": 4.62,
+        "height_z": 6.69,
+        "bbox_min_cm": [
+          -8.1,
+          -2.12,
+          -0.57
+        ],
+        "bbox_max_cm": [
+          1.7,
+          2.5,
+          6.12
+        ],
+        "height_above_rail_top_cm": 6.12
+      },
+      "exports": {
+        "fbx": {
+          "path": "Art/Export/FBX/SM_IVH1_Holo.fbx",
+          "bytes": 635820
+        },
+        "glb": {
+          "path": "Art/Export/GLB/IVH1_Holo.glb",
+          "bytes": 4441388
+        },
+        "fbx_lod1": {
+          "path": "Art/Export/FBX/SM_IVH1_Holo_LOD1.fbx",
+          "bytes": 364524
+        },
+        "glb_lod1": {
+          "path": "Art/Export/GLB/IVH1_Holo_LOD1.glb",
+          "bytes": 694936
+        }
+      },
+      "reimport": {
+        "fbx": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/FBX/SM_IVH1_Holo.fbx",
+          "meshes": [
+            "IVH1_Glass",
+            "IVH1_Reticle",
+            "SM_IVH1_Holo"
+          ],
+          "per_mesh": {
+            "IVH1_Glass": {
+              "tris": 56,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVH1_Glass_Rear",
+                "M_IVH1_Glass_Front"
+              ]
+            },
+            "IVH1_Reticle": {
+              "tris": 28,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVH1_Reticle"
+              ]
+            },
+            "SM_IVH1_Holo": {
+              "tris": 7260,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVH1_Body"
+              ]
+            }
+          },
+          "tris": 7344,
+          "empties": {
+            "SOCKET_socket_eye": [
+              -0.166,
+              0.0,
+              0.044
+            ],
+            "SOCKET_socket_rail": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_reticle": [
+              -0.0515,
+              0.0,
+              0.044
+            ],
+            "SOCKET_socket_sight_axis_front": [
+              -0.0256,
+              0.0,
+              0.044
+            ],
+            "SOCKET_socket_sight_axis_rear": [
+              -0.0774,
+              0.0,
+              0.044
+            ]
+          },
+          "empty_axes_x": {
+            "SOCKET_socket_eye": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_rail": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_reticle": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_sight_axis_front": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_sight_axis_rear": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          },
+          "empty_parents": {
+            "SOCKET_socket_eye": "SM_IVH1_Holo",
+            "SOCKET_socket_rail": "SM_IVH1_Holo",
+            "SOCKET_socket_reticle": "SM_IVH1_Holo",
+            "SOCKET_socket_sight_axis_front": "SM_IVH1_Holo",
+            "SOCKET_socket_sight_axis_rear": "SM_IVH1_Holo"
+          },
+          "bbox_min": [
+            -0.081,
+            -0.0212,
+            -0.0057
+          ],
+          "bbox_max": [
+            0.017,
+            0.025,
+            0.0612
+          ],
+          "materials": {
+            "M_IVH1_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVH1_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVH1_Reticle": {
+              "images": [
+                {
+                  "name": "T_IVH1_Reticle.png",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVH1_Reticle.png.002",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVH1_Reticle_Emissive.png",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": true
+              }
+            },
+            "M_IVH1_Body": {
+              "images": [
+                {
+                  "name": "T_IVH1_Body_BaseColor.png",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVH1_Body_Normal_DX.png",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            }
+          },
+          "problems": []
+        },
+        "fbx_lod1": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/FBX/SM_IVH1_Holo_LOD1.fbx",
+          "meshes": [
+            "IVH1_Glass_LOD1",
+            "SM_IVH1_Holo_LOD1"
+          ],
+          "per_mesh": {
+            "IVH1_Glass_LOD1": {
+              "tris": 24,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVH1_Glass_Rear",
+                "M_IVH1_Glass_Front"
+              ]
+            },
+            "SM_IVH1_Holo_LOD1": {
+              "tris": 3630,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVH1_Body"
+              ]
+            }
+          },
+          "tris": 3654,
+          "empties": {},
+          "empty_axes_x": {},
+          "empty_parents": {},
+          "bbox_min": [
+            -0.081,
+            -0.0212,
+            -0.0057
+          ],
+          "bbox_max": [
+            0.01697,
+            0.025,
+            0.0612
+          ],
+          "materials": {
+            "M_IVH1_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVH1_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVH1_Body": {
+              "images": [
+                {
+                  "name": "T_IVH1_Body_BaseColor.png",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVH1_Body_Normal_DX.png",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            }
+          },
+          "problems": []
+        },
+        "glb": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/GLB/IVH1_Holo.glb",
+          "meshes": [
+            "IVH1_Glass",
+            "IVH1_Reticle",
+            "SM_IVH1_Holo"
+          ],
+          "per_mesh": {
+            "SM_IVH1_Holo": {
+              "tris": 7260,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVH1_Body"
+              ]
+            },
+            "IVH1_Glass": {
+              "tris": 56,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVH1_Glass_Rear",
+                "M_IVH1_Glass_Front"
+              ]
+            },
+            "IVH1_Reticle": {
+              "tris": 28,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVH1_Reticle"
+              ]
+            }
+          },
+          "tris": 7344,
+          "empties": {
+            "socket_eye": [
+              -0.166,
+              0.0,
+              0.044
+            ],
+            "socket_rail": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "socket_reticle": [
+              -0.0515,
+              0.0,
+              0.044
+            ],
+            "socket_sight_axis_front": [
+              -0.0256,
+              0.0,
+              0.044
+            ],
+            "socket_sight_axis_rear": [
+              -0.0774,
+              0.0,
+              0.044
+            ]
+          },
+          "empty_axes_x": {
+            "socket_eye": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_rail": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_reticle": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_sight_axis_front": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_sight_axis_rear": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          },
+          "empty_parents": {
+            "socket_eye": "SM_IVH1_Holo",
+            "socket_rail": "SM_IVH1_Holo",
+            "socket_reticle": "SM_IVH1_Holo",
+            "socket_sight_axis_front": "SM_IVH1_Holo",
+            "socket_sight_axis_rear": "SM_IVH1_Holo"
+          },
+          "bbox_min": [
+            -0.081,
+            -0.0212,
+            -0.0057
+          ],
+          "bbox_max": [
+            0.017,
+            0.025,
+            0.0612
+          ],
+          "materials": {
+            "M_IVH1_Body": {
+              "images": [
+                {
+                  "name": "T_IVH1_Body_BaseColor",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVH1_Body_ORM",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVH1_Body_Normal",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVH1_Body_ORM",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            },
+            "M_IVH1_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVH1_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVH1_Reticle": {
+              "images": [
+                {
+                  "name": "T_IVH1_Reticle_Emissive",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVH1_Reticle",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": true
+              }
+            }
+          },
+          "gltf_material_audit": {
+            "materials": {
+              "M_IVH1_Glass_Rear": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.03999999910593033,
+                  0.03200000151991844,
+                  0.02199999988079071,
+                  0.10000000149011612
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVH1_Glass_Front": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.02199999988079071,
+                  0.029999999329447746,
+                  0.03999999910593033,
+                  0.10000000149011612
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVH1_Reticle": {
+                "alphaMode": "BLEND",
+                "doubleSided": false,
+                "baseColorFactor": null,
+                "roughnessFactor": null,
+                "metallicFactor": 0,
+                "emissiveFactor": [
+                  1,
+                  1,
+                  1
+                ],
+                "baseColorTexture": {
+                  "image": "T_IVH1_Reticle",
+                  "wrapS": 33071,
+                  "wrapT": 33071,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "emissiveTexture": {
+                  "image": "T_IVH1_Reticle_Emissive",
+                  "wrapS": 33071,
+                  "wrapT": 33071,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_emissive_strength",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVH1_Body": {
+                "alphaMode": "OPAQUE",
+                "doubleSided": true,
+                "baseColorFactor": null,
+                "roughnessFactor": null,
+                "metallicFactor": null,
+                "emissiveFactor": null,
+                "baseColorTexture": {
+                  "image": "T_IVH1_Body_BaseColor",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "emissiveTexture": null,
+                "normalTexture": {
+                  "image": "T_IVH1_Body_Normal",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "occlusionTexture": {
+                  "image": "T_IVH1_Body_ORM",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "metallicRoughnessTexture": {
+                  "image": "T_IVH1_Body_ORM",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "extensions": []
+              }
+            },
+            "transmission_like_extensions": [],
+            "extensionsUsed": [
+              "KHR_materials_emissive_strength",
+              "KHR_materials_specular",
+              "KHR_materials_ior"
+            ],
+            "nodes": [
+              "IVH1_Glass",
+              "IVH1_Reticle",
+              "socket_eye",
+              "socket_rail",
+              "socket_reticle",
+              "socket_sight_axis_front",
+              "socket_sight_axis_rear",
+              "SM_IVH1_Holo"
+            ]
+          },
+          "problems": []
+        },
+        "glb_lod1": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/GLB/IVH1_Holo_LOD1.glb",
+          "meshes": [
+            "IVH1_Glass_LOD1",
+            "SM_IVH1_Holo_LOD1"
+          ],
+          "per_mesh": {
+            "SM_IVH1_Holo_LOD1": {
+              "tris": 3630,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVH1_Body"
+              ]
+            },
+            "IVH1_Glass_LOD1": {
+              "tris": 24,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVH1_Glass_Rear",
+                "M_IVH1_Glass_Front"
+              ]
+            }
+          },
+          "tris": 3654,
+          "empties": {},
+          "empty_axes_x": {},
+          "empty_parents": {},
+          "bbox_min": [
+            -0.081,
+            -0.0212,
+            -0.0057
+          ],
+          "bbox_max": [
+            0.01697,
+            0.025,
+            0.0612
+          ],
+          "materials": {
+            "M_IVH1_Body": {
+              "images": [
+                {
+                  "name": "T_IVH1_Body_BaseColor_LOD1",
+                  "size": [
+                    512,
+                    512
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVH1_Body_ORM_LOD1",
+                  "size": [
+                    512,
+                    512
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVH1_Body_Normal_LOD1",
+                  "size": [
+                    512,
+                    512
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVH1_Body_ORM_LOD1",
+                  "size": [
+                    512,
+                    512
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            },
+            "M_IVH1_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVH1_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            }
+          },
+          "gltf_material_audit": {
+            "materials": {
+              "M_IVH1_Glass_Rear": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.03999999910593033,
+                  0.03200000151991844,
+                  0.02199999988079071,
+                  0.10000000149011612
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVH1_Glass_Front": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.02199999988079071,
+                  0.029999999329447746,
+                  0.03999999910593033,
+                  0.10000000149011612
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVH1_Body": {
+                "alphaMode": "OPAQUE",
+                "doubleSided": true,
+                "baseColorFactor": null,
+                "roughnessFactor": null,
+                "metallicFactor": null,
+                "emissiveFactor": null,
+                "baseColorTexture": {
+                  "image": "T_IVH1_Body_BaseColor_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "emissiveTexture": null,
+                "normalTexture": {
+                  "image": "T_IVH1_Body_Normal_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "occlusionTexture": {
+                  "image": "T_IVH1_Body_ORM_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "metallicRoughnessTexture": {
+                  "image": "T_IVH1_Body_ORM_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "extensions": []
+              }
+            },
+            "transmission_like_extensions": [],
+            "extensionsUsed": [
+              "KHR_materials_specular",
+              "KHR_materials_ior"
+            ],
+            "nodes": [
+              "IVH1_Glass_LOD1",
+              "SM_IVH1_Holo_LOD1"
+            ]
+          },
+          "problems": []
+        }
+      },
+      "mount": {
+        "irons_folded_documented": {
+          "clearance": {
+            "Barrel": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 14.2
+            },
+            "BarrelNut": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 16.78
+            },
+            "BoltCarrier": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 15.2
+            },
+            "ChargingHandle": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.04
+            },
+            "GasTube": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 18.43
+            },
+            "Handguard": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 11.39
+            },
+            "RearSightBase": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 10.1
+            },
+            "RearSightBolt": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 20.63
+            },
+            "RearSightLeaf": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 22.15
+            },
+            "UpperReceiver": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 0.08
+            }
+          },
+          "intersecting_parts": [],
+          "rear_leaf_bbox_bore_cm": {
+            "x": [
+              -11.4,
+              -8.17
+            ],
+            "z": [
+              4.37,
+              4.67
+            ]
+          }
+        },
+        "irons_deployed": {
+          "clearance": {
+            "Barrel": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 14.2
+            },
+            "BarrelNut": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 16.78
+            },
+            "BoltCarrier": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 15.2
+            },
+            "ChargingHandle": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.04
+            },
+            "GasTube": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 18.43
+            },
+            "Handguard": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 11.39
+            },
+            "RearSightBase": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 10.1
+            },
+            "RearSightBolt": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 20.63
+            },
+            "RearSightLeaf": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 18.6
+            },
+            "UpperReceiver": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 0.08
+            }
+          },
+          "intersecting_parts": [],
+          "rear_leaf_bbox_bore_cm": {
+            "x": [
+              -8.45,
+              -8.15
+            ],
+            "z": [
+              4.39,
+              7.62
+            ]
+          }
+        },
+        "rear_leaf_plus90_as_in_review_r1": {
+          "clearance": {
+            "Barrel": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 14.2
+            },
+            "BarrelNut": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 16.78
+            },
+            "BoltCarrier": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 15.2
+            },
+            "ChargingHandle": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.04
+            },
+            "GasTube": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 18.43
+            },
+            "Handguard": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 11.39
+            },
+            "RearSightBase": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 10.1
+            },
+            "RearSightBolt": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 20.63
+            },
+            "RearSightLeaf": {
+              "intersecting_face_pairs": 109,
+              "min_distance_mm": 5.4
+            },
+            "UpperReceiver": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 0.08
+            }
+          },
+          "intersecting_parts": [
+            "RearSightLeaf"
+          ],
+          "rear_leaf_bbox_bore_cm": {
+            "x": [
+              -8.43,
+              -5.2
+            ],
+            "z": [
+              4.37,
+              4.67
+            ]
+          }
+        },
+        "socket_rail_rifle_m": [
+          0.18386,
+          0.0,
+          0.12172
+        ],
+        "socket_eye_rifle_m": [
+          0.01786,
+          0.0,
+          0.16572
+        ],
+        "socket_eye_bore_cm": [
+          -14.9,
+          0.0,
+          7.4
+        ],
+        "sight_axis_over_bore_cm_measured": 7.4,
+        "sight_axis_angle_to_bore_deg": 0.0,
+        "reticle_normal_angle_to_axis_deg": 0.0,
+        "lug_slots_bore_x_cm": [
+          -0.6
+        ],
+        "lugs_on_slot_centres": true,
+        "rail_contact_min_gap_mm": 0.08,
+        "rail_intersections": 0
+      },
+      "reticle_meta": {
+        "id": "IVH1",
+        "title": "IV-H1 holographic: 65 MOA ring + 1 MOA dot",
+        "units": "MOA",
+        "size_px": [
+          2048,
+          2048
+        ],
+        "field_units": 80.0,
+        "px_per_unit": 25.6,
+        "unit_in_rad": 0.0002908882086657216,
+        "field_deg": 1.3333333333333333,
+        "px_per_moa": 25.6,
+        "px_per_mrad": 88.00631733209445,
+        "axis_px": [
+          1024.0,
+          1024.0
+        ],
+        "axis_note": "the point of aim is the exact texture centre (between the four centre texels)",
+        "orientation": "row 0 = top (up); +x = right as seen by the shooter",
+        "colour_srgb": [
+          255,
+          38,
+          24
+        ],
+        "drawn_extent_units": {
+          "x_min": -33.4961,
+          "x_max": 33.4961,
+          "y_min": -33.4961,
+          "y_max": 33.4961
+        },
+        "elements": [
+          {
+            "layer": "lit",
+            "type": "ring",
+            "centreline_diameter": 65.0,
+            "stroke": 2.0
+          },
+          {
+            "layer": "lit",
+            "type": "dot",
+            "diameter": 1.0
+          }
+        ],
+        "textures": {
+          "base_rgba": "T_IVH1_Reticle.png",
+          "emissive_rgb": "T_IVH1_Reticle_Emissive.png",
+          "sdf_rgb": "T_IVH1_Reticle_SDF.png"
+        },
+        "encoding": {
+          "base_rgba": "sRGB colour + straight alpha. RGB = illumination colour where the nearest reticle feature is illuminated, black where it is etched; transparent texels carry the nearest feature colour so mip levels do not darken or fringe.",
+          "emissive_rgb": "sRGB, illumination colour x coverage of the illuminated features only (black = not illuminated). Multiply by the brightness setting.",
+          "sdf_rgb": "signed distance, 0.5 = feature edge, 1 = inside, 0 = outside; value = 0.5 - d_px / 32 (d_px = distance in texels at this resolution, clamped at +-16 px). R = all features, G = illuminated, B = etched."
+        },
+        "sampling": "power-of-two, generate mips (box / Kaiser), trilinear + anisotropic filtering, clamp-to-edge addressing (the border texels are transparent)",
+        "reticle_type": "projected (hologram): no ink, invisible when switched off",
+        "magnification_note": "angles are OBJECT-space (as subtended at the target); behind the eyepiece they appear x1",
+        "projection": "gnomonic: pixel offset from the texture centre = px_per_unit x tan(angle) / unit_in_rad (reticle marks are linear at the target; a rectilinear camera projects the same way). px_per_unit is exact at the axis; at the texture edge linear-in-angle differs by < 0.13 % for the fields used here.",
+        "metrics": {
+          "px_per_unit": 25.6,
+          "units": "MOA",
+          "size_px": 2048,
+          "edge_10_90_px_first_edges": [
+            1.397,
+            1.583
+          ],
+          "lit_area_units2": 409.2083,
+          "etch_area_units2": 0.0,
+          "border_alpha_max": 0.0,
+          "lit_centroid_offset_px": [
+            0.0002,
+            0.0002
+          ]
+        }
+      }
+    },
+    "IVR1": {
+      "uv": {
+        "enlarged": [
+          282,
+          172
+        ],
+        "shape": "CONCAVE",
+        "nudged": 28,
+        "coverage": 0.4648,
+        "overlap_px": 0,
+        "islands": 691,
+        "islands_without_pixels": 0,
+        "collapsed_faces": 1545,
+        "angle": 35.0,
+        "overlap_px_final": 0,
+        "clamped_uv_coords": 0
+      },
+      "textures": {
+        "BaseColor": "Art/Textures/Optics/IVR1/T_IVR1_Body_BaseColor.png",
+        "Normal": "Art/Textures/Optics/IVR1/T_IVR1_Body_Normal.png",
+        "Normal_DX": "Art/Textures/Optics/IVR1/T_IVR1_Body_Normal_DX.png",
+        "ORM": "Art/Textures/Optics/IVR1/T_IVR1_Body_ORM.png",
+        "Masks_intermediate": "Art/Textures/Optics/IVR1/Intermediate/T_IVR1_Body_Masks.png"
+      },
+      "lod1_image_map": {
+        "T_IVR1_Body_BaseColor.png": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVR1/LOD1/T_IVR1_Body_BaseColor_LOD1.png",
+        "T_IVR1_Body_Normal.png": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVR1/LOD1/T_IVR1_Body_Normal_LOD1.png",
+        "T_IVR1_Body_ORM.png": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVR1/LOD1/T_IVR1_Body_ORM_LOD1.png"
+      },
+      "mesh_validation": "Art/Previews/Optics/IVR1_mesh_validation.json",
+      "mesh_problems": [],
+      "tris_lod0": 9166,
+      "tris_lod1": 4582,
+      "tris_glass": 1408,
+      "tris_reticle": 240,
+      "texture_set": {
+        "objects": [
+          "SM_IVR1_RedDot"
+        ],
+        "size": 1024,
+        "uv_overlap": {
+          "resolution": 1024,
+          "covered_fraction": 0.4621,
+          "pixels_shared_by_different_islands": 0,
+          "islands": 1722,
+          "islands_without_pixel_centres": 16,
+          "collapsed_degenerate_faces": 1007,
+          "method": "pixel-centre rasterisation per island at the texture size"
+        },
+        "texel_density_min": 46.63,
+        "texel_density_max": 46.63
+      },
+      "sheets": {
+        "IVR1_Glass": {
+          "tris": 1408,
+          "boundary_edges": 128,
+          "edges_with_3plus_faces": 0,
+          "zero_area_faces": 0,
+          "shells": 2,
+          "uv_layers": [
+            "UVMap"
+          ],
+          "facing_ok": {
+            "M_IVR1_Glass_Rear": true,
+            "M_IVR1_Glass_Front": true
+          }
+        },
+        "IVR1_Glass_LOD1": {
+          "tris": 22,
+          "boundary_edges": 26,
+          "edges_with_3plus_faces": 0,
+          "zero_area_faces": 0,
+          "shells": 2,
+          "uv_layers": [
+            "UVMap"
+          ],
+          "facing_ok": {
+            "M_IVR1_Glass_Rear": true,
+            "M_IVR1_Glass_Front": true
+          }
+        },
+        "IVR1_Reticle": {
+          "tris": 240,
+          "boundary_edges": 48,
+          "edges_with_3plus_faces": 0,
+          "zero_area_faces": 0,
+          "shells": 1,
+          "uv_layers": [
+            "UVMap"
+          ],
+          "facing_ok": {
+            "M_IVR1_Reticle": true
+          }
+        }
+      },
+      "sheet_problems": [],
+      "transmission_audit": {
+        "M_IVR1_Glass_Front": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 0.16,
+          "alpha_linked": false,
+          "render_method": "BLENDED",
+          "backface_culling": false
+        },
+        "M_IVR1_Body": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 1.0,
+          "alpha_linked": false,
+          "render_method": "DITHERED",
+          "backface_culling": false
+        },
+        "M_IVR1_Glass_Rear": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 0.08,
+          "alpha_linked": false,
+          "render_method": "BLENDED",
+          "backface_culling": false
+        },
+        "M_IVR1_Reticle": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 1.0,
+          "alpha_linked": true,
+          "render_method": "BLENDED",
+          "backface_culling": true
+        }
+      },
+      "transmission_problems": [],
+      "reticle_uv_check": {
+        "uv_at_axis": [
+          0.5,
+          0.5
+        ],
+        "u_runs_to_shooters_right": true,
+        "v_runs_up": true,
+        "eye_to_sheet_m": 0.133,
+        "texture_units_per_radian_seen_from_eye": 3437.747,
+        "expected_units_per_radian": 3437.747,
+        "scale_error_pct": -0.0
+      },
+      "reticle_metrics": {
+        "px_per_unit": 64.0,
+        "units": "MOA",
+        "size_px": 2048,
+        "edge_10_90_px_first_edges": [
+          0.802
+        ],
+        "lit_area_units2": 3.1414,
+        "etch_area_units2": 0.0,
+        "border_alpha_max": 0.0,
+        "lit_centroid_offset_px": [
+          -0.0001,
+          -0.0001
+        ]
+      },
+      "dimensions_cm": {
+        "length_x": 6.9,
+        "width_y": 4.82,
+        "height_z": 7.39,
+        "bbox_min_cm": [
+          -5.5,
+          -2.66,
+          -0.73
+        ],
+        "bbox_max_cm": [
+          1.4,
+          2.16,
+          6.66
+        ],
+        "height_above_rail_top_cm": 6.66
+      },
+      "exports": {
+        "fbx": {
+          "path": "Art/Export/FBX/SM_IVR1_RedDot.fbx",
+          "bytes": 1024988
+        },
+        "glb": {
+          "path": "Art/Export/GLB/IVR1_RedDot.glb",
+          "bytes": 2159940
+        },
+        "fbx_lod1": {
+          "path": "Art/Export/FBX/SM_IVR1_RedDot_LOD1.fbx",
+          "bytes": 524220
+        },
+        "glb_lod1": {
+          "path": "Art/Export/GLB/IVR1_RedDot_LOD1.glb",
+          "bytes": 482544
+        }
+      },
+      "reimport": {
+        "fbx": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/FBX/SM_IVR1_RedDot.fbx",
+          "meshes": [
+            "IVR1_Glass",
+            "IVR1_Reticle",
+            "SM_IVR1_RedDot"
+          ],
+          "per_mesh": {
+            "IVR1_Glass": {
+              "tris": 1408,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVR1_Glass_Rear",
+                "M_IVR1_Glass_Front"
+              ]
+            },
+            "IVR1_Reticle": {
+              "tris": 240,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVR1_Reticle"
+              ]
+            },
+            "SM_IVR1_RedDot": {
+              "tris": 9166,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVR1_Body"
+              ]
+            }
+          },
+          "tris": 10814,
+          "empties": {
+            "SOCKET_socket_eye": [
+              -0.131,
+              0.0,
+              0.04
+            ],
+            "SOCKET_socket_rail": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_reticle": [
+              0.002,
+              0.0,
+              0.04
+            ],
+            "SOCKET_socket_sight_axis_front": [
+              0.0077,
+              0.0,
+              0.04
+            ],
+            "SOCKET_socket_sight_axis_rear": [
+              -0.0499,
+              0.0,
+              0.04
+            ]
+          },
+          "empty_axes_x": {
+            "SOCKET_socket_eye": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_rail": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_reticle": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_sight_axis_front": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_sight_axis_rear": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          },
+          "empty_parents": {
+            "SOCKET_socket_eye": "SM_IVR1_RedDot",
+            "SOCKET_socket_rail": "SM_IVR1_RedDot",
+            "SOCKET_socket_reticle": "SM_IVR1_RedDot",
+            "SOCKET_socket_sight_axis_front": "SM_IVR1_RedDot",
+            "SOCKET_socket_sight_axis_rear": "SM_IVR1_RedDot"
+          },
+          "bbox_min": [
+            -0.055,
+            -0.0266,
+            -0.0073
+          ],
+          "bbox_max": [
+            0.014,
+            0.0216,
+            0.0666
+          ],
+          "materials": {
+            "M_IVR1_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.08,
+                "alpha_linked": false
+              }
+            },
+            "M_IVR1_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.16,
+                "alpha_linked": false
+              }
+            },
+            "M_IVR1_Reticle": {
+              "images": [
+                {
+                  "name": "T_IVR1_Reticle.png",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVR1_Reticle.png.002",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVR1_Reticle_Emissive.png",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": true
+              }
+            },
+            "M_IVR1_Body": {
+              "images": [
+                {
+                  "name": "T_IVR1_Body_BaseColor.png",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVR1_Body_Normal_DX.png",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            }
+          },
+          "problems": []
+        },
+        "fbx_lod1": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/FBX/SM_IVR1_RedDot_LOD1.fbx",
+          "meshes": [
+            "IVR1_Glass_LOD1",
+            "SM_IVR1_RedDot_LOD1"
+          ],
+          "per_mesh": {
+            "IVR1_Glass_LOD1": {
+              "tris": 22,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVR1_Glass_Rear",
+                "M_IVR1_Glass_Front"
+              ]
+            },
+            "SM_IVR1_RedDot_LOD1": {
+              "tris": 4582,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVR1_Body"
+              ]
+            }
+          },
+          "tris": 4604,
+          "empties": {},
+          "empty_axes_x": {},
+          "empty_parents": {},
+          "bbox_min": [
+            -0.055,
+            -0.0266,
+            -0.00728
+          ],
+          "bbox_max": [
+            0.014,
+            0.0216,
+            0.0666
+          ],
+          "materials": {
+            "M_IVR1_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.08,
+                "alpha_linked": false
+              }
+            },
+            "M_IVR1_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.16,
+                "alpha_linked": false
+              }
+            },
+            "M_IVR1_Body": {
+              "images": [
+                {
+                  "name": "T_IVR1_Body_BaseColor.png",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVR1_Body_Normal_DX.png",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            }
+          },
+          "problems": []
+        },
+        "glb": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/GLB/IVR1_RedDot.glb",
+          "meshes": [
+            "IVR1_Glass",
+            "IVR1_Reticle",
+            "SM_IVR1_RedDot"
+          ],
+          "per_mesh": {
+            "SM_IVR1_RedDot": {
+              "tris": 9166,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVR1_Body"
+              ]
+            },
+            "IVR1_Glass": {
+              "tris": 1408,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVR1_Glass_Rear",
+                "M_IVR1_Glass_Front"
+              ]
+            },
+            "IVR1_Reticle": {
+              "tris": 240,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVR1_Reticle"
+              ]
+            }
+          },
+          "tris": 10814,
+          "empties": {
+            "socket_eye": [
+              -0.131,
+              0.0,
+              0.04
+            ],
+            "socket_rail": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "socket_reticle": [
+              0.002,
+              0.0,
+              0.04
+            ],
+            "socket_sight_axis_front": [
+              0.0077,
+              0.0,
+              0.04
+            ],
+            "socket_sight_axis_rear": [
+              -0.0499,
+              0.0,
+              0.04
+            ]
+          },
+          "empty_axes_x": {
+            "socket_eye": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_rail": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_reticle": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_sight_axis_front": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_sight_axis_rear": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          },
+          "empty_parents": {
+            "socket_eye": "SM_IVR1_RedDot",
+            "socket_rail": "SM_IVR1_RedDot",
+            "socket_reticle": "SM_IVR1_RedDot",
+            "socket_sight_axis_front": "SM_IVR1_RedDot",
+            "socket_sight_axis_rear": "SM_IVR1_RedDot"
+          },
+          "bbox_min": [
+            -0.055,
+            -0.0266,
+            -0.0073
+          ],
+          "bbox_max": [
+            0.014,
+            0.0216,
+            0.0666
+          ],
+          "materials": {
+            "M_IVR1_Body": {
+              "images": [
+                {
+                  "name": "T_IVR1_Body_BaseColor",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVR1_Body_ORM",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVR1_Body_Normal",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVR1_Body_ORM",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            },
+            "M_IVR1_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.08,
+                "alpha_linked": false
+              }
+            },
+            "M_IVR1_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.16,
+                "alpha_linked": false
+              }
+            },
+            "M_IVR1_Reticle": {
+              "images": [
+                {
+                  "name": "T_IVR1_Reticle_Emissive",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVR1_Reticle",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": true
+              }
+            }
+          },
+          "gltf_material_audit": {
+            "materials": {
+              "M_IVR1_Glass_Rear": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.024000000208616257,
+                  0.03200000151991844,
+                  0.029999999329447746,
+                  0.07999999821186066
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVR1_Glass_Front": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.05000000074505806,
+                  0.019999999552965164,
+                  0.012000000104308128,
+                  0.1599999964237213
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVR1_Reticle": {
+                "alphaMode": "BLEND",
+                "doubleSided": false,
+                "baseColorFactor": null,
+                "roughnessFactor": null,
+                "metallicFactor": 0,
+                "emissiveFactor": [
+                  1,
+                  1,
+                  1
+                ],
+                "baseColorTexture": {
+                  "image": "T_IVR1_Reticle",
+                  "wrapS": 33071,
+                  "wrapT": 33071,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "emissiveTexture": {
+                  "image": "T_IVR1_Reticle_Emissive",
+                  "wrapS": 33071,
+                  "wrapT": 33071,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_emissive_strength",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVR1_Body": {
+                "alphaMode": "OPAQUE",
+                "doubleSided": true,
+                "baseColorFactor": null,
+                "roughnessFactor": null,
+                "metallicFactor": null,
+                "emissiveFactor": null,
+                "baseColorTexture": {
+                  "image": "T_IVR1_Body_BaseColor",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "emissiveTexture": null,
+                "normalTexture": {
+                  "image": "T_IVR1_Body_Normal",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "occlusionTexture": {
+                  "image": "T_IVR1_Body_ORM",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "metallicRoughnessTexture": {
+                  "image": "T_IVR1_Body_ORM",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "extensions": []
+              }
+            },
+            "transmission_like_extensions": [],
+            "extensionsUsed": [
+              "KHR_materials_emissive_strength",
+              "KHR_materials_specular",
+              "KHR_materials_ior"
+            ],
+            "nodes": [
+              "IVR1_Glass",
+              "IVR1_Reticle",
+              "socket_eye",
+              "socket_rail",
+              "socket_reticle",
+              "socket_sight_axis_front",
+              "socket_sight_axis_rear",
+              "SM_IVR1_RedDot"
+            ]
+          },
+          "problems": []
+        },
+        "glb_lod1": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/GLB/IVR1_RedDot_LOD1.glb",
+          "meshes": [
+            "IVR1_Glass_LOD1",
+            "SM_IVR1_RedDot_LOD1"
+          ],
+          "per_mesh": {
+            "SM_IVR1_RedDot_LOD1": {
+              "tris": 4582,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVR1_Body"
+              ]
+            },
+            "IVR1_Glass_LOD1": {
+              "tris": 22,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVR1_Glass_Rear",
+                "M_IVR1_Glass_Front"
+              ]
+            }
+          },
+          "tris": 4604,
+          "empties": {},
+          "empty_axes_x": {},
+          "empty_parents": {},
+          "bbox_min": [
+            -0.055,
+            -0.0266,
+            -0.00728
+          ],
+          "bbox_max": [
+            0.014,
+            0.0216,
+            0.0666
+          ],
+          "materials": {
+            "M_IVR1_Body": {
+              "images": [
+                {
+                  "name": "T_IVR1_Body_BaseColor_LOD1",
+                  "size": [
+                    256,
+                    256
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVR1_Body_ORM_LOD1",
+                  "size": [
+                    256,
+                    256
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVR1_Body_Normal_LOD1",
+                  "size": [
+                    256,
+                    256
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVR1_Body_ORM_LOD1",
+                  "size": [
+                    256,
+                    256
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            },
+            "M_IVR1_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.08,
+                "alpha_linked": false
+              }
+            },
+            "M_IVR1_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.16,
+                "alpha_linked": false
+              }
+            }
+          },
+          "gltf_material_audit": {
+            "materials": {
+              "M_IVR1_Glass_Rear": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.024000000208616257,
+                  0.03200000151991844,
+                  0.029999999329447746,
+                  0.07999999821186066
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVR1_Glass_Front": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.05000000074505806,
+                  0.019999999552965164,
+                  0.012000000104308128,
+                  0.1599999964237213
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVR1_Body": {
+                "alphaMode": "OPAQUE",
+                "doubleSided": true,
+                "baseColorFactor": null,
+                "roughnessFactor": null,
+                "metallicFactor": null,
+                "emissiveFactor": null,
+                "baseColorTexture": {
+                  "image": "T_IVR1_Body_BaseColor_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "emissiveTexture": null,
+                "normalTexture": {
+                  "image": "T_IVR1_Body_Normal_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "occlusionTexture": {
+                  "image": "T_IVR1_Body_ORM_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "metallicRoughnessTexture": {
+                  "image": "T_IVR1_Body_ORM_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "extensions": []
+              }
+            },
+            "transmission_like_extensions": [],
+            "extensionsUsed": [
+              "KHR_materials_specular",
+              "KHR_materials_ior"
+            ],
+            "nodes": [
+              "IVR1_Glass_LOD1",
+              "SM_IVR1_RedDot_LOD1"
+            ]
+          },
+          "problems": []
+        }
+      },
+      "mount": {
+        "irons_folded_documented": {
+          "clearance": {
+            "Barrel": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 14.2
+            },
+            "BoltCarrier": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 14.63
+            },
+            "ChargingHandle": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.04
+            },
+            "RearSightBase": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 10.06
+            },
+            "RearSightBolt": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 24.12
+            },
+            "RearSightLeaf": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 11.37
+            },
+            "UpperReceiver": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 0.08
+            }
+          },
+          "intersecting_parts": [],
+          "rear_leaf_bbox_bore_cm": {
+            "x": [
+              -11.4,
+              -8.17
+            ],
+            "z": [
+              4.37,
+              4.67
+            ]
+          }
+        },
+        "irons_deployed": {
+          "clearance": {
+            "Barrel": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 14.2
+            },
+            "BoltCarrier": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 14.63
+            },
+            "ChargingHandle": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.04
+            },
+            "RearSightBase": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 10.06
+            },
+            "RearSightBolt": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 24.12
+            },
+            "RearSightLeaf": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 8.5
+            },
+            "UpperReceiver": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 0.08
+            }
+          },
+          "intersecting_parts": [],
+          "rear_leaf_bbox_bore_cm": {
+            "x": [
+              -8.45,
+              -8.15
+            ],
+            "z": [
+              4.39,
+              7.62
+            ]
+          }
+        },
+        "rear_leaf_plus90_as_in_review_r1": {
+          "clearance": {
+            "Barrel": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 14.2
+            },
+            "BoltCarrier": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 14.63
+            },
+            "ChargingHandle": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.04
+            },
+            "RearSightBase": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 10.06
+            },
+            "RearSightBolt": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 24.12
+            },
+            "RearSightLeaf": {
+              "intersecting_face_pairs": 136,
+              "min_distance_mm": 1.22
+            },
+            "UpperReceiver": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 0.08
+            }
+          },
+          "intersecting_parts": [
+            "RearSightLeaf"
+          ],
+          "rear_leaf_bbox_bore_cm": {
+            "x": [
+              -8.43,
+              -5.2
+            ],
+            "z": [
+              4.37,
+              4.67
+            ]
+          }
+        },
+        "socket_rail_rifle_m": [
+          0.14886,
+          0.0,
+          0.12172
+        ],
+        "socket_eye_rifle_m": [
+          0.01786,
+          0.0,
+          0.16172
+        ],
+        "socket_eye_bore_cm": [
+          -14.9,
+          0.0,
+          7.0
+        ],
+        "sight_axis_over_bore_cm_measured": 7.0,
+        "sight_axis_angle_to_bore_deg": 0.0,
+        "reticle_normal_angle_to_axis_deg": 0.0,
+        "lug_slots_bore_x_cm": [
+          -3.6
+        ],
+        "lugs_on_slot_centres": true,
+        "rail_contact_min_gap_mm": 0.08,
+        "rail_intersections": 0,
+        "vs_rifle_optic_bbox_delta_mm": {
+          "min": [
+            -0.0,
+            0.0,
+            -0.3
+          ],
+          "max": [
+            -0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "socket_eye_vs_rifle_socket_ads_mm": [
+          -0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "reticle_meta": {
+        "id": "IVR1",
+        "title": "IV-R1 red dot: 2 MOA dot",
+        "units": "MOA",
+        "size_px": [
+          2048,
+          2048
+        ],
+        "field_units": 32.0,
+        "px_per_unit": 64.0,
+        "unit_in_rad": 0.0002908882086657216,
+        "field_deg": 0.5333333333333333,
+        "px_per_moa": 64.0,
+        "px_per_mrad": 220.01579333023614,
+        "axis_px": [
+          1024.0,
+          1024.0
+        ],
+        "axis_note": "the point of aim is the exact texture centre (between the four centre texels)",
+        "orientation": "row 0 = top (up); +x = right as seen by the shooter",
+        "colour_srgb": [
+          255,
+          38,
+          24
+        ],
+        "drawn_extent_units": {
+          "x_min": -0.9922,
+          "x_max": 0.9922,
+          "y_min": -0.9922,
+          "y_max": 0.9922
+        },
+        "elements": [
+          {
+            "layer": "lit",
+            "type": "dot",
+            "diameter": 2.0
+          }
+        ],
+        "textures": {
+          "base_rgba": "T_IVR1_Reticle.png",
+          "emissive_rgb": "T_IVR1_Reticle_Emissive.png",
+          "sdf_rgb": "T_IVR1_Reticle_SDF.png"
+        },
+        "encoding": {
+          "base_rgba": "sRGB colour + straight alpha. RGB = illumination colour where the nearest reticle feature is illuminated, black where it is etched; transparent texels carry the nearest feature colour so mip levels do not darken or fringe.",
+          "emissive_rgb": "sRGB, illumination colour x coverage of the illuminated features only (black = not illuminated). Multiply by the brightness setting.",
+          "sdf_rgb": "signed distance, 0.5 = feature edge, 1 = inside, 0 = outside; value = 0.5 - d_px / 32 (d_px = distance in texels at this resolution, clamped at +-16 px). R = all features, G = illuminated, B = etched."
+        },
+        "sampling": "power-of-two, generate mips (box / Kaiser), trilinear + anisotropic filtering, clamp-to-edge addressing (the border texels are transparent)",
+        "reticle_type": "projected (LED on a reflective front lens): invisible when switched off",
+        "magnification_note": "angles are OBJECT-space (as subtended at the target); behind the eyepiece they appear x1",
+        "projection": "gnomonic: pixel offset from the texture centre = px_per_unit x tan(angle) / unit_in_rad (reticle marks are linear at the target; a rectilinear camera projects the same way). px_per_unit is exact at the axis; at the texture edge linear-in-angle differs by < 0.13 % for the fields used here.",
+        "metrics": {
+          "px_per_unit": 64.0,
+          "units": "MOA",
+          "size_px": 2048,
+          "edge_10_90_px_first_edges": [
+            0.802
+          ],
+          "lit_area_units2": 3.1414,
+          "etch_area_units2": 0.0,
+          "border_alpha_max": 0.0,
+          "lit_centroid_offset_px": [
+            -0.0001,
+            -0.0001
+          ]
+        }
+      }
+    },
+    "IVP2": {
+      "uv": {
+        "enlarged": [
+          412,
+          325
+        ],
+        "shape": "CONCAVE",
+        "nudged": 19,
+        "coverage": 0.3839,
+        "overlap_px": 0,
+        "islands": 1037,
+        "islands_without_pixels": 1,
+        "collapsed_faces": 1321,
+        "angle": 35.0,
+        "overlap_px_final": 0,
+        "clamped_uv_coords": 0
+      },
+      "textures": {
+        "BaseColor": "Art/Textures/Optics/IVP2/T_IVP2_Body_BaseColor.png",
+        "Normal": "Art/Textures/Optics/IVP2/T_IVP2_Body_Normal.png",
+        "Normal_DX": "Art/Textures/Optics/IVP2/T_IVP2_Body_Normal_DX.png",
+        "ORM": "Art/Textures/Optics/IVP2/T_IVP2_Body_ORM.png",
+        "Masks_intermediate": "Art/Textures/Optics/IVP2/Intermediate/T_IVP2_Body_Masks.png"
+      },
+      "lod1_image_map": {
+        "T_IVP2_Body_BaseColor.png": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVP2/LOD1/T_IVP2_Body_BaseColor_LOD1.png",
+        "T_IVP2_Body_Normal.png": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVP2/LOD1/T_IVP2_Body_Normal_LOD1.png",
+        "T_IVP2_Body_ORM.png": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVP2/LOD1/T_IVP2_Body_ORM_LOD1.png"
+      },
+      "mesh_validation": "Art/Previews/Optics/IVP2_mesh_validation.json",
+      "mesh_problems": [],
+      "tris_lod0": 15380,
+      "tris_lod1": 7690,
+      "tris_glass": 1408,
+      "tris_reticle": 240,
+      "texture_set": {
+        "objects": [
+          "SM_IVP2_Prism"
+        ],
+        "size": 1024,
+        "uv_overlap": {
+          "resolution": 1024,
+          "covered_fraction": 0.3813,
+          "pixels_shared_by_different_islands": 0,
+          "islands": 1794,
+          "islands_without_pixel_centres": 22,
+          "collapsed_degenerate_faces": 819,
+          "method": "pixel-centre rasterisation per island at the texture size"
+        },
+        "texel_density_min": 35.06,
+        "texel_density_max": 35.06
+      },
+      "sheets": {
+        "IVP2_Glass": {
+          "tris": 1408,
+          "boundary_edges": 128,
+          "edges_with_3plus_faces": 0,
+          "zero_area_faces": 0,
+          "shells": 2,
+          "uv_layers": [
+            "UVMap"
+          ],
+          "facing_ok": {
+            "M_IVP2_Glass_Rear": true,
+            "M_IVP2_Glass_Front": true
+          }
+        },
+        "IVP2_Glass_LOD1": {
+          "tris": 20,
+          "boundary_edges": 24,
+          "edges_with_3plus_faces": 0,
+          "zero_area_faces": 0,
+          "shells": 2,
+          "uv_layers": [
+            "UVMap"
+          ],
+          "facing_ok": {
+            "M_IVP2_Glass_Rear": true,
+            "M_IVP2_Glass_Front": true
+          }
+        },
+        "IVP2_Reticle": {
+          "tris": 240,
+          "boundary_edges": 48,
+          "edges_with_3plus_faces": 0,
+          "zero_area_faces": 0,
+          "shells": 1,
+          "uv_layers": [
+            "UVMap"
+          ],
+          "facing_ok": {
+            "M_IVP2_Reticle": true
+          }
+        }
+      },
+      "sheet_problems": [],
+      "transmission_audit": {
+        "M_IVP2_Glass_Front": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 0.14,
+          "alpha_linked": false,
+          "render_method": "BLENDED",
+          "backface_culling": false
+        },
+        "M_IVP2_Glass_Rear": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 0.1,
+          "alpha_linked": false,
+          "render_method": "BLENDED",
+          "backface_culling": false
+        },
+        "M_IVP2_Body": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 1.0,
+          "alpha_linked": false,
+          "render_method": "DITHERED",
+          "backface_culling": false
+        },
+        "M_IVP2_Reticle": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 1.0,
+          "alpha_linked": true,
+          "render_method": "BLENDED",
+          "backface_culling": true
+        }
+      },
+      "transmission_problems": [],
+      "reticle_uv_check": {
+        "uv_at_axis": [
+          0.5,
+          0.5
+        ],
+        "u_runs_to_shooters_right": true,
+        "v_runs_up": true,
+        "eye_to_sheet_m": 0.0882,
+        "texture_units_per_radian_seen_from_eye": 1718.873,
+        "expected_units_per_radian": 1718.873,
+        "scale_error_pct": -0.0
+      },
+      "reticle_metrics": {
+        "px_per_unit": 32.0,
+        "units": "MOA",
+        "size_px": 2048,
+        "edge_10_90_px_first_edges": [],
+        "lit_area_units2": 5.0704,
+        "etch_area_units2": 16.9663,
+        "border_alpha_max": 0.0,
+        "lit_centroid_offset_px": [
+          -0.0002,
+          60.241
+        ]
+      },
+      "dimensions_cm": {
+        "length_x": 9.25,
+        "width_y": 5.41,
+        "height_z": 7.22,
+        "bbox_min_cm": [
+          -8.35,
+          -2.71,
+          -0.56
+        ],
+        "bbox_max_cm": [
+          0.9,
+          2.7,
+          6.65
+        ],
+        "height_above_rail_top_cm": 6.65
+      },
+      "exports": {
+        "fbx": {
+          "path": "Art/Export/FBX/SM_IVP2_Prism.fbx",
+          "bytes": 1523676
+        },
+        "glb": {
+          "path": "Art/Export/GLB/IVP2_Prism.glb",
+          "bytes": 2636444
+        },
+        "fbx_lod1": {
+          "path": "Art/Export/FBX/SM_IVP2_Prism_LOD1.fbx",
+          "bytes": 763340
+        },
+        "glb_lod1": {
+          "path": "Art/Export/GLB/IVP2_Prism_LOD1.glb",
+          "bytes": 704860
+        }
+      },
+      "reimport": {
+        "fbx": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/FBX/SM_IVP2_Prism.fbx",
+          "meshes": [
+            "IVP2_Glass",
+            "IVP2_Reticle",
+            "SM_IVP2_Prism"
+          ],
+          "per_mesh": {
+            "IVP2_Glass": {
+              "tris": 1408,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVP2_Glass_Rear",
+                "M_IVP2_Glass_Front"
+              ]
+            },
+            "IVP2_Reticle": {
+              "tris": 240,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVP2_Reticle"
+              ]
+            },
+            "SM_IVP2_Prism": {
+              "tris": 15380,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVP2_Body"
+              ]
+            }
+          },
+          "tris": 17028,
+          "empties": {
+            "SOCKET_socket_eye": [
+              -0.1462,
+              0.0,
+              0.041
+            ],
+            "SOCKET_socket_rail": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_reticle": [
+              -0.058,
+              0.0,
+              0.041
+            ],
+            "SOCKET_socket_sight_axis_front": [
+              0.0032,
+              0.0,
+              0.041
+            ],
+            "SOCKET_socket_sight_axis_rear": [
+              -0.0762,
+              0.0,
+              0.041
+            ]
+          },
+          "empty_axes_x": {
+            "SOCKET_socket_eye": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_rail": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_reticle": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_sight_axis_front": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_sight_axis_rear": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          },
+          "empty_parents": {
+            "SOCKET_socket_eye": "SM_IVP2_Prism",
+            "SOCKET_socket_rail": "SM_IVP2_Prism",
+            "SOCKET_socket_reticle": "SM_IVP2_Prism",
+            "SOCKET_socket_sight_axis_front": "SM_IVP2_Prism",
+            "SOCKET_socket_sight_axis_rear": "SM_IVP2_Prism"
+          },
+          "bbox_min": [
+            -0.0835,
+            -0.0271,
+            -0.00565
+          ],
+          "bbox_max": [
+            0.009,
+            0.027,
+            0.0665
+          ],
+          "materials": {
+            "M_IVP2_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVP2_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.14,
+                "alpha_linked": false
+              }
+            },
+            "M_IVP2_Reticle": {
+              "images": [
+                {
+                  "name": "T_IVP2_Reticle.png",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVP2_Reticle.png.002",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVP2_Reticle_Emissive.png",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": true
+              }
+            },
+            "M_IVP2_Body": {
+              "images": [
+                {
+                  "name": "T_IVP2_Body_BaseColor.png",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVP2_Body_Normal_DX.png",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            }
+          },
+          "problems": []
+        },
+        "fbx_lod1": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/FBX/SM_IVP2_Prism_LOD1.fbx",
+          "meshes": [
+            "IVP2_Glass_LOD1",
+            "SM_IVP2_Prism_LOD1"
+          ],
+          "per_mesh": {
+            "IVP2_Glass_LOD1": {
+              "tris": 20,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVP2_Glass_Rear",
+                "M_IVP2_Glass_Front"
+              ]
+            },
+            "SM_IVP2_Prism_LOD1": {
+              "tris": 7690,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVP2_Body"
+              ]
+            }
+          },
+          "tris": 7710,
+          "empties": {},
+          "empty_axes_x": {},
+          "empty_parents": {},
+          "bbox_min": [
+            -0.0835,
+            -0.0271,
+            -0.00565
+          ],
+          "bbox_max": [
+            0.009,
+            0.027,
+            0.0665
+          ],
+          "materials": {
+            "M_IVP2_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVP2_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.14,
+                "alpha_linked": false
+              }
+            },
+            "M_IVP2_Body": {
+              "images": [
+                {
+                  "name": "T_IVP2_Body_BaseColor.png",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVP2_Body_Normal_DX.png",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            }
+          },
+          "problems": []
+        },
+        "glb": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/GLB/IVP2_Prism.glb",
+          "meshes": [
+            "IVP2_Glass",
+            "IVP2_Reticle",
+            "SM_IVP2_Prism"
+          ],
+          "per_mesh": {
+            "SM_IVP2_Prism": {
+              "tris": 15380,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVP2_Body"
+              ]
+            },
+            "IVP2_Glass": {
+              "tris": 1408,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVP2_Glass_Rear",
+                "M_IVP2_Glass_Front"
+              ]
+            },
+            "IVP2_Reticle": {
+              "tris": 240,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVP2_Reticle"
+              ]
+            }
+          },
+          "tris": 17028,
+          "empties": {
+            "socket_eye": [
+              -0.1462,
+              0.0,
+              0.041
+            ],
+            "socket_rail": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "socket_reticle": [
+              -0.058,
+              0.0,
+              0.041
+            ],
+            "socket_sight_axis_front": [
+              0.0032,
+              0.0,
+              0.041
+            ],
+            "socket_sight_axis_rear": [
+              -0.0762,
+              0.0,
+              0.041
+            ]
+          },
+          "empty_axes_x": {
+            "socket_eye": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_rail": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_reticle": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_sight_axis_front": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_sight_axis_rear": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          },
+          "empty_parents": {
+            "socket_eye": "SM_IVP2_Prism",
+            "socket_rail": "SM_IVP2_Prism",
+            "socket_reticle": "SM_IVP2_Prism",
+            "socket_sight_axis_front": "SM_IVP2_Prism",
+            "socket_sight_axis_rear": "SM_IVP2_Prism"
+          },
+          "bbox_min": [
+            -0.0835,
+            -0.0271,
+            -0.00565
+          ],
+          "bbox_max": [
+            0.009,
+            0.027,
+            0.0665
+          ],
+          "materials": {
+            "M_IVP2_Body": {
+              "images": [
+                {
+                  "name": "T_IVP2_Body_BaseColor",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVP2_Body_ORM",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVP2_Body_Normal",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVP2_Body_ORM",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            },
+            "M_IVP2_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVP2_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.14,
+                "alpha_linked": false
+              }
+            },
+            "M_IVP2_Reticle": {
+              "images": [
+                {
+                  "name": "T_IVP2_Reticle_Emissive",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVP2_Reticle",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": true
+              }
+            }
+          },
+          "gltf_material_audit": {
+            "materials": {
+              "M_IVP2_Glass_Rear": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.024000000208616257,
+                  0.03200000151991844,
+                  0.029999999329447746,
+                  0.10000000149011612
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVP2_Glass_Front": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.029999999329447746,
+                  0.029999999329447746,
+                  0.019999999552965164,
+                  0.14000000059604645
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVP2_Reticle": {
+                "alphaMode": "BLEND",
+                "doubleSided": false,
+                "baseColorFactor": null,
+                "roughnessFactor": null,
+                "metallicFactor": 0,
+                "emissiveFactor": [
+                  1,
+                  1,
+                  1
+                ],
+                "baseColorTexture": {
+                  "image": "T_IVP2_Reticle",
+                  "wrapS": 33071,
+                  "wrapT": 33071,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "emissiveTexture": {
+                  "image": "T_IVP2_Reticle_Emissive",
+                  "wrapS": 33071,
+                  "wrapT": 33071,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_emissive_strength",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVP2_Body": {
+                "alphaMode": "OPAQUE",
+                "doubleSided": true,
+                "baseColorFactor": null,
+                "roughnessFactor": null,
+                "metallicFactor": null,
+                "emissiveFactor": null,
+                "baseColorTexture": {
+                  "image": "T_IVP2_Body_BaseColor",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "emissiveTexture": null,
+                "normalTexture": {
+                  "image": "T_IVP2_Body_Normal",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "occlusionTexture": {
+                  "image": "T_IVP2_Body_ORM",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "metallicRoughnessTexture": {
+                  "image": "T_IVP2_Body_ORM",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "extensions": []
+              }
+            },
+            "transmission_like_extensions": [],
+            "extensionsUsed": [
+              "KHR_materials_emissive_strength",
+              "KHR_materials_specular",
+              "KHR_materials_ior"
+            ],
+            "nodes": [
+              "IVP2_Glass",
+              "IVP2_Reticle",
+              "socket_eye",
+              "socket_rail",
+              "socket_reticle",
+              "socket_sight_axis_front",
+              "socket_sight_axis_rear",
+              "SM_IVP2_Prism"
+            ]
+          },
+          "problems": []
+        },
+        "glb_lod1": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/GLB/IVP2_Prism_LOD1.glb",
+          "meshes": [
+            "IVP2_Glass_LOD1",
+            "SM_IVP2_Prism_LOD1"
+          ],
+          "per_mesh": {
+            "SM_IVP2_Prism_LOD1": {
+              "tris": 7690,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVP2_Body"
+              ]
+            },
+            "IVP2_Glass_LOD1": {
+              "tris": 20,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVP2_Glass_Rear",
+                "M_IVP2_Glass_Front"
+              ]
+            }
+          },
+          "tris": 7710,
+          "empties": {},
+          "empty_axes_x": {},
+          "empty_parents": {},
+          "bbox_min": [
+            -0.0835,
+            -0.0271,
+            -0.00565
+          ],
+          "bbox_max": [
+            0.009,
+            0.027,
+            0.0665
+          ],
+          "materials": {
+            "M_IVP2_Body": {
+              "images": [
+                {
+                  "name": "T_IVP2_Body_BaseColor_LOD1",
+                  "size": [
+                    256,
+                    256
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVP2_Body_ORM_LOD1",
+                  "size": [
+                    256,
+                    256
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVP2_Body_Normal_LOD1",
+                  "size": [
+                    256,
+                    256
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVP2_Body_ORM_LOD1",
+                  "size": [
+                    256,
+                    256
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            },
+            "M_IVP2_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVP2_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.14,
+                "alpha_linked": false
+              }
+            }
+          },
+          "gltf_material_audit": {
+            "materials": {
+              "M_IVP2_Glass_Rear": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.024000000208616257,
+                  0.03200000151991844,
+                  0.029999999329447746,
+                  0.10000000149011612
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVP2_Glass_Front": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.029999999329447746,
+                  0.029999999329447746,
+                  0.019999999552965164,
+                  0.14000000059604645
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVP2_Body": {
+                "alphaMode": "OPAQUE",
+                "doubleSided": true,
+                "baseColorFactor": null,
+                "roughnessFactor": null,
+                "metallicFactor": null,
+                "emissiveFactor": null,
+                "baseColorTexture": {
+                  "image": "T_IVP2_Body_BaseColor_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "emissiveTexture": null,
+                "normalTexture": {
+                  "image": "T_IVP2_Body_Normal_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "occlusionTexture": {
+                  "image": "T_IVP2_Body_ORM_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "metallicRoughnessTexture": {
+                  "image": "T_IVP2_Body_ORM_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "extensions": []
+              }
+            },
+            "transmission_like_extensions": [],
+            "extensionsUsed": [
+              "KHR_materials_specular",
+              "KHR_materials_ior"
+            ],
+            "nodes": [
+              "IVP2_Glass_LOD1",
+              "SM_IVP2_Prism_LOD1"
+            ]
+          },
+          "problems": []
+        }
+      },
+      "mount": {
+        "irons_folded_documented": {
+          "clearance": {
+            "Barrel": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 14.2
+            },
+            "BoltCarrier": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 15.19
+            },
+            "ChargingHandle": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.04
+            },
+            "RearSightBase": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 8.05
+            },
+            "RearSightBolt": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 21.42
+            },
+            "RearSightLeaf": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 8.0
+            },
+            "UpperReceiver": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 0.08
+            }
+          },
+          "intersecting_parts": [],
+          "rear_leaf_bbox_bore_cm": {
+            "x": [
+              -11.4,
+              -8.17
+            ],
+            "z": [
+              4.37,
+              4.67
+            ]
+          }
+        },
+        "irons_deployed": {
+          "clearance": {
+            "Barrel": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 14.2
+            },
+            "BoltCarrier": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 15.19
+            },
+            "ChargingHandle": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.04
+            },
+            "RearSightBase": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 8.05
+            },
+            "RearSightBolt": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 21.42
+            },
+            "RearSightLeaf": {
+              "intersecting_face_pairs": 437,
+              "min_distance_mm": 0.0
+            },
+            "UpperReceiver": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 0.08
+            }
+          },
+          "intersecting_parts": [
+            "RearSightLeaf"
+          ],
+          "rear_leaf_bbox_bore_cm": {
+            "x": [
+              -8.45,
+              -8.15
+            ],
+            "z": [
+              4.39,
+              7.62
+            ]
+          }
+        },
+        "rear_leaf_plus90_as_in_review_r1": {
+          "clearance": {
+            "Barrel": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 14.2
+            },
+            "BoltCarrier": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 15.19
+            },
+            "ChargingHandle": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.04
+            },
+            "RearSightBase": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 8.05
+            },
+            "RearSightBolt": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 21.42
+            },
+            "RearSightLeaf": {
+              "intersecting_face_pairs": 105,
+              "min_distance_mm": 3.45
+            },
+            "UpperReceiver": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 0.08
+            }
+          },
+          "intersecting_parts": [
+            "RearSightLeaf"
+          ],
+          "rear_leaf_bbox_bore_cm": {
+            "x": [
+              -8.43,
+              -5.2
+            ],
+            "z": [
+              4.37,
+              4.67
+            ]
+          }
+        },
+        "socket_rail_rifle_m": [
+          0.16286,
+          0.0,
+          0.12172
+        ],
+        "socket_eye_rifle_m": [
+          0.01666,
+          0.0,
+          0.16272
+        ],
+        "socket_eye_bore_cm": [
+          -15.02,
+          0.0,
+          7.1
+        ],
+        "sight_axis_over_bore_cm_measured": 7.1,
+        "sight_axis_angle_to_bore_deg": 0.0,
+        "reticle_normal_angle_to_axis_deg": 0.0,
+        "lug_slots_bore_x_cm": [
+          -3.6
+        ],
+        "lugs_on_slot_centres": true,
+        "rail_contact_min_gap_mm": 0.08,
+        "rail_intersections": 0
+      },
+      "reticle_meta": {
+        "id": "IVP2",
+        "title": "IV-P2 prism 2x: illuminated chevron + etched BDC",
+        "units": "MOA",
+        "size_px": [
+          2048,
+          2048
+        ],
+        "field_units": 64.0,
+        "px_per_unit": 32.0,
+        "unit_in_rad": 0.0002908882086657216,
+        "field_deg": 1.0666666666666667,
+        "px_per_moa": 32.0,
+        "px_per_mrad": 110.00789666511807,
+        "axis_px": [
+          1024.0,
+          1024.0
+        ],
+        "axis_note": "the point of aim is the exact texture centre (between the four centre texels)",
+        "orientation": "row 0 = top (up); +x = right as seen by the shooter",
+        "colour_srgb": [
+          255,
+          38,
+          24
+        ],
+        "drawn_extent_units": {
+          "x_min": -2.9844,
+          "x_max": 5.1719,
+          "y_min": -20.0156,
+          "y_max": -0.0469
+        },
+        "elements": [
+          {
+            "layer": "lit",
+            "type": "chevron",
+            "apex": [
+              0,
+              0
+            ],
+            "width": 6.0,
+            "height": 3.3,
+            "stroke": 0.67,
+            "note": "apex tip = point of aim (100 m zero)"
+          },
+          {
+            "layer": "etch",
+            "type": "bdc_bar",
+            "range_m": 300,
+            "hold_moa": 4.328,
+            "width_moa": 5.73,
+            "stroke": 0.45
+          },
+          {
+            "layer": "etch",
+            "type": "bdc_bar",
+            "range_m": 400,
+            "hold_moa": 8.067,
+            "width_moa": 4.297,
+            "stroke": 0.45
+          },
+          {
+            "layer": "etch",
+            "type": "bdc_bar",
+            "range_m": 500,
+            "hold_moa": 12.807,
+            "width_moa": 3.438,
+            "stroke": 0.45
+          },
+          {
+            "layer": "etch",
+            "type": "bdc_bar",
+            "range_m": 600,
+            "hold_moa": 18.844,
+            "width_moa": 2.865,
+            "stroke": 0.45
+          },
+          {
+            "layer": "etch",
+            "type": "stadia",
+            "from": -4.4,
+            "to": -20.044,
+            "stroke": 0.3
+          }
+        ],
+        "textures": {
+          "base_rgba": "T_IVP2_Reticle.png",
+          "emissive_rgb": "T_IVP2_Reticle_Emissive.png",
+          "sdf_rgb": "T_IVP2_Reticle_SDF.png"
+        },
+        "encoding": {
+          "base_rgba": "sRGB colour + straight alpha. RGB = illumination colour where the nearest reticle feature is illuminated, black where it is etched; transparent texels carry the nearest feature colour so mip levels do not darken or fringe.",
+          "emissive_rgb": "sRGB, illumination colour x coverage of the illuminated features only (black = not illuminated). Multiply by the brightness setting.",
+          "sdf_rgb": "signed distance, 0.5 = feature edge, 1 = inside, 0 = outside; value = 0.5 - d_px / 32 (d_px = distance in texels at this resolution, clamped at +-16 px). R = all features, G = illuminated, B = etched."
+        },
+        "sampling": "power-of-two, generate mips (box / Kaiser), trilinear + anisotropic filtering, clamp-to-edge addressing (the border texels are transparent)",
+        "reticle_type": "etched on the prism (black ink visible without illumination); only the chevron is illuminated",
+        "zero_m": 100,
+        "holdover_rows": [
+          {
+            "range_m": 300,
+            "drop_m": 0.3776837616873807,
+            "hold_rad": 0.001258945207172035
+          },
+          {
+            "range_m": 400,
+            "drop_m": 0.9386194319194687,
+            "hold_rad": 0.0023465442728870553
+          },
+          {
+            "range_m": 500,
+            "drop_m": 1.8627237407344464,
+            "hold_rad": 0.003725430246501542
+          },
+          {
+            "range_m": 600,
+            "drop_m": 3.2889982060920717,
+            "hold_rad": 0.005481608772303284
+          }
+        ],
+        "magnification_note": "angles are OBJECT-space (as subtended at the target); behind the eyepiece they appear x2",
+        "projection": "gnomonic: pixel offset from the texture centre = px_per_unit x tan(angle) / unit_in_rad (reticle marks are linear at the target; a rectilinear camera projects the same way). px_per_unit is exact at the axis; at the texture edge linear-in-angle differs by < 0.13 % for the fields used here.",
+        "metrics": {
+          "px_per_unit": 32.0,
+          "units": "MOA",
+          "size_px": 2048,
+          "edge_10_90_px_first_edges": [],
+          "lit_area_units2": 5.0704,
+          "etch_area_units2": 16.9663,
+          "border_alpha_max": 0.0,
+          "lit_centroid_offset_px": [
+            -0.0002,
+            60.241
+          ]
+        }
+      }
+    },
+    "IVS3": {
+      "uv": {
+        "enlarged": [
+          499,
+          384
+        ],
+        "shape": "CONCAVE",
+        "nudged": 25,
+        "coverage": 0.3694,
+        "overlap_px": 0,
+        "islands": 1159,
+        "islands_without_pixels": 0,
+        "collapsed_faces": 1913,
+        "angle": 45.0,
+        "overlap_px_final": 0,
+        "clamped_uv_coords": 0
+      },
+      "textures": {
+        "BaseColor": "Art/Textures/Optics/IVS3/T_IVS3_Body_BaseColor.png",
+        "Normal": "Art/Textures/Optics/IVS3/T_IVS3_Body_Normal.png",
+        "Normal_DX": "Art/Textures/Optics/IVS3/T_IVS3_Body_Normal_DX.png",
+        "ORM": "Art/Textures/Optics/IVS3/T_IVS3_Body_ORM.png",
+        "Masks_intermediate": "Art/Textures/Optics/IVS3/Intermediate/T_IVS3_Body_Masks.png"
+      },
+      "lod1_image_map": {
+        "T_IVS3_Body_BaseColor.png": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVS3/LOD1/T_IVS3_Body_BaseColor_LOD1.png",
+        "T_IVS3_Body_Normal.png": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVS3/LOD1/T_IVS3_Body_Normal_LOD1.png",
+        "T_IVS3_Body_ORM.png": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVS3/LOD1/T_IVS3_Body_ORM_LOD1.png"
+      },
+      "mesh_validation": "Art/Previews/Optics/IVS3_mesh_validation.json",
+      "mesh_problems": [],
+      "tris_lod0": 20526,
+      "tris_lod1": 10262,
+      "tris_glass": 1408,
+      "tris_reticle": 240,
+      "texture_set": {
+        "objects": [
+          "SM_IVS3_Scope"
+        ],
+        "size": 1024,
+        "uv_overlap": {
+          "resolution": 1024,
+          "covered_fraction": 0.367,
+          "pixels_shared_by_different_islands": 0,
+          "islands": 2192,
+          "islands_without_pixel_centres": 24,
+          "collapsed_degenerate_faces": 1137,
+          "method": "pixel-centre rasterisation per island at the texture size"
+        },
+        "texel_density_min": 24.23,
+        "texel_density_max": 24.23
+      },
+      "sheets": {
+        "IVS3_Glass": {
+          "tris": 1408,
+          "boundary_edges": 128,
+          "edges_with_3plus_faces": 0,
+          "zero_area_faces": 0,
+          "shells": 2,
+          "uv_layers": [
+            "UVMap"
+          ],
+          "facing_ok": {
+            "M_IVS3_Glass_Rear": true,
+            "M_IVS3_Glass_Front": true
+          }
+        },
+        "IVS3_Glass_LOD1": {
+          "tris": 21,
+          "boundary_edges": 25,
+          "edges_with_3plus_faces": 0,
+          "zero_area_faces": 0,
+          "shells": 2,
+          "uv_layers": [
+            "UVMap"
+          ],
+          "facing_ok": {
+            "M_IVS3_Glass_Front": true,
+            "M_IVS3_Glass_Rear": true
+          }
+        },
+        "IVS3_Reticle": {
+          "tris": 240,
+          "boundary_edges": 48,
+          "edges_with_3plus_faces": 0,
+          "zero_area_faces": 0,
+          "shells": 1,
+          "uv_layers": [
+            "UVMap"
+          ],
+          "facing_ok": {
+            "M_IVS3_Reticle": true
+          }
+        }
+      },
+      "sheet_problems": [],
+      "transmission_audit": {
+        "M_IVS3_Body": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 1.0,
+          "alpha_linked": false,
+          "render_method": "DITHERED",
+          "backface_culling": false
+        },
+        "M_IVS3_Glass_Front": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 0.14,
+          "alpha_linked": false,
+          "render_method": "BLENDED",
+          "backface_culling": false
+        },
+        "M_IVS3_Glass_Rear": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 0.1,
+          "alpha_linked": false,
+          "render_method": "BLENDED",
+          "backface_culling": false
+        },
+        "M_IVS3_Reticle": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 1.0,
+          "alpha_linked": true,
+          "render_method": "BLENDED",
+          "backface_culling": true
+        }
+      },
+      "transmission_problems": [],
+      "reticle_uv_check": {
+        "uv_at_axis": [
+          0.5,
+          0.5
+        ],
+        "u_runs_to_shooters_right": true,
+        "v_runs_up": true,
+        "eye_to_sheet_m": 0.091,
+        "texture_units_per_radian_seen_from_eye": 333.333,
+        "expected_units_per_radian": 333.333,
+        "scale_error_pct": -0.0
+      },
+      "reticle_metrics": {
+        "px_per_unit": 34.13333333333333,
+        "units": "mrad",
+        "size_px": 4096,
+        "edge_10_90_px_first_edges": [
+          1.432,
+          1605.533
+        ],
+        "lit_area_units2": 0.2826,
+        "etch_area_units2": 88.8292,
+        "border_alpha_max": 0.0,
+        "lit_centroid_offset_px": [
+          0.0001,
+          0.0001
+        ]
+      },
+      "dimensions_cm": {
+        "length_x": 17.0,
+        "width_y": 6.14,
+        "height_z": 7.76,
+        "bbox_min_cm": [
+          -10.7,
+          -3.19,
+          -0.56
+        ],
+        "bbox_max_cm": [
+          6.3,
+          2.95,
+          7.19
+        ],
+        "height_above_rail_top_cm": 7.19
+      },
+      "exports": {
+        "fbx": {
+          "path": "Art/Export/FBX/SM_IVS3_Scope.fbx",
+          "bytes": 1853788
+        },
+        "glb": {
+          "path": "Art/Export/GLB/IVS3_Scope.glb",
+          "bytes": 3095316
+        },
+        "fbx_lod1": {
+          "path": "Art/Export/FBX/SM_IVS3_Scope_LOD1.fbx",
+          "bytes": 950732
+        },
+        "glb_lod1": {
+          "path": "Art/Export/GLB/IVS3_Scope_LOD1.glb",
+          "bytes": 860720
+        }
+      },
+      "reimport": {
+        "fbx": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/FBX/SM_IVS3_Scope.fbx",
+          "meshes": [
+            "IVS3_Glass",
+            "IVS3_Reticle",
+            "SM_IVS3_Scope"
+          ],
+          "per_mesh": {
+            "IVS3_Glass": {
+              "tris": 1408,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS3_Glass_Rear",
+                "M_IVS3_Glass_Front"
+              ]
+            },
+            "IVS3_Reticle": {
+              "tris": 240,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS3_Reticle"
+              ]
+            },
+            "SM_IVS3_Scope": {
+              "tris": 20526,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS3_Body"
+              ]
+            }
+          },
+          "tris": 22174,
+          "empties": {
+            "SOCKET_socket_eye": [
+              -0.182,
+              0.0,
+              0.04
+            ],
+            "SOCKET_socket_rail": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_reticle": [
+              -0.091,
+              0.0,
+              0.04
+            ],
+            "SOCKET_socket_sight_axis_front": [
+              0.0582,
+              0.0,
+              0.04
+            ],
+            "SOCKET_socket_sight_axis_rear": [
+              -0.097,
+              0.0,
+              0.04
+            ]
+          },
+          "empty_axes_x": {
+            "SOCKET_socket_eye": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_rail": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_reticle": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_sight_axis_front": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_sight_axis_rear": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          },
+          "empty_parents": {
+            "SOCKET_socket_eye": "SM_IVS3_Scope",
+            "SOCKET_socket_rail": "SM_IVS3_Scope",
+            "SOCKET_socket_reticle": "SM_IVS3_Scope",
+            "SOCKET_socket_sight_axis_front": "SM_IVS3_Scope",
+            "SOCKET_socket_sight_axis_rear": "SM_IVS3_Scope"
+          },
+          "bbox_min": [
+            -0.107,
+            -0.0319,
+            -0.00565
+          ],
+          "bbox_max": [
+            0.063,
+            0.0295,
+            0.0719
+          ],
+          "materials": {
+            "M_IVS3_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVS3_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.14,
+                "alpha_linked": false
+              }
+            },
+            "M_IVS3_Reticle": {
+              "images": [
+                {
+                  "name": "T_IVS3_Reticle.png",
+                  "size": [
+                    4096,
+                    4096
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS3_Reticle.png.002",
+                  "size": [
+                    4096,
+                    4096
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS3_Reticle_Emissive.png",
+                  "size": [
+                    4096,
+                    4096
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": true
+              }
+            },
+            "M_IVS3_Body": {
+              "images": [
+                {
+                  "name": "T_IVS3_Body_BaseColor.png",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS3_Body_Normal_DX.png",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            }
+          },
+          "problems": []
+        },
+        "fbx_lod1": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/FBX/SM_IVS3_Scope_LOD1.fbx",
+          "meshes": [
+            "IVS3_Glass_LOD1",
+            "SM_IVS3_Scope_LOD1"
+          ],
+          "per_mesh": {
+            "IVS3_Glass_LOD1": {
+              "tris": 21,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS3_Glass_Rear",
+                "M_IVS3_Glass_Front"
+              ]
+            },
+            "SM_IVS3_Scope_LOD1": {
+              "tris": 10262,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS3_Body"
+              ]
+            }
+          },
+          "tris": 10283,
+          "empties": {},
+          "empty_axes_x": {},
+          "empty_parents": {},
+          "bbox_min": [
+            -0.107,
+            -0.0319,
+            -0.00565
+          ],
+          "bbox_max": [
+            0.063,
+            0.0295,
+            0.0719
+          ],
+          "materials": {
+            "M_IVS3_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVS3_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.14,
+                "alpha_linked": false
+              }
+            },
+            "M_IVS3_Body": {
+              "images": [
+                {
+                  "name": "T_IVS3_Body_BaseColor.png",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS3_Body_Normal_DX.png",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            }
+          },
+          "problems": []
+        },
+        "glb": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/GLB/IVS3_Scope.glb",
+          "meshes": [
+            "IVS3_Glass",
+            "IVS3_Reticle",
+            "SM_IVS3_Scope"
+          ],
+          "per_mesh": {
+            "SM_IVS3_Scope": {
+              "tris": 20526,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS3_Body"
+              ]
+            },
+            "IVS3_Glass": {
+              "tris": 1408,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS3_Glass_Rear",
+                "M_IVS3_Glass_Front"
+              ]
+            },
+            "IVS3_Reticle": {
+              "tris": 240,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS3_Reticle"
+              ]
+            }
+          },
+          "tris": 22174,
+          "empties": {
+            "socket_eye": [
+              -0.182,
+              0.0,
+              0.04
+            ],
+            "socket_rail": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "socket_reticle": [
+              -0.091,
+              0.0,
+              0.04
+            ],
+            "socket_sight_axis_front": [
+              0.0582,
+              0.0,
+              0.04
+            ],
+            "socket_sight_axis_rear": [
+              -0.097,
+              0.0,
+              0.04
+            ]
+          },
+          "empty_axes_x": {
+            "socket_eye": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_rail": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_reticle": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_sight_axis_front": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_sight_axis_rear": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          },
+          "empty_parents": {
+            "socket_eye": "SM_IVS3_Scope",
+            "socket_rail": "SM_IVS3_Scope",
+            "socket_reticle": "SM_IVS3_Scope",
+            "socket_sight_axis_front": "SM_IVS3_Scope",
+            "socket_sight_axis_rear": "SM_IVS3_Scope"
+          },
+          "bbox_min": [
+            -0.107,
+            -0.0319,
+            -0.00565
+          ],
+          "bbox_max": [
+            0.063,
+            0.0295,
+            0.0719
+          ],
+          "materials": {
+            "M_IVS3_Body": {
+              "images": [
+                {
+                  "name": "T_IVS3_Body_BaseColor",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS3_Body_ORM",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS3_Body_Normal",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS3_Body_ORM",
+                  "size": [
+                    1024,
+                    1024
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            },
+            "M_IVS3_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVS3_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.14,
+                "alpha_linked": false
+              }
+            },
+            "M_IVS3_Reticle": {
+              "images": [
+                {
+                  "name": "T_IVS3_Reticle_Emissive",
+                  "size": [
+                    4096,
+                    4096
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS3_Reticle",
+                  "size": [
+                    4096,
+                    4096
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": true
+              }
+            }
+          },
+          "gltf_material_audit": {
+            "materials": {
+              "M_IVS3_Glass_Rear": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.024000000208616257,
+                  0.03200000151991844,
+                  0.029999999329447746,
+                  0.10000000149011612
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVS3_Glass_Front": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.02800000086426735,
+                  0.03400000184774399,
+                  0.024000000208616257,
+                  0.14000000059604645
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVS3_Reticle": {
+                "alphaMode": "BLEND",
+                "doubleSided": false,
+                "baseColorFactor": null,
+                "roughnessFactor": null,
+                "metallicFactor": 0,
+                "emissiveFactor": [
+                  1,
+                  1,
+                  1
+                ],
+                "baseColorTexture": {
+                  "image": "T_IVS3_Reticle",
+                  "wrapS": 33071,
+                  "wrapT": 33071,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "emissiveTexture": {
+                  "image": "T_IVS3_Reticle_Emissive",
+                  "wrapS": 33071,
+                  "wrapT": 33071,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_emissive_strength",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVS3_Body": {
+                "alphaMode": "OPAQUE",
+                "doubleSided": true,
+                "baseColorFactor": null,
+                "roughnessFactor": null,
+                "metallicFactor": null,
+                "emissiveFactor": null,
+                "baseColorTexture": {
+                  "image": "T_IVS3_Body_BaseColor",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "emissiveTexture": null,
+                "normalTexture": {
+                  "image": "T_IVS3_Body_Normal",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "occlusionTexture": {
+                  "image": "T_IVS3_Body_ORM",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "metallicRoughnessTexture": {
+                  "image": "T_IVS3_Body_ORM",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "extensions": []
+              }
+            },
+            "transmission_like_extensions": [],
+            "extensionsUsed": [
+              "KHR_materials_emissive_strength",
+              "KHR_materials_specular",
+              "KHR_materials_ior"
+            ],
+            "nodes": [
+              "IVS3_Glass",
+              "IVS3_Reticle",
+              "socket_eye",
+              "socket_rail",
+              "socket_reticle",
+              "socket_sight_axis_front",
+              "socket_sight_axis_rear",
+              "SM_IVS3_Scope"
+            ]
+          },
+          "problems": []
+        },
+        "glb_lod1": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/GLB/IVS3_Scope_LOD1.glb",
+          "meshes": [
+            "IVS3_Glass_LOD1",
+            "SM_IVS3_Scope_LOD1"
+          ],
+          "per_mesh": {
+            "SM_IVS3_Scope_LOD1": {
+              "tris": 10262,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS3_Body"
+              ]
+            },
+            "IVS3_Glass_LOD1": {
+              "tris": 21,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS3_Glass_Rear",
+                "M_IVS3_Glass_Front"
+              ]
+            }
+          },
+          "tris": 10283,
+          "empties": {},
+          "empty_axes_x": {},
+          "empty_parents": {},
+          "bbox_min": [
+            -0.107,
+            -0.0319,
+            -0.00565
+          ],
+          "bbox_max": [
+            0.063,
+            0.0295,
+            0.0719
+          ],
+          "materials": {
+            "M_IVS3_Body": {
+              "images": [
+                {
+                  "name": "T_IVS3_Body_BaseColor_LOD1",
+                  "size": [
+                    256,
+                    256
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS3_Body_ORM_LOD1",
+                  "size": [
+                    256,
+                    256
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS3_Body_Normal_LOD1",
+                  "size": [
+                    256,
+                    256
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS3_Body_ORM_LOD1",
+                  "size": [
+                    256,
+                    256
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            },
+            "M_IVS3_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVS3_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.14,
+                "alpha_linked": false
+              }
+            }
+          },
+          "gltf_material_audit": {
+            "materials": {
+              "M_IVS3_Glass_Rear": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.024000000208616257,
+                  0.03200000151991844,
+                  0.029999999329447746,
+                  0.10000000149011612
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVS3_Glass_Front": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.02800000086426735,
+                  0.03400000184774399,
+                  0.024000000208616257,
+                  0.14000000059604645
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVS3_Body": {
+                "alphaMode": "OPAQUE",
+                "doubleSided": true,
+                "baseColorFactor": null,
+                "roughnessFactor": null,
+                "metallicFactor": null,
+                "emissiveFactor": null,
+                "baseColorTexture": {
+                  "image": "T_IVS3_Body_BaseColor_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "emissiveTexture": null,
+                "normalTexture": {
+                  "image": "T_IVS3_Body_Normal_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "occlusionTexture": {
+                  "image": "T_IVS3_Body_ORM_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "metallicRoughnessTexture": {
+                  "image": "T_IVS3_Body_ORM_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "extensions": []
+              }
+            },
+            "transmission_like_extensions": [],
+            "extensionsUsed": [
+              "KHR_materials_specular",
+              "KHR_materials_ior"
+            ],
+            "nodes": [
+              "IVS3_Glass_LOD1",
+              "SM_IVS3_Scope_LOD1"
+            ]
+          },
+          "problems": []
+        }
+      },
+      "mount": {
+        "irons_folded_documented": {
+          "clearance": {
+            "Barrel": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 14.13
+            },
+            "BarrelNut": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 11.69
+            },
+            "BoltCarrier": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 15.12
+            },
+            "ChargingHandle": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.02
+            },
+            "GasTube": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 13.91
+            },
+            "Handguard": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 8.02
+            },
+            "RearSightBase": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 3.43
+            },
+            "RearSightBolt": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 20.59
+            },
+            "RearSightLeaf": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 3.48
+            },
+            "UpperReceiver": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 0.08
+            }
+          },
+          "intersecting_parts": [],
+          "rear_leaf_bbox_bore_cm": {
+            "x": [
+              -11.4,
+              -8.17
+            ],
+            "z": [
+              4.37,
+              4.67
+            ]
+          }
+        },
+        "irons_deployed": {
+          "clearance": {
+            "Barrel": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 14.13
+            },
+            "BarrelNut": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 11.69
+            },
+            "BoltCarrier": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 15.12
+            },
+            "ChargingHandle": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.02
+            },
+            "GasTube": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 13.91
+            },
+            "Handguard": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 8.02
+            },
+            "RearSightBase": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 3.43
+            },
+            "RearSightBolt": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 20.59
+            },
+            "RearSightLeaf": {
+              "intersecting_face_pairs": 249,
+              "min_distance_mm": 0.01
+            },
+            "UpperReceiver": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 0.08
+            }
+          },
+          "intersecting_parts": [
+            "RearSightLeaf"
+          ],
+          "rear_leaf_bbox_bore_cm": {
+            "x": [
+              -8.45,
+              -8.15
+            ],
+            "z": [
+              4.39,
+              7.62
+            ]
+          }
+        },
+        "rear_leaf_plus90_as_in_review_r1": {
+          "clearance": {
+            "Barrel": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 14.13
+            },
+            "BarrelNut": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 11.69
+            },
+            "BoltCarrier": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 15.12
+            },
+            "ChargingHandle": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.02
+            },
+            "GasTube": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 13.91
+            },
+            "Handguard": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 8.02
+            },
+            "RearSightBase": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 3.43
+            },
+            "RearSightBolt": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 20.59
+            },
+            "RearSightLeaf": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 2.7
+            },
+            "UpperReceiver": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 0.08
+            }
+          },
+          "intersecting_parts": [],
+          "rear_leaf_bbox_bore_cm": {
+            "x": [
+              -8.43,
+              -5.2
+            ],
+            "z": [
+              4.37,
+              4.67
+            ]
+          }
+        },
+        "socket_rail_rifle_m": [
+          0.19086,
+          0.0,
+          0.12172
+        ],
+        "socket_eye_rifle_m": [
+          0.00886,
+          0.0,
+          0.16172
+        ],
+        "socket_eye_bore_cm": [
+          -15.8,
+          0.0,
+          7.0
+        ],
+        "sight_axis_over_bore_cm_measured": 7.0,
+        "sight_axis_angle_to_bore_deg": 0.0,
+        "reticle_normal_angle_to_axis_deg": 0.0,
+        "lug_slots_bore_x_cm": [
+          1.4,
+          -2.6
+        ],
+        "lugs_on_slot_centres": true,
+        "rail_contact_min_gap_mm": 0.08,
+        "rail_intersections": 0
+      },
+      "reticle_meta": {
+        "id": "IVS3",
+        "title": "IV-S3 3x: illuminated dot + 1 mrad hash reticle",
+        "units": "mrad",
+        "size_px": [
+          4096,
+          4096
+        ],
+        "field_units": 120.0,
+        "px_per_unit": 34.13333333333333,
+        "unit_in_rad": 0.001,
+        "field_deg": 6.875493541569878,
+        "px_per_moa": 9.928984189123296,
+        "px_per_mrad": 34.13333333333333,
+        "axis_px": [
+          2048.0,
+          2048.0
+        ],
+        "axis_note": "the point of aim is the exact texture centre (between the four centre texels)",
+        "orientation": "row 0 = top (up); +x = right as seen by the shooter",
+        "colour_srgb": [
+          255,
+          38,
+          24
+        ],
+        "drawn_extent_units": {
+          "x_min": -56.9971,
+          "x_max": 56.9971,
+          "y_min": -56.9971,
+          "y_max": 56.9971
+        },
+        "elements": [
+          {
+            "layer": "lit",
+            "type": "dot",
+            "diameter": 0.6
+          },
+          {
+            "layer": "etch",
+            "type": "crosshair",
+            "stroke": 0.09,
+            "from": 0.9,
+            "to": 10.0,
+            "hash_every": 1.0,
+            "hash_length": 0.35,
+            "hash_length_every_5": 0.7
+          },
+          {
+            "layer": "etch",
+            "type": "posts",
+            "stroke": 0.45,
+            "from": 10.0,
+            "to": 57.0
+          }
+        ],
+        "textures": {
+          "base_rgba": "T_IVS3_Reticle.png",
+          "emissive_rgb": "T_IVS3_Reticle_Emissive.png",
+          "sdf_rgb": "T_IVS3_Reticle_SDF.png"
+        },
+        "encoding": {
+          "base_rgba": "sRGB colour + straight alpha. RGB = illumination colour where the nearest reticle feature is illuminated, black where it is etched; transparent texels carry the nearest feature colour so mip levels do not darken or fringe.",
+          "emissive_rgb": "sRGB, illumination colour x coverage of the illuminated features only (black = not illuminated). Multiply by the brightness setting.",
+          "sdf_rgb": "signed distance, 0.5 = feature edge, 1 = inside, 0 = outside; value = 0.5 - d_px / 32 (d_px = distance in texels at this resolution, clamped at +-16 px). R = all features, G = illuminated, B = etched."
+        },
+        "sampling": "power-of-two, generate mips (box / Kaiser), trilinear + anisotropic filtering, clamp-to-edge addressing (the border texels are transparent)",
+        "reticle_type": "etched glass (black) with an illuminated centre dot",
+        "zero_m": 100,
+        "magnification_note": "angles are OBJECT-space (as subtended at the target); behind the eyepiece they appear x3",
+        "projection": "gnomonic: pixel offset from the texture centre = px_per_unit x tan(angle) / unit_in_rad (reticle marks are linear at the target; a rectilinear camera projects the same way). px_per_unit is exact at the axis; at the texture edge linear-in-angle differs by < 0.13 % for the fields used here.",
+        "metrics": {
+          "px_per_unit": 34.13333333333333,
+          "units": "mrad",
+          "size_px": 4096,
+          "edge_10_90_px_first_edges": [
+            1.432,
+            1605.533
+          ],
+          "lit_area_units2": 0.2826,
+          "etch_area_units2": 88.8292,
+          "border_alpha_max": 0.0,
+          "lit_centroid_offset_px": [
+            0.0001,
+            0.0001
+          ]
+        }
+      }
+    },
+    "IVS6": {
+      "uv": {
+        "enlarged": [
+          670,
+          392
+        ],
+        "shape": "CONCAVE",
+        "nudged": 0,
+        "coverage": 0.5055,
+        "overlap_px": 0,
+        "islands": 1886,
+        "islands_without_pixels": 0,
+        "collapsed_faces": 1788,
+        "angle": 35.0,
+        "overlap_px_final": 0,
+        "clamped_uv_coords": 0
+      },
+      "textures": {
+        "BaseColor": "Art/Textures/Optics/IVS6/T_IVS6_Body_BaseColor.png",
+        "Normal": "Art/Textures/Optics/IVS6/T_IVS6_Body_Normal.png",
+        "Normal_DX": "Art/Textures/Optics/IVS6/T_IVS6_Body_Normal_DX.png",
+        "ORM": "Art/Textures/Optics/IVS6/T_IVS6_Body_ORM.png",
+        "Masks_intermediate": "Art/Textures/Optics/IVS6/Intermediate/T_IVS6_Body_Masks.png"
+      },
+      "lod1_image_map": {
+        "T_IVS6_Body_BaseColor.png": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVS6/LOD1/T_IVS6_Body_BaseColor_LOD1.png",
+        "T_IVS6_Body_Normal.png": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVS6/LOD1/T_IVS6_Body_Normal_LOD1.png",
+        "T_IVS6_Body_ORM.png": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVS6/LOD1/T_IVS6_Body_ORM_LOD1.png"
+      },
+      "overlay": {
+        "path": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVS6/T_IVS6_ADS_Overlay.png",
+        "size_px": [
+          4096,
+          4096
+        ],
+        "px_per_unit": 56.888888888888886,
+        "units": "mrad",
+        "field_units": 72.0,
+        "eyebox_radius_units": 32.89945640009311,
+        "eyebox_radius_px": 1871.6135196497412,
+        "eyebox_radius_fraction_of_size": 0.4569368944457376,
+        "field_stop_edge_width_fraction": 0.006,
+        "vignette_start_fraction": 0.86,
+        "vignette_max_opacity": 0.55,
+        "rim_darkening": 0.18,
+        "alpha_at_centre_offset_2units": 1.0,
+        "alpha_outside": 1.0,
+        "vertical_fov_deg_when_drawn_full_height": 4.1252961249419275,
+        "usage": "Draw centred, scaled so that its height = screen height; set the zoomed camera's vertical FOV to vertical_fov_deg_when_drawn_full_height (or, for any other scale: overlay_px_on_screen = screen_px_per_mrad x field_units).  Fill the screen area outside the square with black."
+      },
+      "mesh_validation": "Art/Previews/Optics/IVS6_mesh_validation.json",
+      "mesh_problems": [],
+      "tris_lod0": 24144,
+      "tris_lod1": 12072,
+      "tris_glass": 1408,
+      "tris_reticle": 240,
+      "texture_set": {
+        "objects": [
+          "SM_IVS6_Scope"
+        ],
+        "size": 2048,
+        "uv_overlap": {
+          "resolution": 2048,
+          "covered_fraction": 0.5042,
+          "pixels_shared_by_different_islands": 0,
+          "islands": 2849,
+          "islands_without_pixel_centres": 10,
+          "collapsed_degenerate_faces": 1150,
+          "method": "pixel-centre rasterisation per island at the texture size"
+        },
+        "texel_density_min": 46.02,
+        "texel_density_max": 46.02
+      },
+      "sheets": {
+        "IVS6_Glass": {
+          "tris": 1408,
+          "boundary_edges": 128,
+          "edges_with_3plus_faces": 0,
+          "zero_area_faces": 0,
+          "shells": 2,
+          "uv_layers": [
+            "UVMap"
+          ],
+          "facing_ok": {
+            "M_IVS6_Glass_Rear": true,
+            "M_IVS6_Glass_Front": true
+          }
+        },
+        "IVS6_Glass_LOD1": {
+          "tris": 22,
+          "boundary_edges": 26,
+          "edges_with_3plus_faces": 0,
+          "zero_area_faces": 0,
+          "shells": 2,
+          "uv_layers": [
+            "UVMap"
+          ],
+          "facing_ok": {
+            "M_IVS6_Glass_Front": true,
+            "M_IVS6_Glass_Rear": true
+          }
+        },
+        "IVS6_Reticle": {
+          "tris": 240,
+          "boundary_edges": 48,
+          "edges_with_3plus_faces": 0,
+          "zero_area_faces": 0,
+          "shells": 1,
+          "uv_layers": [
+            "UVMap"
+          ],
+          "facing_ok": {
+            "M_IVS6_Reticle": true
+          }
+        }
+      },
+      "sheet_problems": [],
+      "transmission_audit": {
+        "M_IVS6_Glass_Front": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 0.15,
+          "alpha_linked": false,
+          "render_method": "BLENDED",
+          "backface_culling": false
+        },
+        "M_IVS6_Body": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 1.0,
+          "alpha_linked": false,
+          "render_method": "DITHERED",
+          "backface_culling": false
+        },
+        "M_IVS6_Glass_Rear": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 0.1,
+          "alpha_linked": false,
+          "render_method": "BLENDED",
+          "backface_culling": false
+        },
+        "M_IVS6_Reticle": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 1.0,
+          "alpha_linked": true,
+          "render_method": "BLENDED",
+          "backface_culling": true
+        }
+      },
+      "transmission_problems": [],
+      "reticle_uv_check": {
+        "uv_at_axis": [
+          0.5,
+          0.5
+        ],
+        "u_runs_to_shooters_right": true,
+        "v_runs_up": true,
+        "eye_to_sheet_m": 0.0975,
+        "texture_units_per_radian_seen_from_eye": 166.667,
+        "expected_units_per_radian": 166.667,
+        "scale_error_pct": -0.0
+      },
+      "reticle_metrics": {
+        "px_per_unit": 56.888888888888886,
+        "units": "mrad",
+        "size_px": 4096,
+        "edge_10_90_px_first_edges": [
+          1366.65
+        ],
+        "lit_area_units2": 0.0453,
+        "etch_area_units2": 46.2118,
+        "border_alpha_max": 0.0,
+        "lit_centroid_offset_px": [
+          0.0001,
+          0.0001
+        ]
+      },
+      "dimensions_cm": {
+        "length_x": 27.0,
+        "width_y": 6.8,
+        "height_z": 8.95,
+        "bbox_min_cm": [
+          -11.4,
+          -3.78,
+          -0.56
+        ],
+        "bbox_max_cm": [
+          15.6,
+          3.02,
+          8.38
+        ],
+        "height_above_rail_top_cm": 8.38
+      },
+      "exports": {
+        "fbx": {
+          "path": "Art/Export/FBX/SM_IVS6_Scope.fbx",
+          "bytes": 2244108
+        },
+        "glb": {
+          "path": "Art/Export/GLB/IVS6_Scope.glb",
+          "bytes": 6884212
+        },
+        "fbx_lod1": {
+          "path": "Art/Export/FBX/SM_IVS6_Scope_LOD1.fbx",
+          "bytes": 1174716
+        },
+        "glb_lod1": {
+          "path": "Art/Export/GLB/IVS6_Scope_LOD1.glb",
+          "bytes": 1441548
+        }
+      },
+      "reimport": {
+        "fbx": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/FBX/SM_IVS6_Scope.fbx",
+          "meshes": [
+            "IVS6_Glass",
+            "IVS6_Reticle",
+            "SM_IVS6_Scope"
+          ],
+          "per_mesh": {
+            "IVS6_Glass": {
+              "tris": 1408,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS6_Glass_Rear",
+                "M_IVS6_Glass_Front"
+              ]
+            },
+            "IVS6_Reticle": {
+              "tris": 240,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS6_Reticle"
+              ]
+            },
+            "SM_IVS6_Scope": {
+              "tris": 24144,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS6_Body"
+              ]
+            }
+          },
+          "tris": 25792,
+          "empties": {
+            "SOCKET_socket_eye": [
+              -0.1935,
+              0.0,
+              0.046
+            ],
+            "SOCKET_socket_rail": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_reticle": [
+              -0.096,
+              0.0,
+              0.046
+            ],
+            "SOCKET_socket_sight_axis_front": [
+              0.149,
+              0.0,
+              0.046
+            ],
+            "SOCKET_socket_sight_axis_rear": [
+              -0.1035,
+              0.0,
+              0.046
+            ]
+          },
+          "empty_axes_x": {
+            "SOCKET_socket_eye": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_rail": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_reticle": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_sight_axis_front": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "SOCKET_socket_sight_axis_rear": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          },
+          "empty_parents": {
+            "SOCKET_socket_eye": "SM_IVS6_Scope",
+            "SOCKET_socket_rail": "SM_IVS6_Scope",
+            "SOCKET_socket_reticle": "SM_IVS6_Scope",
+            "SOCKET_socket_sight_axis_front": "SM_IVS6_Scope",
+            "SOCKET_socket_sight_axis_rear": "SM_IVS6_Scope"
+          },
+          "bbox_min": [
+            -0.114,
+            -0.0378,
+            -0.00565
+          ],
+          "bbox_max": [
+            0.156,
+            0.0302,
+            0.0838
+          ],
+          "materials": {
+            "M_IVS6_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVS6_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.15,
+                "alpha_linked": false
+              }
+            },
+            "M_IVS6_Reticle": {
+              "images": [
+                {
+                  "name": "T_IVS6_Reticle.png",
+                  "size": [
+                    4096,
+                    4096
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS6_Reticle.png.002",
+                  "size": [
+                    4096,
+                    4096
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS6_Reticle_Emissive.png",
+                  "size": [
+                    4096,
+                    4096
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": true
+              }
+            },
+            "M_IVS6_Body": {
+              "images": [
+                {
+                  "name": "T_IVS6_Body_BaseColor.png",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS6_Body_Normal_DX.png",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            }
+          },
+          "problems": []
+        },
+        "fbx_lod1": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/FBX/SM_IVS6_Scope_LOD1.fbx",
+          "meshes": [
+            "IVS6_Glass_LOD1",
+            "SM_IVS6_Scope_LOD1"
+          ],
+          "per_mesh": {
+            "IVS6_Glass_LOD1": {
+              "tris": 22,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS6_Glass_Rear",
+                "M_IVS6_Glass_Front"
+              ]
+            },
+            "SM_IVS6_Scope_LOD1": {
+              "tris": 12072,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS6_Body"
+              ]
+            }
+          },
+          "tris": 12094,
+          "empties": {},
+          "empty_axes_x": {},
+          "empty_parents": {},
+          "bbox_min": [
+            -0.114,
+            -0.0378,
+            -0.00565
+          ],
+          "bbox_max": [
+            0.156,
+            0.0302,
+            0.0838
+          ],
+          "materials": {
+            "M_IVS6_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVS6_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.15,
+                "alpha_linked": false
+              }
+            },
+            "M_IVS6_Body": {
+              "images": [
+                {
+                  "name": "T_IVS6_Body_BaseColor.png",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS6_Body_Normal_DX.png",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            }
+          },
+          "problems": []
+        },
+        "glb": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/GLB/IVS6_Scope.glb",
+          "meshes": [
+            "IVS6_Glass",
+            "IVS6_Reticle",
+            "SM_IVS6_Scope"
+          ],
+          "per_mesh": {
+            "SM_IVS6_Scope": {
+              "tris": 24144,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS6_Body"
+              ]
+            },
+            "IVS6_Glass": {
+              "tris": 1408,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS6_Glass_Rear",
+                "M_IVS6_Glass_Front"
+              ]
+            },
+            "IVS6_Reticle": {
+              "tris": 240,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS6_Reticle"
+              ]
+            }
+          },
+          "tris": 25792,
+          "empties": {
+            "socket_eye": [
+              -0.1935,
+              0.0,
+              0.046
+            ],
+            "socket_rail": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "socket_reticle": [
+              -0.096,
+              0.0,
+              0.046
+            ],
+            "socket_sight_axis_front": [
+              0.149,
+              0.0,
+              0.046
+            ],
+            "socket_sight_axis_rear": [
+              -0.1035,
+              0.0,
+              0.046
+            ]
+          },
+          "empty_axes_x": {
+            "socket_eye": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_rail": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_reticle": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_sight_axis_front": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "socket_sight_axis_rear": [
+              1.0,
+              0.0,
+              0.0
+            ]
+          },
+          "empty_parents": {
+            "socket_eye": "SM_IVS6_Scope",
+            "socket_rail": "SM_IVS6_Scope",
+            "socket_reticle": "SM_IVS6_Scope",
+            "socket_sight_axis_front": "SM_IVS6_Scope",
+            "socket_sight_axis_rear": "SM_IVS6_Scope"
+          },
+          "bbox_min": [
+            -0.114,
+            -0.0378,
+            -0.00565
+          ],
+          "bbox_max": [
+            0.156,
+            0.0302,
+            0.0838
+          ],
+          "materials": {
+            "M_IVS6_Body": {
+              "images": [
+                {
+                  "name": "T_IVS6_Body_BaseColor",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS6_Body_ORM",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS6_Body_Normal",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS6_Body_ORM",
+                  "size": [
+                    2048,
+                    2048
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            },
+            "M_IVS6_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVS6_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.15,
+                "alpha_linked": false
+              }
+            },
+            "M_IVS6_Reticle": {
+              "images": [
+                {
+                  "name": "T_IVS6_Reticle_Emissive",
+                  "size": [
+                    4096,
+                    4096
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS6_Reticle",
+                  "size": [
+                    4096,
+                    4096
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": true
+              }
+            }
+          },
+          "gltf_material_audit": {
+            "materials": {
+              "M_IVS6_Glass_Rear": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.024000000208616257,
+                  0.03200000151991844,
+                  0.029999999329447746,
+                  0.10000000149011612
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVS6_Glass_Front": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.029999999329447746,
+                  0.026000000536441803,
+                  0.035999998450279236,
+                  0.15000000596046448
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVS6_Reticle": {
+                "alphaMode": "BLEND",
+                "doubleSided": false,
+                "baseColorFactor": null,
+                "roughnessFactor": null,
+                "metallicFactor": 0,
+                "emissiveFactor": [
+                  1,
+                  1,
+                  1
+                ],
+                "baseColorTexture": {
+                  "image": "T_IVS6_Reticle",
+                  "wrapS": 33071,
+                  "wrapT": 33071,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "emissiveTexture": {
+                  "image": "T_IVS6_Reticle_Emissive",
+                  "wrapS": 33071,
+                  "wrapT": 33071,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_emissive_strength",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVS6_Body": {
+                "alphaMode": "OPAQUE",
+                "doubleSided": true,
+                "baseColorFactor": null,
+                "roughnessFactor": null,
+                "metallicFactor": null,
+                "emissiveFactor": null,
+                "baseColorTexture": {
+                  "image": "T_IVS6_Body_BaseColor",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "emissiveTexture": null,
+                "normalTexture": {
+                  "image": "T_IVS6_Body_Normal",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "occlusionTexture": {
+                  "image": "T_IVS6_Body_ORM",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "metallicRoughnessTexture": {
+                  "image": "T_IVS6_Body_ORM",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "extensions": []
+              }
+            },
+            "transmission_like_extensions": [],
+            "extensionsUsed": [
+              "KHR_materials_emissive_strength",
+              "KHR_materials_specular",
+              "KHR_materials_ior"
+            ],
+            "nodes": [
+              "IVS6_Glass",
+              "IVS6_Reticle",
+              "socket_eye",
+              "socket_rail",
+              "socket_reticle",
+              "socket_sight_axis_front",
+              "socket_sight_axis_rear",
+              "SM_IVS6_Scope"
+            ]
+          },
+          "problems": []
+        },
+        "glb_lod1": {
+          "ok": true,
+          "path": "/home/user/Sroskus/IronValley/Art/Export/GLB/IVS6_Scope_LOD1.glb",
+          "meshes": [
+            "IVS6_Glass_LOD1",
+            "SM_IVS6_Scope_LOD1"
+          ],
+          "per_mesh": {
+            "SM_IVS6_Scope_LOD1": {
+              "tris": 12072,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS6_Body"
+              ]
+            },
+            "IVS6_Glass_LOD1": {
+              "tris": 22,
+              "uv_layers": 1,
+              "materials": [
+                "M_IVS6_Glass_Rear",
+                "M_IVS6_Glass_Front"
+              ]
+            }
+          },
+          "tris": 12094,
+          "empties": {},
+          "empty_axes_x": {},
+          "empty_parents": {},
+          "bbox_min": [
+            -0.114,
+            -0.0378,
+            -0.00565
+          ],
+          "bbox_max": [
+            0.156,
+            0.0302,
+            0.0838
+          ],
+          "materials": {
+            "M_IVS6_Body": {
+              "images": [
+                {
+                  "name": "T_IVS6_Body_BaseColor_LOD1",
+                  "size": [
+                    512,
+                    512
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS6_Body_ORM_LOD1",
+                  "size": [
+                    512,
+                    512
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS6_Body_Normal_LOD1",
+                  "size": [
+                    512,
+                    512
+                  ],
+                  "ok": true
+                },
+                {
+                  "name": "T_IVS6_Body_ORM_LOD1",
+                  "size": [
+                    512,
+                    512
+                  ],
+                  "ok": true
+                }
+              ],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 1.0,
+                "alpha_linked": false
+              }
+            },
+            "M_IVS6_Glass_Rear": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.1,
+                "alpha_linked": false
+              }
+            },
+            "M_IVS6_Glass_Front": {
+              "images": [],
+              "bsdf": {
+                "transmission": 0.0,
+                "alpha": 0.15,
+                "alpha_linked": false
+              }
+            }
+          },
+          "gltf_material_audit": {
+            "materials": {
+              "M_IVS6_Glass_Rear": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.024000000208616257,
+                  0.03200000151991844,
+                  0.029999999329447746,
+                  0.10000000149011612
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVS6_Glass_Front": {
+                "alphaMode": "BLEND",
+                "doubleSided": true,
+                "baseColorFactor": [
+                  0.029999999329447746,
+                  0.026000000536441803,
+                  0.035999998450279236,
+                  0.15000000596046448
+                ],
+                "roughnessFactor": 0.029999999329447746,
+                "metallicFactor": 0,
+                "emissiveFactor": null,
+                "baseColorTexture": null,
+                "emissiveTexture": null,
+                "normalTexture": null,
+                "occlusionTexture": null,
+                "metallicRoughnessTexture": null,
+                "extensions": [
+                  "KHR_materials_ior",
+                  "KHR_materials_specular"
+                ]
+              },
+              "M_IVS6_Body": {
+                "alphaMode": "OPAQUE",
+                "doubleSided": true,
+                "baseColorFactor": null,
+                "roughnessFactor": null,
+                "metallicFactor": null,
+                "emissiveFactor": null,
+                "baseColorTexture": {
+                  "image": "T_IVS6_Body_BaseColor_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "emissiveTexture": null,
+                "normalTexture": {
+                  "image": "T_IVS6_Body_Normal_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "occlusionTexture": {
+                  "image": "T_IVS6_Body_ORM_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "metallicRoughnessTexture": {
+                  "image": "T_IVS6_Body_ORM_LOD1",
+                  "wrapS": 10497,
+                  "wrapT": 10497,
+                  "minFilter": 9987,
+                  "texCoord": 0
+                },
+                "extensions": []
+              }
+            },
+            "transmission_like_extensions": [],
+            "extensionsUsed": [
+              "KHR_materials_specular",
+              "KHR_materials_ior"
+            ],
+            "nodes": [
+              "IVS6_Glass_LOD1",
+              "SM_IVS6_Scope_LOD1"
+            ]
+          },
+          "problems": []
+        }
+      },
+      "mount": {
+        "irons_folded_documented": {
+          "clearance": {
+            "Barrel": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 14.13
+            },
+            "BarrelNut": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 11.69
+            },
+            "BoltCarrier": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 15.12
+            },
+            "ChargingHandle": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.02
+            },
+            "GasTube": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 13.91
+            },
+            "Handguard": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 8.02
+            },
+            "RearSightBase": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.97
+            },
+            "RearSightBolt": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 24.44
+            },
+            "RearSightLeaf": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 7.6
+            },
+            "UpperReceiver": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 0.08
+            }
+          },
+          "intersecting_parts": [],
+          "rear_leaf_bbox_bore_cm": {
+            "x": [
+              -11.4,
+              -8.17
+            ],
+            "z": [
+              4.37,
+              4.67
+            ]
+          }
+        },
+        "irons_deployed": {
+          "clearance": {
+            "Barrel": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 14.13
+            },
+            "BarrelNut": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 11.69
+            },
+            "BoltCarrier": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 15.12
+            },
+            "ChargingHandle": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.02
+            },
+            "GasTube": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 13.91
+            },
+            "Handguard": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 8.02
+            },
+            "RearSightBase": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.97
+            },
+            "RearSightBolt": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 24.44
+            },
+            "RearSightLeaf": {
+              "intersecting_face_pairs": 256,
+              "min_distance_mm": 0.5
+            },
+            "UpperReceiver": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 0.08
+            }
+          },
+          "intersecting_parts": [
+            "RearSightLeaf"
+          ],
+          "rear_leaf_bbox_bore_cm": {
+            "x": [
+              -8.45,
+              -8.15
+            ],
+            "z": [
+              4.39,
+              7.62
+            ]
+          }
+        },
+        "rear_leaf_plus90_as_in_review_r1": {
+          "clearance": {
+            "Barrel": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 14.13
+            },
+            "BarrelNut": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 11.69
+            },
+            "BoltCarrier": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 15.12
+            },
+            "ChargingHandle": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.02
+            },
+            "GasTube": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 13.91
+            },
+            "Handguard": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 8.02
+            },
+            "RearSightBase": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.97
+            },
+            "RearSightBolt": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 24.44
+            },
+            "RearSightLeaf": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 6.03
+            },
+            "UpperReceiver": {
+              "intersecting_face_pairs": 0,
+              "min_distance_mm": 0.08
+            }
+          },
+          "intersecting_parts": [],
+          "rear_leaf_bbox_bore_cm": {
+            "x": [
+              -8.43,
+              -5.2
+            ],
+            "z": [
+              4.37,
+              4.67
+            ]
+          }
+        },
+        "socket_rail_rifle_m": [
+          0.19086,
+          0.0,
+          0.12172
+        ],
+        "socket_eye_rifle_m": [
+          -0.00264,
+          0.0,
+          0.16772
+        ],
+        "socket_eye_bore_cm": [
+          -16.95,
+          0.0,
+          7.6
+        ],
+        "sight_axis_over_bore_cm_measured": 7.6,
+        "sight_axis_angle_to_bore_deg": 0.0,
+        "reticle_normal_angle_to_axis_deg": 0.0,
+        "lug_slots_bore_x_cm": [
+          1.4,
+          -2.6
+        ],
+        "lugs_on_slot_centres": true,
+        "rail_contact_min_gap_mm": 0.08,
+        "rail_intersections": 0
+      },
+      "reticle_meta": {
+        "id": "IVS6",
+        "title": "IV-S6 6x: duplex mil-dot with holdover bars",
+        "units": "mrad",
+        "size_px": [
+          4096,
+          4096
+        ],
+        "field_units": 72.0,
+        "px_per_unit": 56.888888888888886,
+        "unit_in_rad": 0.001,
+        "field_deg": 4.1252961249419275,
+        "px_per_moa": 16.54830698187216,
+        "px_per_mrad": 56.888888888888886,
+        "axis_px": [
+          2048.0,
+          2048.0
+        ],
+        "axis_note": "the point of aim is the exact texture centre (between the four centre texels)",
+        "orientation": "row 0 = top (up); +x = right as seen by the shooter",
+        "colour_srgb": [
+          255,
+          38,
+          24
+        ],
+        "drawn_extent_units": {
+          "x_min": -33.9873,
+          "x_max": 33.9873,
+          "y_min": -33.9873,
+          "y_max": 33.9873
+        },
+        "elements": [
+          {
+            "layer": "lit",
+            "type": "dot",
+            "diameter": 0.24
+          },
+          {
+            "layer": "etch",
+            "type": "holdover_bar",
+            "range_m": 300,
+            "hold_mrad": 1.2256,
+            "width_mrad": 1.6667
+          },
+          {
+            "layer": "etch",
+            "type": "holdover_bar",
+            "range_m": 400,
+            "hold_mrad": 2.309,
+            "width_mrad": 1.25
+          },
+          {
+            "layer": "etch",
+            "type": "holdover_bar",
+            "range_m": 500,
+            "hold_mrad": 3.6854,
+            "width_mrad": 1.0
+          },
+          {
+            "layer": "etch",
+            "type": "holdover_bar",
+            "range_m": 600,
+            "hold_mrad": 5.4399,
+            "width_mrad": 0.8333
+          },
+          {
+            "layer": "etch",
+            "type": "crosshair",
+            "stroke": 0.06,
+            "extent": {
+              "left": 10,
+              "right": 10,
+              "up": 10,
+              "down": 12
+            }
+          },
+          {
+            "layer": "etch",
+            "type": "mil_dots",
+            "diameter": 0.22,
+            "spacing": 1.0,
+            "positions": "1..9 left/right/up; 0.16 mrad dots 1..11 down"
+          },
+          {
+            "layer": "etch",
+            "type": "posts",
+            "stroke": 0.45,
+            "from": {
+              "left": 10,
+              "right": 10,
+              "up": 10,
+              "down": 12
+            },
+            "to": 34.0
+          }
+        ],
+        "textures": {
+          "base_rgba": "T_IVS6_Reticle.png",
+          "emissive_rgb": "T_IVS6_Reticle_Emissive.png",
+          "sdf_rgb": "T_IVS6_Reticle_SDF.png"
+        },
+        "encoding": {
+          "base_rgba": "sRGB colour + straight alpha. RGB = illumination colour where the nearest reticle feature is illuminated, black where it is etched; transparent texels carry the nearest feature colour so mip levels do not darken or fringe.",
+          "emissive_rgb": "sRGB, illumination colour x coverage of the illuminated features only (black = not illuminated). Multiply by the brightness setting.",
+          "sdf_rgb": "signed distance, 0.5 = feature edge, 1 = inside, 0 = outside; value = 0.5 - d_px / 32 (d_px = distance in texels at this resolution, clamped at +-16 px). R = all features, G = illuminated, B = etched."
+        },
+        "sampling": "power-of-two, generate mips (box / Kaiser), trilinear + anisotropic filtering, clamp-to-edge addressing (the border texels are transparent)",
+        "reticle_type": "etched glass (black) with an illuminated centre dot",
+        "zero_m": 100,
+        "holdover_rows": [
+          {
+            "range_m": 300,
+            "drop_m": 0.3676838413687247,
+            "hold_rad": 0.0012256121908877104
+          },
+          {
+            "range_m": 400,
+            "drop_m": 0.9236196050242473,
+            "hold_rad": 0.0023090449088492213
+          },
+          {
+            "range_m": 500,
+            "drop_m": 1.8427240473567237,
+            "hold_rad": 0.0036854314089492008
+          },
+          {
+            "range_m": 600,
+            "drop_m": 3.26399866957532,
+            "hold_rad": 0.0054399441205826475
+          }
+        ],
+        "magnification_note": "angles are OBJECT-space (as subtended at the target); behind the eyepiece they appear x6",
+        "projection": "gnomonic: pixel offset from the texture centre = px_per_unit x tan(angle) / unit_in_rad (reticle marks are linear at the target; a rectilinear camera projects the same way). px_per_unit is exact at the axis; at the texture edge linear-in-angle differs by < 0.13 % for the fields used here.",
+        "metrics": {
+          "px_per_unit": 56.888888888888886,
+          "units": "mrad",
+          "size_px": 4096,
+          "edge_10_90_px_first_edges": [
+            1366.65
+          ],
+          "lit_area_units2": 0.0453,
+          "etch_area_units2": 46.2118,
+          "border_alpha_max": 0.0,
+          "lit_centroid_offset_px": [
+            0.0001,
+            0.0001
+          ]
+        }
+      }
+    }
+  }
+}

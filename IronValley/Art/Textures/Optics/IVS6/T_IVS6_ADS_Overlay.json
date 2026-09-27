@@ -1,0 +1,21 @@
+{
+  "path": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVS6/T_IVS6_ADS_Overlay.png",
+  "size_px": [
+    4096,
+    4096
+  ],
+  "px_per_unit": 56.888888888888886,
+  "units": "mrad",
+  "field_units": 72.0,
+  "eyebox_radius_units": 32.89945640009311,
+  "eyebox_radius_px": 1871.6135196497412,
+  "eyebox_radius_fraction_of_size": 0.4569368944457376,
+  "field_stop_edge_width_fraction": 0.006,
+  "vignette_start_fraction": 0.86,
+  "vignette_max_opacity": 0.55,
+  "rim_darkening": 0.18,
+  "alpha_at_centre_offset_2units": 1.0,
+  "alpha_outside": 1.0,
+  "vertical_fov_deg_when_drawn_full_height": 4.1252961249419275,
+  "usage": "Draw centred, scaled so that its height = screen height; set the zoomed camera's vertical FOV to vertical_fov_deg_when_drawn_full_height (or, for any other scale: overlay_px_on_screen = screen_px_per_mrad x field_units).  Fill the screen area outside the square with black."
+}

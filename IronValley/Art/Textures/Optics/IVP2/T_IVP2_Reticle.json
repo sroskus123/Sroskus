@@ -1,0 +1,122 @@
+{
+  "id": "IVP2",
+  "title": "IV-P2 prism 2x: illuminated chevron + etched BDC",
+  "units": "MOA",
+  "size_px": [
+    2048,
+    2048
+  ],
+  "field_units": 64.0,
+  "px_per_unit": 32.0,
+  "unit_in_rad": 0.0002908882086657216,
+  "field_deg": 1.0666666666666667,
+  "px_per_moa": 32.0,
+  "px_per_mrad": 110.00789666511807,
+  "axis_px": [
+    1024.0,
+    1024.0
+  ],
+  "axis_note": "the point of aim is the exact texture centre (between the four centre texels)",
+  "orientation": "row 0 = top (up); +x = right as seen by the shooter",
+  "colour_srgb": [
+    255,
+    38,
+    24
+  ],
+  "drawn_extent_units": {
+    "x_min": -2.9844,
+    "x_max": 5.1719,
+    "y_min": -20.0156,
+    "y_max": -0.0469
+  },
+  "elements": [
+    {
+      "layer": "lit",
+      "type": "chevron",
+      "apex": [
+        0,
+        0
+      ],
+      "width": 6.0,
+      "height": 3.3,
+      "stroke": 0.67,
+      "note": "apex tip = point of aim (100 m zero)"
+    },
+    {
+      "layer": "etch",
+      "type": "bdc_bar",
+      "range_m": 300,
+      "hold_moa": 4.328,
+      "width_moa": 5.73,
+      "stroke": 0.45
+    },
+    {
+      "layer": "etch",
+      "type": "bdc_bar",
+      "range_m": 400,
+      "hold_moa": 8.067,
+      "width_moa": 4.297,
+      "stroke": 0.45
+    },
+    {
+      "layer": "etch",
+      "type": "bdc_bar",
+      "range_m": 500,
+      "hold_moa": 12.807,
+      "width_moa": 3.438,
+      "stroke": 0.45
+    },
+    {
+      "layer": "etch",
+      "type": "bdc_bar",
+      "range_m": 600,
+      "hold_moa": 18.844,
+      "width_moa": 2.865,
+      "stroke": 0.45
+    },
+    {
+      "layer": "etch",
+      "type": "stadia",
+      "from": -4.4,
+      "to": -20.044,
+      "stroke": 0.3
+    }
+  ],
+  "textures": {
+    "base_rgba": "T_IVP2_Reticle.png",
+    "emissive_rgb": "T_IVP2_Reticle_Emissive.png",
+    "sdf_rgb": "T_IVP2_Reticle_SDF.png"
+  },
+  "encoding": {
+    "base_rgba": "sRGB colour + straight alpha. RGB = illumination colour where the nearest reticle feature is illuminated, black where it is etched; transparent texels carry the nearest feature colour so mip levels do not darken or fringe.",
+    "emissive_rgb": "sRGB, illumination colour x coverage of the illuminated features only (black = not illuminated). Multiply by the brightness setting.",
+    "sdf_rgb": "signed distance, 0.5 = feature edge, 1 = inside, 0 = outside; value = 0.5 - d_px / 32 (d_px = distance in texels at this resolution, clamped at +-16 px). R = all features, G = illuminated, B = etched."
+  },
+  "sampling": "power-of-two, generate mips (box / Kaiser), trilinear + anisotropic filtering, clamp-to-edge addressing (the border texels are transparent)",
+  "reticle_type": "etched on the prism (black ink visible without illumination); only the chevron is illuminated",
+  "zero_m": 100,
+  "holdover_rows": [
+    {
+      "range_m": 300,
+      "drop_m": 0.3776837616873807,
+      "hold_rad": 0.001258945207172035
+    },
+    {
+      "range_m": 400,
+      "drop_m": 0.9386194319194687,
+      "hold_rad": 0.0023465442728870553
+    },
+    {
+      "range_m": 500,
+      "drop_m": 1.8627237407344464,
+      "hold_rad": 0.003725430246501542
+    },
+    {
+      "range_m": 600,
+      "drop_m": 3.2889982060920717,
+      "hold_rad": 0.005481608772303284
+    }
+  ],
+  "magnification_note": "angles are OBJECT-space (as subtended at the target); behind the eyepiece they appear x2",
+  "projection": "gnomonic: pixel offset from the texture centre = px_per_unit x tan(angle) / unit_in_rad (reticle marks are linear at the target; a rectilinear camera projects the same way). px_per_unit is exact at the axis; at the texture edge linear-in-angle differs by < 0.13 % for the fields used here."
+}

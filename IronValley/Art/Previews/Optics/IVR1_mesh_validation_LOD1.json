@@ -1,0 +1,85 @@
+{
+  "generated_by": "ivlib 1.0.0",
+  "blender": "4.5.14 LTS",
+  "time": "2026-09-27 02:50:04",
+  "objects": {
+    "SM_IVR1_RedDot_LOD1": {
+      "tris": 4582,
+      "verts": 2293,
+      "non_manifold_edges": 0,
+      "boundary_edges": 0,
+      "inconsistent_normal_edges": 0,
+      "faces_opposing_vertex_normals": 0,
+      "loose_verts": 0,
+      "loose_edges": 0,
+      "zero_area_faces": 0,
+      "duplicate_faces": 0,
+      "shells": 3,
+      "deform_weights_without_groups": 0,
+      "uv_layers": [
+        "UVMap"
+      ],
+      "missing_uvs": false,
+      "has_custom_normals": true,
+      "bbox_min_m": [
+        -0.055,
+        -0.0266,
+        -0.00728
+      ],
+      "bbox_max_m": [
+        0.014,
+        0.0216,
+        0.0666
+      ],
+      "dimensions_cm": [
+        6.9,
+        4.82,
+        7.388
+      ],
+      "materials": [
+        {
+          "name": "M_IVR1_Body",
+          "images": [
+            {
+              "node": "T_BaseColor",
+              "path": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVR1/T_IVR1_Body_BaseColor.png",
+              "exists": true,
+              "colorspace": "sRGB"
+            },
+            {
+              "node": "T_ORM",
+              "path": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVR1/T_IVR1_Body_ORM.png",
+              "exists": true,
+              "colorspace": "Non-Color"
+            },
+            {
+              "node": "T_Normal",
+              "path": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVR1/T_IVR1_Body_Normal.png",
+              "exists": true,
+              "colorspace": "Non-Color"
+            }
+          ]
+        }
+      ],
+      "uv_min": [
+        0.00293,
+        0.00293
+      ],
+      "uv_max": [
+        0.99108,
+        0.9943
+      ],
+      "uv_out_of_bounds_loops": 0,
+      "zero_uv_faces": 95,
+      "zero_uv_area_mm2": 2.923,
+      "zero_uv_max_face_mm2": 0.0648,
+      "texture_set": null
+    }
+  },
+  "summary": {
+    "total_tris": 4582,
+    "problem_count": 0,
+    "validation_seconds": 0.0
+  },
+  "problems": []
+}

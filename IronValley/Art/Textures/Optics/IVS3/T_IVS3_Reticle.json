@@ -1,0 +1,71 @@
+{
+  "id": "IVS3",
+  "title": "IV-S3 3x: illuminated dot + 1 mrad hash reticle",
+  "units": "mrad",
+  "size_px": [
+    4096,
+    4096
+  ],
+  "field_units": 120.0,
+  "px_per_unit": 34.13333333333333,
+  "unit_in_rad": 0.001,
+  "field_deg": 6.875493541569878,
+  "px_per_moa": 9.928984189123296,
+  "px_per_mrad": 34.13333333333333,
+  "axis_px": [
+    2048.0,
+    2048.0
+  ],
+  "axis_note": "the point of aim is the exact texture centre (between the four centre texels)",
+  "orientation": "row 0 = top (up); +x = right as seen by the shooter",
+  "colour_srgb": [
+    255,
+    38,
+    24
+  ],
+  "drawn_extent_units": {
+    "x_min": -56.9971,
+    "x_max": 56.9971,
+    "y_min": -56.9971,
+    "y_max": 56.9971
+  },
+  "elements": [
+    {
+      "layer": "lit",
+      "type": "dot",
+      "diameter": 0.6
+    },
+    {
+      "layer": "etch",
+      "type": "crosshair",
+      "stroke": 0.09,
+      "from": 0.9,
+      "to": 10.0,
+      "hash_every": 1.0,
+      "hash_length": 0.35,
+      "hash_length_every_5": 0.7
+    },
+    {
+      "layer": "etch",
+      "type": "posts",
+      "stroke": 0.45,
+      "from": 10.0,
+      "to": 57.0
+    }
+  ],
+  "textures": {
+    "base_rgba": "T_IVS3_Reticle.png",
+    "emissive_rgb": "T_IVS3_Reticle_Emissive.png",
+    "sdf_rgb": "T_IVS3_Reticle_SDF.png"
+  },
+  "encoding": {
+    "base_rgba": "sRGB colour + straight alpha. RGB = illumination colour where the nearest reticle feature is illuminated, black where it is etched; transparent texels carry the nearest feature colour so mip levels do not darken or fringe.",
+    "emissive_rgb": "sRGB, illumination colour x coverage of the illuminated features only (black = not illuminated). Multiply by the brightness setting.",
+    "sdf_rgb": "signed distance, 0.5 = feature edge, 1 = inside, 0 = outside; value = 0.5 - d_px / 32 (d_px = distance in texels at this resolution, clamped at +-16 px). R = all features, G = illuminated, B = etched."
+  },
+  "sampling": "power-of-two, generate mips (box / Kaiser), trilinear + anisotropic filtering, clamp-to-edge addressing (the border texels are transparent)",
+  "reticle_type": "etched glass (black) with an illuminated centre dot",
+  "zero_m": 100,
+  "magnification_note": "angles are OBJECT-space (as subtended at the target); behind the eyepiece they appear x3",
+  "projection": "gnomonic: pixel offset from the texture centre = px_per_unit x tan(angle) / unit_in_rad (reticle marks are linear at the target; a rectilinear camera projects the same way). px_per_unit is exact at the axis; at the texture edge linear-in-angle differs by < 0.13 % for the fields used here."
+}

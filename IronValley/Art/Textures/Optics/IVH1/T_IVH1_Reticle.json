@@ -1,0 +1,59 @@
+{
+  "id": "IVH1",
+  "title": "IV-H1 holographic: 65 MOA ring + 1 MOA dot",
+  "units": "MOA",
+  "size_px": [
+    2048,
+    2048
+  ],
+  "field_units": 80.0,
+  "px_per_unit": 25.6,
+  "unit_in_rad": 0.0002908882086657216,
+  "field_deg": 1.3333333333333333,
+  "px_per_moa": 25.6,
+  "px_per_mrad": 88.00631733209445,
+  "axis_px": [
+    1024.0,
+    1024.0
+  ],
+  "axis_note": "the point of aim is the exact texture centre (between the four centre texels)",
+  "orientation": "row 0 = top (up); +x = right as seen by the shooter",
+  "colour_srgb": [
+    255,
+    38,
+    24
+  ],
+  "drawn_extent_units": {
+    "x_min": -33.4961,
+    "x_max": 33.4961,
+    "y_min": -33.4961,
+    "y_max": 33.4961
+  },
+  "elements": [
+    {
+      "layer": "lit",
+      "type": "ring",
+      "centreline_diameter": 65.0,
+      "stroke": 2.0
+    },
+    {
+      "layer": "lit",
+      "type": "dot",
+      "diameter": 1.0
+    }
+  ],
+  "textures": {
+    "base_rgba": "T_IVH1_Reticle.png",
+    "emissive_rgb": "T_IVH1_Reticle_Emissive.png",
+    "sdf_rgb": "T_IVH1_Reticle_SDF.png"
+  },
+  "encoding": {
+    "base_rgba": "sRGB colour + straight alpha. RGB = illumination colour where the nearest reticle feature is illuminated, black where it is etched; transparent texels carry the nearest feature colour so mip levels do not darken or fringe.",
+    "emissive_rgb": "sRGB, illumination colour x coverage of the illuminated features only (black = not illuminated). Multiply by the brightness setting.",
+    "sdf_rgb": "signed distance, 0.5 = feature edge, 1 = inside, 0 = outside; value = 0.5 - d_px / 32 (d_px = distance in texels at this resolution, clamped at +-16 px). R = all features, G = illuminated, B = etched."
+  },
+  "sampling": "power-of-two, generate mips (box / Kaiser), trilinear + anisotropic filtering, clamp-to-edge addressing (the border texels are transparent)",
+  "reticle_type": "projected (hologram): no ink, invisible when switched off",
+  "magnification_note": "angles are OBJECT-space (as subtended at the target); behind the eyepiece they appear x1",
+  "projection": "gnomonic: pixel offset from the texture centre = px_per_unit x tan(angle) / unit_in_rad (reticle marks are linear at the target; a rectilinear camera projects the same way). px_per_unit is exact at the axis; at the texture edge linear-in-angle differs by < 0.13 % for the fields used here."
+}

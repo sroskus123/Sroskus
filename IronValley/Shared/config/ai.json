@@ -7,7 +7,8 @@
   "tick": {
     "perceptionHz": 10,
     "decisionHz": 4.5,
-    "decisionJitter": 0.04
+    "decisionJitter": 0.04,
+    "calmTaskMinTime": 2.0
   },
   "vision": {
     "range": 110,
@@ -59,7 +60,8 @@
     "searchMaxTime": 16,
     "searchingDecayFactor": 0.25,
     "glimpseWatchTime": 1.2,
-    "forgetAfterSearch": true
+    "forgetAfterSearch": true,
+    "searchGoalKeepRadius": 3.0
   },
   "aim": {
     "baseErrorDeg": 0.9,
@@ -108,7 +110,13 @@
     "holdRepositionMax": 16,
     "scanIntervalMin": 1.6,
     "scanIntervalMax": 3.4,
-    "teamSpacing": 3.0
+    "teamSpacing": 3.0,
+    "pressureGrace": 4.0,
+    "pressureRamp": 16.0,
+    "pressureWeight": 0.42,
+    "pressureEnemyHolds": 0.5,
+    "pressureCoverTimeCut": 0.6,
+    "holderSearchLeash": 6.0
   },
   "movement": {
     "arriveRadius": 0.5,
@@ -119,7 +127,11 @@
     "avoidLookAhead": 2.2,
     "avoidRadius": 0.9,
     "repathInterval": 2.5,
-    "goalMoveRepath": 1.5
+    "goalMoveRepath": 1.5,
+    "contactRadius": 0.85,
+    "bodyAvoidRadius": 1.5,
+    "bodyAvoidTime": 6.0,
+    "bodyAvoidCost": 6.0
   },
   "stuck": {
     "window": 1.5,
@@ -128,7 +140,10 @@
     "blockTtl": 30,
     "backoffTime": 0.6,
     "teammateWaitTime": 1.2,
-    "maxRecoveries": 4
+    "maxRecoveries": 4,
+    "anchorRadius": 0.75,
+    "anchorWindow": 3.0,
+    "recheckWindow": 1.0
   },
   "danger": {
     "duration": 30,

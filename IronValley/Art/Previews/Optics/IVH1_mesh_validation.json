@@ -1,0 +1,105 @@
+{
+  "generated_by": "ivlib 1.0.0",
+  "blender": "4.5.14 LTS",
+  "time": "2026-09-27 02:50:03",
+  "objects": {
+    "SM_IVH1_Holo": {
+      "tris": 7260,
+      "verts": 3640,
+      "non_manifold_edges": 0,
+      "boundary_edges": 0,
+      "inconsistent_normal_edges": 0,
+      "faces_opposing_vertex_normals": 0,
+      "loose_verts": 0,
+      "loose_edges": 0,
+      "zero_area_faces": 0,
+      "duplicate_faces": 0,
+      "shells": 8,
+      "deform_weights_without_groups": 0,
+      "uv_layers": [
+        "UVMap"
+      ],
+      "missing_uvs": false,
+      "has_custom_normals": true,
+      "bbox_min_m": [
+        -0.081,
+        -0.0212,
+        -0.0057
+      ],
+      "bbox_max_m": [
+        0.017,
+        0.025,
+        0.0612
+      ],
+      "dimensions_cm": [
+        9.8,
+        4.62,
+        6.69
+      ],
+      "materials": [
+        {
+          "name": "M_IVH1_Body",
+          "images": [
+            {
+              "node": "T_BaseColor",
+              "path": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVH1/T_IVH1_Body_BaseColor.png",
+              "exists": true,
+              "colorspace": "sRGB"
+            },
+            {
+              "node": "T_ORM",
+              "path": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVH1/T_IVH1_Body_ORM.png",
+              "exists": true,
+              "colorspace": "Non-Color"
+            },
+            {
+              "node": "T_Normal",
+              "path": "/home/user/Sroskus/IronValley/Art/Textures/Optics/IVH1/T_IVH1_Body_Normal.png",
+              "exists": true,
+              "colorspace": "Non-Color"
+            }
+          ]
+        }
+      ],
+      "uv_min": [
+        0.00146,
+        0.00146
+      ],
+      "uv_max": [
+        0.99311,
+        0.98676
+      ],
+      "uv_out_of_bounds_loops": 0,
+      "zero_uv_faces": 1453,
+      "zero_uv_area_mm2": 34.579,
+      "zero_uv_max_face_mm2": 0.05,
+      "texel_density_px_per_cm": 90.66,
+      "texture_set": "IVH1"
+    }
+  },
+  "summary": {
+    "total_tris": 7260,
+    "problem_count": 0,
+    "validation_seconds": 0.8
+  },
+  "texture_sets": {
+    "IVH1": {
+      "objects": [
+        "SM_IVH1_Holo"
+      ],
+      "size": 2048,
+      "uv_overlap": {
+        "resolution": 2048,
+        "covered_fraction": 0.5827,
+        "pixels_shared_by_different_islands": 0,
+        "islands": 1409,
+        "islands_without_pixel_centres": 14,
+        "collapsed_degenerate_faces": 869,
+        "method": "pixel-centre rasterisation per island at the texture size"
+      },
+      "texel_density_min": 90.66,
+      "texel_density_max": 90.66
+    }
+  },
+  "problems": []
+}

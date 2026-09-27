@@ -101,7 +101,10 @@ a pokaždé se vrátí s plným zdravím, municí, ovládáním, kamerou i zbran
 (GAME-02, GUN-03); friendly fire vypnutý, zásahové zóny (hlava / trup / paže / nohy), ukazatel zásahu, směr
 poškození, kill feed; bezpečný spawn se skriptovaně rozmístěnými nepřáteli (vzdálenost, výhled, geometrie,
 těla — hráč raději čeká); celé kolo do výsledkové obrazovky a „Nové kolo“ bez načtení stránky (skóre, časy,
-respawny, AI, díry po zásazích); běh AI se 17 a se 3 boty; čitelnost HUD v 960×540 i 1920×1080 (bez přetečení
+respawny, AI, díry po zásazích); běh AI se 17 a se 3 boty; **celé kolo se 17 boty** (`tests/e2e/09_full_round.test.mjs`:
+vykreslování vypnuté, časově zrychlené přes skutečnou smyčku, kolo skončí vítězem nebo remízou, každý tým bodoval nebo
+bojoval o spornou oblast, žádný bot zaseknutý 5 s, žádný teleport, žádná chyba v konzoli, „Nové kolo“ vynuluje skóre, časy,
+paměť AI, rezervace krytů a blokace navmeshe); čitelnost HUD v 960×540 i 1920×1080 (bez přetečení
 textu, bez překryvů); načítání map podle id; náhradní cesta pro GLB pistole.
 ## Ovládání (výchozí, `src/data/input_bindings.json`)
 
@@ -234,8 +237,11 @@ Zápas (testy): `startMatch({ level, bots: [t0, t1, t2], seed, optic, skipPreRou
 `simulate(sekundy)` / `simulateUntil({...})` (rychlá simulace bez vykreslování), `getMatchState()`,
 `getSpawnHistory()`, `getDeathLog()`, `evaluateSpawnPoint(x, y, z, tým)`, `placeCombatant(...)`,
 `aimCombatant(...)`, `driveBot(id, cmd, ticks)` (skriptované boty, jen test), `getCoreWeapon()`, `getHud()`,
-`getMenu()`, `getCombatantViews()`, `getAIDebug()`, `loadLevel(id)`, `listLevels()`, `newRound()`. `_game` je
-přímý přístup jen pro interaktivní ladění.
+`getMenu()`, `getCombatantViews()`, `getAIDebug()`, `loadLevel(id)`, `listLevels()`, `newRound()`,
+`telemetryStart(opts)` / `telemetryReport()` / `telemetryStop()` (telemetrie zápasu `src/debug/matchTelemetry.js`: skóre
+v čase, změny a spory oblasti, přítomnost týmů v oblasti, zabití / smrti / respawny, rány / zásahy / přebíjení, epizody
+zaseknutí, největší posun za tik, cena tiku; totéž v Node `node tools/match_report.mjs`). `_game` je přímý přístup jen pro
+interaktivní ladění.
 
 ## Zbraň IV-7
 
@@ -276,7 +282,7 @@ průhledným sklem. Textury vložené v GLB se dekódují přímo z bajtů (`cre
   dekódování všech 98 souborů, správné buffery pro střelbu / přebíjení / kroky, ticho v pauze a po smrti; úrovně mixu
   `node tools/audio_mixcheck.mjs`). Poslech, prostorový dojem (HRTF) a výkon HRTF na slabém hardwaru: NOT TESTED.
 * Výkon na skutečném hardwaru **nebyl změřen** (NOT TESTED). Samotná simulace 17 botů v headless Chromiu stojí
-  zhruba 75–95 ms na simulovanou sekundu (bez vykreslování); vykreslování v SwiftShaderu (softwarově) trvá
+  zhruba 55–110 ms na simulovanou sekundu, tj. 0,9–1,8 ms na tik (bez vykreslování, měřeno 2026-09-27); vykreslování v SwiftShaderu (softwarově) trvá
   řádově sekundy na snímek — to není vlastnost hry.
 * V režimu Artifact na claude.ai zatím **neověřeno**: zámek kurzoru (je náhrada tažením). Přísné CSP bez `blob:`
   je ověřené jen na místní simulaci hostitele (e2e test).

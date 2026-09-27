@@ -81,6 +81,20 @@ export function createAISystem({ combatants, world, nav = null, cover = null, ev
   sys.solidBox = (id) => (id != null ? solidBoxes.get(id) || null : null);
   // solids of spawn shelters (level flag spawnShelter): their cover points are never used
   sys.shelterSolids = new Set(level && Array.isArray(level.solids) ? level.solids.filter((s) => s.spawnShelter).map((s) => s.id) : []);
+  // Is the static obstacle a stuck bot ran into unknown to the navmesh? True only for level solids flagged
+  // "nav": false (the bake leaves them out: barricade, closed door) and for anything that is not a level solid.
+  // Every other level solid is already cut out of the navmesh, so pressing against it means congestion or a
+  // snag, never a reason to block the navmesh (a block there can cut a whole team off, measured 2026-09-27).
+  // Compound solids (walls with openings, stairs) produce collision ids `<id>_seg2`, `<id>_step3`, ...
+  const levelSolidIds = level && Array.isArray(level.solids) ? level.solids.filter((s) => s && s.id).map((s) => s.id) : [];
+  const navExcludedIds = level && Array.isArray(level.solids) ? level.solids.filter((s) => s && s.id && s.nav === false).map((s) => s.id) : [];
+  const idMatch = (solidId, id) => solidId === id || solidId.startsWith(`${id}_`);
+  sys.obstacleUnknownToNav = (solidId) => {
+    if (solidId == null) return true;
+    const sid = String(solidId);
+    if (navExcludedIds.some((id) => idMatch(sid, id))) return true;
+    return !levelSolidIds.some((id) => idMatch(sid, id));
+  };
 
   sys.guardMode = false; // tests / debugging: ignore the zone objective (bots hold their spot)
   sys.activeZone = () => {
@@ -107,6 +121,31 @@ export function createAISystem({ combatants, world, nav = null, cover = null, ev
     const z = sys.activeZone();
     if (!z) return false;
     return sys.zoneController() !== bot.c.team && !sys.isInZone(bot.c.position, z);
+  };
+  // Zone pressure 0..1 of a team (AI-04): grows while none of its members is inside the active zone it does not
+  // hold (after objective.pressureGrace s, over pressureRamp s), and is at least pressureEnemyHolds while an
+  // enemy team holds the zone. The bots of that team outside the zone push for it harder (Bot.decide).
+  // Team presence = public round state (the zone counts the HUD shows), refreshed every tick in update().
+  sys.teamZoneSeenAt = [];
+  sys.zonePressure = (team) => {
+    const z = sys.activeZone();
+    if (!z || sys.roundState() !== 'running') return 0;
+    const ctrl = sys.zoneController();
+    if (ctrl === team) return 0;
+    const O = cfg.objective;
+    const since = sys.teamZoneSeenAt[team] ?? 0;
+    let p = Math.max(0, Math.min(1, (sys.time - since - (O.pressureGrace ?? 4)) / Math.max(1e-3, O.pressureRamp ?? 16)));
+    if (ctrl !== null && ctrl !== team) p = Math.max(p, O.pressureEnemyHolds ?? 0.5);
+    return p;
+  };
+  const refreshZonePresence = () => {
+    const r = match && match.round;
+    const counts = r && r.zone && Array.isArray(r.zone.counts) ? r.zone.counts : null;
+    if (!counts || sys.roundState() !== 'running') {
+      for (let t = 0; t < 3; t++) sys.teamZoneSeenAt[t] = sys.time;
+      return;
+    }
+    for (let t = 0; t < counts.length; t++) if (counts[t] > 0 || sys.teamZoneSeenAt[t] === undefined) sys.teamZoneSeenAt[t] = sys.time;
   };
   sys.roundState = () => {
     if (session && session.mode === 'practice') return 'practice';
@@ -169,10 +208,15 @@ export function createAISystem({ combatants, world, nav = null, cover = null, ev
   on('weapon:fired', (p) => {
     if (!p || !p.muzzle) return;
     const team = p.team;
+    // how far the round really flew (it stops at the first wall / body): a round that hit a wall cannot pass
+    // close by a bot behind that wall ("under fire" only from real near misses)
+    const res = p.result;
+    const end = res && res.hit && res.hit.point ? res.hit.point : res && res.aimPoint ? res.aimPoint : null;
+    const shotLen = end ? p.muzzle.distanceTo(end) : Infinity;
     for (const b of livingBots()) {
       if (b.c.id === p.shooterId) continue;
       if (team === b.c.team && cfg.hearing.ignoreFriendly) continue;
-      b.perception.onSound(sys.time, 'gunshot', p.shooterId, team, p.muzzle, p.loudness ?? 1, p.dir || null);
+      b.perception.onSound(sys.time, 'gunshot', p.shooterId, team, p.muzzle, p.loudness ?? 1, p.dir || null, shotLen);
     }
   });
   on('footstep', (p) => {
@@ -265,6 +309,7 @@ export function createAISystem({ combatants, world, nav = null, cover = null, ev
     sys.tickCount++;
     sys.metrics.ticks++;
     if (sys.nav && typeof sys.nav.update === 'function') sys.nav.update(dt);
+    refreshZonePresence();
     const pp = 1 / cfg.tick.perceptionHz;
     const dp = 1 / cfg.tick.decisionHz;
     let perceived = 0;
@@ -310,6 +355,7 @@ export function createAISystem({ combatants, world, nav = null, cover = null, ev
 
   function reset() {
     sys.dangers.length = 0;
+    sys.teamZoneSeenAt.length = 0;
     if (sys.nav && typeof sys.nav.reset === 'function') sys.nav.reset();
     if (sys.cover) sys.cover.releaseAll();
     sys.tactics.reset();

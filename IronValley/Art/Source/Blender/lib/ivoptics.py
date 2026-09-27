@@ -678,9 +678,9 @@ def pane_sheet(name, x, center_yz, w, h, corner_r, facing=-1, seg=6, col=None):
 def reticle_plane(name, x_plane, center_yz, eye_x, reticle_meta, magnification=1.0, shape=None, col=None):
     """Reticle sheet on the sight axis at x_plane, facing the eye (-X).
 
-    UV scale: seen from the eye point (x = eye_x on the axis) the texture subtends exactly its
-    angular field (x magnification for magnified optics = the apparent size behind the eyepiece);
-    the mapping is gnomonic (UV linear in tan(angle)), which a flat sheet gives exactly.
+    UV scale: seen from the eye point (x = eye_x on the axis) one texture unit subtends exactly one
+    angular unit at the axis (x magnification for magnified optics = the apparent size behind the
+    eyepiece); the mapping is gnomonic (UV linear in tan(angle)), which a flat sheet gives exactly.
     The sheet itself fills the aperture: shape = ('circle', r) or ('rect', half_y, half_z,
     corner_r).  Its UVs therefore run beyond 0..1 and the texture must be sampled clamp-to-edge
     (the border texels are transparent).  A runtime collimated reticle shader needs the whole
@@ -689,8 +689,11 @@ def reticle_plane(name, x_plane, center_yz, eye_x, reticle_meta, magnification=1
     top).  Returns (obj, tex_half) with tex_half = half size of the texture's field on the sheet."""
     d = x_plane - eye_x
     assert d > 0
+    # gnomonic mapping: texture offset is linear in tan(angle) (reticle marks are linear at the
+    # target, and a rectilinear eyepiece / game camera obeys tan(apparent) = M tan(true)); the
+    # scale px_per_unit is exact at the axis.
     half_ang = 0.5 * reticle_meta["field_units"] * RAD_PER_UNIT[reticle_meta["units"]] * magnification
-    tex_half = d * math.tan(half_ang)
+    tex_half = d * half_ang
     cy, cz = center_yz
     shape = shape or ('rect', tex_half, tex_half, 0.0)
     if shape[0] == 'circle':
@@ -1071,7 +1074,7 @@ def range_scene(eye, axis_dir=(1.0, 0.0, 0.0), ground_drop=1.55, distances=(25, 
     n1 = nb.noise(co, 0.35, 4.0, 0.6, 3.0)
     n2 = nb.noise(co, 6.0, 3.0, 0.5, 7.0)
     col_g = nb.ramp(nb.add(nb.mul(n1, 0.7), nb.mul(n2, 0.3)),
-                    [(0.35, (0.070, 0.085, 0.035)), (0.55, (0.115, 0.110, 0.055)), (0.75, (0.16, 0.14, 0.09))])
+                    [(0.35, (0.045, 0.075, 0.018)), (0.55, (0.085, 0.100, 0.030)), (0.75, (0.14, 0.12, 0.06))])
     nb.set(bsdf.inputs['Base Color'], col_g)
     bsdf.inputs['Roughness'].default_value = 0.95
     g = L.box("IV_Ground", eye.x - 50, eye.x + 2500, -1200, 1200, gz - 1.0, gz)
@@ -1087,8 +1090,11 @@ def range_scene(eye, axis_dir=(1.0, 0.0, 0.0), ground_drop=1.55, distances=(25, 
     bk.inputs['Roughness'].default_value = 0.7
     mp, _, bp = L._new_material("IV_Post")
     bp.inputs['Base Color'].default_value = (0.20, 0.13, 0.07, 1)
+    # only the 100 m board sits ON the sight axis; the others are staggered sideways so the near
+    # boards do not hide the far ones
+    lateral = {25: 1.4, 50: -2.2, 100: 0.0, 200: 3.5, 300: -6.0, 400: 8.0}
     for D in distances:
-        p = eye + ax * D
+        p = eye + ax * D + Vector((0.0, lateral.get(D, 0.0), 0.0))
         w, h = 0.46, 0.70
         b = L.box(f"IV_Target_{D}", p.x, p.x + 0.02, p.y - w / 2, p.y + w / 2, p.z - h / 2, p.z + h / 2)
         b.data.materials.append(mw)

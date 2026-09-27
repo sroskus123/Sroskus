@@ -1,0 +1,406 @@
+{
+  "_comment": "Optiky pro IV-7 (generuje Art/Source/Blender/weapons/optics.py; ručně neupravovat). Délky v metrech, úhly ve stupních, síťky v MOA / mrad (úhel v prostoru cíle). Popis a pravidla vykreslení: Art/Reference/OPTICS_spec.md.",
+  "version": 1,
+  "default": "IVR1",
+  "rifle": "iv7_carbine",
+  "frames": {
+    "blender_zup": "X muzzle, Y weapon left, Z up",
+    "gltf_yup": "X muzzle, Y up, Z weapon right (glTF export of the same data)"
+  },
+  "ballistics_reference": {
+    "label": "5.56 mm, ~4 g (62 gr class) bullet from the IV-7's 36.8 cm barrel",
+    "mv_mps": 895.0,
+    "bc_g7": 0.151,
+    "air": "ICAO standard sea level (1.225 kg/m3)"
+  },
+  "optics": [
+    {
+      "id": "IVR1",
+      "model": "IV-R1",
+      "name_cs": "Kolimátor IV-R1",
+      "short_cs": "Kolimátor 1×",
+      "kind": "red_dot",
+      "magnification": 1.0,
+      "eye_relief_m": 0.0811,
+      "eyebox_radius_m": 0.0129,
+      "eyebox_note": "1x: no exit pupil; the window / lens half height limits the head position",
+      "lens_radius_m": 0.0129,
+      "aperture": {
+        "shape": "circle",
+        "radius_m": 0.0129
+      },
+      "objective_clear_aperture_m": null,
+      "true_fov_deg": null,
+      "apparent_fov_deg": null,
+      "sight_height_over_bore_m": 0.07,
+      "sight_height_over_rail_m": 0.04,
+      "zero_m": 50,
+      "ads_time_s": 0.21,
+      "recommended_range_m": [
+        0,
+        150
+      ],
+      "mass_kg": 0.17,
+      "reticle": {
+        "texture": "Art/Textures/Optics/IVR1/T_IVR1_Reticle.png",
+        "emissive": "Art/Textures/Optics/IVR1/T_IVR1_Reticle_Emissive.png",
+        "sdf": "Art/Textures/Optics/IVR1/T_IVR1_Reticle_SDF.png",
+        "json": "Art/Textures/Optics/IVR1/T_IVR1_Reticle.json",
+        "units": "MOA",
+        "size_px": 1024,
+        "field_units": 32.0,
+        "px_per_unit": 32.0,
+        "px_per_moa": 32.0,
+        "px_per_mrad": 110.007897,
+        "angular_space": "object space (angle at the target); apparent = x magnification",
+        "axis": "texture centre = point of aim; row 0 = up; u = shooter's right",
+        "colour_srgb": [
+          255,
+          38,
+          24
+        ],
+        "features": [
+          {
+            "layer": "lit",
+            "type": "dot",
+            "diameter": 2.0
+          }
+        ],
+        "type": "projected (LED on a reflective front lens): invisible when switched off",
+        "scale_rule": "screen_px_per_texture_px = (screen_px_per_rad_of_the_camera_that_shows_the_target) x unit_in_rad / px_per_unit; unit_in_rad = 0.000290888209",
+        "render_hints": {
+          "collimated": true,
+          "min_dot_diameter_px": 2.5,
+          "min_stroke_px": 1.25,
+          "note": "use the SDF texture to keep strokes >= min_stroke_px when true scale is sub-pixel"
+        }
+      },
+      "sockets_optic_frame_m": {
+        "blender_zup": {
+          "socket_rail": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "socket_sight_axis_rear": [
+            -0.0499,
+            0.0,
+            0.04
+          ],
+          "socket_sight_axis_front": [
+            0.0077,
+            0.0,
+            0.04
+          ],
+          "socket_eye": [
+            -0.131,
+            0.0,
+            0.04
+          ],
+          "socket_reticle": [
+            0.002,
+            0.0,
+            0.04
+          ]
+        },
+        "gltf_yup": {
+          "socket_rail": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "socket_sight_axis_rear": [
+            -0.0499,
+            0.04,
+            0.0
+          ],
+          "socket_sight_axis_front": [
+            0.0077,
+            0.04,
+            0.0
+          ],
+          "socket_eye": [
+            -0.131,
+            0.04,
+            0.0
+          ],
+          "socket_reticle": [
+            0.002,
+            0.04,
+            0.0
+          ]
+        }
+      },
+      "mount_on_iv7": {
+        "socket_rail_bore_frame_cm": [
+          -1.8,
+          0.0,
+          3.0
+        ],
+        "socket_rail_rifle_m": {
+          "blender_zup": [
+            0.14886,
+            0.0,
+            0.12172
+          ],
+          "gltf_yup": [
+            0.14886,
+            0.12172,
+            0.0
+          ]
+        },
+        "socket_eye_rifle_m": {
+          "blender_zup": [
+            0.01786,
+            0.0,
+            0.16172
+          ],
+          "gltf_yup": [
+            0.01786,
+            0.16172,
+            0.0
+          ]
+        },
+        "recoil_lug_slots_bore_x_cm": [
+          -3.6
+        ],
+        "irons": "fold both leaves (rear_sight, front_sight: -90 deg about bone-local Y = top towards the stock); see OPTICS_spec.md",
+        "hide_rifle_nodes": [
+          "^Optic"
+        ]
+      },
+      "assets": {
+        "fbx": "Art/Export/FBX/SM_IVR1_RedDot.fbx",
+        "fbx_lod1": "Art/Export/FBX/SM_IVR1_RedDot_LOD1.fbx",
+        "glb": "Art/Export/GLB/IVR1_RedDot.glb",
+        "glb_lod1": "Art/Export/GLB/IVR1_RedDot_LOD1.glb"
+      },
+      "blend": "Art/Source/Blender/weapons/optics.blend",
+      "node_names": {
+        "body": "SM_IVR1_RedDot",
+        "glass": "IVR1_Glass",
+        "reticle": "IVR1_Reticle",
+        "lod1_body": "SM_IVR1_RedDot_LOD1"
+      }
+    },
+    {
+      "id": "IVP2",
+      "model": "IV-P2",
+      "name_cs": "Hranolový zaměřovač IV-P2 (2×)",
+      "short_cs": "Hranol 2×",
+      "kind": "prism",
+      "magnification": 2.0,
+      "eye_relief_m": 0.07,
+      "eyebox_radius_m": 0.005,
+      "eyebox_note": "exit-pupil radius (objective / magnification / 2); outside it the image vignettes",
+      "lens_radius_m": 0.012,
+      "aperture": {
+        "shape": "circle",
+        "radius_m": 0.012
+      },
+      "objective_clear_aperture_m": 0.02,
+      "true_fov_deg": 9.7,
+      "apparent_fov_deg": 19.263,
+      "sight_height_over_bore_m": 0.071,
+      "sight_height_over_rail_m": 0.041,
+      "zero_m": 100,
+      "ads_time_s": 0.25,
+      "recommended_range_m": [
+        15,
+        400
+      ],
+      "mass_kg": 0.3,
+      "reticle": {
+        "texture": "Art/Textures/Optics/IVP2/T_IVP2_Reticle.png",
+        "emissive": "Art/Textures/Optics/IVP2/T_IVP2_Reticle_Emissive.png",
+        "sdf": "Art/Textures/Optics/IVP2/T_IVP2_Reticle_SDF.png",
+        "json": "Art/Textures/Optics/IVP2/T_IVP2_Reticle.json",
+        "units": "MOA",
+        "size_px": 1024,
+        "field_units": 64.0,
+        "px_per_unit": 16.0,
+        "px_per_moa": 16.0,
+        "px_per_mrad": 55.003948,
+        "angular_space": "object space (angle at the target); apparent = x magnification",
+        "axis": "texture centre = point of aim; row 0 = up; u = shooter's right",
+        "colour_srgb": [
+          255,
+          38,
+          24
+        ],
+        "features": [
+          {
+            "layer": "lit",
+            "type": "chevron",
+            "apex": [
+              0,
+              0
+            ],
+            "width": 6.0,
+            "height": 3.3,
+            "stroke": 0.67,
+            "note": "apex tip = point of aim (100 m zero)"
+          },
+          {
+            "layer": "etch",
+            "type": "bdc_bar",
+            "range_m": 300,
+            "hold_moa": 4.328,
+            "width_moa": 5.73,
+            "stroke": 0.45
+          },
+          {
+            "layer": "etch",
+            "type": "bdc_bar",
+            "range_m": 400,
+            "hold_moa": 8.067,
+            "width_moa": 4.297,
+            "stroke": 0.45
+          },
+          {
+            "layer": "etch",
+            "type": "bdc_bar",
+            "range_m": 500,
+            "hold_moa": 12.807,
+            "width_moa": 3.438,
+            "stroke": 0.45
+          },
+          {
+            "layer": "etch",
+            "type": "bdc_bar",
+            "range_m": 600,
+            "hold_moa": 18.844,
+            "width_moa": 2.865,
+            "stroke": 0.45
+          },
+          {
+            "layer": "etch",
+            "type": "stadia",
+            "from": -4.4,
+            "to": -20.044,
+            "stroke": 0.3
+          }
+        ],
+        "type": "etched on the prism (black ink visible without illumination); only the chevron is illuminated",
+        "scale_rule": "screen_px_per_texture_px = (screen_px_per_rad_of_the_camera_that_shows_the_target) x unit_in_rad / px_per_unit; unit_in_rad = 0.000290888209",
+        "render_hints": {
+          "collimated": true,
+          "min_dot_diameter_px": 2.5,
+          "min_stroke_px": 1.25,
+          "note": "use the SDF texture to keep strokes >= min_stroke_px when true scale is sub-pixel"
+        }
+      },
+      "sockets_optic_frame_m": {
+        "blender_zup": {
+          "socket_rail": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "socket_sight_axis_rear": [
+            -0.0762,
+            0.0,
+            0.041
+          ],
+          "socket_sight_axis_front": [
+            0.0032,
+            0.0,
+            0.041
+          ],
+          "socket_eye": [
+            -0.1462,
+            0.0,
+            0.041
+          ],
+          "socket_reticle": [
+            -0.058,
+            0.0,
+            0.041
+          ]
+        },
+        "gltf_yup": {
+          "socket_rail": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "socket_sight_axis_rear": [
+            -0.0762,
+            0.041,
+            0.0
+          ],
+          "socket_sight_axis_front": [
+            0.0032,
+            0.041,
+            0.0
+          ],
+          "socket_eye": [
+            -0.1462,
+            0.041,
+            0.0
+          ],
+          "socket_reticle": [
+            -0.058,
+            0.041,
+            0.0
+          ]
+        }
+      },
+      "mount_on_iv7": {
+        "socket_rail_bore_frame_cm": [
+          -0.4,
+          0.0,
+          3.0
+        ],
+        "socket_rail_rifle_m": {
+          "blender_zup": [
+            0.16286,
+            0.0,
+            0.12172
+          ],
+          "gltf_yup": [
+            0.16286,
+            0.12172,
+            0.0
+          ]
+        },
+        "socket_eye_rifle_m": {
+          "blender_zup": [
+            0.01666,
+            0.0,
+            0.16272
+          ],
+          "gltf_yup": [
+            0.01666,
+            0.16272,
+            0.0
+          ]
+        },
+        "recoil_lug_slots_bore_x_cm": [
+          -3.6
+        ],
+        "irons": "fold both leaves (rear_sight, front_sight: -90 deg about bone-local Y = top towards the stock); see OPTICS_spec.md",
+        "hide_rifle_nodes": [
+          "^Optic"
+        ]
+      },
+      "assets": {
+        "fbx": "Art/Export/FBX/SM_IVP2_Prism.fbx",
+        "fbx_lod1": "Art/Export/FBX/SM_IVP2_Prism_LOD1.fbx",
+        "glb": "Art/Export/GLB/IVP2_Prism.glb",
+        "glb_lod1": "Art/Export/GLB/IVP2_Prism_LOD1.glb"
+      },
+      "blend": "Art/Source/Blender/weapons/optics.blend",
+      "node_names": {
+        "body": "SM_IVP2_Prism",
+        "glass": "IVP2_Glass",
+        "reticle": "IVP2_Reticle",
+        "lod1_body": "SM_IVP2_Prism_LOD1"
+      },
+      "runtime_view": {
+        "pip_camera_vfov_deg_over_ocular_disc": 9.7,
+        "ocular_uv": "the glass ocular sheet's UVs map the lens disc to 0..1 (render target)"
+      }
+    }
+  ]
+}

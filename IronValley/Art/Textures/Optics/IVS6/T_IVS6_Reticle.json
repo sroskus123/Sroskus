@@ -1,0 +1,134 @@
+{
+  "id": "IVS6",
+  "title": "IV-S6 6x: duplex mil-dot with holdover bars",
+  "units": "mrad",
+  "size_px": [
+    4096,
+    4096
+  ],
+  "field_units": 72.0,
+  "px_per_unit": 56.888888888888886,
+  "unit_in_rad": 0.001,
+  "field_deg": 4.1252961249419275,
+  "px_per_moa": 16.54830698187216,
+  "px_per_mrad": 56.888888888888886,
+  "axis_px": [
+    2048.0,
+    2048.0
+  ],
+  "axis_note": "the point of aim is the exact texture centre (between the four centre texels)",
+  "orientation": "row 0 = top (up); +x = right as seen by the shooter",
+  "colour_srgb": [
+    255,
+    38,
+    24
+  ],
+  "drawn_extent_units": {
+    "x_min": -33.9873,
+    "x_max": 33.9873,
+    "y_min": -33.9873,
+    "y_max": 33.9873
+  },
+  "elements": [
+    {
+      "layer": "lit",
+      "type": "dot",
+      "diameter": 0.24
+    },
+    {
+      "layer": "etch",
+      "type": "holdover_bar",
+      "range_m": 300,
+      "hold_mrad": 1.2256,
+      "width_mrad": 1.6667
+    },
+    {
+      "layer": "etch",
+      "type": "holdover_bar",
+      "range_m": 400,
+      "hold_mrad": 2.309,
+      "width_mrad": 1.25
+    },
+    {
+      "layer": "etch",
+      "type": "holdover_bar",
+      "range_m": 500,
+      "hold_mrad": 3.6854,
+      "width_mrad": 1.0
+    },
+    {
+      "layer": "etch",
+      "type": "holdover_bar",
+      "range_m": 600,
+      "hold_mrad": 5.4399,
+      "width_mrad": 0.8333
+    },
+    {
+      "layer": "etch",
+      "type": "crosshair",
+      "stroke": 0.06,
+      "extent": {
+        "left": 10,
+        "right": 10,
+        "up": 10,
+        "down": 12
+      }
+    },
+    {
+      "layer": "etch",
+      "type": "mil_dots",
+      "diameter": 0.22,
+      "spacing": 1.0,
+      "positions": "1..9 left/right/up; 0.16 mrad dots 1..11 down"
+    },
+    {
+      "layer": "etch",
+      "type": "posts",
+      "stroke": 0.45,
+      "from": {
+        "left": 10,
+        "right": 10,
+        "up": 10,
+        "down": 12
+      },
+      "to": 34.0
+    }
+  ],
+  "textures": {
+    "base_rgba": "T_IVS6_Reticle.png",
+    "emissive_rgb": "T_IVS6_Reticle_Emissive.png",
+    "sdf_rgb": "T_IVS6_Reticle_SDF.png"
+  },
+  "encoding": {
+    "base_rgba": "sRGB colour + straight alpha. RGB = illumination colour where the nearest reticle feature is illuminated, black where it is etched; transparent texels carry the nearest feature colour so mip levels do not darken or fringe.",
+    "emissive_rgb": "sRGB, illumination colour x coverage of the illuminated features only (black = not illuminated). Multiply by the brightness setting.",
+    "sdf_rgb": "signed distance, 0.5 = feature edge, 1 = inside, 0 = outside; value = 0.5 - d_px / 32 (d_px = distance in texels at this resolution, clamped at +-16 px). R = all features, G = illuminated, B = etched."
+  },
+  "sampling": "power-of-two, generate mips (box / Kaiser), trilinear + anisotropic filtering, clamp-to-edge addressing (the border texels are transparent)",
+  "reticle_type": "etched glass (black) with an illuminated centre dot",
+  "zero_m": 100,
+  "holdover_rows": [
+    {
+      "range_m": 300,
+      "drop_m": 0.3676838413687247,
+      "hold_rad": 0.0012256121908877104
+    },
+    {
+      "range_m": 400,
+      "drop_m": 0.9236196050242473,
+      "hold_rad": 0.0023090449088492213
+    },
+    {
+      "range_m": 500,
+      "drop_m": 1.8427240473567237,
+      "hold_rad": 0.0036854314089492008
+    },
+    {
+      "range_m": 600,
+      "drop_m": 3.26399866957532,
+      "hold_rad": 0.0054399441205826475
+    }
+  ],
+  "magnification_note": "angles are OBJECT-space (as subtended at the target); behind the eyepiece they appear x6",
+  "projection": "gnomonic: pixel offset from the texture centre = px_per_unit x tan(angle) / unit_in_rad (reticle marks are linear at the target; a rectilinear camera projects the same way). px_per_unit is exact at the axis; at the texture edge linear-in-angle differs by < 0.13 % for the fields used here."
+}

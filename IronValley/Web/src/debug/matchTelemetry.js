@@ -6,11 +6,14 @@
 // weapons and the simulation cost per tick. DOM-free: runs in Node (tools/match_report.mjs, unit tests)
 // and in the browser (window.__IV.telemetry*).
 //
-// Stuck (independent of the AI's own detector): a living combatant that WANTS to move (movement command
-// |moveX, moveZ| >= 0.3 and, for bots, the AI path follower is following a path — close-range combat
-// strafing is intentional and does not count) but stays within `stuckRadius` of an anchor point. The anchor
-// moves when the combatant gets farther than stuckRadius from it, after more than `idleResetS` without
-// movement intent, on death and on spawn. Episode duration = time since the anchor was set.
+// Stuck (independent of the AI's own detector): a living combatant that WANTS to move but stays within
+// `stuckRadius` of an anchor point. Wanting to move: for a bot, its AI path follower has a goal it has not
+// reached yet (farther than the goal tolerance + 0.3 m) — whether or not a path was found and whatever the
+// command says (a bot standing still because its path failed, or pressed against a body, still counts;
+// close-range combat strafing has no goal and does not count); for the player, a movement command
+// |moveX, moveZ| >= 0.3. The anchor moves when the combatant gets farther than stuckRadius from it, after more
+// than `idleResetS` without movement intent, on death and on spawn. Episode duration = time since the anchor
+// was set.
 
 const DEFAULTS = {
   sampleEveryS: 10, // score / zone samples
@@ -56,6 +59,8 @@ export class MatchTelemetry {
     this.nextSampleAt = this.session.simTime;
     this.zoneChanges = [];
     this.zoneTime = { controlled: z(), contested: 0, empty: 0, preRound: 0, ended: 0 };
+    this.zonePresence = z(); // s with at least one living member inside the zone (round running)
+    this.zoneContestedPresence = z(); // s present while the zone was contested (a tie it took part in)
     this.contestedEpisodes = 0;
     this.kills = z();
     this.deaths = z();
@@ -244,6 +249,13 @@ export class MatchTelemetry {
       else if (r.zone.status === 'controlled' && r.zone.controller >= 0) this.zoneTime.controlled[r.zone.controller] += dt;
       else if (r.zone.status === 'contested') this.zoneTime.contested += dt;
       else this.zoneTime.empty += dt;
+      if (r.state === 'running') {
+        for (let k = 0; k < this.teamCount; k++) {
+          if (!(r.zone.counts[k] > 0)) continue;
+          this.zonePresence[k] += dt;
+          if (r.zone.status === 'contested') this.zoneContestedPresence[k] += dt;
+        }
+      }
     }
     if (s.simTime + 1e-9 >= this.nextSampleAt) {
       this.nextSampleAt += o.sampleEveryS;
@@ -281,10 +293,11 @@ export class MatchTelemetry {
         const mv = Math.hypot(cmd.moveX || 0, cmd.moveZ || 0);
         let intent = mv >= 0.3;
         let task = null;
-        if (intent && !c.isPlayer) {
+        if (!c.isPlayer) {
           const b = botOf(c.id);
           if (b && b.move) {
-            intent = !!b.move.wantMove;
+            const m = b.move;
+            intent = !!(m.goal && !m.arrived && Math.hypot(m.goal.x - p.x, m.goal.z - p.z) > (m.goalTolerance ?? 0.5) + 0.3);
             task = b.task;
           }
         }
@@ -417,6 +430,8 @@ export class MatchTelemetry {
         contestedEpisodes: this.contestedEpisodes,
         controllersSeen: [...new Set(this.zoneChanges.filter((z) => z.controller != null).map((z) => z.controller))].sort(),
         timeS: { controlled: this.zoneTime.controlled.map(r3), contested: r3(this.zoneTime.contested), empty: r3(this.zoneTime.empty), preRound: r3(this.zoneTime.preRound), ended: r3(this.zoneTime.ended) },
+        presenceS: this.zonePresence.map(r3),
+        contestedPresenceS: this.zoneContestedPresence.map(r3),
         firstChanges: this.zoneChanges.slice(0, 12),
       },
       kills: this.kills.slice(),

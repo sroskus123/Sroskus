@@ -89,6 +89,7 @@ export class Bot {
     this.lastTargetSeenAt = -1;
     this.lastEnemySeenAt = -Infinity;
     this.burstLeft = 0;
+    this.burstFired = 0;
     this.pauseUntil = 0;
     this.lastShotsFired = this._weapon() ? this._weapon().state.shotsFired : 0;
     this.lastShotsWeapon = this._weapon();
@@ -137,6 +138,7 @@ export class Bot {
     this.sys.tactics.board.release(this.c.id);
     this.memory.clear();
     this.perception.reset();
+    this.move.endStuckEpisode(t, 'died');
     this.move.clearGoal();
     this.task = 'dead';
     this.taskSince = t;
@@ -215,6 +217,14 @@ export class Bot {
       this.move.clearGoal();
       return;
     }
+    if (round === 'pre_round' && !this.scripted) {
+      // countdown: wait in the (sheltered) spawn and leave together with everybody at the start; perception and
+      // self-defence stay on (the combat overlay still answers a visible enemy)
+      this._selectTarget(t);
+      this._setTask('idle', 'odpočet', t);
+      this.move.clearGoal();
+      return;
+    }
     if (this.scripted) {
       this._setTask('scripted', 'příkaz', t);
       this.move.setGoal(this.scripted.goal, { tolerance: this.scripted.tolerance });
@@ -231,22 +241,38 @@ export class Bot {
     const inCover = this.cover && sys.tactics.atCover(this, this.cover);
     const coverGood = inCover && threat && coverProtects(sys.world, this.cover, threat, cfg);
     const zone = sys.activeZone();
-    const scores = { objective: zone ? 0.5 : 0.3, engage: 0, cover: 0, search: 0 };
+    // zone pressure (AI-04): the team has had nobody in the zone it does not hold for a while -> the bots
+    // outside push for it. Rounds whizzing past (suppression) no longer pin them in cover then; real hits do.
+    const O = cfg.objective;
+    const urgent = !!(zone && sys.zoneUrgent(this));
+    const press = urgent && typeof sys.zonePressure === 'function' ? sys.zonePressure(this.c.team) : 0;
+    this.zonePress = press;
+    const pinned = !!(this.perception.lastDamage && t - this.perception.lastDamage.t < cfg.damage.underFireTime);
+    const suppressed = underFire && (pinned || press <= 0) ? 1 : underFire ? 1 - press : 0;
+    const scores = { objective: (zone ? 0.5 : 0.3) + (O.pressureWeight ?? 0.42) * press, engage: 0, cover: 0, search: 0 };
     if (visible) scores.engage = 0.9;
-    if ((visible || underFire) && threat && !coverGood) scores.cover = 0.72 + (underFire ? 0.22 : 0) + (reloading || lowAmmo ? 0.08 : 0);
+    if ((visible || underFire) && threat && !coverGood) scores.cover = 0.72 + 0.22 * suppressed + (reloading || lowAmmo ? 0.08 : 0);
     if ((reloading || (lowAmmo && wi.reserve > 0)) && threat && t - this.lastEnemySeenAt < 6 && !coverGood) scores.cover = Math.max(scores.cover, 0.86);
-    if (coverGood && (visible || underFire || t - this.lastEnemySeenAt < 4)) scores.cover = Math.max(scores.cover, 0.92); // stay in good cover while fighting
+    if (coverGood && (visible || underFire || t - this.lastEnemySeenAt < 4)) scores.cover = Math.max(scores.cover, 0.92 - (pinned || visible ? 0 : 0.3 * press)); // stay in good cover while fighting
     // a fresh glimpse is watched (detection may still complete), not walked to
     const freshGlimpse = e && e.source === 'glimpse' && t - e.time < cfg.memory.glimpseWatchTime;
     if (e && !visible && !freshGlimpse && !e.searched && e.conf >= cfg.memory.searchMinConfidence) {
       let s = 0.45 + 0.35 * e.conf;
-      if (zone && sys.zoneUrgent(this) && this.c.position.distanceTo(e.pos) > 25) s -= 0.25;
+      if (urgent && this.c.position.distanceTo(e.pos) > 25) s -= 0.25;
+      s -= 0.3 * press;
+      // a zone holder does not leave the zone to hunt a contact far outside it
+      if (zone && !urgent && sys.isInZone(this.c.position, zone) && Math.hypot(e.pos.x - zone.center[0], e.pos.z - zone.center[2]) > zone.radius + (O.holderSearchLeash ?? 6)) s -= 0.3;
       scores.search = s;
     }
-    if (this.task === 'cover' && this.cover && t - this.coverSince > cfg.cover.maxTimeInCover) scores.cover -= 0.3; // time to move on
+    const maxInCover = cfg.cover.maxTimeInCover * (1 - (O.pressureCoverTimeCut ?? 0.6) * press);
+    if (this.task === 'cover' && this.cover && t - this.coverSince > maxInCover) scores.cover -= 0.3; // time to move on
     if (scores[this.task] !== undefined) scores[this.task] += 0.07;
     let best = 'objective';
     for (const k of Object.keys(scores)) if (scores[k] > scores[best]) best = k;
+    // calm tasks (search <-> objective) do not flip back and forth: the current one is kept for a minimum
+    // time while it is still possible (each flip reverses the route and the bot shuttles on the spot)
+    const calm = (k) => k === 'search' || k === 'objective';
+    if (calm(best) && calm(this.task) && best !== this.task && scores[this.task] > 0.2 && t - this.taskSince < (cfg.tick.calmTaskMinTime ?? 2.0)) best = this.task;
     this.scores = scores;
     const reason = best === 'engage' ? `vidí ${e.id}` : best === 'cover' ? (underFire ? 'pod palbou' : reloading ? 'přebíjí' : 'kontakt') : best === 'search' ? `pátrá po ${e.id}` : zone ? `oblast ${zone.id}` : 'hlídá';
     this._setTask(best, reason, t);
@@ -280,7 +306,10 @@ export class Bot {
         // the zone needs us and the enemy is not close / not hitting us: keep advancing while firing
         const e = this.target;
         const d = e ? e.pos.distanceTo(this.c.position) : 0;
-        this.advancing = !!(zone && sys.zoneUrgent(this) && !this.perception.underFire && d > 15);
+        // keep moving under suppression when the zone pressure is high (not when hit or the enemy is close)
+        const pinned = !!(this.perception.lastDamage && t - this.perception.lastDamage.t < cfg.damage.underFireTime);
+        const suppressedOnly = this.perception.underFire && !pinned && (this.zonePress || 0) >= 0.5;
+        this.advancing = !!(zone && sys.zoneUrgent(this) && (!this.perception.underFire || suppressedOnly) && d > 15);
         if (this.advancing) {
           this._planObjective(t, zone);
           break;
@@ -293,7 +322,7 @@ export class Bot {
       case 'cover': {
         let cp = this.cover;
         const flanked = cp && threat && sys.tactics.atCover(this, cp) && !coverProtects(sys.world, cp, threat, cfg);
-        const expired = cp && t - this.coverSince > cfg.cover.maxTimeInCover;
+        const expired = cp && t - this.coverSince > cfg.cover.maxTimeInCover * (1 - (cfg.objective.pressureCoverTimeCut ?? 0.6) * (this.zonePress || 0));
         if (cp && (flanked || expired)) {
           this.coverExclude.add(cp.id);
           this.releaseCover();
@@ -301,7 +330,7 @@ export class Bot {
           this.coverReason = flanked ? 'obejit' : 'zmena_pozice';
         }
         if (!cp && threat) {
-          const found = sys.tactics.findCover(this, threat, { requireFire: visible, zone, urgent: zone && sys.zoneUrgent(this), exclude: this.coverExclude });
+          const found = sys.tactics.findCover(this, threat, { requireFire: visible, zone, urgent: zone && sys.zoneUrgent(this), press: this.zonePress || 0, exclude: this.coverExclude });
           if (found && sys.cover.reserve(this.c.id, found.id)) {
             this.cover = found;
             this.coverSince = t;
@@ -324,9 +353,16 @@ export class Bot {
         if (!this.search || this.search.id !== e.id || e.time > this.search.infoTime + 1e-6) {
           const guess = this.memory.predicted(e, t, new Vector3());
           const snapped = sys.nav ? sys.nav.closestPoint(guess, 6) : guess;
-          this.search = { id: e.id, pos: snapped || guess, startedAt: this.search && this.search.id === e.id ? this.search.startedAt : t, arrivedAt: -1, infoTime: e.time, failed: null };
-          if (snapped) this.move.setGoal(this.search.pos, { tolerance: Math.min(1.0, cfg.memory.searchRadius), force: true });
-          else this.search.failed = 'no_nav';
+          const keepR = cfg.memory.searchGoalKeepRadius ?? 3.0;
+          if (this.search && this.search.id === e.id && snapped && !this.search.failed && this.search.pos.distanceTo(snapped) < keepR) {
+            // a new (approximate) estimate close to the current search spot: keep going there, do not re-route
+            // on every noisy sound (the route would flip between the two ways around a building)
+            this.search.infoTime = e.time;
+          } else {
+            this.search = { id: e.id, pos: snapped || guess, startedAt: this.search && this.search.id === e.id ? this.search.startedAt : t, arrivedAt: -1, infoTime: e.time, failed: null };
+            if (snapped) this.move.setGoal(this.search.pos, { tolerance: Math.min(1.0, cfg.memory.searchRadius), force: true });
+            else this.search.failed = 'no_nav';
+          }
         }
         const s = this.search;
         const M = cfg.memory;
@@ -522,6 +558,7 @@ export class Bot {
     }
 
     // ---- movement -> local command (relative to the commanded yaw) ----
+    this.move.constrainByBodies(desired); // never walk into another body (capsules do not collide)
     if (moving || desired.lengthSq() > 1e-6) {
       const y = cmd.yaw;
       const fx = -Math.sin(y);
@@ -545,7 +582,7 @@ export class Bot {
   _actScripted(t, dt) {
     const cmd = this.cmd;
     const s = this.scripted;
-    const desired = this.move.update(dt);
+    const desired = this.move.constrainByBodies(this.move.update(dt));
     const look = this._lookAlongPath(dt) || this.aim.turnTowards(this.c.yaw, 0, dt);
     cmd.yaw = look.yaw;
     cmd.pitch = look.pitch;
@@ -607,13 +644,13 @@ export class Bot {
       const other = this.c.weapons ? this.c.weapons.findIndex((w, i) => i !== this.c.activeWeapon && w.state.magazine + w.state.chamber + w.state.reserve > 0) : -1;
       if (other >= 0) {
         cmd.switchTo = other;
-        this.burstLeft = 0;
+        this._cutBurst(t);
         this.fireBlockedReason = 'switching';
         this.metrics.switches = (this.metrics.switches || 0) + 1;
         return;
       }
       this.fireBlockedReason = 'no_ammo';
-      this.burstLeft = 0;
+      this._cutBurst(t);
       return;
     }
     const reloading = wi.state !== 'ready';
@@ -626,13 +663,13 @@ export class Bot {
       if ((empty || (low && safe)) && !needsChamber) {
         cmd.reload = true;
         this.metrics.reloads++;
-        this.burstLeft = 0;
+        this._cutBurst(t);
         return;
       }
     }
     if (reloading) {
       this.fireBlockedReason = 'reloading';
-      this.burstLeft = 0;
+      this._cutBurst(t);
       return;
     }
     if (!wi.enabled) {
@@ -644,7 +681,7 @@ export class Bot {
       return;
     }
     if (!e || !(visible || recentTarget) || !aimRes) {
-      this.burstLeft = 0;
+      this._cutBurst(t);
       return;
     }
     if (t < this.reactionUntil) {
@@ -670,7 +707,7 @@ export class Bot {
       if (!this._muzzleClear(_muzzle, _aim)) {
         this.fireBlockedReason = 'muzzle_blocked';
         this.metrics.blockedMuzzleHolds++;
-        this.burstLeft = 0;
+        this._cutBurst(t);
         // held for a moment: step out (away from the obstacle in front of the muzzle) to get a clear line
         if (this.muzzleBlockedSince < 0) this.muzzleBlockedSince = t;
         else if (t - this.muzzleBlockedSince > cfg.combat.muzzleStepOutAfter && t > this.stepOutUntil) {
@@ -703,12 +740,13 @@ export class Bot {
     if (this._friendlyInLine(aimRes.distance)) {
       this.fireBlockedReason = 'friendly_in_line';
       this.metrics.friendlyHolds = (this.metrics.friendlyHolds || 0) + 1;
-      this.burstLeft = 0;
+      this._cutBurst(t);
       return;
     }
     if (this.burstLeft === 0) {
       const band = cfg.combat.bursts.find((b) => aimRes.distance <= b.maxDist) || cfg.combat.bursts[cfg.combat.bursts.length - 1];
       this.burstLeft = band.shotsMin + Math.floor(this.rng.next() * (band.shotsMax - band.shotsMin + 1));
+      this.burstFired = 0;
       this.burstBand = band;
       this.metrics.bursts++;
     }
@@ -721,6 +759,20 @@ export class Bot {
       return;
     }
     cmd.fire = true;
+  }
+
+  /**
+   * A burst ends early (target lost, reload, blocked muzzle, teammate in the line, ...): if rounds of it were
+   * already fired, the burst pause still follows, so an interrupted burst and the next one never merge into one
+   * long burst (short, data-driven bursts, AI-03).
+   */
+  _cutBurst(t) {
+    if (this.burstLeft > 0 && this.burstFired > 0) {
+      const b = this.burstBand || this.sys.cfg.combat.bursts[0];
+      this.pauseUntil = Math.max(this.pauseUntil, t + b.pauseMin + this.rng.next() * (b.pauseMax - b.pauseMin));
+    }
+    this.burstLeft = 0;
+    this.burstFired = 0;
   }
 
   /**
@@ -762,18 +814,35 @@ export class Bot {
     const ry = w && w.recoil ? w.recoil.yaw : 0;
     const dirs = [forwardFromYawPitch(this.cmd.yaw ?? c.yaw, (this.cmd.pitch ?? c.pitch) + rp, _fDir1), forwardFromYawPitch(c.yaw + ry, c.pitch + rp, _fDir2)];
     const kickRad = ((w && w.def && w.def.recoil ? w.def.recoil.pitchDeg : 0.6) * 1.2 * Math.PI) / 180;
+    // a round that misses the target flies on until the first wall: teammates beyond the target (up to that
+    // wall) count too; the margin covers the next round's kick and the bot's current aim error (2 sigma)
+    const range = (w && w.def && w.def.range) || 150;
+    const errRad = (2 * Math.max(0.5, this.aim.sigmaDeg || 0) * Math.PI) / 180;
+    const travel = [];
+    for (const f of dirs) {
+      const h = this.sys.world.raycastStatic(_eye, f, range);
+      travel.push(h ? h.distance : range);
+    }
+    const reach = Math.max(travel[0], travel[1]) + 2;
     for (const o of this.sys.combatants.all()) {
       if (o === c || o.team !== c.team || !o.alive) continue;
       const op = o.controller.position;
-      if ((op.x - _eye.x) ** 2 + (op.z - _eye.z) ** 2 > (dist + 2) * (dist + 2)) continue;
-      for (const f of dirs) {
+      const dx = op.x - _eye.x;
+      const dz = op.z - _eye.z;
+      const dH2 = dx * dx + dz * dz;
+      // bodies overlapping (capsules do not collide, avoidance keeps them apart): the muzzle may be inside
+      // the teammate's hit zones, never fire
+      if (dH2 < 0.9 * 0.9 && Math.abs(op.y - c.controller.position.y) < 1.5) return true;
+      if (dH2 > reach * reach) continue;
+      for (let k = 0; k < dirs.length; k++) {
+        const f = dirs[k];
         // closest distance from the teammate's body axis (feet..head) to the ray
         for (const h of [0.3, 0.9, 1.5, 1.75]) {
-          _w.set(op.x - _eye.x, op.y + Math.min(h, o.controller.height) - _eye.y, op.z - _eye.z);
+          _w.set(dx, op.y + Math.min(h, o.controller.height) - _eye.y, dz);
           const s = _w.dot(f);
-          if (s < 0 || s > dist + 1.5) continue;
+          if (s < 0 || s > travel[k] + 0.5) continue;
           const d2 = _w.lengthSq() - s * s;
-          const margin = 0.75 + s * kickRad;
+          const margin = 0.75 + s * (kickRad + errRad);
           if (d2 < margin * margin) return true;
         }
       }
@@ -791,6 +860,7 @@ export class Bot {
       this.lastShotsWeapon = w;
       this.lastShotsFired = sf;
       this.burstLeft = 0;
+      this.burstFired = 0;
     }
     const newShots = sf - this.lastShotsFired;
     if (newShots > 0) {
@@ -799,6 +869,7 @@ export class Bot {
       this.metrics.shots += newShots;
       const before = this.burstLeft;
       this.burstLeft = Math.max(0, this.burstLeft - newShots);
+      this.burstFired = (this.burstFired || 0) + newShots;
       if (this.firstShotPending) {
         const f = this.firstShotPending;
         this.metrics.reactions.push({ targetId: f.targetId, detectedAt: +f.detectedAt.toFixed(3), firstShotAt: +t.toFixed(3), delay: +f.delay.toFixed(3), distance: +f.distance.toFixed(2) });
@@ -809,6 +880,7 @@ export class Bot {
       if (before > 0 && this.burstLeft === 0) {
         const b = this.burstBand || this.sys.cfg.combat.bursts[0];
         this.pauseUntil = t + b.pauseMin + this.rng.next() * (b.pauseMax - b.pauseMin);
+        this.burstFired = 0;
       }
     }
     if (this.cmd.fire && w.state.state !== 'ready') this.metrics.shotsDuringReload++;
@@ -828,6 +900,7 @@ export class Bot {
       pitchDeg: +(c.pitch / DEG).toFixed(2),
       task: this.task,
       taskReason: this.taskReason,
+      zonePressure: +(this.zonePress || 0).toFixed(3),
       taskSince: +this.taskSince.toFixed(2),
       lastDecisionAt: this.lastDecisionAt === undefined ? null : +this.lastDecisionAt.toFixed(3),
       scores: this.scores ? Object.fromEntries(Object.entries(this.scores).map(([k, v]) => [k, +v.toFixed(3)])) : null,
