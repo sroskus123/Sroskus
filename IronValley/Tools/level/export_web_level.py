@@ -2540,9 +2540,11 @@ def splat_maps(L, terr):
     for r in L["roads"]:
         dd, s_ = polyline_dist(r["polyline"], GX, GY)
         hw = r["width"] / 2
+        total = sum(math.dist(a[:2], b[:2]) for a, b in zip(r["polyline"][:-1], r["polyline"][1:]))
+        body = (s_ > hw + 1.0) & (s_ < total - hw - 1.0)         # not in the round end caps on the square
         ruts = np.maximum(np.exp(-((dd - 0.75) / 0.35) ** 2), np.exp(-((dd - 2.25) / 0.35) ** 2))
         kerb = np.clip((dd - (hw - 0.55)) / 0.35, 0, 1) * (dd < hw + 0.05)
-        pud = smoothstep_np(0.5, 0.72, nsm * 0.6 + nbig * 0.55) * np.maximum(ruts * 0.85, kerb)
+        pud = smoothstep_np(0.56, 0.76, nsm * 0.6 + nbig * 0.55) * np.maximum(ruts * 0.85, kerb) * body
         wet = np.maximum(wet, pud * (dd < hw + 0.1))
     for t in L["tracks"]:
         if t["id"] in ("TRACK_C", "TRACK_E_RING"):
@@ -2883,6 +2885,18 @@ def main():
     SY = terr.Y[:-1, :-1] + RES / 2
     surf = surface_raster(L, SX, SY)          # rows = south -> north (j), cols = west -> east (i)
     log(f"surface raster {surf.shape[1]} x {surf.shape[0]} @ {RES} m")
+    # the gameplay raster is authoritative for the grass: no clump on asphalt / water / brook stones (+1 cell) or on
+    # dirt / mud tracks, whatever the 0.25 m splat classes say at the edges (both grids are 0.5 m and aligned)
+    gi0 = int(round((terr.x0 + SPLAT_HALF) / GRASS_RES))
+    gj0 = int(round((SPLAT_HALF - terr.y0) / GRASS_RES))     # grass row of the gameplay raster's southern row
+    ny_s, nx_s = surf.shape
+    strict = np.isin(surf, [SURF_ID[k] for k in ("asphalt", "water", "stone")])
+    strict = ndimage.binary_dilation(strict, iterations=1) | np.isin(surf, [SURF_ID["dirt"], SURF_ID["mud"]])
+    rows = gj0 - 1 - np.arange(ny_s)                          # surf row j (south -> north) -> grass row (north -> south)
+    gsub = splat["grass"][rows[:, None], gi0 + np.arange(nx_s)[None, :]]
+    gsub[strict] = 0
+    splat["grass"][rows[:, None], gi0 + np.arange(nx_s)[None, :]] = gsub
+    log(f"grass: {int(strict.sum())} gameplay cells forced bare")
 
     # ---- light bake
     sun = sun_dir(L)

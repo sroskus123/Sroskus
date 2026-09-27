@@ -131,7 +131,7 @@ export function applyTerrainSplat(material, ts, { wet = 1.0 } = {}) {
   };
   material.userData.terrainSplat = { uniforms, layers: layers.map((l) => l.name) };
   // after-shower wetness per hard layer (asphalt drains slowest, setts fastest; ART_DIRECTION 1 / 3.1)
-  const hardWet = [['Asphalt', 1.0], ['Concrete', 0.75], ['PavingSetts', 0.5]].filter(([n]) => idx[n] !== undefined);
+  const hardWet = [['Asphalt', 1.0], ['Concrete', 0.7], ['PavingSetts', 0.35]].filter(([n]) => idx[n] !== undefined);
   const porous = ['Dirt', 'Mud', 'Gravel', 'RiverStones'].map((n) => idx[n]);
   material.onBeforeCompile = (shader, renderer) => {
     if (prev) prev(shader, renderer);

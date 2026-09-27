@@ -58,7 +58,7 @@ test('terrain splat: the layer manifest matches the level, 3 weight images cover
 
 test('grass density: none on asphalt / water / brook stones, practically none on tracks and yards, no tall grass in capture zones', () => {
   const g = decodePng(glbImage(ter, splat.grassImage).bytes);
-  const raster = surfaceRasterFromGlb(ter);
+  const raster = { ...surfaceRasterFromGlb(ter), x0: ter.json.asset.extras.iv.surfaceRaster.x0, y0: ter.json.asset.extras.iv.surfaceRaster.y0 };
   const [x0, , , y1] = splat.rect;
   const res = splat.grassRes;
   const at = (x, z, ch) => {

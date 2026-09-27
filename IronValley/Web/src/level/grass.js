@@ -33,8 +33,8 @@ const RADIUS = 40;
 
 // clump types: atlas rects (variants side by side), card aspect, number of crossed quads, density per m2 at map 1.0
 export const GRASS_TYPES = [
-  { name: 'low', rects: ['low', 'low_dry'], quads: 3, aspect: 1.2, channel: 0, perM2: 6.0, h: [0.3, 0.55], dryShare: 0.35, radius: 30, fade: [20, 30] },
-  { name: 'forb', rects: ['forb', 'forb'], quads: 2, aspect: 1.0, channel: 0, perM2: 0.5, h: [0.34, 0.55], notFlower: true, radius: 34, fade: [24, 34] },
+  { name: 'low', rects: ['low', 'low_dry'], quads: 3, aspect: 1.0, channel: 0, perM2: 5.0, h: [0.18, 0.55], hPow: 1.6, dryShare: 0.22, radius: 30, fade: [20, 30] },
+  { name: 'forb', rects: ['forb', 'forb'], quads: 2, aspect: 1.0, channel: 0, perM2: 0.3, h: [0.25, 0.45], notFlower: true, radius: 34, fade: [24, 34] },
   { name: 'tall', rects: ['tall_a', 'tall_b'], quads: 2, aspect: 0.6, channel: 1, perM2: 0.6, h: [0.75, 1.05], radius: 40, fade: [28, 40] },
   { name: 'chamomile', rects: ['chamomile', 'chamomile'], quads: 2, aspect: 1.0, channel: 2, perM2: 0.35, h: [0.4, 0.58], radius: 36, fade: [26, 36] },
   { name: 'yarrow', rects: ['yarrow', 'yarrow'], quads: 2, aspect: 0.55, channel: 2, perM2: 0.12, h: [0.55, 0.8], radius: 40, fade: [28, 40] },
@@ -213,7 +213,8 @@ varying vec2 vIvXZ;`,
 	diffuseColor *= tx;
 	vec2 uvW = vec2( ( vIvXZ.x - ivSplatRect.x ) / ivSplatRect.z, ( vIvXZ.y + ivSplatRect.y ) / ivSplatRect.w );
 	vec3 macro = texture2D( ivMacro, uvW ).rgb * 2.0;
-	diffuseColor.rgb *= macro * ( 0.9 + 0.2 * vIvTint ) * mix( 0.72, 1.0, smoothstep( 0.0, 0.6, vIvBend ) );
+	vec3 hue = mix( vec3( 0.92, 1.02, 0.9 ), vec3( 1.1, 1.03, 0.82 ), vIvTint );
+	diffuseColor.rgb *= macro * hue * ( 0.86 + 0.26 * fract( vIvTint * 7.13 ) ) * mix( 0.72, 1.0, smoothstep( 0.0, 0.6, vIvBend ) );
 }`,
       )
       .replace(
@@ -301,7 +302,7 @@ export function buildGrass({ terrainSplat, terGlb, vegGlb, textures, uniforms })
         if (r1 >= dens) continue;
         const y = grid.heightAt(x, z);
         if (!(y === y)) continue; // NaN: no terrain (building floors)
-        const hgt = t.h[0] + (t.h[1] - t.h[0]) * r2;
+        const hgt = t.h[0] + (t.h[1] - t.h[0]) * Math.pow(r2, t.hPow || 1);
         const variant = t.dryShare !== undefined ? (r3 < t.dryShare ? 1 : 0) : r3 < 0.5 ? 1 : 0;
         arr.push(x, y - 0.03, z, r4 * 6.2832, hgt, hgt * (0.85 + 0.5 * r2), variant, rnd());
       }

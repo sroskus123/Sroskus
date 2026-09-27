@@ -384,7 +384,7 @@ def conifer_silhouette(w, h, r, cols, pine=False):
 
 
 # ================================================================================================ grass cards
-GRASS_G = ["#5f6d2e", "#6e7c37", "#7c8b40", "#88944a", "#687532", "#566429"]
+GRASS_G = ["#5f7030", "#6b7e36", "#77893e", "#83944a", "#647634", "#56692b", "#708240"]
 GRASS_D = ["#a39461", "#b1a26c", "#958a58", "#bfae78", "#8b7d4c"]
 
 
@@ -426,14 +426,16 @@ def grass_blade_card(c, base, height, lean, width, col, dry_tip=0.3, r=None):
         c.put((ys, xs), al, colt, np.array([0, 0, 1.0]))
 
 
-def grass_card(w, h, r, count, height_frac, dry=0.25, width=6.5, spread=0.35):
+def grass_card(w, h, r, count, height_frac, dry=0.25, width=6.5, spread=0.3):
+    """grass tuft: blades from a narrow base, irregular heights (ragged top), fanning inside the card (no clipped
+    blades at the card border), mostly green with a few dry blades and short dry tips."""
     c = Card(w, h)
     for _ in range(count):
-        bx = w * (0.5 + r.normal(0, 0.16))
-        H = h * height_frac * (0.45 + 0.55 * r.random())
-        lean = r.normal(0, spread)
+        bx = w * (0.5 + np.clip(r.normal(0, 0.1), -0.22, 0.22))
+        H = h * height_frac * (0.25 + 0.75 * r.random() ** 0.8)
+        lean = float(np.clip(r.normal(0, spread), -0.55, 0.55))
         cols = GRASS_D if r.random() < dry else GRASS_G
-        grass_blade_card(c, (bx, h - 1), H, lean, width * (0.7 + 0.6 * r.random()), pick(r, cols, 0.1), dry_tip=0.25 + 0.3 * r.random(), r=r)
+        grass_blade_card(c, (bx, h - 1), H, lean, width * (0.7 + 0.6 * r.random()), pick(r, cols, 0.1), dry_tip=0.08 + 0.2 * r.random(), r=r)
     return c
 
 
@@ -468,7 +470,7 @@ def forb_card(w, h, r):
         a0 = -math.pi / 2
         for k in range(n):
             ang = a0 + (k - (n - 1) / 2) * (1.1 if n == 3 else 0.62)
-            draw_leaf(c, top, ang, w * 0.09, w * 0.05, pick(r, ["#4d6a2c", "#557232", "#466228"], 0.1), r, tip=1.2, serrate=0.25, petiole=0.0)
+            draw_leaf(c, top, ang, w * 0.075, w * 0.045, pick(r, ["#5d7a36", "#66823c", "#56722f"], 0.1), r, tip=1.2, serrate=0.25, petiole=0.0)
     return c
 
 
@@ -662,8 +664,8 @@ def foliage_atlas():
 def grass_atlas():
     A = np.zeros((1536, 2048, 4), F32)
     makers = {
-        "low": lambda w, h: grass_card(w, h, rng(30), 230, 0.9, dry=0.22, spread=0.42),
-        "low_dry": lambda w, h: grass_card(w, h, rng(31), 210, 0.85, dry=0.6, spread=0.42),
+        "low": lambda w, h: grass_card(w, h, rng(30), 200, 0.92, dry=0.12, spread=0.3),
+        "low_dry": lambda w, h: grass_card(w, h, rng(31), 190, 0.88, dry=0.45, spread=0.3),
         "forb": lambda w, h: forb_card(w, h, rng(32)),
         "chamomile": lambda w, h: flower_card(w, h, rng(33), "chamomile"),
         "tall_a": lambda w, h: tall_grass_card(w, h, rng(34)),
