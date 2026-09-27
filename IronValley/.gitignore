@@ -28,3 +28,6 @@ Tools/level/nav/node_modules/
 Tools/audio/_src/
 Tools/audio/_out/
 Docs/navrhy/*.png
+
+# third-party reference images of unknown licence: kept locally, described in Docs/navrhy/REFERENCE_SOLDIER.md
+Docs/navrhy/ref_external/
