@@ -1,12 +1,32 @@
 {
  "uv": {
-  "coverage": 0.6319,
+  "coverage": 0.5194,
   "overlap_px": 0,
-  "islands": 36
+  "islands": 8
  },
- "px_per_cm_sleeves": 30.42,
- "px_per_cm_gloves": 54.51,
- "fp_arms_tris": 12491,
+ "px_per_cm_sleeves": 25.25,
+ "px_per_cm_gloves": 52.16,
+ "fp_arms_tris": 16249,
+ "fp_parts": {
+  "FP_Sleeves": 4905,
+  "FP_Armbands": 1536,
+  "FP_Glove_Knuckle_L": 308,
+  "FP_Glove_Knuckle_R": 308,
+  "FP_Glove_L": 3800,
+  "FP_Glove_Pad_index_L": 44,
+  "FP_Glove_Pad_index_R": 44,
+  "FP_Glove_Pad_middle_L": 44,
+  "FP_Glove_Pad_middle_R": 44,
+  "FP_Glove_Pad_pinky_L": 44,
+  "FP_Glove_Pad_pinky_R": 44,
+  "FP_Glove_Pad_ring_L": 44,
+  "FP_Glove_Pad_ring_R": 44,
+  "FP_Glove_R": 3800,
+  "FP_Glove_Strap_L": 576,
+  "FP_Glove_Strap_R": 576,
+  "FP_Glove_StrapTab_L": 44,
+  "FP_Glove_StrapTab_R": 44
+ },
  "textures": {
   "n": "Art/Textures/Characters/Soldier/T_Soldier_FPArms_Normal.png",
   "n_dx": "Art/Textures/Characters/Soldier/T_Soldier_FPArms_Normal_DX.png",
@@ -15,5 +35,5 @@
   "bc_Bravo": "Art/Textures/Characters/Soldier/T_Soldier_FPArms_Bravo_BaseColor.png",
   "bc_Charlie": "Art/Textures/Characters/Soldier/T_Soldier_FPArms_Charlie_BaseColor.png"
  },
- "seconds": 180.0
+ "seconds": 158.8
 }

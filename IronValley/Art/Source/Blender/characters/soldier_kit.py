@@ -176,7 +176,7 @@ def garment_kit(B, arm, shirt, trousers, info):
                                            t_c=0.011, t_e=0.0035, flap=0.040)
         # team armband: a band round the sleeve below the pocket
         band_round_limb(B, f"Armband_{s.upper()}", abv, ax, 0.158, 0.214, -math.pi, math.pi, "Soldier_Shirt",
-                        thick=0.0026, clear=0.0016, nu=48, nv=4, atlas="team", zone="team", closed=True)
+                        thick=0.0026, clear=0.0016, nu=36, nv=3, atlas="team", zone="team", closed=True)
     # cargo pocket on the left thigh (the right thigh carries the holster)
     ax = SC.leg_axis(arm, "l")
     lbv, _ = limb_bvh(trousers, arm, ["thigh_l", "calf_l"])
@@ -190,7 +190,7 @@ def garment_kit(B, arm, shirt, trousers, info):
         kn = ax.L[1]
         for k, (a0, a1) in enumerate(((kn - 0.088, kn - 0.061), (kn + 0.058, kn + 0.085))):
             band_round_limb(B, f"KneeStrap_{s.upper()}{k + 1}", lbv, ax, a0, a1, math.radians(52), math.radians(308),
-                            "Soldier_Trousers", thick=0.0036, clear=0.0016, nu=34, nv=3, zone="strap",
+                            "Soldier_Trousers", thick=0.0036, clear=0.0016, nu=26, nv=3, zone="strap",
                             bones=[f"thigh_{s}", f"calf_{s}"])
     info["garment_kit"] = out
     return out
@@ -409,7 +409,7 @@ def thigh_holster(B, arm, trousers, belt_bottom_z, snap_to, info):
     # leg straps round the thigh (from the platform's back edge round the inner thigh to its front edge)
     for k, sm in enumerate((0.165, 0.285)):
         band_round_limb(B, f"Holster_LegStrap{k + 1}", lbv, ax, sm - 0.016, sm + 0.016, c + hw - 0.05, c - hw + 0.05 + 2 * math.pi,
-                        "Soldier_Trousers", thick=0.0036, clear=0.0018, nu=30, nv=3, zone="strap", bones=["thigh_r"])
+                        "Soldier_Trousers", thick=0.0036, clear=0.0018, nu=24, nv=3, zone="strap", bones=["thigh_r"])
     info["holster"] = {"platform_s": [s0, s1], "angle_deg": round(math.degrees(c), 1)}
     return info["holster"]
 
@@ -472,7 +472,7 @@ def glove_kit(B, arm, gloves, info):
         ax = SC.arm_axis(arm, s)
         L2 = ax.L[2]
         Vw, Fw = band_round_limb(B, f"Glove_Strap_{s.upper()}", gbv, ax, L2 - 0.0445, L2 - 0.0175, -math.pi, math.pi,
-                                 f"Soldier_Glove_{s.upper()}", thick=0.0034, clear=0.0009, nu=36, nv=4,
+                                 f"Soldier_Glove_{s.upper()}", thick=0.0034, clear=0.0009, nu=28, nv=3,
                                  atlas="glove", zone="gstrap", closed=True)
         B.parts[f"Glove_Strap_{s.upper()}"]["atlas"] = "glove"
         wb = S.bvh(Vw, tri_list(Fw))

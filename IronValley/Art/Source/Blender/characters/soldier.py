@@ -212,7 +212,7 @@ def snap_sleeve_ends(G, arm):
     return int(ends.sum())
 
 
-GARMENT_TRIS = {"Soldier_Shirt": 10500, "Soldier_Trousers": 7500}
+GARMENT_TRIS = {"Soldier_Shirt": 9500, "Soldier_Trousers": 6900}
 PANEL_IDS = {}
 
 
@@ -615,7 +615,7 @@ def garment_bvh(ob, exclude_bones=None, arm=None):
     return S.bvh(co, tris), co
 
 
-def build_gloves(arm, col, target=3200):
+def build_gloves(arm, col, target=2800):
     """Game-resolution copies of the tactical gloves (hands_gloves.py): decimated with UVs kept,
     weights re-transferred from the full-resolution glove (<= 4 influences)."""
     names = S.bone_names(arm)
@@ -1918,6 +1918,7 @@ def dev_stance(a):
 
 POSES = [
     ("rest", None, "A-pose (bind pose)"),
+    ("relaxed", SP.p_relaxed, "standing relaxed: arms down beside the kit, loose fists (reference views)"),
     ("arms_raised", SP.p_arms_raised, "clavicle 22 deg + shoulder abduction 105 deg"),
     ("squat_deep", SP.p_squat_deep, "hip 100 / knee 130 / ankle 30 deg, trunk forward, arms forward"),
     ("sprint", SP.p_sprint, "sprint stride: hip 65 / knee 95 (front), hip -22 / knee 35 (rear), arms swinging"),
@@ -1927,8 +1928,9 @@ POSES = [
     ("hip_ready", ("hip", 0.0), "rifle shouldered, head up (hip / ready)"),
 ]
 GARMENTS = ["Soldier_Shirt", "Soldier_Trousers", "Soldier_Balaclava", "Soldier_Boots", "Soldier_Glove_L", "Soldier_Glove_R",
-            "Soldier_Armbands", "Soldier_Sole_L", "Soldier_Sole_R"]
+            "Soldier_Sole_L", "Soldier_Sole_R"]
 TOL_MM = 1.0
+LOD0_MAX = 45000          # raised from 35k by the lead for the loose-clothing rework
 
 
 class PoseMeshes:
@@ -2016,7 +2018,9 @@ def weights_report(arm):
 
 RIFLE_OBSTACLES = ["SK_Human_Base", "Soldier_Balaclava", "SG_Headset_Cup_L", "SG_Headset_Cup_R", "SG_Headset_Mic",
                    "SG_Glasses_Lens", "SG_Glasses_Frame", "SG_Helmet", "SG_HelmetShell", "SG_Helmet_Rail_R",
-                   "SG_PC_Strap_R", "SG_PC_Strap_L", "SG_PC_FrontBag", "SG_PC_AdminPouch", "SG_Helmet_ChinStrap"]
+                   "SG_PC_Strap_R", "SG_PC_Strap_L", "SG_PC_FrontBag", "SG_PC_AdminPouch", "SG_Helmet_ChinStrap",
+                   "SG_PC_MagPouch_1", "SG_PC_MagPouch_2", "SG_PC_MagPouch_3", "SG_PC_MagPouch_4",
+                   "SG_PC_Mag_1", "SG_PC_Mag_2", "SG_PC_Mag_3", "SG_PC_Mag_4"]
 _COLLIDER = {}
 
 
@@ -2167,8 +2171,8 @@ def stage_validate(a=None):
     rig, parts = load_rifle()
     lib = load_lib()
     rep = {"asset": "SK_Soldier", "script": rel(__file__), "blender": bpy.app.version_string,
-           "limits": {"penetration_tolerance_mm": TOL_MM, "lod0_tris_max": 35000, "lod1_tris_target": 12000,
-                      "lod2_tris_target": 5000, "fp_arms_tris_max": 15000, "texture_max": 2048}}
+           "limits": {"penetration_tolerance_mm": TOL_MM, "lod0_tris_max": LOD0_MAX, "lod1_tris_target": 15000,
+                      "lod2_tris_target": 6000, "fp_arms_tris_max": 15000, "texture_max": 2048}}
     # triangles
     tri = {o.name: len(S.tris_of(o.data)) for o in soldier_meshes()}
     rep["triangles_lod0"] = {"total": int(sum(tri.values())), "parts": dict(sorted(tri.items(), key=lambda kv: -kv[1]))}
@@ -2201,7 +2205,7 @@ def stage_validate(a=None):
                   "bones_with_weight": sorted({names[k] for k in np.nonzero(W.max(0) > 1e-4)[0]})}
     rep["export_meshes"] = exp
     rep["budgets"] = {
-        "lod0_tris": exp.get("SK_Soldier_LOD0", {}).get("tris"), "lod0_ok": exp.get("SK_Soldier_LOD0", {}).get("tris", 1e9) <= 35000,
+        "lod0_tris": exp.get("SK_Soldier_LOD0", {}).get("tris"), "lod0_ok": exp.get("SK_Soldier_LOD0", {}).get("tris", 1e9) <= LOD0_MAX,
         "lod1_tris": exp.get("SK_Soldier_LOD1", {}).get("tris"), "lod2_tris": exp.get("SK_Soldier_LOD2", {}).get("tris"),
         "fp_arms_tris": exp.get("FP_Arms", {}).get("tris"), "fp_ok": exp.get("FP_Arms", {}).get("tris", 1e9) <= 15000,
         "max_texture_px": max([max(v) for v in texs.values()] or [0]), "textures_ok": all(max(v) <= 2048 for v in texs.values())}
@@ -2238,14 +2242,14 @@ def stage_validate(a=None):
 
 LOD_RATIO = {
     # (LOD1, LOD2) triangle ratios per part class; None = part dropped at that LOD
-    "garment": (0.42, 0.17), "glove": (0.22, 0.055), "boot": (0.40, 0.16), "sole": (0.5, 0.25),
-    "bala": (0.40, 0.16), "skin": (0.5, 0.2), "big": (0.45, 0.20), "small": (0.5, 0.25),
-    "tiny": (0.6, None), "team": (0.5, 0.25),
+    "garment": (0.31, 0.125), "glove": (0.20, 0.05), "boot": (0.35, 0.14), "sole": (0.5, 0.25),
+    "bala": (0.35, 0.14), "skin": (0.5, 0.2), "big": (0.38, 0.16), "small": (0.45, 0.22),
+    "tiny": (0.5, None), "team": (0.45, 0.22),
 }
 TINY = ("SG_PC_Bungee", "SG_Glasses_Arm", "SG_Headset_Mic", "SG_Headset_Arm", "SG_Helmet_Mount", "SG_PC_Antenna",
         "SG_Helmet_ChinStrap", "SG_PC_PullTab", "SG_Glove_Pad", "SG_Glove_StrapTab", "SG_PC_PackStrap", "SG_PC_PackHandle",
         "SG_Holster_Slide")
-FP_GLOVE_TRIS = 3800
+FP_GLOVE_TRIS = 3600
 FP_CUT_T = 0.32          # FP sleeves keep the upper arm from 32 % of its length (from the shoulder) down
 
 
@@ -2330,7 +2334,7 @@ def join_export(objs, name, col):
     return ob
 
 
-FP_SLEEVE_TRIS = 4600
+FP_SLEEVE_TRIS = 4400
 
 
 def build_fp_arms(arm, col, names):
@@ -2892,6 +2896,197 @@ def render_fp(made, rig, parts, lib):
     return res
 
 
+REF_DIR = os.path.join(IV, "Docs", "navrhy", "ref_external")          # third-party refs, local only (gitignored)
+REF_OUT = os.path.join(REF_DIR, "compare")                            # comparison sheets with the refs: local only
+REF_VIEWS = [
+    # name, camera, target, lens, reference image it matches
+    ("back34", (-2.35, 2.75, 1.62), (0.0, 0.02, 0.96), 52, "07_vojak_digital_camo_zada_bok.webp", "07 back 3/4"),
+    ("front", (0.0, -2.75, 1.38), (0.0, 0.0, 1.20), 62, "08_vojak_nosic_platu_zepredu.webp", "08 front"),
+    ("front34", (-1.85, -3.05, 1.50), (0.0, 0.0, 0.96), 52, "09_vojak_tri_ctvrte.webp", "09 3/4 front"),
+    ("side", (3.55, -0.05, 1.25), (0.0, 0.0, 0.96), 52, "10_vojak_bok.webp", "10 side"),
+]
+
+
+def studio_dark():
+    """Neutral dark studio like the reference renders: near-black backdrop, soft key from the front
+    left above, cool rim lights from behind, a shadow-catcher floor."""
+    ivlib.clear_lights_cameras()
+    sc = bpy.context.scene
+    ivlib.setup_cycles(sc, samples=RS + 8, threads=4)
+    sc.view_settings.view_transform = 'AgX'
+    sc.view_settings.look = 'None'
+    w = sc.world or bpy.data.worlds.new("IV_DarkWorld")
+    sc.world = w
+    w.use_nodes = True
+    bg = w.node_tree.nodes.get("Background")
+    bg.inputs[0].default_value = (0.020, 0.021, 0.024, 1.0)
+    bg.inputs[1].default_value = 1.0
+
+    def area(name, loc, target, energy, size, color=(1, 1, 1)):
+        ld = bpy.data.lights.new(name, 'AREA')
+        ld.energy = energy
+        ld.size = size
+        ld.color = color
+        o = bpy.data.objects.new(name, ld)
+        sc.collection.objects.link(o)
+        o.location = loc
+        d = Vector(target) - Vector(loc)
+        o.rotation_euler = d.to_track_quat('-Z', 'Y').to_euler()
+        return o
+    area("IV_Key", (-2.2, -2.6, 3.2), (0, 0, 1.1), 520, 2.2, (1.0, 0.97, 0.93))
+    area("IV_Fill", (2.8, -1.8, 1.6), (0, 0, 1.0), 110, 3.0, (0.92, 0.95, 1.0))
+    area("IV_RimL", (-2.0, 2.6, 2.4), (0, 0, 1.2), 300, 1.2, (0.85, 0.9, 1.0))
+    area("IV_RimR", (2.3, 2.3, 2.2), (0, 0, 1.2), 260, 1.2, (0.85, 0.9, 1.0))
+    area("IV_Top", (0.0, 0.3, 3.6), (0, 0, 1.0), 180, 1.6)
+    g = bpy.data.objects.get("IV_DarkFloor")
+    if g is None:
+        me = bpy.data.meshes.new("IV_DarkFloor")
+        h = 30.0
+        me.from_pydata([(-h, -h, 0), (h, -h, 0), (h, h, 0), (-h, h, 0)], [], [(0, 1, 2, 3)])
+        g = bpy.data.objects.new("IV_DarkFloor", me)
+        sc.collection.objects.link(g)
+    g.is_shadow_catcher = True
+    g.hide_render = False
+    for n in ("IVC_Ground", "IV_Grass"):
+        if n in bpy.data.objects:
+            bpy.data.objects[n].hide_render = True
+    sc.render.film_transparent = True
+    return sc
+
+
+def dark_backdrop(rgba_path, out_path):
+    """Composite a transparent render over a dark radial backdrop (the reference look)."""
+    from PIL import Image
+    im = Image.open(rgba_path).convert("RGBA")
+    W, H = im.size
+    yy, xx = np.mgrid[0:H, 0:W]
+    r = np.hypot((xx - W * 0.5) / W, (yy - H * 0.42) / H)
+    v = np.clip(0.105 - 0.12 * r, 0.035, 0.11)
+    bg = np.stack([v * 0.95, v * 0.97, v * 1.05], -1)
+    a = np.asarray(im).astype(np.float32) / 255.0
+    rgb = a[..., :3] * a[..., 3:4] + bg * (1 - a[..., 3:4])
+    Image.fromarray(np.clip(rgb * 255 + 0.5, 0, 255).astype(np.uint8), "RGB").save(out_path)
+    return out_path, a[..., 3]
+
+
+def ref_silhouette(path, tol=0.045, sigma=40, iters=4):
+    """Approximate silhouette of a reference image (dark backdrop): the backdrop is re-estimated
+    from the pixels outside the current mask (normalised Gaussian convolution), 4 passes."""
+    from PIL import Image
+    from scipy import ndimage
+    im = np.asarray(Image.open(path).convert("RGB")).astype(np.float32) / 255.0
+    H, W, _ = im.shape
+    s_ = sigma * max(H, W) / 800.0
+    fg = np.zeros((H, W), bool)
+    fg[int(H * 0.08):int(H * 0.97), int(W * 0.25):int(W * 0.75)] = True
+    for _ in range(iters):
+        w = (~fg).astype(np.float32)
+        den = ndimage.gaussian_filter(w, s_) + 1e-6
+        bg = np.stack([ndimage.gaussian_filter(im[..., c] * w, s_) / den for c in range(3)], -1)
+        diff = ndimage.gaussian_filter(np.linalg.norm(im - bg, axis=2), 1.2)
+        fg = ndimage.binary_opening(diff > tol, iterations=2)
+        lab, n = ndimage.label(fg)
+        if n:
+            sizes = ndimage.sum(fg, lab, range(1, n + 1))
+            fg = np.isin(lab, 1 + np.nonzero(sizes > 0.03 * sizes.max())[0])
+        fg = ndimage.binary_fill_holes(ndimage.binary_closing(fg, iterations=4))
+    return fg
+
+
+def _fit(im, w, h, bg=(24, 24, 26)):
+    from PIL import Image
+    im = im.convert("RGB")
+    k = min(w / im.width, h / im.height)
+    r = im.resize((max(1, int(im.width * k)), max(1, int(im.height * k))), Image.LANCZOS)
+    out = Image.new("RGB", (w, h), bg)
+    out.paste(r, ((w - r.width) // 2, (h - r.height) // 2))
+    return out
+
+
+def _sil_img(mask, w, h):
+    from PIL import Image
+    im = Image.fromarray(np.where(mask, 18, 232).astype(np.uint8)).convert("RGB")
+    ys, xs = np.nonzero(mask)
+    if len(xs):
+        pad = 8
+        im = im.crop((max(0, xs.min() - pad), max(0, ys.min() - pad), min(mask.shape[1], xs.max() + pad), min(mask.shape[0], ys.max() + pad)))
+    return _fit(im, w, h, bg=(232, 232, 232))
+
+
+def render_refs(made, team="Alfa"):
+    """The soldier from the angles of the user's quality references (relaxed pose, dark studio);
+    our views go to Art/Previews/Soldier; the side-by-side sheets with the (third-party, local-only)
+    reference images go to Docs/navrhy/ref_external/compare/ (gitignored)."""
+    from PIL import Image, ImageDraw
+    sc = studio_dark()
+    arm = bpy.data.objects[ARM]
+    C.reset_pose(arm)
+    SP.p_relaxed(arm)
+    drive_all(arm)
+    apply_team(team)
+    show_only(body_parts() + [bpy.data.objects["IV_DarkFloor"]])
+    ours, sils = [], []
+    for nm, loc, tgt, lens, ref, rlabel in REF_VIEWS:
+        cam = cam_look("cr_" + nm, loc, tgt, lens=lens)
+        cam.data.sensor_fit = 'VERTICAL'
+        cam.data.sensor_height = 24.0
+        tmp = os.path.join(PREV, f"_tmp_ref_{nm}.png")
+        ivlib.render(tmp, cam, res=(630, 900), samples=RS + 8)
+        out = os.path.join(PREV, f"Soldier_ref_{nm}.png")
+        _, alpha = dark_backdrop(tmp, out)
+        ours.append(out)
+        sils.append(alpha > 0.5)
+    sc.render.film_transparent = False
+    bpy.data.objects["IV_DarkFloor"].hide_render = True
+    made.append(compose(ours, os.path.join(PREV, "Soldier_ref_views.png"), 4, size=(400, 571),
+                        titles=[f"like {v[5]}" for v in REF_VIEWS],
+                        title=f"SK_Soldier team {team}, relaxed pose, dark neutral studio, from the angles of the user's quality references"))
+    made += ours
+    C.reset_pose(arm)
+    # local-only comparison sheets (need the gitignored reference images)
+    if not os.path.isdir(REF_DIR):
+        return
+    os.makedirs(REF_OUT, exist_ok=True)
+    cw, ch = 330, 470
+    sheet = Image.new("RGB", (cw * 4, 30 + (ch + 22) * 4), (22, 22, 24))
+    dr = ImageDraw.Draw(sheet)
+    dr.text((8, 8), "IRON VALLEY SK_Soldier vs the user's quality references (LOCAL ONLY - third-party images, do not commit). Rows: reference / ours / reference silhouette (approx. auto-segmented) / our silhouette", fill=(235, 235, 235))
+    for i, (nm, loc, tgt, lens, ref, rlabel) in enumerate(REF_VIEWS):
+        rp = os.path.join(REF_DIR, ref)
+        x = i * cw
+        rows = []
+        if os.path.exists(rp):
+            rows.append((_fit(Image.open(rp), cw, ch), f"ref {rlabel}"))
+        else:
+            rows.append((Image.new("RGB", (cw, ch), (40, 40, 40)), "ref missing"))
+        rows.append((_fit(Image.open(ours[i]), cw, ch), f"ours ({nm})"))
+        if os.path.exists(rp):
+            rows.append((_sil_img(ref_silhouette(rp), cw, ch), f"ref silhouette {rlabel}"))
+        else:
+            rows.append((Image.new("RGB", (cw, ch), (40, 40, 40)), ""))
+        rows.append((_sil_img(sils[i], cw, ch), "our silhouette"))
+        for r, (im, lab) in enumerate(rows):
+            y = 30 + r * (ch + 22)
+            sheet.paste(im, (x, y + 22))
+            dr.text((x + 6, y + 5), lab, fill=(220, 220, 220))
+    sheet.save(os.path.join(REF_OUT, "Soldier_vs_refs_3P.png"))
+    # first person vs 11 / 12
+    fp_pairs = [("11_hra_ruce_v_rukavicich_kontejnery.webp", "Soldier_fp_hip_level.png", "ref 11 (FP hands)", "ours FP hip, level"),
+                ("12_hra_nakladak_blato_les.webp", "Soldier_fp_ads_level.png", "ref 12 (FP rifle)", "ours FP ADS, level"),
+                ("12_hra_nakladak_blato_les.webp", "Soldier_fp_hip_down.png", "ref 12 (FP rifle)", "ours FP hip, looking down")]
+    fw, fh = 800, 450
+    sheet = Image.new("RGB", (fw * 2, 30 + (fh + 22) * len(fp_pairs)), (22, 22, 24))
+    dr = ImageDraw.Draw(sheet)
+    dr.text((8, 8), "FP_Arms vs the user's in-game references (LOCAL ONLY - third-party screenshots, do not commit)", fill=(235, 235, 235))
+    for r, (ref, mine, lr, lm) in enumerate(fp_pairs):
+        y = 30 + r * (fh + 22)
+        for c, (pth, lab) in enumerate(((os.path.join(REF_DIR, ref), lr), (os.path.join(PREV, mine), lm))):
+            if os.path.exists(pth):
+                sheet.paste(_fit(Image.open(pth), fw, fh), (c * fw, y + 22))
+            dr.text((c * fw + 6, y + 5), lab, fill=(220, 220, 220))
+    sheet.save(os.path.join(REF_OUT, "Soldier_vs_refs_FP.png"))
+
+
 def stage_render(a=None):
     t0 = time.time()
     only = (a.only.split(",") if a and a.only else None)
@@ -2904,7 +3099,8 @@ def stage_render(a=None):
     made = []
     jobs = [("teams", lambda: render_teams(made)), ("closeups", lambda: render_closeups(made)),
             ("poses", lambda: render_poses(made, rig, parts, lib)), ("stance", lambda: render_stance(made, rig, parts, lib)),
-            ("distance", lambda: render_distance(made)), ("fp", lambda: render_fp(made, rig, parts, lib))]
+            ("distance", lambda: render_distance(made)), ("fp", lambda: render_fp(made, rig, parts, lib)),
+            ("refs", lambda: render_refs(made))]
     for nm, fn in jobs:
         if only and nm not in only:
             continue
@@ -2948,11 +3144,13 @@ def runtime_json():
         "twist_bones": "same rule as Human_Base.runtime.json (ivchar.drive_twist_bones)",
         "correctives": {"spec": spec, "rule": "ivchar.drive_correctives (angle-driven cross-fade, same as SK_Human_Base)",
                         "meshes": shapes, "note": "LOD1 / LOD2 carry no shape keys"},
-        "teams": {t: {"cloth_basecolor": f"T_Soldier_Cloth_{t}_BaseColor.png (1024)",
+        "teams": {t: {"cloth_basecolor": f"T_Soldier_Cloth_{t}_BaseColor.png (2048)",
                       "team_basecolor": f"T_Soldier_Team_{t}_BaseColor.png (256)",
                       "gear_fabric_tint_linear": list(gear_tint(t)), "fp_sleeve_basecolor": f"T_Soldier_FPArms_{t}_BaseColor.png",
                       "team_color": TEAMS[t]["color"], "symbol": TEAMS[t]["symbol"], "camo": T.CAMO[t]["name"]} for t in TEAMS},
-        "materials": {"M_Soldier_Cloth_<Team>": "clothing atlas (shirt, trousers, gaiter / balaclava, helmet cover, gloves)",
+        "materials": {"M_Soldier_Cloth_<Team>": "clothing atlas (shirt + trousers per sewing panel, pockets, gaiter / balaclava, helmet cover, gloves + glove kit in the glove square)",
+                      "M_FPArms_Sleeve_<Team>": "first-person sleeve atlas (2048)",
+                      "M_FPArms_Glove": "T_Soldier_Glove_BaseColor / _ORM (2048, olive-grey tactical glove with dust) + T_Glove_Normal",
                       "M_Soldier_GearFabric_<Team>": "gear atlas x baseColorFactor (team tint) -- nylon carrier, pouches, belt",
                       "M_Soldier_GearHard": "gear atlas, untinted -- helmet shell, rails, shroud, headset, glasses, mags, boots, knee pads",
                       "M_Soldier_Team_<Team>": "armbands + helmet band (256 texture per team)"},

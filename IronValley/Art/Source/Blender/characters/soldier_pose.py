@@ -101,6 +101,17 @@ def p_sprint(arm):
     bpy.context.view_layer.update()
 
 
+def p_relaxed(arm, out=0.20, fwd=0.05, elbow_fwd=0.30):
+    """Relaxed standing pose for the reference views: arms down beside the kit (not the A-pose),
+    elbows slightly bent, loose fists."""
+    for s, sx in (("l", 1), ("r", -1)):
+        C.aim_bone(arm, f"upperarm_{s}", (out * sx, -fwd, -1.0))
+        C.aim_bone(arm, f"lowerarm_{s}", (0.10 * sx, -elbow_fwd, -1.0))
+        bpy.context.view_layer.update()
+        C.pose_hand_anat(arm, s, FIST_LOOSE)
+    bpy.context.view_layer.update()
+
+
 _F = lambda a, b, c, d=0.0: {"mcp": a, "pip": b, "dip": c, "abd": d}      # noqa: E731
 FIST_LOOSE = {"index": _F(45, 55, 30, 2), "middle": _F(50, 60, 32), "ring": _F(52, 60, 32, -2), "pinky": _F(55, 60, 30, -4),
               "thumb": {"cmc_flex": 15, "cmc_abd": 15, "cmc_rot": 5, "mcp": 15, "ip": 20}}
