@@ -1,16 +1,16 @@
 {
  "cloth": {
-  "texels": 1782705,
-  "coverage": 0.425,
+  "texels": 1876346,
+  "coverage": 0.4474,
   "height_mm": [
-   -2.31,
+   -2.28,
    3.89
   ]
  },
  "gear": {
-  "texels": 1777164,
-  "coverage": 0.4237,
-  "fabric_texel_share": 0.657
+  "texels": 1776247,
+  "coverage": 0.4235,
+  "fabric_texel_share": 0.641
  },
  "textures": {
   "cloth_n": "Art/Textures/Characters/Soldier/T_Soldier_Cloth_Normal.png",
@@ -30,5 +30,5 @@
   "team_bc_Bravo": "Art/Textures/Characters/Soldier/T_Soldier_Team_Bravo_BaseColor.png",
   "team_bc_Charlie": "Art/Textures/Characters/Soldier/T_Soldier_Team_Charlie_BaseColor.png"
  },
- "seconds": 216.8
+ "seconds": 218.9
 }

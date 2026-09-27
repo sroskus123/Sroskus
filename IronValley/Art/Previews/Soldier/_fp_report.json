@@ -1,0 +1,19 @@
+{
+ "uv": {
+  "coverage": 0.6319,
+  "overlap_px": 0,
+  "islands": 36
+ },
+ "px_per_cm_sleeves": 30.42,
+ "px_per_cm_gloves": 54.51,
+ "fp_arms_tris": 12491,
+ "textures": {
+  "n": "Art/Textures/Characters/Soldier/T_Soldier_FPArms_Normal.png",
+  "n_dx": "Art/Textures/Characters/Soldier/T_Soldier_FPArms_Normal_DX.png",
+  "orm": "Art/Textures/Characters/Soldier/T_Soldier_FPArms_ORM.png",
+  "bc_Alfa": "Art/Textures/Characters/Soldier/T_Soldier_FPArms_Alfa_BaseColor.png",
+  "bc_Bravo": "Art/Textures/Characters/Soldier/T_Soldier_FPArms_Bravo_BaseColor.png",
+  "bc_Charlie": "Art/Textures/Characters/Soldier/T_Soldier_FPArms_Charlie_BaseColor.png"
+ },
+ "seconds": 133.9
+}

@@ -1,0 +1,221 @@
+{
+ "hip_level": {
+  "cut_visibility": {
+   "cut_vertices": 46,
+   "inside_frustum": 0
+  },
+  "stance": {
+   "ik": {
+    "r": {
+     "reach_error_m": 0.0,
+     "elbow_deg": 103.88,
+     "wrist_rel_deg": 91.63
+    },
+    "l": {
+     "reach_error_m": 0.00426,
+     "elbow_deg": 5.1,
+     "wrist_rel_deg": 97.19
+    }
+   },
+   "clearance": {
+    "stock_forward_mm": 0.0,
+    "stock_depth_mm": 0.0,
+    "rifle_out_from_head_mm": 0.0,
+    "head_depth_mm": 0.0
+   },
+   "params_deg": {
+    "spine_twist": 18.0,
+    "spine_lean": 3.0,
+    "clav_r_elev": 12.0,
+    "clav_r_prot": 6.0,
+    "clav_l_prot": 22.0,
+    "neck_flex": 14.0,
+    "neck_lat": 0.0,
+    "head_roll": 0.0
+   }
+  }
+ },
+ "hip_up": {
+  "cut_visibility": {
+   "cut_vertices": 46,
+   "inside_frustum": 0
+  },
+  "stance": {
+   "ik": {
+    "r": {
+     "reach_error_m": 0.0,
+     "elbow_deg": 98.18,
+     "wrist_rel_deg": 88.74
+    },
+    "l": {
+     "reach_error_m": 0.05582,
+     "elbow_deg": 4.64,
+     "wrist_rel_deg": 95.77
+    }
+   },
+   "clearance": {
+    "stock_forward_mm": 0.0,
+    "stock_depth_mm": 0.0,
+    "rifle_out_from_head_mm": 0.0,
+    "head_depth_mm": 0.0
+   },
+   "params_deg": {
+    "spine_twist": 18.0,
+    "spine_lean": 3.0,
+    "clav_r_elev": 12.0,
+    "clav_r_prot": 6.0,
+    "clav_l_prot": 22.0,
+    "neck_flex": 14.0,
+    "neck_lat": 0.0,
+    "head_roll": 0.0
+   }
+  }
+ },
+ "hip_down": {
+  "cut_visibility": {
+   "cut_vertices": 46,
+   "inside_frustum": 0
+  },
+  "stance": {
+   "ik": {
+    "r": {
+     "reach_error_m": 0.0,
+     "elbow_deg": 112.8,
+     "wrist_rel_deg": 100.58
+    },
+    "l": {
+     "reach_error_m": 0.0,
+     "elbow_deg": 37.55,
+     "wrist_rel_deg": 114.6
+    }
+   },
+   "clearance": {
+    "stock_forward_mm": 0.0,
+    "stock_depth_mm": 0.0,
+    "rifle_out_from_head_mm": 0.0,
+    "head_depth_mm": 0.0
+   },
+   "params_deg": {
+    "spine_twist": 18.0,
+    "spine_lean": 3.0,
+    "clav_r_elev": 12.0,
+    "clav_r_prot": 6.0,
+    "clav_l_prot": 22.0,
+    "neck_flex": 14.0,
+    "neck_lat": 0.0,
+    "head_roll": 0.0
+   }
+  }
+ },
+ "ads_level": {
+  "cut_visibility": {
+   "cut_vertices": 46,
+   "inside_frustum": 0
+  },
+  "stance": {
+   "ik": {
+    "r": {
+     "reach_error_m": 0.0,
+     "elbow_deg": 103.45,
+     "wrist_rel_deg": 90.87
+    },
+    "l": {
+     "reach_error_m": 0.0,
+     "elbow_deg": 29.9,
+     "wrist_rel_deg": 104.82
+    }
+   },
+   "clearance": {
+    "stock_forward_mm": 36.0,
+    "stock_depth_mm": 1.49,
+    "head_tilt_factor": 0.8,
+    "rifle_out_from_head_mm": 0.0,
+    "head_depth_mm": 0.04
+   },
+   "params_deg": {
+    "spine_twist": 31.07,
+    "spine_lean": 0.43,
+    "clav_r_elev": 19.95,
+    "clav_r_prot": 14.98,
+    "clav_l_prot": 21.74,
+    "neck_flex": 33.38,
+    "neck_lat": -24.87,
+    "head_roll": 19.89
+   }
+  }
+ },
+ "ads_up": {
+  "cut_visibility": {
+   "cut_vertices": 46,
+   "inside_frustum": 0
+  },
+  "stance": {
+   "ik": {
+    "r": {
+     "reach_error_m": 0.0,
+     "elbow_deg": 109.45,
+     "wrist_rel_deg": 92.24
+    },
+    "l": {
+     "reach_error_m": 0.01198,
+     "elbow_deg": 5.02,
+     "wrist_rel_deg": 96.13
+    }
+   },
+   "clearance": {
+    "stock_forward_mm": 6.0,
+    "stock_depth_mm": 1.09,
+    "head_tilt_factor": 0.0,
+    "rifle_out_from_head_mm": 28.0,
+    "head_depth_mm": 0.99
+   },
+   "params_deg": {
+    "spine_twist": 32.0,
+    "spine_lean": 0.04,
+    "clav_r_elev": 20.0,
+    "clav_r_prot": 14.99,
+    "clav_l_prot": 22.0,
+    "neck_flex": 37.97,
+    "neck_lat": -24.99,
+    "head_roll": 19.99
+   }
+  }
+ },
+ "ads_down": {
+  "cut_visibility": {
+   "cut_vertices": 46,
+   "inside_frustum": 0
+  },
+  "stance": {
+   "ik": {
+    "r": {
+     "reach_error_m": 0.0,
+     "elbow_deg": 109.76,
+     "wrist_rel_deg": 96.36
+    },
+    "l": {
+     "reach_error_m": 0.0,
+     "elbow_deg": 44.3,
+     "wrist_rel_deg": 114.85
+    }
+   },
+   "clearance": {
+    "stock_forward_mm": 22.0,
+    "stock_depth_mm": 1.07,
+    "head_tilt_factor": 0.9,
+    "rifle_out_from_head_mm": 0.0,
+    "head_depth_mm": 1.09
+   },
+   "params_deg": {
+    "spine_twist": 28.38,
+    "spine_lean": 1.86,
+    "clav_r_elev": 19.53,
+    "clav_r_prot": 14.99,
+    "clav_l_prot": 21.22,
+    "neck_flex": 25.38,
+    "neck_lat": -24.87,
+    "head_roll": 19.87
+   }
+  }
+ }
+}
