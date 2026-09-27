@@ -22,14 +22,25 @@ import { createNavService } from './nav/navService.js';
 import { createCoverService } from './cover/coverService.js';
 import { NAV_DATA } from './nav/navRegistry.generated.js';
 import { installAIDebugApi } from './debug.js';
+import { pointInZone } from '../game/zoneShape.js';
 
 export { resolveAIConfig } from './config.js';
 export { NavService } from './nav/navService.js';
 export { CoverService } from './cover/coverService.js';
 
-/** Baked navmesh JSON for a level id (bundled at build time), or null. */
+// navmeshes of large levels are not bundled (level.nav.external): the game loads public/<nav.file> with the level and
+// registers it here before the match session is created (Node tools read it from disk the same way)
+const RUNTIME_NAV = new Map();
+
+/** Registers a baked navmesh loaded at runtime (levels with nav.external). */
+export function registerNavData(levelId, data) {
+  if (levelId && data) RUNTIME_NAV.set(levelId, data);
+}
+
+/** Baked navmesh JSON for a level id (bundled at build time or registered at runtime), or null. */
 export function navDataForLevel(levelId) {
-  return (levelId && NAV_DATA[levelId]) || null;
+  if (!levelId) return null;
+  return RUNTIME_NAV.get(levelId) || NAV_DATA[levelId] || null;
 }
 
 export function createAISystem({ combatants, world, nav = null, cover = null, events = null, match = null, config = {} } = {}) {
@@ -65,16 +76,28 @@ export function createAISystem({ combatants, world, nav = null, cover = null, ev
   sys.tactics = new Tactics(sys);
 
   // ------------------------------------------------------------------ level knowledge
-  const spawnCenters = [];
-  if (level && level.match && Array.isArray(level.match.teamSpawns)) {
-    for (const list of level.match.teamSpawns) {
-      const c = new Vector3();
-      for (const s of list) c.add(new Vector3(s.pos[0], s.pos[1], s.pos[2]));
-      c.divideScalar(Math.max(1, list.length));
-      spawnCenters.push(c);
+  // team spawn centres; points may list the zones their row is active for (generated maps): per zone then
+  const spawnLists = level && level.match && Array.isArray(level.match.teamSpawns) ? level.match.teamSpawns : [];
+  const centreOf = (list) => {
+    const c = new Vector3();
+    for (const s of list) c.add(new Vector3(s.pos[0], s.pos[1], s.pos[2]));
+    return c.divideScalar(Math.max(1, list.length));
+  };
+  const spawnCenters = spawnLists.map(centreOf);
+  const zoneSpawnCenters = new Map();
+  sys.enemySpawnCenters = (team) => {
+    const z = sys.activeZone ? sys.activeZone() : null;
+    if (z && spawnLists.some((l) => l.some((s) => Array.isArray(s.zones)))) {
+      if (!zoneSpawnCenters.has(z.id)) {
+        zoneSpawnCenters.set(z.id, spawnLists.map((l) => {
+          const act = l.filter((s) => !Array.isArray(s.zones) || s.zones.includes(z.id));
+          return centreOf(act.length ? act : l);
+        }));
+      }
+      return zoneSpawnCenters.get(z.id).filter((_, t) => t !== team);
     }
-  }
-  sys.enemySpawnCenters = (team) => spawnCenters.filter((_, t) => t !== team);
+    return spawnCenters.filter((_, t) => t !== team);
+  };
   // axis-aligned footprint of a level solid by id (box solids), for navmesh blocks around unknown obstacles
   const solidBoxes = new Map();
   if (level && Array.isArray(level.solids)) for (const s of level.solids) if (s && s.id && Array.isArray(s.min) && Array.isArray(s.max)) solidBoxes.set(s.id, { min: s.min, max: s.max });
@@ -92,6 +115,8 @@ export function createAISystem({ combatants, world, nav = null, cover = null, ev
   sys.obstacleUnknownToNav = (solidId) => {
     if (solidId == null) return true;
     const sid = String(solidId);
+    // generated level geometry (src/level/levelAssets.js, id prefix "geo:") is in the navmesh bake unless flagged nonav
+    if (sid.startsWith('geo:')) return sid.endsWith(':nonav');
     if (navExcludedIds.some((id) => idMatch(sid, id))) return true;
     return !levelSolidIds.some((id) => idMatch(sid, id));
   };
@@ -104,13 +129,7 @@ export function createAISystem({ combatants, world, nav = null, cover = null, ev
     const id = match && match.round ? match.round.zoneId : null;
     return zones.find((z) => z.id === id) || null;
   };
-  sys.isInZone = (p, z = sys.activeZone()) => {
-    if (!z) return false;
-    const dx = p.x - z.center[0];
-    const dz = p.z - z.center[2];
-    const h = z.height ?? 4;
-    return dx * dx + dz * dz <= z.radius * z.radius && p.y >= z.center[1] - 0.5 && p.y <= z.center[1] + h;
-  };
+  sys.isInZone = (p, z = sys.activeZone()) => pointInZone(p, z);
   sys.zoneController = () => {
     const r = match && match.round;
     if (!r || !r.zone) return null;

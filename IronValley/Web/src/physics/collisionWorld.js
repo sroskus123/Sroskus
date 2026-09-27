@@ -9,7 +9,16 @@
 // BVH layout, which would otherwise change with any triangle added anywhere in the level.
 
 import { Box3, BufferGeometry, DoubleSide, Float32BufferAttribute, Ray, Vector3 } from 'three';
-import { ExtendedTriangle, MeshBVH, SAH } from 'three-mesh-bvh';
+import { CENTER, ExtendedTriangle, MeshBVH, SAH } from 'three-mesh-bvh';
+
+// Which rays a BVH group stops (level geometry classes, src/level/levelAssets.js). Groups not listed stop every ray.
+// Ray filters: 'bullets' (hitscan), 'vision' (line of sight); no filter = every static surface (movement, probes).
+export const GROUP_RAY_FLAGS = {
+  move: { bullets: false, vision: false }, // window glass, chain-link / picket / pipe-rail fences, the hard map edge
+  movevis: { bullets: false, vision: true }, // hedges, shrubs, soft furniture, timber crates
+};
+// parts with more triangles than this are built with the CENTER split (build time of a 350 m terrain)
+const CENTER_SPLIT_ABOVE = 150000;
 
 const _ray = new Ray();
 const _va = new Vector3();
@@ -26,6 +35,7 @@ class CollisionPart {
       vertexCount += s.geometry.getAttribute('position').count;
     }
     const positions = new Float32Array(vertexCount * 3);
+    if (collidable.length > 65535) throw new Error(`CollisionWorld group ${name}: more than 65535 solids`);
     const solidOfVertex = new Uint16Array(vertexCount);
     let offset = 0;
     this.solids = [];
@@ -40,9 +50,10 @@ class CollisionPart {
     const geometry = new BufferGeometry();
     geometry.setAttribute('position', new Float32BufferAttribute(positions, 3));
     this.geometry = geometry;
-    this.bvh = new MeshBVH(geometry, { strategy: SAH, targetLeafSize: 6 });
+    this.bvh = new MeshBVH(geometry, { strategy: vertexCount / 3 > CENTER_SPLIT_ABOVE ? CENTER : SAH, targetLeafSize: 6 });
     geometry.boundsTree = this.bvh;
     this.triangleCount = vertexCount / 3;
+    this.flags = { bullets: true, vision: true, ...(GROUP_RAY_FLAGS[name] || {}) };
     this.bounds = new Box3().setFromBufferAttribute(geometry.getAttribute('position'));
   }
 }
@@ -79,10 +90,11 @@ export class CollisionWorld {
    * Nearest raw BVH hit over all groups: { hit (three-mesh-bvh intersection with face / point /
    * distance), part (geometry, solids, solidOfVertex) } or null. `ray` is used as given.
    */
-  raycastFirstRaw(ray, near = 0, far = Infinity) {
+  raycastFirstRaw(ray, near = 0, far = Infinity, filter = null) {
     let best = null;
     for (const part of this.parts) {
       if (part.triangleCount === 0) continue;
+      if (filter && !part.flags[filter]) continue;
       const hit = part.bvh.raycastFirst(ray, DoubleSide, near, best ? Math.min(far, best.hit.distance) : far);
       if (hit && (!best || hit.distance < best.hit.distance)) best = { hit, part };
     }
@@ -90,13 +102,14 @@ export class CollisionWorld {
   }
 
   /**
-   * Nearest ray hit against static geometry (both faces), or null.
+   * Nearest ray hit against static geometry (both faces), or null. `filter` ('bullets' | 'vision') skips the
+   * groups that do not stop that kind of ray (see GROUP_RAY_FLAGS); without it every static surface counts.
    * @returns {{point:Vector3, normal:Vector3, distance:number, solidId:string, parent:string, mat:string}|null}
    */
-  raycast(origin, direction, far = Infinity, near = 0) {
+  raycast(origin, direction, far = Infinity, near = 0, filter = null) {
     _ray.origin.copy(origin);
     _ray.direction.copy(direction).normalize();
-    const r = this.raycastFirstRaw(_ray, near, far);
+    const r = this.raycastFirstRaw(_ray, near, far, filter);
     if (!r) return null;
     const { hit, part } = r;
     const pos = part.geometry.getAttribute('position');

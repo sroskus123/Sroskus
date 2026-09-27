@@ -191,7 +191,13 @@
       "sand": "step_dirt",
       "gravel": "step_gravel",
       "grass": "step_grass",
-      "default": "step_concrete"
+      "default": "step_concrete",
+      "forest_floor": "step_dirt",
+      "paving": "step_concrete",
+      "stone": "step_concrete",
+      "tiles": "step_concrete",
+      "water": "step_dirt",
+      "glass": "step_concrete"
     },
     "impact": {
       "concrete": "impact_concrete",
@@ -217,7 +223,13 @@
       "wall": "impact_concrete",
       "hazard": "impact_metal",
       "accent": "impact_metal",
-      "dark": "impact_metal"
+      "dark": "impact_metal",
+      "forest_floor": "impact_dirt",
+      "paving": "impact_concrete",
+      "stone": "impact_concrete",
+      "tiles": "impact_concrete",
+      "water": "impact_dirt",
+      "terrain": "impact_dirt"
     },
     "impactCutoff": {
       "plaster": 5000,
@@ -235,10 +247,16 @@
       "grass": 0.25,
       "sand": 0.3,
       "mud": 0.2,
-      "default": 0.8
+      "default": 0.8,
+      "forest_floor": 0.3,
+      "paving": 1.0,
+      "stone": 1.0,
+      "tiles": 1.0,
+      "water": 0.1,
+      "glass": 1.0
     },
     "casingSoftCutoff": 2500,
-    "_comment": "impact keys accept both surface types (WorldQuery / impactEffects: concrete, plaster, metal, wood, dirt, flesh, target ...) and raw level materials (floor, block, stair, ramp -> concrete; wall -> plaster; hazard, accent, dark -> metal), as weapon:hit carries hit.mat"
+    "_comment": "impact keys accept both surface types (WorldQuery / impactEffects: concrete, plaster, metal, wood, dirt, flesh, target ...) and raw level materials (floor, block, stair, ramp -> concrete; wall -> plaster; hazard, accent, dark -> metal), as weapon:hit carries hit.mat; generated maps (Kalné Hamry) add forest_floor, paving, stone, tiles, water, glass (aliases of the recorded sets)"
   },
   "footsteps": {
     "landThump": "land_thump",

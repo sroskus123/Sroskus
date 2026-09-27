@@ -45,6 +45,18 @@ const SURFACE_OF_MAT = {
   hazard: 'metal',
   accent: 'metal',
   dark: 'metal',
+  // generated level geometry / terrain surfaces (layout.json surfaces)
+  grass: 'dirt',
+  mud: 'dirt',
+  gravel: 'dirt',
+  forest_floor: 'dirt',
+  water: 'dirt',
+  asphalt: 'concrete',
+  paving: 'concrete',
+  stone: 'concrete',
+  tiles: 'concrete',
+  tile: 'concrete',
+  glass: 'metal',
 };
 
 /**
@@ -66,7 +78,7 @@ export function impactSurface(hit) {
   if (!hit) return 'concrete';
   if (hit.kind === 'combatant') return 'flesh';
   if (hit.kind === 'dummy') return 'target';
-  const m = hit.mat;
+  const m = hit.mat === 'terrain' && hit.surface ? hit.surface : hit.mat;
   if (m && IMPACT_SURFACES[m]) return m;
   return (m && SURFACE_OF_MAT[m]) || 'concrete';
 }

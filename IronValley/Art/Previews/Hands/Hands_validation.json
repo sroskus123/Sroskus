@@ -22,12 +22,12 @@
   },
   "uv": {
    "seam_edges": 857,
-   "texel_density_px_per_cm_mean": 54.4,
+   "texel_density_px_per_cm_mean": 55.1,
    "texel_density_p05_p95": [
-    51.9,
-    57.1
+    52.6,
+    57.8
    ],
-   "uv_coverage": 0.477,
+   "uv_coverage": 0.488,
    "flipped_uv_triangles": 2,
    "sign_majority": 17882
   },
@@ -40,26 +40,26 @@
    "vertices": 10042,
    "faces": 10022
   },
-  "build_seconds": 17.9
+  "build_seconds": 13.9
  },
  "textures": {
-  "texels": 1999210,
-  "coverage": 0.4766,
+  "texels": 2046276,
+  "coverage": 0.4879,
   "ao_bake_distance_m": 0.008,
   "zone_texel_share": {
-   "fabric": 0.3374,
-   "leather": 0.2505,
+   "fabric": 0.3379,
+   "leather": 0.2508,
    "patch": 0.0501,
-   "cap": 0.0641,
-   "tpr": 0.0566,
-   "cuff": 0.2413,
-   "strap": 0.0661
+   "cap": 0.0642,
+   "tpr": 0.0567,
+   "cuff": 0.2403,
+   "strap": 0.0662
   },
   "height_range_mm": [
-   -1.403,
-   1.396
+   -1.394,
+   1.379
   ],
-  "seconds": 115.0,
+  "seconds": 111.7,
   "files": {
    "Normal": "Art/Textures/Characters/Gloves/T_Glove_Normal.png",
    "Normal_DX": "Art/Textures/Characters/Gloves/T_Glove_Normal_DX.png",
@@ -69,9 +69,9 @@
    "Black_ORM": "Art/Textures/Characters/Gloves/T_Glove_Black_ORM.png"
   }
  },
- "seconds_this_run": 2341.8,
- "time": "2026-09-27 11:11:27",
- "pose_fit_seconds": 1119.5,
+ "seconds_this_run": 2218.8,
+ "time": "2026-09-27 11:50:51",
+ "pose_fit_seconds": 1118.9,
  "validate": {
   "limits": {
    "tip_palm_mm": 1.5,
@@ -147,6 +147,10 @@
        "thumb_max_mm": 0.0,
        "crease_max_mm": 10.93,
        "other_max_mm": 0.0
+      },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
       },
       "glove_self_contact_pairs": {
        "pinky_01->ring": {
@@ -245,6 +249,10 @@
        "thumb_max_mm": 0.0,
        "crease_max_mm": 10.93,
        "other_max_mm": 0.0
+      },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
       },
       "glove_self_contact_pairs": {
        "pinky_01->ring": {
@@ -349,6 +357,10 @@
        "crease_max_mm": 0.0,
        "other_max_mm": 0.0
       },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
+      },
       "glove_self_contact_pairs": {},
       "bare_contact": {
        "buried_vertices": 0,
@@ -425,6 +437,10 @@
        "thumb_max_mm": 0.0,
        "crease_max_mm": 0.0,
        "other_max_mm": 0.0
+      },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
       },
       "glove_self_contact_pairs": {},
       "bare_contact": {
@@ -508,6 +524,10 @@
        "crease_max_mm": 0.0,
        "other_max_mm": 0.0
       },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
+      },
       "glove_self_contact_pairs": {},
       "bare_contact": {
        "buried_vertices": 0,
@@ -584,6 +604,10 @@
        "thumb_max_mm": 0.0,
        "crease_max_mm": 0.0,
        "other_max_mm": 0.0
+      },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
       },
       "glove_self_contact_pairs": {},
       "bare_contact": {
@@ -666,6 +690,10 @@
        "thumb_max_mm": 4.16,
        "crease_max_mm": 10.57,
        "other_max_mm": 0.0
+      },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
       },
       "glove_self_contact_pairs": {
        "hand->hand": {
@@ -1125,6 +1153,10 @@
        "thumb_max_mm": 4.16,
        "crease_max_mm": 10.57,
        "other_max_mm": 0.0
+      },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
       },
       "glove_self_contact_pairs": {
        "hand->hand": {
@@ -1590,6 +1622,10 @@
        "crease_max_mm": 11.54,
        "other_max_mm": 0.0
       },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
+      },
       "glove_self_contact_pairs": {
        "pinky_01->ring": {
         "n": 1,
@@ -1682,6 +1718,10 @@
        "thumb_max_mm": 0.0,
        "crease_max_mm": 11.54,
        "other_max_mm": 0.0
+      },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
       },
       "glove_self_contact_pairs": {
        "pinky_01->ring": {
@@ -1780,6 +1820,10 @@
        "thumb_max_mm": 0.0,
        "crease_max_mm": 10.86,
        "other_max_mm": 0.0
+      },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
       },
       "glove_self_contact_pairs": {
        "index_01->index": {
@@ -1904,6 +1948,10 @@
        "thumb_max_mm": 0.0,
        "crease_max_mm": 10.86,
        "other_max_mm": 0.0
+      },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
       },
       "glove_self_contact_pairs": {
        "index_01->index": {
@@ -2033,6 +2081,10 @@
        "thumb_max_mm": 5.83,
        "crease_max_mm": 10.92,
        "other_max_mm": 0.0
+      },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
       },
       "glove_self_contact_pairs": {
        "hand->hand": {
@@ -2327,6 +2379,10 @@
        "thumb_max_mm": 5.83,
        "crease_max_mm": 10.92,
        "other_max_mm": 0.0
+      },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
       },
       "glove_self_contact_pairs": {
        "hand->hand": {
@@ -2626,6 +2682,10 @@
        "thumb_max_mm": 1.83,
        "crease_max_mm": 10.57,
        "other_max_mm": 0.0
+      },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
       },
       "glove_self_contact_pairs": {
        "hand->hand": {
@@ -2965,6 +3025,10 @@
        "thumb_max_mm": 1.83,
        "crease_max_mm": 10.57,
        "other_max_mm": 0.0
+      },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
       },
       "glove_self_contact_pairs": {
        "hand->hand": {
@@ -3310,6 +3374,10 @@
        "crease_max_mm": 11.72,
        "other_max_mm": 0.0
       },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
+      },
       "glove_self_contact_pairs": {
        "middle_01->middle": {
         "n": 31,
@@ -3610,6 +3678,10 @@
        "crease_max_mm": 11.72,
        "other_max_mm": 0.0
       },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
+      },
       "glove_self_contact_pairs": {
        "middle_01->middle": {
         "n": 31,
@@ -3908,6 +3980,10 @@
        "thumb_max_mm": 0.0,
        "crease_max_mm": 10.04,
        "other_max_mm": 0.0
+      },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
       },
       "glove_self_contact_pairs": {
        "hand->hand": {
@@ -4291,6 +4367,10 @@
        "crease_max_mm": 11.39,
        "other_max_mm": 0.0
       },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
+      },
       "glove_self_contact_pairs": {
        "hand->thumb": {
         "n": 1,
@@ -4565,10 +4645,10 @@
       },
       "glove_vs_full_bare_hand": {
        "skin_verts_tested": 1596,
-       "poke_through_verts": 5,
-       "poke_through_max_mm": 1.06,
+       "poke_through_verts": 6,
+       "poke_through_max_mm": 2.18,
        "glove_offset_median_mm": 1.19,
-       "glove_offset_p95_mm": 1.86,
+       "glove_offset_p95_mm": 1.85,
        "glove_offset_max_mm": 5.36
       },
       "glove_self_contact": {
@@ -4579,6 +4659,10 @@
        "thumb_max_mm": 1.45,
        "crease_max_mm": 11.97,
        "other_max_mm": 0.0
+      },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
       },
       "glove_self_contact_pairs": {
        "hand->hand": {
@@ -4863,6 +4947,10 @@
        "crease_max_mm": 10.01,
        "other_max_mm": 0.0
       },
+      "glove_lining_outside_shell": {
+       "verts": 0,
+       "max_mm": 0.0
+      },
       "glove_self_contact_pairs": {
        "pinky_01->pinky": {
         "n": 3,
@@ -5071,11 +5159,134 @@
     }
    }
   },
+  "wrist_extremes": {
+   "flex70": {
+    "l": {
+     "glove_vs_skin": {
+      "skin_verts_tested": 34,
+      "poke_through_verts": 12,
+      "poke_through_max_mm": 0.26,
+      "glove_offset_median_mm": 1.78,
+      "glove_offset_p95_mm": 2.05,
+      "glove_offset_max_mm": 2.09
+     },
+     "glove_lining_outside_shell": {
+      "verts": 0,
+      "max_mm": 0.0
+     }
+    },
+    "r": {
+     "glove_vs_skin": {
+      "skin_verts_tested": 34,
+      "poke_through_verts": 12,
+      "poke_through_max_mm": 0.26,
+      "glove_offset_median_mm": 1.65,
+      "glove_offset_p95_mm": 2.06,
+      "glove_offset_max_mm": 2.12
+     },
+     "glove_lining_outside_shell": {
+      "verts": 0,
+      "max_mm": 0.0
+     }
+    }
+   },
+   "ext60": {
+    "l": {
+     "glove_vs_skin": {
+      "skin_verts_tested": 34,
+      "poke_through_verts": 12,
+      "poke_through_max_mm": 0.26,
+      "glove_offset_median_mm": 1.68,
+      "glove_offset_p95_mm": 2.06,
+      "glove_offset_max_mm": 2.13
+     },
+     "glove_lining_outside_shell": {
+      "verts": 0,
+      "max_mm": 0.0
+     }
+    },
+    "r": {
+     "glove_vs_skin": {
+      "skin_verts_tested": 34,
+      "poke_through_verts": 12,
+      "poke_through_max_mm": 0.27,
+      "glove_offset_median_mm": 1.79,
+      "glove_offset_p95_mm": 2.06,
+      "glove_offset_max_mm": 2.1
+     },
+     "glove_lining_outside_shell": {
+      "verts": 0,
+      "max_mm": 0.0
+     }
+    }
+   },
+   "ulnar30": {
+    "l": {
+     "glove_vs_skin": {
+      "skin_verts_tested": 34,
+      "poke_through_verts": 12,
+      "poke_through_max_mm": 0.26,
+      "glove_offset_median_mm": 1.81,
+      "glove_offset_p95_mm": 2.05,
+      "glove_offset_max_mm": 2.08
+     },
+     "glove_lining_outside_shell": {
+      "verts": 0,
+      "max_mm": 0.0
+     }
+    },
+    "r": {
+     "glove_vs_skin": {
+      "skin_verts_tested": 34,
+      "poke_through_verts": 12,
+      "poke_through_max_mm": 0.26,
+      "glove_offset_median_mm": 1.81,
+      "glove_offset_p95_mm": 2.05,
+      "glove_offset_max_mm": 2.08
+     },
+     "glove_lining_outside_shell": {
+      "verts": 0,
+      "max_mm": 0.0
+     }
+    }
+   },
+   "twist80": {
+    "l": {
+     "glove_vs_skin": {
+      "skin_verts_tested": 34,
+      "poke_through_verts": 12,
+      "poke_through_max_mm": 0.27,
+      "glove_offset_median_mm": 1.76,
+      "glove_offset_p95_mm": 2.04,
+      "glove_offset_max_mm": 2.09
+     },
+     "glove_lining_outside_shell": {
+      "verts": 0,
+      "max_mm": 0.0
+     }
+    },
+    "r": {
+     "glove_vs_skin": {
+      "skin_verts_tested": 34,
+      "poke_through_verts": 12,
+      "poke_through_max_mm": 0.27,
+      "glove_offset_median_mm": 1.78,
+      "glove_offset_p95_mm": 2.03,
+      "glove_offset_max_mm": 2.09
+     },
+     "glove_lining_outside_shell": {
+      "verts": 0,
+      "max_mm": 0.0
+     }
+    }
+   }
+  },
   "checks": {
    "joint_angles_exact_readback": "PASS",
    "phalanx_lengths_constant": "PASS",
    "no_fingertip_through_back_of_hand": "PASS",
    "glove_never_penetrated_by_skin": "PASS",
+   "glove_cuff_lining_inside_shell": "PASS",
    "bare_fingertip_into_palm_le_1.5mm": "PASS",
    "bare_finger_finger_overlap_le_4mm": "PASS",
    "bare_thumb_overlap_le_4mm": "PASS",
@@ -5096,10 +5307,11 @@
     "wpn_pen": 0.14,
     "bare_tip_palm": 0.0,
     "bare_finger_finger": 2.9,
-    "bare_thumb": 2.9
+    "bare_thumb": 2.9,
+    "lining_out": 0.0
    }
   },
-  "seconds": 258.5
+  "seconds": 254.7
  },
  "render": {
   "images": [
@@ -5161,18 +5373,18 @@
    "Art/Previews/Hands/Hands_sections_fist_bare.png",
    "Art/Previews/Hands/Hands_sections_fist_coyote.png"
   ],
-  "seconds_this_run": 814.3
+  "seconds_this_run": 704.4
  },
  "export": {
   "fbx_hands": {
    "ok": true,
    "path": "/home/user/Sroskus/IronValley/Art/Export/FBX/SK_Hands_Gloved.fbx",
-   "bytes": 3261116
+   "bytes": 3261292
   },
   "fbx_body_gloved": {
    "ok": true,
    "path": "/home/user/Sroskus/IronValley/Art/Export/FBX/SK_Human_Base_Gloved.fbx",
-   "bytes": 5085548
+   "bytes": 5085404
   },
   "fbx_anim": {
    "path": "Art/Export/FBX/A_Hand_Poses.fbx",
@@ -5197,15 +5409,15 @@
   "glb": {
    "Coyote": {
     "path": "Art/Export/GLB/Hands_Gloved_Coyote.glb",
-    "bytes": 12926936
+    "bytes": 13073876
    },
    "Black": {
     "path": "Art/Export/GLB/Hands_Gloved_Black.glb",
-    "bytes": 12455844
+    "bytes": 12587008
    },
    "BodyCoyote": {
     "path": "Art/Export/GLB/Human_Base_Gloved_Coyote.glb",
-    "bytes": 14680208
+    "bytes": 14827148
    }
   },
   "pose_json": [
@@ -5262,6 +5474,16 @@
      1.8
     ],
     "meshes": {
+     "SK_Human_Base_Gloved": {
+      "vertices": 10042,
+      "tris": 20044,
+      "unweighted_vertices": 0,
+      "max_influences": 4,
+      "weight_sum_min": 1.0,
+      "weight_sum_max": 1.0,
+      "armature_modifier": true,
+      "groups_not_bones": []
+     },
      "SK_Glove_R": {
       "vertices": 8963,
       "tris": 17884,
@@ -5275,16 +5497,6 @@
      "SK_Glove_L": {
       "vertices": 8963,
       "tris": 17884,
-      "unweighted_vertices": 0,
-      "max_influences": 4,
-      "weight_sum_min": 1.0,
-      "weight_sum_max": 1.0,
-      "armature_modifier": true,
-      "groups_not_bones": []
-     },
-     "SK_Human_Base_Gloved": {
-      "vertices": 10042,
-      "tris": 20044,
       "unweighted_vertices": 0,
       "max_influences": 4,
       "weight_sum_min": 1.0,
@@ -5370,23 +5582,24 @@
    "fbx_anim": {
     "actions_found": 14,
     "compared": {
-     "relaxed": 14.038,
-     "open_flat": 14.038,
-     "spread": 14.038,
-     "fist_full": 14.038,
-     "fist_25": 14.0379,
-     "fist_50": 14.0379,
-     "fist_75": 14.038,
-     "point": 14.038,
-     "rifle_grip_index_straight": 14.038,
-     "rifle_grip_trigger": 14.038,
-     "support_handguard": 14.038,
-     "mag_grasp": 14.0379,
-     "pistol_2h": 14.038
+     "relaxed": 0.0,
+     "open_flat": 0.0,
+     "spread": 0.0,
+     "fist_full": 0.0,
+     "fist_25": 0.0,
+     "fist_50": 0.0,
+     "fist_75": 0.0,
+     "point": 0.0,
+     "rifle_grip_index_straight": 0.0,
+     "rifle_grip_trigger": 0.0,
+     "support_handguard": 0.0,
+     "mag_grasp": 0.0,
+     "pistol_2h": 0.0
     },
-    "max_err_deg": 14.038,
+    "max_err_deg": 0.0,
     "missing": [],
-    "verdict": "FAIL"
+    "rest_offsets_max_dev_deg": 0.001,
+    "verdict": "PASS"
    },
    "glb_anim": {
     "actions_found": 14,
@@ -5407,9 +5620,10 @@
     },
     "max_err_deg": 0.0,
     "missing": [],
+    "rest_offsets_max_dev_deg": 0.001,
     "verdict": "PASS"
    }
   },
-  "seconds": 16.3
+  "seconds": 15.1
  }
 }

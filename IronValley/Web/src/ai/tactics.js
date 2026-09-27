@@ -164,11 +164,17 @@ export class Tactics {
     const nav = sys.nav;
     const cover = sys.cover;
     const center = new Vector3(zone.center[0], zone.center[1], zone.center[2]);
-    const r = Math.max(1, zone.radius - cfg.objective.zoneMargin);
+    // polygon zones (generated maps): search the circumscribed disc, keep only points inside the polygon and z band
+    const poly = Array.isArray(zone.polygon) && zone.polygon.length >= 3;
+    const r = Math.max(1, zone.radius - (poly ? 0 : cfg.objective.zoneMargin));
+    const dyC = poly ? Math.max(1.5, (zone.yMax ?? center.y + 3) - center.y + 0.5) : 1.5;
+    if (poly) center.y = ((zone.yMin ?? center.y) + (zone.yMax ?? center.y + 3)) / 2;
+    const inZone = (p) => !poly || sys.isInZone(p, zone);
     const threats = sys.enemySpawnCenters(bot.c.team);
     const cands = [];
     if (cover) {
-      for (const cp of cover.query(center, r, { dy: 1.5 })) {
+      for (const cp of cover.query(center, r, { dy: dyC })) {
+        if (!inZone(cp.pos)) continue;
         if (!cover.isFree(cp.id, bot.c.id) || (nav && nav.isBlocked(cp.pos))) continue;
         if (cp.solid && sys.shelterSolids.has(cp.solid)) continue;
         let prot = 0;
@@ -180,9 +186,9 @@ export class Tactics {
       }
     }
     if (nav) {
-      for (let i = 0; i < 8; i++) {
-        const p = nav.randomPointNear(center, r, () => bot.rng.next());
-        if (p && Math.abs(p.y - center.y) < 1.2) cands.push({ pos: p, cover: null, base: 0 });
+      for (let i = 0; i < (poly ? 24 : 8); i++) {
+        const p = poly ? nav.randomPointNear(center, r, () => bot.rng.next(), { dy: dyC }) : nav.randomPointNear(center, r, () => bot.rng.next());
+        if (p && (poly ? inZone(p) : Math.abs(p.y - center.y) < 1.2)) cands.push({ pos: p, cover: null, base: 0 });
       }
     }
     if (!cands.length) return { pos: center, cover: null };

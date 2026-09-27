@@ -1,6 +1,7 @@
 // World queries shared by the game, weapons and AI (Docs/GAMEPLAY_CONTRACTS.md, "Dotazy na svět"):
-//   raycastStatic(origin, dir, maxDist)      static geometry (BVH)
-//   lineOfSight(from, to, { ignoreId })     static geometry + combatant hit zones; true only if clear
+//   raycastStatic(origin, dir, maxDist)      static geometry (BVH), every surface that stops a capsule
+//   raycastBullets(origin, dir, maxDist)     static geometry that stops a bullet (no glass / chain-link / hedges)
+//   lineOfSight(from, to, { ignoreId })     static geometry that blocks sight + combatant hit zones; true only if clear
 //   surfaceAt(point)                         surface type for footsteps / impacts
 // plus raycastCombat(origin, dir, far, ignoreId) used by hitscan: nearest of static world, living
 // combatants' hit zones and test dummies, tagged with kind / targetKey. No DOM.
@@ -22,7 +23,32 @@ const SURFACE_OF_MAT = {
   hazard: 'metal',
   accent: 'metal',
   dark: 'metal',
+  // generated level geometry (src/level/levelAssets.js) carries the design surface names (layout.json surfaces)
+  concrete: 'concrete',
+  asphalt: 'asphalt',
+  gravel: 'gravel',
+  dirt: 'dirt',
+  mud: 'mud',
+  grass: 'grass',
+  forest_floor: 'dirt',
+  paving: 'concrete',
+  stone: 'concrete',
+  tiles: 'tile',
+  wood: 'wood',
+  metal: 'metal',
+  glass: 'glass',
+  water: 'mud',
 };
+
+/** Surface of a static hit: terrain hits look the surface up in the level's surface raster (world.surfaceRaster). */
+function surfaceOf(world, h) {
+  if (h.mat === 'terrain') {
+    const r = world.surfaceRaster;
+    const s = r ? r.surfaceAt(h.point.x, h.point.z) : null;
+    return (s && SURFACE_OF_MAT[s]) || 'grass';
+  }
+  return SURFACE_OF_MAT[h.mat] || 'concrete';
+}
 
 /** Ray vs axis-aligned box slab test: does the unit ray reach the box within far? */
 function rayHitsBox(o, d, min, max, far) {
@@ -54,11 +80,20 @@ export class WorldQuery {
     this.stats = { raycasts: 0, losQueries: 0 };
   }
 
+  /** Every static surface (what stops a capsule: fences, glass and hedges included). */
   raycastStatic(origin, dir, maxDist = Infinity) {
     this.stats.raycasts++;
     const h = this.world.raycast(origin, dir, maxDist);
     if (!h) return null;
-    return { ...h, kind: 'world', targetKey: `world:${h.solidId}`, surface: SURFACE_OF_MAT[h.mat] || 'concrete' };
+    return { ...h, kind: 'world', targetKey: `world:${h.solidId}`, surface: surfaceOf(this.world, h) };
+  }
+
+  /** Static surfaces that stop a bullet (window glass, chain-link, hedges and timber crates let it through). */
+  raycastBullets(origin, dir, maxDist = Infinity) {
+    this.stats.raycasts++;
+    const h = this.world.raycast(origin, dir, maxDist, 0, 'bullets');
+    if (!h) return null;
+    return { ...h, kind: 'world', targetKey: `world:${h.solidId}`, surface: surfaceOf(this.world, h) };
   }
 
   /** Nearest living combatant hit-zone intersection (skipping ignoreId and bodies containing the origin). */
@@ -91,7 +126,7 @@ export class WorldQuery {
 
   /** Hitscan query: nearest of static world, living combatants (except the shooter) and dummies. */
   raycastCombat(origin, dir, far, ignoreId = null) {
-    let best = this.raycastStatic(origin, dir, far);
+    let best = this.raycastBullets(origin, dir, far);
     const limit = best ? best.distance : far;
     const c = this.raycastCombatants(origin, dir, limit, ignoreId);
     if (c && (!best || c.distance < best.distance)) best = c;
@@ -113,7 +148,7 @@ export class WorldQuery {
     const dist = _dir.length();
     if (dist < 1e-6) return true;
     _dir.divideScalar(dist);
-    if (this.world.raycast(fromPoint, _dir, dist)) return false;
+    if (this.world.raycast(fromPoint, _dir, dist, 0, 'vision')) return false;
     const blocker = this.raycastCombatants(fromPoint, _dir, dist, ignoreId, [fromPoint, toPoint]);
     return !blocker;
   }
@@ -124,6 +159,6 @@ export class WorldQuery {
     _o.y += 0.3;
     const h = this.world.raycast(_o, _down, 1.8);
     if (!h) return 'none';
-    return SURFACE_OF_MAT[h.mat] || 'concrete';
+    return surfaceOf(this.world, h);
   }
 }

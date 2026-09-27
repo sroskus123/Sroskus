@@ -15,6 +15,7 @@ import { WorldQuery } from './worldQuery.js';
 import { TargetDummies } from './targetDummies.js';
 import { buildMatchRules } from './gameRules.js';
 import { createRng } from '../util/rng.js';
+import { pointInZone } from './zoneShape.js';
 import { botKit, validateOpticLoadout, ATTACHMENTS } from '../weapons/optics.js';
 
 export const PLAYER_ID = 'player';
@@ -67,7 +68,8 @@ export class MatchSession {
     const lm = this.level.match;
     if (this.mode === 'match') {
       if (!lm) throw new Error(`Úroveň ${this.level.id} nemá zápasová data (match)`);
-      this.spawns = lm.teamSpawns.map((list) => list.map((s) => ({ pos: s.pos.slice(), yaw: s.yaw ?? 0 })));
+      // generated maps list the zones each spawn row is active for (+ fallback rows per zone and team)
+      this.spawns = lm.teamSpawns.map((list) => list.map((s) => ({ pos: s.pos.slice(), yaw: s.yaw ?? 0, zones: Array.isArray(s.zones) ? s.zones.slice() : null, row: s.row || null })));
       this.zones = lm.zones.map((z) => ({ ...z }));
     } else {
       const mk = this.level.markers[(lm && lm.practiceSpawn) || 'spawn'] || { pos: [0, 0, 0], yaw: 0 };
@@ -107,7 +109,7 @@ export class MatchSession {
       time: () => session.simTime,
       dtUs: () => session.lastDtUs,
     };
-    this.combatants = new CombatantManager({ ctx: this.ctx, spawns: this.spawns });
+    this.combatants = new CombatantManager({ ctx: this.ctx, spawns: this.spawns, fallbackRows: this.mode === 'match' && lm ? lm.fallbackRows || null : null });
     this.worldQuery = new WorldQuery({ world: o.world, combatants: this.combatants, dummies: this.dummies });
     this.ctx.worldQuery = this.worldQuery;
 
@@ -188,11 +190,7 @@ export class MatchSession {
   }
 
   isInZone(p, z = this.activeZone()) {
-    if (!z) return false;
-    const dx = p.x - z.center[0];
-    const dz = p.z - z.center[2];
-    const h = z.height ?? 4;
-    return dx * dx + dz * dz <= z.radius * z.radius && p.y >= z.center[1] - 0.5 && p.y <= z.center[1] + h;
+    return pointInZone(p, z);
   }
 
   activeZone() {
@@ -424,7 +422,7 @@ export class MatchSession {
       roundNumber: r.roundNumber,
       zoneId: this.mode === 'match' ? r.zoneId : null,
       zoneName: z ? z.name || z.id : null,
-      zone: z ? { id: z.id, name: z.name || z.id, center: z.center.slice(), radius: z.radius, height: z.height ?? 4 } : null,
+      zone: z ? { id: z.id, name: z.name || z.id, center: z.center.slice(), radius: z.radius, height: z.height ?? 4, polygon: z.polygon || null, yMin: z.yMin ?? null, yMax: z.yMax ?? null } : null,
       status: r.zone.status,
       controller: r.zone.controller,
       counts: r.zone.counts.slice(),

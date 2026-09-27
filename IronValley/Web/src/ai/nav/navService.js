@@ -281,8 +281,8 @@ export class NavService {
   }
 
   /** Random reachable navmesh point within radius r of p (rng() in [0,1)). */
-  randomPointNear(p, r, rng = Math.random, { tries = 12 } = {}) {
-    const nodes = this.mesh.nodesInDisc(p, r, { dy: 1.5 }).filter((n) => this.mesh.nodes[n].group === this.mesh.mainGroup && !this._blockedNodes.has(n));
+  randomPointNear(p, r, rng = Math.random, { tries = 12, dy = 1.5 } = {}) {
+    const nodes = this.mesh.nodesInDisc(p, r, { dy }).filter((n) => this.mesh.nodes[n].group === this.mesh.mainGroup && !this._blockedNodes.has(n));
     if (!nodes.length) return null;
     const out = new Vector3();
     for (let i = 0; i < tries; i++) {

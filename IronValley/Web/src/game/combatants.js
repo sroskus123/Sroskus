@@ -19,9 +19,12 @@ export class CombatantManager {
    * @param {object} o.ctx       session context (see Combatant)
    * @param {Array<Array<{pos:number[], yaw:number}>>} o.spawns  team spawn points (same order as the core spawnAreas)
    */
-  constructor({ ctx, spawns }) {
+  constructor({ ctx, spawns, fallbackRows = null }) {
     this.ctx = ctx;
     this.spawns = spawns;
+    // spawn rows per zone (generated maps): a point whose `zones` list lacks the active zone is used only by the
+    // fallback policy and only when its row is one of fallbackRows[zone][team id]
+    this.fallbackRows = fallbackRows;
     this.list = [];
     this.byId = new Map();
     this.player = null;
@@ -75,8 +78,25 @@ export class CombatantManager {
    *  - no living enemy has line of sight to the head or chest of the spawned body.
    * Bodies that the core spawned earlier in the same update are taken at their spawn points.
    */
+  /** Is candidate `idx` of `team` usable for the active zone under `policy` (rows per zone on generated maps)? */
+  spawnRowAllowed(team, idx, policy) {
+    const sp = this.spawns[team] && this.spawns[team][idx];
+    if (!sp || !sp.zones) return true;
+    const round = this.ctx.match && this.ctx.match.round;
+    const zid = round ? round.zoneId : null;
+    if (!zid || sp.zones.includes(zid)) return true;
+    if (!policy || !policy.fallback || !this.fallbackRows) return false;
+    const teamId = this.ctx.rules.teams[team] ? this.ctx.rules.teams[team].id : null;
+    const fb = this.fallbackRows[zid] && teamId ? this.fallbackRows[zid][teamId] : null;
+    return !!(fb && sp.row && fb.includes(sp.row));
+  }
+
   spawnPredicate(q) {
     const policy = this.spawnPolicyFor(this.byId.get(q.participantId));
+    if (!this.spawnRowAllowed(q.team, q.candidateIndex, policy)) {
+      this.predicateLog = { safe: false, reasons: ['row_inactive'], participantId: q.participantId, candidateIndex: q.candidateIndex, policy: policy.name };
+      return false;
+    }
     const res = this.evaluateSpawnPoint(q.point, q.team, q.participantId, policy);
     if (res.safe && policy.fallback) {
       // fallback: only the (near-)safest point of the team is accepted (farthest from the nearest enemy)
@@ -120,7 +140,9 @@ export class CombatantManager {
     const key = `${this.ctx.tick()}|${team}|${participantId}|${pending}`;
     if (this._bestCache && this._bestCache.key === key) return this._bestCache.best;
     let best = -Infinity;
-    for (const s of this.spawns[team]) {
+    for (let i = 0; i < this.spawns[team].length; i++) {
+      const s = this.spawns[team][i];
+      if (!this.spawnRowAllowed(team, i, policy)) continue;
       const r = this.evaluateSpawnPoint(s.pos, team, participantId, policy);
       if (r.safe && r.nearestEnemy > best) best = r.nearestEnemy;
     }
