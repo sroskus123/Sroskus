@@ -191,8 +191,11 @@ for sname, objs in sets.items():
                     "basecolor_lum_lin_mean": round(float(lum[pix].mean()), 4)}
         # the cover's face that is the OUTER face when closed: in the bind (open, 176 deg) pose
         # its normal points about +Y
-        dc_out = face_pix("DustCover", lambda c, n: n[:, 1] > 0.8)
-        dc_in = face_pix("DustCover", lambda c, n: n[:, 1] < -0.8)
+        # plate faces only: > 3.5 mm from the hinge axis (the hinge-barrel bore around the static rod
+        # is legitimately occluded in every pose)
+        far = lambda c: np.hypot(c[:, 1] + 1.80, c[:, 2] + 1.35) > 0.35
+        dc_out = face_pix("DustCover", lambda c, n: (n[:, 1] > 0.8) & far(c))
+        dc_in = face_pix("DustCover", lambda c, n: (n[:, 1] < -0.8) & far(c))
         flank_port = face_pix("LowerReceiver", lambda c, n: (n[:, 1] < -0.9) & (c[:, 0] > -8.2) & (c[:, 0] < -2.2) &
                               (c[:, 2] < -2.3) & (c[:, 2] > -4.5))
         flank_ctrl = face_pix("LowerReceiver", lambda c, n: (n[:, 1] < -0.9) & (c[:, 0] > -8.2) & (c[:, 0] < -2.2) &

@@ -1455,10 +1455,11 @@ def static_magazine():
     ob = L.join(copies, SM_MAG)
     ob.data.name = SM_MAG
     ob.data.transform(Matrix.Translation(-W(*MAG_PIVOT)))
-    # drop the deform weights that came with the copied mesh data (the object has no groups, so
-    # they would dangle): re-create the group, then remove it together with its weights
-    vg = ob.vertex_groups.new(name="magazine")
-    ob.vertex_groups.remove(vg)
+    # drop the deform weights that came with the copied mesh data: the join re-creates the
+    # 'magazine' group from them; removing every group also frees the deform-weight layer
+    if not ob.vertex_groups:
+        ob.vertex_groups.new(name="magazine")
+    ob.vertex_groups.clear()
     ob.data.materials.clear()
     ob.data.materials.append(MAT["export_Furniture"])
     for pl in ob.data.polygons:
@@ -2267,10 +2268,10 @@ def render_stage(arm, sm):
                 cam = L.camera_ortho("cam", v.upper(), mn, mx, margin=1.06 if v in ("right", "left", "top") else 1.25)
                 done.append(L.render(_r(f"ortho_{v}"), cam, RES, samples))
         if "persp_front_right" in RENDERS:
-            cam = L.camera("cam", c + Vector((0.77, -0.97, 0.37)), c + Vector((0.0, 0, -0.02)), fov_deg=36)
+            cam = L.camera("cam", c + Vector((0.86, -1.08, 0.40)), c + Vector((0.05, 0, -0.02)), fov_deg=36)
             done.append(L.render(_r("persp_front_right"), cam, RES, samples))
         if "persp_rear_left" in RENDERS:
-            cam = L.camera("cam", c + Vector((-0.80, 0.91, 0.37)), c + Vector((0.0, 0, -0.02)), fov_deg=36)
+            cam = L.camera("cam", c + Vector((-0.90, 1.02, 0.40)), c + Vector((-0.05, 0, -0.02)), fov_deg=36)
             done.append(L.render(_r("persp_rear_left"), cam, RES, samples))
         if "closeup_receiver_right" in RENDERS:
             t = W(-6.5, 0, -3.2)

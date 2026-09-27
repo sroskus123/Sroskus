@@ -383,8 +383,8 @@ def place_frame(model, k, pose, coll, d_t, r_t, pivot_name, pivot_target, contac
 
 
 def pistol_grip_frame_search(model, coll, ga, fwd, side, mcp_ref, grip_parts, trigger_point=None,
-                             along_parts=None, yaws=(-30.0, -20.0, -10.0, 0.0), tilts=(-16.0, -8.0, 0.0),
-                             fwd_offsets=(0.0, 0.010, 0.020), heights=(-0.006, 0.0, 0.006),
+                             along_parts=None, yaws=(-10.0, 0.0, 10.0), tilts=(-16.0, -8.0, 0.0),
+                             fwd_offsets=(-0.010, 0.0, 0.010), heights=(-0.006, 0.0, 0.006),
                              fingers=("middle", "ring", "pinky")):
     """Pistol-grip placement by the grip's anatomy.  The palm (2nd-5th metacarpals) lies on the
     grip's side, the knuckle row along the grip axis `ga` (hand radial axis r = ga, index on top),
@@ -647,9 +647,11 @@ def fit_rifle_grip(model, coll, rig, trigger=False, base=None):
     Mw = lambda v: (S @ np.append(np.asarray(v, float) / 100.0, 1.0))[:3]       # noqa: E731 (cm, weapon frame)
     tp = "Trigger" if trigger else None
     ga = S[:3, :3] @ np.array([math.sin(math.radians(22.0)), 0.0, math.cos(math.radians(22.0))])   # grip axis (22 deg rake)
-    # middle MCP joint reference: on the grip's right side (joint centre ~2 cm inside the palmar
-    # skin), front third of the grip, just under the trigger guard's rear foot (z ~1.3 cm)
-    H, pose, rep = pistol_grip_frame_search(model, coll, ga, X, S[:3, :3] @ np.array([0, 1.0, 0]), Mw((1.2, -3.8, 0.2)),
+    # middle MCP joint reference: on the grip's right side about a proximal phalanx behind the
+    # front strap (the proximal phalanx lies along the side, the PIP turns the front-right corner,
+    # the middle phalanx spans the 3.2 cm front strap, the distal phalanx lies on the left side),
+    # at the height of the trigger guard's rear foot bottom (z ~1.3 cm) minus a finger radius
+    H, pose, rep = pistol_grip_frame_search(model, coll, ga, X, S[:3, :3] @ np.array([0, 1.0, 0]), Mw((-2.5, -3.8, 0.2)),
                                             ["PistolGrip"], trigger_point=tp, along_parts=["LowerReceiver", "UpperReceiver"])
     dirv = S[:3, :3] @ np.array([1.0, 0, -0.25])
     rep["thumb"] = fit_thumb(model, 0, pose, H, coll, dirv)

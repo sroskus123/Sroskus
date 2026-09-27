@@ -3157,6 +3157,25 @@ def _job_export(job):
                 a, r = _orig(img, scene_data)
                 return r, r
             _efb._gen_vid_path = _rel_only
+            # the header's SceneInfo always stores bpy.data.filepath ("Original|ApplicationNativeFile",
+            # written even with use_metadata=False): keep only the .blend's file name
+            _orig_hdr = _efb.fbx_header_elements
+
+            def _hdr(root, scene_data, time=None):
+                _orig_hdr(root, scene_data, time)
+
+                import struct as _st
+                key = b"Original|ApplicationNativeFile"
+                key = _st.pack('<I', len(key)) + key          # encode_bin stores length-prefixed strings
+                name = os.path.basename(bpy.data.filepath).encode("utf8")
+
+                def walk(e):
+                    for c in e.elems:
+                        if c.id == b"P" and c.props and c.props[0] == key:
+                            c.props[-1] = _st.pack('<I', len(name)) + name
+                        walk(c)
+                walk(root)
+            _efb.fbx_header_elements = _hdr
         opts = dict(FBX_UNREAL_OPTS)
         opts["object_types"] = set(job.get("object_types", ["ARMATURE", "MESH"]))
         bpy.ops.export_scene.fbx(filepath=job["path"], use_selection=True, **opts)
