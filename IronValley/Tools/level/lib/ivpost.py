@@ -1058,9 +1058,95 @@ def yaw_of(fx, fy):
     return r2(math.degrees(math.atan2(-fx, fy)) % 360.0)
 
 
+def is_walk_opening(o):
+    if o["type"] in ("door", "double_door"):
+        return True
+    if o["type"] in ("roller_door", "sliding_door"):
+        return bool(o.get("passes", {}).get("movement"))
+    return False
+
+
+def level_raster(bd, level, res=0.05, pad=1.0):
+    """local capsule raster of one building level with doors open: walls, furniture, flights starting on this level (and
+    exterior flights rising to upper floors), slab voids, balustrades, columns, low chimneys, sealed voids.  Returns
+    (xs, ys, X, Y, free, walkable) where walkable = free & distance to any solid > 0.35 (capsule centre may stand there)."""
+    from matplotlib.path import Path as _Path
+    import ivcheck as C
+    parts = [Polygon(pt["external_rect"]) for pt in bd["footprint_parts"]]
+    from shapely.ops import unary_union as _uu
+    ext = _uu(parts)
+    x0, y0, x1, y1 = ext.bounds
+    xs = np.arange(x0 - pad + 0.0137, x1 + pad, res)
+    ys = np.arange(y0 - pad + 0.0137, y1 + pad, res)
+    X, Y = np.meshgrid(xs, ys)
+    pts = np.column_stack([X.ravel(), Y.ravel()])
+
+    def pm(poly):
+        return _Path(np.asarray(poly, float)).contains_points(pts).reshape(X.shape)
+    lv = {l_["id"]: l_ for l_ in bd["levels"]}
+    solid = np.zeros(X.shape, bool)
+    for w in bd["walls"]:
+        if w["level"] != level:
+            continue
+        m = pm(list(C.wall_poly(dict(w, thickness=w["thickness"] + 0.008)).exterior.coords)[:-1])
+        for o in bd["openings"]:
+            if o["wall_id"] == w["id"] and is_walk_opening(o):
+                g = C.opening_geom(w, o)
+                (p0, p1), (nx, ny), t = (g["p0"], g["p1"]), g["n"], w["thickness"] / 2 + 0.03
+                m &= ~pm([(p0[0] + nx * t, p0[1] + ny * t), (p1[0] + nx * t, p1[1] + ny * t), (p1[0] - nx * t, p1[1] - ny * t),
+                          (p0[0] - nx * t, p0[1] - ny * t)])
+        solid |= m
+    for f in bd.get("furniture", []):
+        if f["level"] == level:
+            solid |= pm(list(C.furn_poly(f).exterior.coords)[:-1])
+    for sd in bd.get("stairs", []) + bd.get("exterior_stairs", []):
+        lf = sd["level_from"] if sd["level_from"] not in ("ground", "Lmid") else "L0"
+        rises_up = sd["level_to"] not in ("L0",)
+        if lf == level and (sd in bd.get("stairs", []) or rises_up):
+            solid |= pm(R.stair_poly_local(sd))
+    for sl in bd.get("slabs", []):
+        if sl["level"] == level:
+            for h in sl.get("openings", []):
+                solid |= pm(h["polygon"])
+    for ba in bd.get("balustrades", []):
+        if ba["level"] == level:
+            for pa, pb in zip(ba["polyline"][:-1], ba["polyline"][1:]):
+                solid |= pm(list(LineString([pa, pb]).buffer(0.045).exterior.coords)[:-1])
+    for col in bd.get("columns", []):
+        solid |= pm(R.box_poly(col["center"], col["size"], 0))
+    fz = lv[level]["floor_z"] if level in lv else 0.0
+    for ch in bd.get("chimneys", []):
+        if ch.get("base_z", 0.0) <= fz + 2.10:
+            solid |= pm(R.box_poly(ch["pos"], ch.get("size", [0.3, 0.3]), 0))
+    for v in bd.get("sealed_voids", []):
+        if v["level"] == level:
+            solid |= pm(v["polygon"])
+    inside = np.zeros(X.shape, bool)
+    extent = lv.get(level, {}).get("extent") if level in lv else None
+    if extent:
+        inside |= pm(extent)
+    else:
+        for pt in bd["footprint_parts"]:
+            inside |= pm(pt["interior_rect"])
+    free = inside & ~solid
+    dist = ndimage.distance_transform_edt(free) * res
+    return xs, ys, X, Y, free, dist > AGENT_R + 0.005, dist
+
+
+def _ij(xs, ys, x, y):
+    return int(round((y - ys[0]) / (ys[1] - ys[0]))), int(round((x - xs[0]) / (xs[1] - xs[0])))
+
+
 def cover_points(layout, ras, walk):
-    """auto-generated cover points within 30 m of each zone: 0.60 m off the faces of hard-cover props, low walls,
-    parapets, retaining walls, secondary and main buildings; + window firing positions inside the main buildings."""
+    """cover points (review P1-AI-COVER).
+    (1) object points outdoors: 0.60 m off the faces of hard-cover props, low walls, retaining walls, secondary and main
+        buildings, within 30 m of a zone, on walkable cells;
+    (2) object points INSIDE buildings on every level: 0.60 m off the faces of hard furniture (blocks_bullets), on the level's
+        capsule raster (walls, furniture, stairs, slab voids, balustrades), never in a 1.0 m door zone;
+    (3) window firing positions: 0.60-0.90 m inside every window with sill <= 1.25 m, validated: capsule-clear on the floor of
+        its level, not over a void, the corridor to the window (window width x depth) free of furniture taller than the sill;
+        a window that has no valid position gets none;
+    (4) stair-watch points on every upper level reached by a stair (top of the flight, facing down it)."""
     g = ras["grid"]
     objs = []
     for p in layout["props"]:
@@ -1089,6 +1175,7 @@ def cover_points(layout, ras, walk):
             objs.append(([list(np.array(a) + n), list(np.array(b) + n), list(np.array(b) - n), list(np.array(a) - n)],
                          "low" if rw.get("parapet") else "high", rw["id"]))
     zones = [(z["id"], Polygon(z["polygon"])) for z in layout["capture_zones"]]
+    zdef = {z["id"]: z for z in layout["capture_zones"]}
     out = []
     for poly, cls, oid in objs:
         P = np.array(poly)
@@ -1113,7 +1200,9 @@ def cover_points(layout, ras, walk):
                 j, i = g.ij(q[0], q[1])
                 if not (0 <= j < g.shape[0] and 0 <= i < g.shape[1]) or not walk[j, i]:
                     continue
-                facing = -nrm   # from the cover point towards the obstacle = the threat direction it protects from
+                if any(Polygon(bb["footprint_world"]).contains(Point(q[0], q[1])) for bb in layout["buildings"]):
+                    continue
+                facing = -nrm
                 left = np.array([-facing[1], facing[0]])
                 if s_ < 1.0 or s_ > L - 1.0:
                     corner = a if s_ < 1.0 else b
@@ -1128,53 +1217,233 @@ def cover_points(layout, ras, walk):
     for c in out:
         if all(math.hypot(c["pos"][0] - k["pos"][0], c["pos"][1] - k["pos"][1]) >= 1.2 or c["object"] != k["object"] for k in keep[-60:]):
             keep.append(c)
-    # window firing positions (inside the main buildings, sill <= 1.25 m)
-    bdefs = {b["id"]: b for b in IB.all_buildings()}
     import ivcheck as C
+    bdefs = {b["id"]: b for b in IB.all_buildings()}
+    dropped = []
     for bp in layout["buildings"]:
         bd = bdefs[bp["id"]]
         wmap = {w["id"]: w for w in bd["walls"]}
         lv = {l["id"]: l for l in bd["levels"]}
         c0, rot, zf = bp["position"][:2], bp["rotation_deg"], bp["position"][2]
+        levels = [l_["id"] for l_ in bd["levels"] if l_.get("ceiling_height", 0) > 0]
+        rasters = {lvl: level_raster(bd, lvl) for lvl in levels}
+
+        def zone_tags(q, zq):
+            near = [zid for zid, zp in zones if zp.distance(Point(q[0], q[1])) <= 35.0]
+            inz = [zid for zid, zp in zones if zp.contains(Point(q[0], q[1])) and zdef[zid]["z_min"] <= zq <= zdef[zid]["z_max"]]
+            return near, inz
+
+        def room_of(lvl, p):
+            for r_ in bd["rooms"]:
+                if r_["level"] == lvl and Polygon(r_["polygon"]).buffer(-0.02).contains(Point(p)):
+                    return r_["id"]
+            return None
+
+        door_zones = {lvl: [] for lvl in levels}
+        for o in bd["openings"]:
+            if not is_walk_opening(o):
+                continue
+            w = wmap[o["wall_id"]]
+            if w["level"] not in door_zones:
+                continue
+            gg = C.opening_geom(w, o)
+            (p0, p1), (nx, ny), D = (gg["p0"], gg["p1"]), gg["n"], 1.0 + w["thickness"] / 2
+            door_zones[w["level"]].append(Polygon([(p0[0] + nx * D, p0[1] + ny * D), (p1[0] + nx * D, p1[1] + ny * D),
+                                                   (p1[0] - nx * D, p1[1] - ny * D), (p0[0] - nx * D, p0[1] - ny * D)]))
+        # (2) interior furniture points
+        for lvl in levels:
+            xs, ys, X, Y, free, walkable, dist = rasters[lvl]
+            zq = zf + lv[lvl]["floor_z"]
+            local_pts = []
+            for f in bd.get("furniture", []):
+                if f["level"] != lvl or f["cover"] not in ("low", "high") or not f.get("blocks_bullets", True):
+                    continue
+                fp = C.furn_poly(f)
+                P = np.array(fp.exterior.coords)[:-1]
+                cxl, cyl = P.mean(axis=0)
+                for k in range(4):
+                    a, b = P[k], P[(k + 1) % 4]
+                    d = b - a
+                    L = np.linalg.norm(d)
+                    if L < 0.4:
+                        continue
+                    u = d / L
+                    nrm = np.array([u[1], -u[0]])
+                    if np.dot(nrm, (a + b) / 2 - [cxl, cyl]) < 0:
+                        nrm = -nrm
+                    for s_ in (np.linspace(0.35, L - 0.35, max(1, int(L / 1.2))) if L > 0.8 else [L / 2]):
+                        ql = a + u * s_ + nrm * 0.60
+                        j, i = _ij(xs, ys, ql[0], ql[1])
+                        if not (0 <= j < walkable.shape[0] and 0 <= i < walkable.shape[1]) or not walkable[j, i]:
+                            continue
+                        if any(dz.contains(Point(ql[0], ql[1])) for dz in door_zones[lvl]):
+                            continue
+                        rid = room_of(lvl, ql)
+                        if rid is None:
+                            continue
+                        if any(math.dist(ql, q2) < 1.0 for q2 in local_pts):
+                            continue
+                        local_pts.append(tuple(ql))
+                        q = R.xf(c0, rot, ql)
+                        fw = R.xf([0, 0], rot, -nrm)
+                        near, inz = zone_tags(q, zq)
+                        keep.append({"pos": [r2(q[0]), r2(q[1]), r2(zq)], "facing": [round(fw[0], 3), round(fw[1], 3)],
+                                     "facing_deg": yaw_of(fw[0], fw[1]), "height": "high" if f["size"][2] >= 1.6 else "low",
+                                     "peek": "over" if f["size"][2] < 1.6 else ("left" if s_ < 0.5 else ("right" if s_ > L - 0.5 else "none")),
+                                     "capacity": 1, "kind": "interior_object", "object": f"{bp['id']}:{f['id']}",
+                                     "building": bp["id"], "level": lvl, "room": rid, "local": [r3(ql[0]), r3(ql[1])],
+                                     "zones": near or [bp.get("zone")], "inside_zone": inz})
+        # (3) validated window firing positions
         for o in bd["openings"]:
             if o["type"] != "window" or o["sill_height"] > 1.25 or not o.get("passes", {}).get("vision", True):
                 continue
             w = wmap[o["wall_id"]]
+            lvl = w["level"]
+            if lvl not in rasters:
+                continue
+            xs, ys, X, Y, free, walkable, dist = rasters[lvl]
             gg = C.opening_geom(w, o)
-            nx, ny = gg["n"]              # left normal = into the building for external walls
+            nx, ny = gg["n"]
+            ux, uy = gg["u"]
             mx, my = gg["mid"]
             if w["kind"] != "external":
-                # internal window (e.g. the dílna office overlooking the hall): the firing point stands on the side that is a
-                # room of this level; skipped when both sides are rooms (an ordinary internal glazing between two rooms)
-                rooms_l = [Polygon(r_["polygon"]) for r_ in bd["rooms"] if r_["level"] == w["level"]]
+                rooms_l = [Polygon(r_["polygon"]) for r_ in bd["rooms"] if r_["level"] == lvl]
                 d_ = w["thickness"] / 2 + 0.60
                 sides = [sg for sg in (1, -1) if any(rp.contains(Point(mx + sg * nx * d_, my + sg * ny * d_)) for rp in rooms_l)]
                 if len(sides) != 1:
                     continue
                 nx, ny = nx * sides[0], ny * sides[0]
-            inside = (mx + nx * (w["thickness"] / 2 + 0.60), my + ny * (w["thickness"] / 2 + 0.60))
-            q = R.xf(c0, rot, inside)
+            face = w["thickness"] / 2
+            tall = [C.furn_poly(f) for f in bd.get("furniture", []) if f["level"] == lvl and f["size"][2] > o["sill_height"]]
+            best = None
+            reason = "no capsule-clear floor within 0.9 m of the window"
+            for depth in (0.60, 0.75, 0.90):
+                for lat in (0.0, 0.25, -0.25, 0.45, -0.45):
+                    if abs(lat) > max(0.0, o["width"] / 2 - 0.20) and lat != 0.0:
+                        continue
+                    ql = (mx + ux * lat + nx * (face + depth), my + uy * lat + ny * (face + depth))
+                    j, i = _ij(xs, ys, ql[0], ql[1])
+                    if not (0 <= j < walkable.shape[0] and 0 <= i < walkable.shape[1]) or not walkable[j, i]:
+                        continue
+                    rid = room_of(lvl, ql)
+                    if rid is None:
+                        reason = "position over a void / outside the rooms"
+                        continue
+                    corridor = Polygon([(gg["p0"][0] + nx * face, gg["p0"][1] + ny * face), (gg["p1"][0] + nx * face, gg["p1"][1] + ny * face),
+                                        (ql[0] + ux * 0.3, ql[1] + uy * 0.3), (ql[0] - ux * 0.3, ql[1] - uy * 0.3)]).convex_hull
+                    if any(corridor.intersects(tp) for tp in tall):
+                        reason = "furniture taller than the sill between the position and the window"
+                        continue
+                    best = (ql, rid, depth, lat)
+                    break
+                if best:
+                    break
+            if not best:
+                dropped.append({"window": f"{bp['id']}:{o['id']}", "reason": reason})
+                continue
+            ql, rid, depth, lat = best
+            q = R.xf(c0, rot, ql)
             out_dir = R.xf([0, 0], rot, (-nx, -ny))
-            zq = zf + lv[w["level"]]["floor_z"]
-            near = [zid for zid, zp in zones if zp.distance(Point(q[0], q[1])) <= 35.0]
+            zq = zf + lv[lvl]["floor_z"]
+            near, inz = zone_tags(q, zq)
             if not near:
                 continue
             keep.append({"pos": [r2(q[0]), r2(q[1]), r2(zq)], "facing": [round(out_dir[0], 3), round(out_dir[1], 3)],
                          "facing_deg": yaw_of(out_dir[0], out_dir[1]), "height": "window", "peek": "over",
-                         "capacity": 1, "kind": "window", "object": f"{bp['id']}:{o['id']}", "level": w["level"],
-                         "sill": o["sill_height"], "zones": near,
-                         "inside_zone": [zid for zid, zp in zones if zp.contains(Point(q[0], q[1])) and
-                                         next(z for z in layout["capture_zones"] if z["id"] == zid)["z_min"] <= zq <=
-                                         next(z for z in layout["capture_zones"] if z["id"] == zid)["z_max"]]})
+                         "capacity": 1, "kind": "window", "object": f"{bp['id']}:{o['id']}", "building": bp["id"], "level": lvl,
+                         "room": rid, "local": [r3(ql[0]), r3(ql[1])], "sill": o["sill_height"], "depth_m": depth, "lateral_m": lat,
+                         "zones": near, "inside_zone": inz,
+                         "validated": "capsule-clear on the floor, not over a void, no furniture taller than the sill in the corridor to the window"})
+        # (4) stair-watch points on upper levels / balconies
+        for sd in bd.get("stairs", []) + bd.get("exterior_stairs", []):
+            lt = sd["level_to"]
+            if lt == "L0" or lt == "Lmid":
+                continue
+            dv = np.array(sd["direction_vector"], float)
+            nrm = np.array([-dv[1], dv[0]])
+            top = np.array(sd["top_riser_center"], float)
+            lvl = lt if lt in rasters else None
+            ld = sd.get("landing")
+            cands = [top + dv * dd + nrm * ll for dd in (0.6, 0.8, 1.0, 1.2) for ll in (0.0, 0.3, -0.3, 0.6, -0.6)]
+            chosen = None
+            for ql in cands:
+                if lvl:
+                    xs, ys, X, Y, free, walkable, dist = rasters[lvl]
+                    j, i = _ij(xs, ys, ql[0], ql[1])
+                    if not (0 <= j < walkable.shape[0] and 0 <= i < walkable.shape[1]) or not walkable[j, i]:
+                        continue
+                    if room_of(lvl, ql) is None:
+                        continue
+                    chosen = (ql, room_of(lvl, ql), lv[lvl]["floor_z"])
+                    break
+                if ld and Polygon(ld["polygon"]).buffer(-0.36).contains(Point(ql[0], ql[1])):
+                    chosen = (ql, ld["id"], ld["z"])
+                    break
+            if not chosen:
+                dropped.append({"stair_watch": f"{bp['id']}:{sd['id']}", "reason": "no capsule-clear floor at the top of the flight"})
+                continue
+            ql, rid, zl = chosen
+            q = R.xf(c0, rot, ql)
+            fw = R.xf([0, 0], rot, -dv)
+            near, inz = zone_tags(q, zf + zl)
+            keep.append({"pos": [r2(q[0]), r2(q[1]), r2(zf + zl)], "facing": [round(fw[0], 3), round(fw[1], 3)],
+                         "facing_deg": yaw_of(fw[0], fw[1]), "height": "high", "peek": "none", "capacity": 1, "kind": "stair_watch",
+                         "object": f"{bp['id']}:{sd['id']}", "stair": sd["id"], "building": bp["id"], "level": lt, "room": rid,
+                         "local": [r3(ql[0]), r3(ql[1])], "zones": near or [bp.get("zone")], "inside_zone": inz,
+                         "note": "top of the flight, facing down it (hold-room state: one bot watches the stair)"})
     for i, c in enumerate(keep):
         c["id"] = f"CP{i:04d}"
     return {"rule": "object points 0.60 m off obstacle faces (capsule r 0.35 + 0.25), spacing 1.5 m, within 30 m of a zone polygon, on "
-                    "walkable cells; window points 0.60 m inside every window with sill <= 1.25 m within 35 m of a zone. facing_deg = yaw "
-                    "(0 = north, CCW) of the threat direction the point protects from; valid when the threat bearing is within +-60 deg of "
-                    "facing_deg and the crouched eye (1.05 m) is occluded. height low = crouch-only cover (0.8-1.5 m), high = standing "
-                    "cover (>= 1.6 m), window = stand to fire over the sill. peek = side to lean out (left/right of facing), over = rise "
-                    "over the top. capacity 1: runtime reservation, one bot per point (AI-02); a bot releases it when it leaves 1.5 m.",
+                    "walkable cells; interior_object points 0.60 m off hard furniture on the capsule raster of each building level "
+                    "(walls, furniture, stairs, slab voids, balustrades; never in a 1.0 m door zone); window points 0.60-0.90 m inside "
+                    "every window with sill <= 1.25 m, kept only when capsule-clear on the floor and the corridor to the window is free "
+                    "of furniture taller than the sill; stair_watch points at the top of every flight to an upper level / balcony. "
+                    "facing_deg = yaw (0 = north, CCW) of the threat direction the point protects from; valid when the threat bearing is "
+                    "within +-60 deg of facing_deg and the crouched eye (1.05 m) is occluded. height low = crouch-only cover (0.8-1.5 m), "
+                    "high = standing cover (>= 1.6 m), window = stand to fire over the sill. peek = side to lean out (left/right of "
+                    "facing), over = rise over the top. capacity 1: runtime reservation, one bot per point (AI-02); a bot releases it "
+                    "when it leaves 1.5 m.",
+            "dropped_windows_and_stairs": dropped,
             "points": keep}
+
+
+def r3(v):
+    return round(float(v), 3)
+
+
+def fallback_rows(layout):
+    """review P2-FALLBACK-SPAWN-LOS / P2-SPAWN-RULE-CONFLICT: a team's other row may serve as a respawn fallback for a zone only
+    when none of its points sees that zone (hard-geometry LOS, same model as check_layout.py V01); otherwise the respawn waits
+    (+2 s) and re-scores the active row.  Writes ai_navigation.spawn_selection.fallback_rows."""
+    try:
+        import check_layout as CL
+    except Exception:          # pragma: no cover
+        return
+    B_ = {"buildings": IB.all_buildings()}
+    W = CL.Walk(layout, B_)
+    los = CL.LOS(layout, B_, W)
+    out = {}
+    for z in layout["capture_zones"]:
+        samp = CL.zone_samples(layout, B_, W, z)
+        tg = np.array([(x, y, f + h) for (x, y, f) in samp for h in (1.2, 1.6)])
+        out[z["id"]] = {}
+        for sa in layout["spawn_areas"]:
+            t = sa["team"]
+            active = [r_["row_id"] for r_ in sa["rows"] if z["id"] in r_["zones"]]
+            ok = list(active)
+            for r_ in sa["rows"]:
+                if r_["row_id"] in active:
+                    continue
+                pts = [p_ for p_ in sa["candidate_points"] if p_["row"] == r_["row_id"]]
+                vis = sum(int(los.visible((p_["pos"][0], p_["pos"][1], p_["pos"][2] + 1.65), tg).sum()) for p_ in pts)
+                if vis == 0:
+                    ok.append(r_["row_id"])
+            out[z["id"]][t] = ok
+    ss = layout["ai_navigation"]["spawn_selection"]
+    ss["fallback_rows"] = out
+    ss["fallback_rule"] = ("rows listed per zone and team only (active row first; other rows only when LOS-clean for that zone); if "
+                           "no listed point satisfies the hard rule the respawn waits 2 s and re-scores; the same respawn_score applies "
+                           "to every listed point")
 
 
 def _bworld(layout, bid, p):
