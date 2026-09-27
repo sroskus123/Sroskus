@@ -1595,6 +1595,9 @@ def fit_digit(model, k, pose, H, coll, finger, keys, bounds, moving, contact=Non
             q = model.skin(k, S, None)[vi]
             t["point"] = float(np.sum((q - tgt) ** 2) * w_point)
             t["_point_mm"] = float(np.linalg.norm(q - tgt) * 1000)
+        if finger != "thumb":
+            fp = pose[finger]
+            t["coupling"] = coupling_penalty(fp.get("pip", 0.0), fp.get("dip", 0.0), fp.get("mcp", 0.0), w=1e-3)
         t["_min_sd"] = float(sd.min())
         return t
     def cost(x):
@@ -1856,14 +1859,17 @@ def self_collider(model, k, pose, H, exclude_prefix, keep_prefixes, exclude_near
 DIP_PIP_RANGE = (0.30, 0.90)       # natural DIP / PIP flexion ratio band while grasping
 
 
-def coupling_penalty(pip, dip, w=1e-4):
+def coupling_penalty(pip, dip, mcp=None, w=1e-4):
     """Soft anatomical coupling: DIP flexion stays within DIP_PIP_RANGE x PIP (the flexor
     profundus flexes both; a DIP flexed beyond its PIP or a stiff-straight DIP on a strongly
-    flexed PIP reads as a broken finger).  ~1e-2 (= a 1 mm gap in wrap_finger's cost) per 10 deg."""
+    flexed PIP reads as a broken finger) and, when mcp is given, the MCP does not flex more than
+    25 deg beyond the PIP (a 'hooked' finger).  ~1e-2 (= a 1 mm gap in wrap_finger's cost) per
+    10 deg of violation at w = 1e-4."""
     lo, hi = DIP_PIP_RANGE
     over = max(0.0, dip - hi * max(pip, 0.0) - 3.0)
     under = max(0.0, lo * pip - dip - 3.0)
-    return w * (over * over + under * under)
+    hook = max(0.0, mcp - pip - 25.0) if mcp is not None else 0.0
+    return w * (over * over + under * under + hook * hook)
 
 
 def wrap_finger(model, k, pose, H, coll, f, gap=0.0008, lim=None, maxiter=400):
@@ -1890,7 +1896,7 @@ def wrap_finger(model, k, pose, H, coll, f, gap=0.0008, lim=None, maxiter=400):
         sd, g = ev(x)
         pen = float(np.sum(np.minimum(sd - 0.0002, 0) ** 2)) * 1e7
         return (pen + sum((max(gi, 0.0) - gap) ** 2 for gi in g) * 1e4 * np.array([0.6, 1.0, 1.0]).sum() / 2.6
-                + coupling_penalty(x[1], x[2]))
+                + coupling_penalty(x[1], x[2], x[0]))
     x0 = [min(max(pose[f][kk], lim[kk][0]), lim[kk][1]) for kk in keys]
     res = powell_min(cost, x0, [lim[kk] for kk in keys], {"maxiter": maxiter, "xtol": 0.1, "ftol": 1e-10})
     sd, g = ev(res.x)

@@ -257,9 +257,11 @@ the selector barrel unwrapped as one cylindrical strip (`uv_planar_policy`; smar
 split the hub disc into stretched wedges), then packing (concave shapes, any rotation, 3 px
 margin at 2048). Islands that would own fewer than 12 pixel centres are enlarged (up to 6×)
 and everything is re-packed twice; islands that still own no pixel centre are nudged by a
-fraction of a pixel onto free texels. Only faces smaller than **0.05 mm²** are collapsed onto a
-neighbouring UV point (they are below half a texel); visible faces, glyph counters and every
-island that touches paint or engraving are never collapsed. After packing, a pixel-centre
+fraction of a pixel (and grown up to 3.4×, never off the sheet) onto free texels. Only UV islands
+whose **total** area is below **0.05 mm²** are collapsed onto a neighbouring UV point (a tiny face
+inside a larger island keeps its UVs, so it is never detached from its island and keeps a tangent
+basis); glyph counters, pictogram gaps and every island that touches paint or engraving get the
+markings' 1.6× density and are never collapsed. After packing, a pixel-centre
 rasterisation per island checks that **no pixel is shared by two different islands**; if one
 is, the set is re-packed with a safer shape method. The validation report repeats this check
 (it fails on any shared pixel) and fails on any zero-UV face larger than 0.05 mm², also on the
@@ -288,7 +290,7 @@ Material identity, as baked values (linear):
 | --- | --- | --- | --- | --- |
 | Black hard-anodised aluminium | ≈ (0.040, 0.041, 0.047): dark, slightly cool (B/R ≈ 1.15), so the specular reflection is faintly coloured | **1** | ≈ 0.29–0.32 on the flats (measured {{ANOD_ROUGH}}), low-frequency breakup ±0.05 plus machining streaks (1.6 mm pitch, ±0.02), ≈ 0.05 lower on bevel highlights and where handled | Metal-like satin: sharper, structured highlights. Wear-through to bare aluminium (base ≈ 0.6, roughness ≈ 0.27) only where an edge is convex AND exposed (baked AO) and weighted by the contact attribute, broken into chips (not a line along every bevel): {{ANOD_WEAR}} of the exterior anodised texels. Micro normal: orange-peel + tool-path lines (mean tilt {{ANOD_TILT}}). Light dust in cavities (≈ 0.08 linear, rough ≈ 0.6); heavy grime in closed cavities is a dielectric layer |
 | Nitrided steel | ≈ 0.05 | **1** | ≈ 0.37 | Carbon fouling at the muzzle and heavy cavity grime are dielectric layers with a narrow transition (metallic stays binary) |
-| Phosphated steel | ≈ 0.06 | **1** ({{PHOS_METAL}} of the texels > 0.9) | ≈ 0.6 | |
+| Phosphated steel | ≈ 0.046 | **1** ({{PHOS_METAL}} of the texels > 0.9) | ≈ 0.52 | Darker and slightly less rough than the shared preset, so pins and controls read as dark grey steel |
 | FDE polymer | ≈ (0.175, 0.125, 0.072) | 0 | ≈ 0.66 | Stippled areas ≈ 0.8 |
 | Magazine polymer | ≈ (0.066, 0.063, 0.057): slightly lighter and warm | 0 | **≈ 0.80** (matte, diffuse), ≈ 0.9 on the stippled lower flanks | Reads clearly apart from the cool, reflective satin metal receivers in sun and in shade (`IV7_sun_vs_shade.png`) |
 | Rubber | ≈ 0.017 | 0 | ≈ 0.9 | |
@@ -301,25 +303,25 @@ Material identity, as baked values (linear):
 
 | Level | Budget | Measured |
 | --- | --- | --- |
-| LOD0 (incl. optic and magazine) | 30k–70k | **62,628** |
-| LOD1 (~50 %) | – | **31,310** (50.0 %) |
-| LOD2 (~20 %) | – | **12,504** (20.0 %) |
-| SM_IV7_Magazine | – | 5,298 |
+| LOD0 (incl. optic and magazine) | 30k–70k | **65,854** |
+| LOD1 (~50 %) | – | **32,920** (50.0 %) |
+| LOD2 (~20 %) | – | **13,152** (20.0 %) |
+| SM_IV7_Magazine | – | 4,116 |
 
 Largest LOD0 parts:
 
 | Part | Triangles |
 | --- | --- |
-| Optic | 8,032 |
-| Handguard | 7,398 |
-| LowerReceiver | 7,082 |
-| UpperReceiver | 6,486 |
-| Magazine | 3,954 |
-| BufferTube | 2,254 |
-| PistolGrip | 2,034 |
-| BoltCarrier | 1,940 |
-| Stock | 1,930 |
-| Barrel | 1,840 |
+| Optic | 8,656 |
+| Handguard | 7,950 |
+| LowerReceiver | 6,194 |
+| UpperReceiver | 5,140 |
+| Magazine | 2,996 |
+| BufferTube | 2,782 |
+| RearSightBase | 2,340 |
+| RearSightLeaf | 2,204 |
+| PistolGrip | 2,084 |
+| MuzzleDevice | 1,932 |
 
 The full per-part list is in the validation report.
 
@@ -423,10 +425,22 @@ consistent. It is **not** an Unreal import test.
 14. **Unverified in engine.** Nothing here was verified in Unreal: axis mapping, bone
     orientation, the extra root bone, material hookup and LOD import are documented intentions
     only.
+15. **Lens glass.** The built-in optic's lenses are thin coated alpha glass (no transmission or
+    refraction), like the optics set: a transmission pass renders a blurred copy of the scene and
+    flickers in first person. Each lens is a closed disc, so the per-surface veil is kept at 0.05.
+    The web runtime hides the built-in optic (`^Optic`) anyway and mounts IV-R1 in its place.
+16. **Charging-handle latch.** The latch is modelled as part of the handle (one shell, one bone):
+    it does not pivot separately. An animation that presses the latch would need its own bone.
 
 ## 10. Fix round 1 (independent review r1)
 
-Reviewer defect IDs and what changed in the source (`iv7_carbine.py`, `ivlib.py`). Evidence is in
-`Art/Previews/IV7/fix_r1/` and the regenerated validation report.
+Reviewer defect IDs (`Art/Reference/IV7_review_r1_defects.json`) and what changed in the source
+(`iv7_carbine.py`, `ivlib.py`). The fix round was interrupted once by a usage limit; the second
+pass verified every item against the source, finished the open ones and regenerated everything
+(full build, 2048² bakes). Evidence: the regenerated `Art/Previews/IV7/IV7_validation.json`
+(0 problems; sections `pose_checks`, `rear_sight_ring`, `glass_audit`), the renders in
+`Art/Previews/IV7/`, and `Art/Previews/IV7/fix_r1/` (measurement scripts `analyze_tex.py`,
+`review_renders.py`, `tech_checks.py` and their JSON output, review renders). The ivlib material
+change is opt-in (`style="worn_satin"`); the optics set keeps the legacy response.
 
 {{FIX_TABLE}}

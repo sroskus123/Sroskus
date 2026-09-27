@@ -502,6 +502,8 @@ def fit_index(model, k, pose, H, coll, mode, trigger_point=None, trigger_part="T
     mv = masks[("index", 1)]
     g = None
     for mcp, abd, pip, dip in itertools.product(range(10, 91, 10), (-15, -5, 5, 15), range(0, 101, 15), range(0, 71, 15)):
+        if HN.coupling_penalty(pip, dip, mcp) > 0:          # anatomically coupled candidates only
+            continue
         pose["index"] = F(mcp, pip, dip, abd)
         Sm = model.pose(pose, H)
         P = model.skin(k, Sm, pad)
@@ -653,8 +655,17 @@ def trigger_press(model, k, pose, H, coll, trigger_point, re_wrap=("middle", "ri
 
 def fit_rifle_grip(model, coll, rig, trigger=False, base=None):
     """Right hand on the IV-7 pistol grip (hold point = socket_firing_hand = weapon origin):
-    trigger discipline (index straight along the lower receiver) or index pad on the trigger."""
+    trigger discipline (index straight along the lower receiver) or index pad on the trigger.
+    base = (H, pose) of the trigger-discipline grip: the trigger variant keeps that hand placement,
+    the middle / ring / little fingers and the thumb, and only moves the index onto the trigger
+    (a shooter does not re-grip to fire)."""
     S = HN.socket_matrix(rig, "socket_firing_hand")
+    if trigger and base is not None:
+        H = np.array(base[0])
+        pose = json.loads(json.dumps(base[1]))
+        ir = fit_index(model, 0, pose, H, coll, "trigger", trigger_part="Trigger")
+        return H, pose, {"placement": "the trigger-discipline grip (hand, middle / ring / little finger and thumb unchanged)",
+                         "index": ir}
     X = S[:3, :3] @ np.array([1.0, 0, 0])
     Mw = lambda v: (S @ np.append(np.asarray(v, float) / 100.0, 1.0))[:3]       # noqa: E731 (cm, weapon frame)
     tp = "Trigger" if trigger else None
@@ -962,7 +973,8 @@ def poses_stage():
     coll = collider_of(props["rifle"]["parts"])
     base = None
     for n, trig in (("rifle_grip_index_straight", False), ("rifle_grip_trigger", True)):
-        H, pz, rep = fit_rifle_grip(models["r"], coll, rig, trigger=trig)
+        H, pz, rep = fit_rifle_grip(models["r"], coll, rig, trigger=trig, base=base)
+        base = (H, pz)
         S = HN.socket_matrix(rig, "socket_firing_hand")
         P[n] = {"kind": "grip", "weapon": "IV-7", "socket": "socket_firing_hand", "angles": {"r": pz},
                 "hand_attach": {"r": mat_to_json(np.linalg.inv(S) @ H)}, "fit": rep}
