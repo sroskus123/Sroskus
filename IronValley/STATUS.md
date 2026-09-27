@@ -60,11 +60,14 @@ cca 29 GB volného disku, **bez GPU** (`/dev/dri` chybí, `nvidia-smi` chybí). 
 
 ## Náhled pro uživatele
 
-- Soukromý Artifact: https://claude.ai/artifact/5h5KbXu4z4j3Q2SWxGNZgi (verze 1 = zkušební prostor z commitu eec7150).
+- Soukromý Artifact: https://claude.ai/artifact/5h5KbXu4z4j3Q2SWxGNZgi
+  - verze 1 = zkušební prostor (commit eec7150);
+  - verze 2 = commit 941b72e: zkušební prostor + AI aréna, kolo 3 týmů se 17 boty (provizorní figuríny), opravy pohybu
+    a recoilu, zvuk (licencované nahrávky). Plné kolo se 17 boty v tu chvíli ještě NEověřeno nezávislou kontrolou.
 - Hostitel Artifact **neservíruje `.glb`**. Artefaktová verze proto dostává modely jako `<cesta>.glb.b64.txt` (base64 text);
   `src/engine/assets.js` je dekóduje sám a volá `GLTFLoader.parse` (bez blob:/data: URL). Ověřeno lokálně v Chromiu,
-  0 chyb, puška s texturami. **TODO:** převést tuto úpravu (zatím jen v náhledovém worktree) do hlavního `Web/` a buildu
-  (`dist-artifact/` s `.b64.txt`), zmenšit GLB (WebP textury).
+  0 chyb, puška s texturami. Převedeno do hlavního buildu: `npm run build` vytvoří i `Web/dist-artifact/`
+  (publikovat `iron-valley.html` + všechny soubory složky). TODO: zmenšit GLB (WebP textury).
 - Publikační složka: `scratchpad/publish/iron-valley.html` (stejná cesta = stejná URL při dalších verzích).
 
 ## Zpětná vazba uživatele z hraní náhledu (2026-09-26 ~20:30)
