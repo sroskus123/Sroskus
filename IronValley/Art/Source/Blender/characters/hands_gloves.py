@@ -408,6 +408,7 @@ def pistol_grip_frame_search(model, coll, ga, fwd, side, mcp_ref, grip_parts, tr
     mcp_rest = RF[f"middle_01_{s}"]["H"]
     row_rest = RF[f"index_01_{s}"]["H"] - RF[f"pinky_01_{s}"]["H"]
     grip_only = HN.Collider([(p_["name"], p_["co"], p_["tris"]) for p_ in coll.parts if p_["name"] in grip_parts])
+    fmask = model.verts_of(k, [f"hand_{s}"] + [f"{f}_0{i}_{s}" for f in fingers for i in (1, 2, 3)], 0.5)
     best, tried = None, []
     for yaw in yaws:
         for tilt in tilts:
@@ -427,15 +428,19 @@ def pistol_grip_frame_search(model, coll, ga, fwd, side, mcp_ref, grip_parts, tr
                     Rw = H[:3, :3] @ np.linalg.inv(model.R[model.hand][:3, :3])
                     row = Rw @ row_rest
                     row_dev = math.degrees(math.acos(abs(float(row @ ga)) / np.linalg.norm(row)))
+                    fsd, _ = coll.signed(model.skin(k, model.pose(pose, H), fmask), 0.03)
+                    fpen = max(0.0, -float(fsd.min()))                                 # fingers / palm inside the weapon
                     if trigger_point is not None:
                         ir = fit_index(model, k, pose, H, coll, "trigger", trigger_part=trigger_point)
                         ipen = abs(ir["terms"].get("_gap", 0.03) * 1000 - 0.6) * 2 + max(0.0, -ir["terms"]["_min_sd"] * 1000 - 0.3) * 10
                     else:
                         ir = fit_index(model, k, pose, H, coll, "straight", along_parts=along_parts)
                         ipen = ir["terms"].get("_gap", 0.05) * 1000 * 0.5 + ir["terms"]["_dir_deg"] * 0.2
-                    sc = -sn * 1000 - ipen - 4.0 * nfor - 2.0 * wfor * 1000 - 0.2 * max(row_dev - 10.0, 0.0)
+                    sc = (-sn * 1000 - ipen - 4.0 * nfor - 2.0 * wfor * 1000 - 0.2 * max(row_dev - 10.0, 0.0)
+                          - 5.0 * max(fpen * 1000 - 1.0, 0.0))
                     tried.append({"yaw_deg": yaw, "tilt_deg": tilt, "fwd_offset_mm": round(fo * 1000, 1),
                                   "knuckle_row_vs_grip_axis_deg": round(row_dev, 1),
+                                  "penetration_mm": round(fpen * 1000, 2),
                                   "height_mm": round(hz * 1000, 1), "snugness_mm": round(sn * 1000, 2),
                                   "index_penalty": round(ipen, 2), "fingers_touching_other_parts": nfor,
                                   "score": round(sc, 2)})
