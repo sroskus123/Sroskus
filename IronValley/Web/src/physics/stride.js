@@ -7,6 +7,12 @@
 // cadence is realistic (walk ~2.3, run ~3.1, sprint ~3.6 steps/s) instead of a fixed stride length.
 // phase: 0..2 per gait cycle (0 = left foot contact, 1 = right foot contact). When the character stops,
 // the phase runs on to the next contact and rests there (both feet planted). A landing is a contact too.
+//
+// Stairs: the controller reports every riser it climbs or descends (riser()). Two risers a plausible tread apart
+// mean a staircase: the step length becomes a whole number of treads (one tread per step when slow, two or more
+// when the cadence would exceed stairMaxCadence) and the phase is pulled, by changing its rate only (never a
+// jump, never backwards), so that a foot contact coincides with a riser. The head bob and the footstep sounds
+// then follow the steps of the staircase instead of the flat-ground rhythm.
 
 export const STRIDE_DEFAULTS = Object.freeze({
   baseLength: 0.35,
@@ -15,6 +21,11 @@ export const STRIDE_DEFAULTS = Object.freeze({
   maxLength: 1.7,
   crouchFactor: 0.8,
   minSpeed: 0.3,
+  stairMinTread: 0.15,
+  stairMaxTread: 0.6,
+  stairMaxCadence: 3.2,
+  stairMemory: 0.5,
+  stairLock: 0.6,
 });
 
 export class StrideTracker {
@@ -30,11 +41,28 @@ export class StrideTracker {
     this.moving = false;
     this.contacts = 0;
     this.lastFoot = 'right'; // so the first step is the left foot
+    this.tread = 0; // estimated tread depth of the staircase being walked (m), 0 = none
+    this.stairTimer = 0; // s left in stairs mode after the last riser
+    this.risers = 0;
+    this._sinceRiser = Infinity; // ground distance since the last riser (m)
+    this._corr = 0; // pending phase correction (steps), spent over the next ticks
+  }
+
+  /** True while walking a staircase (a riser less than stairMemory ago, tread known). */
+  get onStairs() {
+    return this.stairTimer > 0 && this.tread > 0;
+  }
+
+  /** Treads per step on the current staircase at this speed. */
+  treadsPerStep(speed) {
+    if (!(this.tread > 0)) return 1;
+    return Math.max(1, Math.ceil(speed / (this.tread * this.p.stairMaxCadence) - 1e-9));
   }
 
   /** Step length (m) for a horizontal speed (m/s). */
   lengthFor(speed, crouched = false) {
     const p = this.p;
+    if (this.onStairs) return Math.min(p.maxLength, this.treadsPerStep(speed) * this.tread);
     let L = p.baseLength + p.lengthPerSpeed * speed;
     L = Math.min(p.maxLength, Math.max(p.minLength, L));
     if (crouched) L = Math.max(p.minLength * p.crouchFactor, L * p.crouchFactor);
@@ -50,8 +78,11 @@ export class StrideTracker {
     if (!grounded) {
       this.moving = false;
       this.cadence = 0;
+      this._corr = 0;
       return null;
     }
+    this._sinceRiser += speed * dt;
+    if (this.stairTimer > 0) this.stairTimer = Math.max(0, this.stairTimer - dt);
     const moving = speed >= p.minSpeed;
     const L = this.lengthFor(Math.max(speed, p.minSpeed), crouched);
     this.stepLength = L;
@@ -59,6 +90,12 @@ export class StrideTracker {
     if (moving) {
       adv = (speed * dt) / L;
       this.cadence = speed / L;
+      if (this._corr !== 0) {
+        // phase lock onto the stair risers: at most double / at least 0.4x the natural rate
+        const c = Math.max(-0.6 * adv, Math.min(adv, this._corr));
+        adv += c;
+        this._corr -= c;
+      }
     } else {
       // settle onto the next contact at a slow walking cadence, then rest
       const frac = this.phase - Math.floor(this.phase);
@@ -88,9 +125,30 @@ export class StrideTracker {
     return contact;
   }
 
+  /**
+   * The controller climbed / descended a stair riser this tick.
+   * @param {number} speed horizontal speed (m/s)
+   */
+  riser(speed) {
+    const p = this.p;
+    const d = this._sinceRiser;
+    this._sinceRiser = 0;
+    this.risers++;
+    if (!(d >= p.stairMinTread && d <= p.stairMaxTread)) return; // a single step / curb: nothing to follow
+    this.tread = this.onStairs ? this.tread + (d - this.tread) * 0.5 : d;
+    this.stairTimer = p.stairMemory;
+    if (!this.moving) return;
+    // the riser nearest to a foot contact should coincide with it: signed phase error to the nearest integer
+    const n = this.treadsPerStep(speed);
+    const f = this.phase - Math.floor(this.phase);
+    const err = f < 0.5 ? f : f - 1;
+    if (Math.abs(err) <= 0.5 / n + 1e-9) this._corr = -err * p.stairLock;
+  }
+
   /** Landing after a fall / jump: both feet come down, the next step starts from here. */
   land(speed) {
     this.phase = Math.round(this.phase) % 2;
+    this._corr = 0;
     return this._contact(speed, 'land');
   }
 

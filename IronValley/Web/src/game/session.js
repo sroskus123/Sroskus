@@ -304,10 +304,10 @@ export class MatchSession {
     for (const w of this.player.weapons) {
       w.state.releaseInputs();
       // Opening the menu releases every input (InputManager.releaseAll). The simulation does not tick
-      // behind the menu, so the core is shown that release now (zero-length update, no time passes):
-      // the first press after "Pokračovat" is a new press, and a button kept down stays ignored until
-      // it is pressed again (the input manager forgot it).
-      if (on) w.state.core.update(0, false);
+      // behind the menu, so the core is shown that release now and the running fire interval finishes
+      // (WeaponHandle.settleForMenu): the first press after "Pokračovat" is a new press that fires at once,
+      // and a button kept down stays ignored until it is pressed again (the input manager forgot it).
+      if (on) w.state.settleForMenu();
     }
   }
 

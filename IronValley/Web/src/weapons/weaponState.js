@@ -114,6 +114,20 @@ export class WeaponHandle {
     this.adsHeld = false;
   }
 
+  /**
+   * A menu opened over the game (the core 'menu' lock is already set, the simulation stops behind the menu).
+   * Shows the core the trigger release now and lets the fire interval that is still running finish: the core
+   * lets time run while a lock is on, the menu lock already interrupted any reload, and one cycle (<= 80 ms
+   * for the rifle) is far shorter than any real pause. Without this the cycle stayed frozen mid-way through
+   * the pause, and a quick click after "Pokračovat" shorter than the leftover (up to one full interval) was
+   * swallowed. The first press after the menu now fires at once, a button kept down still needs a new press.
+   */
+  settleForMenu() {
+    this.releaseInputs();
+    const c = this.core;
+    c.update(c.state === 'ready' ? c.cooldownUs : 0, false);
+  }
+
   /** Test helper: full magazine + chamber + start reserve through the core (interrupts a reload). */
   refill() {
     this.core.resetToLoadout();

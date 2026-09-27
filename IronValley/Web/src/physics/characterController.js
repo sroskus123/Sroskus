@@ -258,6 +258,8 @@ export class CharacterController {
     this.traversalParams = traversalParams(params);
     this.traversalEnabled = this.traversalParams.enabled !== false;
     this.traversal = null;
+    // weapon raise after a vault / mantle (s left): the hands come back to the weapon before it can fire
+    this.handsRecover = 0;
     this._traversalSeq = 0;
     this._nextAirTraverseTick = 0;
     this.lastTraversalFail = null;
@@ -299,6 +301,24 @@ export class CharacterController {
     return this.traversal !== null;
   }
 
+  /**
+   * Hands off the weapon: during a vault / mantle and while the weapon is raised again afterwards
+   * (traversal.weaponRaiseTime). The combatant locks the weapon for exactly this time and the first-person
+   * view model is lowered / raised on the same clock, so a round never leaves a weapon drawn lowered.
+   */
+  get handsBusy() {
+    return this.traversal !== null || this.handsRecover > 0;
+  }
+
+  /** 0..1 how far the weapon is lowered by a traversal (1 during the move, raised to 0 over weaponRaiseTime). */
+  get weaponLower() {
+    if (this.traversal) return 1;
+    const T = this.traversalParams.weaponRaiseTime;
+    if (!(this.handsRecover > 0) || !(T > 0)) return 0;
+    const u = Math.min(1, this.handsRecover / T);
+    return u * u * (3 - 2 * u);
+  }
+
   teleport(pos) {
     if (this.traversal) {
       // a teleport (respawn, script) ends a traversal without moving along it
@@ -310,6 +330,7 @@ export class CharacterController {
     this.position.copy(pos);
     this.velocity.set(0, 0, 0);
     this.stepOffset = 0;
+    this.handsRecover = 0;
     this.grounded = false;
     this.airTime = 0;
     this.jumpBuffer = 0;
@@ -694,6 +715,7 @@ export class CharacterController {
   update(dt, cmd) {
     const P = this.params;
     this.tickCount++;
+    if (this.handsRecover > 0) this.handsRecover = this.handsRecover - dt > 1e-6 ? this.handsRecover - dt : 0;
     // vault / mantle in progress: scripted kinematic move, input locked
     if (this.traversal) {
       this._stepTraversal(dt);
@@ -909,6 +931,7 @@ export class CharacterController {
       const slopeRise = hMove * Math.tan(P.maxSlopeDeg * DEG2RAD) * 1.2;
       if (Math.abs(dy) > Math.max(P.stepEventMinRise ?? 0.05, slopeRise)) {
         this.stats.stepEvents++;
+        this.stride.riser(Math.hypot(vel.x, vel.z)); // foot contacts follow the treads of a staircase
         this._emit('step', { dy, tick: this.tickCount });
       }
     } else if (!this.grounded) {
@@ -1083,6 +1106,7 @@ export class CharacterController {
     this.coyoteTimer = 0;
     this._airJumped = !this.grounded;
     this._wallMemCount = 0;
+    this.handsRecover = this.traversalParams.weaponRaiseTime || 0;
     this._emit('traverse:end', {
       id: tr.id,
       type: plan.type,
@@ -1111,6 +1135,8 @@ export class CharacterController {
       eyeHeight: this.eyeHeight,
       sprinting: this.sprinting,
       traversing: this.traversal !== null,
+      handsBusy: this.handsBusy,
+      weaponLower: this.weaponLower,
       traversal: this.traversal ? { id: this.traversal.id, type: this.traversal.plan.type, t: this.traversal.t, duration: this.traversal.plan.duration } : null,
       lastTraversalFail: this.lastTraversalFail ? { ...this.lastTraversalFail } : null,
       stridePhase: this.stride.phase,

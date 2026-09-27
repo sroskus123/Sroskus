@@ -67,6 +67,7 @@
     "minMantleSpeed": 1.2,
     "maxMantleSpeed": 2.0,
     "minDuration": 0.5,
-    "maxDuration": 0.9
+    "maxDuration": 0.9,
+    "weaponRaiseTime": 0.25
   }
 }

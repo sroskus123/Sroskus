@@ -225,6 +225,28 @@ test('GUN-03: dead combatants cannot fire or reload; a trigger held through deat
   assertInvariant(p);
 });
 
+test('GUN-03: menu opened mid-burst (simulation frozen behind it): a quick 3-tick click after "Pokračovat" fires at once', () => {
+  // The game does not tick behind the pause menu. Before the fix the fire interval of the last round stayed
+  // frozen mid-way, so a click shorter than the leftover (up to 80 ms) was swallowed - the e2e Esc test failed
+  // whenever the burst was stopped right after a round (leftover 66.7 ms > 50 ms click).
+  for (const burstTicks of [5, 6, 7, 8, 9, 10, 20, 21]) {
+    const { s } = makeSession({ bots: [0, 0, 0] });
+    const p = s.player;
+    const w = p.weapon;
+    const hold = { ...IDLE_COMMAND, yaw: p.yaw, pitch: 0.3, fire: true };
+    tick(s, hold, burstTicks);
+    const cooldownAtPause = w.state.core.cooldownUs;
+    s.setMenuLock(true); // Esc: no simulation ticks while the menu is open
+    s.setMenuLock(false); // "Pokračovat"
+    const before = w.state.shotsFired;
+    tick(s, hold, 3);
+    tick(s, { ...hold, fire: false }, 1);
+    assert.equal(w.state.shotsFired - before, 1, `burst ${burstTicks} ticks (fire interval left ${cooldownAtPause} us): a new click after the menu fires`);
+    // (a button kept down through the menu is forgotten by the InputManager - e2e 04 checks it with real input)
+    assertInvariant(p);
+  }
+});
+
 // ------------------------------------------------------------------ GAME-02
 
 test('GAME-02: the player dies 3 times (2 forced, 1 shot by an enemy) and each respawn restores health, loadout, reload state, safe spawn', () => {

@@ -291,6 +291,38 @@ test('no jump while crouched under the tunnel roof (crouch released, no headroom
   assert.ok(maxY - y0 < 1e-6, `lifted ${maxY - y0}`);
 });
 
+test('standing under a low ceiling: no jump when the head has no room (also buffered / coyote), a higher ceiling stops the jump without penetration', () => {
+  const flat = { type: 'box', id: 'g', min: [-10, -0.5, -10], max: [10, 0, 10], mat: 'floor' };
+  const ceilingAt = (y) => new CollisionWorld(buildLevelSolids({ solids: [flat, { type: 'box', id: 'c', min: [-2, y, -2], max: [2, y + 0.3, 2] }] }));
+  // 1.83 m: 3 cm above the standing head -> refused (stand, walk, run, sprint, and a buffered press)
+  for (const mode of [{}, { moveZ: 1, walk: true }, { moveZ: 1 }, { moveZ: 1, sprint: true }]) {
+    const c = mk([0, 0, 1.2], ceilingAt(1.83));
+    run(c, 2, cmdOf({}));
+    const cmd = cmdOf({ yaw: 0, ...mode }); // stays under the slab for the 8 ticks (Space pressed on every one)
+    let maxY = 0;
+    for (let i = 0; i < 8; i++) {
+      c.update(DT, { ...cmd, jump: true });
+      maxY = Math.max(maxY, c.position.y);
+      assert.ok(!c.overlaps(c.position, c.height, 0.002), `${JSON.stringify(mode)}: overlap under the slab`);
+    }
+    assert.equal(c.stats.jumps, 0, `${JSON.stringify(mode)}: jumped with 3 cm of headroom`);
+    assert.ok(maxY < 1e-6, `${JSON.stringify(mode)}: lifted ${maxY}`);
+  }
+  // 2.05 m: the jump starts, the head stops at the slab (never inside it), then it falls back
+  const c = mk([0, 0, 0], ceilingAt(2.05));
+  run(c, 2, cmdOf({}));
+  c.update(DT, cmdOf({ jump: true }));
+  assert.equal(c.stats.jumps, 1);
+  let maxTop = 0;
+  for (let i = 0; i < 90; i++) {
+    c.update(DT, cmdOf({}));
+    maxTop = Math.max(maxTop, c.position.y + c.height);
+    assert.ok(!c.overlaps(c.position, c.height, 0.002), `head in the slab at tick ${i}: ${c.position.y}`);
+  }
+  assert.ok(maxTop <= 2.05 + 1e-3 && maxTop > 1.95, `head top ${maxTop}`);
+  assert.ok(c.grounded && Math.abs(c.position.y) < 1e-6, 'back on the floor');
+});
+
 // ---------------------------------------------------------------- sprint -> jump -> crouch (feedback 11)
 
 test('sprint, jump, crouch within 1 s: momentum is kept in the air, landing crouched slows smoothly to crouch speed (no dead stop)', () => {
@@ -454,6 +486,41 @@ test('stairs emit a step event per riser (up and down); slopes and flat ground d
     run(c, 90, cmd);
     assert.equal(ev.length, 0, `${label}: ${ev.length} step events`);
   }
+});
+
+test('staircase: foot contacts land on the treads (1 per 2 treads walking), footsteps sync to the risers up and down, flat cadence unchanged', () => {
+  // a long flight (20 risers of 0.17 / 0.28 m) so the phase lock has time to settle
+  const flat = { type: 'box', id: 'g', min: [-10, -0.5, -20], max: [10, 0, 10], mat: 'floor' };
+  const w = new CollisionWorld(buildLevelSolids({ solids: [flat, { type: 'stairs', id: 's', x: [-1, 1], zStart: 0, dir: -1, riser: 0.17, tread: 0.28, risers: 20, landingDepth: 3, mat: 'stair' }] }));
+  const rows = [];
+  for (const [name, mode] of [['walk', { walk: true }], ['run', {}], ['crouch', { crouch: true }]]) {
+    for (const dir of ['up', 'down']) {
+      const c = mk(dir === 'up' ? [0, 0, 2] : [0, 3.4, -7.0], w);
+      const risers = [];
+      const steps = [];
+      c.addListener((n) => {
+        if (n === 'step') risers.push(c.tickCount);
+        if (n === 'footstep') steps.push(c.tickCount);
+      });
+      const cmd = cmdOf({ moveZ: dir === 'up' ? 1 : -1, ...mode });
+      for (let i = 0; i < 900; i++) {
+        c.update(DT, cmd);
+        if (dir === 'up' ? c.position.z < -6.2 : c.position.z > 1.5) break;
+      }
+      assert.ok(risers.length >= 19, `${name} ${dir}: risers ${risers.length}`);
+      const half = risers[Math.floor(risers.length / 2)];
+      const last = risers[risers.length - 1];
+      const late = steps.filter((t) => t >= half && t <= last);
+      const off = late.map((t) => Math.min(...risers.map((r) => Math.abs(r - t))));
+      const cadence = late.length / ((last - half) * DT);
+      rows.push(`${name} ${dir}: ${cadence.toFixed(2)} steps/s, footstep-riser offsets ${JSON.stringify(off)}`);
+      assert.ok(late.length >= 2, `${name} ${dir}: footsteps on the second half ${late.length}`);
+      assert.ok(off.every((d) => d <= 1), `${name} ${dir}: footsteps off the risers by ${JSON.stringify(off)} ticks`);
+      if (name !== 'run') assert.ok(cadence <= 3.2 + 0.35, `${name} ${dir}: stair cadence ${cadence}`);
+      assert.ok(c.stride.tread > 0.25 && c.stride.tread < 0.31, `${name} ${dir}: tread estimate ${c.stride.tread}`);
+    }
+  }
+  console.log(`stairs gait: ${rows.join('; ')}`);
 });
 
 // ---------------------------------------------------------------- bots use the same controller

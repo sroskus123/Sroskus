@@ -71,17 +71,18 @@ test('head bob is synced to foot contacts: the eye is lowest at each footstep, b
   console.log(`bob / footstep cadence (steps/s): ${JSON.stringify(cad)}`);
 });
 
-test('stairs: a small dip + nod per riser; nothing on flat ground', () => {
+test('stairs: a small eye dip per riser (no nod: the screen centre stays on the aim); nothing on flat ground', () => {
   const m = level.markers.stairs_start;
   const r = rig(m.pos);
   let n = 0;
   while (r.c.position.z > -5.2 && n++ < 600) r.step(cmdOf({ moveZ: 1 }));
   const stepEvents = r.events.filter((e) => e.n === 'step').length;
   const minStep = Math.min(...r.rec.map((q) => q.step));
-  const maxPitch = Math.max(...r.rec.map((q) => -q.pitch));
   assert.ok(stepEvents >= 7, `step events ${stepEvents}`);
   assert.ok(minStep < -0.004 && minStep >= -0.03 - 1e-9, `stair dip ${minStep}`);
-  assert.ok(maxPitch > 0.1 * DEG && maxPitch < 1.5 * DEG, `stair nod ${maxPitch / DEG}°`);
+  // an earlier version nodded the view (<= 0.5 deg per riser, ~1 deg on landings): the crosshair / sight then
+  // pointed off the hitscan direction (GUN-03). Dips are eye translations only.
+  assert.ok(r.rec.every((q) => q.pitch === 0), 'stair / step effects must not pitch the view');
   const f = rig([-20, 0, 26]);
   f.step(cmdOf({ moveZ: 1, sprint: true }), 120);
   assert.ok(f.rec.every((q) => q.step === 0), 'step impulse on flat ground');
@@ -140,6 +141,44 @@ test('traversal: roll / look-down arc during the vault, weapon lowered during an
   r.step(cmdOf({}), 60);
   const last = r.rec[r.rec.length - 1];
   assert.ok(last.lower < 0.05 && Math.abs(last.roll) < 0.05 * DEG, `after: lower ${last.lower}, roll ${last.roll}`);
+});
+
+test('while the weapon can fire the camera effects never pitch the view: stairs, landings, strafing, after a vault (screen centre = aim, GUN-03)', () => {
+  const offenders = [];
+  const check = (r, label) => {
+    for (const q of r.recFull) if (!q.handsBusy && q.pitch !== 0) offenders.push(`${label} tick ${q.tick}: ${q.pitch / DEG}°`);
+  };
+  const full = (start) => {
+    const r = rig(start);
+    r.recFull = [];
+    const step0 = r.step;
+    r.step = (cmd, n = 1) => {
+      for (let i = 0; i < n; i++) {
+        step0(cmd, 1);
+        r.recFull.push({ ...r.rec[r.rec.length - 1], handsBusy: r.c.handsBusy });
+      }
+    };
+    return r;
+  };
+  const st = full(level.markers.stairs_start.pos);
+  for (let i = 0; i < 200; i++) st.step(cmdOf({ moveZ: 1, jump: i % 40 === 0 }));
+  check(st, 'stairs');
+  const drop = full([9, 1.0, -7.2]);
+  drop.step(cmdOf({ moveZ: 1, sprint: true }), 120);
+  check(drop, '1 m drop');
+  const strafe = full([-20, 0, 26]);
+  strafe.step(cmdOf({ moveX: 1 }), 60);
+  strafe.step(cmdOf({ moveX: -1, jump: true }), 60);
+  check(strafe, 'strafe');
+  const vault = full([15, 0, -3.3]);
+  vault.step(cmdOf({ jump: true }));
+  vault.step(cmdOf({}), 90);
+  assert.ok(vault.recFull.some((q) => q.handsBusy && q.pitch < -1 * DEG), 'look-down arc during the vault');
+  check(vault, 'vault');
+  // weapon fully raised exactly when the hands are free again
+  const firstFree = vault.recFull.findIndex((q, i) => i > 5 && !q.handsBusy);
+  assert.ok(firstFree > 0 && vault.recFull[firstFree].lower === 0 && vault.recFull[firstFree - 1].lower > 0, `raise: ${JSON.stringify(vault.recFull.slice(firstFree - 2, firstFree + 1).map((q) => q.lower))}`);
+  assert.deepEqual(offenders, []);
 });
 
 test('camera motion 0 disables bob, dips, roll and nod (weapon lowering stays: gameplay feedback)', () => {

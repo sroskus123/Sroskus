@@ -16,6 +16,8 @@ export function installTestApi(game, target = window) {
     _game: game,
 
     getState: () => game.getState(),
+    /** Audio counters (sounds started per key / category, active voices, context state, decode status). */
+    getAudio: () => game.audio.getState(),
     getLevelInfo: () => ({
       id: game.data.level.id,
       displayName: game.data.level.displayName,

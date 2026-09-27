@@ -316,9 +316,10 @@ export class Combatant {
         this.weapon.state.core.enable('switch');
       }
     }
-    // --- sprint lock (sprint interrupts reload, core reason 'sprint'); a vault / mantle needs the hands too ---
+    // --- sprint lock (sprint interrupts reload, core reason 'sprint'); a vault / mantle needs the hands too,
+    // until the weapon is raised again (controller.handsBusy) ---
     for (const w of this.weapons) {
-      if ((c.sprinting || c.traversing) && alive) w.state.core.disable('sprint');
+      if ((c.sprinting || c.handsBusy) && alive) w.state.core.disable('sprint');
       else w.state.core.enable('sprint');
     }
     // --- weapons: every weapon is updated every tick with the real trigger state (core contract) ---
@@ -357,7 +358,8 @@ export class Combatant {
         this.ctx.events.emit('weapon:dry_fire', { id: this.id, weaponId: w.def.id });
         // engine policy: a trigger pull on an empty weapon starts a reload when there is reserve
         if (active && w.state.reserve > 0) w.state.reload();
-      } else if (e.type === 'mag_insert' || e.type === 'bolt_release' || e.type === 'chamber_commit') {
+      } else if (e.type === 'mag_insert' || e.type === 'bolt_release' || e.type === 'chamber_start' || e.type === 'chamber_commit') {
+        // core stage / commit moments (charging handle or slide pulled, magazine seated, bolt / slide forward)
         this.ctx.events.emit('weapon:action', { id: this.id, weaponId: w.def.id, type: e.type });
       }
     }

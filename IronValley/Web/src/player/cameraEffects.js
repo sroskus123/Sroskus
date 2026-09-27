@@ -3,20 +3,28 @@
 //   head bob       driven by the controller's real gait phase (src/physics/stride.js): the eye is lowest at
 //                  each foot contact and highest in mid-stance, sways over the stance foot; the frequency is
 //                  the real cadence (faster steps when running / sprinting), the amplitude grows with speed;
-//   step impulse   a small dip + nod when the controller steps up or down a stair riser ('step' event);
-//   landing dip    spring kick scaled by the fall speed ('landed');
+//                  on a staircase the contacts land on the treads (stride.js) and the bob is a little
+//                  stronger (every step lifts the body by a riser);
+//   step impulse   a small eye dip when the controller steps up or down a stair riser ('step' event);
+//   landing dip    spring kick of the eye scaled by the fall speed ('landed');
 //   strafe roll    slight roll into the sideways velocity;
-//   traversal      subtle roll / look-down arc during a vault or mantle, weapon lowered (0..1).
+//   traversal      subtle roll / look-down arc during a vault or mantle, weapon lowered (0..1) and raised
+//                  again on the controller's clock (CharacterController.weaponLower / handsBusy).
+//
+// The screen centre never leaves the aim while the weapon can fire (GUN-03, no lying crosshair / sight):
+// dips and bob are eye TRANSLATIONS (parallax of a few cm, the hitscan uses the same direction) and every
+// rotation is a roll about the view axis. The only pitch is the traversal look-down, which exists only
+// while the hands are off the weapon (the weapon is locked) and is back to 0 when it can fire again.
 //
 // State advances on the fixed simulation tick (tick / snapshot / hold) and rendering interpolates between
 // the last two ticks (sample(alpha)), so nothing moves in 60 Hz steps on faster displays. Everything is
 // multiplied by the "camera motion" setting at sample time (0 disables all of it). Comfort first: all
-// amplitudes are small (bob <= 2 cm, roll <= 1 deg, step dip <= 3 cm).
+// amplitudes are small (bob <= 2 cm, 2.5 cm on stairs, roll <= 1 deg, step dip <= 3 cm).
 
 export const CAMERA_FX_DEFAULTS = Object.freeze({
-  bob: { vertBase: 0.006, vertPerSpeed: 0.0022, vertMax: 0.02, sideRatio: 0.55, crouchScale: 0.6, rate: 8, rollDeg: 0.2, runSpeed: 3.5 },
-  landing: { minSpeed: 1.5, maxSpeed: 8, impulse: 0.35, stiffness: 120, damping: 18, min: -0.12, max: 0.05, pitchPerMeter: 0.15 },
-  step: { impulseUp: 0.25, impulseDown: 0.35, riser: 0.18, maxScale: 2.2, stiffness: 160, damping: 20, min: -0.03, max: 0.015, pitchPerMeter: 0.5 },
+  bob: { vertBase: 0.006, vertPerSpeed: 0.0022, vertMax: 0.02, sideRatio: 0.55, crouchScale: 0.6, rate: 8, rollDeg: 0.2, runSpeed: 3.5, stairScale: 1.5, stairVertMax: 0.025 },
+  landing: { minSpeed: 1.5, maxSpeed: 8, impulse: 0.35, stiffness: 120, damping: 18, min: -0.12, max: 0.05 },
+  step: { impulseUp: 0.25, impulseDown: 0.35, riser: 0.18, maxScale: 2.2, stiffness: 160, damping: 20, min: -0.03, max: 0.015 },
   strafeRoll: { maxDeg: 1.0, runSpeed: 3.5, rate: 6, airScale: 0.5 },
   traverse: { rollDeg: 2.0, pitchDeg: 3.0, lowerRate: 14, raiseRate: 7, landImpulse: 0.5 },
 });
@@ -49,6 +57,7 @@ export class CameraEffects {
     this._out = { phase: 0, amount: 0, landingDip: 0, offsetY: 0, side: 0, roll: 0, pitch: 0, lower: 0, motion: 1 };
     this._lastStride = 0;
     this._tr = null;
+    this._trEnd = null; // traversal roll / pitch when the move ended, faded out while the weapon is raised
     this.stats = { steps: 0, landings: 0, traversals: 0, footsteps: 0 };
   }
 
@@ -78,6 +87,7 @@ export class CameraEffects {
     this.cur = this._blank();
     this.prev = this._blank();
     this._tr = null;
+    this._trEnd = null;
     this._lastStride = this.ctrl && this.ctrl.stride ? this.ctrl.stride.phase : 0;
   }
 
@@ -103,10 +113,12 @@ export class CameraEffects {
       this.stats.footsteps++;
     } else if (name === 'traverse:start') {
       this._tr = { t: 0, duration: Math.max(0.1, p.duration || 0.7), type: p.type, side: p.type === 'mantle' ? -1 : 1 };
+      this._trEnd = null;
       this.stats.traversals++;
     } else if (name === 'traverse:end') {
       if (this._tr && this._tr.type === 'vault' && !p.aborted) c.landingV -= this.p.traverse.landImpulse;
       this._tr = null;
+      this._trEnd = { roll: c.trRoll, pitch: c.trPitch };
     }
   }
 
@@ -148,7 +160,10 @@ export class CameraEffects {
     const moving = grounded && ctrl.stride && ctrl.stride.moving;
     const amountTarget = grounded ? Math.min(speed / B.runSpeed, 1.6) : 0;
     c.amount += (amountTarget - c.amount) * k;
-    let ampTarget = moving ? Math.min(B.vertMax, B.vertBase + B.vertPerSpeed * speed) : 0;
+    const stairs = !!(moving && ctrl.stride.onStairs);
+    let ampTarget = moving ? B.vertBase + B.vertPerSpeed * speed : 0;
+    if (stairs) ampTarget = Math.min(B.stairVertMax, ampTarget * B.stairScale);
+    else ampTarget = Math.min(B.vertMax, ampTarget);
     if (ctrl.crouched) ampTarget *= B.crouchScale;
     c.bobAmp += (ampTarget - c.bobAmp) * k;
 
@@ -179,6 +194,19 @@ export class CameraEffects {
       c.trRoll = tr.side * T.rollDeg * DEG * s;
       c.trPitch = -T.pitchDeg * DEG * s * s;
       c.lower += (1 - c.lower) * (1 - Math.exp(-T.lowerRate * dt));
+    } else if (typeof ctrl.weaponLower === 'number') {
+      // weapon raised on the controller's clock: fully up (and no look-down pitch left) exactly when the
+      // weapon may fire again (CharacterController.handsBusy ends)
+      const g = ctrl.weaponLower;
+      c.lower = Math.min(c.lower, g);
+      if (this._trEnd) {
+        c.trRoll = this._trEnd.roll * g;
+        c.trPitch = this._trEnd.pitch * g;
+        if (g === 0) this._trEnd = null;
+      } else {
+        c.trRoll = 0;
+        c.trPitch = 0;
+      }
     } else {
       const kr = 1 - Math.exp(-T.raiseRate * dt);
       c.trRoll += (0 - c.trRoll) * kr;
@@ -194,7 +222,8 @@ export class CameraEffects {
    *   phase, amount   bob phase (rad) / amount for the view model (amount NOT scaled: the view model scales)
    *   landingDip      raw landing spring offset (m, not scaled)
    *   offsetY, side   eye offset up / to the right of the view (m)
-   *   roll, pitch     extra camera roll (rad, + = right) and pitch (rad, + = up)
+   *   roll, pitch     extra camera roll (rad, + = right) and pitch (rad, + = up; only the traversal
+   *                   look-down, i.e. never while the weapon can fire)
    *   lower           weapon lowering 0..1 (traversal; not scaled: gameplay feedback, not comfort)
    */
   sample(alpha) {
@@ -218,7 +247,7 @@ export class CameraEffects {
     o.side = bobSide * m;
     const bobRoll = amp > 0 ? (-B.rollDeg * DEG * Math.sin(o.phase) * amp) / B.vertMax : 0;
     o.roll = (lerp(p.roll, c.roll) + lerp(p.trRoll, c.trRoll) + bobRoll) * m;
-    o.pitch = (lerp(p.trPitch, c.trPitch) + (o.landingDip * this.p.landing.pitchPerMeter + step * this.p.step.pitchPerMeter)) * m;
+    o.pitch = lerp(p.trPitch, c.trPitch) * m;
     o.lower = lerp(p.lower, c.lower);
     return o;
   }

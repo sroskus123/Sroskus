@@ -51,6 +51,8 @@ export const TRAVERSAL_DEFAULTS = Object.freeze({
   airMaxFallSpeed: 4.0,
   exitSpeedVault: 0.8,
   exitSpeedMantle: 0.8,
+  // after the move the weapon is raised again for this long (s) and cannot fire until it is up
+  weaponRaiseTime: 0.25,
 });
 
 export function traversalParams(P) {

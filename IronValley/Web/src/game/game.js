@@ -34,7 +34,7 @@ import { viewModelPointInCamera } from '../weapons/viewModelMotion.js';
 import { DummyView } from './dummyView.js';
 import { Hud } from './hud.js';
 import { Menus } from './menus.js';
-import { GameAudio } from './audio.js';
+import { AudioSystem } from '../audio/audioSystem.js';
 import { MatchSession } from './session.js';
 import { CombatantViews } from './combatantViews.js';
 import { ZoneView } from './zoneView.js';
@@ -174,7 +174,19 @@ export class Game {
       },
     });
     this.menus.show('loading');
-    this.audio = new GameAudio(this.settings);
+    // event-driven sound (src/audio): subscribes to the bus itself; hooks below are unlock / listener / tick / reset
+    this.audio = new AudioSystem({
+      events: this.events,
+      settings: this.settings,
+      isPlayer: (id) => !!this.playerCombatant && id === this.playerCombatant.id,
+      raycast: (origin, dir, far) => (this.world ? this.world.raycast(origin, dir, far) : null),
+      createVector: () => new Vector3(),
+      combatantPosition: (id) => {
+        const c = this.session ? this.session.combatants.get(id) : null;
+        return c ? c.getEye(new Vector3()) : null;
+      },
+      hasAsset,
+    });
 
     this._wireEvents();
     this.loop = new FixedStepLoop({ step: (dt) => this.tick(dt), render: (alpha, dt) => this.render(alpha, dt) });
@@ -190,6 +202,7 @@ export class Game {
     }
     this.setState('start');
     this.loop.start();
+    this.audio.prefetch(); // encoded files only; decoded after the first user gesture
     return this;
   }
 
@@ -330,6 +343,7 @@ export class Game {
     this.applyOptic(this.optic);
     this.effects.clear();
     this.hud.clearTransient();
+    this.audio.reset();
     this.resultsAt = null;
     this.deathCam = null;
     this._drawDirty = true;
@@ -395,7 +409,10 @@ export class Game {
     this.session.setMenuLock(false);
     this.menus.hide();
     this.setState('playing');
-    if (fromGesture) this.input.requestPointerLock();
+    if (fromGesture) {
+      this.input.requestPointerLock();
+      this.audio.unlock(); // "Začít" / "Pokračovat" click: create / resume the AudioContext
+    }
     try {
       this.renderer.canvas.focus({ preventScroll: true });
     } catch {
@@ -484,11 +501,9 @@ export class Game {
       if (isPlayer(p.shooterId)) {
         this.viewModel.onShot(p);
         this.effects.onShot(p.muzzle, p, this.viewModel);
-        this.audio.shot(null, p.weaponId === 'iv7_carbine');
       } else {
         this.combatantViews.onShot(p.shooterId, p.muzzle);
         this.effects.onShot(p.muzzle, p, null);
-        this.audio.shot(p.muzzle, p.weaponId === 'iv7_carbine');
       }
     });
     ev.on('weapon:hit', (p) => {
@@ -499,10 +514,8 @@ export class Game {
         if (p.hit.kind === 'dummy') this.hud.showHitmarker(!!(d && d.killed), combat.hud.hitmarkerSeconds);
         else if (p.hit.kind === 'combatant' && d && (d.result === 'applied' || d.result === 'killed')) {
           this.hud.showHitmarker(d.result === 'killed', combat.hud.hitmarkerSeconds);
-          this.audio.hitmarker();
         }
       }
-      this.audio.hit(p.point, p.hit.kind === 'combatant');
       log('hit', { shooter: p.shooterId, target: p.hit.targetKey, part: p.part || null, blocked: p.blocked, result: p.damage ? p.damage.result || null : null });
     });
     ev.on('combatant:damaged', (p) => {
@@ -545,16 +558,9 @@ export class Game {
     });
     ev.on('round:reset', (p) => log('round-reset', { zone: p.zoneId }));
     ev.on('zone:control_changed', (p) => log('zone', { controller: p.controller, status: p.status }));
-    ev.on('weapon:dry_fire', (p) => {
-      if (isPlayer(p.id)) this.audio.click(null, 'dry');
-    });
-    ev.on('weapon:action', (p) => {
-      if (isPlayer(p.id)) this.audio.click(null, p.type);
-    });
     ev.on('weapon:reload_started', (p) => log('reload-start', { id: p.id, kind: p.kind }));
     ev.on('weapon:reload_finished', (p) => log('reload-done', { id: p.id, kind: p.kind }));
     ev.on('weapon:reload_interrupted', (p) => log('reload-interrupted', { id: p.id, kind: p.kind }));
-    ev.on('footstep', (p) => this.audio.footstep(isPlayer(p.id) ? null : p.position, p.surface, p.loudness));
     ev.on('player:landed', (p) => log('landed', { speed: Number(p.speed.toFixed(3)) }));
     this.settings.onChange((key) => {
       this._drawDirty = true;
@@ -607,6 +613,7 @@ export class Game {
     // trigger state (core contract), so a trigger held through death does not fire after the respawn
     const cmd = this.player.buildCommand();
     s.tick(dt, { playerCmd: cmd });
+    this.audio.tick(dt);
     // partial recoil recovery (weapons/recoil.js): what the automatic return leaves goes into the look
     for (const w of pc.weapons) {
       const rt = w.recoil.takeLookTransfer();

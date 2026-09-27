@@ -191,18 +191,22 @@ Hráč i boti používají **stejný** `CharacterController`, takže vše níže
   za ní = `vault`, hluboká = `mantle` (na vršek; vestoje, jinak v dřepu). Skriptovaný kinematický pohyb 0,5–0,9 s po
   monotónní křivce; **každý vzorek dráhy** je ověřen testem překryvu kapsle (sbalená kapsle `tuckHeight` 1,0 m, konec
   kapslí v dřepu) a během pohybu se ověřuje každý tik (při kolizi bezpečné přerušení). Vstup je během pohybu zamčený,
-  zbraň nejde použít (zámek jádra `sprint` — stejná sémantika: ruce jsou zaměstnané, přerušuje přebíjení).
+  zbraň nejde použít (zámek jádra `sprint` — stejná sémantika: ruce jsou zaměstnané, přerušuje přebíjení), a to ještě
+  `traversal.weaponRaiseTime` (0,25 s) po konci, než se zbraň zvedne (`controller.handsBusy`, spuštění zbraně v první
+  osobě jede podle stejných hodin `controller.weaponLower`) — rána tak nikdy nevyjde ze spuštěné zbraně.
 - **Události kontroleru** (`controller.addListener(fn)`, vedle staršího `onEvent`): `jump`, `landed`, `footstep`,
   `step` (`{ dy }`, schod nahoru/dolů), `traverse:start`, `traverse:end`. Na sběrnici je s identitou bojovníka
   publikuje `bindMovementEvents` (`src/player/movementEvents.js`, volá `Combatant`); mrtvý bojovník nevydává nic.
 
 | Událost (sběrnice) | Data |
 | --- | --- |
-| `footstep` | `{ id, team, position (Vector3), surface, loudness, speed, foot: 'left' \| 'right', kind: 'step' \| 'land' }` — `surface` z materiálu úrovně pod nohama (`WorldQuery.surfaceAt`), jinak `'concrete'`; kadence ze skutečné délky kroku (chůze ~2,3, běh ~3, sprint ~3,7 kroku/s) |
+| `footstep` | `{ id, team, position (Vector3), surface, loudness, speed, foot: 'left' \| 'right', kind: 'step' \| 'land' }` — `surface` z materiálu úrovně pod nohama (`WorldQuery.surfaceAt`), jinak `'concrete'`; kadence ze skutečné délky kroku (chůze ~2,3, běh ~3, sprint ~3,7 kroku/s); na schodech krok = celý počet stupňů (chůze 2 stupně na krok) a dopad chodidla se sesynchronizuje se stupněm |
 | `traverse:start` | `{ id, team, traversalId, type: 'vault' \| 'mantle', ledgePoint (Vector3, bod hrany na čele překážky), ledgeNormal (Vector3, vodorovná normála čela), obstacleHeight, thickness, duration, endStance: 'stand' \| 'crouch' }` — pro FPS ruce (dlaně na hraně) a AI |
 | `traverse:end` | `{ id, team, traversalId, type, aborted, position }` |
 
 Kamera (jen vizuál, `src/player/cameraEffects.js`): houpání podle fáze kroku (nejníž při každém dopadu chodidla),
-drobný impulz na schodu, propad při dopadu podle rychlosti pádu, mírný náklon při úkroku, oblouk s náklonem při
-přeskoku; vše násobí nastavení „Pohyb kamery“ (0 = vypnuto). Tělo z pohledu první osoby (nohy) přijde s modely
-postav; kamera sedí v ose kapsle ve výšce `eyeHeight`, takže tělo lze později připojit pod ni.
+drobný propad oka na schodu, propad při dopadu podle rychlosti pádu, mírný náklon při úkroku, oblouk s náklonem při
+přeskoku; vše násobí nastavení „Pohyb kamery“ (0 = vypnuto). Dokud zbraň může střílet, efekty kamerou nekývnou
+(žádná změna sklonu): propady a houpání jsou posuny oka a všechna natočení jsou náklon kolem osy pohledu, takže
+střed obrazovky, kříž i mířidla ukazují přesně směr zásahu (GUN-03). Sklon dolů existuje jen během přeskoku.
+Tělo z pohledu první osoby (nohy) přijde s modely postav; kamera sedí v ose kapsle ve výšce `eyeHeight`, takže tělo lze později připojit pod ni.

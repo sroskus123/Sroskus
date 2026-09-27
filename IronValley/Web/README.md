@@ -79,7 +79,7 @@ po respawnu `after_respawn.png`, výsledek kola `results.png`, zápas se 17 boty
 Co e2e testy ověřují (vše na sestaveném `dist/`): načtení bez chyb v konzoli a bez neúspěšných
 požadavků; neprázdný a nejednolitý obraz (statistika pixelů ze snímku); shodu směru slunce oblohy a
 světla; rychlosti chůze/běhu/sprintu do 5 % od konfigurace; diagonála není rychlejší; schody 0,18 m;
-zeď 1,0 m nelze překonat ani skokem; svah 50° neprojde, 30° ano; práh 3 cm; dveře 0,90 m; tunel
+zeď 1,0 m není schod a samotný skok ji nepřekoná (přelézt jde jen přeskokem, viz níže); svah 50° neprojde, 30° ano; práh 3 cm; dveře 0,90 m; tunel
 1,40 m jen v dřepu a vstávání až venku; pád z 1,0 m s detekcí dopadu a návratem ovládání; sprint do
 tenké zdi bez průniku; zásah blokovaný u ústí (roh i nízký kryt); stejný počet výstřelů za 3 s při
 30/60/144 FPS; zákmit zbraně po výstřelu omezený a stejný při 4–144 FPS; obraz za menu pauzy stojí;
@@ -95,7 +95,7 @@ výrazně méně okolního světla než stejná stěna venku; houpání kamery p
 **Herní cyklus (`tests/e2e/04_match.test.mjs`, `tests/unit/game_session.test.mjs`):** menu a nastavení (citlivost,
 FOV, hlasitost, změna kláves s uložením, Esc zpět, kurzor nikdy nezůstane zamčený — UI-01); výbava (mechanická
 mířidla skryjí kolimátor); HUD ukazuje skutečné hodnoty; Esc pozastaví hru se zámkem `menu` v jádru, nic nestřílí,
-po „Pokračovat“ je potřeba nový stisk (GUN-03); HUD munice = stav jádra po částečném a prázdném přebití
+po „Pokračovat“ je potřeba nový stisk, který vystřelí hned (interval mezi ranami doběhne už při otevření menu; GUN-03); HUD munice = stav jádra po částečném a prázdném přebití
 i přerušení výměnou zbraně a sprintem (GUN-01); hráč třikrát zemře (vynuceně, zastřelen botem, uprostřed přebíjení)
 a pokaždé se vrátí s plným zdravím, municí, ovládáním, kamerou i zbraní, spoušť držená přes smrt nevystřelí
 (GAME-02, GUN-03); friendly fire vypnutý, zásahové zóny (hlava / trup / paže / nohy), ukazatel zásahu, směr
@@ -199,6 +199,25 @@ do `localStorage` (když prohlížeč úložiště nepovolí, platí jen do zav�
   dotyk hrany dalšího stupně (úzké schody) sondu neblokuje; detekce dopadu.
 * Vstát z dřepu lze jen při volném prostoru; skok ~0,45 m s kontrolou kolize.
 
+### Pohyb: zatáčení, skok, přeskok, kamera (zpětná vazba z hraní 2026-09-26)
+
+Podrobnosti a události v `Docs/GAMEPLAY_CONTRACTS.md` („Pohyb postavy“); stejné pro hráče i boty.
+
+* **Zatáčení bez klouzání** (`src/physics/locomotion.js`): rychlost kolmá na směr pohybu se na zemi silně brzdí.
+  Otočka o 90°: posun ve starém směru 0,11 m z běhu / 0,29 m ze sprintu (dříve 0,83 / 1,68 m), nový směr do
+  0,08 / 0,13 s (dříve 0,43 / 0,57 s); zastavení ze sprintu 0,37 s; strafování ani zatáčení nezrychlí.
+* **Skok:** za chůze, běhu i sprintu; stisk až 0,15 s před dopadem se provede při dopadu, po sejití z hrany jde
+  skočit ještě 0,12 s; nikdy dvakrát ve vzduchu; bez místa nad hlavou ne. Přikrčení ve vzduchu hybnost nemaže,
+  po dopadu v dřepu plynulé zpomalení (8 m/s², dříve zastavení 12 m/s² a ztráta rychlosti už ve vzduchu).
+* **Přeskok / vylezení** (`src/physics/traversal.js`): Mezerník čelem k překážce 0,5–1,3 m (zeď 1,0 m, kryt,
+  okno, plošina). Dráha se před startem ověří testem překryvu kapsle v krocích 3 cm a pak každý tik; nikdy nevede
+  do geometrie (ověřeno i náhodným testem 320 přiblížení se spamem Mezerníku, šikmo a u rohů).
+* **Kamera** (`src/player/cameraEffects.js`, jen vizuál): houpání podle skutečných kroků (nejníž při dopadu
+  chodidla), drobný propad oka na každém schodu (~1–2 cm), propad při dopadu podle rychlosti pádu; vše násobí
+  nastavení „Pohyb kamery“ (0 = vypnuto). Kamera přitom nekývne (jen posuny oka a náklon kolem osy pohledu), takže
+  kříž i mířidla vždy ukazují směr zásahu. Po přeskoku se zbraň 0,25 s zvedá a do té doby nestřílí. Událost
+  `footstep` za každý krok (zvuk, sluch AI).
+
 ### Testovací rozhraní `window.__IV`
 
 Původní funkce zůstávají: `getState()`, `pause()` / `resume()` / `step(n)` / `frames(dt, count)`, `setTimeScale(s)`,
@@ -239,7 +258,9 @@ průhledným sklem. Textury vložené v GLB se dekódují přímo z bajtů (`cre
   aspoň 1 snímek vždy), kouř, nábojnice ze `socket_eject` (poolované, po dopadu zmizí, událost
   `weapon:casing_landed`), zásahy podle povrchu. Vše běží na pevném ticku, výsledek je stejný při 30 / 60 / 144 FPS.
 - Naměřeno (puška, 60 FPS): kop kamery 1 rány ~0,6° (ADS ~0,45°, dřep ~0,48°), zbraň 2,6 cm dozadu a 3,2° nahoru,
-  dávka 10 ran ~4,8° (ADS ~3,5°), zbytek po návratu ~0,9°; pistole ~1,0° a 6,5°. Testy
+  dávka 10 ran ~4,8° (ADS ~3,5°), zbytek po návratu ~0,9°; pistole ~1,0° a 6,5°. Proč ho hráč v náhledu (commit
+  `eec7150`) neviděl: zbraň se po ráně posunula o 0,6 mm a naklonila o 0,17° (hodnoty pružin se násobily 0,035 / 0,05)
+  a kamera dostala 0,55° na ránu s návratem 7/s, takže dávka vystoupala jen na ~1,2° a za ~0,3 s zmizela. Testy
   `tests/unit/weapon_feel.test.mjs`, `tests/e2e/06_weapon_feel.test.mjs`.
 
 ## Známá omezení

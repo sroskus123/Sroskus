@@ -3,7 +3,7 @@
 // crouched under a roof), that the capsule never overlaps geometry on any tick, input lock, events, bots.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Vector3 } from 'three';
+import { Box3, Vector3 } from 'three';
 import level from '../../src/data/test_range.json' with { type: 'json' };
 import movement from '../../src/data/movement.json' with { type: 'json' };
 import weaponsData from '../../src/data/weapons.json' with { type: 'json' };
@@ -16,6 +16,8 @@ import { planTraversal, traversalParams } from '../../src/physics/traversal.js';
 import { EventBus } from '../../src/engine/events.js';
 import { MatchSession } from '../../src/game/session.js';
 import { IDLE_COMMAND } from '../../src/game/combatant.js';
+import { createRng } from '../../src/util/rng.js';
+import { weaponInvariantViolations } from '../../src/core/weapon.js';
 
 const DT = 1 / 60;
 const DEG = Math.PI / 180;
@@ -373,4 +375,190 @@ test('bots traverse with the same controller; traverse events reach the bus with
   assert.ok(typeof st[1].ledgePoint.distanceTo === 'function' && st[1].duration > 0);
   assert.equal(en[1].id, bot.id);
   assert.ok(bot.position.z < -4.15 - 0.3, `bot ended at ${bot.position.toArray()}`);
+});
+
+// ---------------------------------------------------------------- adversarial re-check (spam, angles, corners, reload)
+
+test('adversarial: random approaches to every station (yaw up to ±80°, all gaits, Space spam, crouch toggles, input during the move): never inside geometry, eye never clips, no speed gain', () => {
+  const rng = createRng(20260927);
+  const pick = (a) => a[Math.floor(rng.next() * a.length)];
+  const stations = [
+    { name: 'wall1m', x: [13.3, 16.7], z: [-3.2, -1.0], yaw: 0 },
+    { name: 'wall1m back', x: [13.3, 16.7], z: [-6.5, -4.8], yaw: Math.PI },
+    { name: 'wall1m corner', x: [16.3, 17.4], z: [-3.6, -2.2], yaw: 0 },
+    { name: 'cover', x: [-1.4, 1.4], z: [-14.6, -12.0], yaw: 0 },
+    { name: 'cover corner', x: [0.8, 1.6], z: [-14.6, -13.4], yaw: 0 },
+    { name: 'window', x: [-11, -9], z: [-15.7, -13.0], yaw: 0 },
+    { name: 'window back', x: [-11, -9], z: [-19.0, -16.3], yaw: Math.PI },
+    { name: 'platform', x: [8.0, 10.0], z: [-10.5, -8.4], yaw: Math.PI },
+    { name: 'platform side', x: [6.0, 7.4], z: [-7.5, -4.5], yaw: -Math.PI / 2 },
+    { name: 'thin wall', x: [19.2, 22.8], z: [-3.9, -1.5], yaw: 0 },
+    { name: 'tunnel', x: [2.3, 3.6], z: [-2.9, -1.2], yaw: 0, gait: 'crouch' },
+    { name: 'slope 50', x: [-16, -14], z: [-3.0, 0.5], yaw: 0 },
+    { name: 'corner walls', x: [4.4, 9.6], z: [-15.4, -12.2], yaw: 0 },
+  ];
+  const tris = [];
+  const eyeBox = new Box3();
+  const q = new Vector3();
+  const eyeClear = (c) => {
+    const e = new Vector3(c.position.x, c.position.y + c.eyeHeight, c.position.z);
+    eyeBox.min.copy(e).subScalar(0.1);
+    eyeBox.max.copy(e).addScalar(0.1);
+    const n = range.gatherTriangles(eyeBox, tris);
+    for (let i = 0; i < n; i++) if (tris[i].closestPointToPoint(e, q).distanceTo(e) < 0.08) return false; // camera near plane 0.05 m
+    return true;
+  };
+  const tally = { runs: 0, ticks: 0, traversals: 0, overlap: 0, eyeClip: 0, speed: 0, nan: 0 };
+  const bad = [];
+  for (let run = 0; run < 320; run++) {
+    const st = stations[run % stations.length];
+    const c = new CharacterController(range, movement);
+    c.teleport(new Vector3(st.x[0] + rng.next() * (st.x[1] - st.x[0]), 0.02, st.z[0] + rng.next() * (st.z[1] - st.z[0])));
+    if (c.overlaps(c.position, c.height, 0.002)) continue; // (start inside a solid: not a reachable state)
+    tally.runs++;
+    let yaw = st.yaw + (rng.next() - 0.5) * 2 * (rng.next() < 0.3 ? 1.4 : 0.8);
+    const turn = rng.next() < 0.3 ? (rng.next() - 0.5) * 6 : 0;
+    const gait = st.gait || pick(['stand', 'walk', 'run', 'sprint', 'crouch']);
+    const spam = pick(['every', 'every3', 'once', 'random', 'hold']);
+    let crouch = gait === 'crouch';
+    for (let i = 0; i < 180; i++) {
+      yaw += turn * DT;
+      if (rng.next() < 0.01) crouch = !crouch;
+      const inTr = c.traversing;
+      const jump = spam === 'every' ? true : spam === 'every3' ? i % 3 === 0 : spam === 'once' ? i === 20 : spam === 'hold' ? i > 10 : rng.next() < 0.15;
+      c.update(DT, {
+        moveX: inTr || rng.next() < 0.1 ? (rng.next() - 0.5) * 2 : 0,
+        moveZ: gait === 'stand' ? 0 : rng.next() < 0.05 ? -1 : 1,
+        yaw: inTr ? yaw + (rng.next() - 0.5) * 3 : yaw,
+        sprint: gait === 'sprint',
+        walk: gait === 'walk',
+        crouch,
+        jump,
+        ads: false,
+        fire: false,
+      });
+      tally.ticks++;
+      const p = c.position;
+      if (!Number.isFinite(p.x + p.y + p.z + c.velocity.x + c.velocity.y + c.velocity.z)) tally.nan++;
+      if (c.overlaps(p, c.height, 0.002)) {
+        tally.overlap++;
+        if (bad.length < 5) bad.push({ st: st.name, run, i, p: p.toArray(), h: c.height, traversing: c.traversing });
+      }
+      if (!eyeClear(c)) {
+        tally.eyeClip++;
+        if (bad.length < 5) bad.push({ eye: true, st: st.name, run, i, p: p.toArray(), eyeHeight: c.eyeHeight, traversing: c.traversing });
+      }
+      if (!c.traversing && Math.hypot(c.velocity.x, c.velocity.z) > movement.speeds.sprint + 1e-6) tally.speed++;
+    }
+    tally.traversals += c.stats.traversals;
+  }
+  console.log(`adversarial traversal: ${JSON.stringify(tally)}`);
+  assert.ok(tally.runs >= 300 && tally.traversals >= 60, `coverage ${JSON.stringify(tally)}`);
+  assert.equal(tally.overlap, 0, `capsule inside geometry: ${JSON.stringify(bad)}`);
+  assert.equal(tally.eyeClip, 0, `eye clipped: ${JSON.stringify(bad)}`);
+  assert.equal(tally.speed + tally.nan, 0, JSON.stringify(tally));
+});
+
+test('spam: Space on every tick at the 1.0 m wall = exactly one vault, presses during the move do nothing, and after it only normal jumps follow', () => {
+  const c = new CharacterController(range, movement);
+  c.teleport(new Vector3(15, 0, -1.5));
+  const starts = [];
+  c.addListener((n, p) => n === 'traverse:start' && starts.push(p));
+  let maxDuring = 0;
+  for (let i = 0; i < 150; i++) {
+    const was = c.traversing;
+    c.update(DT, cmdOf({ moveZ: 1, sprint: true, jump: true }));
+    if (was && c.traversing) maxDuring = Math.max(maxDuring, c.stats.traversals);
+    assert.ok(!c.overlaps(c.position, c.height, 0.002), `overlap at tick ${i}`);
+  }
+  assert.equal(starts.length, 1, `traversals: ${starts.length}`);
+  assert.ok(maxDuring <= 1, 'a second traversal started during the move');
+  assert.ok(c.position.z < -4.15 - 0.35, `crossed: ${c.position.z}`);
+  assert.ok(c.stats.jumps >= 1, 'normal (buffered) jumps after landing behind the wall');
+});
+
+test('vault during a reload (Combatant): the reload is interrupted like by sprint, no ammo is created, the weapon works after the move', () => {
+  const events = new EventBus();
+  const noAI = () => ({ addBot() {}, removeBot() {}, update() {}, getDebug: () => ({}), reset() {} });
+  const s = new MatchSession({ level, world: range, movement, weaponsData, combat, teams, events, createAISystem: noAI, seed: 5, bots: [0, 0, 0], mode: 'practice' });
+  s.start({ skipPreRound: true });
+  const p = s.player;
+  const w = p.weapon;
+  const log = [];
+  events.on('weapon:reload_started', () => log.push('start'));
+  events.on('weapon:reload_interrupted', (e) => log.push(`interrupted:${e.kind}`));
+  events.on('weapon:reload_finished', () => log.push('finished'));
+  p.controller.teleport(new Vector3(15, 0, -3.3));
+  const cmd = (o = {}) => ({ ...IDLE_COMMAND, yaw: 0, pitch: 0, ...o });
+  const tick = (o, n = 1) => {
+    for (let i = 0; i < n; i++) s.tick(DT, { playerCmd: cmd(o) });
+  };
+  tick({ fire: true }, 20); // use a few rounds
+  tick({}, 2);
+  const ammo0 = w.state.core.magazine + w.state.core.chamber + w.state.core.reserve;
+  tick({ reload: true });
+  tick({}, 10);
+  assert.equal(w.state.core.state, 'reloading');
+  tick({ jump: true });
+  assert.ok(p.controller.traversing, `no vault: ${JSON.stringify(p.controller.lastTraversalFail)}`);
+  assert.ok(w.state.core.disabledBy.includes('sprint'), 'hands busy: weapon locked during the move');
+  let shotsDuring = 0;
+  while (p.controller.traversing) {
+    const n0 = w.state.shotsFired;
+    tick({ fire: true, reload: true });
+    if (p.controller.traversing) {
+      shotsDuring += w.state.shotsFired - n0;
+      assert.equal(w.state.core.state, 'ready', 'R during the move must not start a reload (hands busy)');
+    }
+  }
+  assert.equal(shotsDuring, 0);
+  assert.ok(log.includes('start') && log.some((e) => e.startsWith('interrupted')), JSON.stringify(log));
+  // (R held on the tick the move ends may legitimately start a new reload: let it finish)
+  tick({}, 240);
+  const ammo1 = w.state.core.magazine + w.state.core.chamber + w.state.core.reserve;
+  assert.equal(ammo1, ammo0, `ammo total changed: ${ammo0} -> ${ammo1}`);
+  assert.equal(w.state.core.state, 'ready');
+  assert.deepEqual(weaponInvariantViolations(w.state.core.snapshot(), w.rulesDef), []);
+  // after the move: a new press fires, a reload can start again
+  const n1 = w.state.shotsFired;
+  tick({ fire: true }, 2);
+  assert.ok(w.state.shotsFired > n1, 'fires after the vault');
+  tick({}, 10);
+  tick({ reload: true });
+  assert.equal(w.state.core.state, 'reloading');
+});
+
+test('after a vault the weapon stays locked until it is raised again (weaponRaiseTime), then a new press fires at once', () => {
+  const events = new EventBus();
+  const noAI = () => ({ addBot() {}, removeBot() {}, update() {}, getDebug: () => ({}), reset() {} });
+  const s = new MatchSession({ level, world: range, movement, weaponsData, combat, teams, events, createAISystem: noAI, seed: 9, bots: [0, 0, 0], mode: 'practice' });
+  s.start({ skipPreRound: true });
+  const p = s.player;
+  const c = p.controller;
+  const w = p.weapon;
+  c.teleport(new Vector3(15, 0, -3.3));
+  const tick = (o = {}) => s.tick(DT, { playerCmd: { ...IDLE_COMMAND, yaw: 0, pitch: 0, ...o } });
+  tick({ jump: true });
+  assert.ok(c.traversing);
+  let endTick = null;
+  let freeTick = null;
+  let shotsWhileBusy = 0;
+  for (let i = 1; i <= 120 && freeTick === null; i++) {
+    const n0 = w.state.shotsFired;
+    const busy = c.handsBusy;
+    // trigger pulled fresh on every other tick (a new press each time)
+    tick({ fire: i % 2 === 0 });
+    if (busy && c.handsBusy) shotsWhileBusy += w.state.shotsFired - n0;
+    if (endTick === null && !c.traversing) endTick = i;
+    if (endTick !== null && !c.handsBusy) freeTick = i;
+    if (c.handsBusy) assert.ok(w.state.core.disabledBy.includes('sprint'), `tick ${i}: weapon unlocked while the hands are busy`);
+    else assert.equal(c.weaponLower, 0);
+  }
+  assert.equal(shotsWhileBusy, 0, 'fired during the move or the weapon raise');
+  const raise = (freeTick - endTick) * DT;
+  assert.ok(Math.abs(raise - TP.weaponRaiseTime) <= DT + 1e-9, `raise ${raise} s`);
+  const n1 = w.state.shotsFired;
+  tick({ fire: false });
+  tick({ fire: true });
+  assert.equal(w.state.shotsFired, n1 + 1, 'fires as soon as the weapon is up');
 });

@@ -67,10 +67,10 @@
     { "text": "DVEŘE", "sub": "0,90 × 2,05 m · zeď 0,25 m", "hint": "Projdeš i sprintem, nezasekneš se", "pos": [-0.4, 0, 0.2] },
     { "text": "TUNEL 1,40 m", "sub": "jen v dřepu (C / Ctrl)", "hint": "Uvnitř nevstaneš, venku ano", "pos": [5.2, 0, 0.2] },
     { "text": "SRÁZ 1,0 m", "sub": "rampa 15° a pád", "hint": "Mezerník těsně před dopadem = skok hned po dopadu", "pos": [11.4, 0, 0.8] },
-    { "text": "ZEĎ 1,0 m", "sub": "není schod (limit 0,40 m)", "hint": "Přelez: rozběh + Mezerník u zdi", "pos": [17.6, 0, 0.2] },
+    { "text": "ZEĎ 1,0 m", "sub": "není schod (limit 0,40 m)", "hint": "Přelez skokem: Mezerník čelem ke zdi", "pos": [17.6, 0, 0.2] },
     { "text": "TENKÁ ZEĎ 0,1 m", "sub": "test kolizí: sprintem neprojdeš skrz", "hint": "Střílej do ní – díry po zásazích", "pos": [23.9, 0, 0.2] },
     { "text": "OKNO", "sub": "parapet 0,9 m · otvor 1,2 × 1,2 m", "hint": "Přelez oknem: Mezerník (stačí zhruba na střed)", "pos": [-15.0, 0, -12.6] },
-    { "text": "KRYT 1,0 m", "sub": "v dřepu ústí blokováno", "hint": "Přelez: Mezerník u krytu", "pos": [2.2, 0, -12.6] },
+    { "text": "KRYT 1,0 m", "sub": "v dřepu ústí blokováno", "hint": "Přelez skokem: Mezerník čelem ke krytu", "pos": [2.2, 0, -12.6] },
     { "text": "ROH", "sub": "kamera vidí, ústí ne", "hint": "Výstřel od rohu zastaví zeď", "pos": [10.6, 0, -12.6] }
   ],
   "banners": [
