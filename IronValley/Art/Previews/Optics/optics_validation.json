@@ -1,18 +1,10 @@
 {
   "generated_by": "Art/Source/Blender/weapons/optics.py",
-  "time": "2026-09-27 03:20:03",
+  "time": "2026-09-27 03:45:48",
   "blender": "4.5.14 LTS",
   "quick": false,
   "stages": [
-    "build",
-    "bake",
-    "save",
-    "validate",
-    "export",
-    "reimport",
-    "mount",
-    "render",
-    "config"
+    "render"
   ],
   "optics": {
     "IVH1": {
@@ -114,22 +106,6 @@
       },
       "sheet_problems": [],
       "transmission_audit": {
-        "M_IVH1_Reticle": {
-          "transmission_weight": 0.0,
-          "transmission_linked": false,
-          "alpha": 1.0,
-          "alpha_linked": true,
-          "render_method": "BLENDED",
-          "backface_culling": true
-        },
-        "M_IVH1_Body": {
-          "transmission_weight": 0.0,
-          "transmission_linked": false,
-          "alpha": 1.0,
-          "alpha_linked": false,
-          "render_method": "DITHERED",
-          "backface_culling": false
-        },
         "M_IVH1_Glass_Front": {
           "transmission_weight": 0.0,
           "transmission_linked": false,
@@ -145,6 +121,22 @@
           "alpha_linked": false,
           "render_method": "BLENDED",
           "backface_culling": false
+        },
+        "M_IVH1_Body": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 1.0,
+          "alpha_linked": false,
+          "render_method": "DITHERED",
+          "backface_culling": true
+        },
+        "M_IVH1_Reticle": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 1.0,
+          "alpha_linked": true,
+          "render_method": "BLENDED",
+          "backface_culling": true
         }
       },
       "transmission_problems": [],
@@ -164,10 +156,13 @@
         "px_per_unit": 25.6,
         "units": "MOA",
         "size_px": 2048,
-        "edge_10_90_px_first_edges": [
-          1.397,
-          1.583
-        ],
+        "antialiasing": "exact analytic coverage clamp(0.5 - signed_distance_px, 0, 1)",
+        "aa_partial_texels_per_edge_crossing": {
+          "crossings": 52,
+          "median": 1.0,
+          "p95": 1.0,
+          "max": 1
+        },
         "lit_area_units2": 409.2083,
         "etch_area_units2": 0.0,
         "border_alpha_max": 0.0,
@@ -199,7 +194,7 @@
         },
         "glb": {
           "path": "Art/Export/GLB/IVH1_Holo.glb",
-          "bytes": 4441388
+          "bytes": 4441368
         },
         "fbx_lod1": {
           "path": "Art/Export/FBX/SM_IVH1_Holo_LOD1.fbx",
@@ -207,7 +202,7 @@
         },
         "glb_lod1": {
           "path": "Art/Export/GLB/IVH1_Holo_LOD1.glb",
-          "bytes": 694936
+          "bytes": 694920
         }
       },
       "reimport": {
@@ -745,7 +740,7 @@
               },
               "M_IVH1_Body": {
                 "alphaMode": "OPAQUE",
-                "doubleSided": true,
+                "doubleSided": false,
                 "baseColorFactor": null,
                 "roughnessFactor": null,
                 "metallicFactor": null,
@@ -946,7 +941,7 @@
               },
               "M_IVH1_Body": {
                 "alphaMode": "OPAQUE",
-                "doubleSided": true,
+                "doubleSided": false,
                 "baseColorFactor": null,
                 "roughnessFactor": null,
                 "metallicFactor": null,
@@ -1190,28 +1185,24 @@
         "rail_intersections": 0
       },
       "renders": {
-        "mounted": {
-          "side": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVH1_mounted_side.png",
-          "q34": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVH1_mounted_34.png"
-        },
         "through": {
           "game_fov": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVH1_through_game_fov.png",
           "zoom": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVH1_through_zoom.png",
           "measure_zoom": {
-            "red_pixels": 4212,
+            "red_pixels": 4210,
             "centroid_offset_px": [
-              -0.35,
-              9.81
+              -0.26,
+              9.8
             ],
             "radius_px_p50": 108.32,
             "radius_px_max": 111.93,
             "radius_px_min": 0.71,
             "circle_fit": {
               "centre_offset_px": [
-                0.004,
-                0.085
+                0.007,
+                0.08
               ],
-              "radius_px": 108.161
+              "radius_px": 108.157
             },
             "expected_ring_radius_px": 108.28,
             "expected_ring_stroke_px": 6.66,
@@ -1245,7 +1236,11 @@
           "max_abs_diff_8bit": 20.0,
           "mean_abs_diff_8bit": 0.0334,
           "pixels_diff_over_8": 59,
-          "red_reticle_pixels": 0
+          "red_reticle_pixels": 0,
+          "green_x100_test": {
+            "front_green_pixels": 0,
+            "eye_side_control_green_pixels": 221
+          }
         }
       },
       "reticle_meta": {
@@ -1310,10 +1305,13 @@
           "px_per_unit": 25.6,
           "units": "MOA",
           "size_px": 2048,
-          "edge_10_90_px_first_edges": [
-            1.397,
-            1.583
-          ],
+          "antialiasing": "exact analytic coverage clamp(0.5 - signed_distance_px, 0, 1)",
+          "aa_partial_texels_per_edge_crossing": {
+            "crossings": 52,
+            "median": 1.0,
+            "p95": 1.0,
+            "max": 1
+          },
           "lit_area_units2": 409.2083,
           "etch_area_units2": 0.0,
           "border_alpha_max": 0.0,
@@ -1421,20 +1419,20 @@
       },
       "sheet_problems": [],
       "transmission_audit": {
+        "M_IVR1_Reticle": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 1.0,
+          "alpha_linked": true,
+          "render_method": "BLENDED",
+          "backface_culling": true
+        },
         "M_IVR1_Glass_Front": {
           "transmission_weight": 0.0,
           "transmission_linked": false,
           "alpha": 0.16,
           "alpha_linked": false,
           "render_method": "BLENDED",
-          "backface_culling": false
-        },
-        "M_IVR1_Body": {
-          "transmission_weight": 0.0,
-          "transmission_linked": false,
-          "alpha": 1.0,
-          "alpha_linked": false,
-          "render_method": "DITHERED",
           "backface_culling": false
         },
         "M_IVR1_Glass_Rear": {
@@ -1445,12 +1443,12 @@
           "render_method": "BLENDED",
           "backface_culling": false
         },
-        "M_IVR1_Reticle": {
+        "M_IVR1_Body": {
           "transmission_weight": 0.0,
           "transmission_linked": false,
           "alpha": 1.0,
-          "alpha_linked": true,
-          "render_method": "BLENDED",
+          "alpha_linked": false,
+          "render_method": "DITHERED",
           "backface_culling": true
         }
       },
@@ -1471,9 +1469,7 @@
         "px_per_unit": 64.0,
         "units": "MOA",
         "size_px": 2048,
-        "edge_10_90_px_first_edges": [
-          0.802
-        ],
+        "antialiasing": "exact analytic coverage clamp(0.5 - signed_distance_px, 0, 1)",
         "lit_area_units2": 3.1414,
         "etch_area_units2": 0.0,
         "border_alpha_max": 0.0,
@@ -1505,7 +1501,7 @@
         },
         "glb": {
           "path": "Art/Export/GLB/IVR1_RedDot.glb",
-          "bytes": 2159940
+          "bytes": 2159920
         },
         "fbx_lod1": {
           "path": "Art/Export/FBX/SM_IVR1_RedDot_LOD1.fbx",
@@ -1513,7 +1509,7 @@
         },
         "glb_lod1": {
           "path": "Art/Export/GLB/IVR1_RedDot_LOD1.glb",
-          "bytes": 482544
+          "bytes": 482524
         }
       },
       "reimport": {
@@ -2051,7 +2047,7 @@
               },
               "M_IVR1_Body": {
                 "alphaMode": "OPAQUE",
-                "doubleSided": true,
+                "doubleSided": false,
                 "baseColorFactor": null,
                 "roughnessFactor": null,
                 "metallicFactor": null,
@@ -2252,7 +2248,7 @@
               },
               "M_IVR1_Body": {
                 "alphaMode": "OPAQUE",
-                "doubleSided": true,
+                "doubleSided": false,
                 "baseColorFactor": null,
                 "roughnessFactor": null,
                 "metallicFactor": null,
@@ -2477,10 +2473,6 @@
         ]
       },
       "renders": {
-        "mounted": {
-          "side": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVR1_mounted_side.png",
-          "q34": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVR1_mounted_34.png"
-        },
         "through": {
           "game_fov": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVR1_through_game_fov.png",
           "zoom": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVR1_through_zoom.png",
@@ -2516,7 +2508,11 @@
           "max_abs_diff_8bit": 18.0,
           "mean_abs_diff_8bit": 0.0221,
           "pixels_diff_over_8": 125,
-          "red_reticle_pixels": 0
+          "red_reticle_pixels": 0,
+          "green_x100_test": {
+            "front_green_pixels": 0,
+            "eye_side_control_green_pixels": 2
+          }
         }
       },
       "reticle_meta": {
@@ -2575,9 +2571,7 @@
           "px_per_unit": 64.0,
           "units": "MOA",
           "size_px": 2048,
-          "edge_10_90_px_first_edges": [
-            0.802
-          ],
+          "antialiasing": "exact analytic coverage clamp(0.5 - signed_distance_px, 0, 1)",
           "lit_area_units2": 3.1414,
           "etch_area_units2": 0.0,
           "border_alpha_max": 0.0,
@@ -2707,7 +2701,7 @@
           "alpha": 1.0,
           "alpha_linked": false,
           "render_method": "DITHERED",
-          "backface_culling": false
+          "backface_culling": true
         },
         "M_IVP2_Reticle": {
           "transmission_weight": 0.0,
@@ -2735,7 +2729,13 @@
         "px_per_unit": 32.0,
         "units": "MOA",
         "size_px": 2048,
-        "edge_10_90_px_first_edges": [],
+        "antialiasing": "exact analytic coverage clamp(0.5 - signed_distance_px, 0, 1)",
+        "aa_partial_texels_per_edge_crossing": {
+          "crossings": 16,
+          "median": 1.0,
+          "p95": 1.0,
+          "max": 1
+        },
         "lit_area_units2": 5.0704,
         "etch_area_units2": 16.9663,
         "border_alpha_max": 0.0,
@@ -2763,11 +2763,11 @@
       "exports": {
         "fbx": {
           "path": "Art/Export/FBX/SM_IVP2_Prism.fbx",
-          "bytes": 1523676
+          "bytes": 1523500
         },
         "glb": {
           "path": "Art/Export/GLB/IVP2_Prism.glb",
-          "bytes": 2636444
+          "bytes": 2636428
         },
         "fbx_lod1": {
           "path": "Art/Export/FBX/SM_IVP2_Prism_LOD1.fbx",
@@ -2775,7 +2775,7 @@
         },
         "glb_lod1": {
           "path": "Art/Export/GLB/IVP2_Prism_LOD1.glb",
-          "bytes": 704860
+          "bytes": 704844
         }
       },
       "reimport": {
@@ -3313,7 +3313,7 @@
               },
               "M_IVP2_Body": {
                 "alphaMode": "OPAQUE",
-                "doubleSided": true,
+                "doubleSided": false,
                 "baseColorFactor": null,
                 "roughnessFactor": null,
                 "metallicFactor": null,
@@ -3514,7 +3514,7 @@
               },
               "M_IVP2_Body": {
                 "alphaMode": "OPAQUE",
-                "doubleSided": true,
+                "doubleSided": false,
                 "baseColorFactor": null,
                 "roughnessFactor": null,
                 "metallicFactor": null,
@@ -3724,10 +3724,6 @@
         "rail_intersections": 0
       },
       "renders": {
-        "mounted": {
-          "side": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVP2_mounted_side.png",
-          "q34": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVP2_mounted_34.png"
-        },
         "through": {
           "game_fov": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVP2_through_game_fov.png",
           "pip": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVP2_through_pip.png",
@@ -3739,30 +3735,30 @@
           "ocular_half_angle_deg": 9.728,
           "px_per_unit_in_eyepiece_detail": 1.3336,
           "measure_eyepiece_centre_x4": {
-            "red_pixels": 143,
+            "red_pixels": 144,
             "centroid_offset_px": [
-              -0.58,
+              -0.64,
               9.3
             ],
-            "radius_px_p50": 10.98,
+            "radius_px_p50": 11.16,
             "radius_px_max": 22.64,
             "radius_px_min": 0.71,
             "circle_fit": {
               "centre_offset_px": [
-                -0.524,
-                14.836
+                -0.52,
+                14.838
               ],
-              "radius_px": 10.669
+              "radius_px": 10.667
             },
             "lit_centroid_offset_units": [
-              -0.1087,
+              -0.12,
               1.7434
             ],
             "expected_lit_centroid_offset_units": [
               -0.0,
               1.8825
             ],
-            "centring_error_units": 0.1765,
+            "centring_error_units": 0.1837,
             "px_per_unit_centre_panel": 5.334
           }
         }
@@ -3892,7 +3888,13 @@
           "px_per_unit": 32.0,
           "units": "MOA",
           "size_px": 2048,
-          "edge_10_90_px_first_edges": [],
+          "antialiasing": "exact analytic coverage clamp(0.5 - signed_distance_px, 0, 1)",
+          "aa_partial_texels_per_edge_crossing": {
+            "crossings": 16,
+            "median": 1.0,
+            "p95": 1.0,
+            "max": 1
+          },
           "lit_area_units2": 5.0704,
           "etch_area_units2": 16.9663,
           "border_alpha_max": 0.0,
@@ -4006,7 +4008,15 @@
           "alpha": 1.0,
           "alpha_linked": false,
           "render_method": "DITHERED",
-          "backface_culling": false
+          "backface_culling": true
+        },
+        "M_IVS3_Reticle": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 1.0,
+          "alpha_linked": true,
+          "render_method": "BLENDED",
+          "backface_culling": true
         },
         "M_IVS3_Glass_Front": {
           "transmission_weight": 0.0,
@@ -4023,14 +4033,6 @@
           "alpha_linked": false,
           "render_method": "BLENDED",
           "backface_culling": false
-        },
-        "M_IVS3_Reticle": {
-          "transmission_weight": 0.0,
-          "transmission_linked": false,
-          "alpha": 1.0,
-          "alpha_linked": true,
-          "render_method": "BLENDED",
-          "backface_culling": true
         }
       },
       "transmission_problems": [],
@@ -4050,10 +4052,13 @@
         "px_per_unit": 34.13333333333333,
         "units": "mrad",
         "size_px": 4096,
-        "edge_10_90_px_first_edges": [
-          1.432,
-          1605.533
-        ],
+        "antialiasing": "exact analytic coverage clamp(0.5 - signed_distance_px, 0, 1)",
+        "aa_partial_texels_per_edge_crossing": {
+          "crossings": 40,
+          "median": 1.0,
+          "p95": 1.0,
+          "max": 1
+        },
         "lit_area_units2": 0.2826,
         "etch_area_units2": 88.8292,
         "border_alpha_max": 0.0,
@@ -4081,19 +4086,19 @@
       "exports": {
         "fbx": {
           "path": "Art/Export/FBX/SM_IVS3_Scope.fbx",
-          "bytes": 1853788
+          "bytes": 1853884
         },
         "glb": {
           "path": "Art/Export/GLB/IVS3_Scope.glb",
-          "bytes": 3095316
+          "bytes": 3095296
         },
         "fbx_lod1": {
           "path": "Art/Export/FBX/SM_IVS3_Scope_LOD1.fbx",
-          "bytes": 950732
+          "bytes": 950972
         },
         "glb_lod1": {
           "path": "Art/Export/GLB/IVS3_Scope_LOD1.glb",
-          "bytes": 860720
+          "bytes": 860700
         }
       },
       "reimport": {
@@ -4631,7 +4636,7 @@
               },
               "M_IVS3_Body": {
                 "alphaMode": "OPAQUE",
-                "doubleSided": true,
+                "doubleSided": false,
                 "baseColorFactor": null,
                 "roughnessFactor": null,
                 "metallicFactor": null,
@@ -4832,7 +4837,7 @@
               },
               "M_IVS3_Body": {
                 "alphaMode": "OPAQUE",
-                "doubleSided": true,
+                "doubleSided": false,
                 "baseColorFactor": null,
                 "roughnessFactor": null,
                 "metallicFactor": null,
@@ -5077,10 +5082,6 @@
         "rail_intersections": 0
       },
       "renders": {
-        "mounted": {
-          "side": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS3_mounted_side.png",
-          "q34": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS3_mounted_34.png"
-        },
         "through": {
           "game_fov": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS3_through_game_fov.png",
           "pip": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS3_through_pip.png",
@@ -5194,10 +5195,13 @@
           "px_per_unit": 34.13333333333333,
           "units": "mrad",
           "size_px": 4096,
-          "edge_10_90_px_first_edges": [
-            1.432,
-            1605.533
-          ],
+          "antialiasing": "exact analytic coverage clamp(0.5 - signed_distance_px, 0, 1)",
+          "aa_partial_texels_per_edge_crossing": {
+            "crossings": 40,
+            "median": 1.0,
+            "p95": 1.0,
+            "max": 1
+          },
           "lit_area_units2": 0.2826,
           "etch_area_units2": 88.8292,
           "border_alpha_max": 0.0,
@@ -5245,6 +5249,18 @@
         ],
         "px_per_unit": 56.888888888888886,
         "units": "mrad",
+        "alpha_probes_inside_units": {
+          "(+2.5,+2.5)": 0.0,
+          "(-2.5,+2.5)": 0.0,
+          "(+15,+15)": 0.0311,
+          "(-15,-15)": 0.0311
+        },
+        "inside_r_lt_0p8_without_reticle": {
+          "texels": 6934377,
+          "max_alpha": 0.07373
+        },
+        "alpha_outside_min": 1.0,
+        "alpha_at_field_stop_mean": 0.8659,
         "field_units": 72.0,
         "eyebox_radius_units": 32.89945640009311,
         "eyebox_radius_px": 1871.6135196497412,
@@ -5253,8 +5269,6 @@
         "vignette_start_fraction": 0.86,
         "vignette_max_opacity": 0.55,
         "rim_darkening": 0.18,
-        "alpha_at_centre_offset_2units": 1.0,
-        "alpha_outside": 1.0,
         "vertical_fov_deg_when_drawn_full_height": 4.1252961249419275,
         "usage": "Draw centred, scaled so that its height = screen height; set the zoomed camera's vertical FOV to vertical_fov_deg_when_drawn_full_height (or, for any other scale: overlay_px_on_screen = screen_px_per_mrad x field_units).  Fill the screen area outside the square with black."
       },
@@ -5326,20 +5340,28 @@
       },
       "sheet_problems": [],
       "transmission_audit": {
-        "M_IVS6_Glass_Front": {
-          "transmission_weight": 0.0,
-          "transmission_linked": false,
-          "alpha": 0.15,
-          "alpha_linked": false,
-          "render_method": "BLENDED",
-          "backface_culling": false
-        },
         "M_IVS6_Body": {
           "transmission_weight": 0.0,
           "transmission_linked": false,
           "alpha": 1.0,
           "alpha_linked": false,
           "render_method": "DITHERED",
+          "backface_culling": true
+        },
+        "M_IVS6_Reticle": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 1.0,
+          "alpha_linked": true,
+          "render_method": "BLENDED",
+          "backface_culling": true
+        },
+        "M_IVS6_Glass_Front": {
+          "transmission_weight": 0.0,
+          "transmission_linked": false,
+          "alpha": 0.15,
+          "alpha_linked": false,
+          "render_method": "BLENDED",
           "backface_culling": false
         },
         "M_IVS6_Glass_Rear": {
@@ -5349,14 +5371,6 @@
           "alpha_linked": false,
           "render_method": "BLENDED",
           "backface_culling": false
-        },
-        "M_IVS6_Reticle": {
-          "transmission_weight": 0.0,
-          "transmission_linked": false,
-          "alpha": 1.0,
-          "alpha_linked": true,
-          "render_method": "BLENDED",
-          "backface_culling": true
         }
       },
       "transmission_problems": [],
@@ -5376,9 +5390,13 @@
         "px_per_unit": 56.888888888888886,
         "units": "mrad",
         "size_px": 4096,
-        "edge_10_90_px_first_edges": [
-          1366.65
-        ],
+        "antialiasing": "exact analytic coverage clamp(0.5 - signed_distance_px, 0, 1)",
+        "aa_partial_texels_per_edge_crossing": {
+          "crossings": 24,
+          "median": 1.0,
+          "p95": 1.0,
+          "max": 1
+        },
         "lit_area_units2": 0.0453,
         "etch_area_units2": 46.2118,
         "border_alpha_max": 0.0,
@@ -5406,19 +5424,19 @@
       "exports": {
         "fbx": {
           "path": "Art/Export/FBX/SM_IVS6_Scope.fbx",
-          "bytes": 2244108
+          "bytes": 2244156
         },
         "glb": {
           "path": "Art/Export/GLB/IVS6_Scope.glb",
-          "bytes": 6884212
+          "bytes": 6884192
         },
         "fbx_lod1": {
           "path": "Art/Export/FBX/SM_IVS6_Scope_LOD1.fbx",
-          "bytes": 1174716
+          "bytes": 1174620
         },
         "glb_lod1": {
           "path": "Art/Export/GLB/IVS6_Scope_LOD1.glb",
-          "bytes": 1441548
+          "bytes": 1441528
         }
       },
       "reimport": {
@@ -5956,7 +5974,7 @@
               },
               "M_IVS6_Body": {
                 "alphaMode": "OPAQUE",
-                "doubleSided": true,
+                "doubleSided": false,
                 "baseColorFactor": null,
                 "roughnessFactor": null,
                 "metallicFactor": null,
@@ -6157,7 +6175,7 @@
               },
               "M_IVS6_Body": {
                 "alphaMode": "OPAQUE",
-                "doubleSided": true,
+                "doubleSided": false,
                 "baseColorFactor": null,
                 "roughnessFactor": null,
                 "metallicFactor": null,
@@ -6402,10 +6420,6 @@
         "rail_intersections": 0
       },
       "renders": {
-        "mounted": {
-          "side": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS6_mounted_side.png",
-          "q34": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS6_mounted_34.png"
-        },
         "through": {
           "game_fov": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS6_through_game_fov.png",
           "pip": "/home/user/Sroskus/IronValley/Art/Previews/Optics/IVS6_through_pip.png",
@@ -6602,9 +6616,13 @@
           "px_per_unit": 56.888888888888886,
           "units": "mrad",
           "size_px": 4096,
-          "edge_10_90_px_first_edges": [
-            1366.65
-          ],
+          "antialiasing": "exact analytic coverage clamp(0.5 - signed_distance_px, 0, 1)",
+          "aa_partial_texels_per_edge_crossing": {
+            "crossings": 24,
+            "median": 1.0,
+            "p95": 1.0,
+            "max": 1
+          },
           "lit_area_units2": 0.0453,
           "etch_area_units2": 46.2118,
           "border_alpha_max": 0.0,

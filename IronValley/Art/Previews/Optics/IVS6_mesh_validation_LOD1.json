@@ -1,7 +1,7 @@
 {
   "generated_by": "ivlib 1.0.0",
   "blender": "4.5.14 LTS",
-  "time": "2026-09-27 02:50:09",
+  "time": "2026-09-27 03:35:56",
   "objects": {
     "SM_IVS6_Scope_LOD1": {
       "tris": 12072,
@@ -79,7 +79,7 @@
   "summary": {
     "total_tris": 12072,
     "problem_count": 0,
-    "validation_seconds": 0.2
+    "validation_seconds": 0.1
   },
   "problems": []
 }

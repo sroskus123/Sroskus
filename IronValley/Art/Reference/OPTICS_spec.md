@@ -72,15 +72,53 @@ The GLB's coordinates are glTF Y-up: (x, y, z)<sub>Blender</sub> becomes (x, z, 
 
 Clamps wrap the dovetail with **0.12 mm** running clearance on the flanks and top (no coincident
 faces) and end 2.5 mm above the rail's neck. Each recoil lug (cross bolt, r 1.75 mm in a 1.9 mm
-hole) sits in the centre of a cross slot, 0.1 mm above the slot floor. All clamps sit on the
+hole) sits in the centre of a cross slot, 0.25 mm above the slot floor. All clamps sit on the
 **upper receiver rail**. Nothing bridges the gap to the free-float handguard. The IV-S6's front
 ring overhangs the handguard on a cantilever arm, 1.5 cm clear of its rail.
 
-MOUNT_TABLE
+Mounting positions on the IV-7 (measured in the mounted scene; the lug x values are checked
+against the slot list):
+
+| Optic | socket_rail on the IV-7 (bore x, cm) | Clamp on the rail (bore x, cm) | Recoil lug slot(s) (bore x, cm) | socket_rail, rifle frame (m, Blender) | socket_eye, bore frame (cm) | socket_eye, rifle frame (m, Blender) |
+| --- | --- | --- | --- | --- | --- | --- |
+| IV-H1 | +1.7 | -3.3 ... +1.7 | -0.6 | (0.18386, 0, 0.12172) | (-14.90, 0, 7.40) | (0.01786, 0, 0.16572) |
+| IV-R1 | -1.8 | -5.9 ... -1.8 (the rifle's optic clamp) | -3.6 | (0.14886, 0, 0.12172) | (-14.90, 0, 7.00) | (0.01786, 0, 0.16172), identical to `socket_ads` |
+| IV-P2 | -0.4 | -5.8 ... -0.4 | -3.6 | (0.16286, 0, 0.12172) | (-15.02, 0, 7.10) | (0.01666, 0, 0.16272) |
+| IV-S3 | +2.4 | -4.6 ... +2.4 | +1.4, -2.6 | (0.19086, 0, 0.12172) | (-15.80, 0, 7.00) | (0.00886, 0, 0.16172) |
+| IV-S6 | +2.4 | -5.1 ... +2.4 | +1.4, -2.6 | (0.19086, 0, 0.12172) | (-16.95, 0, 7.60) | (-0.00264, 0, 0.16772) |
+
+glTF (Y-up) coordinates are (x, z, -y) of the Blender values; `optics.json` lists both.
+
+The eye points are realistic:
+- The 1x sights keep the IV-7's current ADS eye.
+- The magnified optics put the eye at their design eye relief, 0.1 to 2.05 cm further back. With
+  the IV-7's forward "game" cheek weld, a scope needs a cantilever mount to reach it, which is why
+  the IV-S6 has one.
+- The runtime must use each optic's `socket_eye` (section 5.6).
 
 ## 3. The five optics
 
-SUMMARY_TABLE
+| | IV-H1 | IV-R1 | IV-P2 | IV-S3 | IV-S6 |
+| --- | --- | --- | --- | --- | --- |
+| Czech name (`name_cs`) | Holografický zaměřovač IV-H1 | Kolimátor IV-R1 | Hranolový zaměřovač IV-P2 (2×) | Kompaktní puškohled IV-S3 (3×) | Puškohled IV-S6 (6×40) |
+| Type, magnification | holographic, 1x | enclosed red dot, 1x | prism, 2x | scope 3x24, 30 mm tube | scope 6x40, 30 mm tube |
+| Size L x W x H (cm), H including the clamp below the rail top | 9.80 x 4.62 x 6.69 | 6.90 x 4.82 x 7.39 | 9.25 x 5.41 x 7.22 | 17.00 x 6.14 x 7.76 | 27.00 x 6.80 x 8.95 |
+| Top above the rail top (cm) | 6.12 | 6.66 | 6.65 | 7.19 | 8.38 |
+| **Sight axis over the rail / over the IV-7 bore (cm)** | **4.40 / 7.40** | **4.00 / 7.00** | **4.10 / 7.10** | **4.00 / 7.00** | **4.60 / 7.60** |
+| Eye relief (cm), from the rear window / ocular lens to socket_eye | 8.86 (1x: any) | 8.11 (1x: any) | 7.00 | 8.50 | 9.00 |
+| Eyebox radius (mm), `eyebox_radius_m` | 11.7 (window half height) | 12.9 (lens radius) | 5.0 (exit pupil 10 mm) | 4.0 (exit pupil 8 mm) | 3.33 (exit pupil 6.7 mm) |
+| Clear aperture, `lens_radius_m` | window 32.4 x 23.4 mm (r 11.7 mm) | r 12.9 mm | ocular r 12.0 mm, objective 20 mm | ocular r 14.2 mm, objective 24 mm | ocular r 18.0 mm, objective 40 mm |
+| True / apparent field of view | 1x | 1x | 9.7 / 19.3 deg (17.0 m at 100 m) | 6.3 / 18.8 deg (11.0 m at 100 m) | 3.77 / 22.3 deg (6.6 m at 100 m) |
+| Reticle | 65 MOA ring + 1 MOA dot | 2 MOA dot | chevron + BDC 300-600 m | 0.6 mrad dot + 1 mrad hashes | duplex mil-dot + holdover 300-600 m |
+| Zero (m) | 50 | 50 | 100 | 100 | 100 |
+| ADS time (s), `ads_time_s` | 0.22 | 0.21 | 0.25 | 0.27 | 0.32 |
+| Recommended range (m) | 0-150 | 0-150 | 15-400 | 25-450 | 75-600 |
+| Mass (kg, estimate) | 0.31 | 0.17 | 0.30 | 0.43 | 0.68 |
+| Triangles LOD0 (body + glass + reticle) / LOD1 | 7,344 / 3,654 | 10,814 / 4,604 | 17,028 / 7,710 | 22,174 / 10,283 | 25,792 / 12,094 |
+| Body texture set, UV coverage, texel density | 2048², 58 %, 90.7 px/cm | 1024², 46 %, 46.6 px/cm | 1024², 38 %, 35.1 px/cm | 1024², 37 %, 24.2 px/cm | 2048², 50 %, 46.0 px/cm |
+| Export: static mesh / file | `SM_IVH1_Holo` / `IVH1_Holo` | `SM_IVR1_RedDot` / `IVR1_RedDot` | `SM_IVP2_Prism` / `IVP2_Prism` | `SM_IVS3_Scope` / `IVS3_Scope` | `SM_IVS6_Scope` / `IVS6_Scope` |
+
+For comparison, the IV-7 body texture density is about 26 px/cm.
 
 Masses are plausible design estimates for handling (`mass_kg` in the data file), not measured.
 
@@ -186,9 +224,28 @@ Files per optic in `Art/Textures/Optics/<ID>/`:
   use trilinear plus anisotropic filtering and **clamp-to-edge** addressing. The glTF samplers are
   CLAMP_TO_EDGE; this is checked.
 
-RETICLE_TABLE
+| Optic | Units | Texture | Field, edge to edge | px per unit | px/MOA | px/mrad | Features (object space) | Illumination |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| IV-H1 | MOA | 2048² | 80 MOA | 25.600 | 25.600 | 88.006 | ring 65 MOA (centreline diameter), 2 MOA stroke; 1 MOA dot | all lit, projected (no ink) |
+| IV-R1 | MOA | 2048² | 32 MOA | 64.000 | 64.000 | 220.016 | 2 MOA dot | lit, projected (no ink) |
+| IV-P2 | MOA | 2048² | 64 MOA | 32.000 | 32.000 | 110.008 | chevron 6.0 x 3.3 MOA, 0.67 MOA stroke, apex = point of aim; stadia 0.3 MOA; BDC bars 0.45 MOA stroke, 0.5 m wide at range; numerals 1.7 MOA | chevron lit; BDC etched |
+| IV-S3 | mrad | 4096² | 120 mrad | 34.133 | 9.929 | 34.133 | dot 0.6 mrad; crosshair 0.09 mrad from 0.9 to 10 mrad; hashes every 1 mrad (0.35 / 0.7 mrad); posts 0.45 mrad, 10-57 mrad | dot lit; rest etched |
+| IV-S6 | mrad | 4096² | 72 mrad | 56.889 | 16.548 | 56.889 | dot 0.24 mrad; wire 0.06 mrad; mil dots 0.22 mrad at 1-9 mrad left, right and up; 0.16 mrad marks at 1-11 mrad down; holdover bars 0.06 mrad, 0.5 m wide at range; numerals 0.42 mrad; posts 0.45 mrad from 10 (12 down) to 34 mrad | dot lit; rest etched |
 
-HOLDOVER_TABLE
+Measured on the rasterised textures (`reticle_metrics`):
+- Every probed edge crossing has exactly **1 partially covered texel**: IV-H1 52 crossings,
+  IV-P2 16, IV-S3 40, IV-S6 24. The IV-R1 dot's edges fall exactly on texel boundaries on the probe
+  lines, so there it is a clean 1-to-0 step.
+- Border alpha is **0** in all textures.
+- The illuminated-coverage centroid is within 0.0002 px of the texture centre. The IV-P2 chevron's
+  centroid lies 1.88 MOA below its apex by design; the apex is the point of aim.
+
+| Range | Drop below the line of sight, IV-P2 / IV-S6 (cm) | IV-P2 BDC hold (MOA) | IV-S6 hold (mrad) | Bar width (IV-P2 MOA / IV-S6 mrad) |
+| --- | --- | --- | --- | --- |
+| 300 m | 37.8 / 36.8 | 4.33 | 1.226 | 5.73 / 1.667 |
+| 400 m | 93.9 / 92.4 | 8.07 | 2.309 | 4.30 / 1.250 |
+| 500 m | 186.3 / 184.3 | 12.81 | 3.685 | 3.44 / 1.000 |
+| 600 m | 328.9 / 326.4 | 18.84 | 5.440 | 2.86 / 0.833 |
 
 The holdover marks use real 5.56 mm exterior ballistics: a point-mass G7 model with MV 895 m/s,
 G7 BC 0.151, sea-level ICAO air, and each optic's own sight height. **The game itself is hitscan
@@ -361,18 +418,97 @@ Z = up. The bind pose is deployed.
 
 **Known issue (the IV-7's open review item "rear sight folds into the riser").**
 - **The sign is the trap.** The r1 review's pose test used **+90 deg**. That folds the leaf
-  **forward**, to x -8.4 ... -5.2 cm, and drives it about 2 cm into the IV-7's optic riser.
+  **forward**, to x -8.4 ... -5.2 cm, and drives it into the IV-7's optic riser. Measured here:
+  about 6 mm past the riser's rear face; the review estimated about 2 cm.
 - **With the new optics.** +90 deg still collides with IV-H1, IV-R1 and IV-P2 (table below).
 - **The required fix.** The rifle's documentation, pose test and any runtime code must use -90 deg
   (top towards the stock) and state the invariant, not a bare "rotate about Y" instruction.
   This is to be done in the rifle's fix pass; `iv7_carbine.py` was not edited.
 
-FOLD_TABLE
+Measured with each optic mounted: posed rifle, BVH triangle intersections and nearest distances.
+
+| Optic | Documented fold (-90 / -90 deg) | Irons deployed | Rear leaf +90 deg (the r1 review's sign) |
+| --- | --- | --- | --- |
+| IV-H1 | no contact; leaf 22.2 mm, base 10.1 mm away | no contact (lower-1/3 co-witness possible) | **leaf intersects the IV-H1 body** |
+| IV-R1 | no contact; leaf 11.4 mm, base 10.1 mm | no contact (absolute co-witness) | **leaf intersects the riser / clamp** |
+| IV-P2 | no contact; leaf 8.0 mm, base 8.1 mm | **leaf intersects the eyepiece** | **intersects** |
+| IV-S3 | no contact; leaf 3.5 mm, base 3.4 mm under the eyepiece | **leaf intersects the eyepiece** | no contact (still the wrong direction) |
+| IV-S6 | no contact; leaf 7.6 mm, base 7.0 mm under the eyepiece | **leaf intersects the eyepiece** | no contact (still the wrong direction) |
+
+Rear leaf bounding box, bore frame (cm):
+
+| Pose | x | z |
+| --- | --- | --- |
+| Deployed | -8.45 ... -8.15 | 4.39 ... 7.62 |
+| Folded -90 deg | -11.40 ... -8.17 | 4.37 ... 4.67 |
+| +90 deg | -8.43 ... -5.20 | 4.37 ... 4.67 |
 
 ## 9. Validation (adversarial self-review)
 
-VALIDATION_TABLE
+| Check | Method | Result |
+| --- | --- | --- |
+| Mounting flush: no floating, no intersection | Each optic is placed on the posed IV-7 (irons folded). BVH triangle-pair overlap and vertex-to-surface distance are measured against every IV-7 part within 3 cm | **0 intersecting pairs** with every part, all five optics. Closest part is the rail (UpperReceiver) at **0.08 mm** everywhere: the modelled 0.12 mm running clearance, measured vertex-to-surface. Nothing else closer than 3.4 mm |
+| Recoil lugs in slots | Lug x checked against the IV-7 slot list | all on slot centres (bore x -0.6 / -3.6 / -3.6 / +1.4 and -2.6 / +1.4 and -2.6) |
+| Sight axis parallel to the bore (limit 0.05 deg) | Angle of `socket_sight_axis_front - socket_sight_axis_rear` to the bore (+X), mounted | **0.000000 deg** for all five. Reticle sheet normal vs axis: 0.000000 deg |
+| Sight height | `socket_eye` z minus the bore z, mounted | 7.4000 / 7.0000 / 7.1000 / 7.0000 / 7.6000 cm (design values) |
+| No transmission / refraction | Every material in the .blend: Principled Transmission Weight value and links, no Glass / Refraction / Translucent BSDF. Exported GLB material JSON | **0 problems.** GLB `extensionsUsed` = emissive_strength, specular, ior only (no KHR_materials_transmission / volume / dispersion). Re-imported FBX and GLB: transmission 0 |
+| Reticle crispness | analytic AA; partial texels per edge crossing; border alpha; texture size | 1 texel per crossing; border alpha 0; 2048² (H1, R1, P2) and 4096² (S3, S6) |
+| Reticle angular scale, static sheet | Linear fit of the reticle sheet's UVs vs position, seen from `socket_eye` | texture units per radian = expected (×magnification) with **0.0000 % error** for all five. Axis at UV (0.5, 0.5); u to the shooter's right, v up |
+| Reticle through the real mesh (1x) | Cycles render from `socket_eye` through the thin glass, IV-H1 at 4.5 deg vertical FOV (3.33 px/MOA), circle fit to the red pixels | ring radius **108.16 px vs 108.28 expected (-0.11 %)**, centre offset **(0.007, 0.080) px**. Game FOV (0.35 px/MOA): ring 10.9 px radius vs 11.25 (a one-pixel ring, partially detected). IV-R1 dot centre offset (-0.06, 0.10) px |
+| Magnified centring (PiP emulation) | illuminated-feature centroid in the 4x centre panel vs the texture's own | IV-P2 0.18 MOA (1.0 px: the chevron's thin arms are partly below the detection threshold), IV-S3 0.025 mrad (0.7 px), IV-S6 0.000 |
+| Emitter hidden from the front (IV-R1, IV-H1) | (1) Reticle faces facing a camera in front of the optic. (2) Renders with and without the reticle sheet. (3) Emission forced to green ×100: front view and an eye-side control | (1) **0 of 144 / 0 of 28.** (2) no red pixels; max difference 18/255 and 20/255 in 125 / 59 px, which is sampling noise from the extra transparent surface. (3) **front 0 green pixels** for both; control from the eye 2 px (R1: a 2 MOA dot at 6 deg FOV, 450 px) and 221 px (H1) |
+| IV-S6 overlay transparency | alpha probes | 0 at empty interior points ((±2.5, 2.5) mrad); at most 0.074 within 0.8 R (eyepiece fall-off); mean 0.87 on the field stop; **min 1.000 outside**. 4096², 56.89 px/mrad (the same as the reticle), eyebox radius 1871.6 px (0.457 of the size) |
+| Re-imports (Blender stock importers) | FBX + GLB, LOD0 + LOD1, all five (20 files). Triangles, bounding box, the 5 sockets (position and +X axis), images, glTF alpha mode / sidedness / samplers | **20 / 20 files, 0 problems.** Triangles equal, bounding boxes equal to 1e-4 m, sockets within 2e-5 m. Glass BLEND double-sided; reticle BLEND single-sided CLAMP_TO_EDGE |
+| Mesh validation (`ivlib.validate`) | LOD0: closed 2-manifold, zero-area faces, opposing normals, UV bounds, zero-UV faces < 0.05 mm², texels shared by different islands at full resolution | **LOD0: 0 problems, all five.** LOD1: 0 problems except one IV-H1 LOD1 triangle (below) |
+| Glass and reticle sheets | open edges on the boundary only, zero-area faces, facing | 0 problems. Rear sheets face -X, front sheets +X, reticle -X |
+
+### Evidence (all in `Art/Previews/Optics/`, Blender Cycles renders, at most 1600 x 900)
+
+| File | Shows |
+| --- | --- |
+| `<ID>_mounted_side.png`, `<ID>_mounted_34.png` | each optic on the IV-7 (irons folded -90 deg): right side (orthographic) and 3/4 rear-left |
+| `IVH1_through_game_fov.png`, `IVR1_through_game_fov.png` | view from `socket_eye` at the game ADS FOV (41.4 deg vertical) through the thin glass on the outdoor test range |
+| `IVH1_through_zoom.png`, `IVR1_through_zoom.png` | the same eye point at 4.5 deg vertical FOV: ring / dot crisp and centred on the 100 m board (blue ticks mark the image centre) |
+| `IVP2/IVS3/IVS6_through_pip.png` | eye view at the game ADS FOV with the eyepiece filled by the runtime PiP emulation (zoomed render + reticle at its angular scale + eyebox vignette) |
+| `IVP2/IVS3/IVS6_through_eyepiece.png` | the eyepiece large, plus the field centre 4x enlarged (reticle crispness and centring) |
+| `IVP2/IVS3/IVS6_through_game_fov.png` | raw mesh view from the eye (static reticle sheet fallback, no PiP) |
+| `IVS6_ads_overlay_fullscreen.png` | `T_IVS6_ADS_Overlay.png` over a zoomed render at 4.1253 deg vertical FOV |
+| `IVH1_front_emitter_check.png`, `IVR1_front_emitter_check.png` | the optics seen from the front: no reticle visible |
+| `optics_lineup.png`, `optics_lineup_LOD1.png` | all five optics, LOD0 and LOD1 |
+| `reticles/<ID>_reticle.png` | each reticle texture over a sky gradient, with a scale bar |
+| `optics_validation.json`, `<ID>_mesh_validation*.json` | every number in this document |
+| `*_zoomsrc*.png` | the zoomed source renders used by the composites |
 
 ## 10. Known issues and limits
 
-KNOWN_ISSUES
+1. **Not integrated and not tested in any engine.** The web runtime and Unreal are untouched.
+   - Not implemented: the collimated reticle shader, the PiP, the overlay and the minimum reticle
+     size (section 5).
+   - The playtest problems are fixed in the *assets*. They disappear in game only after that
+     integration.
+   - Unreal import is BLOCKED (not available).
+2. **The game is hitscan.** The BDC and holdover marks match real 5.56 mm ballistics but have no
+   effect until bullet drop exists.
+3. **True-scale small features are sub-pixel** at the default ADS FOV (0.43 px/MOA at 1080p): the
+   IV-H1 1 MOA dot and the IV-R1 2 MOA dot. The runtime has to apply the `render_hints` minimum
+   (SDF).
+4. The **IV-H1 LOD1** has one 0.6 mm² decimated triangle with zero UV area; it samples a single
+   texel. Third person only; cosmetic.
+5. **The IV-7 itself is unchanged.** It still carries its old optic, with transmission glass and a
+   geometry reticle, and the fold-sign documentation issue (section 8). The rifle's fix pass should
+   hide `^Optic`, or treat IV-R1 as its replacement, and correct the fold documentation.
+6. **Eye points differ per optic** (bore x -14.9 to -16.95 cm; heights 7.0 to 7.6 cm). This is
+   realistic, but the ADS camera must follow `socket_eye`.
+7. **The magnified through-sight images are composites** that emulate the runtime PiP; they are
+   not an optical simulation. The raw eye view of a magnified optic (`<ID>_through_game_fov.png`)
+   shows only the static fallback sheet inside the dark tube, which is what a runtime without PiP
+   would show.
+8. **UV coverage** is 37-38 % on IV-P2 and IV-S3. The 35-45 deg unwrap needed to stop the knurl
+   flutes folding creates many small islands. Texel density is still 24-35 px/cm, at or above the
+   IV-7's.
+9. The ribbed rubber eyecups read somewhat light grey under the studio lights. It is a material
+   polish item.
+10. Masses, ADS times and recommended ranges are design values, not measurements. The eyepiece
+    vignette is a simple model, not derived from the eye's offset from the exit pupil.
+11. The test-range ground in the through-sight renders shows stretched noise at grazing angles.
+    This belongs to the preview scene only.

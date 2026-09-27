@@ -5600,12 +5600,21 @@
     "Art/Previews/HumanBase/HumanBase_pose_elbows_120_elbow_inner.png",
     "Art/Previews/HumanBase/HumanBase_pose_elbows_120_elbow_outer.png",
     "Art/Previews/HumanBase/HumanBase_pose_elbows_120_full.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_elbow_outer_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_elbow_side_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_elbow_side_r.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_elbow_top_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_full.png",
     "Art/Previews/HumanBase/HumanBase_pose_spine_twist_full.png",
     "Art/Previews/HumanBase/HumanBase_pose_spine_twist_top.png",
     "Art/Previews/HumanBase/HumanBase_pose_squat_knees_120_back_hips.png",
     "Art/Previews/HumanBase/HumanBase_pose_squat_knees_120_full.png",
     "Art/Previews/HumanBase/HumanBase_pose_squat_knees_120_knee_close.png",
     "Art/Previews/HumanBase/HumanBase_pose_squat_knees_120_side.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_full.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_knee_front_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_knee_side_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_side.png",
     "Art/Previews/HumanBase/HumanBase_pose_upperarm_roll_driven_shoulder_back.png",
     "Art/Previews/HumanBase/HumanBase_pose_upperarm_roll_driven_shoulder_l.png",
     "Art/Previews/HumanBase/HumanBase_pose_upperarm_roll_full.png",
@@ -5628,5 +5637,5 @@
     "Art/Previews/HumanBase/HumanBase_skeleton_hand_l_palm.png",
     "Art/Previews/HumanBase/HumanBase_skeleton_side.png"
   ],
-  "total_seconds_this_run": 15.5
+  "total_seconds_this_run": 2.4
 }

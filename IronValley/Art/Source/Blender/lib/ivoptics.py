@@ -388,13 +388,24 @@ def eyebox_overlay(reticle_meta, radius_units, out_path, edge_soft_frac=0.006, v
     Image.fromarray(np.clip(np.round(out * 255), 0, 255).astype(np.uint8), "RGBA").save(
         out_path, optimize=False, compress_level=9)
     c = N // 2
+    inner = (R < 0.8) & (a_ret < 1e-4)
+    probes = {}
+    for name, (ux, uy) in {"(+2.5,+2.5)": (2.5, 2.5), "(-2.5,+2.5)": (-2.5, 2.5), "(+15,+15)": (15.0, 15.0),
+                           "(-15,-15)": (-15.0, -15.0)}.items():
+        j = int((ux + F / 2) * ppu)
+        i = int((F / 2 - uy) * ppu)
+        probes[name] = round(float(alpha[i, j]), 4)
+    ring = (R > 0.999) & (R < 1.001)
     return {"path": out_path, "size_px": [N, N], "px_per_unit": ppu, "units": reticle_meta["units"],
+            "alpha_probes_inside_units": probes,
+            "inside_r_lt_0p8_without_reticle": {"texels": int(inner.sum()),
+                                                "max_alpha": round(float(alpha[inner].max()), 5)},
+            "alpha_outside_min": round(float(alpha[R > 1.02].min()), 5),
+            "alpha_at_field_stop_mean": round(float(alpha[ring].mean()), 4),
             "field_units": F, "eyebox_radius_units": radius_units, "eyebox_radius_px": radius_units * ppu,
             "eyebox_radius_fraction_of_size": radius_units * ppu / N,
             "field_stop_edge_width_fraction": soft, "vignette_start_fraction": vignette_start,
-            "vignette_max_opacity": vignette_strength, "rim_darkening": rim_dark,
-            "alpha_at_centre_offset_2units": float(alpha[c, c + int(2 * ppu)]),
-            "alpha_outside": float(alpha[2, 2])}
+            "vignette_max_opacity": vignette_strength, "rim_darkening": rim_dark}
 
 
 # =============================================================================
@@ -920,44 +931,51 @@ def pip_composite(main_png, zoom_png, reticle_meta, out_png, disc_center, disc_r
 
 def reticle_metrics(meta):
     """Crispness and angular-scale numbers of a rasterised reticle (from Reticle.save's render).
-    - edge_10_90_px: width of the alpha ramp across the lit feature nearest the axis, measured on
-      the row through the axis (exact-coverage AA gives <= ~1 px; blur would widen it)
-    - lit/etch coverage areas converted to angular areas
-    - drawn extent in units."""
+
+    Antialiasing is exact box-filter coverage, coverage = clamp(0.5 - d_px, 0, 1), so every edge
+    has a transition exactly one texel wide measured perpendicular to it.  Measured here: along
+    probe rows and columns (the centre lines and lines at +-1/7 and +-2/7 of the half field), the
+    length of every run of partially covered texels (0.02 < alpha < 0.98) that separates a
+    covered texel (>= 0.98) from an empty one (<= 0.02).  Crisp, unblurred AA gives runs of 1-2
+    texels (longer only where a probe crosses an edge obliquely); a blurred texture gives long runs.
+    Also: illuminated / etched angular areas, border alpha (must be 0 for clamp-to-edge) and the
+    lit-coverage centroid (centring)."""
     r = meta["_render"]
     a = r["alpha"]
     N = a.shape[0]
     ppu = meta["px_per_unit"]
-    c = N // 2
-    out = {"px_per_unit": ppu, "units": meta["units"], "size_px": N}
-    # edge ramp on the centre row, walking right from the centre until the first fall 0.9 -> 0.1
-    row = a[c - 1:c + 1].mean(axis=0)            # the axis lies between rows c-1 and c
-    ramps = []
-    j = c
-    while j < N - 2 and len(ramps) < 3:
-        if row[j] >= 0.9 and row[j + 1] < 0.9:
-            k = j
-            while k < N - 1 and row[k] > 0.1:
+    out = {"px_per_unit": ppu, "units": meta["units"], "size_px": N,
+           "antialiasing": "exact analytic coverage clamp(0.5 - signed_distance_px, 0, 1)"}
+    runs = []
+    idx = sorted(set(int(round(N / 2 + k * N / 14.0)) for k in (-2, -1, 0, 1, 2)) | {N // 2 - 1})
+    lines = [a[i, :] for i in idx] + [a[:, j] for j in idx]
+    for line in lines:
+        part = (line > 0.02) & (line < 0.98)
+        n = len(line)
+        k = 0
+        while k < n:
+            if part[k]:
+                k0 = k
+                while k < n and part[k]:
+                    k += 1
+                lo = line[k0 - 1] if k0 > 0 else 0.0
+                hi = line[k] if k < n else 0.0
+                if (lo >= 0.98 and hi <= 0.02) or (lo <= 0.02 and hi >= 0.98):
+                    runs.append(k - k0)
+            else:
                 k += 1
-            # sub-pixel interpolation of the 0.9 and 0.1 crossings
-            def cross(i0, lvl):
-                i = i0
-                while i < N - 1 and not (row[i] >= lvl > row[i + 1]):
-                    i += 1
-                return i + (row[i] - lvl) / max(row[i] - row[i + 1], 1e-9)
-            ramps.append(round(cross(j, 0.1) - cross(j, 0.9), 3))
-            j = k
-        j += 1
-    out["edge_10_90_px_first_edges"] = ramps
+    if runs:
+        rr = np.array(runs)
+        out["aa_partial_texels_per_edge_crossing"] = {"crossings": int(len(rr)), "median": float(np.median(rr)),
+                                                      "p95": float(np.percentile(rr, 95)), "max": int(rr.max())}
     out["lit_area_units2"] = round(float(r["cov_lit"].sum()) / ppu ** 2, 4)
     out["etch_area_units2"] = round(float(r["cov_etch"].sum()) / ppu ** 2, 4)
     out["border_alpha_max"] = float(max(a[0].max(), a[-1].max(), a[:, 0].max(), a[:, -1].max()))
-    # symmetry about the axis (centring): alpha centroid of the lit layer
-    L_ = r["cov_lit"]
-    if L_.sum() > 0:
+    Lc = r["cov_lit"]
+    if Lc.sum() > 0:
         ys, xs = np.mgrid[0:N, 0:N]
-        cx = float((L_ * (xs + 0.5)).sum() / L_.sum())
-        cy = float((L_ * (ys + 0.5)).sum() / L_.sum())
+        cx = float((Lc * (xs + 0.5)).sum() / Lc.sum())
+        cy = float((Lc * (ys + 0.5)).sum() / Lc.sum())
         out["lit_centroid_offset_px"] = [round(cx - N / 2, 4), round(cy - N / 2, 4)]
     return out
 

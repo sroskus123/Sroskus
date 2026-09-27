@@ -1049,6 +1049,7 @@ def uv_bake(oid):
     for other in COLS:
         COLS[other].hide_render = False
     em = L.export_material(f"M_{oid}_Body", paths["BaseColor"], paths["ORM"], paths["Normal"])
+    em.use_backface_culling = True          # closed meshes: single sided in glTF / engines
     L.swap_to_export_material(objs, em)
     INFO.setdefault(oid, {})["uv"] = rep
     INFO[oid]["textures"] = {k: os.path.relpath(v, PROJECT) for k, v in paths.items()}
@@ -1139,6 +1140,9 @@ def load_saved():
                                   [f"{oid}_{k}" for k in ("socket_rail", "socket_sight_axis_rear",
                                                           "socket_sight_axis_front", "socket_eye", "socket_reticle")]}}
         COLS[oid] = bpy.data.collections[oid]
+        for m in sm.data.materials:
+            if m and m.name.endswith("_Body"):
+                m.use_backface_culling = True
     if os.path.exists(REPORT):
         with open(REPORT) as f:
             old = json.load(f)
@@ -1771,6 +1775,33 @@ def render_front(oid):
     m = {"reticle_faces_facing_front_camera": front_facing, "reticle_faces": len(e["reticle"].data.polygons),
          "max_abs_diff_8bit": float(diff.max()), "mean_abs_diff_8bit": round(float(diff.mean()), 4),
          "pixels_diff_over_8": int((diff.max(axis=2) > 8).sum()), "red_reticle_pixels": reticle_pixels(p1)["red_pixels"]}
+    # strong test: drive the reticle emission bright green (x100); from the front nothing may show,
+    # from the eye (control) the dot must show.  The material is restored afterwards.
+    mat = e["reticle"].data.materials[0]
+    bs = mat.node_tree.nodes["BSDF"]
+    link = bs.inputs['Emission Color'].links[0]
+    src_sock = link.from_socket
+    mat.node_tree.links.remove(link)
+    old_col = tuple(bs.inputs['Emission Color'].default_value)
+    old_str = bs.inputs['Emission Strength'].default_value
+    bs.inputs['Emission Color'].default_value = (0.0, 1.0, 0.0, 1.0)
+    bs.inputs['Emission Strength'].default_value = RETICLE_EMISSION * 100.0
+
+    def green_px(path):
+        g = np.asarray(Image.open(path).convert("RGB")).astype(np.float64) / 255.0
+        return int(((g[..., 1] > 0.35) & (g[..., 1] > 1.8 * g[..., 0]) & (g[..., 1] > 1.8 * g[..., 2])).sum())
+    p3 = os.path.join(PREV_DIR, f"_front_green_{oid}.png")
+    L.render(p3, cam, res(450, 450), samples(24))
+    eye = e["sockets"]["socket_eye"].matrix_world.translation.copy()
+    cam_e = L.camera("eyechk", eye, eye + Vector((1.0, 0.0, 0.0)), fov_deg=6.0, clip_start=0.002)
+    p4 = os.path.join(PREV_DIR, f"_eye_green_{oid}.png")
+    L.render(p4, cam_e, res(450, 450), samples(24))
+    m["green_x100_test"] = {"front_green_pixels": green_px(p3), "eye_side_control_green_pixels": green_px(p4)}
+    os.remove(p3)
+    os.remove(p4)
+    bs.inputs['Emission Color'].default_value = old_col
+    bs.inputs['Emission Strength'].default_value = old_str
+    mat.node_tree.links.new(src_sock, bs.inputs['Emission Color'])
     for o in RIFLE.get("visible", []):
         o.hide_render = False
     label(p1, f"{SPEC[oid]['model']} from the front (closed emitter check)",
@@ -1904,7 +1935,7 @@ def render_stage():
         if "front" in RENDERS and oid in ("IVR1", "IVH1"):
             o["front"] = render_front(oid)
         out[oid] = o
-        INFO.setdefault(oid, {})["renders"] = {k: v for k, v in o.items()}
+        INFO.setdefault(oid, {}).setdefault("renders", {}).update(o)     # merge: partial re-renders keep the rest
     if "overlay" in RENDERS:
         ov = render_overlay()
         if ov:

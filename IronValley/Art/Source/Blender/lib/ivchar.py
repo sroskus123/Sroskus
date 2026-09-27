@@ -25,6 +25,8 @@ Sections
   9. Corrective shapes (review R1): rest-space morph targets solved from Blender's dual-quaternion
      ("Preserve Volume") pose at the elbow / knee / hip, driven by joint angles at runtime
      (drive_correctives; undriven = plain LBS), and the extended deformation metrics
+ 10. Hand anatomy pass: one flexion axis per finger chain, anatomical joint angles (rest
+     offsets, pose_hand_anat), hand contact / penetration metrics
 
 Coordinate conventions (project wide, see Docs/ARCHITECTURE.md): metres, Z up, 1 BU = 1 m.
 Characters face -Y (Blender "front" view looks along +Y), feet on Z = 0, origin between the feet.
@@ -50,7 +52,7 @@ from mathutils import Vector, Matrix, Quaternion
 
 import numpy as np
 
-IVCHAR_VERSION = "1.1.0"
+IVCHAR_VERSION = "1.2.0"
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 IV_ROOT = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))        # .../IronValley
@@ -1970,6 +1972,275 @@ def ring_ratio_posed(arm, co0, co1, bone, frac, halfw=0.012, rmax=0.09):
     s1 = (co1[near] - p1) @ ax1
     rad1 = co1[near] - p1 - np.outer(s1, ax1)
     return float(np.linalg.norm(rad1, axis=1).mean() / np.linalg.norm(rad0[near], axis=1).mean())
+
+
+# =============================================================================
+# 10. Hand anatomy pass (hands task): one flexion axis per finger, anatomical joint angles,
+#     contact / penetration metrics
+# =============================================================================
+#
+# Why: (a) curling a finger bone by bone about slightly different local X axes (MPFB rolls,
+# up to ~3 deg apart after the R1 re-seat) makes the finger drift sideways and twist; every
+# finger chain (and the thumb MCP + IP) now shares ONE flexion axis.  (b) The hm08 hand is
+# modelled relaxed (MCP ~11-14 deg, PIP ~8-14 deg flexed), so a curl added on top of the rest
+# pose over-flexes: "90/100/70" on top of the rest pose is really ~104/110/73 deg and drives
+# the fingertips ~15 mm into the palm.  Poses are therefore specified in ANATOMICAL angles
+# (0 = finger straight: proximal phalanx in the palm plane, middle / distal phalanx in line
+# with their parent) and converted with the measured rest angles.
+
+HAND_CHAINS = {f: (f"{f}_01", f"{f}_02", f"{f}_03") for f in FINGERS4}
+HAND_CHAINS["thumb"] = ("thumb_02", "thumb_03")         # MCP + IP hinge; CMC (thumb_01) keeps its roll
+
+
+def unify_chain_axes(bones, sides=("l", "r")):
+    """Give every bone of a finger chain the same local X (flexion axis): the normalised mean
+    of the chain's current X axes, projected perpendicular to each bone.  Heads / tails are not
+    moved.  Returns a report (angle between the X axes before / after, deg)."""
+    rep = {}
+    for s in sides:
+        for f, chain in HAND_CHAINS.items():
+            names = [f"{c}_{s}" for c in chain]
+            X = [bone_frame(bones[n]["head"], bones[n]["tail"], bones[n]["roll"])[:, 0] for n in names]
+            spread0 = max(math.degrees(math.acos(max(-1.0, min(1.0, float(a @ b))))) for a in X for b in X)
+            xm = np.mean(X, axis=0)
+            xm /= np.linalg.norm(xm)
+            for n in names:
+                b = bones[n]
+                b["roll"] = roll_keeping_x(b["head"], b["tail"], xm)
+            X2 = [bone_frame(bones[n]["head"], bones[n]["tail"], bones[n]["roll"])[:, 0] for n in names]
+            spread1 = max(math.degrees(math.acos(max(-1.0, min(1.0, float(a @ b))))) for a in X2 for b in X2)
+            ys = [np.asarray(bones[n]["tail"], float) - np.asarray(bones[n]["head"], float) for n in names]
+            offplane = max(abs(math.degrees(math.asin(max(-1.0, min(1.0, float(y @ xm) / np.linalg.norm(y)))))) for y in ys)
+            rep[f"{f}_{s}"] = {"x_spread_before_deg": round(spread0, 3), "x_spread_after_deg": round(spread1, 4),
+                               "max_bone_tilt_from_flexion_plane_deg": round(offplane, 3)}
+    return rep
+
+
+def _ang_about(a, b, ax):
+    a = a - ax * a.dot(ax)
+    b = b - ax * b.dot(ax)
+    return math.degrees(math.atan2(a.cross(b).dot(ax), a.dot(b)))
+
+
+def hand_rest_angles(arm, s):
+    """Anatomical flexion (deg) of the REST pose, per bone: finger _01 = angle of the proximal
+    phalanx out of the palm plane (hand_frame_rest), about the bone's own X (flexion > 0);
+    _02 / _03 and thumb_02 / thumb_03 = angle to the parent bone about the bone's X."""
+    w, d, r, p = hand_frame_rest(arm, s)
+    B = arm.data.bones
+    M = lambda n: (arm.matrix_world @ B[n].matrix_local).to_3x3()       # noqa: E731
+    out = {}
+    for f in FINGERS4:
+        y1 = M(f"{f}_01_{s}").col[1]
+        x = M(f"{f}_01_{s}").col[0]
+        out[f"{f}_01_{s}"] = round(_ang_about(y1 - p * y1.dot(p), y1, x), 3)
+        for i in (2, 3):
+            out[f"{f}_0{i}_{s}"] = round(_ang_about(M(f"{f}_0{i - 1}_{s}").col[1], M(f"{f}_0{i}_{s}").col[1],
+                                                    M(f"{f}_0{i}_{s}").col[0]), 3)
+    for i in (2, 3):
+        out[f"thumb_0{i}_{s}"] = round(_ang_about(M(f"thumb_0{i - 1}_{s}").col[1], M(f"thumb_0{i}_{s}").col[1],
+                                                  M(f"thumb_0{i}_{s}").col[0]), 3)
+    return out
+
+
+def hand_pose_quats(pose, s, rest):
+    """Local rotations (Quaternion per bone) for an anatomical hand pose.
+    pose = {"index": {"mcp", "pip", "dip", "abd"}, ... (middle, ring, pinky),
+            "thumb": {"cmc_flex", "cmc_abd", "cmc_rot", "mcp", "ip"}}  (deg; missing keys = rest)
+      mcp / pip / dip / thumb mcp / ip : anatomical flexion (0 = straight, + = flexion)
+      abd      : MCP abduction relative to rest, + = towards the thumb (radial), both hands
+      cmc_flex : thumb_01 about its X relative to rest, + = across the palm (flexion / adduction)
+      cmc_abd  : thumb_01 about its Z relative to rest, + = out in front of the palm (palmar abduction)
+      cmc_rot  : thumb_01 about its own long axis relative to rest, + = pronation (pad turns towards the fingers)
+    Finger _01: q = Rz(abd) Rx(mcp - rest); thumb_01: q = Rx(cmc_flex) Rz(cmc_abd) Ry(cmc_rot)."""
+    zs = 1.0 if s == "l" else -1.0
+    rad = math.radians
+    q = {}
+    for f in FINGERS4:
+        fp = pose.get(f)
+        if fp is None:
+            continue
+        n1, n2, n3 = (f"{f}_0{i}_{s}" for i in (1, 2, 3))
+        q1 = Quaternion((0, 0, 1), rad(fp.get("abd", 0.0) * zs))
+        if "mcp" in fp:
+            q1 = q1 @ Quaternion((1, 0, 0), rad(fp["mcp"] - rest[n1]))
+        q[n1] = q1
+        if "pip" in fp:
+            q[n2] = Quaternion((1, 0, 0), rad(fp["pip"] - rest[n2]))
+        if "dip" in fp:
+            q[n3] = Quaternion((1, 0, 0), rad(fp["dip"] - rest[n3]))
+    tp = pose.get("thumb")
+    if tp is not None:
+        q[f"thumb_01_{s}"] = (Quaternion((1, 0, 0), rad(tp.get("cmc_flex", 0.0)))
+                              @ Quaternion((0, 0, 1), rad(tp.get("cmc_abd", 0.0) * zs))
+                              @ Quaternion((0, 1, 0), rad(tp.get("cmc_rot", 0.0) * zs)))
+        if "mcp" in tp:
+            q[f"thumb_02_{s}"] = Quaternion((1, 0, 0), rad(tp["mcp"] - rest[f"thumb_02_{s}"]))
+        if "ip" in tp:
+            q[f"thumb_03_{s}"] = Quaternion((1, 0, 0), rad(tp["ip"] - rest[f"thumb_03_{s}"]))
+    return q
+
+
+def pose_hand_anat(arm, s, pose, rest=None):
+    """Set (not compose) the finger / thumb bones of hand s to an anatomical pose (see
+    hand_pose_quats).  rest: hand_rest_angles(arm, s) (computed when None)."""
+    rest = rest or hand_rest_angles(arm, s)
+    for n, q in hand_pose_quats(pose, s, rest).items():
+        pb = arm.pose.bones[n]
+        pb.rotation_mode = 'QUATERNION'
+        pb.rotation_quaternion = q
+    bpy.context.view_layer.update()
+
+
+def measured_hand_angles(arm, s, rest=None):
+    """Read back the anatomical angles of the current pose (inverse of pose_hand_anat, for the
+    validation JSON): flexion = rotation about local X (+ rest), abduction = about local Z."""
+    rest = rest or hand_rest_angles(arm, s)
+    zs = 1.0 if s == "l" else -1.0
+    out = {}
+    for f in FINGERS4 + ("thumb",):
+        e = {}
+        for i, key in ((1, "mcp"), (2, "pip"), (3, "dip")):
+            n = f"{f}_0{i}_{s}"
+            q = arm.pose.bones[n].rotation_quaternion
+            if f == "thumb":
+                if i == 1:
+                    eu = q.to_matrix().to_euler('YZX')       # R = Rx Rz Ry
+                    e.update(cmc_flex=round(math.degrees(eu.x), 3), cmc_abd=round(math.degrees(eu.z) * zs, 3),
+                             cmc_rot=round(math.degrees(eu.y) * zs, 3))
+                else:
+                    e["mcp" if i == 2 else "ip"] = round(math.degrees(twist_angle(q, 0)) + rest[n], 3)
+                continue
+            if i == 1:
+                eu = q.to_matrix().to_euler('XZY')           # R = Rz Rx
+                e["mcp"] = round(math.degrees(eu.x) + rest[n], 3)
+                e["abd"] = round(math.degrees(eu.z) * zs, 3)
+            else:
+                e[key] = round(math.degrees(twist_angle(q, 0)) + rest[n], 3)
+        out[f] = e
+    return out
+
+
+def _vertex_normals(co, tris):
+    n = np.zeros_like(co)
+    a, b, c = co[tris[:, 0]], co[tris[:, 1]], co[tris[:, 2]]
+    fn = np.cross(b - a, c - a)
+    for k in range(3):
+        np.add.at(n, tris[:, k], fn)
+    return n / np.maximum(np.linalg.norm(n, axis=1)[:, None], 1e-12)
+
+
+def region_of(bone):
+    """Hand region of a bone name: 'thumb', 'index', ..., 'hand', or None."""
+    f = bone.split("_")[0]
+    return f if f in FINGERS + ("hand",) else None
+
+
+def hand_contact_metrics(co, co_rest, tris, dom, s, fold_rest_dist=0.012, search=0.025, eps=0.0003,
+                         per_vertex=None):
+    """Penetration metrics of a posed hand (arrays only; no bpy state).
+    A hand vertex is BURIED when the point eps in front of it (along its posed normal) lies inside
+    the closed posed body (ray-parity vote).  For a buried vertex v the posed faces within
+    `search` are collected and every face that lay within `fold_rest_dist` of v in the REST mesh
+    (v's own neighbourhood, including the far side of its own joint crease) is ignored:
+      * no face left -> v is inside a skin FOLD at a crease (hidden, like real skin): 'folds';
+      * else PENETRATION into the region B of the nearest remaining face, depth = its distance.
+    Reported per pair "A[_seg]->B" (A, B in thumb, index, middle, ring, pinky, hand, arm):
+    count and max / 95th percentile depth in mm."""
+    from mathutils.bvhtree import BVHTree
+    names_dom = np.asarray(dom)
+    reg = np.array([(region_of(b) or "arm") if b.endswith(f"_{s}") else "body" for b in names_dom], dtype=object)
+    treg = reg[tris[:, 0]]
+    bvh = BVHTree.FromPolygons([tuple(map(float, x)) for x in co], [tuple(map(int, t)) for t in tris], all_triangles=True)
+    nrm = _vertex_normals(co, tris)
+    regions = FINGERS + ("hand",)
+    hv = np.nonzero(np.isin(reg, regions))[0]
+    pairs, folds = {}, []
+    buried_n = 0
+    for v in hv:
+        pv = Vector(tuple(map(float, co[v])))
+        ins, _ = inside_mesh(bvh, pv + Vector(tuple(map(float, nrm[v]))) * eps)
+        if not ins:
+            continue
+        buried_n += 1
+        best = None
+        for loc, fn, fi, dist in bvh.find_nearest_range(pv, search):
+            if fi is None:
+                continue
+            if float(np.min(np.linalg.norm(co_rest[tris[fi]] - co_rest[v], axis=1))) < fold_rest_dist:
+                continue
+            if best is None or dist < best[0]:
+                best = (dist, fi)
+        if best is None:
+            folds.append(int(v))
+            continue
+        A = reg[v]
+        seg = names_dom[v].split("_")[1] if A in FINGERS else ""
+        key = f"{A}{'_' + seg if seg else ''}->{treg[best[1]]}"
+        pairs.setdefault(key, []).append(best[0])
+        if per_vertex is not None:
+            per_vertex[int(v)] = (key, best[0])
+    pen = {k: {"n": len(v), "max_mm": round(max(v) * 1000, 2),
+               "p95_mm": round(float(np.percentile(v, 95)) * 1000, 2)} for k, v in sorted(pairs.items())}
+    return dict({"buried_vertices": int(buried_n), "fold_vertices": len(folds)},
+                **contact_categories(pen), penetration=pen)
+
+
+def contact_category(a, b):
+    """Category of a hand penetration pair key 'A[_seg]' -> 'B' (see hand_contact_metrics):
+      crease        : a finger into itself (palmar skin folding over a flexed PIP / DIP), the
+                      proximal segment into the palm or the palm into a finger (MCP crease) --
+                      skin folds / compression inside a joint crease, hidden
+      tip_palm      : a finger's middle or distal segment into the palm / hand
+      finger_finger : side contact between two different fingers (index..pinky)
+      thumb         : the thumb into a finger / the palm, or a finger into the thumb
+      other         : into the forearm / body"""
+    fa = a.split("_")[0]
+    if fa == "thumb" or b == "thumb":
+        return "thumb" if not (fa == "thumb" and b == "hand" and a.endswith("01")) else "crease"
+    if b in ("arm", "body"):
+        return "other"
+    if fa == b or (fa == "hand" and b in FINGERS4) or (fa in FINGERS4 and b == "hand" and a.endswith("01")):
+        return "crease"
+    if fa in FINGERS4 and b == "hand":
+        return "tip_palm"
+    if fa in FINGERS4 and b in FINGERS4:
+        return "finger_finger"
+    return "other"
+
+
+def contact_categories(pen):
+    out = {}
+    for c in ("tip_palm", "finger_finger", "thumb", "crease", "other"):
+        vals = [v["max_mm"] for k, v in pen.items() if contact_category(*k.split("->")) == c]
+        out[f"{c}_max_mm"] = max(vals) if vals else 0.0
+    return out
+
+
+def verts_beyond_dorsal(co, co_rest, tris, dom, s, arm):
+    """Finger vertices (index..pinky _02/_03) beyond the REST dorsal hand surface along -palm
+    normal (fingertips through the back of the hand).  Returns (count, max m)."""
+    from mathutils.bvhtree import BVHTree
+    w, d, r, p = hand_frame_rest(arm, s)
+    pn = np.array(p)
+    a, b, c = co_rest[tris[:, 0]], co_rest[tris[:, 1]], co_rest[tris[:, 2]]
+    N0 = np.cross(b - a, c - a)
+    N0 /= np.maximum(np.linalg.norm(N0, axis=1)[:, None], 1e-20)
+    tdom = np.asarray(dom)[tris[:, 0]]
+    dors = np.nonzero((tdom == f"hand_{s}") & (N0 @ -pn > 0.5))[0]
+    br = BVHTree.FromPolygons([tuple(map(float, x)) for x in co_rest], [tuple(map(int, t)) for t in tris[dors]], all_triangles=True)
+    fing = np.nonzero(np.isin(np.asarray(dom), [f"{f}_0{k}_{s}" for f in FINGERS4 for k in (2, 3)]))[0]
+    n, mx = 0, 0.0
+    for v in fing:
+        q = Vector(tuple(map(float, co[v])))
+        hit = br.ray_cast(q + p * 0.05, -p)
+        if hit[0] is not None:
+            dist = (q - hit[0]).dot(-p)
+            if dist > 0:
+                n += 1
+                mx = max(mx, dist)
+    return int(n), float(mx)
+
 
 if __name__ == "__main__":
     if "--job" in sys.argv:

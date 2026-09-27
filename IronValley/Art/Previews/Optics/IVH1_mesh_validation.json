@@ -1,7 +1,7 @@
 {
   "generated_by": "ivlib 1.0.0",
   "blender": "4.5.14 LTS",
-  "time": "2026-09-27 02:50:03",
+  "time": "2026-09-27 03:35:51",
   "objects": {
     "SM_IVH1_Holo": {
       "tris": 7260,
@@ -80,7 +80,7 @@
   "summary": {
     "total_tris": 7260,
     "problem_count": 0,
-    "validation_seconds": 0.8
+    "validation_seconds": 1.0
   },
   "texture_sets": {
     "IVH1": {

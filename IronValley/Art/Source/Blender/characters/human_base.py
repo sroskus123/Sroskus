@@ -191,6 +191,8 @@ def build():
         bones[f"thigh_{sd}"]["head_strategy"] = "CUBE+MEDIAL"
     hj["separation_used_m"] = round(float(np.linalg.norm(bones["thigh_l"]["head"] - bones["thigh_r"]["head"])), 5)
     info["hip_joint_centres"] = hj
+    # hands task: one flexion axis per finger chain (and thumb MCP + IP), no twist while curling
+    info["finger_axes"] = C.unify_chain_axes(bones)
     bones = C.add_twist_bones(bones, TWIST_SPECS)
     bone_names = list(bones.keys())
 
@@ -269,6 +271,11 @@ def build():
         f = C.bone_dir(arm, f"lowerarm_{side}")
         rp[side]["rest_elbow_flexion_deg"] = round(C.angle_between(u, f), 2)
     info["rest_pose"] = rp
+    # hands task: anatomical flexion of the (relaxed) rest hand; hand poses are given in
+    # anatomical angles and converted with these offsets (ivchar.pose_hand_anat)
+    hra = {sd: C.hand_rest_angles(arm, sd) for sd in ("l", "r")}
+    arm["iv_hand_rest_angles"] = json.dumps(hra)
+    info["hand_rest_angles_deg"] = hra
 
     # R1-ELBOW-140 / R1-KNEE-HIP-LBS: corrective shapes (after the rest pose: shape keys block
     # applying the armature modifier)
@@ -1250,6 +1257,7 @@ def main():
                 old = json.load(f)
             info = {k: old[k] for k in ("design_inputs", "source_mesh", "targets", "scale",
                                         "root_override", "finger_reseat", "hip_joint_centres",
+                                        "finger_axes", "hand_rest_angles_deg",
                                         "finger_weights", "toe_weights", "correctives",
                                         "weights", "rest_pose", "rest_bbox_m",
                                         "build_seconds") if k in old}

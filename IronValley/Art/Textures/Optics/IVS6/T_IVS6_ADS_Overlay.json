@@ -6,6 +6,18 @@
   ],
   "px_per_unit": 56.888888888888886,
   "units": "mrad",
+  "alpha_probes_inside_units": {
+    "(+2.5,+2.5)": 0.0,
+    "(-2.5,+2.5)": 0.0,
+    "(+15,+15)": 0.0311,
+    "(-15,-15)": 0.0311
+  },
+  "inside_r_lt_0p8_without_reticle": {
+    "texels": 6934377,
+    "max_alpha": 0.07373
+  },
+  "alpha_outside_min": 1.0,
+  "alpha_at_field_stop_mean": 0.8659,
   "field_units": 72.0,
   "eyebox_radius_units": 32.89945640009311,
   "eyebox_radius_px": 1871.6135196497412,
@@ -14,8 +26,6 @@
   "vignette_start_fraction": 0.86,
   "vignette_max_opacity": 0.55,
   "rim_darkening": 0.18,
-  "alpha_at_centre_offset_2units": 1.0,
-  "alpha_outside": 1.0,
   "vertical_fov_deg_when_drawn_full_height": 4.1252961249419275,
   "usage": "Draw centred, scaled so that its height = screen height; set the zoomed camera's vertical FOV to vertical_fov_deg_when_drawn_full_height (or, for any other scale: overlay_px_on_screen = screen_px_per_mrad x field_units).  Fill the screen area outside the square with black."
 }

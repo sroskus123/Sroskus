@@ -1,7 +1,7 @@
 {
   "generated_by": "ivlib 1.0.0",
   "blender": "4.5.14 LTS",
-  "time": "2026-09-27 02:50:04",
+  "time": "2026-09-27 03:35:52",
   "objects": {
     "SM_IVP2_Prism": {
       "tris": 15380,
@@ -80,7 +80,7 @@
   "summary": {
     "total_tris": 15380,
     "problem_count": 0,
-    "validation_seconds": 1.0
+    "validation_seconds": 0.7
   },
   "texture_sets": {
     "IVP2": {
