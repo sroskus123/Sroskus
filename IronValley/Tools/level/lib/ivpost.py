@@ -85,6 +85,77 @@ def environment():
     }
 
 
+def _barrier_sections(hard_ring, layout):
+    """split the barrier ring (hard polygon 0.5 m inwards) into typed sections; road crossings become roadblocks."""
+    from shapely.geometry import LineString as _Ls, Point as _Pt
+    ring = _Ls(list(hard_ring.exterior.coords))
+    Lr = ring.length
+    # roadblock spans where roads/tracks cross the ring
+    blocks = []
+    for rd in layout["roads"] + layout["tracks"]:
+        if rd["id"] not in ("ROAD_A", "ROAD_B", "TRACK_C"):
+            continue
+        pl = _Ls([q[:2] for q in rd["polyline"]])
+        x = pl.intersection(ring)
+        pts = [x] if x.geom_type == "Point" else list(getattr(x, "geoms", []))
+        for q in pts:
+            s0 = ring.project(q)
+            half = rd["width"] / 2 + rd.get("shoulders", {}).get("width", 0.5) + 2.5
+            blocks.append((s0 - half, s0 + half, rd["id"]))
+
+    def kind_at(pt):
+        x, y = pt.x, pt.y
+        if y > 145 and -30 < x < 70:
+            return "quarry_fence_2m"
+        if x > 90 and y < -75:
+            return "farm_fence_timber_1p4m"
+        if x > 55 and -60 < y < 125:
+            return "pasture_fence_barbed_1p3m"
+        return "deer_fence_2m"
+    step = 2.0
+    ss = np.arange(0.0, Lr, step)
+    labels = []
+    for s_ in ss:
+        lab = None
+        for a_, b_, rid in blocks:
+            if a_ <= s_ <= b_ or a_ <= s_ + Lr <= b_ or a_ <= s_ - Lr <= b_:
+                lab = "roadblock:" + rid
+        labels.append(lab or kind_at(ring.interpolate(s_)))
+    # rotate so the ring starts at a label change
+    k0 = next((i for i in range(1, len(labels)) if labels[i] != labels[i - 1]), 0)
+    order = list(range(k0, len(labels))) + list(range(0, k0))
+    secs = []
+    cur, start = labels[order[0]], order[0]
+    run = [order[0]]
+    for i in order[1:]:
+        if labels[i] != cur:
+            secs.append((cur, run))
+            cur, run = labels[i], [i]
+        else:
+            run.append(i)
+    secs.append((cur, run))
+    out = []
+    for lab, run in secs:
+        pts = [ring.interpolate(ss[i]) for i in run] + [ring.interpolate((ss[run[-1]] + step) % Lr)]
+        out.append((lab, [[r2(p_.x), r2(p_.y)] for p_ in pts]))
+    return out
+
+
+BARRIER_TYPES = {
+    "deer_fence_2m": {"height": 2.0, "posts": "peeled larch posts every 3.0 m, knotted wire mesh 2.0 m", "blocks_bullets": False,
+                      "blocks_vision": False, "sign": "sign_minefield", "explanation": "lesní oplocenka + cedule min"},
+    "pasture_fence_barbed_1p3m": {"height": 1.3, "posts": "timber posts every 2.5 m, 4 strands of barbed wire", "blocks_bullets": False,
+                                  "blocks_vision": False, "sign": "sign_minefield", "explanation": "pastevní ohradník s ostnatým drátem + cedule min"},
+    "quarry_fence_2m": {"height": 2.0, "posts": "steel posts every 2.5 m, chain-link 2.0 m + 3 strands of barbed wire, locked quarry gate",
+                        "blocks_bullets": False, "blocks_vision": False, "sign": "sign_quarry", "explanation": "oplocení štěrkovny"},
+    "farm_fence_timber_1p4m": {"height": 1.4, "posts": "timber post-and-rail fence, 3 rails, posts every 2.0 m, between the farm "
+                               "buildings", "blocks_bullets": False, "blocks_vision": False, "sign": "sign_minefield",
+                               "explanation": "ohrada statku + cedule min"},
+    "roadblock": {"height": 1.8, "posts": "jersey barriers 0.8 m + razor-wire coil on top to 1.8 m, steel boom gate (closed)",
+                  "blocks_bullets": True, "blocks_vision": False, "sign": "sign_checkpoint", "explanation": "zátaras kordonu"},
+}
+
+
 def boundary(layout):
     soft = Polygon(layout["boundary"]["soft_polygon"])
     hard = soft.buffer(6.0, join_style=2, mitre_limit=2.0).simplify(0.5)
@@ -92,18 +163,42 @@ def boundary(layout):
     hard_xy = [[max(-175, min(175, x)), max(-175, min(175, y))] for x, y in hard_xy]
     warn = soft.buffer(-8.0, join_style=2, mitre_limit=2.0).simplify(0.3)
     warn_xy = [[r2(x), r2(y)] for x, y in list(warn.exterior.coords)[:-1]]
+    # review P1-EDGE: the barriers exist as data, 0.5 m inside the hard line, continuous round the whole map
+    bring = Polygon(hard_xy).buffer(-0.5, join_style=2, mitre_limit=2.0)
+    barriers = []
+    for k, (lab, pts) in enumerate(_barrier_sections(bring, layout)):
+        typ = "roadblock" if lab.startswith("roadblock") else lab
+        bt = BARRIER_TYPES[typ]
+        seg_len = sum(math.dist(pts[i], pts[i + 1]) for i in range(len(pts) - 1))
+        signs = []
+        from shapely.geometry import LineString as _Ls
+        ls_ = _Ls(pts)
+        n_s = int(seg_len // 25.0)
+        for j in range(n_s + 1):
+            if typ == "roadblock" and j > 0:
+                break
+            q = ls_.interpolate(min(seg_len, 12.5 + 25.0 * j) if typ != "roadblock" else seg_len / 2)
+            signs.append({"pos": [r2(q.x), r2(q.y)], "text_id": bt["sign"], "facing": "inwards (towards the village)"})
+        barriers.append({"id": f"BND_{k + 1:02d}_{typ.upper()}", "type": typ, "polyline": pts, "height": bt["height"],
+                         "construction": bt["posts"], "blocks_movement": True, "blocks_bullets": bt["blocks_bullets"],
+                         "blocks_vision": bt["blocks_vision"], "length_m": r2(seg_len), "signs": signs,
+                         **({"road": lab.split(":")[1]} if typ == "roadblock" else {})})
     return {
         "soft_polygon": layout["boundary"]["soft_polygon"],
         "warning_polygon": warn_xy,
         "hard_polygon": hard_xy,
         "soft_area_m2": r2(soft.area),
+        "barriers": barriers,
+        "barrier_rule": "the barrier ring runs 0.5 m inside the hard polygon over its whole length (sections join end to end); the "
+                        "invisible capsule wall therefore always stands directly behind a visible fence or roadblock; signs every 25 m "
+                        "face the village; check_layout.py BND samples the hard line every 2 m",
         "rules": {
             "warning_band": "8 m wide band inside the soft line (between warning_polygon and soft_polygon): HUD 'Blížíš se k hranici "
                             "bojového prostoru' (no timer)",
             "soft": "crossing the soft line -> HUD 'Opouštíš bojový prostor! Vrať se: 10 s' countdown, desaturation + red vignette; at 0 "
                     "the player dies as 'Minové pole' (no kill credit, no score change, normal respawn delay)",
-            "hard": "invisible collision wall 6 m outside the soft line (capsules only; bullets ignore it), always at or behind a visible "
-                    "barrier (fence, roadblock, gravel heap, farm buildings), never in open ground",
+            "hard": "invisible collision wall 6 m outside the soft line (capsules only; bullets ignore it), 0.5 m behind the barrier "
+                    "ring boundary.barriers (fences, roadblocks), never in open ground",
             "bots": "navmesh is cut 1 m inside the soft polygon; bots never path outside it; spawn points keep >= 10 m to the soft line "
                     "(outside the warning band)",
             "map": "the pre-round (loadout) map and the pause map draw the soft line as a red hatched outline, the three roadblocks and "
@@ -113,23 +208,28 @@ def boundary(layout):
                            "leaving": "Opouštíš bojový prostor! Vrať se: {s} s",
                            "death": "Minové pole",
                            "sign_minefield": "POZOR! MINY / VOJENSKÝ PROSTOR - VSTUP ZAKÁZÁN",
-                           "sign_quarry": "Štěrkovna Horní Hamry - vstup zakázán",
-                           "sign_road_a": "Dolní Hamry 2 km"},
+                           "sign_checkpoint": "KONTROLNÍ STANOVIŠTĚ - STŮJ!",
+                           "sign_quarry": "Štěrkovna Kalný Vrch - vstup zakázán",
+                           "sign_road_a": "Nové Kalno 2 km",
+                           "sign_hunting": "Honitba - vstup se psy zakázán",
+                           "toponyms_note": "all names are fictional (review P2-REAL-TOPONYMS: the former 'Horní/Dolní Hamry' are real "
+                                            "places and were replaced)"},
         "treatment": [
-            {"section": "arm A end (WSW, behind spawn alfa)", "physical": "roadblock of concrete barriers + razor wire across road A, "
-             "team alfa truck, timber-yard hut and log stacks; the brook enters a culvert under a railway embankment 30 m further (backdrop)",
-             "explanation": "own rear area: the road continues to the lower valley (church spire visible), signposted 'Dolní Hamry 2 km' (fictional)"},
-            {"section": "NW spur (A<->B, behind the workshop)", "physical": "forest edge with a 2 m deer fence of a young beech plantation "
-             "(lesní oplocenka), slope steepening to 25-30 deg, dense hornbeam/hazel understory",
+            {"section": "arm A end (WSW, behind spawn alfa)", "physical": "roadblock section BND_*_ROADBLOCK on ROAD_A (jersey barriers + razor "
+             "wire + boom gate) joined to the deer fence of the spurs; team alfa truck, timber-yard hut and log stacks; the brook enters "
+             "a culvert under a railway embankment 30 m further (backdrop)",
+             "explanation": "own rear area: the road continues to the lower valley (church spire visible), signpost 'Nové Kalno 2 km' (fictional)"},
+            {"section": "NW spur (A<->B, behind the workshop)", "physical": "deer fence 2 m (lesní oplocenka) on the barrier ring, forest edge "
+             "of spruce/pine with birch, slope steepening to 25-30 deg, dense hazel understory",
              "explanation": "red-white 'POZOR! MINY / VOJENSKÝ PROSTOR' signs on the fence every 25 m, HUD warning band"},
-            {"section": "arm B end (N, behind spawn bravo)", "physical": "gravel works: 5.5 m gravel heaps, conveyor frame, quarry face backdrop, "
-             "roadblock with barriers + team bravo truck", "explanation": "own rear area; quarry gate 'Štěrkovna Horní Hamry - vstup zakázán'"},
-            {"section": "E spur (B<->C, behind the warehouse)", "physical": "hedgerow + pasture fence, then a wooded slope with a deer fence; "
-             "an old stone field wall along the soft line", "explanation": "minefield signs + barbed wire on the pasture fence, HUD warning band"},
-            {"section": "arm C end (SE, behind spawn charlie)", "physical": "farmyard: barn, open machinery shed, roadblock across the track",
-             "explanation": "own rear area; the track continues uphill between fields to a ridge (backdrop)"},
-            {"section": "S spur (C<->A, behind the house)", "physical": "wood edge (oak/hornbeam) with a deer fence and a hunting-ground "
-             "sign, slope 22-28 deg", "explanation": "minefield signs, HUD warning band"},
+            {"section": "arm B end (N, behind spawn bravo)", "physical": "quarry fence 2 m + roadblock on ROAD_B, 5.5 m gravel heaps, conveyor "
+             "frame, quarry face backdrop, team bravo truck", "explanation": "own rear area; quarry gate 'Štěrkovna Kalný Vrch - vstup zakázán'"},
+            {"section": "E spur (B<->C, behind the warehouse)", "physical": "pasture fence with barbed wire on the barrier ring, hedgerow, then a "
+             "wooded slope", "explanation": "minefield signs every 25 m on the pasture fence, HUD warning band"},
+            {"section": "arm C end (SE, behind spawn charlie)", "physical": "farm post-and-rail fence between barn and machinery shed + roadblock on "
+             "TRACK_C", "explanation": "own rear area; the track continues uphill between fields to a ridge (backdrop)"},
+            {"section": "S spur (C<->A, behind the house)", "physical": "deer fence on the barrier ring along the oak/hornbeam and spruce wood "
+             "edge, slope 22-28 deg", "explanation": "minefield signs, hunting-ground sign 'Honitba', HUD warning band"},
         ],
     }
 
@@ -138,20 +238,25 @@ def surfaces(layout):
     return {
         "footstep_and_impact_types": ["asphalt", "gravel", "dirt", "mud", "grass", "forest_floor", "concrete", "paving", "wood",
                                       "metal", "water", "tiles", "stone"],
+        "wet": "after a shower (ART_DIRECTION 1): asphalt, concrete and paving use their wet variants (darker, roughness -0.3, "
+               "puddles in ruts, at kerbs and in the yard low spots); footsteps on wet asphalt add a light splash layer",
         "default": "grass",
         "resolution_rule": "highest priority wins; interiors use buildings.json room floor_material (mapped: concrete*->concrete, "
                            "terrazzo/tiles->tiles, timber*/parquet->wood, vinyl*->tiles); exterior stairs/bridges use their material",
         "regions": [
             {"surface": "water", "priority": 100, "from": "water[BROOK_WATER] polyline, width_at_surface"},
             {"surface": "metal", "priority": 95, "from": "buildings.json exterior_stairs (galvanised grating), roller doors, shipping container / skip roofs"},
-            {"surface": "wood", "priority": 90, "from": "bridges BR_FOOT_A, BR_FOOT_B decks"},
-            {"surface": "concrete", "priority": 90, "from": "bridge BR_MAIN deck, loading dock SK_DOCK, exterior steps, retaining-wall stairs"},
+            {"surface": "concrete", "priority": 90, "from": "bridge decks BR_MAIN, BR_FOOT_A, BR_FOOT_B (concrete slabs, ref. 02), loading "
+                                                           "dock SK_DOCK, dock stairs and ramp, exterior steps, retaining-wall stairs"},
+            {"surface": "water", "priority": 88, "from": "DITCH_C trickle (0.05 m): splash footsteps only, no speed change"},
             {"surface": "asphalt", "priority": 80, "from": "roads ROAD_A, ROAD_B (width)"},
             {"surface": "gravel", "priority": 78, "from": "road shoulders (0.75 m), paths with surface gravel"},
-            {"surface": "dirt", "priority": 76, "from": "TRACK_C wheel ruts (2 x 0.5 m at +-0.8 m), paths with surface dirt"},
-            {"surface": "grass", "priority": 75, "from": "TRACK_C centre strip (0.6 m)"},
+            {"surface": "dirt", "priority": 76, "from": "TRACK_C and TRACK_E_RING wheel ruts (2 x 0.5 m at +-0.8 m), paths with surface dirt"},
+            {"surface": "grass", "priority": 75, "from": "TRACK_C and TRACK_E_RING centre strips (0.6 m)"},
+            {"surface": "gravel", "priority": 75, "from": "TRACK_SKLAD_REAR"},
             {"surface": "concrete", "priority": 74, "from": "DRIVE_DUM"},
-            {"surface": "mud", "priority": 70, "from": "ditches DITCH_A, DITCH_C (bed + banks), brook banks below water+0.4 m"},
+            {"surface": "mud", "priority": 70, "from": "ditch DITCH_A (bed + banks), DITCH_C banks, brook banks below water+0.4 m"},
+            {"surface": "stone", "priority": 71, "from": "DITCH_C stone-pitched bed (0.6 m)"},
             {"surface": "dirt", "priority": 72, "from": "sunken lane UVOZ_S bed (bed_width) -- roots and leaf litter decals on the banks"},
             {"surface": "grass", "priority": 71, "from": "mill race MILLRACE bed and banks (dry, overgrown)"},
             {"surface": "paving", "priority": 60, "polygon_ref": "PAD_NAVES", "note": "granite setts on the square"},
@@ -162,7 +267,10 @@ def surfaces(layout):
             {"surface": "gravel", "priority": 58, "polygon": [p for p in layout["spawn_areas"][0]["polygon"]], "note": "spawn alfa timber yard"},
             {"surface": "gravel", "priority": 58, "polygon": [p for p in layout["spawn_areas"][1]["polygon"]], "note": "spawn bravo gravel works"},
             {"surface": "mud", "priority": 58, "polygon": [p for p in layout["spawn_areas"][2]["polygon"]], "note": "spawn charlie farmyard (mud + straw)"},
-            {"surface": "forest_floor", "priority": 20, "from": "outside the soft boundary under forest canopy"},
+            {"surface": "dirt", "priority": 56, "from": "fields FLD_STUBBLE_C (stubble, ruts) and FLD_GARDEN_PLOTS (tilled strips)"},
+            {"surface": "grass", "priority": 56, "from": "field FLD_HAY_E (mown hay meadow)"},
+            {"surface": "forest_floor", "priority": 20, "from": "outside the soft boundary under forest canopy (spruce needles, pine litter, "
+                                                                 "birch leaves)"},
             {"surface": "stone", "priority": 65, "from": "retaining walls (top), mill race lining, stone crosses"},
         ],
     }
@@ -181,15 +289,21 @@ SPECIES = {
     "habr": {"name_cs": "habr obecný", "latin": "Carpinus betulus", "height": 12.0, "crown_radius": 4.0, "crown_base": 2.0, "trunk_radius": 0.20},
     "olse": {"name_cs": "olše lepkavá", "latin": "Alnus glutinosa", "height": 14.0, "crown_radius": 3.5, "crown_base": 2.5, "trunk_radius": 0.22},
     "vrba": {"name_cs": "vrba křehká", "latin": "Salix fragilis", "height": 11.0, "crown_radius": 4.5, "crown_base": 2.0, "trunk_radius": 0.35},
-    "briza": {"name_cs": "bříza bělokorá", "latin": "Betula pendula", "height": 15.0, "crown_radius": 3.5, "crown_base": 3.5, "trunk_radius": 0.18},
+    "briza": {"name_cs": "bříza bělokorá (vzrostlá, R15)", "latin": "Betula pendula", "height": 16.5, "crown_radius": 4.0, "crown_base": 3.5, "trunk_radius": 0.20},
+    "briza_mlada": {"name_cs": "bříza mladá (R10)", "latin": "Betula pendula", "height": 12.5, "crown_radius": 2.4, "crown_base": 3.0, "trunk_radius": 0.11},
+    "smrk": {"name_cs": "smrk ztepilý (R11)", "latin": "Picea abies", "height": 22.0, "crown_radius": 3.0, "crown_base": 0.8, "trunk_radius": 0.28,
+             "leaf_type": "conifer", "note": "conical, branches to the ground: a spruce blocks vision near the ground like a shrub"},
+    "borovice": {"name_cs": "borovice lesní", "latin": "Pinus sylvestris", "height": 20.0, "crown_radius": 3.5, "crown_base": 9.0, "trunk_radius": 0.25,
+                 "leaf_type": "conifer", "note": "high flat crown, bare trunk (refs 01-03 woods)"},
     "jablon": {"name_cs": "jabloň (stará odrůda)", "latin": "Malus domestica", "height": 6.5, "crown_radius": 3.0, "crown_base": 1.7, "trunk_radius": 0.15},
     "hruska": {"name_cs": "hrušeň", "latin": "Pyrus communis", "height": 9.0, "crown_radius": 3.0, "crown_base": 2.0, "trunk_radius": 0.18},
     "svestka": {"name_cs": "švestka", "latin": "Prunus domestica", "height": 6.0, "crown_radius": 2.5, "crown_base": 1.6, "trunk_radius": 0.12},
     "orech": {"name_cs": "ořešák královský", "latin": "Juglans regia", "height": 12.0, "crown_radius": 6.0, "crown_base": 2.6, "trunk_radius": 0.30},
 }
 for s in SPECIES.values():
-    s["leaf_type"] = "deciduous"
+    s.setdefault("leaf_type", "deciduous")
     s["lods"] = "LOD0 < 35 m (full mesh, alpha-tested leaf cards), LOD1 35-90 m (merged cards), LOD2 90-250 m (cross impostor), impostor band beyond"
+CONIFER_SHARE_INSIDE_MAX = 0.12
 
 
 def poisson(mask_fn, bounds, rmin, seed, k=20):
@@ -302,6 +416,13 @@ def exclusion_mask(layout, g):
             ex |= g.poly_mask(vb["polygon"], pad=1.0)
     for br in layout["bridges"]:
         ex |= g.seg_mask(br["ends"][0], br["ends"][1], 5.0)
+    for ba in layout["boundary"].get("barriers", []):
+        for a, b in zip(ba["polyline"][:-1], ba["polyline"][1:]):
+            ex |= g.seg_mask(a, b, 1.2)
+    for po in layout.get("utility_lines", {}).get("poles", []):
+        ex |= g.disk_mask(po["pos"][:2], 1.6)
+    for fl in layout.get("fields", []):
+        ex |= g.poly_mask(fl["polygon"], pad=0.5)
     for st in layout["terrain"]["stamps"]:
         if st["kind"] == "pad":
             ex |= g.poly_mask(st["polygon"], pad=1.0)
@@ -355,6 +476,9 @@ def place_trees(layout):
              ("jablon", *R.xf([-8.0, -40.0], 350, (-5.0, 17.0)), 1.0, "house garden"),
              ("jablon", *R.xf([-8.0, -40.0], 350, (6.0, 15.5)), 1.0, "house garden"),
              ("hruska", *R.xf([-8.0, -40.0], 350, (-12.5, 6.0)), 1.0, "house garden"),
+             ("smrk", *R.xf([21.5, -7.5], 55, (3.3, -1.8)), 0.85, "spruce beside the chapel (ref. 01)"),
+             ("smrk", *R.xf([21.5, -7.5], 55, (-3.2, -3.6)), 0.8, "spruce behind the chapel (ref. 01)"),
+             ("briza", -24.5, 10.5, 0.9, "birch by the brook NW of the square (ref. 02/03)"),
              ]
     for sp, x, y, sc, tag in feats:
         add(sp, x, y, sc, None, "feature:" + tag)
@@ -412,7 +536,7 @@ def place_trees(layout):
         p = P[k] + t * (P[k + 1] - P[k])
         d = (P[k + 1] - P[k]) / seg[k]
         n = np.array([-d[1], d[0]])
-        for off in (3.3, -5.6):
+        for off in (3.3, -6.7):
             q = p + n * off
             if rng.random() < 0.15:
                 continue
@@ -443,12 +567,43 @@ def place_trees(layout):
             return False
         return bool(outside[gi, gj] and not ex[gi, gj] and not open_m[gi, gj])
     fpts = poisson(forest_ok, (-175, -175, 175, 175), 5.5, seed=7)
-    mix = [("buk", 0.35), ("dub", 0.20), ("habr", 0.15), ("javor", 0.15), ("jasan", 0.10), ("briza", 0.05)]
+    # refs 01-03: dark spruce/pine woods with birch edges; the edge band (<= 12 m outside the soft line) is birch-rich
+    mix = [("smrk", 0.34), ("borovice", 0.14), ("buk", 0.14), ("briza", 0.12), ("dub", 0.08), ("habr", 0.07), ("javor", 0.06),
+           ("jasan", 0.05)]
+    mix_edge = [("briza", 0.30), ("briza_mlada", 0.20), ("smrk", 0.20), ("habr", 0.15), ("borovice", 0.15)]
     cum = np.cumsum([m[1] for m in mix])
+    cum_e = np.cumsum([m[1] for m in mix_edge])
+    softP = Polygon(soft)
     for p in fpts:
         u = rng.random()
-        sp = mix[int(np.searchsorted(cum, u))][0]
-        add(sp, p[0], p[1], rng.uniform(0.8, 1.15), None, "forest")
+        if softP.exterior.distance(Point(p[0], p[1])) <= 12.0:
+            sp = mix_edge[int(np.searchsorted(cum_e, u))][0]
+            add(sp, p[0], p[1], rng.uniform(0.8, 1.1), None, "forest_edge")
+        else:
+            sp = mix[int(np.searchsorted(cum, u))][0]
+            add(sp, p[0], p[1], rng.uniform(0.8, 1.15), None, "forest")
+    # spruce row along the E ring track (ref. 01 NE: tall narrow conifers by the dirt track east of the warehouse)
+    te = next((t_ for t_ in layout["tracks"] if t_["id"] == "TRACK_E_RING"), None)
+    if te:
+        from shapely.geometry import LineString as _LsT
+        Pt = np.array([q[:2] for q in te["polyline"]], float)
+        seg = np.hypot(*np.diff(Pt, axis=0).T)
+        cs_ = np.concatenate([[0], np.cumsum(seg)])
+        blk = [Polygon(b["footprint_world"]).buffer(2.0) for b in layout["buildings"] + layout["secondary_buildings"]]
+        blk += [Polygon(R.box_poly(pr["position"][:2], pr["size"], pr["rotation_deg"])).buffer(1.5) for pr in layout["props"]]
+        blk += [_LsT(f["polyline"]).buffer(1.5) for f in layout["fences_walls_hedges"]]
+        blk += [_LsT(v["polyline"]).buffer(v["width"] / 2 + 1.0) for v in layout["vegetation_blocks"] if "polyline" in v]
+        blk += [Point(*po["pos"][:2]).buffer(2.0) for po in layout.get("utility_lines", {}).get("poles", [])]
+        s_ = 4.0
+        while s_ < 60.0:
+            k = int(np.clip(np.searchsorted(cs_, s_) - 1, 0, len(seg) - 1))
+            t = (s_ - cs_[k]) / seg[k]
+            p = Pt[k] + t * (Pt[k + 1] - Pt[k])
+            d = (Pt[k + 1] - Pt[k]) / seg[k]
+            q = p + np.array([-d[1], d[0]]) * 3.4
+            if softP.contains(Point(q[0], q[1])) and not any(b_.contains(Point(q[0], q[1])) for b_ in blk):
+                add("smrk", q[0], q[1], rng.uniform(0.8, 0.95), None, "spruce_row_E")
+            s_ += 6.0
     # --- 6. sparse meadow trees inside the playable area (spur slopes only), Poisson 22 m
     spur_m = np.zeros(g.shape, bool)
     for poly in ([[-97, 6], [-60, -2], [-45, 10], [-40, 60], [-52, 80], [-80, 22]],
@@ -462,9 +617,12 @@ def place_trees(layout):
             return False
         return bool(play_in[gi, gj] and spur_m[gi, gj] and not ex[gi, gj])
     mpts = poisson(meadow_ok, (-175, -175, 175, 175), 20.0, seed=11)
-    mix2 = ["lipa", "javor", "dub", "briza", "hruska", "habr"]
+    mix2 = ["lipa", "javor", "dub", "briza", "briza_mlada", "hruska", "habr"]
     for p in mpts:
-        add(mix2[int(rng.integers(len(mix2)))], p[0], p[1], rng.uniform(0.75, 1.05), None, "meadow")
+        sp = mix2[int(rng.integers(len(mix2)))]
+        if softP.exterior.distance(Point(p[0], p[1])) <= 10.0 and rng.random() < 0.4:
+            sp = "smrk"                       # forest-edge spruces reaching into the spur meadows (refs 01-03)
+        add(sp, p[0], p[1], rng.uniform(0.75, 1.05), None, "meadow")
     # dedupe (keep >= 1.5 m apart)
     keep = []
     for t in inst:
@@ -483,13 +641,19 @@ def place_trees(layout):
             "riparian": "both brook banks, 5.2-6.8 m from the centre line, every 9-14 m, 35 % skipped; alder 60 %, willow 30 %, ash 10 %; "
                         "never within 5 m of bridges, zone polygons or yards",
             "orchard_NW": "old orchard on the NW spur between the mill-race terrace and the soft boundary, 6 m staggered grid, +-1 m jitter, 15 % missing; apple/pear/plum (low crowns 1.6-2.0 m: they break eye-level sightlines)",
-            "alley_C": "fruit alley along TRACK_C every 11 m (NE side +3.3 m, SW side -5.6 m beyond the ditch), 15 % missing",
+            "alley_C": "fruit alley along TRACK_C every 11 m (NE side +3.3 m, SW side -6.7 m beyond the 1.25 m ditch), 15 % missing",
             "forest": "Poisson disk r = 5.5 m outside the soft boundary (+3 m), except open areas (gravel works, farm fields, road corridor A); "
-                      "beech 35 %, oak 20 %, hornbeam 15 %, maple 15 %, ash 10 %, birch 5 %; understory: hazel/hornbeam shrubs at 2x density "
-                      "inside 12 m of the soft line (vision blocking, instanced)",
-            "meadow": "Poisson disk r = 20 m on spur meadows inside the playable area",
+                      "refs 01-03: Norway spruce 34 %, Scots pine 14 %, beech 14 %, birch 12 %, oak 8 %, hornbeam 7 %, maple 6 %, ash 5 %; "
+                      "edge band <= 12 m outside the soft line: birch 30 %, young birch 20 %, spruce 20 %, hornbeam 15 %, pine 15 %; "
+                      "understory: hazel/hornbeam shrubs (R13) at 2x density inside 12 m of the soft line (vision blocking, instanced)",
+            "meadow": "Poisson disk r = 20 m on spur meadows inside the playable area (linden, maple, oak, birch, young birch, pear, hornbeam; "
+                      "40 % spruce within 10 m of the soft line)",
+            "spruce_row_E": "Norway spruces every 6 m, 3.4 m NE of TRACK_E_RING along its first 60 m (ref. 01)",
+            "conifers_inside": f"conifers inside the playable area are limited to {int(CONIFER_SHARE_INSIDE_MAX * 100)} % of the trees "
+                               "there and never within 3 m of a zone or spawn row (brief: deciduous village; refs: spruce woods and accents)",
             "exclusions": "roads +3 m, paths +1.5 m, main buildings +4 m, secondary +3 m, props +2 m, zones +2 m, spawns +3 m, "
-                          "fences +1.5 m, retaining walls +2.5 m, bridges 5 m, pads +1 m, brook channel 4 m (riparian excepted)",
+                          "fences +1.5 m, retaining walls +2.5 m, bridges 5 m, pads +1 m, brook channel 4 m (riparian excepted), "
+                          "boundary barriers +1.2 m, utility poles 1.6 m, fields +0.5 m",
             "seed": 20260926, "z": "terrain height at the trunk - 0.10 m (root flare buried)",
         },
         "counts": groups,
@@ -845,8 +1009,8 @@ def finish(layout):
                        "bravo": ("footbridge B -> west bank -> gable door DL_D3", [-19.5, 45.0]),
                        "charlie": ("brook bed from the square culvert (low covered lane)", [-22.0, 4.0])},
         "zone_sklad": {"alfa": ("track C start -> warehouse yard S gate (P_SKLAD_S)", [30.0, -4.0]),
-                       "bravo": ("E ring hedgerow -> field ramp -> rear yard -> RD3/D4", [63.0, 17.0]),
-                       "charlie": ("E ring from track C -> rear yard", [58.5, 0.0])},
+                       "bravo": ("E ring track -> rear yard at grade (SE corner) -> rear sliding door SK_SD3 / SK_D4", [59.0, 12.0]),
+                       "charlie": ("E ring from track C -> rear yard at grade (SE corner)", [55.0, 2.5])},
         "zone_dvur": {"alfa": ("S ring path -> rear yard gate", [-26.0, -55.5]),
                       "bravo": ("square -> driveway (E) instead of the wall stairs", [14.6, -21.6]),
                       "charlie": ("S ring -> sunken lane (úvoz) -> north exit -> rear yard gate", [7.2, -58.0])},
@@ -865,9 +1029,11 @@ def finish(layout):
             fl[team] = {"desc": desc, "length_m": r2(L), "extra_vs_primary_pct": r2(100 * (L / z["distances_center_m"][team] - 1)),
                         "via": via,
                         "waypoints": [[r2(p[0]), r2(p[1]), r2(ras["F"][g.ij(p[0], p[1])])] for p in simp]}
-        if zid == "zone_sklad" and "bravo" in fl:
-            fl["bravo"]["deep_flank"] = ("deliberate rear manoeuvre along the E ring hedgerow into the warehouse rear yard; bravo's "
-                                         "regular alternatives are the yard north end and the road B verge (both within 10 %)")
+        for team_, f_ in fl.items():
+            if f_["extra_vs_primary_pct"] > 10.0 and zid == "zone_sklad" and team_ == "bravo":
+                f_["deep_flank"] = ("deliberate rear manoeuvre along the E ring track into the warehouse rear yard (entered at grade "
+                                    "from the south-east since the 22 deg field ramp was removed); bravo's regular alternatives are the "
+                                    "yard north end and the road B verge (both within 10 %)")
         z["flank_lanes"] = fl
     layout["balance"] = bal
     layout["lanes"] = {zid: {"primary": z["primary_lanes"], "flank": z["flank_lanes"]} for zid, z in bal["zones"].items()}
@@ -875,6 +1041,7 @@ def finish(layout):
     layout["cover_points"] = cover_points(layout, ras, walk)
     layout["chokepoints"] = chokepoints(layout)
     layout["ai_navigation"] = ai_nav(layout)
+    fallback_rows(layout)
     layout["performance_budget_browser"] = perf_budget(layout)
     layout["qa_points"] = qa_points(layout)
     # keep raster products for analyze/draw
