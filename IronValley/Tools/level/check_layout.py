@@ -526,6 +526,31 @@ def check_building(bd, rep):
             half = max(col["size"]) / 2
             if perp <= w["thickness"] / 2 + 0.40 and a - half < along < b + half and o["type"] in ("door", "double_door", "roller_door"):
                 errs.append(f"{o['id']}: column {col['center']} stands in the opening")
+    # piers measured to the FACE of every abutting / crossing wall (review P2-PIERS), not only to the end of the wall box
+    for o in bd["openings"]:
+        w = wmap[o["wall_id"]]
+        a, b = o["offset_from_start"], o["offset_from_start"] + o["width"]
+        sx, sy, ux, uy, nx, ny, Lw = wall_frame(w)
+        wp = wall_poly(w, extra_t=0.003)
+        for w2 in walls:
+            if w2 is w or w2["level"] != w["level"]:
+                continue
+            p2 = wall_poly(w2)
+            if p2.distance(wp) > 0.003:
+                continue
+            ux2, uy2 = wall_frame(w2)[2:4]
+            if abs(ux * ux2 + uy * uy2) > 0.2:
+                continue            # collinear continuation, not an abutting wall
+            us = [(q[0] - sx) * ux + (q[1] - sy) * uy for q in list(p2.exterior.coords)[:-1]]
+            f0, f1 = min(us), max(us)
+            if f1 <= a + EPS:
+                pier = a - f1
+            elif f0 >= b - EPS:
+                pier = f0 - b
+            else:
+                continue            # wall inside the span: reported above
+            if pier < 0.10 - 1e-3 and (o["sill_height"] < 2.5 or o["type"] != "window"):
+                errs.append(f"{o['id']}: only {pier:.3f} m of masonry between the opening and the face of abutting wall {w2['id']} (< 0.10)")
     byw = defaultdict(list)
     for o in bd["openings"]:
         byw[o["wall_id"]].append(o)
@@ -537,8 +562,8 @@ def check_building(bd, rep):
                 v = min(p["head_height"], q["head_height"]) - max(p["sill_height"], q["sill_height"])
                 if h > -0.20 and v > -0.20:
                     errs.append(f"openings {p['id']} / {q['id']} on {wid} overlap or leave < 0.20 m between them")
-    rep.check(f"B04[{bid}]", errs, f"{len(bd['openings'])} openings sit in their walls with piers >= 0.10, lintels >= 0.10, no wall "
-                                   "or column inside a door span, >= 0.20 m between openings")
+    rep.check(f"B04[{bid}]", errs, f"{len(bd['openings'])} openings sit in their walls with piers >= 0.10 (to wall ends AND to the faces "
+                                   "of abutting walls), lintels >= 0.10, no wall or column inside a door span, >= 0.20 m between openings")
     # ---- B05 doors clear sizes
     errs = []
     nd = 0
@@ -559,6 +584,18 @@ def check_building(bd, rep):
                 errs.append(f"{o['id']}: clear width {o['clear_width']} < 1.10 (project rule: >= 0.40 m Recast corridor at cs 0.05 / radius 7 cells)")
             if o.get("open_deg") is None or o.get("hinge") is None or o.get("swing") not in ("left", "right"):
                 errs.append(f"{o['id']}: hinge/swing/open_deg not fully specified")
+        elif o["type"] == "sliding_door":
+            nd += 1
+            g = o.get("guides", 0.05)
+            if abs(o["clear_width"] - (o["width"] - 2 * g)) > 0.006 or abs(o["clear_height"] - (o["head_height"] - 0.05)) > 0.006:
+                errs.append(f"{o['id']}: sliding door clear {o['clear_width']} x {o['clear_height']} != width - 2 x guides / head - 0.05")
+            op = bool(o.get("state", {}).get("open"))
+            if op != bool(o["passes"]["movement"]) or op != bool(o["passes"]["vision"]):
+                errs.append(f"{o['id']}: sliding door state.open {op} disagrees with passes {o['passes']}")
+            if op and (o["clear_width"] < DOOR_W_PROJECT - EPS or o["clear_height"] < DOOR_H - EPS):
+                errs.append(f"{o['id']}: open sliding door clear {o['clear_width']} x {o['clear_height']} below 1.10 x 2.05")
+            if not o.get("leaf_rest"):
+                errs.append(f"{o['id']}: sliding door without leaf_rest (parked / closed leaf pose)")
         elif o["type"] == "roller_door":
             nd += 1
             oh = o["state"]["open_height"]
@@ -591,7 +628,85 @@ def check_building(bd, rep):
         for ba in bd.get("balustrades", []):
             if ba["level"] == w["level"] and lp.intersection(LineString(ba["polyline"]).buffer(0.03)).area > 1e-5:
                 errs.append(f"{o['id']}: leaf rest pose intersects balustrade {ba['id']}")
-    rep.check(f"B06[{bid}]", errs, "every door leaf rest pose is clear of walls, furniture, stairs and balustrades")
+    # swing sector (closed -> rest) vs stair approach / arrival zones (review P2-DOOR-SWING-STAIRS)
+    zones_st = []
+    for s in bd["stairs"] + bd["exterior_stairs"]:
+        dv = s["direction_vector"]
+        nx_, ny_ = -dv[1], dv[0]
+        hw = s["width"] / 2
+        x0, y0 = s["start"]
+        xt, yt = s["top_riser_center"]
+        appr = Polygon([(x0 - dv[0] * 1.0 + nx_ * hw, y0 - dv[1] * 1.0 + ny_ * hw), (x0 + nx_ * hw, y0 + ny_ * hw),
+                        (x0 - nx_ * hw, y0 - ny_ * hw), (x0 - dv[0] * 1.0 - nx_ * hw, y0 - dv[1] * 1.0 - ny_ * hw)])
+        arr = Polygon([(xt + nx_ * hw, yt + ny_ * hw), (xt + dv[0] * 1.0 + nx_ * hw, yt + dv[1] * 1.0 + ny_ * hw),
+                       (xt + dv[0] * 1.0 - nx_ * hw, yt + dv[1] * 1.0 - ny_ * hw), (xt - nx_ * hw, yt - ny_ * hw)])
+        lf = "L0" if s["level_from"] in ("ground", "Lmid") else s["level_from"]
+        if s["level_from"] != "ground":
+            zones_st.append((s["id"], "approach", lf, appr))
+        zones_st.append((s["id"], "arrival", s["level_to"], arr))
+    nsec = 0
+    for o in bd["openings"]:
+        if o["type"] not in ("door", "double_door"):
+            continue
+        w = wmap[o["wall_id"]]
+        sec_ = door_sector_poly(w, o)
+        nsec += 1
+        for sid, kind, lvl_, zp in zones_st:
+            if lvl_ == w["level"]:
+                a_ = sec_.intersection(zp).area
+                if a_ > 0.02:
+                    errs.append(f"{o['id']}: leaf swing sweeps {a_:.2f} m2 of the 1.0 m {kind} zone of stair {sid}")
+        # a leaf at rest must not stand in front of a usable window
+        lp = leaf_rest_poly(w, o)
+        for o2 in bd["openings"]:
+            if o2["type"] != "window" or o2["sill_height"] > 1.5:
+                continue
+            w2 = wmap[o2["wall_id"]]
+            if w2["level"] != w["level"]:
+                continue
+            fz = opening_poly(w2, o2, extra=0.5)
+            if lp.intersection(fz).area > 0.02:
+                errs.append(f"{o['id']}: leaf at rest stands in front of window {o2['id']}")
+    # parked sliding-door leaves: over solid wall, clear of pilasters, stairs, supports and exterior furniture
+    for o in bd["openings"]:
+        if o["type"] != "sliding_door" or not o.get("leaf_rest"):
+            continue
+        w = wmap[o["wall_id"]]
+        lr = o["leaf_rest"]
+        sx, sy, ux, uy, nx, ny, Lw = wall_frame(w)
+        u0, u1 = lr["u"]
+        if u0 < -EPS or u1 > Lw + EPS:
+            errs.append(f"{o['id']}: parked leaf u {lr['u']} runs past the wall ends (L {Lw:.2f})")
+        if o.get("state", {}).get("open"):
+            for o2 in bd["openings"]:
+                if o2 is o or o2["wall_id"] != w["id"] or o2["sill_height"] >= lr["height"]:
+                    continue
+                if min(u1, o2["offset_from_start"] + o2["width"]) - max(u0, o2["offset_from_start"]) > 0.02:
+                    errs.append(f"{o['id']}: parked leaf covers opening {o2['id']}")
+        pil = [pp for pp in bd.get("pilasters", []) if pp["wall"] == w["id"]]
+        for pp in pil:
+            pu = (pp["x"] - sx) * ux if abs(ux) > 0.5 else (pp["x"] - sy) * uy
+            if u0 - pp["width"] / 2 < pu < u1 + pp["width"] / 2 and lr["offset_from_face"] < pp["proud"] + 0.05 - EPS:
+                errs.append(f"{o['id']}: parked leaf {lr['offset_from_face']} m off the face hits pilaster at {pp['x']} (proud {pp['proud']})")
+        side = -1.0 if lr["side"] == "right" else 1.0
+        off = w["thickness"] / 2 + lr["offset_from_face"]
+        lpoly = Polygon([(sx + ux * u0 + nx * side * off, sy + uy * u0 + ny * side * off),
+                         (sx + ux * u1 + nx * side * off, sy + uy * u1 + ny * side * off),
+                         (sx + ux * u1 + nx * side * (off + lr["thickness"]), sy + uy * u1 + ny * side * (off + lr["thickness"])),
+                         (sx + ux * u0 + nx * side * (off + lr["thickness"]), sy + uy * u0 + ny * side * (off + lr["thickness"]))])
+        for s, sp in st_polys:
+            if lpoly.intersection(sp).area > 1e-4:
+                errs.append(f"{o['id']}: parked leaf intersects stair {s['id']}")
+        for rf in bd["roof"]:
+            for su in rf.get("supports", []):
+                if lpoly.intersection(box_poly(su["pos"], su["size"], 0)).area > 1e-5:
+                    errs.append(f"{o['id']}: parked leaf intersects roof support {su['pos']}")
+        for fid, (fl_, fp) in furn_polys.items():
+            if fl_ == "exterior" and lpoly.intersection(fp).area > 1e-4:
+                errs.append(f"{o['id']}: parked leaf intersects exterior furniture {fid}")
+    rep.check(f"B06[{bid}]", errs, f"every door leaf rest pose is clear of walls, furniture, stairs, balustrades and windows; {nsec} swing "
+                                   "sectors clear of the 1.0 m stair approach/arrival zones; parked sliding leaves over solid wall, clear "
+                                   "of pilasters, stairs, supports and exterior furniture")
     # ---- B07 furniture
     errs = []
     fl = [f for f in bd.get("furniture", []) if f["level"] in lv]
