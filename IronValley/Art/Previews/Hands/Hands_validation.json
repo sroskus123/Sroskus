@@ -69,9 +69,9 @@
    "Black_ORM": "Art/Textures/Characters/Gloves/T_Glove_Black_ORM.png"
   }
  },
- "seconds_this_run": 418.7,
- "time": "2026-09-27 05:48:24",
- "pose_fit_seconds": 347.9,
+ "seconds_this_run": 1058.1,
+ "time": "2026-09-27 08:00:32",
+ "pose_fit_seconds": 1058.1,
  "validate": {
   "limits": {
    "tip_palm_mm": 1.5,

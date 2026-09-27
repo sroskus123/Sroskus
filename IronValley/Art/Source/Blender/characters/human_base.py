@@ -566,8 +566,8 @@ HAND_CURL_TESTS = (("fist_90_100_70", (90, 100, 70)), ("fist_90_110_80", (90, 11
 _F = lambda a, b, c, d=0.0: {"mcp": a, "pip": b, "dip": c, "abd": d}      # noqa: E731
 ANAT_FIST_TESTS = (
     ("fist_90_100_70", {f: _F(90, 100, 70) for f in C.FINGERS4}),
-    ("fist_tuned", {"index": _F(90, 88, 55, -1), "middle": _F(90, 100, 70), "ring": _F(90, 92, 60, 1),
-                    "pinky": _F(90, 100, 70, 2)}),
+    ("fist_tuned", {"index": _F(90, 88, 55, 4), "middle": _F(90, 100, 70), "ring": _F(90, 90, 57.5, -3),
+                    "pinky": _F(90, 100, 70, -6)}),
     ("grip_60_80_50", {f: _F(60, 80, 50) for f in C.FINGERS4}),
 )
 GRIP_MIN_GAP = 0.004          # m, fingertip to palm at 60/80/50
@@ -689,7 +689,7 @@ def p_wrist_twist(arm):
 # Hand test poses in ANATOMICAL angles (ivchar.pose_hand_anat; 0 = straight finger).  The full
 # fist is the pose library's tuned fist (hands_gloves.py), thumb over the index / middle.
 _T = lambda a, b, c, d, e: {"cmc_flex": a, "cmc_abd": b, "cmc_rot": c, "mcp": d, "ip": e}   # noqa: E731
-FIST = dict(ANAT_FIST_TESTS[1][1], thumb=_T(40, 30, 0, 40, 20))
+FIST = dict(ANAT_FIST_TESTS[1][1], thumb=_T(36, 30, 0, 40, 20))
 GRIP = dict({f: _F(60, 80, 50) for f in C.FINGERS4}, thumb=_T(20, 20, 10, 20, 25))
 HALF = dict({f: _F(45, 50, 30) for f in C.FINGERS4}, thumb=_T(10, 8, 8, 12, 20))
 SPREAD = dict(index=_F(-5, 0, 0, 12), middle=_F(-5, 0, 0, 2), ring=_F(-5, 0, 0, -10), pinky=_F(-5, 0, 0, -22),
@@ -743,7 +743,7 @@ POSES = [
     ("wrist_flex", p_wrist_flex, "left wrist flexion 70 deg, right wrist extension 60 deg"),
     ("wrist_twist", p_wrist_twist, "hand rotated 80 deg about the forearm axis"),
     ("upperarm_roll", p_upperarm_roll, "elbows 90 deg, upper arm rolled 70 deg about its axis (internal rotation)"),
-    ("fist", p_fist, "full fist (anatomical): index 90/88/55, middle 90/100/70, ring 90/92/60, pinky 90/100/70, thumb over index / middle"),
+    ("fist", p_fist, "full fist (anatomical): index 90/88/55 abd +4, middle 90/100/70, ring 90/90/57.5 abd -3, pinky 90/100/70 abd -6, thumb over index / middle"),
     ("fingers_grip", p_grip, "grip (anatomical): fingers 60/80/50 deg"),
     ("fingers_half", p_half, "transition (anatomical): fingers 45/50/30 deg"),
     ("fingers_spread", p_spread, "spread: MCP -5, abduction index +12 / middle +2 / ring -10 / pinky -22, thumb radial abduction"),

@@ -161,12 +161,10 @@ def build(layout, bjson, res=0.25, with_trees=True, playable_only=True):
         c = bp["position"][:2]
         rot = bp["rotation_deg"]
         zf = bp["position"][2]
-        fp = [xf(c, rot, p) for p in (np.array(bd["footprint_parts"][0]["external_rect"]).tolist())]
-        # full footprint
-        ext = np.array([p for part in bd["footprint_parts"] for p in part["external_rect"]])
-        x0, y0 = ext.min(axis=0)
-        x1, y1 = ext.max(axis=0)
-        fpm = g.poly_mask([xf(c, rot, p) for p in ((x0, y0), (x1, y0), (x1, y1), (x0, y1))])
+        # exact footprint = union of the parts (L-shaped plans: the notch in front of the workshop annex stays yard)
+        fpm = np.zeros(g.shape, bool)
+        for part in bd["footprint_parts"]:
+            fpm |= g.poly_mask([xf(c, rot, p) for p in part["external_rect"]])
         F[fpm] = zf
         rf = roof_height_fn(bp, bd)(X, Y)
         solid = np.where(~np.isnan(rf), np.fmax(solid, rf), solid)
@@ -186,7 +184,7 @@ def build(layout, bjson, res=0.25, with_trees=True, playable_only=True):
                 if o["wall_id"] != w["id"]:
                     continue
                 passable = o["type"] in ("door", "double_door", "opening") or (
-                    o["type"] == "roller_door" and o.get("state", {}).get("open_height", 0) >= 2.05)
+                    o["type"] in ("roller_door", "sliding_door") and o.get("passes", {}).get("movement"))
                 if not passable:
                     continue
                 gg = C.opening_geom(w, o)
@@ -276,14 +274,18 @@ def build(layout, bjson, res=0.25, with_trees=True, playable_only=True):
         blocked |= m
         if p.get("blocks_vision", True):
             solid = np.where(m, np.fmax(solid, p["position"][2] + p["size"][2]), solid)
-    # ---- fences / hedges / low walls
+    # ---- fences / hedges / low walls (vision only up to solid_height for mesh-topped walls)
     for fz in layout["fences_walls_hedges"]:
         pl = fz["polyline"]
         for a, b in zip(pl[:-1], pl[1:]):
             m = g.seg_mask(a, b, 0.2 if "hedge" not in fz["type"] else 0.6)
             blocked |= m
             if fz["blocks_vision"]:
-                solid = np.where(m, np.fmax(solid, H + fz["height"]), solid)
+                hv = fz["height"] if "hedge" in fz["type"] else fz.get("solid_height", fz["height"])
+                solid = np.where(m, np.fmax(solid, H + hv), solid)
+    # ---- utility poles (thin cylinders: movement only in this raster)
+    for po in layout.get("utility_lines", {}).get("poles", []):
+        blocked |= g.disk_mask(po["pos"][:2], po.get("collision_radius", 0.14) + 0.01)
     # ---- vegetation blocks (shrub belts / copses): block movement + vision
     for vb in layout.get("vegetation_blocks", []):
         if vb["type"] in ("shrub_belt", "windbreak_belt"):

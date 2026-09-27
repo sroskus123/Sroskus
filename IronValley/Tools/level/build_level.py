@@ -727,6 +727,13 @@ retaining_walls = [
      "note": "south return of the dock face: the platform is entered from the south only east of x 36.5 (declared south approach)"},
 ]
 
+for _rw in retaining_walls:
+    if _rw["top_z"] is None:
+        _st = next(st for st in stamps if st["id"] == _rw["id"])
+        _rw["top_z_profile"] = list(_st["top_z"])
+        _rw["top_z"] = max(_st["top_z"])
+        _rw["height_range_m"] = [r2(min(_st["top_z"]) - _rw["bottom_z"]), r2(max(_st["top_z"]) - _rw["bottom_z"])]
+
 # fences (see-through, movement-blocking), hedges (vision-blocking only), low walls (cover)
 FENCES = []
 # fence / wall types (layout.fences_walls_hedges[].type):
@@ -1504,12 +1511,12 @@ def utility_lines():
     obst += [_Pg(box_poly_w(p_["position"][:2], p_["size"], p_["rotation_deg"])) for p_ in PROPS]
     obst += [_Ls(f["polyline"]).buffer(0.3) for f in FENCES]
     obst += [_Ls(rw["polyline"]).buffer(rw["thickness"] / 2 + 0.2) for rw in retaining_walls]
-    obst += [_Ls([q[:2] for q in st["polyline"]]).buffer(st["width"] / 2 + st.get("shoulder", 0) + 0.4) for st in stamps
-             if st["kind"] == "road"]
     obst += [_Ls(br["ends"]).buffer(br["width"] / 2 + 1.0) for br in bridges]
     obst += [_Ls([q[:2] for q in BROOK]).buffer(3.6)]
     from shapely.ops import unary_union as _uu
     O = _uu(obst)
+    RO = _uu([_Ls([q[:2] for q in st["polyline"]]).buffer(st["width"] / 2 + st.get("shoulder", 0) + 0.4) for st in stamps
+              if st["kind"] == "road"])
     soft = _Pg(SOFT).buffer(20.0)
     poles, spans = [], []
 
@@ -1522,7 +1529,7 @@ def utility_lines():
             for ds_ in (0, 1.5, -1.5, 3, -3, 4.5, -4.5, 6, -6):
                 s1 = min(max(0.0, s0 + ds_), L_.length)
                 q = L_.interpolate(s1)
-                if O.distance(q) >= 1.0 and soft.contains(q):
+                if O.distance(q) >= 1.0 and RO.distance(q) >= 0.05 and soft.contains(q):
                     ok = q
                     break
             if ok is None:
@@ -1536,9 +1543,9 @@ def utility_lines():
         for a_, b_ in zip(ids[:-1], ids[1:]):
             spans.append({"from": a_, "to": b_, "wires": 2, "sag_m": 0.45, "attach_z": 8.05})
 
-    place("A", RA_XY, -4.4, [6.0, 40.0, 74.0, 108.0, 142.0, 176.0], lamps=(0, 1))
-    place("B", RB_XY, -4.4, [12.0, 46.0, 80.0, 114.0, 148.0], lamps=(0,))
-    place("E", TRACK_E_XY, -2.3, [8.0, 40.0, 72.0, 104.0])
+    place("A", RA_XY, -4.7, [6.0, 40.0, 74.0, 108.0, 142.0, 176.0], lamps=(0, 1))
+    place("B", RB_XY, -4.7, [12.0, 46.0, 80.0, 114.0, 148.0], lamps=(0,))
+    place("E", TRACK_E_XY, -2.6, [8.0, 40.0, 72.0, 104.0])
     drops = []
     for bp, att in (("B_DILNA", (-8.6, 4.9, 4.0)), ("B_SKLAD", (-12.4, 5.5, 5.0)), ("B_DUM", (5.4, 4.6, 5.5))):
         b_ = next(b for b in main_buildings if b["id"] == bp)

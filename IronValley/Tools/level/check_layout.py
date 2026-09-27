@@ -187,6 +187,62 @@ def leaf_rest_poly(w, o):
     return unary_union(polys)
 
 
+def is_walk_opening(o):
+    """door-like opening a character can pass (open doors, open roller / sliding doors)."""
+    if o["type"] in ("door", "double_door"):
+        return True
+    if o["type"] in ("roller_door", "sliding_door"):
+        return bool(o.get("passes", {}).get("movement"))
+    return False
+
+
+def door_sector_poly(w, o, n_arc=12):
+    """area swept by every leaf from closed to its rest angle (for swing-vs-stair checks)."""
+    sx, sy, ux, uy, nx, ny, L = wall_frame(w)
+    a = o["offset_from_start"] + o.get("frame_jamb", 0.05)
+    b = o["offset_from_start"] + o["width"] - o.get("frame_jamb", 0.05)
+    side = 1.0 if o["swing"] == "left" else -1.0
+    face = w["thickness"] / 2.0
+    ang = math.radians(o.get("open_deg", 90) or 0)
+    hinges = [(a, +1, (b - a) / 2), (b, -1, (b - a) / 2)] if o["type"] == "double_door" else \
+        ([(a, +1, b - a)] if o["hinge"] == "start" else [(b, -1, b - a)])
+    polys = []
+    for u0, sgn, length in hinges:
+        hx, hy = sx + ux * u0 + nx * side * face, sy + uy * u0 + ny * side * face
+        cx, cy = sgn * ux, sgn * uy
+        px, py = nx * side, ny * side
+        pts = [(hx, hy)]
+        for k in range(n_arc + 1):
+            t = ang * k / n_arc
+            pts.append((hx + (cx * math.cos(t) + px * math.sin(t)) * length, hy + (cy * math.cos(t) + py * math.sin(t)) * length))
+        polys.append(Polygon(pts).buffer(0))
+    return unary_union(polys)
+
+
+def roof_plane_at(rf, x, y):
+    """roof plane height at local (x, y), extrapolated beyond the wall rectangle (for drip edges / gutters)."""
+    P = rf.get("wall_rect") or rf.get("rect")
+    x0, y0 = min(p[0] for p in P), min(p[1] for p in P)
+    x1, y1 = max(p[0] for p in P), max(p[1] for p in P)
+    tp = math.tan(math.radians(rf["pitch_deg"]))
+    if rf["type"] == "gable":
+        if rf.get("ridge_axis", "X") == "X":
+            return rf["eave_z"] + ((y1 - y0) / 2 - abs(y - (y0 + y1) / 2)) * tp
+        return rf["eave_z"] + ((x1 - x0) / 2 - abs(x - (x0 + x1) / 2)) * tp
+    if rf["type"] == "hip":
+        dy = (y1 - y0) / 2 - abs(y - (y0 + y1) / 2)
+        dx = (x1 - x0) / 2 - abs(x - (x0 + x1) / 2)
+        ab = rf.get("abuts") or {}
+        if ("+X" in ab and x > (x0 + x1) / 2) or ("-X" in ab and x < (x0 + x1) / 2):
+            dx = 1e9
+        return rf["eave_z"] + min(dy, dx) * tp
+    if rf["type"] == "mono":
+        d = rf["slope_direction"]
+        return {"-X": rf["high_z"] - (x1 - x) * tp, "+X": rf["high_z"] - (x - x0) * tp,
+                "-Y": rf["high_z"] - (y1 - y) * tp, "+Y": rf["high_z"] - (y - y0) * tp}[d]
+    return None
+
+
 def shoelace(poly):
     return Polygon(poly).area
 

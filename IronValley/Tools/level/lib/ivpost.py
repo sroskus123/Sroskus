@@ -935,9 +935,8 @@ def compute_balance(layout, ras, cost, walk):
         spawn_areas.append({"team": t, "polygon": poly, "polygon_role": "team staging area (convex hull of all rows + 3 m); "
                             "enemies inside it never count for respawn selection", "candidate_points": cps,
                             "rows": [{k: v for k, v in rw.items() if k not in ("pts", "yaw")} for rw in rows.values()],
-                            "selection_rule": "use the 8 points tagged with the active zone; at round start all 6 members take distinct "
-                                              "points (front ranks first); on respawn pick the free point with the largest distance to "
-                                              "any visible enemy (>= 25 m, rules.json respawn.minEnemyDistance)"})
+                            "selection_rule": "see ai_navigation.spawn_selection (the single normative rule: round start, respawn_score, "
+                                              "hard rule and fallback_rows)"})
     layout["spawn_areas"] = spawn_areas
     for zn in layout["capture_zones"]:
         zid = zn["id"]
@@ -1468,11 +1467,12 @@ def chokepoints(layout):
         {"id": "CK_DUM_W_GATE", "at": _bworld(layout, "B_DUM", (-15.3, 3.0)), "width": 2.4, "type": "gate", "zone": "zone_dvur"},
         {"id": "CK_DUM_S_GATE", "at": _bworld(layout, "B_DUM", (-1.0, -13.2)), "width": 2.2, "type": "gate", "zone": "zone_dvur"},
         {"id": "CK_SKLAD_GATE", "at": [12.5, 17.0], "width": 7.0, "type": "yard gate", "zone": "zone_sklad"},
-        {"id": "CK_DOCK_STEPS", "at": _bworld(layout, "B_SKLAD", (-13.0, 9.25)), "width": 1.5, "type": "stair", "zone": "zone_sklad"},
-        {"id": "CK_DOCK_MID", "at": _bworld(layout, "B_SKLAD", (0.0, 11.5)), "width": 2.0, "type": "stair", "zone": "zone_sklad"},
-        {"id": "CK_DOCK_RAMP", "at": _bworld(layout, "B_SKLAD", (15.5, 9.25)), "width": 3.0, "type": "ramp", "zone": "zone_sklad"},
-        {"id": "CK_SKLAD_RAMP_E", "at": [61.0, 17.0], "width": 5.0, "type": "field ramp", "zone": "zone_sklad",
-         "note": "rear yard <-> E ring through the 4 m cut bank"},
+        {"id": "CK_DOCK_RAMP", "at": _bworld(layout, "B_SKLAD", (14.0, 12.5)), "width": 2.8, "type": "ramp", "zone": "zone_sklad",
+         "note": "SK_X3 vehicle ramp 1:6 from the yard onto the dock north end"},
+        {"id": "CK_SKLAD_REAR_SE", "at": [53.5, 2.5], "width": 7.0, "type": "yard gate", "zone": "zone_sklad",
+         "note": "rear yard entered at grade from TRACK_SKLAD_REAR (south-east corner of the platform)"},
+        {"id": "CK_SKLAD_NORTH", "at": [34.5, 33.5], "width": 5.0, "type": "yard gate", "zone": "zone_sklad",
+         "note": "north pocket between the warehouse and the windbreak: the dock north end is at grade here (declared access)"},
     ]
     for st in layout["terrain"]["stamps"]:
         if st["kind"] == "sunken_lane":
@@ -1485,7 +1485,7 @@ def chokepoints(layout):
         bd = next(b for b in IB.all_buildings() if b["id"] == bp["id"])
         wmap = {w["id"]: w for w in bd["walls"]}
         for o in bd["openings"]:
-            if o["type"] in ("door", "double_door") or (o["type"] == "roller_door" and o["passes"]["movement"]):
+            if is_walk_opening(o):
                 gg = C.opening_geom(wmap[o["wall_id"]], o)
                 ck.append({"id": f"CK_{o['id']}", "at": _bworld(layout, bp["id"], gg["mid"]), "width": o["clear_width"],
                            "type": o["type"], "building": bp["id"], "level": wmap[o["wall_id"]]["level"], "zone": bp["zone"]})
@@ -1503,13 +1503,13 @@ def ai_nav(layout):
         bd = next(b for b in bj if b["id"] == bp["id"])
         wmap = {w["id"]: w for w in bd["walls"]}
         for o in bd["openings"]:
-            if o["type"] not in ("door", "double_door", "roller_door"):
+            if o["type"] not in ("door", "double_door", "roller_door", "sliding_door"):
                 continue
             w = wmap[o["wall_id"]]
             gg = C.opening_geom(w, o)
             mid = R.xf(bp["position"][:2], bp["rotation_deg"], gg["mid"])
             lvl = next(l for l in bd["levels"] if l["id"] == w["level"])
-            passable = o["type"] != "roller_door" or o["passes"]["movement"]
+            passable = is_walk_opening(o)
             doors.append({"building": bp["id"], "opening": o["id"], "pos": [r2(mid[0]), r2(mid[1]), r2(bp["position"][2] + lvl["floor_z"])],
                           "clear_width": o["clear_width"], "clear_height": o["clear_height"], "initial_open_deg": o.get("open_deg"),
                           "passable_v1": passable, "level": w["level"],
@@ -1551,10 +1551,17 @@ def ai_nav(layout):
                   "reservation": "one agent per door portal per 1.2 s; others wait at the approach point or repath after 2.0 s",
                   "blocked_leaf": "if the leaf is blocked for more than 2.5 s the door_link is disabled for that bot for 20 s and it "
                                   "repaths (AI-02 recovery 2-3 s)",
-                  "bots_never_close_doors": True, "closed_roller_door": "SK_RD2 is closed, padlocked and baked as a wall",
+                  "bots_never_close_doors": True,
+                  "closed_sliding_door": "SK_SD2 is closed, padlocked and baked as a wall; open sliding doors keep their leaf parked "
+                                         "over solid wall (leaf_rest), never across a window or a door",
                   "list": doors},
         "offmesh_links": [
-            {"type": "drop", "one_way": True, "where": "loading dock edge (1.10 m) along its whole length", "cost": 1.5},
+            {"type": "drop", "one_way": True, "where": "loading dock face RW_SKLAD_DOCK (1.10 m) along its whole length", "cost": 1.5},
+            {"type": "traverse", "one_way": False, "duration_s": 0.9, "cost": 2.0,
+             "where": ["dock face RW_SKLAD_DOCK: mantle up 1.10 m (every 2 m)", "LW_SKLAD_S (0.90)", "LW_DUM_GARDEN (1.00)",
+                       "LW_KAPLE (1.10)", "RW_DUM garden parapet from the terrace side onto the coping is NOT linked (2.1 m drop behind)"],
+             "rule": "parity with the player traversal of Web/src/data/movement.json (vault/mantle 0.5-1.3 m, drop behind <= 1.0 m): "
+                     "players and bots cross the same declared edges"},
             {"type": "door_link", "one_way": False, "where": "every doorway in ai_navigation.doors.list", "cost": "0 open / +2 m closed"},
         ],
         "cover": "use cover_points (baked, with facing_deg, peek, capacity 1) + runtime reservation; low cover requires crouch; "
@@ -1562,8 +1569,7 @@ def ai_nav(layout):
         "stuck_recovery": "no progress > 0.5 m in 2.5 s -> repath with the blocked edge penalised x10 for 10 s; after 2 failures pick "
                           "the next lane (primary -> flank) or the nearest hold point; never teleport (AI-02)",
         "hold_points": hold_points(layout),
-        "hold_room_state": "bots holding an upper floor (dílna office, house L1) use a 'hold room' state with one bot on the stair-watch "
-                           "cover point (top of the flight) and the others on window points; they leave when the zone is lost",
+        "hold_room_state": hold_room_state(layout),
         "lane_usage": "at round start each team splits 3 primary / 2 flank / 1 support (support follows the primary lane 15 m behind); "
                       "respawned bots re-roll with 60 % primary",
         "spawn_selection": {"round_start": "the 6 members take distinct points of the active row, front ranks first",
@@ -1572,20 +1578,35 @@ def ai_nav(layout):
                                              "within 30 m; highest score wins, ties broken by the round seed (Mulberry32 as in "
                                              "Shared/testvectors/rng.json)",
                             "hard_rule": "never spawn within rules.json respawn.minEnemyDistance (25 m) of a living enemy or inside "
-                                         "bodyClearance (1.0 m) of any character; if the active row fails, use the team's other row, "
-                                         "then any row of the team; the forward rows (s 84-92 m: ALFA_R2, BRAVO_R2, CHARLIE_R1) are the most exposed and always "
-                                         "apply the hard rule"},
+                                         "bodyClearance (1.0 m) of any character; if no point of the active row passes, use the rows listed in "
+                                         "fallback_rows[zone][team] (LOS-clean for that zone), else wait 2 s and re-score; the forward rows (s 84-92 m: ALFA_R2, BRAVO_R2, CHARLIE_R1) are the most exposed and always "
+                                         "apply the hard rule",
+                            "normative": "this block is the single normative respawn rule; spawn_areas[].selection_rule only refers to it"},
     }
 
 
 def hold_points(layout):
     out = {}
+    cps = layout.get("cover_points", {}).get("points", [])
     for z in layout["capture_zones"]:
-        P = Polygon(z["polygon"])
-        c = P.centroid
-        out[z["id"]] = {"note": "positions inside the zone with cover; pick by threat direction", "count_rule": ">= 8 per zone",
-                        "from_cover_points": "cover_points whose zones contain this id and that lie inside the polygon"}
+        ids = [c["id"] for c in cps if z["id"] in c.get("inside_zone", [])]
+        out[z["id"]] = {"note": "positions inside the zone (and its z band) with cover; pick by threat direction", "count_rule": ">= 8 per zone",
+                        "points": ids, "interior_points": [c["id"] for c in cps if z["id"] in c.get("inside_zone", [])
+                                                           and c["kind"] in ("interior_object", "window")]}
     return out
+
+
+def hold_room_state(layout):
+    cps = layout.get("cover_points", {}).get("points", [])
+    rooms = {}
+    for c in cps:
+        if c.get("level") not in (None, "L0") and c.get("building"):
+            rooms.setdefault(c["building"], {"stair_watch": [], "windows": [], "interior": []})
+            key = {"stair_watch": "stair_watch", "window": "windows"}.get(c["kind"], "interior")
+            rooms[c["building"]][key].append(c["id"])
+    return {"rule": "bots holding an upper floor use a 'hold room' state: one bot on a stair_watch point (top of the flight, facing "
+                    "down it), the others on window points; they leave when the zone is lost",
+            "by_building": rooms}
 
 
 def perf_budget(layout):
@@ -1600,8 +1621,10 @@ def perf_budget(layout):
              "building interiors (merged per room group, culled by portals)": 25,
              "secondary buildings (merged per material per 50 m chunk)": 20,
              "props (InstancedMesh per catalog type, ~48 types)": 48,
-             "trees (InstancedMesh per species x LOD, 14 x 3 incl. impostor band)": 42,
-             "understory / grass (instanced, 3 types x 2 LOD, 40 m radius)": 6,
+             "trees (InstancedMesh per species x LOD, 17 species; distant species share impostor atlases -> 42 batches)": 42,
+             "understory / grass / flowers (instanced, R09 + R17: 5 types x 2 LOD, 40 m radius)": 8,
+             "utility poles + wires (InstancedMesh + 1 line batch)": 2,
+             "boundary barriers (fence posts, mesh, jersey barriers, signs: 4 instanced batches)": 4,
              "characters (18 skinned bodies + gear + weapons + FPS arms)": 60,
              "water, decals, sky, clouds, zone marker": 12,
              "shadow pass (3 CSM cascades; trees beyond 60 m and props < 0.5 m do not cast)": 150,
@@ -1655,7 +1678,7 @@ def qa_points(layout):
         lv = {l["id"]: l for l in bd["levels"]}
         c0, rot, zf = bp["position"][:2], bp["rotation_deg"], bp["position"][2]
         for o in bd["openings"]:
-            if o["type"] not in ("door", "double_door") and not (o["type"] == "roller_door" and o["passes"]["movement"]):
+            if not is_walk_opening(o):
                 continue
             w = wmap[o["wall_id"]]
             gg = C.opening_geom(w, o)
@@ -1691,9 +1714,9 @@ def qa_points(layout):
         for st in rw.get("stairs", []):
             b0, t0 = st["bottom_center_world"], st["top_center_world"]
             add(f"QA_{st['id']}_bottom", "stair", [b0[0], b0[1], rw["bottom_z"]], f"{st['risers']} x {st['riser']:.3f} / {st['tread']}")
-            add(f"QA_{st['id']}_top", "stair", [t0[0], t0[1], rw["top_z"] - (0.60 if rw.get("parapet") else 0.10)], "")
+            add(f"QA_{st['id']}_top", "stair", [t0[0], t0[1], rw["top_z"] - (rw["parapet"]["height_above_terrace"] if rw.get("parapet") else 0.10)], "")
     for ck in layout["chokepoints"]:
-        if "at" in ck and ck["type"] in ("bridge", "footbridge", "ramp", "gate", "yard gate", "field ramp"):
+        if "at" in ck and ck["type"] in ("bridge", "footbridge", "ramp", "gate", "yard gate", "field ramp") and not ck.get("building"):
             a = ck["at"] if not isinstance(ck["at"][0], list) else [(ck["at"][0][0] + ck["at"][1][0]) / 2, (ck["at"][0][1] + ck["at"][1][1]) / 2]
             add(f"QA_{ck['id']}", "chokepoint", [a[0], a[1], float(T.height_at(layout, a[0], a[1])[0])], f"width {ck['width']} m")
     for st in layout["terrain"]["stamps"]:

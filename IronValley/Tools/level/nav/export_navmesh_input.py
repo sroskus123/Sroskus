@@ -138,7 +138,7 @@ def main():
                 m = W((sx + ux * (u0 + u1) / 2, sy + uy * (u0 + u1) / 2))
                 S.add_obox(m[0], m[1], u1 - u0, w["thickness"], ang, zl + cb["z"][0], zl + cb["z"][1])
             for o in bd["openings"]:
-                if o["wall_id"] == w["id"] and o["type"] == "roller_door" and not o["passes"]["movement"]:
+                if o["wall_id"] == w["id"] and o["type"] in ("roller_door", "sliding_door") and not o["passes"]["movement"]:
                     a_, b_ = o["offset_from_start"], o["offset_from_start"] + o["width"]
                     m = W((sx + ux * (a_ + b_) / 2, sy + uy * (a_ + b_) / 2))
                     S.add_obox(m[0], m[1], b_ - a_, w["thickness"], ang, zl, zl + o["head_height"])
@@ -233,7 +233,21 @@ def main():
             S.add_obox(m[0], m[1], col["size"][0], col["size"][1], rot, zf, zf + col["height"])
         for ch in bd.get("chimneys", []):
             m = W(ch["pos"])
-            S.add_obox(m[0], m[1], ch.get("size", [0.3, 0.3])[0], ch.get("size", [0.3, 0.3])[1], rot, zf - 0.2, zf + 6.0)
+            zb = ch.get("base_z", 0.0)
+            S.add_obox(m[0], m[1], ch.get("size", [0.3, 0.3])[0], ch.get("size", [0.3, 0.3])[1], rot, zf + zb - (0.2 if zb <= 0 else 0.0),
+                       zf + max(zb + 1.0, 6.0))
+        for o in bd["openings"]:
+            if o["type"] == "sliding_door" and o["passes"]["movement"] and o.get("leaf_rest"):
+                # parked leaf: a thin box on the outside face beside the opening
+                w = next(w_ for w_ in bd["walls"] if w_["id"] == o["wall_id"])
+                sx, sy, ux, uy, nx, ny, Lw = C.wall_frame(w)
+                lr = o["leaf_rest"]
+                side = -1.0 if lr["side"] == "right" else 1.0
+                off = w["thickness"] / 2 + lr["offset_from_face"] + lr["thickness"] / 2
+                u0, u1 = lr["u"]
+                m = W((sx + ux * (u0 + u1) / 2 + nx * side * off, sy + uy * (u0 + u1) / 2 + ny * side * off))
+                zl = zf + lv[w["level"]]["floor_z"]
+                S.add_obox(m[0], m[1], u1 - u0, lr["thickness"], math.degrees(math.atan2(uy, ux)) + rot, zl, zl + lr["height"])
         if bd.get("loading_dock"):
             S.add_prism([W(p) for p in bd["loading_dock"]["polygon"]], zf - 1.20, zf)
         for st in bd.get("exterior_steps", []):
@@ -261,7 +275,7 @@ def main():
         if sb.get("embedded_in"):
             S.add_prism(sb["footprint_world"], z - 0.2, sb["roof_deck_top_z"])
             continue
-        if sb["type"] == "bus_shelter":
+        if sb["type"].startswith("bus_shelter"):
             S.add_prism(sb["footprint_world"], z - 0.3, z + sb["eave_height"])
             continue
         S.add_prism(sb["footprint_world"], z - 0.6, z + sb["eave_height"])
@@ -300,8 +314,10 @@ def main():
         for i0, i1 in segs:
             a, b = rw["polyline"][i0], rw["polyline"][i1]
             m = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
+            prof = rw.get("top_z_profile")
+            ztop = max(prof[i0], prof[i1]) if prof else rw["top_z"]
             S.add_obox(m[0], m[1], math.dist(a, b), rw["thickness"], math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])),
-                       rw["bottom_z"] - 0.5, rw["top_z"])
+                       rw["bottom_z"] - 0.5, ztop)
     # ---------------- retaining-wall stairs as explicit ramps (the terrain stamp alone is too coarse at 0.5 m)
     for rw in L["retaining_walls"]:
         for st in rw.get("stairs", []):
@@ -337,6 +353,24 @@ def main():
             off = n * sg * (hw + 0.05)
             m = (np.array(a) + np.array(b)) / 2 + off
             S.add_obox(m[0], m[1], Lb, 0.08, math.degrees(math.atan2(d[1], d[0])), min(za, zb), max(za, zb) + br["railing"]["height"])
+    # ---------------- bridge underpass screens (review P2-BRIDGE-UNDERPASS): the channel under each deck is closed
+    for br in L["bridges"]:
+        if br.get("underpass", {}).get("treatment") != "closed":
+            continue
+        a, b = np.array(br["ends"][0], float), np.array(br["ends"][1], float)
+        d = (b - a) / np.linalg.norm(b - a)
+        n = np.array([-d[1], d[0]])
+        for sg in (-1, 1):
+            p0 = a + n * sg * (br["width"] / 2 + 0.05)
+            p1 = b + n * sg * (br["width"] / 2 + 0.05)
+            m = (p0 + p1) / 2
+            zlo = min(float(T.height_at(L, *q)[0]) for q in (p0 + (p1 - p0) * t for t in np.linspace(0, 1, 9)))
+            S.add_obox(m[0], m[1], np.linalg.norm(p1 - p0), 0.06, math.degrees(math.atan2(d[1], d[0])), zlo - 0.3,
+                       min(br["deck_z"]) - br.get("deck_thickness", 0.3))
+    # ---------------- utility poles
+    for po in L.get("utility_lines", {}).get("poles", []):
+        r = po.get("collision_radius", 0.14)
+        S.add_obox(po["pos"][0], po["pos"][1], 2 * r, 2 * r, 0, po["pos"][2] - 0.3, po["pos"][2] + po["height"])
     # ---------------- tree trunks
     sp = L["trees"]["species"]
     for t in L["trees"]["instances"]:
@@ -373,7 +407,8 @@ def main():
             ents.append({"id": ck["id"] + (f"#{k}" if len(pts) > 1 else ""), "pos": [p[0], p[1], zz], "type": ck["type"]})
     for rw in L["retaining_walls"]:
         for st in rw.get("stairs", []):
-            for tag, p, zz in (("bottom", st["bottom_center_world"], rw["bottom_z"]), ("top", st["top_center_world"], rw["top_z"] - (0.60 if rw.get("parapet") else 0.10))):
+            for tag, p, zz in (("bottom", st["bottom_center_world"], rw["bottom_z"]),
+                               ("top", st["top_center_world"], rw["top_z"] - (rw["parapet"]["height_above_terrace"] if rw.get("parapet") else 0.10))):
                 ents.append({"id": f"{st['id']}_{tag}", "pos": [p[0], p[1], zz], "type": "retaining-wall stair"})
     for q in L["qa_points"]:
         if q["kind"] == "stair":
