@@ -4,36 +4,36 @@
   "local_rotation": "finger _01: q = Rz(abd * side) * Rx(mcp - rest); _02/_03: Rx(angle - rest); thumb_01: Rx(cmc_flex) * Rz(cmc_abd * side) * Ry(cmc_rot * side); side = +1 left, -1 right; rest offsets below",
   "rest_offsets_deg": {
    "l": {
-    "index_01_l": 13.1,
+    "index_01_l": 13.067,
     "index_02_l": 10.606,
-    "index_03_l": 3.934,
-    "middle_01_l": 14.301,
+    "index_03_l": 3.933,
+    "middle_01_l": 14.183,
     "middle_02_l": 7.586,
-    "middle_03_l": 2.048,
-    "ring_01_l": 10.768,
-    "ring_02_l": 10.214,
+    "middle_03_l": 2.046,
+    "ring_01_l": 10.825,
+    "ring_02_l": 10.212,
     "ring_03_l": 1.103,
-    "pinky_01_l": 13.195,
-    "pinky_02_l": 13.709,
-    "pinky_03_l": -4.814,
-    "thumb_02_l": 3.111,
-    "thumb_03_l": 8.362
+    "pinky_01_l": 13.194,
+    "pinky_02_l": 13.711,
+    "pinky_03_l": -4.81,
+    "thumb_02_l": 3.065,
+    "thumb_03_l": 8.351
    },
    "r": {
-    "index_01_r": 13.1,
+    "index_01_r": 13.067,
     "index_02_r": 10.606,
-    "index_03_r": 3.934,
-    "middle_01_r": 14.301,
+    "index_03_r": 3.933,
+    "middle_01_r": 14.183,
     "middle_02_r": 7.586,
-    "middle_03_r": 2.048,
-    "ring_01_r": 10.768,
-    "ring_02_r": 10.214,
+    "middle_03_r": 2.046,
+    "ring_01_r": 10.825,
+    "ring_02_r": 10.212,
     "ring_03_r": 1.103,
-    "pinky_01_r": 13.195,
-    "pinky_02_r": 13.709,
-    "pinky_03_r": -4.814,
-    "thumb_02_r": 3.111,
-    "thumb_03_r": 8.362
+    "pinky_01_r": 13.194,
+    "pinky_02_r": 13.711,
+    "pinky_03_r": -4.81,
+    "thumb_02_r": 3.065,
+    "thumb_03_r": 8.351
    }
   },
   "hand_attach": "hand_<s> bone WORLD matrix expressed in the weapon socket frame (Blender axes, metres): hand_world = socket_world * hand_attach"
@@ -284,11 +284,11 @@
       "abd": 2.0
      },
      "thumb": {
-      "cmc_flex": 47.95048457037206,
-      "cmc_abd": 36.1630150737853,
-      "cmc_rot": -19.36130971416591,
-      "mcp": 41.02816745531585,
-      "ip": 46.93019554397497
+      "cmc_flex": 69.53576445482062,
+      "cmc_abd": 47.86166544722873,
+      "cmc_rot": -21.96885134604422,
+      "mcp": 8.736603465557508,
+      "ip": 79.98041745654606
      }
     },
     "r": {
@@ -317,11 +317,11 @@
       "abd": 2.0
      },
      "thumb": {
-      "cmc_flex": 47.95048457037206,
-      "cmc_abd": 36.1630150737853,
-      "cmc_rot": -19.36130971416591,
-      "mcp": 41.02816745531585,
-      "ip": 46.93019554397497
+      "cmc_flex": 69.53576445482062,
+      "cmc_abd": 47.86166544722873,
+      "cmc_rot": -21.96885134604422,
+      "mcp": 8.736603465557508,
+      "ip": 79.98041745654606
      }
     }
    },
@@ -343,43 +343,43 @@
       "mcp": 90.0,
       "pip": 92.0,
       "dip": 60.0,
-      "tip_into_palm_mm": 0.92
+      "tip_into_palm_mm": 0.82
      },
      "pinky": {
       "mcp": 90.0,
       "pip": 100.0,
       "dip": 70.0,
-      "tip_into_palm_mm": 0.36
+      "tip_into_palm_mm": 0.39
      }
     },
     "thumb": {
      "angles": {
-      "cmc_flex": 47.95,
-      "cmc_abd": 36.16,
-      "cmc_rot": -19.36,
-      "mcp": 41.03,
-      "ip": 46.93
+      "cmc_flex": 69.54,
+      "cmc_abd": 47.86,
+      "cmc_rot": -21.97,
+      "mcp": 8.74,
+      "ip": 79.98
      },
      "terms": {
-      "pen": 6802.46557,
-      "contact": 1.8057,
-      "_gap": 0.00856,
-      "dir": 0.00923,
-      "_dir_deg": 2.46166,
-      "_min_sd": -0.01397
+      "pen": 1740.75649,
+      "contact": 5.9048,
+      "_gap": 0.01483,
+      "dir": 0.22167,
+      "_dir_deg": 12.0863,
+      "_min_sd": -0.00698
      },
-     "evaluations": 166,
+     "evaluations": 337,
      "grid_best": {
       "angles": {
-       "cmc_flex": 47.95048457037206,
-       "cmc_abd": 36.1630150737853,
-       "cmc_rot": -19.36130971416591,
-       "mcp": 41.02816745531585,
-       "ip": 46.93019554397497
+       "cmc_flex": 69.53576445482062,
+       "cmc_abd": 47.86166544722873,
+       "cmc_rot": -21.96885134604422,
+       "mcp": 8.736603465557508,
+       "ip": 79.98041745654606
       },
-      "penetration_mm": 13.69,
-      "pad_gap_mm": 3.06,
-      "direction_err_deg": 14.6
+      "penetration_mm": 13.68,
+      "pad_gap_mm": 2.7,
+      "direction_err_deg": 15.0
      }
     }
    },
@@ -415,11 +415,11 @@
       "abd": 0.5
      },
      "thumb": {
-      "cmc_flex": 0.738,
-      "cmc_abd": 9.041,
-      "cmc_rot": -4.84,
-      "mcp": 10.257,
-      "ip": 11.733
+      "cmc_flex": 6.134,
+      "cmc_abd": 11.965,
+      "cmc_rot": -5.492,
+      "mcp": 2.184,
+      "ip": 19.995
      }
     },
     "r": {
@@ -448,11 +448,11 @@
       "abd": 0.5
      },
      "thumb": {
-      "cmc_flex": 0.738,
-      "cmc_abd": 9.041,
-      "cmc_rot": -4.84,
-      "mcp": 10.257,
-      "ip": 11.733
+      "cmc_flex": 6.134,
+      "cmc_abd": 11.965,
+      "cmc_rot": -5.492,
+      "mcp": 2.184,
+      "ip": 19.995
      }
     }
    },
@@ -488,11 +488,11 @@
       "abd": 1.0
      },
      "thumb": {
-      "cmc_flex": 16.475,
-      "cmc_abd": 18.082,
-      "cmc_rot": -9.681,
-      "mcp": 20.514,
-      "ip": 23.465
+      "cmc_flex": 27.268,
+      "cmc_abd": 23.931,
+      "cmc_rot": -10.984,
+      "mcp": 4.368,
+      "ip": 39.99
      }
     },
     "r": {
@@ -521,11 +521,11 @@
       "abd": 1.0
      },
      "thumb": {
-      "cmc_flex": 16.475,
-      "cmc_abd": 18.082,
-      "cmc_rot": -9.681,
-      "mcp": 20.514,
-      "ip": 23.465
+      "cmc_flex": 27.268,
+      "cmc_abd": 23.931,
+      "cmc_rot": -10.984,
+      "mcp": 4.368,
+      "ip": 39.99
      }
     }
    },
@@ -561,11 +561,11 @@
       "abd": 1.5
      },
      "thumb": {
-      "cmc_flex": 32.213,
-      "cmc_abd": 27.122,
-      "cmc_rot": -14.521,
-      "mcp": 30.771,
-      "ip": 35.198
+      "cmc_flex": 48.402,
+      "cmc_abd": 35.896,
+      "cmc_rot": -16.477,
+      "mcp": 6.552,
+      "ip": 59.985
      }
     },
     "r": {
@@ -594,11 +594,11 @@
       "abd": 1.5
      },
      "thumb": {
-      "cmc_flex": 32.213,
-      "cmc_abd": 27.122,
-      "cmc_rot": -14.521,
-      "mcp": 30.771,
-      "ip": 35.198
+      "cmc_flex": 48.402,
+      "cmc_abd": 35.896,
+      "cmc_rot": -16.477,
+      "mcp": 6.552,
+      "ip": 59.985
      }
     }
    },
@@ -633,11 +633,11 @@
       "abd": 2.0
      },
      "thumb": {
-      "cmc_flex": 19.418306333831833,
-      "cmc_abd": 4.559574767614035,
-      "cmc_rot": -12.577578573273613,
-      "mcp": 36.02425949599151,
-      "ip": 49.31135225569139
+      "cmc_flex": 70.90006317492184,
+      "cmc_abd": 45.5913112914176,
+      "cmc_rot": -20.4504137829362,
+      "mcp": 31.70080170959417,
+      "ip": 79.98015812114474
      }
     },
     "r": {
@@ -666,43 +666,43 @@
       "abd": 2.0
      },
      "thumb": {
-      "cmc_flex": 19.418306333831833,
-      "cmc_abd": 4.559574767614035,
-      "cmc_rot": -12.577578573273613,
-      "mcp": 36.02425949599151,
-      "ip": 49.31135225569139
+      "cmc_flex": 70.90006317492184,
+      "cmc_abd": 45.5913112914176,
+      "cmc_rot": -20.4504137829362,
+      "mcp": 31.70080170959417,
+      "ip": 79.98015812114474
      }
     }
    },
    "fit": {
     "thumb": {
      "angles": {
-      "cmc_flex": 19.42,
-      "cmc_abd": 4.56,
-      "cmc_rot": -12.58,
-      "mcp": 36.02,
-      "ip": 49.31
+      "cmc_flex": 70.9,
+      "cmc_abd": 45.59,
+      "cmc_rot": -20.45,
+      "mcp": 31.7,
+      "ip": 79.98
      },
      "terms": {
-      "pen": 55162.36245,
-      "contact": 0.15582,
-      "_gap": -0.00148,
-      "dir": 6.20421,
-      "_dir_deg": 67.6924,
-      "_min_sd": -0.03969
+      "pen": 29861.35758,
+      "contact": 0.10998,
+      "_gap": 0.00271,
+      "dir": 0.1235,
+      "_dir_deg": 9.01405,
+      "_min_sd": -0.02081
      },
-     "evaluations": 162,
+     "evaluations": 240,
      "grid_best": {
       "angles": {
-       "cmc_flex": 19.418306333831833,
-       "cmc_abd": 4.559574767614035,
-       "cmc_rot": -12.577578573273613,
-       "mcp": 36.02425949599151,
-       "ip": 49.31135225569139
+       "cmc_flex": 70.90006317492184,
+       "cmc_abd": 45.5913112914176,
+       "cmc_rot": -20.4504137829362,
+       "mcp": 31.70080170959417,
+       "ip": 79.98015812114474
       },
       "penetration_mm": 0.0,
-      "pad_gap_mm": 3.22,
-      "direction_err_deg": 79.0
+      "pad_gap_mm": 4.21,
+      "direction_err_deg": 72.7
      }
     }
    },
@@ -715,43 +715,43 @@
    "angles": {
     "r": {
      "index": {
-      "mcp": 22.20478851093468,
-      "pip": 19.999065703054512,
-      "dip": 10.071429307884966,
-      "abd": -8.598905672809316
+      "mcp": 22.66330171515776,
+      "pip": 19.894321205306145,
+      "dip": 9.919874926340535,
+      "abd": -7.8447675789683355
      },
      "middle": {
-      "mcp": 23.824699340631664,
-      "pip": 25.05171001024956,
-      "dip": 53.23387227975681,
+      "mcp": 23.70434223827147,
+      "pip": 25.10218406443227,
+      "dip": 47.87992645683859,
       "abd": 0.0
      },
      "ring": {
-      "mcp": 78.1189853851838,
-      "pip": 62.911997192203856,
-      "dip": 2.9570196365097847,
+      "mcp": 83.11999192180711,
+      "pip": 54.34792255112048,
+      "dip": 0.5176410329825732,
       "abd": 0.0
      },
      "pinky": {
-      "mcp": 94.96001958999099,
-      "pip": 109.92035542651551,
-      "dip": 60.24849167714644,
+      "mcp": 94.96001958953164,
+      "pip": 20.244587673647853,
+      "dip": 7.533823419573089,
       "abd": 0.0
      },
      "thumb": {
-      "cmc_flex": -10.329081005700175,
-      "cmc_abd": 29.735667610000807,
-      "cmc_rot": 12.630348242370184,
-      "mcp": 54.990523625729644,
-      "ip": 69.68148013474965
+      "cmc_flex": 13.295926038325,
+      "cmc_abd": 13.587446659221692,
+      "cmc_rot": -4.803874770115309,
+      "mcp": 19.970271694338418,
+      "ip": 63.481662945012104
      }
     }
    },
    "hand_attach": {
     "r": {
      "translation_m": [
-      -0.081152,
-      -0.015791,
+      -0.081153,
+      -0.015792,
       -0.035596
      ],
      "rotation_quat_wxyz": [
@@ -765,19 +765,19 @@
        -0.6641573,
        0.7406941,
        0.101327,
-       -0.0811515
+       -0.0811525
       ],
       [
        -0.1366604,
        -0.2535416,
        0.9576224,
-       -0.0157906
+       -0.0157922
       ],
       [
        0.734996,
        0.6221644,
        0.2696151,
-       -0.035596
+       -0.0355956
       ],
       [
        0.0,
@@ -789,250 +789,223 @@
     }
    },
    "fit": {
-    "height_mm": -12.0,
-    "yaw_deg": 0.0,
-    "tilt_deg": 10.0,
-    "snugness_mm": 8.76,
+    "placement": "web crotch on the back strap below the tang, index MCP beside the frame, roll searched",
+    "mcp_target_cm": [
+     -0.2,
+     -3.0,
+     4.0
+    ],
+    "roll_deg": 60.0,
+    "snugness_mm": 5.48,
     "wrap": {
      "middle": {
       "angles": {
-       "mcp": 93.7,
-       "pip": 41.77,
-       "dip": 0.58
+       "mcp": 23.7,
+       "pip": 25.1,
+       "dip": 47.88
       },
       "segment_gap_mm": [
-       13.18,
-       0.87,
-       0.62
+       11.85,
+       14.18,
+       1.26
       ],
-      "min_signed_mm": 0.62
+      "min_signed_mm": 1.26
      },
      "ring": {
       "angles": {
-       "mcp": 95.0,
-       "pip": 93.98,
-       "dip": 79.72
+       "mcp": 83.12,
+       "pip": 54.35,
+       "dip": 0.52
       },
       "segment_gap_mm": [
-       22.01,
-       0.68,
-       0.81
+       8.97,
+       0.33,
+       0.85
       ],
-      "min_signed_mm": 0.68
+      "min_signed_mm": 0.33
      },
      "pinky": {
       "angles": {
        "mcp": 94.96,
-       "pip": 55.06,
-       "dip": 57.42
+       "pip": 20.24,
+       "dip": 7.53
       },
       "segment_gap_mm": [
-       27.21,
-       12.27,
-       1.17
+       9.13,
+       1.71,
+       1.06
       ],
-      "min_signed_mm": 1.17
+      "min_signed_mm": 1.06
      }
     },
     "index": {
      "angles": {
-      "mcp": 49.78,
-      "abd": 6.58,
-      "pip": 0.02,
-      "dip": 0.0
+      "mcp": 22.66,
+      "abd": -7.84,
+      "pip": 19.89,
+      "dip": 9.92
      },
      "terms": {
-      "pen": 0.0,
-      "contact": 0.21655,
-      "_gap": 0.00349,
-      "dir": 1.14392,
-      "_dir_deg": 13.73553,
-      "_min_sd": 0.0024
+      "pen": 0.00135,
+      "contact": 0.02147,
+      "_gap": 0.00165,
+      "dir": 1.84775,
+      "_dir_deg": 17.48296,
+      "_min_sd": 0.00029
      },
-     "evaluations": 1047
+     "evaluations": 324
     },
     "candidates": [
      {
-      "height_mm": -12.0,
-      "yaw_deg": 0.0,
-      "tilt_deg": 10.0,
-      "snugness_mm": 15.88
+      "mcp_target_cm": [
+       -0.2,
+       -3.0,
+       4.0
+      ],
+      "roll_deg": 30.0,
+      "snugness_mm": 15.99,
+      "index_penalty": 4.87,
+      "score": -20.86
      },
      {
-      "height_mm": -4.0,
-      "yaw_deg": -20.0,
-      "tilt_deg": 0.0,
-      "snugness_mm": 16.03
+      "mcp_target_cm": [
+       -0.2,
+       -3.0,
+       4.0
+      ],
+      "roll_deg": 45.0,
+      "snugness_mm": 12.04,
+      "index_penalty": 4.86,
+      "score": -16.9
      },
      {
-      "height_mm": -12.0,
-      "yaw_deg": -20.0,
-      "tilt_deg": 0.0,
-      "snugness_mm": 16.44
+      "mcp_target_cm": [
+       -0.2,
+       -3.0,
+       4.0
+      ],
+      "roll_deg": 60.0,
+      "snugness_mm": 8.35,
+      "index_penalty": 4.32,
+      "score": -12.67
      },
      {
-      "height_mm": -4.0,
-      "yaw_deg": -10.0,
-      "tilt_deg": -10.0,
-      "snugness_mm": 16.54
+      "mcp_target_cm": [
+       -0.2,
+       -3.0,
+       4.0
+      ],
+      "roll_deg": 75.0,
+      "snugness_mm": 13.36,
+      "index_penalty": 4.99,
+      "score": -18.36
      },
      {
-      "height_mm": -4.0,
-      "yaw_deg": -10.0,
-      "tilt_deg": 10.0,
-      "snugness_mm": 16.72
+      "mcp_target_cm": [
+       0.4,
+       -2.8,
+       3.6
+      ],
+      "roll_deg": 30.0,
+      "snugness_mm": 13.44,
+      "index_penalty": 3.76,
+      "score": -17.2
      },
      {
-      "height_mm": -4.0,
-      "yaw_deg": -10.0,
-      "tilt_deg": 0.0,
-      "snugness_mm": 16.84
+      "mcp_target_cm": [
+       0.4,
+       -2.8,
+       3.6
+      ],
+      "roll_deg": 45.0,
+      "snugness_mm": 10.19,
+      "index_penalty": 5.5,
+      "score": -15.69
      },
      {
-      "height_mm": -12.0,
-      "yaw_deg": -20.0,
-      "tilt_deg": -10.0,
-      "snugness_mm": 16.96
+      "mcp_target_cm": [
+       0.4,
+       -2.8,
+       3.6
+      ],
+      "roll_deg": 60.0,
+      "snugness_mm": 11.52,
+      "index_penalty": 5.84,
+      "score": -17.36
      },
      {
-      "height_mm": -12.0,
-      "yaw_deg": -20.0,
-      "tilt_deg": 10.0,
-      "snugness_mm": 17.07
+      "mcp_target_cm": [
+       0.4,
+       -2.8,
+       3.6
+      ],
+      "roll_deg": 75.0,
+      "snugness_mm": 12.44,
+      "index_penalty": 6.04,
+      "score": -18.47
      },
      {
-      "height_mm": -12.0,
-      "yaw_deg": -10.0,
-      "tilt_deg": 10.0,
-      "snugness_mm": 17.18
+      "mcp_target_cm": [
+       -0.8,
+       -3.2,
+       4.3
+      ],
+      "roll_deg": 30.0,
+      "snugness_mm": 18.83,
+      "index_penalty": 3.55,
+      "score": -22.38
      },
      {
-      "height_mm": 4.0,
-      "yaw_deg": 0.0,
-      "tilt_deg": 10.0,
-      "snugness_mm": 17.34
+      "mcp_target_cm": [
+       -0.8,
+       -3.2,
+       4.3
+      ],
+      "roll_deg": 45.0,
+      "snugness_mm": 13.96,
+      "index_penalty": 4.2,
+      "score": -18.16
      },
      {
-      "height_mm": -4.0,
-      "yaw_deg": 0.0,
-      "tilt_deg": 0.0,
-      "snugness_mm": 17.39
+      "mcp_target_cm": [
+       -0.8,
+       -3.2,
+       4.3
+      ],
+      "roll_deg": 60.0,
+      "snugness_mm": 12.02,
+      "index_penalty": 2.16,
+      "score": -14.19
      },
      {
-      "height_mm": 4.0,
-      "yaw_deg": 0.0,
-      "tilt_deg": 0.0,
-      "snugness_mm": 17.48
-     },
-     {
-      "height_mm": -4.0,
-      "yaw_deg": 0.0,
-      "tilt_deg": 10.0,
-      "snugness_mm": 17.48
-     },
-     {
-      "height_mm": -12.0,
-      "yaw_deg": -10.0,
-      "tilt_deg": -10.0,
-      "snugness_mm": 17.48
-     },
-     {
-      "height_mm": -12.0,
-      "yaw_deg": -10.0,
-      "tilt_deg": 0.0,
-      "snugness_mm": 17.51
-     },
-     {
-      "height_mm": -12.0,
-      "yaw_deg": 0.0,
-      "tilt_deg": -10.0,
-      "snugness_mm": 17.55
-     },
-     {
-      "height_mm": -4.0,
-      "yaw_deg": -20.0,
-      "tilt_deg": -10.0,
-      "snugness_mm": 17.65
-     },
-     {
-      "height_mm": -12.0,
-      "yaw_deg": 0.0,
-      "tilt_deg": 0.0,
-      "snugness_mm": 17.71
-     },
-     {
-      "height_mm": 4.0,
-      "yaw_deg": -20.0,
-      "tilt_deg": 10.0,
-      "snugness_mm": 17.73
-     },
-     {
-      "height_mm": -4.0,
-      "yaw_deg": 0.0,
-      "tilt_deg": -10.0,
-      "snugness_mm": 17.84
-     },
-     {
-      "height_mm": -4.0,
-      "yaw_deg": -20.0,
-      "tilt_deg": 10.0,
-      "snugness_mm": 18.01
-     },
-     {
-      "height_mm": 4.0,
-      "yaw_deg": 0.0,
-      "tilt_deg": -10.0,
-      "snugness_mm": 18.13
-     },
-     {
-      "height_mm": 4.0,
-      "yaw_deg": -10.0,
-      "tilt_deg": 10.0,
-      "snugness_mm": 18.33
-     },
-     {
-      "height_mm": 4.0,
-      "yaw_deg": -20.0,
-      "tilt_deg": -10.0,
-      "snugness_mm": 30.0
-     },
-     {
-      "height_mm": 4.0,
-      "yaw_deg": -20.0,
-      "tilt_deg": 0.0,
-      "snugness_mm": 30.0
-     },
-     {
-      "height_mm": 4.0,
-      "yaw_deg": -10.0,
-      "tilt_deg": -10.0,
-      "snugness_mm": 30.0
-     },
-     {
-      "height_mm": 4.0,
-      "yaw_deg": -10.0,
-      "tilt_deg": 0.0,
-      "snugness_mm": 30.0
+      "mcp_target_cm": [
+       -0.8,
+       -3.2,
+       4.3
+      ],
+      "roll_deg": 75.0,
+      "snugness_mm": 14.97,
+      "index_penalty": 4.57,
+      "score": -19.54
      }
     ],
-    "placement": "diagonal power grasp on the right-rear quarter of the grip (searched height / yaw / tilt)",
     "thumb": {
      "angles": {
-      "cmc_flex": -22.09,
-      "cmc_abd": 42.56,
-      "cmc_rot": 15.65,
-      "mcp": 52.45,
-      "ip": 64.65
+      "cmc_flex": 13.3,
+      "cmc_abd": 13.59,
+      "cmc_rot": -4.8,
+      "mcp": 19.97,
+      "ip": 63.48
      },
      "terms": {
-      "pen": 0.0,
-      "contact": 0.00707,
-      "_gap": 0.00031,
-      "dir": 0.04687,
-      "_dir_deg": 3.92313,
-      "_min_sd": 0.00031
+      "pen": 4e-05,
+      "contact": 0.00756,
+      "_gap": 0.0003,
+      "dir": 0.36634,
+      "_dir_deg": 10.98318,
+      "_min_sd": 0.0003
      },
-     "evaluations": 1502
+     "evaluations": 408
     }
    },
    "action": "A_Hand_RifleGripIndexStraight"
@@ -1044,69 +1017,69 @@
    "angles": {
     "r": {
      "index": {
-      "mcp": 27.853283562940703,
-      "pip": 31.36206702738429,
-      "dip": 16.70228505811113,
-      "abd": -14.985806352039333
+      "mcp": 19.655325042067155,
+      "pip": 60.01444983856818,
+      "dip": 0.02667961160880674,
+      "abd": -13.727206968015851
      },
      "middle": {
-      "mcp": 43.36506868088342,
-      "pip": 72.22806884477184,
-      "dip": 77.64859609873878,
+      "mcp": 44.438123340909385,
+      "pip": 20.744923800105713,
+      "dip": 21.827818414623227,
       "abd": 0.0
      },
      "ring": {
-      "mcp": 51.26669383389412,
-      "pip": 74.92605412269745,
-      "dip": 48.39094396873779,
+      "mcp": 59.99579458483183,
+      "pip": 76.20961412718965,
+      "dip": 0.9835125932071997,
       "abd": 0.0
      },
      "pinky": {
-      "mcp": 94.96001959024201,
-      "pip": 79.56310045759794,
-      "dip": 79.93745823457313,
+      "mcp": 73.38622215799913,
+      "pip": 44.03207175520243,
+      "dip": 0.5965699285286856,
       "abd": 0.0
      },
      "thumb": {
-      "cmc_flex": 23.008550114773712,
-      "cmc_abd": 20.995305339621734,
-      "cmc_rot": 16.949442671392006,
-      "mcp": 10.737773412882605,
-      "ip": 59.05051150107879
+      "cmc_flex": 7.014590239290437,
+      "cmc_abd": 33.252048048773744,
+      "cmc_rot": 30.958971048458025,
+      "mcp": 52.006761963084195,
+      "ip": 50.028718250011124
      }
     }
    },
    "hand_attach": {
     "r": {
      "translation_m": [
-      -0.094545,
-      -0.025549,
-      -0.019632
+      -0.095081,
+      -0.008021,
+      -0.023902
      ],
      "rotation_quat_wxyz": [
-      0.3302631,
-      -0.3788744,
-      -0.5574335,
-      -0.6607939
+      0.3697748,
+      -0.3382634,
+      -0.4628747,
+      -0.7311577
      ],
      "matrix": [
       [
-       -0.4947612,
-       0.8588658,
-       0.1325166,
-       -0.094545
+       -0.4976891,
+       0.8538742,
+       0.1523291,
+       -0.0950808
       ],
       [
-       -0.0140773,
-       -0.1603887,
-       0.9869536,
-       -0.0255488
+       -0.2275804,
+       -0.2980273,
+       0.9270312,
+       -0.0080212
       ],
       [
-       0.8689151,
-       0.4864408,
-       0.0914446,
-       -0.0196322
+       0.8369665,
+       0.4267062,
+       0.34265,
+       -0.0239016
       ],
       [
        0.0,
@@ -1118,84 +1091,231 @@
     }
    },
    "fit": {
-    "index_trigger": {
-     "point_error_mm": 30.26,
-     "min_gap_mm": 0.81,
-     "hand_rotation_deg": 13.22,
-     "hand_translation_mm": [
-      8.46,
-      -0.2,
-      -3.79
-     ],
-     "angles": {
-      "mcp": 31.47,
-      "abd": 7.86,
-      "pip": 72.87,
-      "dip": 27.42
-     },
-     "evaluations": 727,
-     "pad_vertex": 6733
-    },
+    "placement": "web crotch on the back strap below the tang, index MCP beside the frame, roll searched",
+    "mcp_target_cm": [
+     -0.2,
+     -3.0,
+     3.2
+    ],
+    "roll_deg": 45.0,
+    "snugness_mm": 3.42,
     "wrap": {
      "middle": {
       "angles": {
-       "mcp": 52.49,
-       "pip": 23.74,
-       "dip": 42.31
+       "mcp": 44.44,
+       "pip": 20.74,
+       "dip": 21.83
       },
       "segment_gap_mm": [
-       30.0,
-       11.2,
-       0.58
+       5.88,
+       1.49,
+       1.71
       ],
-      "min_signed_mm": 0.58
+      "min_signed_mm": 1.49
      },
      "ring": {
       "angles": {
-       "mcp": 94.94,
-       "pip": 85.58,
-       "dip": 79.94
+       "mcp": 60.0,
+       "pip": 76.21,
+       "dip": 0.98
       },
       "segment_gap_mm": [
-       25.89,
-       1.17,
-       0.21
+       10.96,
+       1.14,
+       0.46
       ],
-      "min_signed_mm": 0.21
+      "min_signed_mm": 0.46
      },
      "pinky": {
       "angles": {
-       "mcp": 94.96,
-       "pip": 71.08,
-       "dip": 37.08
+       "mcp": 73.39,
+       "pip": 44.03,
+       "dip": 0.6
       },
       "segment_gap_mm": [
-       29.6,
-       13.66,
-       2.56
+       8.44,
+       0.54,
+       0.23
       ],
-      "min_signed_mm": 2.56
+      "min_signed_mm": 0.23
      }
     },
-    "thumb": {
+    "index": {
      "angles": {
-      "cmc_flex": -35.94,
-      "cmc_abd": 41.27,
-      "cmc_rot": 5.74,
-      "mcp": 51.55,
-      "ip": 66.29
+      "mcp": 19.66,
+      "abd": -13.73,
+      "pip": 60.01,
+      "dip": 0.03
      },
      "terms": {
       "pen": 0.0,
-      "contact": 0.04879,
-      "_gap": 0.00208,
-      "dir": 1.67509,
-      "_dir_deg": 23.61674,
-      "_min_sd": 0.00031
+      "contact": 0.00056,
+      "_gap": 0.0007,
+      "_min_sd": 0.0003
      },
-     "evaluations": 418
+     "evaluations": 258,
+     "grid_start": {
+      "score_m": 0.00332,
+      "angles": [
+       20,
+       -15,
+       60,
+       0
+      ]
+     }
     },
-    "placement": "trigger-discipline grip, then hand (<= 15 mm / 11 deg) + index refined to the trigger face"
+    "candidates": [
+     {
+      "mcp_target_cm": [
+       -0.2,
+       -3.0,
+       3.2
+      ],
+      "roll_deg": 30.0,
+      "snugness_mm": 10.3,
+      "index_penalty": 0.0,
+      "score": -10.3
+     },
+     {
+      "mcp_target_cm": [
+       -0.2,
+       -3.0,
+       3.2
+      ],
+      "roll_deg": 45.0,
+      "snugness_mm": 8.9,
+      "index_penalty": 0.2,
+      "score": -9.1
+     },
+     {
+      "mcp_target_cm": [
+       -0.2,
+       -3.0,
+       3.2
+      ],
+      "roll_deg": 60.0,
+      "snugness_mm": 12.53,
+      "index_penalty": 7.06,
+      "score": -19.59
+     },
+     {
+      "mcp_target_cm": [
+       -0.2,
+       -3.0,
+       3.2
+      ],
+      "roll_deg": 75.0,
+      "snugness_mm": 14.14,
+      "index_penalty": 78.8,
+      "score": -92.94
+     },
+     {
+      "mcp_target_cm": [
+       -0.8,
+       -3.2,
+       3.5
+      ],
+      "roll_deg": 30.0,
+      "snugness_mm": 11.03,
+      "index_penalty": 2.56,
+      "score": -13.59
+     },
+     {
+      "mcp_target_cm": [
+       -0.8,
+       -3.2,
+       3.5
+      ],
+      "roll_deg": 45.0,
+      "snugness_mm": 9.42,
+      "index_penalty": 0.0,
+      "score": -9.42
+     },
+     {
+      "mcp_target_cm": [
+       -0.8,
+       -3.2,
+       3.5
+      ],
+      "roll_deg": 60.0,
+      "snugness_mm": 11.38,
+      "index_penalty": 78.8,
+      "score": -90.18
+     },
+     {
+      "mcp_target_cm": [
+       -0.8,
+       -3.2,
+       3.5
+      ],
+      "roll_deg": 75.0,
+      "snugness_mm": 14.75,
+      "index_penalty": 78.8,
+      "score": -93.55
+     },
+     {
+      "mcp_target_cm": [
+       -0.2,
+       -3.0,
+       4.0
+      ],
+      "roll_deg": 30.0,
+      "snugness_mm": 15.99,
+      "index_penalty": 5.42,
+      "score": -21.41
+     },
+     {
+      "mcp_target_cm": [
+       -0.2,
+       -3.0,
+       4.0
+      ],
+      "roll_deg": 45.0,
+      "snugness_mm": 12.04,
+      "index_penalty": 2.44,
+      "score": -14.48
+     },
+     {
+      "mcp_target_cm": [
+       -0.2,
+       -3.0,
+       4.0
+      ],
+      "roll_deg": 60.0,
+      "snugness_mm": 8.35,
+      "index_penalty": 78.8,
+      "score": -87.15
+     },
+     {
+      "mcp_target_cm": [
+       -0.2,
+       -3.0,
+       4.0
+      ],
+      "roll_deg": 75.0,
+      "snugness_mm": 13.36,
+      "index_penalty": 78.8,
+      "score": -92.16
+     }
+    ],
+    "thumb": {
+     "angles": {
+      "cmc_flex": 7.01,
+      "cmc_abd": 33.25,
+      "cmc_rot": 30.96,
+      "mcp": 52.01,
+      "ip": 50.03
+     },
+     "terms": {
+      "pen": 0.0,
+      "contact": 0.0,
+      "_gap": 0.0008,
+      "dir": 0.0,
+      "_dir_deg": 0.00293,
+      "_min_sd": 0.0008
+     },
+     "evaluations": 1936
+    }
    },
    "action": "A_Hand_RifleGripTrigger"
   },
@@ -1206,44 +1326,44 @@
    "angles": {
     "l": {
      "index": {
-      "mcp": 61.43972665441823,
-      "pip": 67.2586632701932,
-      "dip": 6.896522828682194,
+      "mcp": 61.342009616032364,
+      "pip": 67.17957228884828,
+      "dip": 6.758607022285046,
       "abd": 0.0
      },
      "middle": {
-      "mcp": 63.01739837432976,
-      "pip": 86.27895732562708,
-      "dip": 0.4030087124741568,
+      "mcp": 61.34704688588823,
+      "pip": 82.08514037911232,
+      "dip": 19.98140686790316,
       "abd": 0.0
      },
      "ring": {
-      "mcp": 65.87648563655237,
-      "pip": 66.79043516644043,
-      "dip": 46.10859304849577,
+      "mcp": 69.06559177436533,
+      "pip": 63.76011563751325,
+      "dip": 39.67308097660239,
       "abd": 0.0
      },
      "pinky": {
-      "mcp": 94.96001959020441,
-      "pip": 85.02571625017653,
-      "dip": 79.99713191304095,
+      "mcp": 94.96001959024201,
+      "pip": 83.86870259933472,
+      "dip": 79.32211063317914,
       "abd": 0.0
      },
      "thumb": {
-      "cmc_flex": 53.925619780425265,
-      "cmc_abd": -7.508214272445416,
-      "cmc_rot": 20.815787902574133,
-      "mcp": 46.32509764360819,
-      "ip": 7.000919924062573
+      "cmc_flex": 45.970383519526415,
+      "cmc_abd": -22.503195877565204,
+      "cmc_rot": 9.003757771489173,
+      "mcp": 33.95493543820162,
+      "ip": 4.60663064996472
      }
     }
    },
    "hand_attach": {
     "l": {
      "translation_m": [
-      -0.024553,
-      0.065642,
-      -0.006549
+      -0.034553,
+      0.065641,
+      -0.006547
      ],
      "rotation_quat_wxyz": [
       0.4197892,
@@ -1256,19 +1376,19 @@
        -0.6118613,
        0.7247479,
        0.3168063,
-       -0.0245525
+       -0.0345525
       ],
       [
        -0.7745477,
        -0.6301834,
        -0.054265,
-       0.0656423
+       0.0656413
       ],
       [
        0.1603178,
        -0.278584,
        0.9469367,
-       -0.0065487
+       -0.006547
       ],
       [
        0.0,
@@ -1280,87 +1400,81 @@
     }
    },
    "fit": {
-    "height_mm": 10.0,
+    "height_mm": 0.0,
     "yaw_deg": 5.0,
     "tilt_deg": -10.0,
-    "snugness_mm": 7.28,
+    "snugness_mm": 7.23,
     "wrap": {
      "index": {
       "angles": {
-       "mcp": 61.44,
-       "pip": 67.26,
-       "dip": 6.9
+       "mcp": 61.34,
+       "pip": 67.18,
+       "dip": 6.76
       },
       "segment_gap_mm": [
        1.68,
-       0.34,
+       0.29,
        0.2
       ],
       "min_signed_mm": 0.2
      },
      "middle": {
       "angles": {
-       "mcp": 63.02,
-       "pip": 86.28,
-       "dip": 0.4
+       "mcp": 61.35,
+       "pip": 82.09,
+       "dip": 19.98
       },
       "segment_gap_mm": [
-       15.88,
-       6.76,
-       0.19
+       16.22,
+       9.2,
+       0.17
       ],
-      "min_signed_mm": 0.19
+      "min_signed_mm": 0.17
      },
      "ring": {
       "angles": {
-       "mcp": 65.88,
-       "pip": 66.79,
-       "dip": 46.11
+       "mcp": 69.07,
+       "pip": 63.76,
+       "dip": 39.67
       },
       "segment_gap_mm": [
-       25.38,
-       18.14,
-       0.13
+       24.41,
+       15.58,
+       0.2
       ],
-      "min_signed_mm": 0.13
+      "min_signed_mm": 0.2
      },
      "pinky": {
       "angles": {
        "mcp": 94.96,
-       "pip": 85.03,
-       "dip": 80.0
+       "pip": 83.87,
+       "dip": 79.32
       },
       "segment_gap_mm": [
-       17.4,
-       0.83,
-       0.46
+       17.56,
+       1.02,
+       0.26
       ],
-      "min_signed_mm": 0.46
+      "min_signed_mm": 0.26
      }
     },
     "index": null,
     "candidates": [
      {
-      "height_mm": 10.0,
+      "height_mm": -10.0,
       "yaw_deg": 5.0,
       "tilt_deg": -10.0,
-      "snugness_mm": 10.25
+      "snugness_mm": 10.29
      },
      {
       "height_mm": 0.0,
       "yaw_deg": 5.0,
       "tilt_deg": -10.0,
-      "snugness_mm": 10.25
-     },
-     {
-      "height_mm": -10.0,
-      "yaw_deg": 5.0,
-      "tilt_deg": -10.0,
-      "snugness_mm": 10.25
+      "snugness_mm": 10.29
      },
      {
       "height_mm": 10.0,
-      "yaw_deg": -10.0,
+      "yaw_deg": 5.0,
       "tilt_deg": -10.0,
       "snugness_mm": 10.29
      },
@@ -1368,31 +1482,37 @@
       "height_mm": 0.0,
       "yaw_deg": -10.0,
       "tilt_deg": -10.0,
-      "snugness_mm": 10.29
+      "snugness_mm": 10.32
      },
      {
       "height_mm": -10.0,
       "yaw_deg": -10.0,
       "tilt_deg": -10.0,
-      "snugness_mm": 10.31
+      "snugness_mm": 10.33
      },
      {
-      "height_mm": 0.0,
-      "yaw_deg": -25.0,
+      "height_mm": 10.0,
+      "yaw_deg": -10.0,
       "tilt_deg": -10.0,
-      "snugness_mm": 11.11
+      "snugness_mm": 10.34
      },
      {
       "height_mm": 10.0,
       "yaw_deg": -25.0,
       "tilt_deg": -10.0,
-      "snugness_mm": 11.12
+      "snugness_mm": 11.17
+     },
+     {
+      "height_mm": 0.0,
+      "yaw_deg": -25.0,
+      "tilt_deg": -10.0,
+      "snugness_mm": 11.17
      },
      {
       "height_mm": -10.0,
       "yaw_deg": -25.0,
       "tilt_deg": -10.0,
-      "snugness_mm": 11.14
+      "snugness_mm": 11.21
      },
      {
       "height_mm": -10.0,
@@ -1413,55 +1533,49 @@
       "snugness_mm": 11.38
      },
      {
-      "height_mm": 10.0,
-      "yaw_deg": 5.0,
-      "tilt_deg": 0.0,
-      "snugness_mm": 11.69
-     },
-     {
       "height_mm": 0.0,
       "yaw_deg": 5.0,
       "tilt_deg": 0.0,
-      "snugness_mm": 11.7
+      "snugness_mm": 11.73
      },
      {
       "height_mm": -10.0,
       "yaw_deg": 5.0,
       "tilt_deg": 0.0,
-      "snugness_mm": 11.7
+      "snugness_mm": 11.74
      },
      {
-      "height_mm": 0.0,
-      "yaw_deg": -10.0,
-      "tilt_deg": 10.0,
-      "snugness_mm": 12.03
+      "height_mm": 10.0,
+      "yaw_deg": 5.0,
+      "tilt_deg": 0.0,
+      "snugness_mm": 11.75
      },
      {
       "height_mm": -10.0,
       "yaw_deg": -10.0,
       "tilt_deg": 10.0,
-      "snugness_mm": 12.03
+      "snugness_mm": 11.99
      },
      {
       "height_mm": 10.0,
       "yaw_deg": -10.0,
       "tilt_deg": 10.0,
-      "snugness_mm": 12.04
-     },
-     {
-      "height_mm": 10.0,
-      "yaw_deg": -25.0,
-      "tilt_deg": 0.0,
-      "snugness_mm": 12.05
+      "snugness_mm": 12.0
      },
      {
       "height_mm": 0.0,
+      "yaw_deg": -10.0,
+      "tilt_deg": 10.0,
+      "snugness_mm": 12.01
+     },
+     {
+      "height_mm": 10.0,
       "yaw_deg": -25.0,
       "tilt_deg": 0.0,
       "snugness_mm": 12.09
      },
      {
-      "height_mm": -10.0,
+      "height_mm": 0.0,
       "yaw_deg": -25.0,
       "tilt_deg": 0.0,
       "snugness_mm": 12.13
@@ -1469,58 +1583,64 @@
      {
       "height_mm": -10.0,
       "yaw_deg": -25.0,
+      "tilt_deg": 0.0,
+      "snugness_mm": 12.17
+     },
+     {
+      "height_mm": -10.0,
+      "yaw_deg": -25.0,
       "tilt_deg": 10.0,
-      "snugness_mm": 12.32
+      "snugness_mm": 12.34
      },
      {
       "height_mm": 10.0,
       "yaw_deg": -25.0,
       "tilt_deg": 10.0,
-      "snugness_mm": 12.32
+      "snugness_mm": 12.34
      },
      {
       "height_mm": 0.0,
       "yaw_deg": -25.0,
       "tilt_deg": 10.0,
-      "snugness_mm": 12.35
+      "snugness_mm": 12.36
+     },
+     {
+      "height_mm": 10.0,
+      "yaw_deg": 5.0,
+      "tilt_deg": 10.0,
+      "snugness_mm": 14.06
      },
      {
       "height_mm": -10.0,
       "yaw_deg": 5.0,
       "tilt_deg": 10.0,
-      "snugness_mm": 14.05
+      "snugness_mm": 14.07
      },
      {
       "height_mm": 0.0,
       "yaw_deg": 5.0,
       "tilt_deg": 10.0,
-      "snugness_mm": 14.05
-     },
-     {
-      "height_mm": 10.0,
-      "yaw_deg": 5.0,
-      "tilt_deg": 10.0,
-      "snugness_mm": 14.05
+      "snugness_mm": 14.07
      }
     ],
     "placement": "diagonal power grasp around the handguard, palm centre at socket_support_hand",
     "thumb": {
      "angles": {
-      "cmc_flex": 53.93,
-      "cmc_abd": -7.51,
-      "cmc_rot": 20.82,
-      "mcp": 46.33,
-      "ip": 7.0
+      "cmc_flex": 45.97,
+      "cmc_abd": -22.5,
+      "cmc_rot": 9.0,
+      "mcp": 33.95,
+      "ip": 4.61
      },
      "terms": {
-      "pen": 150.76668,
-      "contact": 11.06297,
-      "_gap": 0.02,
-      "dir": 21.69398,
-      "_dir_deg": 94.85873,
-      "_min_sd": -0.00122
+      "pen": 127.68524,
+      "contact": 12.2865,
+      "_gap": 0.02104,
+      "dir": 18.00836,
+      "_dir_deg": 84.28491,
+      "_min_sd": -0.00154
      },
-     "evaluations": 322
+     "evaluations": 267
     }
    },
    "action": "A_Hand_SupportHandguard"
@@ -1532,35 +1652,35 @@
    "angles": {
     "l": {
      "index": {
-      "mcp": 37.28820166144768,
-      "pip": 86.69879691884492,
-      "dip": 0.8452902979081274,
+      "mcp": 37.247449011893295,
+      "pip": 86.09918613497635,
+      "dip": 1.9730754331813307,
       "abd": 0.0
      },
      "middle": {
-      "mcp": 69.7188075582733,
-      "pip": 84.09958529033403,
-      "dip": 3.07015533091617,
+      "mcp": 85.58270976171939,
+      "pip": 58.3731458117913,
+      "dip": 11.150077101523499,
       "abd": 0.0
      },
      "ring": {
-      "mcp": 70.23045571468003,
-      "pip": 80.912589219779,
+      "mcp": 70.25344871310907,
+      "pip": 80.95601250981646,
       "dip": 0.4019998992513195,
       "abd": 0.0
      },
      "pinky": {
       "mcp": 94.96001959024201,
-      "pip": 92.31828603236706,
-      "dip": 79.9358953261589,
+      "pip": 92.12495882843422,
+      "dip": 79.93574595903306,
       "abd": 0.0
      },
      "thumb": {
-      "cmc_flex": 68.66323376343328,
-      "cmc_abd": -10.436909235442137,
-      "cmc_rot": 15.950684976064435,
-      "mcp": 11.180947965475676,
-      "ip": 0.008880419399228647
+      "cmc_flex": 68.62923998311082,
+      "cmc_abd": -10.370928705590257,
+      "cmc_rot": -24.998945122019972,
+      "mcp": 43.96716250321041,
+      "ip": 0.03162172284845022
      }
     }
    },
@@ -1568,7 +1688,7 @@
     "l": {
      "translation_m": [
       -0.022818,
-      0.050158,
+      0.050156,
       -0.086476
      ],
      "rotation_quat_wxyz": [
@@ -1582,13 +1702,13 @@
        0.6781145,
        0.5876982,
        -0.4413291,
-       -0.0228184
+       -0.0228183
       ],
       [
        -0.5158665,
        -0.0471067,
        -0.855373,
-       0.0501578
+       0.0501559
       ],
       [
        -0.5234908,
@@ -1609,13 +1729,13 @@
     "height_mm": -50.0,
     "yaw_deg": -15.0,
     "tilt_deg": 0.0,
-    "snugness_mm": 5.31,
+    "snugness_mm": 4.9,
     "wrap": {
      "index": {
       "angles": {
-       "mcp": 37.29,
-       "pip": 86.7,
-       "dip": 0.85
+       "mcp": 37.25,
+       "pip": 86.1,
+       "dip": 1.97
       },
       "segment_gap_mm": [
        -2.22,
@@ -1626,26 +1746,26 @@
      },
      "middle": {
       "angles": {
-       "mcp": 69.72,
-       "pip": 84.1,
-       "dip": 3.07
+       "mcp": 85.58,
+       "pip": 58.37,
+       "dip": 11.15
       },
       "segment_gap_mm": [
-       5.43,
-       5.62,
-       -0.28
+       4.48,
+       0.96,
+       0.66
       ],
-      "min_signed_mm": -0.28
+      "min_signed_mm": 0.66
      },
      "ring": {
       "angles": {
-       "mcp": 70.23,
-       "pip": 80.91,
+       "mcp": 70.25,
+       "pip": 80.96,
        "dip": 0.4
       },
       "segment_gap_mm": [
-       23.76,
-       9.65,
+       23.51,
+       9.7,
        0.28
       ],
       "min_signed_mm": 0.28
@@ -1653,15 +1773,15 @@
      "pinky": {
       "angles": {
        "mcp": 94.96,
-       "pip": 92.32,
+       "pip": 92.12,
        "dip": 79.94
       },
       "segment_gap_mm": [
-       16.69,
-       0.89,
-       0.42
+       16.83,
+       1.04,
+       0.41
       ],
-      "min_signed_mm": 0.42
+      "min_signed_mm": 0.41
      }
     },
     "index": null,
@@ -1669,116 +1789,122 @@
      {
       "height_mm": -50.0,
       "yaw_deg": -15.0,
-      "tilt_deg": -10.0,
-      "snugness_mm": 9.1
+      "tilt_deg": 10.0,
+      "snugness_mm": 9.09
      },
      {
       "height_mm": -50.0,
       "yaw_deg": -15.0,
-      "tilt_deg": 10.0,
-      "snugness_mm": 9.13
+      "tilt_deg": -10.0,
+      "snugness_mm": 9.15
      },
      {
       "height_mm": -50.0,
       "yaw_deg": -15.0,
       "tilt_deg": 0.0,
-      "snugness_mm": 9.47
+      "snugness_mm": 9.46
      },
      {
       "height_mm": -70.0,
       "yaw_deg": -15.0,
       "tilt_deg": 10.0,
-      "snugness_mm": 10.01
+      "snugness_mm": 9.94
      },
      {
       "height_mm": -60.0,
       "yaw_deg": -15.0,
       "tilt_deg": 10.0,
-      "snugness_mm": 10.15
-     },
-     {
-      "height_mm": -60.0,
-      "yaw_deg": -15.0,
-      "tilt_deg": -10.0,
-      "snugness_mm": 10.24
+      "snugness_mm": 10.1
      },
      {
       "height_mm": -60.0,
       "yaw_deg": -15.0,
       "tilt_deg": 0.0,
-      "snugness_mm": 10.28
+      "snugness_mm": 10.29
+     },
+     {
+      "height_mm": -60.0,
+      "yaw_deg": -15.0,
+      "tilt_deg": -10.0,
+      "snugness_mm": 10.3
      },
      {
       "height_mm": -70.0,
       "yaw_deg": -15.0,
       "tilt_deg": -10.0,
-      "snugness_mm": 10.74
+      "snugness_mm": 10.76
      },
      {
       "height_mm": -70.0,
       "yaw_deg": -15.0,
       "tilt_deg": 0.0,
-      "snugness_mm": 11.23
+      "snugness_mm": 11.24
      },
      {
       "height_mm": -50.0,
       "yaw_deg": 0.0,
       "tilt_deg": 0.0,
-      "snugness_mm": 12.42
+      "snugness_mm": 12.41
      },
      {
       "height_mm": -50.0,
       "yaw_deg": 0.0,
       "tilt_deg": 10.0,
-      "snugness_mm": 12.88
+      "snugness_mm": 12.86
      },
      {
       "height_mm": -50.0,
       "yaw_deg": 0.0,
       "tilt_deg": -10.0,
-      "snugness_mm": 13.0
+      "snugness_mm": 13.04
      },
      {
       "height_mm": -60.0,
       "yaw_deg": 0.0,
       "tilt_deg": 0.0,
-      "snugness_mm": 13.26
+      "snugness_mm": 13.25
      },
      {
       "height_mm": -70.0,
       "yaw_deg": 0.0,
       "tilt_deg": -10.0,
-      "snugness_mm": 13.54
+      "snugness_mm": 13.59
      },
      {
       "height_mm": -60.0,
       "yaw_deg": 0.0,
       "tilt_deg": 10.0,
-      "snugness_mm": 13.77
+      "snugness_mm": 13.73
      },
      {
       "height_mm": -70.0,
       "yaw_deg": 0.0,
       "tilt_deg": 0.0,
-      "snugness_mm": 13.79
+      "snugness_mm": 13.78
      },
      {
       "height_mm": -60.0,
       "yaw_deg": 0.0,
       "tilt_deg": -10.0,
-      "snugness_mm": 14.08
+      "snugness_mm": 14.09
      },
      {
       "height_mm": -70.0,
       "yaw_deg": 0.0,
       "tilt_deg": 10.0,
-      "snugness_mm": 14.64
+      "snugness_mm": 14.6
      },
      {
       "height_mm": -50.0,
       "yaw_deg": 15.0,
       "tilt_deg": 10.0,
-      "snugness_mm": 18.24
+      "snugness_mm": 17.47
+     },
+     {
+      "height_mm": -50.0,
+      "yaw_deg": 15.0,
+      "tilt_deg": -10.0,
+      "snugness_mm": 18.43
      },
      {
       "height_mm": -60.0,
@@ -1789,64 +1915,58 @@
      {
       "height_mm": -50.0,
       "yaw_deg": 15.0,
-      "tilt_deg": -10.0,
-      "snugness_mm": 18.47
+      "tilt_deg": 0.0,
+      "snugness_mm": 18.86
      },
      {
       "height_mm": -60.0,
       "yaw_deg": 15.0,
       "tilt_deg": -10.0,
-      "snugness_mm": 18.87
-     },
-     {
-      "height_mm": -50.0,
-      "yaw_deg": 15.0,
-      "tilt_deg": 0.0,
-      "snugness_mm": 18.89
+      "snugness_mm": 18.91
      },
      {
       "height_mm": -60.0,
       "yaw_deg": 15.0,
       "tilt_deg": 10.0,
-      "snugness_mm": 19.35
+      "snugness_mm": 19.27
      },
      {
       "height_mm": -70.0,
       "yaw_deg": 15.0,
       "tilt_deg": -10.0,
-      "snugness_mm": 19.47
+      "snugness_mm": 19.34
      },
      {
       "height_mm": -70.0,
       "yaw_deg": 15.0,
       "tilt_deg": 10.0,
-      "snugness_mm": 19.72
+      "snugness_mm": 19.68
      },
      {
       "height_mm": -70.0,
       "yaw_deg": 15.0,
       "tilt_deg": 0.0,
-      "snugness_mm": 20.1
+      "snugness_mm": 20.12
      }
     ],
     "placement": "diagonal grasp of the magazine body below the magwell",
     "thumb": {
      "angles": {
-      "cmc_flex": 68.66,
-      "cmc_abd": -10.44,
-      "cmc_rot": 15.95,
-      "mcp": 11.18,
-      "ip": 0.01
+      "cmc_flex": 68.63,
+      "cmc_abd": -10.37,
+      "cmc_rot": -25.0,
+      "mcp": 43.97,
+      "ip": 0.03
      },
      "terms": {
-      "pen": 0.37998,
-      "contact": 14.29217,
-      "_gap": 0.02263,
-      "dir": 3.80144,
-      "_dir_deg": 35.91108,
-      "_min_sd": 0.00014
+      "pen": 0.06048,
+      "contact": 3.74289,
+      "_gap": 0.01197,
+      "dir": 0.67825,
+      "_dir_deg": 14.96417,
+      "_min_sd": 0.00024
      },
-     "evaluations": 151
+     "evaluations": 335
     }
    },
    "action": "A_Hand_MagGrasp"
@@ -1858,102 +1978,102 @@
    "angles": {
     "r": {
      "index": {
-      "mcp": 49.41716226431039,
-      "pip": 33.33291235339917,
-      "dip": 11.527825626345313,
-      "abd": 19.455651145991613
+      "mcp": 18.29612275122144,
+      "pip": 64.25964454465888,
+      "dip": 25.393272162696597,
+      "abd": -16.35165650626436
      },
      "middle": {
-      "mcp": 94.93803054862474,
-      "pip": 67.60837039693378,
-      "dip": 79.95085936076336,
+      "mcp": 65.96586145991438,
+      "pip": 37.747904847073606,
+      "dip": 35.5124273024984,
       "abd": 0.0
      },
      "ring": {
-      "mcp": 94.95087102256697,
-      "pip": 39.45767909775374,
-      "dip": 79.9662382244608,
+      "mcp": 33.777178620111876,
+      "pip": 94.31770316257952,
+      "dip": 28.599880331942984,
       "abd": 0.0
      },
      "pinky": {
-      "mcp": 94.96001958673149,
-      "pip": 39.549661670627174,
-      "dip": 27.91021196824263,
+      "mcp": 94.90689175075009,
+      "pip": 56.50999276773752,
+      "dip": 56.62801123575603,
       "abd": 0.0
      },
      "thumb": {
-      "cmc_flex": 9.800300403885588,
-      "cmc_abd": -0.6647802156393553,
-      "cmc_rot": 9.807603461967087,
-      "mcp": 32.27378008089785,
-      "ip": 19.82049428922937
+      "cmc_flex": 47.44542854519825,
+      "cmc_abd": -14.905091409311668,
+      "cmc_rot": -8.59047599081246,
+      "mcp": 3.6011833805763027,
+      "ip": 4.324554331479016
      }
     },
     "l": {
      "index": {
-      "mcp": 17.86007330850573,
-      "pip": 28.442678807357183,
-      "dip": 79.94134900513141,
+      "mcp": 57.182324953257414,
+      "pip": 103.62798138321754,
+      "dip": 69.5749541660817,
       "abd": 0.0
      },
      "middle": {
-      "mcp": 57.55287093556106,
-      "pip": 87.87998051036163,
-      "dip": 53.18574755343815,
+      "mcp": 61.38715173551177,
+      "pip": 30.93747864807447,
+      "dip": 0.2595133663076568,
       "abd": 0.0
      },
      "ring": {
-      "mcp": 94.91359948572396,
-      "pip": 24.04694953454156,
-      "dip": 36.52863698822096,
+      "mcp": 64.69676937284439,
+      "pip": 73.45126679704828,
+      "dip": 79.94988988797596,
       "abd": 0.0
      },
      "pinky": {
-      "mcp": 93.1260698748051,
-      "pip": 109.61876866288614,
-      "dip": 69.32295676878826,
+      "mcp": 80.96588482214914,
+      "pip": 35.0159452156646,
+      "dip": 66.35574271339911,
       "abd": 0.0
      },
      "thumb": {
-      "cmc_flex": -16.70077412449034,
-      "cmc_abd": 7.115806526459711,
-      "cmc_rot": 10.76251602989875,
-      "mcp": 13.172673550001216,
-      "ip": 45.356938544131836
+      "cmc_flex": 60.48872583391916,
+      "cmc_abd": -11.911984784664147,
+      "cmc_rot": 14.64396181304441,
+      "mcp": 45.47784544127894,
+      "ip": 50.68566147904888
      }
     }
    },
    "hand_attach": {
     "r": {
      "translation_m": [
-      -0.096537,
-      -0.04281,
-      -0.004737
+      -0.092359,
+      -0.049458,
+      0.003215
      ],
      "rotation_quat_wxyz": [
-      0.3709711,
-      -0.3961963,
-      -0.4248178,
-      -0.7245266
+      0.4673184,
+      -0.3511728,
+      -0.4966092,
+      -0.6416156
      ],
      "matrix": [
       [
-       -0.410818,
-       0.8741791,
-       0.2589194,
-       -0.0965372
+       -0.3165826,
+       0.9484685,
+       -0.0135132,
+       -0.0923589
       ],
       [
-       -0.2009344,
-       -0.3638205,
-       0.9095384,
-       -0.0428097
+       -0.2508864,
+       -0.0699858,
+       0.9654834,
+       -0.0494577
       ],
       [
-       0.8892998,
-       0.3216289,
-       0.3251166,
-       -0.0047365
+       0.914785,
+       0.3090455,
+       0.2601141,
+       0.0032146
       ],
       [
        0.0,
@@ -1965,34 +2085,34 @@
     },
     "l": {
      "translation_m": [
-      -0.055634,
-      0.05944,
-      -0.030382
+      -0.004725,
+      0.069335,
+      -0.034795
      ],
      "rotation_quat_wxyz": [
-      0.5889046,
-      0.403836,
-      0.2438762,
-      -0.6562258
+      0.5431933,
+      0.4757523,
+      -0.0009247,
+      -0.6918092
      ],
      "matrix": [
       [
-       0.0197842,
-       0.9698805,
-       -0.2427756,
-       -0.0556335
+       0.0427984,
+       0.7506922,
+       -0.6592642,
+       -0.0047252
       ],
       [
-       -0.5759368,
-       -0.1874316,
-       -0.7957176,
-       0.0594402
+       -0.7524522,
+       -0.4098803,
+       -0.5155716,
+       0.0693351
       ],
       [
-       -0.8172549,
-       0.1555662,
-       0.5548816,
-       -0.0303816
+       -0.6572551,
+       0.5181304,
+       0.5473177,
+       -0.0347954
       ],
       [
        0.0,
@@ -2005,494 +2125,527 @@
    },
    "fit": {
     "right": {
-     "height_mm": -12.0,
-     "yaw_deg": 0.0,
-     "tilt_deg": 0.0,
-     "snugness_mm": 12.25,
+     "placement": "web crotch on the back strap below the tang, index MCP beside the frame, roll searched",
+     "mcp_target_cm": [
+      2.0,
+      -3.0,
+      3.56
+     ],
+     "roll_deg": 30.0,
+     "snugness_mm": 9.17,
      "wrap": {
       "middle": {
        "angles": {
-        "mcp": 94.94,
-        "pip": 67.61,
-        "dip": 79.95
+        "mcp": 65.97,
+        "pip": 37.75,
+        "dip": 35.51
        },
        "segment_gap_mm": [
-        24.62,
-        0.72,
-        0.63
+        9.08,
+        -0.22,
+        0.2
        ],
-       "min_signed_mm": 0.63
+       "min_signed_mm": -0.22
       },
       "ring": {
        "angles": {
-        "mcp": 94.95,
-        "pip": 39.46,
-        "dip": 79.97
+        "mcp": 33.78,
+        "pip": 94.32,
+        "dip": 28.6
        },
        "segment_gap_mm": [
         30.0,
-        3.6,
-        0.7
+        21.68,
+        0.83
        ],
-       "min_signed_mm": 0.7
+       "min_signed_mm": 0.83
       },
       "pinky": {
        "angles": {
-        "mcp": 94.96,
-        "pip": 39.55,
-        "dip": 27.91
+        "mcp": 94.91,
+        "pip": 56.51,
+        "dip": 56.63
        },
        "segment_gap_mm": [
-        30.0,
-        19.52,
-        5.44
+        18.31,
+        1.48,
+        0.93
        ],
-       "min_signed_mm": 5.44
+       "min_signed_mm": 0.93
       }
      },
-     "index": null,
+     "index": {
+      "angles": {
+       "mcp": 18.3,
+       "abd": -16.35,
+       "pip": 64.26,
+       "dip": 25.39
+      },
+      "terms": {
+       "pen": 0.16656,
+       "contact": 0.90785,
+       "_gap": 0.00449,
+       "_min_sd": 0.00017
+      },
+      "evaluations": 216,
+      "grid_start": {
+       "score_m": 0.00505,
+       "angles": [
+        20,
+        -15,
+        75,
+        0
+       ]
+      }
+     },
      "candidates": [
       {
-       "height_mm": -12.0,
-       "yaw_deg": 0.0,
-       "tilt_deg": 0.0,
-       "snugness_mm": 22.87
+       "mcp_target_cm": [
+        2.38,
+        -2.8,
+        3.03
+       ],
+       "roll_deg": 30.0,
+       "snugness_mm": 11.28,
+       "index_penalty": 25.62,
+       "score": -36.9
       },
       {
-       "height_mm": -12.0,
-       "yaw_deg": -10.0,
-       "tilt_deg": 0.0,
-       "snugness_mm": 23.03
+       "mcp_target_cm": [
+        2.38,
+        -2.8,
+        3.03
+       ],
+       "roll_deg": 45.0,
+       "snugness_mm": 8.92,
+       "index_penalty": 114.4,
+       "score": -123.32
       },
       {
-       "height_mm": -4.0,
-       "yaw_deg": 0.0,
-       "tilt_deg": 10.0,
-       "snugness_mm": 23.73
+       "mcp_target_cm": [
+        2.38,
+        -2.8,
+        3.03
+       ],
+       "roll_deg": 60.0,
+       "snugness_mm": 10.47,
+       "index_penalty": 78.8,
+       "score": -89.27
       },
       {
-       "height_mm": 4.0,
-       "yaw_deg": -20.0,
-       "tilt_deg": 0.0,
-       "snugness_mm": 25.33
+       "mcp_target_cm": [
+        2.38,
+        -2.8,
+        3.03
+       ],
+       "roll_deg": 75.0,
+       "snugness_mm": 8.02,
+       "index_penalty": 88.9,
+       "score": -96.92
       },
       {
-       "height_mm": -12.0,
-       "yaw_deg": -10.0,
-       "tilt_deg": 10.0,
-       "snugness_mm": 25.4
+       "mcp_target_cm": [
+        2.76,
+        -2.7,
+        2.51
+       ],
+       "roll_deg": 30.0,
+       "snugness_mm": 7.56,
+       "index_penalty": 35.5,
+       "score": -43.06
       },
       {
-       "height_mm": -12.0,
-       "yaw_deg": -20.0,
-       "tilt_deg": 10.0,
-       "snugness_mm": 25.59
+       "mcp_target_cm": [
+        2.76,
+        -2.7,
+        2.51
+       ],
+       "roll_deg": 45.0,
+       "snugness_mm": 9.09,
+       "index_penalty": 78.8,
+       "score": -87.89
       },
       {
-       "height_mm": -4.0,
-       "yaw_deg": -20.0,
-       "tilt_deg": 0.0,
-       "snugness_mm": 25.61
+       "mcp_target_cm": [
+        2.76,
+        -2.7,
+        2.51
+       ],
+       "roll_deg": 60.0,
+       "snugness_mm": 11.53,
+       "index_penalty": 78.8,
+       "score": -90.33
       },
       {
-       "height_mm": -12.0,
-       "yaw_deg": 0.0,
-       "tilt_deg": -10.0,
-       "snugness_mm": 26.35
+       "mcp_target_cm": [
+        2.76,
+        -2.7,
+        2.51
+       ],
+       "roll_deg": 75.0,
+       "snugness_mm": 8.22,
+       "index_penalty": 78.8,
+       "score": -87.02
       },
       {
-       "height_mm": -4.0,
-       "yaw_deg": 0.0,
-       "tilt_deg": 0.0,
-       "snugness_mm": 26.43
+       "mcp_target_cm": [
+        2.0,
+        -3.0,
+        3.56
+       ],
+       "roll_deg": 30.0,
+       "snugness_mm": 15.45,
+       "index_penalty": 7.78,
+       "score": -23.23
       },
       {
-       "height_mm": -12.0,
-       "yaw_deg": -10.0,
-       "tilt_deg": -10.0,
-       "snugness_mm": 26.49
+       "mcp_target_cm": [
+        2.0,
+        -3.0,
+        3.56
+       ],
+       "roll_deg": 45.0,
+       "snugness_mm": 15.26,
+       "index_penalty": 78.8,
+       "score": -94.06
       },
       {
-       "height_mm": -12.0,
-       "yaw_deg": 0.0,
-       "tilt_deg": 10.0,
-       "snugness_mm": 26.76
+       "mcp_target_cm": [
+        2.0,
+        -3.0,
+        3.56
+       ],
+       "roll_deg": 60.0,
+       "snugness_mm": 12.9,
+       "index_penalty": 116.0,
+       "score": -128.9
       },
       {
-       "height_mm": -4.0,
-       "yaw_deg": -20.0,
-       "tilt_deg": 10.0,
-       "snugness_mm": 26.93
-      },
-      {
-       "height_mm": 4.0,
-       "yaw_deg": -20.0,
-       "tilt_deg": 10.0,
-       "snugness_mm": 27.13
-      },
-      {
-       "height_mm": -4.0,
-       "yaw_deg": -10.0,
-       "tilt_deg": 10.0,
-       "snugness_mm": 27.26
-      },
-      {
-       "height_mm": -12.0,
-       "yaw_deg": -20.0,
-       "tilt_deg": -10.0,
-       "snugness_mm": 27.29
-      },
-      {
-       "height_mm": -12.0,
-       "yaw_deg": -20.0,
-       "tilt_deg": 0.0,
-       "snugness_mm": 27.34
-      },
-      {
-       "height_mm": -4.0,
-       "yaw_deg": -10.0,
-       "tilt_deg": 0.0,
-       "snugness_mm": 27.47
-      },
-      {
-       "height_mm": 4.0,
-       "yaw_deg": 0.0,
-       "tilt_deg": 10.0,
-       "snugness_mm": 27.53
-      },
-      {
-       "height_mm": 4.0,
-       "yaw_deg": -20.0,
-       "tilt_deg": -10.0,
-       "snugness_mm": 27.74
-      },
-      {
-       "height_mm": -4.0,
-       "yaw_deg": 0.0,
-       "tilt_deg": -10.0,
-       "snugness_mm": 27.75
-      },
-      {
-       "height_mm": 4.0,
-       "yaw_deg": 0.0,
-       "tilt_deg": -10.0,
-       "snugness_mm": 27.92
-      },
-      {
-       "height_mm": 4.0,
-       "yaw_deg": 0.0,
-       "tilt_deg": 0.0,
-       "snugness_mm": 27.98
-      },
-      {
-       "height_mm": -4.0,
-       "yaw_deg": -10.0,
-       "tilt_deg": -10.0,
-       "snugness_mm": 28.16
-      },
-      {
-       "height_mm": -4.0,
-       "yaw_deg": -20.0,
-       "tilt_deg": -10.0,
-       "snugness_mm": 28.17
-      },
-      {
-       "height_mm": 4.0,
-       "yaw_deg": -10.0,
-       "tilt_deg": 10.0,
-       "snugness_mm": 28.25
-      },
-      {
-       "height_mm": 4.0,
-       "yaw_deg": -10.0,
-       "tilt_deg": 0.0,
-       "snugness_mm": 28.31
-      },
-      {
-       "height_mm": 4.0,
-       "yaw_deg": -10.0,
-       "tilt_deg": -10.0,
-       "snugness_mm": 28.68
+       "mcp_target_cm": [
+        2.0,
+        -3.0,
+        3.56
+       ],
+       "roll_deg": 75.0,
+       "snugness_mm": 19.49,
+       "index_penalty": 78.8,
+       "score": -98.29
       }
      ],
-     "index_trigger": {
-      "point_error_mm": 25.86,
-      "min_gap_mm": 0.23,
-      "hand_rotation_deg": 11.45,
-      "hand_translation_mm": [
-       -9.65,
-       3.54,
-       3.54
-      ],
-      "angles": {
-       "mcp": 49.42,
-       "abd": 19.46,
-       "pip": 33.33,
-       "dip": 11.53
-      },
-      "evaluations": 558,
-      "pad_vertex": 6733
-     },
      "thumb": {
       "angles": {
-       "cmc_flex": 9.8,
-       "cmc_abd": -0.66,
-       "cmc_rot": 9.81,
-       "mcp": 32.27,
-       "ip": 19.82
+       "cmc_flex": 47.45,
+       "cmc_abd": -14.91,
+       "cmc_rot": -8.59,
+       "mcp": 3.6,
+       "ip": 4.32
       },
       "terms": {
        "pen": 0.0,
-       "contact": 0.14852,
-       "_gap": 0.00303,
-       "dir": 0.004,
-       "_dir_deg": 1.1455,
-       "_min_sd": 0.0009
+       "contact": 0.34623,
+       "_gap": 0.0042,
+       "dir": 0.00134,
+       "_dir_deg": 0.66445,
+       "_min_sd": 0.00031
       },
-      "evaluations": 422
+      "evaluations": 227
      }
     },
     "left": {
-     "height_mm": -30.0,
+     "height_mm": 0.0,
      "yaw_deg": -20.0,
-     "tilt_deg": 10.0,
-     "snugness_mm": 6.62,
+     "tilt_deg": -10.0,
+     "snugness_mm": 2.88,
      "wrap": {
       "index": {
        "angles": {
-        "mcp": 17.86,
-        "pip": 28.44,
-        "dip": 79.94
+        "mcp": 57.18,
+        "pip": 103.63,
+        "dip": 69.57
        },
        "segment_gap_mm": [
-        5.04,
-        -0.96,
-        5.28
+        -5.47,
+        -8.5,
+        -1.35
        ],
-       "min_signed_mm": -0.96
+       "min_signed_mm": -8.5
       },
       "middle": {
        "angles": {
-        "mcp": 57.55,
-        "pip": 87.88,
-        "dip": 53.19
+        "mcp": 61.39,
+        "pip": 30.94,
+        "dip": 0.26
        },
        "segment_gap_mm": [
-        20.88,
-        20.75,
-        0.19
+        -1.87,
+        1.94,
+        0.67
        ],
-       "min_signed_mm": 0.19
+       "min_signed_mm": -1.87
       },
       "ring": {
        "angles": {
-        "mcp": 94.91,
-        "pip": 24.05,
-        "dip": 36.53
+        "mcp": 64.7,
+        "pip": 73.45,
+        "dip": 79.95
        },
        "segment_gap_mm": [
-        8.26,
-        0.69,
-        2.55
+        4.33,
+        1.62,
+        -1.38
        ],
-       "min_signed_mm": 0.69
+       "min_signed_mm": -1.38
       },
       "pinky": {
        "angles": {
-        "mcp": 93.13,
-        "pip": 109.62,
-        "dip": 69.32
+        "mcp": 80.97,
+        "pip": 35.02,
+        "dip": 66.36
        },
        "segment_gap_mm": [
-        12.3,
-        0.14,
-        3.43
+        18.49,
+        6.5,
+        1.35
        ],
-       "min_signed_mm": 0.14
+       "min_signed_mm": 1.35
       }
      },
      "index": null,
      "candidates": [
       {
-       "height_mm": -6.0,
-       "yaw_deg": -20.0,
-       "tilt_deg": 10.0,
-       "snugness_mm": 13.71
-      },
-      {
-       "height_mm": -6.0,
-       "yaw_deg": -20.0,
-       "tilt_deg": 0.0,
-       "snugness_mm": 14.24
-      },
-      {
-       "height_mm": -30.0,
-       "yaw_deg": -20.0,
-       "tilt_deg": 10.0,
-       "snugness_mm": 14.6
-      },
-      {
-       "height_mm": -30.0,
-       "yaw_deg": -20.0,
-       "tilt_deg": -10.0,
-       "snugness_mm": 15.05
-      },
-      {
-       "height_mm": -30.0,
-       "yaw_deg": -20.0,
-       "tilt_deg": 0.0,
-       "snugness_mm": 15.11
-      },
-      {
-       "height_mm": -18.0,
-       "yaw_deg": -20.0,
-       "tilt_deg": 10.0,
-       "snugness_mm": 15.97
-      },
-      {
-       "height_mm": -18.0,
-       "yaw_deg": -20.0,
-       "tilt_deg": -10.0,
-       "snugness_mm": 16.15
-      },
-      {
-       "height_mm": -18.0,
-       "yaw_deg": -20.0,
-       "tilt_deg": 0.0,
-       "snugness_mm": 17.21
-      },
-      {
-       "height_mm": -6.0,
-       "yaw_deg": -20.0,
-       "tilt_deg": -10.0,
-       "snugness_mm": 20.76
-      },
-      {
-       "height_mm": -6.0,
+       "height_mm": 0.0,
        "yaw_deg": 0.0,
        "tilt_deg": -10.0,
-       "snugness_mm": 28.9
+       "snugness_mm": 3.65
       },
       {
-       "height_mm": -18.0,
-       "yaw_deg": 0.0,
-       "tilt_deg": 0.0,
-       "snugness_mm": 29.25
-      },
-      {
-       "height_mm": -30.0,
-       "yaw_deg": 0.0,
+       "height_mm": 0.0,
+       "yaw_deg": -20.0,
        "tilt_deg": -10.0,
-       "snugness_mm": 30.0
+       "snugness_mm": 3.68
       },
       {
-       "height_mm": -30.0,
+       "height_mm": 0.0,
        "yaw_deg": 0.0,
        "tilt_deg": 0.0,
-       "snugness_mm": 30.0
+       "snugness_mm": 4.01
       },
       {
-       "height_mm": -30.0,
+       "height_mm": -12.0,
+       "yaw_deg": 0.0,
+       "tilt_deg": 0.0,
+       "snugness_mm": 5.68
+      },
+      {
+       "height_mm": 0.0,
        "yaw_deg": 0.0,
        "tilt_deg": 10.0,
-       "snugness_mm": 30.0
+       "snugness_mm": 5.97
       },
       {
-       "height_mm": -30.0,
+       "height_mm": 0.0,
+       "yaw_deg": -20.0,
+       "tilt_deg": 0.0,
+       "snugness_mm": 6.99
+      },
+      {
+       "height_mm": -24.0,
+       "yaw_deg": 0.0,
+       "tilt_deg": -10.0,
+       "snugness_mm": 8.13
+      },
+      {
+       "height_mm": -12.0,
+       "yaw_deg": 0.0,
+       "tilt_deg": -10.0,
+       "snugness_mm": 8.23
+      },
+      {
+       "height_mm": -24.0,
+       "yaw_deg": 0.0,
+       "tilt_deg": 0.0,
+       "snugness_mm": 9.03
+      },
+      {
+       "height_mm": 0.0,
        "yaw_deg": 20.0,
+       "tilt_deg": 10.0,
+       "snugness_mm": 9.17
+      },
+      {
+       "height_mm": -12.0,
+       "yaw_deg": 20.0,
+       "tilt_deg": 0.0,
+       "snugness_mm": 9.24
+      },
+      {
+       "height_mm": -12.0,
+       "yaw_deg": 0.0,
+       "tilt_deg": 10.0,
+       "snugness_mm": 10.17
+      },
+      {
+       "height_mm": -12.0,
+       "yaw_deg": 20.0,
+       "tilt_deg": 10.0,
+       "snugness_mm": 10.23
+      },
+      {
+       "height_mm": -24.0,
+       "yaw_deg": 0.0,
+       "tilt_deg": 10.0,
+       "snugness_mm": 10.44
+      },
+      {
+       "height_mm": -24.0,
+       "yaw_deg": 20.0,
+       "tilt_deg": -10.0,
+       "snugness_mm": 10.45
+      },
+      {
+       "height_mm": -12.0,
+       "yaw_deg": -20.0,
+       "tilt_deg": -10.0,
+       "snugness_mm": 10.58
+      },
+      {
+       "height_mm": 0.0,
+       "yaw_deg": -20.0,
+       "tilt_deg": 10.0,
+       "snugness_mm": 10.63
+      },
+      {
+       "height_mm": -24.0,
+       "yaw_deg": -20.0,
+       "tilt_deg": 0.0,
+       "snugness_mm": 10.82
+      },
+      {
+       "height_mm": -12.0,
+       "yaw_deg": -20.0,
+       "tilt_deg": 10.0,
+       "snugness_mm": 10.85
+      },
+      {
+       "height_mm": -12.0,
+       "yaw_deg": -20.0,
+       "tilt_deg": 0.0,
+       "snugness_mm": 11.23
+      },
+      {
+       "height_mm": -24.0,
+       "yaw_deg": -20.0,
+       "tilt_deg": -10.0,
+       "snugness_mm": 12.13
+      },
+      {
+       "height_mm": 0.0,
+       "yaw_deg": 20.0,
+       "tilt_deg": 0.0,
+       "snugness_mm": 12.32
+      },
+      {
+       "height_mm": 0.0,
+       "yaw_deg": 20.0,
+       "tilt_deg": -10.0,
+       "snugness_mm": 12.68
+      },
+      {
+       "height_mm": -24.0,
+       "yaw_deg": -20.0,
+       "tilt_deg": 10.0,
+       "snugness_mm": 12.99
+      },
+      {
+       "height_mm": -24.0,
+       "yaw_deg": 20.0,
+       "tilt_deg": 10.0,
+       "snugness_mm": 13.76
+      },
+      {
+       "height_mm": -12.0,
+       "yaw_deg": 20.0,
+       "tilt_deg": -10.0,
+       "snugness_mm": 16.98
+      },
+      {
+       "height_mm": -24.0,
+       "yaw_deg": 20.0,
+       "tilt_deg": 0.0,
+       "snugness_mm": 21.09
+      },
+      {
+       "height_mm": -12.0,
+       "yaw_deg": 40.0,
+       "tilt_deg": 0.0,
+       "snugness_mm": 27.57
+      },
+      {
+       "height_mm": -12.0,
+       "yaw_deg": 40.0,
+       "tilt_deg": -10.0,
+       "snugness_mm": 29.2
+      },
+      {
+       "height_mm": -24.0,
+       "yaw_deg": 40.0,
        "tilt_deg": -10.0,
        "snugness_mm": 30.0
       },
       {
-       "height_mm": -30.0,
-       "yaw_deg": 20.0,
+       "height_mm": -24.0,
+       "yaw_deg": 40.0,
        "tilt_deg": 0.0,
        "snugness_mm": 30.0
       },
       {
-       "height_mm": -30.0,
-       "yaw_deg": 20.0,
+       "height_mm": -24.0,
+       "yaw_deg": 40.0,
        "tilt_deg": 10.0,
        "snugness_mm": 30.0
       },
       {
-       "height_mm": -18.0,
-       "yaw_deg": 0.0,
+       "height_mm": -12.0,
+       "yaw_deg": 40.0,
+       "tilt_deg": 10.0,
+       "snugness_mm": 30.0
+      },
+      {
+       "height_mm": 0.0,
+       "yaw_deg": 40.0,
        "tilt_deg": -10.0,
        "snugness_mm": 30.0
       },
       {
-       "height_mm": -18.0,
-       "yaw_deg": 0.0,
-       "tilt_deg": 10.0,
-       "snugness_mm": 30.0
-      },
-      {
-       "height_mm": -18.0,
-       "yaw_deg": 20.0,
-       "tilt_deg": -10.0,
-       "snugness_mm": 30.0
-      },
-      {
-       "height_mm": -18.0,
-       "yaw_deg": 20.0,
+       "height_mm": 0.0,
+       "yaw_deg": 40.0,
        "tilt_deg": 0.0,
        "snugness_mm": 30.0
       },
       {
-       "height_mm": -18.0,
-       "yaw_deg": 20.0,
-       "tilt_deg": 10.0,
-       "snugness_mm": 30.0
-      },
-      {
-       "height_mm": -6.0,
-       "yaw_deg": 0.0,
-       "tilt_deg": 0.0,
-       "snugness_mm": 30.0
-      },
-      {
-       "height_mm": -6.0,
-       "yaw_deg": 0.0,
-       "tilt_deg": 10.0,
-       "snugness_mm": 30.0
-      },
-      {
-       "height_mm": -6.0,
-       "yaw_deg": 20.0,
-       "tilt_deg": -10.0,
-       "snugness_mm": 30.0
-      },
-      {
-       "height_mm": -6.0,
-       "yaw_deg": 20.0,
-       "tilt_deg": 0.0,
-       "snugness_mm": 30.0
-      },
-      {
-       "height_mm": -6.0,
-       "yaw_deg": 20.0,
+       "height_mm": 0.0,
+       "yaw_deg": 40.0,
        "tilt_deg": 10.0,
        "snugness_mm": 30.0
       }
      ],
      "thumb": {
       "angles": {
-       "cmc_flex": -16.7,
-       "cmc_abd": 7.12,
-       "cmc_rot": 10.76,
-       "mcp": 13.17,
-       "ip": 45.36
+       "cmc_flex": 60.49,
+       "cmc_abd": -11.91,
+       "cmc_rot": 14.64,
+       "mcp": 45.48,
+       "ip": 50.69
       },
       "terms": {
-       "pen": 11170.81566,
-       "contact": 1.37377,
-       "_gap": -0.00597,
-       "dir": 8.54231,
-       "_dir_deg": 55.04839,
-       "_min_sd": -0.00648
+       "pen": 0.00304,
+       "contact": 7.81184,
+       "_gap": 0.01694,
+       "dir": 3.5832,
+       "_dir_deg": 34.83105,
+       "_min_sd": 0.00029
       },
-      "evaluations": 737
+      "evaluations": 538
      }
     }
    },
@@ -2544,5 +2697,5 @@
   "A_Hand_Pistol2h",
   "A_Hand_OpenToFist"
  ],
- "seconds": 187.1
+ "seconds": 286.4
 }

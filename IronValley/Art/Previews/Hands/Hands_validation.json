@@ -16,18 +16,18 @@
    "triangles": 17884,
    "shell_offset_mm": {
     "min": 1.15,
-    "max": 4.703,
-    "median": 1.524
+    "max": 5.679,
+    "median": 1.528
    }
   },
   "uv": {
-   "seam_edges": 854,
-   "texel_density_px_per_cm_mean": 55.1,
+   "seam_edges": 857,
+   "texel_density_px_per_cm_mean": 54.4,
    "texel_density_p05_p95": [
-    52.5,
-    57.7
+    51.9,
+    57.1
    ],
-   "uv_coverage": 0.487,
+   "uv_coverage": 0.477,
    "flipped_uv_triangles": 2,
    "sign_majority": 17882
   },
@@ -40,7 +40,7 @@
    "vertices": 10042,
    "faces": 10022
   },
-  "build_seconds": 11.1
+  "build_seconds": 14.2
  },
  "textures": {
   "texels": 2041286,
@@ -69,7 +69,7 @@
    "Black_ORM": "Art/Textures/Characters/Gloves/T_Glove_Black_ORM.png"
   }
  },
- "seconds_this_run": 187.2,
- "time": "2026-09-27 04:52:06",
- "pose_fit_seconds": 187.1
+ "seconds_this_run": 300.7,
+ "time": "2026-09-27 05:14:06",
+ "pose_fit_seconds": 286.4
 }
