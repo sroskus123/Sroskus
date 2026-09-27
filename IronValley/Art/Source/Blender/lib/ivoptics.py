@@ -18,7 +18,9 @@ Sections
   5. Mesh helpers: thin lens / window, reticle plane with exact angular UV scale, sockets.
   6. Rifle: read-only import of the IV-7, optic mounting, iron-sight fold pose.
   7. Picture-in-picture composite (preview of the runtime scope rendering).
-  8. Export jobs (FBX / GLB per optic, socket names) in a clean subprocess.
+  8. Measurements / audits (reticle crispness, glTF material audit, transmission audit, sight
+     fold), outdoor test-range scene for through-sight renders.
+  9. Export jobs (FBX / GLB per optic, SOCKET_ names for Unreal) in a clean subprocess.
 """
 
 import json
@@ -673,26 +675,49 @@ def pane_sheet(name, x, center_yz, w, h, corner_r, facing=-1, seg=6, col=None):
     return _sheet_object(name, verts, faces, uvs, facing, col)
 
 
-def reticle_plane(name, x_plane, center_yz, eye_x, reticle_meta, magnification=1.0, cover_half=None, col=None):
-    """Reticle quad on the sight axis at x_plane, facing the eye (-X).
+def reticle_plane(name, x_plane, center_yz, eye_x, reticle_meta, magnification=1.0, shape=None, col=None):
+    """Reticle sheet on the sight axis at x_plane, facing the eye (-X).
 
     UV scale: seen from the eye point (x = eye_x on the axis) the texture subtends exactly its
-    angular field (x magnification for magnified optics = the apparent size behind the eyepiece).
-    The quad itself is `cover_half` (half size, same units) so that it covers the whole window /
-    ocular aperture: its UVs run beyond 0..1 and the texture is sampled clamp-to-edge (the border
-    texels are transparent).  A runtime collimated reticle shader needs this: with the eye off the
-    axis the dot is drawn where the ray PARALLEL to the axis through the eye meets the plane.
-    u runs to the shooter's right (-Y), v up (texture row 0 = top).  Returns (obj, tex_half)."""
+    angular field (x magnification for magnified optics = the apparent size behind the eyepiece);
+    the mapping is gnomonic (UV linear in tan(angle)), which a flat sheet gives exactly.
+    The sheet itself fills the aperture: shape = ('circle', r) or ('rect', half_y, half_z,
+    corner_r).  Its UVs therefore run beyond 0..1 and the texture must be sampled clamp-to-edge
+    (the border texels are transparent).  A runtime collimated reticle shader needs the whole
+    aperture: with the eye off the axis the dot is drawn where the ray PARALLEL to the sight axis
+    through the eye meets the sheet.  u runs to the shooter's right (-Y), v up (texture row 0 =
+    top).  Returns (obj, tex_half) with tex_half = half size of the texture's field on the sheet."""
     d = x_plane - eye_x
     assert d > 0
     half_ang = 0.5 * reticle_meta["field_units"] * RAD_PER_UNIT[reticle_meta["units"]] * magnification
     tex_half = d * math.tan(half_ang)
-    half = max(cover_half or tex_half, tex_half)
     cy, cz = center_yz
-    verts = [(x_plane, cy + half, cz - half), (x_plane, cy - half, cz - half),
-             (x_plane, cy - half, cz + half), (x_plane, cy + half, cz + half)]
+    shape = shape or ('rect', tex_half, tex_half, 0.0)
+    if shape[0] == 'circle':
+        rr = shape[1]
+        segs, rings = 48, 3
+        verts = [(x_plane, cy, cz)]
+        for k in range(1, rings + 1):
+            r = rr * k / rings
+            for s in range(segs):
+                a = 2 * math.pi * s / segs
+                verts.append((x_plane, cy + r * math.cos(a), cz + r * math.sin(a)))
+        faces = [(0, 1 + s, 1 + (s + 1) % segs) for s in range(segs)]
+        for k in range(rings - 1):
+            a0, a1 = 1 + k * segs, 1 + (k + 1) * segs
+            for s in range(segs):
+                t = (s + 1) % segs
+                faces.append((a0 + s, a1 + s, a1 + t, a0 + t))
+    else:
+        L = _L()
+        _, hy, hz, cr = shape
+        outline = L.rounded_rect(2 * hy, 2 * hz, cr, 6, cx=cy, cy=cz) if cr > 0 else \
+            [(cy + hy, cz - hz), (cy + hy, cz + hz), (cy - hy, cz + hz), (cy - hy, cz - hz)]
+        verts = [(x_plane, cy, cz)] + [(x_plane, u, v) for u, v in outline]
+        n = len(outline)
+        faces = [(0, 1 + s, 1 + (s + 1) % n) for s in range(n)]
     uvs = [(0.5 - (v[1] - cy) / (2 * tex_half), 0.5 + (v[2] - cz) / (2 * tex_half)) for v in verts]
-    ob = _sheet_object(name, verts, [(0, 1, 2, 3)], uvs, -1, col)
+    ob = _sheet_object(name, verts, faces, uvs, -1, col)
     ob["iv_reticle_tex_half"] = tex_half
     ob["iv_reticle_eye_distance"] = d
     return ob, tex_half
@@ -887,19 +912,254 @@ def pip_composite(main_png, zoom_png, reticle_meta, out_png, disc_center, disc_r
 
 
 # =============================================================================
-# 8. Export jobs (clean subprocess)
+# 8. Measurements, audits, render scene
 # =============================================================================
 
-def _job_prep(job):
-    """Open the optics .blend, keep one optic (its objects listed in job['keep']), rename them
-    (job['rename']: old -> new), optionally re-point images (job['image_map']: basename -> path),
-    save to job['out_blend']."""
+def reticle_metrics(meta):
+    """Crispness and angular-scale numbers of a rasterised reticle (from Reticle.save's render).
+    - edge_10_90_px: width of the alpha ramp across the lit feature nearest the axis, measured on
+      the row through the axis (exact-coverage AA gives <= ~1 px; blur would widen it)
+    - lit/etch coverage areas converted to angular areas
+    - drawn extent in units."""
+    r = meta["_render"]
+    a = r["alpha"]
+    N = a.shape[0]
+    ppu = meta["px_per_unit"]
+    c = N // 2
+    out = {"px_per_unit": ppu, "units": meta["units"], "size_px": N}
+    # edge ramp on the centre row, walking right from the centre until the first fall 0.9 -> 0.1
+    row = a[c - 1:c + 1].mean(axis=0)            # the axis lies between rows c-1 and c
+    ramps = []
+    j = c
+    while j < N - 2 and len(ramps) < 3:
+        if row[j] >= 0.9 and row[j + 1] < 0.9:
+            k = j
+            while k < N - 1 and row[k] > 0.1:
+                k += 1
+            # sub-pixel interpolation of the 0.9 and 0.1 crossings
+            def cross(i0, lvl):
+                i = i0
+                while i < N - 1 and not (row[i] >= lvl > row[i + 1]):
+                    i += 1
+                return i + (row[i] - lvl) / max(row[i] - row[i + 1], 1e-9)
+            ramps.append(round(cross(j, 0.1) - cross(j, 0.9), 3))
+            j = k
+        j += 1
+    out["edge_10_90_px_first_edges"] = ramps
+    out["lit_area_units2"] = round(float(r["cov_lit"].sum()) / ppu ** 2, 4)
+    out["etch_area_units2"] = round(float(r["cov_etch"].sum()) / ppu ** 2, 4)
+    out["border_alpha_max"] = float(max(a[0].max(), a[-1].max(), a[:, 0].max(), a[:, -1].max()))
+    # symmetry about the axis (centring): alpha centroid of the lit layer
+    L_ = r["cov_lit"]
+    if L_.sum() > 0:
+        ys, xs = np.mgrid[0:N, 0:N]
+        cx = float((L_ * (xs + 0.5)).sum() / L_.sum())
+        cy = float((L_ * (ys + 0.5)).sum() / L_.sum())
+        out["lit_centroid_offset_px"] = [round(cx - N / 2, 4), round(cy - N / 2, 4)]
+    return out
+
+
+def glb_json(path):
+    """The JSON chunk of a .glb (or a .gltf file)."""
+    import struct
+    with open(path, "rb") as f:
+        data = f.read()
+    if path.lower().endswith(".gltf"):
+        return json.loads(data.decode("utf8"))
+    magic, ver, length = struct.unpack_from("<III", data, 0)
+    assert magic == 0x46546C67, "not a GLB"
+    clen, ctype = struct.unpack_from("<II", data, 12)
+    return json.loads(data[20:20 + clen].decode("utf8"))
+
+
+def gltf_material_audit(path):
+    """Materials in a glTF/GLB: alpha mode, double sided, factors, textures, extensions, and the
+    wrap mode of every sampler.  Flags any transmission / volume / refraction extension."""
+    g = glb_json(path)
+    samplers = g.get("samplers", [])
+    tex = g.get("textures", [])
+    imgs = g.get("images", [])
+
+    def tinfo(ti):
+        if ti is None:
+            return None
+        t = tex[ti["index"]]
+        s = samplers[t["sampler"]] if "sampler" in t else {}
+        im = imgs[t["source"]] if "source" in t else {}
+        return {"image": im.get("name") or im.get("uri"), "wrapS": s.get("wrapS", 10497),
+                "wrapT": s.get("wrapT", 10497), "minFilter": s.get("minFilter"), "texCoord": ti.get("texCoord", 0)}
+    out = {}
+    bad = []
+    for m in g.get("materials", []):
+        pbr = m.get("pbrMetallicRoughness", {})
+        ext = m.get("extensions", {})
+        d = {"alphaMode": m.get("alphaMode", "OPAQUE"), "doubleSided": m.get("doubleSided", False),
+             "baseColorFactor": pbr.get("baseColorFactor"), "roughnessFactor": pbr.get("roughnessFactor"),
+             "metallicFactor": pbr.get("metallicFactor"), "emissiveFactor": m.get("emissiveFactor"),
+             "baseColorTexture": tinfo(pbr.get("baseColorTexture")),
+             "emissiveTexture": tinfo(m.get("emissiveTexture")),
+             "normalTexture": tinfo(m.get("normalTexture")),
+             "occlusionTexture": tinfo(m.get("occlusionTexture")),
+             "metallicRoughnessTexture": tinfo(pbr.get("metallicRoughnessTexture")),
+             "extensions": sorted(ext.keys())}
+        for k in ext:
+            if any(w in k for w in ("transmission", "volume", "refraction", "dispersion", "diffuse_transmission")):
+                bad.append(f"{m.get('name')}: {k}")
+        out[m.get("name")] = d
+    return {"materials": out, "transmission_like_extensions": bad,
+            "extensionsUsed": g.get("extensionsUsed", []),
+            "nodes": [n.get("name") for n in g.get("nodes", [])]}
+
+
+def blend_transmission_audit(materials):
+    """Principled BSDF transmission / refraction settings of Blender materials."""
+    rep = {}
+    for m in materials:
+        if not (m and m.use_nodes):
+            continue
+        for n in m.node_tree.nodes:
+            if n.type == 'BSDF_PRINCIPLED':
+                rep[m.name] = {"transmission_weight": round(n.inputs['Transmission Weight'].default_value, 6),
+                               "transmission_linked": n.inputs['Transmission Weight'].is_linked,
+                               "alpha": round(n.inputs['Alpha'].default_value, 4),
+                               "alpha_linked": n.inputs['Alpha'].is_linked,
+                               "render_method": getattr(m, "surface_render_method", None),
+                               "backface_culling": m.use_backface_culling}
+            if n.type in ('BSDF_GLASS', 'BSDF_REFRACTION', 'BSDF_TRANSLUCENT'):
+                rep.setdefault(m.name, {})["forbidden_node"] = n.type
+    return rep
+
+
+def pose_bone_fold(arm, bone, deg_about_local_y):
+    """The DOCUMENTED way to fold a sight leaf: pose-bone Euler rotation about the bone's local Y
+    (IV-7 bones are world aligned: local X forward, Y left, Z up)."""
+    import bpy
+    pb = arm.pose.bones[bone]
+    pb.rotation_mode = 'XYZ'
+    pb.rotation_euler = (0.0, math.radians(deg_about_local_y), 0.0)
+    bpy.context.view_layer.update()
+
+
+def evaluated_bbox(obj, depsgraph):
+    ev = obj.evaluated_get(depsgraph)
+    me = ev.to_mesh()
+    M = obj.matrix_world
+    co = np.array([tuple(M @ v.co) for v in me.vertices])
+    ev.to_mesh_clear()
+    return co.min(0), co.max(0)
+
+
+def range_scene(eye, axis_dir=(1.0, 0.0, 0.0), ground_drop=1.55, distances=(25, 50, 100, 200, 300, 400),
+                sun=(38.0, 222.0), col=None):
+    """Outdoor test range for through-sight renders: Nishita sky + sun, a large ground plane
+    `ground_drop` below the eye, torso-sized target boards centred ON the sight axis at each
+    distance (white board, black rings, a black centre dot), plus a few trees for depth cues.
+    Deterministic.  Returns created objects."""
+    import bpy
+    L = _L()
+    from mathutils import Vector
+    eye = Vector(eye)
+    ax = Vector(axis_dir).normalized()
+    col = col or L.collection("IV_Range")
+    L.world_sky(sun_elevation=sun[0], sun_rotation=sun[1], strength=0.35, background_strength=0.6)
+    L.add_sun(elevation=sun[0], rotation=sun[1], strength=3.2, angle=0.55)
+    objs = []
+    gz = eye.z - ground_drop
+    # ground
+    m, nb, bsdf = L._new_material("IV_RangeGround")
+    co = nb.coords('Object')
+    n1 = nb.noise(co, 0.35, 4.0, 0.6, 3.0)
+    n2 = nb.noise(co, 6.0, 3.0, 0.5, 7.0)
+    col_g = nb.ramp(nb.add(nb.mul(n1, 0.7), nb.mul(n2, 0.3)),
+                    [(0.35, (0.070, 0.085, 0.035)), (0.55, (0.115, 0.110, 0.055)), (0.75, (0.16, 0.14, 0.09))])
+    nb.set(bsdf.inputs['Base Color'], col_g)
+    bsdf.inputs['Roughness'].default_value = 0.95
+    g = L.box("IV_Ground", eye.x - 50, eye.x + 2500, -1200, 1200, gz - 1.0, gz)
+    g.data.materials.append(m)
+    L.link_to(g, col)
+    objs.append(g)
+    # target boards
+    mw, _, bw = L._new_material("IV_TargetWhite")
+    bw.inputs['Base Color'].default_value = (0.8, 0.8, 0.78, 1)
+    bw.inputs['Roughness'].default_value = 0.8
+    mk, _, bk = L._new_material("IV_TargetBlack")
+    bk.inputs['Base Color'].default_value = (0.012, 0.012, 0.012, 1)
+    bk.inputs['Roughness'].default_value = 0.7
+    mp, _, bp = L._new_material("IV_Post")
+    bp.inputs['Base Color'].default_value = (0.20, 0.13, 0.07, 1)
+    for D in distances:
+        p = eye + ax * D
+        w, h = 0.46, 0.70
+        b = L.box(f"IV_Target_{D}", p.x, p.x + 0.02, p.y - w / 2, p.y + w / 2, p.z - h / 2, p.z + h / 2)
+        b.data.materials.append(mw)
+        L.link_to(b, col)
+        rings = []
+        for k, rr in enumerate((0.20, 0.15, 0.10, 0.05)):
+            ring = L.lathe(f"ring{D}_{k}", [(p.x - 0.001 - 0.0002 * k, rr - 0.008), (p.x - 0.001 - 0.0002 * k, rr + 0.008),
+                                            (p.x - 0.0005, rr + 0.008), (p.x - 0.0005, rr - 0.008)], 64, 'X',
+                           center=(p.y, p.z), closed=True)
+            rings.append(ring)
+        dot = L.cyl(f"dot{D}", 0.02, p.x - 0.002, p.x - 0.0005, 'X', center=(p.y, p.z), segs=32)
+        rings.append(dot)
+        for rgo in rings:
+            rgo.data.materials.append(mk)
+            L.link_to(rgo, col)
+        post = L.box(f"IV_Post_{D}", p.x + 0.02, p.x + 0.07, p.y - 0.025, p.y + 0.025, gz, p.z - h / 2)
+        post.data.materials.append(mp)
+        L.link_to(post, col)
+        objs += [b, post] + rings
+    # trees (cones + trunks) off the axis, deterministic positions
+    mt, _, bt = L._new_material("IV_Tree")
+    bt.inputs['Base Color'].default_value = (0.03, 0.06, 0.025, 1)
+    bt.inputs['Roughness'].default_value = 0.9
+    rng = np.random.default_rng(7)
+    for i in range(40):
+        D = float(rng.uniform(40, 700))
+        side = float(rng.choice([-1, 1])) * float(rng.uniform(6, 0.35 * D + 8))
+        p = eye + ax * D + Vector((0, side, 0))
+        hgt = float(rng.uniform(6, 14))
+        cone = L.lathe(f"IV_Tree_{i}", [(gz + 1.5, 0.0), (gz + 1.5, hgt * 0.22), (gz + hgt, 0.0)], 10, 'Z',
+                       center=(p.x, p.y))
+        cone.data.materials.append(mt)
+        L.link_to(cone, col)
+        objs.append(cone)
+    return objs
+
+
+# =============================================================================
+# 9. Export jobs (clean subprocess)
+# =============================================================================
+# Static optic exports.  Every optic is exported on its own from optics.blend:
+#   FBX (Unreal): file in centimetres with NO node scale (geometry and empty locations are
+#     multiplied by 100 at scene unit scale 0.01, like the IV-7 export in ivlib), axes as ivlib's
+#     FBX_UNREAL_OPTS, object types MESH + EMPTY.  Sockets are empties named "SOCKET_<socket>"
+#     parented to the body mesh (Unreal's static-mesh socket convention; the socket name in
+#     Unreal is the part after SOCKET_, e.g. "socket_eye").  Materials reference BaseColor and
+#     the *_Normal_DX.png map by relative path only.
+#   GLB (web): metres, Y-up (the exporter converts), sockets are plain nodes named
+#     "socket_<name>", textures embedded.
+
+def _prep_optic_scene(job):
     import bpy
     bpy.ops.wm.open_mainfile(filepath=job["blend"])
-    keep = set(job["keep"])
+    keep = set(job["objects"])
     for o in list(bpy.data.objects):
         if o.name not in keep:
             bpy.data.objects.remove(o, do_unlink=True)
+    objs = [bpy.data.objects[n] for n in job["objects"]]
+    lc = bpy.context.view_layer.layer_collection
+
+    def _unexclude(l):
+        l.exclude = False
+        l.hide_viewport = False
+        for ch in l.children:
+            _unexclude(ch)
+    _unexclude(lc)
+    for o in objs:
+        o.hide_set(False)
+        o.hide_viewport = False
+        o.hide_render = False
+        o.hide_select = False
     for old, new in job.get("rename", {}).items():
         bpy.data.objects[old].name = new
     for im in bpy.data.images:
@@ -907,16 +1167,79 @@ def _job_prep(job):
         if b in job.get("image_map", {}):
             im.filepath = job["image_map"][b]
             im.reload()
-    for c in list(bpy.data.collections):
-        if not c.objects and not c.children:
-            bpy.data.collections.remove(c)
-    bpy.ops.wm.save_as_mainfile(filepath=job["out_blend"])
-    return {"ok": True, "objects": sorted(o.name for o in bpy.data.objects)}
+    bpy.context.view_layer.update()
+    return objs
+
+
+def _job_export_optic(job):
+    import bpy
+    from mathutils import Matrix
+    L = _L()
+    objs = _prep_optic_scene(job)
+    root = next(o for o in objs if o.parent is None)
+    fmt = job["format"]
+    os.makedirs(os.path.dirname(job["path"]), exist_ok=True)
+    if fmt == "FBX":
+        # bake centimetres: unparent (keep world), scale geometry / locations x100, re-parent
+        mw = {o.name: o.matrix_world.copy() for o in objs}
+        for o in objs:
+            o.parent = None
+        for o in objs:
+            M = mw[o.name]
+            loc, rot, sca = M.decompose()
+            if o.type == 'MESH':
+                o.data.transform(Matrix.Diagonal((*sca, 1.0)) * 1.0)   # bake any object scale
+                o.data.transform(Matrix.Scale(100.0, 4))
+                o.data.update()
+            else:
+                o.empty_display_size *= 100.0
+            o.matrix_world = Matrix.Translation(loc * 100.0) @ rot.to_matrix().to_4x4()
+        bpy.context.view_layer.update()
+        for o in objs:
+            if o is not root:
+                w = o.matrix_world.copy()
+                o.parent = root
+                o.matrix_parent_inverse = root.matrix_world.inverted()
+                o.matrix_world = w
+        for o in objs:
+            if o.type == 'EMPTY':
+                o.name = "SOCKET_" + o.name
+        bpy.context.scene.unit_settings.scale_length = 0.01
+        bpy.context.view_layer.update()
+        # Unreal convention: point the FBX normal-map reference at *_Normal_DX.png
+        for m in bpy.data.materials:
+            if not (m.get("iv_export") and m.use_nodes):
+                continue
+            n = m.node_tree.nodes.get("T_Normal")
+            if n and n.image and n.image.filepath:
+                p = bpy.path.abspath(n.image.filepath)
+                dx = p.replace("_Normal.png", "_Normal_DX.png")
+                if dx != p and os.path.exists(dx):
+                    im = bpy.data.images.load(dx, check_existing=True)
+                    im.colorspace_settings.name = 'Non-Color'
+                    n.image = im
+        import io_scene_fbx.export_fbx_bin as _efb
+        _orig = _efb._gen_vid_path
+
+        def _rel_only(img, scene_data):
+            a, r = _orig(img, scene_data)
+            return r, r
+        _efb._gen_vid_path = _rel_only
+        L.select(objs, root)
+        opts = dict(L.FBX_UNREAL_OPTS)
+        opts["object_types"] = {'MESH', 'EMPTY'}
+        bpy.ops.export_scene.fbx(filepath=job["path"], use_selection=True, **opts)
+    else:
+        L.select(objs, root)
+        opts = dict(L.GLB_OPTS)
+        opts["export_skins"] = False
+        bpy.ops.export_scene.gltf(filepath=job["path"], use_selection=True, **opts)
+    return {"ok": True, "path": job["path"], "bytes": os.path.getsize(job["path"])}
 
 
 def _job_reimport_optic(job):
     """Re-import an exported FBX / GLB into an empty scene; report meshes, empties (world
-    positions in the file's units after the importer's conversion), materials and bounds."""
+    positions in metres after the importer's conversion), materials, images and bounds."""
     import bpy
     bpy.ops.wm.read_factory_settings(use_empty=True)
     p = job["path"]
@@ -931,29 +1254,44 @@ def _job_reimport_optic(job):
     mn = np.array([1e9] * 3)
     mx = np.array([-1e9] * 3)
     tris = 0
+    per_mesh = {}
     for o in meshes:
         ev = o.evaluated_get(dg)
         me = ev.to_mesh()
         me.calc_loop_triangles()
-        tris += len(me.loop_triangles)
-        co = np.array([tuple(o.matrix_world @ v.co) for v in me.vertices])
-        if len(co):
-            mn = np.minimum(mn, co.min(0))
-            mx = np.maximum(mx, co.max(0))
+        nt = len(me.loop_triangles)
+        tris += nt
+        co = np.empty(len(me.vertices) * 3)
+        me.vertices.foreach_get("co", co)
+        co = co.reshape(-1, 3)
+        M = np.array(o.matrix_world)
+        w = co @ M[:3, :3].T + M[:3, 3]
+        if len(w):
+            mn = np.minimum(mn, w.min(0))
+            mx = np.maximum(mx, w.max(0))
+        per_mesh[o.name] = {"tris": nt, "uv_layers": len(me.uv_layers),
+                            "materials": [m.name if m else None for m in o.data.materials]}
         ev.to_mesh_clear()
     mats = {}
     for o in meshes:
         for m in o.data.materials:
             if m and m.name not in mats:
                 ims = []
+                bs = {}
                 if m.use_nodes:
                     for n in m.node_tree.nodes:
                         if n.type == 'TEX_IMAGE' and n.image:
+                            ip = bpy.path.abspath(n.image.filepath) if n.image.filepath else ""
                             ims.append({"name": n.image.name, "size": list(n.image.size),
-                                        "ok": bool(n.image.packed_file) or os.path.exists(bpy.path.abspath(n.image.filepath))})
-                mats[m.name] = ims
-    return {"ok": True, "meshes": sorted(o.name for o in meshes), "tris": tris,
+                                        "ok": bool(n.image.packed_file) or (bool(ip) and os.path.exists(ip))})
+                        if n.type == 'BSDF_PRINCIPLED':
+                            bs = {"transmission": round(n.inputs['Transmission Weight'].default_value, 5),
+                                  "alpha": round(n.inputs['Alpha'].default_value, 4),
+                                  "alpha_linked": n.inputs['Alpha'].is_linked}
+                mats[m.name] = {"images": ims, "bsdf": bs}
+    return {"ok": True, "path": p, "meshes": sorted(o.name for o in meshes), "per_mesh": per_mesh, "tris": tris,
             "empties": {o.name: [round(v, 5) for v in o.matrix_world.translation] for o in empties},
+            "empty_axes_x": {o.name: [round(v, 5) for v in (o.matrix_world.to_3x3() @ __import__('mathutils').Vector((1, 0, 0))).normalized()] for o in empties},
             "empty_parents": {o.name: (o.parent.name if o.parent else None) for o in empties},
             "bbox_min": [round(float(v), 5) for v in mn], "bbox_max": [round(float(v), 5) for v in mx],
             "materials": mats}
@@ -974,12 +1312,22 @@ def run_job(job, timeout=900):
     raise RuntimeError(f"ivoptics job failed ({job.get('type')}):\n{p.stdout[-3000:]}\n{p.stderr[-3000:]}")
 
 
+def export_optic(blend, objects, path, rename=None, image_map=None):
+    fmt = "FBX" if path.lower().endswith(".fbx") else "GLB"
+    return run_job({"type": "export_optic", "format": fmt, "blend": blend, "objects": list(objects),
+                    "path": path, "rename": rename or {}, "image_map": image_map or {}})
+
+
+def reimport_optic(path):
+    return run_job({"type": "reimport_optic", "path": path})
+
+
 def _job_main(path):
     with open(path) as f:
         job = json.load(f)
     t = job["type"]
-    if t == "prep":
-        res = _job_prep(job)
+    if t == "export_optic":
+        res = _job_export_optic(job)
     elif t == "reimport_optic":
         res = _job_reimport_optic(job)
     else:
