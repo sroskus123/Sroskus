@@ -63,8 +63,8 @@
   "generated_images": []
  },
  "SM_IV7_Magazine": {
-  "vertex_groups": 1,
-  "verts_with_deform_weights": 2064,
+  "vertex_groups": 0,
+  "verts_with_deform_weights": 0,
   "has_custom_normals": true
  },
  "razor_edges_gt_70deg": {
@@ -121,26 +121,26 @@
   "SK_IV7_Carbine.fbx": {
    "mentions_Normal_DX": 14,
    "mentions_OpenGL_Normal": 0,
-   "absolute_home_paths": 1,
-   "bytes": 6539740
+   "absolute_home_paths": 0,
+   "bytes": 6532748
   },
   "SK_IV7_Carbine_LOD1.fbx": {
    "mentions_Normal_DX": 14,
    "mentions_OpenGL_Normal": 0,
-   "absolute_home_paths": 1,
-   "bytes": 3793964
+   "absolute_home_paths": 0,
+   "bytes": 3794956
   },
   "SK_IV7_Carbine_LOD2.fbx": {
    "mentions_Normal_DX": 14,
    "mentions_OpenGL_Normal": 0,
-   "absolute_home_paths": 1,
-   "bytes": 2088252
+   "absolute_home_paths": 0,
+   "bytes": 2088396
   },
   "SM_IV7_Magazine.fbx": {
    "mentions_Normal_DX": 7,
    "mentions_OpenGL_Normal": 0,
-   "absolute_home_paths": 1,
-   "bytes": 360300
+   "absolute_home_paths": 0,
+   "bytes": 360236
   }
  },
  "glb": {

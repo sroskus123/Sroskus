@@ -1,6 +1,6 @@
 {
   "tool": "Tools/web_assets/build_web_assets.py",
-  "generatedAt": "2026-09-27T04:45:02Z",
+  "generatedAt": "2026-09-27T07:19:11Z",
   "sources": [
     {
       "path": "Shared/config/optics.json",
@@ -9,8 +9,8 @@
     },
     {
       "path": "Art/Export/GLB/IV7_Carbine.glb",
-      "bytes": 17394236,
-      "sha256": "d6786dfb87b1b365b6d9a7feff0bb8cb9d3ab6561713bdd27a1a6489ae1136d6"
+      "bytes": 18363568,
+      "sha256": "b709667d915cbddb3291817b8aaf8c015259c607c6f0624719d2dd55be1f94fd"
     },
     {
       "path": "Art/Export/GLB/IVH1_Holo.glb",
@@ -121,8 +121,8 @@
   "outputs": [
     {
       "path": "Web/public/assets/weapons/IV7_Carbine.glb",
-      "bytes": 7322260,
-      "base64Bytes": 9763016
+      "bytes": 6429900,
+      "base64Bytes": 8573200
     },
     {
       "path": "Web/public/assets/optics/IVH1_Holo.glb",
@@ -209,8 +209,8 @@
     {
       "source": "Art/Export/GLB/IV7_Carbine.glb",
       "output": "Web/public/assets/weapons/IV7_Carbine.glb",
-      "bytes": 7322260,
-      "sourceBytes": 17394236,
+      "bytes": 6429900,
+      "sourceBytes": 18363568,
       "textures": [
         {
           "image": "T_IV7_Body_Normal",
@@ -224,7 +224,7 @@
             2048,
             2048
           ],
-          "bytes": 365938
+          "bytes": 446076
         },
         {
           "image": "T_IV7_Body_ORM",
@@ -238,7 +238,7 @@
             2048,
             2048
           ],
-          "bytes": 1228973
+          "bytes": 1239105
         },
         {
           "image": "T_IV7_Body_BaseColor",
@@ -252,7 +252,7 @@
             2048,
             2048
           ],
-          "bytes": 186952
+          "bytes": 183540
         },
         {
           "image": "T_IV7_Furniture_Normal",
@@ -266,7 +266,7 @@
             2048,
             2048
           ],
-          "bytes": 544223
+          "bytes": 547423
         },
         {
           "image": "T_IV7_Furniture_ORM",
@@ -280,7 +280,7 @@
             2048,
             2048
           ],
-          "bytes": 424793
+          "bytes": 426260
         },
         {
           "image": "T_IV7_Furniture_BaseColor",
@@ -294,11 +294,11 @@
             2048,
             2048
           ],
-          "bytes": 49024
+          "bytes": 47756
         }
       ],
       "weightsConverted": 39,
-      "transmissionStripped": 1
+      "transmissionStripped": 0
     },
     {
       "source": "Art/Export/GLB/IVH1_Holo.glb",
