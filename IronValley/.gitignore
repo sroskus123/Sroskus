@@ -27,3 +27,4 @@ Tools/level/nav/node_modules/
 # audio pipeline: downloaded third-party sources (Tools/audio/fetch_sources.py, SHA-256 pinned) and review images
 Tools/audio/_src/
 Tools/audio/_out/
+Docs/navrhy/*.png
