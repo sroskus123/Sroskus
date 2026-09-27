@@ -1111,7 +1111,11 @@ def validate():
                 keep[list(p_.vertices)] = True
         m_ = np.zeros(len(keep), bool)
         m_[list(full)] = True
-        shipped_skin[s] = m_ & keep
+        # only skin actually inside the cuff: distal of the cuff opening by > 3 mm (skin at the
+        # opening itself is outside the glove by definition)
+        wj, ax = HN.forearm_axis(arm, s)
+        u = (rest_b - wj) @ ax
+        shipped_skin[s] = m_ & keep & (u > -HN.GLOVE_DESIGN["cuff_len"] + 0.003)
     coll_r = collider_of(props["rifle"]["parts"])
     coll_p = collider_of(props["pistol"]["parts"])
     out = {"limits": HAND01_LIMITS, "poses": {}}
