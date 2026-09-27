@@ -1,0 +1,148 @@
+{
+  "schema": "ironvalley.testvectors",
+  "version": 1,
+  "suite": "match",
+  "description": "Integrace kola a respawnu (GAME-01, GAME-02, GUN-03): stav zivota ucastniku v oblasti prebira kolo z respawn systemu; reset vynuluje skore, casovace i odpocty respawnu. Tik se deli v okamzicich spawnu: respawnuty ucastnik se v oblasti pocita presne od okamziku spawnu (R13), takze body nezavisi na delce tiku. Zbrane mrtveho ucastnika jsou vypnute.",
+  "cases": [
+    {
+      "id": "GAME-02/full-match-cycle-3x6",
+      "kind": "match",
+      "setup": {
+        "seed": 21,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0], [8, 0, 0], [12, 0, 0], [16, 0, 0], [20, 0, 0]], [[200, 0, 0], [204, 0, 0], [208, 0, 0], [212, 0, 0], [216, 0, 0], [220, 0, 0]], [[0, 0, 200], [4, 0, 200], [8, 0, 200], [12, 0, 200], [16, 0, 200], [20, 0, 200]]],
+        "participants": [
+          { "id": "a1", "team": 0 }, { "id": "a2", "team": 0 }, { "id": "a3", "team": 0 }, { "id": "a4", "team": 0 }, { "id": "a5", "team": 0 }, { "id": "a6", "team": 0 },
+          { "id": "b1", "team": 1 }, { "id": "b2", "team": 1 }, { "id": "b3", "team": 1 }, { "id": "b4", "team": 1 }, { "id": "b5", "team": 1 }, { "id": "b6", "team": 1 },
+          { "id": "c1", "team": 2 }, { "id": "c2", "team": 2 }, { "id": "c3", "team": 2 }, { "id": "c4", "team": 2 }, { "id": "c5", "team": 2 }, { "id": "c6", "team": 2 }
+        ]
+      },
+      "steps": [
+        { "op": "tick", "dtUs": 0, "expect": { "result": "ok", "eventCounts": { "spawned": 18, "spawn_blocked": 0 }, "round": { "state": "pre_round", "zoneIndex": 1, "zoneId": "zone_sklad" }, "respawn": { "participants": { "a1": { "state": "alive" }, "b6": { "state": "alive" }, "c6": { "state": "alive", "health": 100 } } } } },
+        { "op": "start", "expect": { "result": "ok", "round": { "state": "running" } } },
+        { "op": "tick", "dtUs": 2000000, "inZone": ["a1", "a2", "b1"], "expect": { "round": { "controller": 0, "counts": [2, 1, 0], "scores": [1, 0, 0] } } },
+        { "op": "kill", "id": "a1", "expect": { "result": "killed", "events": [{ "type": "killed", "id": "a1", "point": -1 }] } },
+        { "op": "tick", "dtUs": 2000000, "expect": { "round": { "status": "contested", "counts": [1, 1, 0], "scores": [1, 0, 0], "progressUs": 0 }, "respawn": { "participants": { "a1": { "state": "dead", "respawnInUs": 3000000 } } } } },
+        { "op": "kill", "id": "a2" },
+        { "op": "tick", "dtUs": 2000000, "expect": { "round": { "controller": 1, "counts": [0, 1, 0], "scores": [1, 1, 0] } } },
+        { "op": "tick", "dtUs": 1000000, "expect": { "eventCounts": { "spawned": 1 }, "round": { "status": "controlled", "controller": 1, "counts": [0, 1, 0], "scores": [1, 1, 0], "progressUs": 1000000, "elapsedUs": 7000000 }, "respawn": { "participants": { "a1": { "state": "alive", "spawnCount": 2 }, "a2": { "state": "dead", "respawnInUs": 2000000 } } } } },
+        { "op": "kill", "id": "b1" },
+        { "op": "tick", "dtUs": 2000000, "expect": { "round": { "controller": 0, "counts": [1, 0, 0], "scores": [2, 1, 0], "progressUs": 0, "elapsedUs": 9000000 }, "respawn": { "participants": { "a2": { "state": "alive", "spawnCount": 2 }, "b1": { "state": "dead" } } } } },
+        { "op": "run", "durationUs": 200000000, "ticks": { "hz": 60 }, "expect": { "round": { "state": "ended", "endReason": "score_target", "winner": 0, "scores": [100, 1, 0], "elapsedUs": 205000000 }, "respawn": { "participants": { "b1": { "state": "alive", "spawnCount": 2 } } } } },
+        { "op": "kill", "id": "a1", "expect": { "result": "round_ended", "respawn": { "participants": { "a1": { "state": "alive" } } } } },
+        { "op": "damage", "id": "a1", "amount": 50, "attacker": "b1", "expect": { "result": { "result": "round_ended", "applied": 0 }, "respawn": { "participants": { "a1": { "health": 100 } } } } },
+        { "op": "reset", "expect": { "result": "ok", "round": { "state": "pre_round", "roundNumber": 2, "zoneIndex": 1, "scores": [0, 0, 0], "progressUs": 0, "elapsedUs": 0, "winner": -1, "endReason": "none" }, "respawn": { "participants": { "a1": { "state": "respawning", "spawnCount": 0, "deaths": 0 }, "b1": { "state": "respawning", "deaths": 0 } } } } },
+        { "op": "tick", "dtUs": 0, "expect": { "eventCounts": { "spawned": 18 }, "round": { "state": "pre_round", "scores": [0, 0, 0] } } }
+      ]
+    },
+    {
+      "id": "GAME-01/match-inactive-participants-not-counted",
+      "kind": "match",
+      "setup": {
+        "seed": 2,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0]], [[200, 0, 0], [204, 0, 0]], [[0, 0, 200], [4, 0, 200]]],
+        "participants": [{ "id": "a1", "team": 0 }, { "id": "b1", "team": 1 }, { "id": "b2", "team": 1 }]
+      },
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "start" },
+        { "op": "tick", "dtUs": 2000000, "inZone": ["a1", "b1", "b2"], "inactive": ["b1", "b2"], "expect": { "round": { "controller": 0, "counts": [1, 0, 0], "scores": [1, 0, 0] } } },
+        { "op": "tick", "dtUs": 2000000, "inactive": ["b1"], "expect": { "round": { "status": "contested", "counts": [1, 1, 0], "scores": [1, 0, 0] } } }
+      ]
+    },
+    {
+      "id": "GAME-01/match-reset-leaves-no-timers",
+      "kind": "match",
+      "setup": {
+        "seed": 4,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0]], [[200, 0, 0], [204, 0, 0]], [[0, 0, 200], [4, 0, 200]]],
+        "participants": [{ "id": "a1", "team": 0 }, { "id": "b1", "team": 1 }]
+      },
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "start" },
+        { "op": "tick", "dtUs": 1900000, "inZone": ["b1"], "expect": { "round": { "progressUs": 1900000, "controller": 1 } } },
+        { "op": "kill", "id": "a1" },
+        { "op": "tick", "dtUs": 2000000, "inZone": [], "expect": { "respawn": { "participants": { "a1": { "state": "dead", "respawnInUs": 3000000 } } } } },
+        { "op": "reset", "expect": { "round": { "state": "pre_round", "roundNumber": 2, "progressUs": 0, "scores": [0, 0, 0], "elapsedUs": 0 }, "respawn": { "participants": { "a1": { "state": "respawning", "respawnInUs": 0, "deaths": 0, "spawnCount": 0 } } } } },
+        { "op": "tick", "dtUs": 0, "expect": { "respawn": { "participants": { "a1": { "state": "alive", "spawnCount": 1 }, "b1": { "state": "alive", "spawnCount": 1 } } } } },
+        { "op": "tick", "dtUs": 10000000, "expect": { "events": [], "round": { "state": "running", "elapsedUs": 5000000, "scores": [0, 0, 0], "progressUs": 0 }, "respawn": { "participants": { "a1": { "state": "alive", "spawnCount": 1 } } } } },
+        { "op": "tick", "dtUs": 1999999, "inZone": ["b1"], "expect": { "round": { "scores": [0, 0, 0], "progressUs": 1999999 } } }
+      ]
+    },
+    {
+      "id": "GAME-01/match-ended-freezes-respawn-and-combat",
+      "kind": "match",
+      "rules": { "round": { "timeLimit": 10.0 } },
+      "setup": {
+        "seed": 9,
+        "spawnAreas": [[[0, 0, 0], [4, 0, 0]], [[200, 0, 0], [204, 0, 0]], [[0, 0, 200], [4, 0, 200]]],
+        "participants": [{ "id": "a1", "team": 0 }, { "id": "b1", "team": 1 }]
+      },
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "start" },
+        { "op": "tick", "dtUs": 8000000 },
+        { "op": "kill", "id": "a1", "expect": { "result": "killed" } },
+        { "op": "tick", "dtUs": 2000000, "expect": { "round": { "state": "ended", "endReason": "time_limit", "draw": true }, "respawn": { "participants": { "a1": { "state": "dead", "respawnInUs": 3000000 } } } } },
+        { "op": "tick", "dtUs": 10000000, "expect": { "events": [], "respawn": { "participants": { "a1": { "state": "dead", "respawnInUs": 3000000 } } } } },
+        { "op": "kill", "id": "b1", "expect": { "result": "round_ended", "respawn": { "participants": { "b1": { "state": "alive" } } } } }
+      ]
+    },
+    {
+      "id": "GAME-01/match-respawn-inside-tick-counts-from-spawn-instant",
+      "kind": "match",
+      "setup": {
+        "seed": 5,
+        "spawnAreas": [[[0, 0, 0]], [[200, 0, 0]], [[0, 0, 200]]],
+        "participants": [{ "id": "a1", "team": 0 }, { "id": "b1", "team": 1 }]
+      },
+      "tickModes": [
+        { "dtUs": 5000000 },
+        { "dtUs": 1000000 },
+        { "dtUs": 2600000 },
+        { "hz": 60 },
+        { "hz": 7 },
+        { "irregular": { "seed": 31, "minUs": 0, "maxUs": 900000 } }
+      ],
+      "steps": [
+        { "op": "tick", "dtUs": 0, "expect": { "eventCounts": { "spawned": 2 } } },
+        { "op": "start", "expect": { "result": "ok" } },
+        { "op": "kill", "id": "b1", "expect": { "result": "killed" } },
+        { "op": "run", "durationUs": 5000000, "ticks": "case", "inZone": ["a1", "b1"], "expect": { "result": "ok", "events": [{ "type": "spawned", "id": "b1", "point": 0 }], "round": { "status": "controlled", "controller": 0, "counts": [1, 0, 0], "scores": [2, 0, 0], "progressUs": 1000000, "elapsedUs": 5000000 }, "respawn": { "participants": { "b1": { "state": "alive", "spawnCount": 2 } } } } },
+        { "op": "kill", "id": "b1", "expect": { "result": "killed" } },
+        { "op": "run", "durationUs": 5200000, "ticks": "case", "blocked": { "1": [0] }, "expect": { "result": "ok", "events": [{ "type": "spawn_blocked", "id": "b1", "point": -1 }], "round": { "status": "controlled", "controller": 0, "counts": [1, 0, 0], "scores": [5, 0, 0], "progressUs": 200000, "elapsedUs": 10200000 }, "respawn": { "participants": { "b1": { "state": "respawning", "retryInUs": 300000, "failedSpawnAttempts": 1 } } } } },
+        { "op": "run", "durationUs": 1000000, "ticks": "case", "blocked": {}, "expect": { "result": "ok", "events": [{ "type": "spawned", "id": "b1", "point": 0 }], "round": { "status": "contested", "controller": -1, "counts": [1, 1, 0], "scores": [5, 0, 0], "progressUs": 0, "elapsedUs": 11200000 }, "respawn": { "participants": { "b1": { "state": "alive", "spawnCount": 3, "retryInUs": 0 } } } } }
+      ]
+    },
+    {
+      "id": "GUN-03/match-dead-participant-weapon-must-not-fire",
+      "kind": "match",
+      "setup": { "seed": 3, "spawnAreas": [[[0, 0, 0]], [[100, 0, 0]], [[0, 0, 100]]], "participants": [{ "id": "a1", "team": 0 }] },
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "start" },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 100000, "trigger": true }, "expect": { "result": 2 } },
+        { "op": "kill", "id": "a1", "expect": { "result": "killed" } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 1000000, "trigger": true }, "expect": { "result": 0, "events": [] } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "reload" }, "expect": { "result": "rejected_disabled" } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 16667 }, "expect": { "result": 0 } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 100000, "trigger": true }, "expect": { "result": 0, "events": [] } }
+      ]
+    },
+    {
+      "id": "GUN-03/match-trigger-held-through-respawn-must-not-fire",
+      "kind": "match",
+      "setup": { "seed": 3, "spawnAreas": [[[0, 0, 0]], [[100, 0, 0]], [[0, 0, 100]]], "participants": [{ "id": "a1", "team": 0 }] },
+      "steps": [
+        { "op": "tick", "dtUs": 0 },
+        { "op": "start" },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 100000, "trigger": true }, "expect": { "result": 2 } },
+        { "op": "kill", "id": "a1" },
+        { "op": "tick", "dtUs": 5000000, "expect": { "respawn": { "participants": { "a1": { "state": "alive" } } } } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 100000, "trigger": true }, "expect": { "result": 0, "events": [] } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 16667 }, "expect": { "result": 0 } },
+        { "op": "weapon", "id": "a1", "weapon": "rifle_iv7", "do": { "op": "tick", "dtUs": 16667, "trigger": true }, "expect": { "result": 1 } }
+      ]
+    }
+  ]
+}

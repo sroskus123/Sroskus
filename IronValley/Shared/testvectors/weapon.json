@@ -1,0 +1,453 @@
+{
+  "schema": "ironvalley.testvectors",
+  "version": 1,
+  "suite": "weapon",
+  "description": "GUN-01: munice (zasobnik/komora/rezerva), rychlost palby, prebiti a preruseni. Ocekavane hodnoty jsou odvozene rucne z pravidel (Docs/RULES.md). Puska rifle_iv7: 30+1, rezerva 90/180, 750 ran/min = 80000 us, takticke prebiti 2.2 s (vlozeni 1.3), z prazdna 2.9 s (vlozeni 1.3, zaver 2.3), nabiti 0.8 s (commit 0.5). Pistole pistol_p9: 15+1, rezerva 45/90, 450 ran/min = 133333 us, takticke 1.7 (0.95), z prazdna 2.1 (0.95, 1.55), nabiti 0.6 (0.35). GUN-03: vypnuta zbran (smrt, menu) ignoruje spoust i prebiti; stisk je hrana pusteno->drzeno mezi dvema update, takze spoust drzena pres vypnuti/reset nevystreli, dokud se nepusti.",
+  "cases": [
+    {
+      "id": "GUN-01/fire-from-full",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7" },
+      "steps": [
+        { "op": "tick", "dtUs": 0, "expect": { "result": 0, "events": [], "state": "ready", "magazine": 30, "chamber": 1, "reserve": 90, "initialTotal": 121, "fireMode": "auto", "shotsFired": 0 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 1, "events": [{ "type": "shot", "atUs": 0, "detail": "" }], "magazine": 29, "chamber": 1, "reserve": 90, "shotsFired": 1, "cooldownUs": 63333, "clockUs": 16667, "holdValid": true } },
+        { "op": "tick", "dtUs": 16667, "expect": { "result": 0, "events": [], "holdValid": false, "cooldownUs": 46666, "magazine": 29 } }
+      ]
+    },
+    {
+      "id": "GUN-01/zero-length-tick-fires-nothing",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7" },
+      "steps": [
+        { "op": "tick", "dtUs": 0, "trigger": true, "expect": { "result": 0, "events": [], "holdValid": true, "triggerPrev": true, "magazine": 30 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 1, "events": [{ "type": "shot", "atUs": 0, "detail": "" }], "magazine": 29 } }
+      ]
+    },
+    {
+      "id": "GUN-01/auto-burst-1s-at-60hz",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7" },
+      "steps": [
+        { "op": "run", "durationUs": 1000000, "trigger": true, "ticks": { "hz": 60 }, "expect": { "result": 13, "eventCounts": { "shot": 13, "bolt_locked": 0 }, "magazine": 17, "chamber": 1, "reserve": 90, "shotsFired": 13, "clockUs": 1000000, "cooldownUs": 40000 } }
+      ]
+    },
+    {
+      "id": "GUN-01/semi-one-shot-per-press",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "fireMode": "semi" },
+      "steps": [
+        { "op": "run", "durationUs": 1000000, "trigger": true, "ticks": { "hz": 60 }, "expect": { "result": 1, "shotsFired": 1, "magazine": 29, "holdValid": false } },
+        { "op": "tick", "dtUs": 16667, "expect": { "result": 0 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 1, "shotsFired": 2, "magazine": 28, "chamber": 1 } }
+      ]
+    },
+    {
+      "id": "GUN-01/semi-press-during-cooldown-fires-when-ready",
+      "kind": "weapon",
+      "setup": { "weapon": "pistol_p9" },
+      "steps": [
+        { "op": "tick", "dtUs": 10000, "trigger": true, "expect": { "result": 1, "events": [{ "type": "shot", "atUs": 0, "detail": "" }] } },
+        { "op": "tick", "dtUs": 10000, "expect": { "result": 0, "cooldownUs": 113333 } },
+        { "op": "tick", "dtUs": 200000, "trigger": true, "expect": { "result": 1, "events": [{ "type": "shot", "atUs": 133333, "detail": "" }], "clockUs": 220000, "cooldownUs": 46666, "magazine": 13, "chamber": 1 } }
+      ]
+    },
+    {
+      "id": "GUN-01/semi-release-before-cooldown-cancels-press",
+      "kind": "weapon",
+      "setup": { "weapon": "pistol_p9" },
+      "steps": [
+        { "op": "tick", "dtUs": 10000, "trigger": true, "expect": { "result": 1 } },
+        { "op": "tick", "dtUs": 10000, "expect": { "result": 0 } },
+        { "op": "tick", "dtUs": 50000, "trigger": true, "expect": { "result": 0, "holdValid": true, "cooldownUs": 63333 } },
+        { "op": "tick", "dtUs": 10000, "expect": { "result": 0, "holdValid": false } },
+        { "op": "tick", "dtUs": 100000, "expect": { "result": 0, "cooldownUs": 0, "clockUs": 180000 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 1, "events": [{ "type": "shot", "atUs": 180000, "detail": "" }], "shotsFired": 2 } }
+      ]
+    },
+    {
+      "id": "GUN-01/last-round-locks-bolt",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 0, "chamber": 1, "reserve": 90 },
+      "steps": [
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 1, "events": [{ "type": "shot", "atUs": 0, "detail": "" }, { "type": "bolt_locked", "atUs": 0, "detail": "" }], "magazine": 0, "chamber": 0, "reserve": 90 } },
+        { "op": "tick", "dtUs": 100000, "trigger": true, "expect": { "result": 0, "events": [], "dryFires": 0 } },
+        { "op": "tick", "dtUs": 16667, "expect": { "result": 0 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 0, "events": [{ "type": "dry_fire", "atUs": 133334, "detail": "" }], "dryFires": 1, "shotsFired": 1 } }
+      ]
+    },
+    {
+      "id": "GUN-01/empty-whole-magazine-in-auto",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7" },
+      "steps": [
+        { "op": "run", "durationUs": 3000000, "trigger": true, "ticks": { "hz": 60 }, "expect": { "result": 31, "eventCounts": { "shot": 31, "bolt_locked": 1, "dry_fire": 0 }, "magazine": 0, "chamber": 0, "reserve": 90, "shotsFired": 31 } }
+      ]
+    },
+    {
+      "id": "GUN-01/empty-dry-fire-and-no-reserve",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 0, "chamber": 0, "reserve": 0 },
+      "steps": [
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 0, "events": [{ "type": "dry_fire", "atUs": 0, "detail": "" }], "dryFires": 1 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 0, "events": [], "dryFires": 1 } },
+        { "op": "tick", "dtUs": 16667, "expect": { "result": 0 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 0, "dryFires": 2 } },
+        { "op": "reload", "expect": { "result": "rejected_no_reserve", "events": [], "state": "ready", "magazine": 0, "chamber": 0, "reserve": 0 } }
+      ]
+    },
+    {
+      "id": "GUN-01/partial-tactical-reload",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 10, "chamber": 1, "reserve": 90 },
+      "steps": [
+        { "op": "reload", "expect": { "result": "started_tactical", "events": [{ "type": "reload_start", "atUs": 0, "detail": "tactical" }], "state": "reloading", "reloadKind": "tactical", "initialTotal": 101 } },
+        { "op": "tick", "dtUs": 1299999, "expect": { "events": [], "magazine": 10, "chamber": 1, "reserve": 90, "insertCommitted": false, "actionUs": 1299999 } },
+        { "op": "tick", "dtUs": 1, "expect": { "events": [{ "type": "mag_insert", "atUs": 1300000, "detail": "" }], "magazine": 30, "chamber": 1, "reserve": 70, "insertCommitted": true, "state": "reloading" } },
+        { "op": "tick", "dtUs": 900000, "expect": { "events": [{ "type": "reload_complete", "atUs": 2200000, "detail": "tactical" }], "state": "ready", "reloadKind": "none", "actionUs": 0, "reloadsCompleted": 1, "magazine": 30, "chamber": 1, "reserve": 70 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 1, "magazine": 29, "chamber": 1 } }
+      ]
+    },
+    {
+      "id": "GUN-01/empty-reload-chambers-at-bolt-release",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 0, "chamber": 0, "reserve": 90 },
+      "steps": [
+        { "op": "reload", "expect": { "result": "started_empty", "events": [{ "type": "reload_start", "atUs": 0, "detail": "empty" }], "reloadKind": "empty" } },
+        { "op": "tick", "dtUs": 1300000, "expect": { "events": [{ "type": "mag_insert", "atUs": 1300000, "detail": "" }], "magazine": 30, "chamber": 0, "reserve": 60, "boltReleased": false } },
+        { "op": "tick", "dtUs": 1000000, "expect": { "events": [{ "type": "bolt_release", "atUs": 2300000, "detail": "" }], "magazine": 29, "chamber": 1, "reserve": 60, "boltReleased": true, "state": "reloading" } },
+        { "op": "tick", "dtUs": 600000, "expect": { "events": [{ "type": "reload_complete", "atUs": 2900000, "detail": "empty" }], "state": "ready", "reloadsCompleted": 1 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 1, "magazine": 28, "chamber": 1, "reserve": 60 } }
+      ]
+    },
+    {
+      "id": "GUN-01/commits-happen-once-in-one-large-tick",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 0, "chamber": 0, "reserve": 90 },
+      "steps": [
+        { "op": "reload", "expect": { "result": "started_empty" } },
+        { "op": "tick", "dtUs": 10000000, "expect": { "events": [{ "type": "mag_insert", "atUs": 1300000, "detail": "" }, { "type": "bolt_release", "atUs": 2300000, "detail": "" }, { "type": "reload_complete", "atUs": 2900000, "detail": "empty" }], "magazine": 29, "chamber": 1, "reserve": 60, "reloadsCompleted": 1, "state": "ready" } },
+        { "op": "tick", "dtUs": 10000000, "expect": { "events": [], "magazine": 29, "chamber": 1, "reserve": 60, "reloadsCompleted": 1 } }
+      ]
+    },
+    {
+      "id": "GUN-01/tactical-reload-insufficient-reserve",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 10, "chamber": 1, "reserve": 5 },
+      "steps": [
+        { "op": "reload", "expect": { "result": "started_tactical" } },
+        { "op": "tick", "dtUs": 2200000, "expect": { "events": [{ "type": "mag_insert", "atUs": 1300000, "detail": "" }, { "type": "reload_complete", "atUs": 2200000, "detail": "tactical" }], "magazine": 15, "chamber": 1, "reserve": 0 } },
+        { "op": "reload", "expect": { "result": "rejected_no_reserve", "state": "ready" } }
+      ]
+    },
+    {
+      "id": "GUN-01/empty-reload-insufficient-reserve",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 0, "chamber": 0, "reserve": 12 },
+      "steps": [
+        { "op": "reload", "expect": { "result": "started_empty" } },
+        { "op": "tick", "dtUs": 2900000, "expect": { "magazine": 11, "chamber": 1, "reserve": 0, "state": "ready" } }
+      ]
+    },
+    {
+      "id": "GUN-01/reserve-zero-no-reload",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 5, "chamber": 1, "reserve": 0 },
+      "steps": [
+        { "op": "reload", "expect": { "result": "rejected_no_reserve", "events": [], "state": "ready", "magazine": 5, "chamber": 1, "reserve": 0, "reloadsStarted": 0 } }
+      ]
+    },
+    {
+      "id": "GUN-01/full-magazine-with-chamber-no-reload",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7" },
+      "steps": [
+        { "op": "reload", "expect": { "result": "rejected_full", "events": [], "state": "ready", "reloadsStarted": 0 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 1 } },
+        { "op": "reload", "expect": { "result": "started_tactical", "state": "reloading" } }
+      ]
+    },
+    {
+      "id": "GUN-01/interrupt-before-insert-changes-nothing",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 10, "chamber": 1, "reserve": 90 },
+      "steps": [
+        { "op": "reload", "expect": { "result": "started_tactical" } },
+        { "op": "tick", "dtUs": 1000000, "expect": { "insertCommitted": false } },
+        { "op": "interrupt", "reason": "sprint", "expect": { "result": "interrupted", "events": [{ "type": "reload_interrupted", "atUs": 1000000, "detail": "sprint" }], "state": "ready", "reloadKind": "none", "magazine": 10, "chamber": 1, "reserve": 90, "reloadsInterrupted": 1, "reloadsCompleted": 0 } },
+        { "op": "interrupt", "reason": "sprint", "expect": { "result": "none", "events": [] } },
+        { "op": "tick", "dtUs": 5000000, "expect": { "events": [], "magazine": 10, "reserve": 90 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 1, "magazine": 9, "chamber": 1, "reserve": 90 } }
+      ]
+    },
+    {
+      "id": "GUN-01/interrupt-empty-reload-before-insert",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 0, "chamber": 0, "reserve": 90 },
+      "steps": [
+        { "op": "reload", "expect": { "result": "started_empty" } },
+        { "op": "tick", "dtUs": 1299999 },
+        { "op": "interrupt", "reason": "switch", "expect": { "result": "interrupted", "magazine": 0, "chamber": 0, "reserve": 90, "state": "ready" } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 0, "events": [{ "type": "dry_fire", "atUs": 1299999, "detail": "" }], "state": "ready" } }
+      ]
+    },
+    {
+      "id": "GUN-01/interrupt-after-insert-tactical-keeps-new-magazine",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 10, "chamber": 1, "reserve": 90 },
+      "steps": [
+        { "op": "reload", "expect": { "result": "started_tactical" } },
+        { "op": "tick", "dtUs": 1300000, "expect": { "insertCommitted": true, "magazine": 30, "reserve": 70 } },
+        { "op": "interrupt", "reason": "death", "expect": { "result": "interrupted", "events": [{ "type": "reload_interrupted", "atUs": 1300000, "detail": "death" }], "state": "ready", "magazine": 30, "chamber": 1, "reserve": 70, "reloadsCompleted": 0, "reloadsInterrupted": 1 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 1, "magazine": 29, "chamber": 1, "reserve": 70 } }
+      ]
+    },
+    {
+      "id": "GUN-01/interrupt-before-bolt-release-then-chamber-action",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 0, "chamber": 0, "reserve": 90 },
+      "steps": [
+        { "op": "reload", "expect": { "result": "started_empty" } },
+        { "op": "tick", "dtUs": 1800000, "expect": { "insertCommitted": true, "boltReleased": false, "magazine": 30, "chamber": 0, "reserve": 60 } },
+        { "op": "interrupt", "reason": "sprint", "expect": { "result": "interrupted", "state": "ready", "magazine": 30, "chamber": 0, "reserve": 60 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 0, "events": [{ "type": "chamber_start", "atUs": 1800000, "detail": "" }], "state": "chambering", "actionUs": 16667, "magazine": 30, "chamber": 0, "shotsFired": 0 } },
+        { "op": "tick", "dtUs": 800000, "trigger": true, "expect": { "result": 0, "events": [{ "type": "chamber_commit", "atUs": 2300000, "detail": "" }, { "type": "chamber_complete", "atUs": 2600000, "detail": "" }], "state": "ready", "magazine": 29, "chamber": 1, "reserve": 60, "chamberActions": 1, "shotsFired": 0, "clockUs": 2616667 } },
+        { "op": "tick", "dtUs": 16667, "expect": { "result": 0 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 1, "events": [{ "type": "shot", "atUs": 2633334, "detail": "" }], "magazine": 28, "chamber": 1, "reserve": 60 } }
+      ]
+    },
+    {
+      "id": "GUN-01/chamber-action-interrupted-before-commit",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 0, "chamber": 0, "reserve": 90 },
+      "steps": [
+        { "op": "reload", "expect": { "result": "started_empty" } },
+        { "op": "tick", "dtUs": 1800000 },
+        { "op": "interrupt", "reason": "sprint", "expect": { "result": "interrupted" } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "state": "chambering" } },
+        { "op": "tick", "dtUs": 400000, "trigger": true, "expect": { "state": "chambering", "chamberCommitted": false, "actionUs": 416667 } },
+        { "op": "interrupt", "reason": "switch", "expect": { "result": "interrupted", "events": [{ "type": "chamber_interrupted", "atUs": 2216667, "detail": "switch" }], "state": "ready", "magazine": 30, "chamber": 0, "reserve": 60, "chamberActions": 0 } },
+        { "op": "tick", "dtUs": 16667 },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 0, "events": [{ "type": "chamber_start", "atUs": 2233334, "detail": "" }], "state": "chambering" } },
+        { "op": "tick", "dtUs": 800000, "expect": { "events": [{ "type": "chamber_commit", "atUs": 2733334, "detail": "" }, { "type": "chamber_complete", "atUs": 3033334, "detail": "" }], "state": "ready", "magazine": 29, "chamber": 1, "reserve": 60 } },
+        { "op": "reload", "expect": { "result": "started_tactical" } }
+      ]
+    },
+    {
+      "id": "GUN-01/reload-with-full-magazine-and-empty-chamber-chambers",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 30, "chamber": 0, "reserve": 60 },
+      "steps": [
+        { "op": "reload", "expect": { "result": "started_chamber", "events": [{ "type": "chamber_start", "atUs": 0, "detail": "" }], "state": "chambering" } },
+        { "op": "reload", "expect": { "result": "rejected_busy" } },
+        { "op": "tick", "dtUs": 800000, "expect": { "events": [{ "type": "chamber_commit", "atUs": 500000, "detail": "" }, { "type": "chamber_complete", "atUs": 800000, "detail": "" }], "magazine": 29, "chamber": 1, "reserve": 60, "state": "ready" } }
+      ]
+    },
+    {
+      "id": "GUN-01/reload-without-reserve-but-rounds-in-magazine-chambers",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 10, "chamber": 0, "reserve": 0 },
+      "steps": [
+        { "op": "reload", "expect": { "result": "started_chamber" } },
+        { "op": "tick", "dtUs": 800000, "expect": { "magazine": 9, "chamber": 1, "reserve": 0, "state": "ready" } },
+        { "op": "reload", "expect": { "result": "rejected_no_reserve" } }
+      ]
+    },
+    {
+      "id": "GUN-01/interrupt-after-bolt-release",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 0, "chamber": 0, "reserve": 90 },
+      "steps": [
+        { "op": "reload", "expect": { "result": "started_empty" } },
+        { "op": "tick", "dtUs": 2500000, "expect": { "boltReleased": true } },
+        { "op": "interrupt", "reason": "death", "expect": { "result": "interrupted", "state": "ready", "magazine": 29, "chamber": 1, "reserve": 60, "reloadsInterrupted": 1 } }
+      ]
+    },
+    {
+      "id": "GUN-01/trigger-during-reload-ignored-and-needs-new-press",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 10, "chamber": 1, "reserve": 90 },
+      "steps": [
+        { "op": "reload", "expect": { "result": "started_tactical" } },
+        { "op": "tick", "dtUs": 500000, "trigger": true, "expect": { "result": 0, "events": [], "holdValid": false } },
+        { "op": "reload", "expect": { "result": "rejected_busy" } },
+        { "op": "tick", "dtUs": 1700000, "trigger": true, "expect": { "result": 0, "events": [{ "type": "mag_insert", "atUs": 1300000, "detail": "" }, { "type": "reload_complete", "atUs": 2200000, "detail": "tactical" }], "state": "ready", "shotsFired": 0 } },
+        { "op": "tick", "dtUs": 16667 },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 1, "events": [{ "type": "shot", "atUs": 2216667, "detail": "" }] } }
+      ]
+    },
+    {
+      "id": "GUN-01/respawn-resets-weapon-mid-reload",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 0, "chamber": 0, "reserve": 90 },
+      "steps": [
+        { "op": "reload", "expect": { "result": "started_empty" } },
+        { "op": "tick", "dtUs": 1800000, "expect": { "insertCommitted": true } },
+        { "op": "resetToLoadout", "expect": { "result": "ok", "events": [], "snapshot": { "weapon": "rifle_iv7", "state": "ready", "reloadKind": "none", "actionUs": 0, "insertCommitted": false, "boltReleased": false, "chamberCommitted": false, "magazine": 30, "chamber": 1, "reserve": 90, "fireMode": "auto", "cooldownUs": 0, "clockUs": 0, "triggerPrev": false, "holdValid": false, "enabled": true, "shotsFired": 0, "resupplied": 0, "dryFires": 0, "reloadsStarted": 0, "reloadsCompleted": 0, "reloadsInterrupted": 0, "chamberActions": 0, "initialTotal": 121 } } },
+        { "op": "tick", "dtUs": 5000000, "expect": { "events": [], "magazine": 30, "state": "ready" } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 1, "magazine": 29, "chamber": 1, "reserve": 90 } }
+      ]
+    },
+    {
+      "id": "GUN-01/resupply-capped-and-counted",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 30, "chamber": 1, "reserve": 170 },
+      "steps": [
+        { "op": "resupply", "rounds": 30, "expect": { "result": 10, "reserve": 180, "resupplied": 10, "initialTotal": 201 } },
+        { "op": "resupply", "rounds": -5, "expect": { "result": -1, "reserve": 180, "resupplied": 10 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 1, "magazine": 29, "reserve": 180 } },
+        { "op": "resupply", "rounds": 5, "expect": { "result": 0, "reserve": 180 } }
+      ]
+    },
+    {
+      "id": "GUN-01/pistol-15-plus-1-full-cycle",
+      "kind": "weapon",
+      "setup": { "weapon": "pistol_p9" },
+      "steps": [
+        { "op": "tick", "dtUs": 0, "expect": { "magazine": 15, "chamber": 1, "reserve": 45, "initialTotal": 61, "fireMode": "semi" } },
+        { "op": "loop", "count": 16, "steps": [{ "op": "tick", "dtUs": 16667, "trigger": true }, { "op": "tick", "dtUs": 150000 }], "expect": { "result": "ok", "eventCounts": { "shot": 16, "bolt_locked": 1 }, "shotsFired": 16, "magazine": 0, "chamber": 0, "reserve": 45 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 0, "dryFires": 1 } },
+        { "op": "reload", "expect": { "result": "started_empty" } },
+        { "op": "tick", "dtUs": 2100000, "expect": { "events": [{ "type": "mag_insert", "atUs": 3633339, "detail": "" }, { "type": "bolt_release", "atUs": 4233339, "detail": "" }, { "type": "reload_complete", "atUs": 4783339, "detail": "empty" }], "magazine": 14, "chamber": 1, "reserve": 30, "state": "ready" } },
+        { "op": "setFireMode", "mode": "auto", "expect": { "result": "rejected", "fireMode": "semi" } }
+      ]
+    },
+    {
+      "id": "GUN-01/weapon-without-chamber",
+      "kind": "weapon",
+      "rules": {
+        "weapons": {
+          "test_openbolt": {
+            "name": "Testovaci zbran bez komory",
+            "slot": "primary",
+            "magazineCapacity": 20,
+            "hasChamber": false,
+            "startReserve": 40,
+            "maxReserve": 80,
+            "roundsPerMinute": 600,
+            "fireModes": ["auto"],
+            "defaultFireMode": "auto",
+            "damage": 20,
+            "reload": { "tactical": { "duration": 2.0, "insertCommit": 1.0 }, "empty": { "duration": 2.5, "insertCommit": 1.2 } }
+          }
+        }
+      },
+      "setup": { "weapon": "test_openbolt" },
+      "steps": [
+        { "op": "tick", "dtUs": 0, "expect": { "magazine": 20, "chamber": 0, "reserve": 40, "initialTotal": 60 } },
+        { "op": "run", "durationUs": 1000000, "trigger": true, "ticks": { "hz": 60 }, "expect": { "result": 10, "eventCounts": { "shot": 10, "bolt_locked": 0 }, "magazine": 10, "chamber": 0, "cooldownUs": 0 } },
+        { "op": "reload", "expect": { "result": "started_tactical" } },
+        { "op": "tick", "dtUs": 2000000, "expect": { "events": [{ "type": "mag_insert", "atUs": 2000000, "detail": "" }, { "type": "reload_complete", "atUs": 3000000, "detail": "tactical" }], "magazine": 20, "reserve": 30, "state": "ready" } },
+        { "op": "reload", "expect": { "result": "rejected_full" } },
+        { "op": "run", "durationUs": 3000000, "trigger": true, "ticks": { "hz": 60 }, "expect": { "result": 20, "eventCounts": { "shot": 20, "bolt_locked": 0 }, "magazine": 0, "chamber": 0 } },
+        { "op": "tick", "dtUs": 16667, "expect": { "result": 0 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 0, "dryFires": 1 } },
+        { "op": "reload", "expect": { "result": "started_empty" } },
+        { "op": "tick", "dtUs": 2500000, "expect": { "eventCounts": { "mag_insert": 1, "bolt_release": 0, "reload_complete": 1 }, "magazine": 20, "reserve": 10, "chamber": 0, "state": "ready" } }
+      ]
+    },
+    {
+      "id": "GUN-01/fire-mode-and-interrupt-input-validation",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7" },
+      "steps": [
+        { "op": "setFireMode", "mode": "burst", "expect": { "result": "rejected", "fireMode": "auto" } },
+        { "op": "setFireMode", "mode": "semi", "expect": { "result": "ok", "fireMode": "semi" } },
+        { "op": "interrupt", "reason": "jump", "expect": { "result": "invalid_reason" } },
+        { "op": "interrupt", "reason": "sprint", "expect": { "result": "none" } }
+      ]
+    },
+    {
+      "id": "GUN-01/frame-rate-independence",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7" },
+      "tickModes": [
+        { "hz": 30 },
+        { "hz": 60 },
+        { "hz": 144 },
+        { "hz": 7 },
+        { "dtUs": 1000 },
+        { "dtUs": 80000 },
+        { "dtUs": 10000000 },
+        { "irregular": { "seed": 11, "minUs": 1000, "maxUs": 50000 } },
+        { "irregular": { "seed": 99, "minUs": 0, "maxUs": 120000 } },
+        { "irregular": { "seed": 2024, "minUs": 3000, "maxUs": 9000 } }
+      ],
+      "steps": [
+        { "op": "run", "durationUs": 2500000, "trigger": true, "ticks": "case", "expect": { "result": 31, "eventCounts": { "shot": 31, "bolt_locked": 1 }, "shotsFired": 31, "magazine": 0, "chamber": 0, "reserve": 90, "clockUs": 2500000, "cooldownUs": 0 } },
+        { "op": "run", "durationUs": 500000, "trigger": false, "ticks": "case", "expect": { "result": 0, "clockUs": 3000000 } },
+        { "op": "reload", "expect": { "result": "started_empty" } },
+        { "op": "run", "durationUs": 3500000, "trigger": true, "ticks": "case", "expect": { "result": 0, "events": [{ "type": "mag_insert", "atUs": 4300000, "detail": "" }, { "type": "bolt_release", "atUs": 5300000, "detail": "" }, { "type": "reload_complete", "atUs": 5900000, "detail": "empty" }], "state": "ready", "magazine": 29, "chamber": 1, "reserve": 60, "clockUs": 6500000 } },
+        { "op": "run", "durationUs": 100000, "trigger": false, "ticks": "case", "expect": { "result": 0 } },
+        { "op": "run", "durationUs": 1000000, "trigger": true, "ticks": "case", "expect": { "result": 13, "events": [
+          { "type": "shot", "atUs": 6600000, "detail": "" }, { "type": "shot", "atUs": 6680000, "detail": "" }, { "type": "shot", "atUs": 6760000, "detail": "" },
+          { "type": "shot", "atUs": 6840000, "detail": "" }, { "type": "shot", "atUs": 6920000, "detail": "" }, { "type": "shot", "atUs": 7000000, "detail": "" },
+          { "type": "shot", "atUs": 7080000, "detail": "" }, { "type": "shot", "atUs": 7160000, "detail": "" }, { "type": "shot", "atUs": 7240000, "detail": "" },
+          { "type": "shot", "atUs": 7320000, "detail": "" }, { "type": "shot", "atUs": 7400000, "detail": "" }, { "type": "shot", "atUs": 7480000, "detail": "" },
+          { "type": "shot", "atUs": 7560000, "detail": "" }
+        ], "shotsFired": 44, "magazine": 16, "chamber": 1, "reserve": 60, "clockUs": 7600000, "cooldownUs": 40000 } }
+      ]
+    },
+    {
+      "id": "GUN-03/disabled-weapon-ignores-trigger-and-reload",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7" },
+      "steps": [
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 1, "events": [{ "type": "shot", "atUs": 0, "detail": "" }], "magazine": 29, "chamber": 1, "cooldownUs": 63333, "enabled": true } },
+        { "op": "disable", "reason": "jump", "expect": { "result": "invalid_reason", "enabled": true } },
+        { "op": "disable", "reason": "death", "expect": { "result": "ok", "events": [], "enabled": false, "holdValid": false, "triggerPrev": true, "state": "ready" } },
+        { "op": "tick", "dtUs": 1000000, "trigger": true, "expect": { "result": 0, "events": [], "magazine": 29, "chamber": 1, "shotsFired": 1, "clockUs": 1016667, "cooldownUs": 0 } },
+        { "op": "reload", "expect": { "result": "rejected_disabled", "events": [], "state": "ready", "reloadsStarted": 0 } },
+        { "op": "tick", "dtUs": 16667, "expect": { "result": 0, "triggerPrev": false } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 0, "events": [], "triggerPrev": true, "holdValid": false, "clockUs": 1050001 } },
+        { "op": "enable", "expect": { "result": "ok", "events": [], "enabled": true, "holdValid": false } },
+        { "op": "tick", "dtUs": 100000, "trigger": true, "expect": { "result": 0, "events": [], "magazine": 29, "clockUs": 1150001 } },
+        { "op": "tick", "dtUs": 16667, "expect": { "result": 0, "clockUs": 1166668 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 1, "events": [{ "type": "shot", "atUs": 1166668, "detail": "" }], "magazine": 28, "chamber": 1, "shotsFired": 2, "holdValid": true, "cooldownUs": 63333 } },
+        { "op": "enable", "expect": { "result": "ok", "enabled": true, "holdValid": true } },
+        { "op": "tick", "dtUs": 80000, "trigger": true, "expect": { "result": 1, "events": [{ "type": "shot", "atUs": 1246668, "detail": "" }], "magazine": 27, "clockUs": 1263335, "cooldownUs": 63333 } }
+      ]
+    },
+    {
+      "id": "GUN-03/disable-before-insert-interrupts-reload-and-blocks-new-reload",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 10, "chamber": 1, "reserve": 90 },
+      "steps": [
+        { "op": "reload", "expect": { "result": "started_tactical", "events": [{ "type": "reload_start", "atUs": 0, "detail": "tactical" }] } },
+        { "op": "tick", "dtUs": 500000, "expect": { "events": [], "actionUs": 500000, "insertCommitted": false } },
+        { "op": "disable", "reason": "death", "expect": { "result": "ok", "events": [{ "type": "reload_interrupted", "atUs": 500000, "detail": "death" }], "state": "ready", "magazine": 10, "chamber": 1, "reserve": 90, "reloadsInterrupted": 1, "enabled": false } },
+        { "op": "tick", "dtUs": 2000000, "expect": { "result": 0, "events": [], "state": "ready", "magazine": 10, "reserve": 90 } },
+        { "op": "reload", "expect": { "result": "rejected_disabled", "events": [] } },
+        { "op": "enable", "expect": { "result": "ok", "enabled": true } },
+        { "op": "reload", "expect": { "result": "started_tactical", "events": [{ "type": "reload_start", "atUs": 2500000, "detail": "tactical" }] } },
+        { "op": "tick", "dtUs": 2200000, "expect": { "events": [{ "type": "mag_insert", "atUs": 3800000, "detail": "" }, { "type": "reload_complete", "atUs": 4700000, "detail": "tactical" }], "state": "ready", "magazine": 30, "chamber": 1, "reserve": 70 } }
+      ]
+    },
+    {
+      "id": "GUN-03/disable-after-insert-keeps-magazine-then-chamber-action",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7", "magazine": 0, "chamber": 0, "reserve": 90 },
+      "steps": [
+        { "op": "reload", "expect": { "result": "started_empty" } },
+        { "op": "tick", "dtUs": 1500000, "expect": { "events": [{ "type": "mag_insert", "atUs": 1300000, "detail": "" }], "magazine": 30, "chamber": 0, "reserve": 60 } },
+        { "op": "disable", "reason": "death", "expect": { "result": "ok", "events": [{ "type": "reload_interrupted", "atUs": 1500000, "detail": "death" }], "state": "ready", "magazine": 30, "chamber": 0, "reserve": 60, "enabled": false } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 0, "events": [], "state": "ready", "chamber": 0 } },
+        { "op": "tick", "dtUs": 16667, "expect": { "result": 0, "clockUs": 1533334 } },
+        { "op": "enable", "expect": { "result": "ok" } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 0, "events": [{ "type": "chamber_start", "atUs": 1533334, "detail": "" }], "state": "chambering" } },
+        { "op": "tick", "dtUs": 800000, "trigger": true, "expect": { "result": 0, "events": [{ "type": "chamber_commit", "atUs": 2033334, "detail": "" }, { "type": "chamber_complete", "atUs": 2333334, "detail": "" }], "state": "ready", "magazine": 29, "chamber": 1, "reserve": 60, "shotsFired": 0 } }
+      ]
+    },
+    {
+      "id": "GUN-03/trigger-held-through-reset-to-loadout-does-not-fire",
+      "kind": "weapon",
+      "setup": { "weapon": "rifle_iv7" },
+      "steps": [
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 1, "events": [{ "type": "shot", "atUs": 0, "detail": "" }] } },
+        { "op": "resetToLoadout", "expect": { "result": "ok", "events": [], "magazine": 30, "chamber": 1, "reserve": 90, "shotsFired": 0, "clockUs": 0, "triggerPrev": true, "holdValid": false, "enabled": true } },
+        { "op": "tick", "dtUs": 100000, "trigger": true, "expect": { "result": 0, "events": [], "magazine": 30 } },
+        { "op": "tick", "dtUs": 16667, "expect": { "result": 0 } },
+        { "op": "tick", "dtUs": 16667, "trigger": true, "expect": { "result": 1, "events": [{ "type": "shot", "atUs": 116667, "detail": "" }], "magazine": 29 } }
+      ]
+    }
+  ]
+}

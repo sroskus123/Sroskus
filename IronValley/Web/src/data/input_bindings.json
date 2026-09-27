@@ -1,0 +1,44 @@
+{
+  "_comment": "Vazby ovladani. Klavesy podle KeyboardEvent.code (nezavisle na rozlozeni), mys: Mouse0 = leve, Mouse1 = prostredni, Mouse2 = prave tlacitko.",
+  "version": 1,
+  "actions": {
+    "moveForward": ["KeyW", "ArrowUp"],
+    "moveBackward": ["KeyS", "ArrowDown"],
+    "moveLeft": ["KeyA", "ArrowLeft"],
+    "moveRight": ["KeyD", "ArrowRight"],
+    "fire": ["Mouse0"],
+    "aim": ["Mouse2"],
+    "reload": ["KeyR"],
+    "sprint": ["ShiftLeft", "ShiftRight"],
+    "walk": ["AltLeft"],
+    "crouch": ["KeyC", "ControlLeft"],
+    "jump": ["Space"],
+    "interact": ["KeyE"],
+    "weapon1": ["Digit1", "Numpad1"],
+    "weapon2": ["Digit2", "Numpad2"],
+    "menu": ["Escape"],
+    "toggleFps": ["F3"]
+  },
+  "labels": {
+    "moveForward": "Vpřed",
+    "moveBackward": "Vzad",
+    "moveLeft": "Vlevo",
+    "moveRight": "Vpravo",
+    "fire": "Střelba",
+    "aim": "Míření",
+    "reload": "Přebití",
+    "sprint": "Sprint",
+    "walk": "Chůze (držet)",
+    "crouch": "Dřep",
+    "jump": "Skok",
+    "interact": "Použít",
+    "weapon1": "Puška",
+    "weapon2": "Pistole",
+    "menu": "Menu / pauza",
+    "toggleFps": "Zobrazit FPS"
+  },
+  "mouse": {
+    "baseRadiansPerPixel": 0.0022,
+    "invertY": false
+  }
+}

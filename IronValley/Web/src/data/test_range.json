@@ -1,0 +1,94 @@
+{
+  "_comment": "Zkusebni prostor (graybox) podle pravidel kvality par. 5 a PHY-01. Souradnice v metrech, Y nahoru, sever = -Z. Yaw 0 = pohled na sever (-Z), kladny yaw = otoceni doleva.",
+  "id": "test_range",
+  "displayName": "Zkušební prostor",
+  "solids": [
+    { "type": "box", "id": "ground", "min": [-40, -0.5, -42], "max": [40, 0, 32], "mat": "floor" },
+
+    { "type": "box", "id": "boundary_n", "min": [-40, 0, -42], "max": [40, 2.5, -41.5], "mat": "wall" },
+    { "type": "box", "id": "boundary_s", "min": [-40, 0, 31.5], "max": [40, 2.5, 32], "mat": "wall" },
+    { "type": "box", "id": "boundary_w", "min": [-40, 0, -41.5], "max": [-39.5, 2.5, 31.5], "mat": "wall" },
+    { "type": "box", "id": "boundary_e", "min": [39.5, 0, -41.5], "max": [40, 2.5, 31.5], "mat": "wall" },
+
+    { "type": "stairs", "id": "stairs", "x": [-27.8, -26.2], "zStart": -2.0, "dir": -1, "riser": 0.18, "tread": 0.28, "risers": 8, "landingDepth": 2.5, "mat": "stair" },
+
+    { "type": "ramp", "id": "slope30", "x": [-22.2, -19.8], "zToe": -2.0, "zTop": -5.4641, "height": 2.0, "mat": "ramp" },
+    { "type": "box", "id": "slope30_top", "min": [-22.2, 0, -8.4641], "max": [-19.8, 2.0, -5.4641], "mat": "block" },
+
+    { "type": "ramp", "id": "slope50", "x": [-16.2, -13.8], "zToe": -2.0, "zTop": -3.6782, "height": 2.0, "mat": "hazard" },
+    { "type": "box", "id": "slope50_top", "min": [-16.2, 0, -6.6782], "max": [-13.8, 2.0, -3.6782], "mat": "block" },
+
+    { "type": "wall", "id": "threshold_wall", "axis": "x", "from": -11.0, "to": -7.0, "center": -4.0, "thickness": 0.25, "height": 2.6,
+      "openings": [ { "from": -9.5, "to": -8.5, "bottom": 0.0, "top": 2.1 } ], "mat": "wall" },
+    { "type": "box", "id": "threshold", "min": [-9.5, 0, -4.125], "max": [-8.5, 0.03, -3.875], "mat": "accent" },
+
+    { "type": "wall", "id": "door_wall", "axis": "x", "from": -5.0, "to": -1.0, "center": -4.0, "thickness": 0.25, "height": 2.6,
+      "openings": [ { "from": -3.45, "to": -2.55, "bottom": 0.0, "top": 2.05 } ], "mat": "wall" },
+
+    { "type": "box", "id": "tunnel_wall_w", "min": [1.9, 0, -8.0], "max": [2.2, 1.7, -3.0], "mat": "wall" },
+    { "type": "box", "id": "tunnel_wall_e", "min": [3.8, 0, -8.0], "max": [4.1, 1.7, -3.0], "mat": "wall" },
+    { "type": "box", "id": "tunnel_roof", "min": [1.9, 1.4, -8.0], "max": [4.1, 1.7, -3.0], "mat": "block" },
+
+    { "type": "ramp", "id": "drop_ramp", "x": [7.8, 10.2], "zToe": -0.268, "zTop": -4.0, "height": 1.0, "mat": "ramp" },
+    { "type": "box", "id": "drop_platform", "min": [7.8, 0, -8.0], "max": [10.2, 1.0, -4.0], "mat": "block" },
+    { "type": "box", "id": "drop_edge_mark", "min": [7.8, 1.0, -8.0], "max": [10.2, 1.004, -7.85], "mat": "accent", "collide": false },
+
+    { "type": "box", "id": "wall_1m", "min": [13.5, 0, -4.15], "max": [16.5, 1.0, -3.85], "mat": "block" },
+
+    { "type": "box", "id": "thin_wall", "min": [19.0, 0, -4.05], "max": [23.0, 3.0, -3.95], "mat": "wall" },
+
+    { "type": "wall", "id": "window_wall", "axis": "x", "from": -14.0, "to": -6.0, "center": -16.0, "thickness": 0.25, "height": 3.0,
+      "openings": [ { "from": -10.6, "to": -9.4, "bottom": 0.9, "top": 2.1 } ], "mat": "wall" },
+
+    { "type": "box", "id": "cover_1m", "min": [-1.0, 0, -15.3], "max": [1.0, 1.0, -14.7], "mat": "block" },
+
+    { "type": "box", "id": "corner_wall_a", "min": [5.0, 0, -16.125], "max": [9.125, 2.6, -15.875], "mat": "wall" },
+    { "type": "box", "id": "corner_wall_b", "min": [8.875, 0, -15.875], "max": [9.125, 2.6, -12.0], "mat": "wall" },
+
+    { "type": "box", "id": "backstop", "min": [-22.0, 0, -37.0], "max": [22.0, 4.0, -36.0], "mat": "wall" }
+  ],
+  "signs": [
+    { "text": "SCHODY", "sub": "výška 0,18 m · stupeň 0,28 m", "pos": [-24.9, 0, 0.2] },
+    { "text": "SVAH 30°", "sub": "schůdný", "pos": [-18.9, 0, 0.2] },
+    { "text": "SVAH 50°", "sub": "neschůdný (limit 45°)", "pos": [-12.9, 0, 0.2] },
+    { "text": "PRÁH 3 cm", "sub": "dveře 1,00 m", "pos": [-6.3, 0, 0.2] },
+    { "text": "DVEŘE", "sub": "0,90 × 2,05 m · zeď 0,25 m", "pos": [-0.4, 0, 0.2] },
+    { "text": "TUNEL 1,40 m", "sub": "jen v dřepu", "pos": [5.2, 0, 0.2] },
+    { "text": "SRÁZ 1,0 m", "sub": "rampa 15° a pád", "pos": [11.4, 0, 0.8] },
+    { "text": "ZEĎ 1,0 m", "sub": "není schod (limit 0,40 m)", "pos": [17.6, 0, 0.2] },
+    { "text": "TENKÁ ZEĎ", "sub": "0,10 m · test průniku", "pos": [23.9, 0, 0.2] },
+    { "text": "OKNO", "sub": "parapet 0,9 m", "pos": [-15.0, 0, -12.6] },
+    { "text": "KRYT 1,0 m", "sub": "v dřepu ústí blokováno", "pos": [2.2, 0, -12.6] },
+    { "text": "ROH", "sub": "kamera vidí, ústí ne", "pos": [10.6, 0, -12.6] }
+  ],
+  "banners": [
+    { "text": "ZKUŠEBNÍ PROSTOR", "sub": "IRON VALLEY · vývojová mapa", "center": [0, 2.55, -35.98], "size": [9.0, 2.2] }
+  ],
+  "dummies": [
+    { "id": "d_window", "pos": [-10.0, 0, -30.0] },
+    { "id": "d_left", "pos": [-5.0, 0, -30.0] },
+    { "id": "d_cover", "pos": [0.0, 0, -30.0] },
+    { "id": "d_corner", "pos": [4.95, 0, -30.0] },
+    { "id": "d_right", "pos": [10.0, 0, -30.0] },
+    { "id": "d_far", "pos": [16.0, 0, -30.0] }
+  ],
+  "markers": {
+    "spawn": { "pos": [0, 0, 12], "yaw": 0 },
+    "speed_start": { "pos": [-30, 0, 20], "yaw": -90 },
+    "stairs_start": { "pos": [-27, 0, 1.0], "yaw": 0, "landingY": 1.44, "landingZ": [-6.46, -3.96] },
+    "stairs_view": { "pos": [-25.2, 0, 3.2], "yaw": 22, "pitch": -6 },
+    "slope30_start": { "pos": [-21, 0, 1.0], "yaw": 0, "topY": 2.0 },
+    "slope50_start": { "pos": [-15, 0, 1.0], "yaw": 0, "topY": 2.0 },
+    "threshold_start": { "pos": [-9, 0, 0.0], "yaw": 0, "passZ": -5.0 },
+    "door_start": { "pos": [-3, 0, 0.0], "yaw": 0, "passZ": -5.0 },
+    "tunnel_start": { "pos": [3, 0, 0.0], "yaw": 0, "entryZ": -3.0, "midZ": -5.5, "exitZ": -8.0 },
+    "drop_start": { "pos": [9, 0, 1.5], "yaw": 0, "platformY": 1.0, "edgeZ": -8.0 },
+    "wall1m_start": { "pos": [15, 0, 0.0], "yaw": 0, "wallFrontZ": -3.85 },
+    "thinwall_start": { "pos": [21, 0, 0.0], "yaw": 0, "wallFrontZ": -3.95, "wallBackZ": -4.05 },
+    "corner_peek": { "pos": [4.95, 0, -14.5], "yaw": 0, "wallId": "corner_wall_a", "targetId": "d_corner" },
+    "cover_peek": { "pos": [0, 0, -14.3], "yaw": 0, "wallId": "cover_1m", "targetId": "d_cover" },
+    "window_view": { "pos": [-10, 0, -12.0], "yaw": 0 },
+    "impact_view": { "pos": [21, 0, -1.2], "yaw": 0 },
+    "overview": { "pos": [0, 0, 8], "yaw": 0, "pitch": -4 }
+  }
+}

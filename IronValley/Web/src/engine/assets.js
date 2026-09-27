@@ -1,0 +1,93 @@
+// Runtime asset access. The build embeds the list of files present in public/assets as
+// __IV_ASSETS__, so the game only requests assets that exist (no 404s) and can fall back to
+// placeholders otherwise. GLB files must not require Draco / meshopt / KTX2 decoders
+// (those need WebAssembly, which this runtime avoids).
+
+import { Texture } from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+
+/* global __IV_ASSETS__ */
+const AVAILABLE = new Set(typeof __IV_ASSETS__ !== 'undefined' ? __IV_ASSETS__ : []);
+
+export function hasAsset(path) {
+  return AVAILABLE.has(path);
+}
+
+export function listAssets() {
+  return [...AVAILABLE];
+}
+
+/**
+ * GLTFLoader plugin: decodes images embedded in the GLB binary chunk straight from their bytes
+ * with createImageBitmap(Blob), without creating blob: URLs.
+ *
+ * Upstream GLTFLoader turns each embedded image into a blob: URL and loads it with fetch()
+ * (ImageBitmapLoader). A host page whose Content-Security-Policy does not list blob: in
+ * connect-src (e.g. "connect-src 'self'") refuses those requests and the weapon renders without
+ * textures. Decoding the Blob directly needs no URL, so no CSP directive applies. The decode
+ * options match ImageBitmapLoader's (premultiplyAlpha 'none', colorSpaceConversion 'none') and
+ * the texture is set up exactly like upstream (flipY etc. are applied later by the parser).
+ * Images referenced by URI, and browsers where the parser does not use ImageBitmap, keep the
+ * upstream path.
+ */
+export class GLTFEmbeddedImagePlugin {
+  constructor(parser) {
+    this.name = 'IV_embedded_image_bitmap';
+    this.decoded = 0;
+    const upstream = parser.loadImageSource.bind(parser);
+    parser.loadImageSource = (sourceIndex, loader) => {
+      const def = parser.json.images && parser.json.images[sourceIndex];
+      if (!def || def.bufferView === undefined || !loader || loader.isImageBitmapLoader !== true || typeof createImageBitmap !== 'function') {
+        return upstream(sourceIndex, loader);
+      }
+      if (parser.sourceCache[sourceIndex] !== undefined) {
+        return parser.sourceCache[sourceIndex].then((texture) => texture.clone());
+      }
+      const options = { ...(loader.options || { premultiplyAlpha: 'none' }), colorSpaceConversion: 'none' };
+      const promise = parser
+        .getDependency('bufferView', def.bufferView)
+        .then((bufferView) => createImageBitmap(new Blob([bufferView], { type: def.mimeType }), options))
+        .then((bitmap) => {
+          const texture = new Texture(bitmap);
+          texture.needsUpdate = true;
+          if (def.extras && typeof def.extras === 'object') Object.assign(texture.userData, def.extras);
+          texture.userData.mimeType = def.mimeType;
+          this.decoded++;
+          return texture;
+        })
+        .catch((error) => {
+          console.error('[assets] could not decode embedded GLB image', sourceIndex, error && error.message);
+          throw error;
+        });
+      parser.sourceCache[sourceIndex] = promise;
+      return promise;
+    };
+  }
+}
+
+let loader = null;
+/** Number of embedded images decoded without blob: URLs (for tests / diagnostics). */
+export const assetStats = { embeddedImagesDecoded: 0 };
+
+/** Loads a GLB/GLTF relative to the page. Resolves to the parsed glTF. */
+export function loadGLTF(path) {
+  if (!loader) {
+    loader = new GLTFLoader();
+    loader.register((parser) => {
+      const plugin = new GLTFEmbeddedImagePlugin(parser);
+      const count = () => {
+        assetStats.embeddedImagesDecoded += plugin.decoded;
+        plugin.decoded = 0;
+      };
+      // afterRoot runs once the whole asset (including its textures) is parsed
+      plugin.afterRoot = () => {
+        count();
+        return null;
+      };
+      return plugin;
+    });
+  }
+  return new Promise((resolve, reject) => {
+    loader.load(path, resolve, undefined, (err) => reject(err instanceof Error ? err : new Error(String(err))));
+  });
+}

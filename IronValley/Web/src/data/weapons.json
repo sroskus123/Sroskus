@@ -1,0 +1,76 @@
+{
+  "_comment": "Datove definice zbrani. Offsety jsou v prostoru kamery (x vpravo, y nahoru, -z dopredu), v metrech.",
+  "iv7_carbine": {
+    "id": "iv7_carbine",
+    "displayName": "IV-7 karabina",
+    "slot": 1,
+    "rpm": 750,
+    "magazineSize": 30,
+    "reserveAmmo": 120,
+    "chamberRound": false,
+    "reloadTime": 2.3,
+    "reloadEmptyTime": 2.9,
+    "damage": 34,
+    "headMultiplier": 2.0,
+    "range": 400,
+    "muzzleOffsetHip": [
+      0.1207,
+      -0.1538,
+      -0.8202
+    ],
+    "muzzleOffsetAds": [
+      0.0,
+      -0.07,
+      -0.558
+    ],
+    "adsTime": 0.22,
+    "adsFovMultiplier": 0.82,
+    "recoil": {
+      "pitchDeg": 0.55,
+      "yawDeg": 0.18,
+      "recoveryRate": 7.0,
+      "maxPitchDeg": 6.0
+    },
+    "viewModel": {
+      "asset": "assets/weapons/IV7_Carbine.glb",
+      "_comment": "Pozice uchopu (pocatek modelu = firing-hand grip) v prostoru kamery. Model glTF: usti +X, nahoru +Y, vpravo +Z; otacen o +90 st. kolem Y. adsPosition umisti socket_ads (oko 8 cm za optikou) presne do kamery.",
+      "hipPosition": [
+        0.15,
+        -0.245,
+        -0.245
+      ],
+      "adsPosition": [
+        0.0,
+        -0.1617,
+        0.0179
+      ],
+      "_hipRotationComment": "Staticky naklon u boku (Euler XYZ, rad): mirne natoceni dovnitr a naklon, aby byla videt bocnice zbrane; pri mireni 0. muzzleOffsetHip musi odpovidat teto vykreslene poze (overuje test).",
+      "hipRotation": [
+        0.0,
+        0.035,
+        0.1
+      ],
+      "muzzleLocal": [
+        0.5759,
+        0.0917,
+        0.0
+      ],
+      "adsEyeLocal": [
+        0.0179,
+        0.1617,
+        0.0
+      ],
+      "fovVerticalDeg": 50.5,
+      "sockets": {
+        "muzzle": "socket_muzzle",
+        "adsEye": "socket_ads"
+      }
+    }
+  },
+  "pistol_placeholder": {
+    "id": "pistol_placeholder",
+    "displayName": "Pistole",
+    "slot": 2,
+    "available": false
+  }
+}

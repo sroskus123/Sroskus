@@ -1,0 +1,95 @@
+{
+  "schema": "ironvalley.testvectors",
+  "version": 1,
+  "suite": "rules",
+  "description": "Kontrola a kompilace Shared/config/rules.json. Prepisy (overrides) jsou JSON Merge Patch (RFC 7386): null klic odstrani. JS i C++ musi shodne rozhodnout platne/neplatne a shodne prevest sekundy na cele mikrosekundy.",
+  "cases": [
+    {
+      "id": "RULES/default-config-compiles",
+      "kind": "rules",
+      "steps": [
+        { "op": "compile", "overrides": {}, "expect": { "result": "valid",
+          "teamCount": 3, "teamSize": 6,
+          "teams": [{ "id": "alfa", "name": "Alfa" }, { "id": "bravo", "name": "Bravo" }, { "id": "charlie", "name": "Charlie" }],
+          "round": { "preRoundUs": 5000000, "timeLimitUs": 600000000, "scoreTarget": 100 },
+          "zone": { "pointIntervalUs": 2000000, "pointsPerAward": 1, "locations": [{ "id": "zone_dilna", "name": "Dílna" }, { "id": "zone_sklad", "name": "Sklad" }, { "id": "zone_dvur", "name": "Dvůr" }] },
+          "respawn": { "delayUs": 5000000, "retryIntervalUs": 500000, "minEnemyDistance": 25, "bodyClearance": 1 },
+          "combat": { "maxHealth": 100, "friendlyFire": false },
+          "loadout": { "default": ["rifle_iv7", "pistol_p9"] },
+          "weapons": {
+            "rifle_iv7": { "id": "rifle_iv7", "name": "Puška IV-7", "slot": "primary", "magazineCapacity": 30, "hasChamber": true, "startReserve": 90, "maxReserve": 180, "fireIntervalUs": 80000, "fireModes": ["auto", "semi"], "defaultFireMode": "auto", "damage": 34,
+              "tactical": { "durationUs": 2200000, "insertUs": 1300000 }, "empty": { "durationUs": 2900000, "insertUs": 1300000, "boltUs": 2300000 }, "chamber": { "durationUs": 800000, "commitUs": 500000 } },
+            "pistol_p9": { "id": "pistol_p9", "magazineCapacity": 15, "hasChamber": true, "startReserve": 45, "maxReserve": 90, "fireIntervalUs": 133333, "fireModes": ["semi"], "defaultFireMode": "semi",
+              "tactical": { "durationUs": 1700000, "insertUs": 950000 }, "empty": { "durationUs": 2100000, "insertUs": 950000, "boltUs": 1550000 }, "chamber": { "durationUs": 600000, "commitUs": 350000 } }
+          } } }
+      ]
+    },
+    {
+      "id": "RULES/valid-variants",
+      "kind": "rules",
+      "steps": [
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "magazineCapacity": 30.0 } } }, "expect": { "result": "valid", "weapons": { "rifle_iv7": { "magazineCapacity": 30 } } } },
+        { "op": "compile", "overrides": { "round": { "preRoundDuration": 0 } }, "expect": { "result": "valid", "round": { "preRoundUs": 0 } } },
+        { "op": "compile", "overrides": { "respawn": { "delay": 0 } }, "expect": { "result": "valid", "respawn": { "delayUs": 0 } } },
+        { "op": "compile", "overrides": { "zone": { "pointInterval": 1.0000005 } }, "expect": { "result": "valid", "zone": { "pointIntervalUs": 1000001 } } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "roundsPerMinute": 700 } } }, "expect": { "result": "valid", "weapons": { "rifle_iv7": { "fireIntervalUs": 85714 } } } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "roundsPerMinute": 1 } } }, "expect": { "result": "valid", "weapons": { "rifle_iv7": { "fireIntervalUs": 60000000 } } } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "hasChamber": false, "reload": { "chamber": null, "empty": { "boltRelease": null } } } } }, "expect": { "result": "valid", "weapons": { "rifle_iv7": { "hasChamber": false, "empty": { "durationUs": 2900000, "insertUs": 1300000, "boltUs": 0 }, "chamber": { "durationUs": 0, "commitUs": 0 } } } } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "reload": { "empty": { "boltRelease": 1.3 } } } } }, "expect": { "result": "valid", "weapons": { "rifle_iv7": { "empty": { "boltUs": 1300000 } } } } },
+        { "op": "compile", "overrides": { "unknownFutureKey": { "x": 1 } }, "expect": { "result": "valid" } }
+      ]
+    },
+    {
+      "id": "RULES/invalid-configs-rejected",
+      "kind": "rules",
+      "steps": [
+        { "op": "compile", "overrides": { "teams": null }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "teams": { "count": 1 } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "teams": { "list": [{ "id": "alfa", "name": "Alfa" }, { "id": "bravo", "name": "Bravo" }] } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "teams": { "list": [{ "id": "alfa", "name": "Alfa" }, { "id": "alfa", "name": "B" }, { "id": "c", "name": "C" }] } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "teams": { "size": 0 } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "round": { "scoreTarget": 0 } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "round": { "scoreTarget": 10.5 } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "round": { "timeLimit": 0 } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "round": { "timeLimit": "600" } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "round": { "preRoundDuration": -1 } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "zone": { "pointInterval": 0 } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "zone": { "pointInterval": -2 } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "zone": { "pointInterval": 0.0000001 } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "zone": { "pointsPerAward": 0 } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "zone": { "locations": [] } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "zone": { "locations": [{ "id": "x", "name": "X" }, { "id": "x", "name": "Y" }] } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "respawn": { "delay": -1 } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "respawn": { "retryInterval": 0 } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "respawn": { "minEnemyDistance": -5 } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "combat": { "maxHealth": 0 } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "combat": { "friendlyFire": "no" } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "magazineCapacity": 0 } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "magazineCapacity": 30.5 } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "startReserve": 200 } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "startReserve": -1 } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "roundsPerMinute": 0 } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "roundsPerMinute": 0.9999999999999999 } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "roundsPerMinute": 1e-300 } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "fireModes": ["burst"] } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "fireModes": [] } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "fireModes": ["auto", "auto"] } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "pistol_p9": { "defaultFireMode": "auto" } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "hasChamber": null } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "reload": { "tactical": { "insertCommit": 3.0 } } } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "reload": { "tactical": { "duration": 0 } } } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "reload": { "empty": { "boltRelease": 1.0 } } } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "reload": { "empty": { "boltRelease": 3.5 } } } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "reload": { "empty": { "boltRelease": null } } } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "reload": { "chamber": { "commit": 0.9 } } } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "reload": { "chamber": null } } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": { "reload": null } } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": null, "pistol_p9": null } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "loadout": { "default": ["nope"] } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "loadout": { "default": ["pistol_p9", "pistol_p9"] } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "loadout": { "default": [] } }, "expect": { "result": "invalid" } },
+        { "op": "compile", "overrides": { "weapons": { "rifle_iv7": null } }, "expect": { "result": "invalid" } }
+      ]
+    }
+  ]
+}
