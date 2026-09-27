@@ -939,6 +939,21 @@ CATALOG = {
     "container_stack_2": {"size": [6.06, 2.44, 5.18], "cover": "high",
                           "note": "two stacked 20 ft containers (weathered olive/rust, fictional markings): hard spawn screen where a "
                                   "row looks up at its zone; always the full 6.06 m (never cut)"},
+    # --- reference props (Docs/navrhy/02, 03, REFERENCE_PROPS_VEGETATION.md R08): wood is penetrable, steel/stacked timber is cover
+    "forklift_parked": {"size": [2.3, 1.2, 2.1], "cover": "low", "blocks_vision": False,
+                        "note": "small counterbalance forklift, faded orange-red paint, forks down (ref. 02): steel body and counterweight "
+                                "stop bullets to 1.3 m; the mast and the open cab do not block vision"},
+    "euro_pallet_stack_4": {"size": [1.2, 0.8, 0.6], "cover": "none", "blocks_bullets": False, "blocks_vision": False,
+                            "note": "4 EUR pallets 1.20 x 0.80 x 0.144, weathered pine (R08 d)"},
+    "crate_stack_mixed": {"size": [2.4, 1.3, 1.5], "cover": "none", "blocks_bullets": False, "blocks_vision": True,
+                          "note": "slatted crate on pallet feet 1.2 x 1.0 x 0.8 + closed crates 0.8 x 0.5 x 0.5 on a EUR pallet (R08 a-c): "
+                                  "concealment only, bullets pass (wood)"},
+    "barrels_plastic_blue_x3": {"size": [1.9, 0.7, 0.95], "cover": "none", "blocks_bullets": False, "blocks_vision": True,
+                                "note": "three blue 200 l plastic drums (ref. 02): concealment only"},
+    "timber_stack_on_pallets": {"size": [2.4, 1.2, 1.0], "cover": "low",
+                                "note": "stacked planks and beams strapped on pallets (ref. 02): dense timber = low cover"},
+    "military_truck_parked": {"size": [7.5, 2.5, 3.1], "cover": "high",
+                              "note": "olive 6x6 army truck with a tarpaulin, generic, no insignia and no team colour (ref. 01/03)"},
     "container_stack_2_10ft": {"size": [2.99, 2.44, 5.18], "cover": "high",
                                "note": "two stacked 10 ft containers (same finish): used where a 20 ft stack would touch a "
                                        "building; never cut"},
@@ -961,19 +976,23 @@ def lprop(pid, typ, frame, lp, lrot, cluster, note=None, z=None):
     prop(pid, typ, w, frame["rot"] + lrot, cluster, note, z)
 
 
-# --- Z1 workshop yard / rear
+# --- Z1 workshop yard / rear (ref. 02/04: forklift, pallets, crates, barrels, timber stacks in front of the hall)
 lprop("P_DL_1", "steel_profile_stack", DILNA, (-5.8, 9.9), 0, "Z1_yard", "breaks the bridge -> gate dash", Z_DILNA_PAD)
 lprop("P_DL_2", "van_rusty", DILNA, (4.6, 9.4), 10, "Z1_yard", z=Z_DILNA_PAD)
-lprop("P_DL_3", "flatbed_trailer", DILNA, (-11.2, 8.4), 20, "Z1_yard", z=Z_DILNA_PAD)
+lprop("P_DL_3", "flatbed_trailer", DILNA, (-10.2, 8.4), 0, "Z1_yard", z=Z_DILNA_PAD)
 lprop("P_DL_4", "skip_container", DILNA, (10.4, 10.0), 70, "Z1_yard", z=Z_DILNA_PAD)
-lprop("P_DL_5", "oil_drums_cluster", DILNA, (0.8, 6.5), 0, "Z1_yard", z=Z_DILNA_PAD)
+lprop("P_DL_5", "oil_drums_cluster", DILNA, (-1.0, 8.0), 0, "Z1_yard", "steel drums between the gates (ref. 04)", Z_DILNA_PAD)
 lprop("P_DL_6", "pallet_stack", DILNA, (-1.6, 6.3), 0, "Z1_yard", z=Z_DILNA_PAD)
 lprop("P_DL_7", "pallet_stack", DILNA, (9.6, 6.2), 0, "Z1_yard", z=Z_DILNA_PAD)
-lprop("P_DL_8", "water_wheel_ruin", DILNA, (12.9, -2.2), 0, "Z1_yard", "rusted wheel on the old tailrace at the annex gable", Z_DILNA_PAD)
+lprop("P_DL_8", "water_wheel_ruin", DILNA, (14.2, -2.0), 0, "Z1_yard", "rusted wheel on the old tailrace beside the annex gable", Z_DILNA_PAD)
 lprop("P_DL_9", "harrow_rusty", DILNA, (-6.5, -7.4), 0, "Z1_rear", z=Z_DILNA_PAD)
-lprop("P_DL_10", "gas_bottle_cage", DILNA, (-9.6, -5.8), 0, "Z1_rear", z=Z_DILNA_PAD)
+lprop("P_DL_10", "gas_bottle_cage", DILNA, (-9.6, -6.4), 0, "Z1_rear", z=Z_DILNA_PAD)
 lprop("P_DL_11", "pallet_stack", DILNA, (6.0, -10.35), 0, "Z1_terrace", "pallets between the terrace path and the race", Z_TERRACE_DILNA)
-lprop("P_DL_12", "bench", DILNA, (7.8, 6.1), 0, "Z1_yard", z=Z_DILNA_PAD)
+lprop("P_DL_12", "bench", DILNA, (8.7, 3.30), 0, "Z1_yard", "against the annex front between its windows, no door nearby", Z_DILNA_PAD)
+lprop("P_DL_13", "forklift_parked", DILNA, (-7.0, 7.4), 90, "Z1_yard", "parked beside gate G2 (ref. 02)", Z_DILNA_PAD)
+lprop("P_DL_14", "timber_stack_on_pallets", DILNA, (7.0, 5.6), 0, "Z1_yard", "planks in front of the annex (ref. 02)", Z_DILNA_PAD)
+lprop("P_DL_15", "barrels_plastic_blue_x3", DILNA, (13.6, 3.6), 90, "Z1_yard", "blue drums at the annex gable (ref. 02)", Z_DILNA_PAD)
+lprop("P_DL_16", "crate_stack_mixed", DILNA, (4.5, 11.3), 0, "Z1_yard", z=Z_DILNA_PAD)
 # --- Z2 warehouse yard / dock / rear
 prop("P_SK_1", "semi_trailer_box", [22.3, 15.2], 90, "Z2_yard", "splits the yard into the dock aisle and the outer yard", Z_SKLAD_YARD)
 prop("P_SK_2", "shipping_container_20", [17.2, 30.6], 0, "Z2_yard", z=Z_SKLAD_YARD)
@@ -981,19 +1000,21 @@ prop("P_SK_3", "pallets_bagged_cement", [27.6, 25.6], 0, "Z2_yard", z=Z_SKLAD_YA
 prop("P_SK_4", "pallets_bagged_cement", [17.8, 6.2], 15, "Z2_yard", z=Z_SKLAD_YARD)
 prop("P_SK_5", "pallets_bagged_cement", [28.2, 4.6], 0, "Z2_yard", z=Z_SKLAD_YARD)
 prop("P_SK_6", "ibc_tanks_x2", [15.6, 21.2], 90, "Z2_yard", z=Z_SKLAD_YARD)
-prop("P_SK_7", "pickup_truck", [24.8, 31.4], 20, "Z2_yard", z=Z_SKLAD_YARD)
+prop("P_SK_7", "military_truck_parked", [18.5, 34.2], 0, "Z2_yard", "army truck parked in the yard (ref. 03)", Z_SKLAD_YARD)
 prop("P_SK_8", "skip_container", [53.2, 7.8], 90, "Z2_rear", z=Z_SKLAD_REAR)
 prop("P_SK_9", "big_bags_x2", [53.4, 22.4], 90, "Z2_rear", z=Z_SKLAD_REAR)
 prop("P_SK_10", "pallet_stack", [52.6, 24.5], 0, "Z2_rear", z=Z_SKLAD_REAR)
 prop("P_SK_11", "round_bale_single", [67.0, 8.0], 30, "Z2_field")
 prop("P_SK_12", "round_bale_single", [66.8, 27.0], 75, "Z2_field")
+prop("P_SK_16", "euro_pallet_stack_4", [25.5, 11.0], 0, "Z2_yard", z=Z_SKLAD_YARD)
+prop("P_SK_17", "crate_stack_mixed", [26.5, 22.5], 90, "Z2_yard", z=Z_SKLAD_YARD)
 # --- Z3 house garden / rear yard
-lprop("P_DM_1", "greenhouse_glass", DUM, (-10.5, 13.5), 0, "Z3_garden", z=Z_TERRACE_DUM)
+lprop("P_DM_1", "greenhouse_glass", DUM, (-12.3, 13.5), 0, "Z3_garden", "fully outside the zone outline", z=Z_TERRACE_DUM)
 lprop("P_DM_2", "raised_bed", DUM, (0.5, 10.0), 0, "Z3_garden", z=Z_TERRACE_DUM)
 lprop("P_DM_3", "raised_bed", DUM, (0.5, 13.0), 0, "Z3_garden", z=Z_TERRACE_DUM)
 lprop("P_DM_4", "raised_bed", DUM, (-5.0, 11.5), 90, "Z3_garden", z=Z_TERRACE_DUM)
 lprop("P_DM_5", "garden_table_set", DUM, (6.5, 8.5), 0, "Z3_garden", z=Z_TERRACE_DUM)
-lprop("P_DM_6", "paving_slab_stack", DUM, (-7.2, 8.0), 0, "Z3_garden", z=Z_TERRACE_DUM)
+lprop("P_DM_6", "paving_slab_stack", DUM, (-5.8, 8.2), 0, "Z3_garden", z=Z_TERRACE_DUM)
 lprop("P_DM_7", "paving_slab_stack", DUM, (3.8, 18.6), 0, "Z3_garden", "behind the parapet near the stairs", Z_TERRACE_DUM)
 lprop("P_DM_8", "car_hatchback", DUM, (14.5, 16.3), 90, "Z3_drive", z=Z_TERRACE_DUM)
 lprop("P_DM_9", "compost_bins", DUM, (6.5, -10.5), 0, "Z3_rear", z=Z_TERRACE_DUM)
