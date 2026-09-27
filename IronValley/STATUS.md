@@ -116,11 +116,16 @@ Stav po obnovení: build OK, unit 368/368 PASS, e2e běží. Nedokončené a neo
 - zpětná vazba z hraní: pohyb/recoil rozpracovány (traversal.js, stride.js, cameraEffects.js, muzzleEffects.js), zvuk nezačat.
 Pokračuje se úsporně: max. 2 agenti na pozadí současně (Agent), bez velkých workflowů.
 
+## Druhé přerušení limitem využití (2026-09-27 ~10:00 → obnoveno 10:20 UTC)
+
+Zastaveni agenti: úprava mapy podle referencí uživatele (checker 82 PASS / 5 FAIL) a ruce/rukavice/úchopy
+(uprostřed renderů a exportu). Oba obnoveni se zachovaným kontextem. Hotovo předtím a commitnuto: oprava pušky IV-7
+(745251e, specifikace doplněna baef131), optiky ve hře (5089134), náhled v4.
+
 ## Známé vady / otevřené body
 
 - P0 (vnější blokátor): Unreal Engine 5 není v prostředí dostupný → hra v UE nemůže být spuštěna ani testována.
 - HF-01: BLOCKED — Higgsfield nepřipojen.
-- Munice ve webu (`src/weapons/weaponState.js`) ještě není napojená na autoritativní jádro `src/core/weapon.js` — napojit ve fázi C.
 - Zapečení osvětlení běží při načtení (zkušební prostor ~0,7 s); pro mapu 350 × 350 m přesunout do buildu.
 - Chování uvnitř hostitele Artifact na claude.ai (pointer lock, CSP) NOT TESTED; lokálně simulovaná přísná CSP prochází.
 
