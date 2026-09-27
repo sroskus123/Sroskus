@@ -1077,69 +1077,69 @@
    "angles": {
     "r": {
      "index": {
-      "mcp": -9.898669612994595,
-      "pip": 0.02208416333559252,
-      "dip": 4.612632887303028,
-      "abd": -3.5686837104133224
+      "mcp": 11.101707702444205,
+      "pip": 0.04194226085742584,
+      "dip": 0.000766512286668517,
+      "abd": -3.424902695035951
      },
      "middle": {
-      "mcp": -4.999990345848887,
-      "pip": 86.18976675129444,
-      "dip": 69.95029644402128,
+      "mcp": -1.0784259012055646,
+      "pip": 37.32915319480121,
+      "dip": 0.9880616693711053,
       "abd": 0.0
      },
      "ring": {
-      "mcp": -4.99998496170677,
-      "pip": 73.12519376879885,
-      "dip": 59.962166630887594,
+      "mcp": 18.405444405113624,
+      "pip": 66.96349582778005,
+      "dip": 41.68462034935055,
       "abd": 0.0
      },
      "pinky": {
-      "mcp": -4.988391809528569,
-      "pip": 0.061767212824752504,
-      "dip": 61.33182579104335,
+      "mcp": 16.327848683071924,
+      "pip": 34.688544035373205,
+      "dip": 36.36685837841923,
       "abd": 0.0
      },
      "thumb": {
-      "cmc_flex": -3.037970018367048,
-      "cmc_abd": 2.87138797408136,
-      "cmc_rot": 34.9982899857669,
-      "mcp": 33.14377836848743,
-      "ip": 67.65289661433386
+      "cmc_flex": 14.612395028183354,
+      "cmc_abd": 13.007601106931101,
+      "cmc_rot": 34.91238361121141,
+      "mcp": 26.07837635268635,
+      "ip": 69.99720903792667
      }
     }
    },
    "hand_attach": {
     "r": {
      "translation_m": [
-      -0.119094,
-      -0.037078,
-      0.009584
+      -0.119783,
+      -0.038645,
+      0.003391
      ],
      "rotation_quat_wxyz": [
-      0.7053497,
-      -0.2604196,
-      -0.3138061,
-      -0.5798182
+      0.6473085,
+      -0.3078161,
+      -0.3104981,
+      -0.6243652
      ],
      "matrix": [
       [
-       0.1306734,
-       0.9813916,
-       -0.1406939,
-       -0.1190938
+       0.0275181,
+       0.9994663,
+       -0.0175967,
+       -0.1197832
       ],
       [
-       -0.6545068,
-       0.191985,
-       0.7312748,
-       -0.0370781
+       -0.6171612,
+       0.0308347,
+       0.7862325,
+       -0.0386445
       ],
       [
-       0.7446781,
-       -0.0034729,
-       0.6674148,
-       0.0095839
+       0.7863555,
+       -0.0107755,
+       0.6176802,
+       0.0033912
       ],
       [
        0.0,
@@ -1152,73 +1152,74 @@
    },
    "fit": {
     "placement": "palm on the grip side, knuckle row along the grip axis, middle MCP under the trigger guard; yaw / tilt / forward offset / height searched",
-    "yaw_deg": 10.0,
+    "yaw_deg": 0.0,
     "tilt_deg": -16.0,
     "fwd_offset_mm": 10.0,
     "knuckle_row_vs_grip_axis_deg": 0.5,
-    "height_mm": 0.0,
-    "snugness_mm": 2.49,
-    "index_penalty": 0.25,
+    "penetration_mm": 0.0,
+    "height_mm": -6.0,
+    "snugness_mm": 0.92,
+    "index_penalty": 3.34,
     "fingers_touching_other_parts": 0,
-    "score": -2.74,
-    "snugness_after_wrap_mm": 1.65,
+    "score": -4.27,
+    "snugness_after_wrap_mm": 6.64,
     "wrap": {
      "middle": {
       "angles": {
-       "mcp": -5.0,
-       "pip": 86.19,
-       "dip": 69.95
+       "mcp": -1.08,
+       "pip": 37.33,
+       "dip": 0.99
       },
       "segment_gap_mm": [
-       -15.99,
-       0.2,
-       2.69
+       0.17,
+       24.23,
+       11.22
       ],
-      "min_signed_mm": -15.99
+      "min_signed_mm": 0.17
      },
      "ring": {
       "angles": {
-       "mcp": -5.0,
-       "pip": 73.13,
-       "dip": 59.96
+       "mcp": 18.41,
+       "pip": 66.96,
+       "dip": 41.68
       },
       "segment_gap_mm": [
-       -15.6,
-       0.07,
-       5.71
+       1.01,
+       0.78,
+       0.84
       ],
-      "min_signed_mm": -15.96
+      "min_signed_mm": 0.78
      },
      "pinky": {
       "angles": {
-       "mcp": -4.99,
-       "pip": 0.06,
-       "dip": 61.33
+       "mcp": 16.33,
+       "pip": 34.69,
+       "dip": 36.37
       },
       "segment_gap_mm": [
-       -12.55,
-       -5.5,
-       6.22
+       1.47,
+       0.23,
+       1.04
       ],
-      "min_signed_mm": -13.7
+      "min_signed_mm": 0.23
      }
     },
     "index": {
      "angles": {
-      "mcp": -9.9,
-      "abd": -3.57,
-      "pip": 0.02,
-      "dip": 4.61
+      "mcp": 11.1,
+      "abd": -3.42,
+      "pip": 0.04,
+      "dip": 0.0
      },
      "terms": {
-      "pen": 104661.63591,
-      "contact": 0.16099,
-      "_gap": -0.00152,
-      "dir": 0.15454,
-      "_dir_deg": 5.03805,
-      "_min_sd": -0.01464
+      "pen": 0.0,
+      "contact": 0.07576,
+      "_gap": 0.00239,
+      "dir": 0.70129,
+      "_dir_deg": 10.74467,
+      "_min_sd": 0.00079
      },
-     "evaluations": 295
+     "evaluations": 563
     },
     "candidates": [
      {
@@ -1226,6 +1227,7 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 21.23,
       "index_penalty": 10.72,
@@ -1237,6 +1239,7 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 21.41,
       "index_penalty": 10.94,
@@ -1248,6 +1251,7 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 21.51,
       "index_penalty": 10.8,
@@ -1259,6 +1263,7 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 18.73,
       "index_penalty": 10.78,
@@ -1270,6 +1275,7 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 19.62,
       "index_penalty": 10.18,
@@ -1281,6 +1287,7 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 20.26,
       "index_penalty": 10.42,
@@ -1292,6 +1299,7 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 10.89,
       "index_penalty": 8.14,
@@ -1303,6 +1311,7 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 14.7,
       "index_penalty": 9.72,
@@ -1314,6 +1323,7 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 15.93,
       "index_penalty": 9.38,
@@ -1325,6 +1335,7 @@
       "tilt_deg": -8.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 21.34,
       "index_penalty": 10.98,
@@ -1336,6 +1347,7 @@
       "tilt_deg": -8.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 21.4,
       "index_penalty": 10.85,
@@ -1347,6 +1359,7 @@
       "tilt_deg": -8.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 21.57,
       "index_penalty": 11.09,
@@ -1358,6 +1371,7 @@
       "tilt_deg": -8.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 21.48,
       "index_penalty": 13.24,
@@ -1369,6 +1383,7 @@
       "tilt_deg": -8.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 21.46,
       "index_penalty": 11.33,
@@ -1380,6 +1395,7 @@
       "tilt_deg": -8.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 21.38,
       "index_penalty": 11.03,
@@ -1391,6 +1407,7 @@
       "tilt_deg": -8.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 20.05,
       "index_penalty": 12.2,
@@ -1402,6 +1419,7 @@
       "tilt_deg": -8.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 20.38,
       "index_penalty": 12.58,
@@ -1413,6 +1431,7 @@
       "tilt_deg": -8.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 20.65,
       "index_penalty": 12.95,
@@ -1424,6 +1443,7 @@
       "tilt_deg": 0.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 21.72,
       "index_penalty": 14.56,
@@ -1435,6 +1455,7 @@
       "tilt_deg": 0.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 21.7,
       "index_penalty": 12.26,
@@ -1446,6 +1467,7 @@
       "tilt_deg": 0.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 21.71,
       "index_penalty": 11.43,
@@ -1457,6 +1479,7 @@
       "tilt_deg": 0.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 21.56,
       "index_penalty": 12.93,
@@ -1468,6 +1491,7 @@
       "tilt_deg": 0.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 21.53,
       "index_penalty": 12.8,
@@ -1479,6 +1503,7 @@
       "tilt_deg": 0.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 21.53,
       "index_penalty": 12.06,
@@ -1490,6 +1515,7 @@
       "tilt_deg": 0.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 21.1,
       "index_penalty": 12.74,
@@ -1501,6 +1527,7 @@
       "tilt_deg": 0.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 21.01,
       "index_penalty": 12.79,
@@ -1512,6 +1539,7 @@
       "tilt_deg": 0.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 20.99,
       "index_penalty": 12.95,
@@ -1523,6 +1551,7 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 5.67,
       "index_penalty": 6.3,
@@ -1534,6 +1563,7 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 6.14,
       "index_penalty": 5.5,
@@ -1545,6 +1575,7 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 6.38,
       "index_penalty": 5.61,
@@ -1556,6 +1587,7 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 3.36,
       "index_penalty": 5.4,
@@ -1567,6 +1599,7 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 4.24,
       "index_penalty": 8.28,
@@ -1578,6 +1611,7 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 4.74,
       "index_penalty": 5.29,
@@ -1589,6 +1623,7 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 0.92,
       "index_penalty": 3.34,
@@ -1600,6 +1635,7 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 1.92,
       "index_penalty": 4.72,
@@ -1611,6 +1647,7 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 2.78,
       "index_penalty": 4.42,
@@ -1622,6 +1659,7 @@
       "tilt_deg": -8.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 5.72,
       "index_penalty": 6.65,
@@ -1633,6 +1671,7 @@
       "tilt_deg": -8.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 6.04,
       "index_penalty": 6.76,
@@ -1644,6 +1683,7 @@
       "tilt_deg": -8.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 6.56,
       "index_penalty": 5.18,
@@ -1655,6 +1695,7 @@
       "tilt_deg": -8.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 5.51,
       "index_penalty": 6.66,
@@ -1666,6 +1707,7 @@
       "tilt_deg": -8.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 5.83,
       "index_penalty": 5.88,
@@ -1677,6 +1719,7 @@
       "tilt_deg": -8.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 5.7,
       "index_penalty": 7.28,
@@ -1688,6 +1731,7 @@
       "tilt_deg": -8.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 4.17,
       "index_penalty": 6.26,
@@ -1699,6 +1743,7 @@
       "tilt_deg": -8.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 5.08,
       "index_penalty": 7.56,
@@ -1710,6 +1755,7 @@
       "tilt_deg": -8.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 5.49,
       "index_penalty": 5.79,
@@ -1721,6 +1767,7 @@
       "tilt_deg": 0.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 7.05,
       "index_penalty": 6.7,
@@ -1732,6 +1779,7 @@
       "tilt_deg": 0.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 7.37,
       "index_penalty": 7.23,
@@ -1743,6 +1791,7 @@
       "tilt_deg": 0.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 7.5,
       "index_penalty": 7.31,
@@ -1754,6 +1803,7 @@
       "tilt_deg": 0.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 5.74,
       "index_penalty": 6.63,
@@ -1765,6 +1815,7 @@
       "tilt_deg": 0.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 6.27,
       "index_penalty": 6.74,
@@ -1776,6 +1827,7 @@
       "tilt_deg": 0.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 6.42,
       "index_penalty": 7.21,
@@ -1787,6 +1839,7 @@
       "tilt_deg": 0.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 4.88,
       "index_penalty": 6.55,
@@ -1798,6 +1851,7 @@
       "tilt_deg": 0.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 5.41,
       "index_penalty": 6.58,
@@ -1809,6 +1863,7 @@
       "tilt_deg": 0.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 5.68,
       "index_penalty": 6.04,
@@ -1820,316 +1875,343 @@
       "tilt_deg": -16.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 9.8,
       "height_mm": -6.0,
       "snugness_mm": 2.75,
       "index_penalty": 14.28,
       "fingers_touching_other_parts": 0,
-      "score": -17.03
+      "score": -61.04
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": -16.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 9.21,
       "height_mm": 0.0,
       "snugness_mm": 2.7,
       "index_penalty": 14.52,
       "fingers_touching_other_parts": 0,
-      "score": -17.22
+      "score": -58.28
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": -16.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 9.6,
       "height_mm": 6.0,
       "snugness_mm": 2.6,
       "index_penalty": 15.48,
       "fingers_touching_other_parts": 0,
-      "score": -18.08
+      "score": -61.09
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": -16.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 13.95,
       "height_mm": -6.0,
       "snugness_mm": 5.06,
       "index_penalty": 15.3,
       "fingers_touching_other_parts": 0,
-      "score": -20.36
+      "score": -85.13
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": -16.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 12.37,
       "height_mm": 0.0,
       "snugness_mm": 4.97,
       "index_penalty": 16.42,
       "fingers_touching_other_parts": 0,
-      "score": -21.39
+      "score": -78.21
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": -16.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 11.21,
       "height_mm": 6.0,
       "snugness_mm": 4.87,
       "index_penalty": 15.75,
       "fingers_touching_other_parts": 0,
-      "score": -20.62
+      "score": -71.65
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": -16.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 16.09,
       "height_mm": -6.0,
       "snugness_mm": 2.88,
       "index_penalty": 18.42,
       "fingers_touching_other_parts": 0,
-      "score": -21.3
+      "score": -96.76
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": -16.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 15.7,
       "height_mm": 0.0,
       "snugness_mm": 2.49,
       "index_penalty": 0.25,
       "fingers_touching_other_parts": 0,
-      "score": -2.74
+      "score": -76.26
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": -16.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 0.5,
+      "penetration_mm": 15.35,
       "height_mm": 6.0,
       "snugness_mm": 5.48,
       "index_penalty": 3.66,
       "fingers_touching_other_parts": 1,
-      "score": -15.21
+      "score": -86.97
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": -8.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 12.09,
       "height_mm": -6.0,
       "snugness_mm": 2.6,
       "index_penalty": 15.5,
       "fingers_touching_other_parts": 0,
-      "score": -18.1
+      "score": -73.56
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": -8.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 11.29,
       "height_mm": 0.0,
       "snugness_mm": 2.51,
       "index_penalty": 14.19,
       "fingers_touching_other_parts": 0,
-      "score": -16.7
+      "score": -68.16
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": -8.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 6.53,
       "height_mm": 6.0,
       "snugness_mm": 2.72,
       "index_penalty": 14.39,
       "fingers_touching_other_parts": 0,
-      "score": -17.11
+      "score": -44.78
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": -8.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 12.28,
       "height_mm": -6.0,
       "snugness_mm": 5.27,
       "index_penalty": 18.1,
       "fingers_touching_other_parts": 0,
-      "score": -23.37
+      "score": -79.77
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": -8.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 12.24,
       "height_mm": 0.0,
       "snugness_mm": 4.91,
       "index_penalty": 17.03,
       "fingers_touching_other_parts": 0,
-      "score": -21.94
+      "score": -78.14
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": -8.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 10.3,
       "height_mm": 6.0,
       "snugness_mm": 4.3,
       "index_penalty": 7.83,
       "fingers_touching_other_parts": 0,
-      "score": -12.12
+      "score": -58.63
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": -8.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 13.73,
       "height_mm": -6.0,
       "snugness_mm": 1.79,
       "index_penalty": 11.44,
       "fingers_touching_other_parts": 0,
-      "score": -13.22
+      "score": -76.89
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": -8.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 13.38,
       "height_mm": 0.0,
       "snugness_mm": 1.19,
       "index_penalty": 9.49,
       "fingers_touching_other_parts": 0,
-      "score": -10.69
+      "score": -72.6
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": -8.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 8.5,
+      "penetration_mm": 9.61,
       "height_mm": 6.0,
       "snugness_mm": 0.43,
       "index_penalty": 9.43,
       "fingers_touching_other_parts": 0,
-      "score": -9.85
+      "score": -52.92
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": 0.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 9.66,
       "height_mm": -6.0,
       "snugness_mm": 2.27,
       "index_penalty": 18.13,
       "fingers_touching_other_parts": 0,
-      "score": -21.71
+      "score": -65.02
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": 0.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 5.5,
       "height_mm": 0.0,
       "snugness_mm": 2.79,
       "index_penalty": 6.9,
       "fingers_touching_other_parts": 0,
-      "score": -10.99
+      "score": -33.51
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": 0.0,
       "fwd_offset_mm": -10.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 3.28,
       "height_mm": 6.0,
       "snugness_mm": 3.17,
       "index_penalty": 1.31,
       "fingers_touching_other_parts": 0,
-      "score": -5.78
+      "score": -17.16
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": 0.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 11.68,
       "height_mm": -6.0,
       "snugness_mm": 4.73,
       "index_penalty": 19.46,
       "fingers_touching_other_parts": 0,
-      "score": -25.49
+      "score": -78.87
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": 0.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 8.95,
       "height_mm": 0.0,
       "snugness_mm": 2.56,
       "index_penalty": 14.76,
       "fingers_touching_other_parts": 0,
-      "score": -18.62
+      "score": -58.38
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": 0.0,
       "fwd_offset_mm": 0.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 5.95,
       "height_mm": 6.0,
       "snugness_mm": 2.26,
       "index_penalty": 13.41,
       "fingers_touching_other_parts": 0,
-      "score": -16.97
+      "score": -41.71
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": 0.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 6.36,
       "height_mm": -6.0,
       "snugness_mm": 1.16,
       "index_penalty": 18.33,
       "fingers_touching_other_parts": 0,
-      "score": -20.79
+      "score": -47.58
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": 0.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 6.6,
       "height_mm": 0.0,
       "snugness_mm": 0.92,
       "index_penalty": 15.98,
       "fingers_touching_other_parts": 0,
-      "score": -18.2
+      "score": -46.19
      },
      {
       "yaw_deg": 10.0,
       "tilt_deg": 0.0,
       "fwd_offset_mm": 10.0,
       "knuckle_row_vs_grip_axis_deg": 16.5,
+      "penetration_mm": 6.67,
       "height_mm": 6.0,
       "snugness_mm": 0.45,
       "index_penalty": 14.08,
       "fingers_touching_other_parts": 0,
-      "score": -15.83
+      "score": -44.15
      }
     ],
     "thumb": {
      "angles": {
-      "cmc_flex": -3.04,
-      "cmc_abd": 2.87,
-      "cmc_rot": 35.0,
-      "mcp": 33.14,
-      "ip": 67.65
+      "cmc_flex": 14.61,
+      "cmc_abd": 13.01,
+      "cmc_rot": 34.91,
+      "mcp": 26.08,
+      "ip": 70.0
      },
      "terms": {
-      "pen": 0.00021,
-      "contact": 0.00037,
-      "_gap": 0.00069,
-      "dir": 2.15318,
-      "_dir_deg": 26.83107,
-      "_min_sd": 0.0003
+      "pen": 0.0,
+      "contact": 0.00709,
+      "_gap": 0.00031,
+      "dir": 1.79271,
+      "_dir_deg": 24.44426,
+      "_min_sd": 0.00031
      },
-     "evaluations": 1117
+     "evaluations": 1154
     }
    }
   },
