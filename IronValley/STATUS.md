@@ -80,6 +80,20 @@ Běží WF `iv-feel-feedback` (pohyb/kamera, recoil, zvuk) a `iv-optics-art` (mo
   čisté holo/kolimátor, 2×, 3×, 6×; výběr ve výbavě, zbrojní bedna na spawnu, náhradní optika v batohu (výroba/crafting ne).
 - Nohy pod sebou nevidět → vyřeší plné tělo v první osobě po dokončení postav a animací.
 
+## Přerušení limitem využití (2026-09-26 ~22:00 → obnoveno 2026-09-27 00:20 UTC)
+
+Všech 6 běžících workflowů se zastavilo na limitu využití; kontejner se restartoval, soubory zůstaly.
+Stav po obnovení: build OK, unit 368/368 PASS, e2e běží. Nedokončené a neověřené zůstaly:
+- puška: oprava r1 (otevřené P1: napínací páka, sklopení hledí do riseru, „plovoucí“ dioptr, materiál eloxu vs polymer,
+  chybějící opotřebení hran, AO krytu okénka zapečené v otevřené poloze);
+- mapa: oprava r1 po kritice (otevřené P1: fyzická hranice mapy, rampa/schody u skladu v terénu, uzavřené budovy
+  bez podkladů, 5m svah za skladem, okapy nad hranou střechy, krycí body AI uvnitř budov); checker 73/73 je chceme zpřísnit;
+- základ postavy: P1 klouby prstů u hřbetu (pěst proráží hřbet ruky) + P2;
+- ruce/rukavice, pistole, převod pohybů CMU, optiky: rozpracováno/nezačato;
+- integrace 17 botů a nezávislé ověření herního cyklu a AI: nedokončeno;
+- zpětná vazba z hraní: pohyb/recoil rozpracovány (traversal.js, stride.js, cameraEffects.js, muzzleEffects.js), zvuk nezačat.
+Pokračuje se úsporně: max. 2 agenti na pozadí současně (Agent), bez velkých workflowů.
+
 ## Známé vady / otevřené body
 
 - P0 (vnější blokátor): Unreal Engine 5 není v prostředí dostupný → hra v UE nemůže být spuštěna ani testována.

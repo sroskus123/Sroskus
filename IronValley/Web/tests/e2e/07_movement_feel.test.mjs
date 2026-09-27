@@ -154,11 +154,12 @@ test('1.0 m drop: Space pressed ~0.1 s before landing jumps on landing; Space ju
     const out = {};
     const toEdge = () => {
       iv.releaseAll();
-      iv.teleport(9, 1.0, -7.2, 180, 0);
+      iv.teleport(9, 1.0, -7.2, 0, 0); // on the platform, facing the drop edge (z = -8)
       iv.step(2);
       iv.keyDown('KeyW');
       let n = 0;
       while (iv.getState().player.grounded && n++ < 200) iv.step(1);
+      out.leftAtZ = iv.getState().player.position.z;
     };
     // buffered: press while still ~0.3 m above the floor (~0.08 s before landing)
     toEdge();
@@ -210,12 +211,13 @@ test('1.0 m drop: Space pressed ~0.1 s before landing jumps on landing; Space ju
     iv.step(30);
     return out;
   });
+  assert.ok(r.leftAtZ < -7.9, `walked off the drop edge (z ${r.leftAtZ})`);
   assert.ok(r.buffer.airAtPress, 'Space was pressed in the air');
   assert.equal(r.buffer.jumps, 1, `buffered jump: ${JSON.stringify(r.buffer)}`);
   assert.equal(r.buffer.buffered, 1);
   assert.equal(r.coyote.jumps, 1, `coyote jump: ${JSON.stringify(r.coyote)}`);
   assert.equal(r.coyote.coyote, 1);
-  assert.ok(r.coyote.vy > 3, `full jump impulse ${r.coyote.vy}`);
+  assert.ok(r.coyote.vy > 2.5, `full jump impulse ${r.coyote.vy} (jump speed ${Math.sqrt(2 * 9.81 * cfg.movement.jumpApexHeight).toFixed(2)} m/s minus one tick of gravity)`);
   assert.equal(r.sprintJump.jumps, 1);
   assert.ok(Math.abs(r.sprintJump.apex - cfg.movement.jumpApexHeight) < 0.03, `apex ${r.sprintJump.apex}`);
   assert.ok(r.sprintJump.minAir > cfg.movement.speeds.sprint - 0.1, `air speed ${r.sprintJump.minAir}`);

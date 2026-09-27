@@ -1,7 +1,7 @@
 {
   "generated_by": "ivlib 1.0.0",
   "blender": "4.5.14 LTS",
-  "time": "2026-09-26 20:30:36",
+  "time": "2026-09-26 21:14:07",
   "objects": {
     "UpperReceiver": {
       "tris": 5052,
@@ -62,18 +62,18 @@
         }
       ],
       "uv_min": [
-        0.0015,
+        0.00213,
         0.0015
       ],
       "uv_max": [
-        0.99428,
-        0.99437
+        0.97863,
+        0.98543
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 1323,
-      "zero_uv_area_mm2": 36.65,
-      "zero_uv_max_face_mm2": 0.0602,
-      "texel_density_px_per_cm": 12.13,
+      "zero_uv_faces": 1322,
+      "zero_uv_area_mm2": 36.59,
+      "zero_uv_max_face_mm2": 0.05,
+      "texel_density_px_per_cm": 24.43,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -145,17 +145,17 @@
       ],
       "uv_min": [
         0.0015,
-        0.00199
+        0.0015
       ],
       "uv_max": [
-        0.99494,
-        0.99482
+        0.98591,
+        0.99067
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 954,
-      "zero_uv_area_mm2": 18.431,
-      "zero_uv_max_face_mm2": 0.2509,
-      "texel_density_px_per_cm": 14.43,
+      "zero_uv_faces": 952,
+      "zero_uv_area_mm2": 17.93,
+      "zero_uv_max_face_mm2": 0.2505,
+      "texel_density_px_per_cm": 28.94,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -230,14 +230,14 @@
         0.0015
       ],
       "uv_max": [
-        0.99461,
-        0.99464
+        0.98583,
+        0.99062
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 181,
       "zero_uv_area_mm2": 4.724,
       "zero_uv_max_face_mm2": 0.0494,
-      "texel_density_px_per_cm": 11.96,
+      "texel_density_px_per_cm": 24.04,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -308,18 +308,18 @@
         }
       ],
       "uv_min": [
-        0.01625,
-        0.03317
+        0.01066,
+        0.19509
       ],
       "uv_max": [
-        0.9947,
-        0.99476
+        0.98574,
+        0.99055
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 190,
       "zero_uv_area_mm2": 6.449,
       "zero_uv_max_face_mm2": 0.0483,
-      "texel_density_px_per_cm": 16.19,
+      "texel_density_px_per_cm": 18.29,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -390,18 +390,18 @@
         }
       ],
       "uv_min": [
-        0.00267,
-        0.00173
+        0.02157,
+        0.12538
       ],
       "uv_max": [
-        0.99446,
-        0.96349
+        0.98582,
+        0.97851
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 5.0,
+      "texel_density_px_per_cm": 10.08,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -472,18 +472,18 @@
         }
       ],
       "uv_min": [
-        0.03156,
-        0.02192
+        0.02127,
+        0.0015
       ],
       "uv_max": [
-        0.99457,
-        0.99486
+        0.98592,
+        0.98567
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 56,
       "zero_uv_area_mm2": 2.273,
       "zero_uv_max_face_mm2": 0.0458,
-      "texel_density_px_per_cm": 6.09,
+      "texel_density_px_per_cm": 11.59,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -554,18 +554,18 @@
         }
       ],
       "uv_min": [
-        0.09309,
-        0.02498
+        0.03595,
+        0.10671
       ],
       "uv_max": [
-        0.97633,
-        0.97726
+        0.96971,
+        0.96725
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 88,
       "zero_uv_area_mm2": 1.818,
       "zero_uv_max_face_mm2": 0.0434,
-      "texel_density_px_per_cm": 14.28,
+      "texel_density_px_per_cm": 28.8,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -636,18 +636,18 @@
         }
       ],
       "uv_min": [
-        0.312,
-        0.02733
+        0.24785,
+        0.36971
       ],
       "uv_max": [
-        0.9949,
-        0.99455
+        0.98566,
+        0.98497
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 314,
       "zero_uv_area_mm2": 8.388,
       "zero_uv_max_face_mm2": 0.0497,
-      "texel_density_px_per_cm": 6.59,
+      "texel_density_px_per_cm": 12.98,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -718,18 +718,18 @@
         }
       ],
       "uv_min": [
-        0.2914,
-        0.23576
+        0.74195,
+        0.08536
       ],
       "uv_max": [
-        0.81342,
-        0.99457
+        0.98542,
+        0.60609
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 5.11,
+      "texel_density_px_per_cm": 10.08,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -800,18 +800,18 @@
         }
       ],
       "uv_min": [
-        0.00156,
-        0.00745
+        0.00313,
+        0.00214
       ],
       "uv_max": [
-        0.97722,
-        0.99438
+        0.97835,
+        0.96815
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 498,
       "zero_uv_area_mm2": 12.303,
       "zero_uv_max_face_mm2": 0.0476,
-      "texel_density_px_per_cm": 13.09,
+      "texel_density_px_per_cm": 26.4,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -882,18 +882,18 @@
         }
       ],
       "uv_min": [
-        0.1289,
-        0.03894
+        0.0015,
+        0.06913
       ],
       "uv_max": [
-        0.99479,
-        0.98674
+        0.98596,
+        0.97763
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 46,
       "zero_uv_area_mm2": 1.122,
       "zero_uv_max_face_mm2": 0.0489,
-      "texel_density_px_per_cm": 14.39,
+      "texel_density_px_per_cm": 28.82,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -964,18 +964,18 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.07385
+        0.18683,
+        0.24998
       ],
       "uv_max": [
-        0.98759,
-        0.98678
+        0.98575,
+        0.98506
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 32,
       "zero_uv_area_mm2": 1.012,
       "zero_uv_max_face_mm2": 0.0439,
-      "texel_density_px_per_cm": 14.46,
+      "texel_density_px_per_cm": 28.72,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1046,18 +1046,18 @@
         }
       ],
       "uv_min": [
-        0.00317,
-        0.0016
+        0.26572,
+        0.00216
       ],
       "uv_max": [
-        0.94633,
-        0.85761
+        0.84484,
+        0.93299
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 23.29,
+      "texel_density_px_per_cm": 46.41,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1128,18 +1128,18 @@
         }
       ],
       "uv_min": [
-        0.00193,
-        0.00162
+        0.00175,
+        0.0015
       ],
       "uv_max": [
-        0.99411,
-        0.96851
+        0.97689,
+        0.98442
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 226,
       "zero_uv_area_mm2": 3.694,
       "zero_uv_max_face_mm2": 0.0493,
-      "texel_density_px_per_cm": 23.29,
+      "texel_density_px_per_cm": 46.41,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1210,18 +1210,18 @@
         }
       ],
       "uv_min": [
-        0.00304,
-        0.14545
+        0.28506,
+        0.0059
       ],
       "uv_max": [
-        0.96111,
-        0.85391
+        0.94769,
+        0.86688
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 23.29,
+      "texel_density_px_per_cm": 46.41,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1292,18 +1292,18 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.06625
+        0.0023,
+        0.04004
       ],
       "uv_max": [
-        0.98697,
-        0.99449
+        0.98593,
+        0.98501
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 208,
       "zero_uv_area_mm2": 5.329,
       "zero_uv_max_face_mm2": 0.0373,
-      "texel_density_px_per_cm": 14.36,
+      "texel_density_px_per_cm": 28.81,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1374,18 +1374,18 @@
         }
       ],
       "uv_min": [
-        0.00222,
-        0.13483
+        0.00294,
+        0.04812
       ],
       "uv_max": [
-        0.97715,
-        0.99472
+        0.98589,
+        0.98474
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 158,
       "zero_uv_area_mm2": 3.444,
       "zero_uv_max_face_mm2": 0.0318,
-      "texel_density_px_per_cm": 10.23,
+      "texel_density_px_per_cm": 20.21,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1456,18 +1456,18 @@
         }
       ],
       "uv_min": [
-        0.4147,
-        0.0131
+        0.01259,
+        0.00184
       ],
       "uv_max": [
-        0.96554,
-        0.51461
+        0.87454,
+        0.96831
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 206,
       "zero_uv_area_mm2": 2.941,
       "zero_uv_max_face_mm2": 0.0458,
-      "texel_density_px_per_cm": 14.29,
+      "texel_density_px_per_cm": 28.79,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1538,18 +1538,18 @@
         }
       ],
       "uv_min": [
-        0.33258,
-        0.7341
+        0.18875,
+        0.57897
       ],
       "uv_max": [
-        0.36939,
-        0.99454
+        0.98544,
+        0.81311
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 7.65,
+      "texel_density_px_per_cm": 14.61,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1620,18 +1620,18 @@
         }
       ],
       "uv_min": [
-        0.00896,
-        0.03524
+        0.37531,
+        0.02751
       ],
       "uv_max": [
-        0.98767,
-        0.9948
+        0.9858,
+        0.98508
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 167,
       "zero_uv_area_mm2": 3.728,
       "zero_uv_max_face_mm2": 0.0475,
-      "texel_density_px_per_cm": 16.89,
+      "texel_density_px_per_cm": 27.3,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1702,18 +1702,18 @@
         }
       ],
       "uv_min": [
-        0.33129,
-        0.0015
+        0.27031,
+        0.39191
       ],
       "uv_max": [
-        0.99442,
-        0.99454
+        0.98529,
+        0.9784
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 11.65,
+      "texel_density_px_per_cm": 22.99,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1784,18 +1784,18 @@
         }
       ],
       "uv_min": [
-        0.10251,
-        0.40374
+        0.27549,
+        0.15379
       ],
       "uv_max": [
-        0.97658,
-        0.97705
+        0.9695,
+        0.96751
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 14.28,
+      "texel_density_px_per_cm": 28.8,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1866,18 +1866,18 @@
         }
       ],
       "uv_min": [
-        0.00701,
-        0.0822
+        0.0373,
+        0.07302
       ],
       "uv_max": [
-        0.99467,
-        0.98612
+        0.9853,
+        0.99021
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 315,
       "zero_uv_area_mm2": 7.437,
       "zero_uv_max_face_mm2": 0.0495,
-      "texel_density_px_per_cm": 15.52,
+      "texel_density_px_per_cm": 28.57,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1948,18 +1948,18 @@
         }
       ],
       "uv_min": [
-        0.01067,
-        0.01569
+        0.05251,
+        0.0015
       ],
       "uv_max": [
-        0.99404,
-        0.99463
+        0.98575,
+        0.99045
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 168,
       "zero_uv_area_mm2": 6.791,
       "zero_uv_max_face_mm2": 0.0497,
-      "texel_density_px_per_cm": 18.73,
+      "texel_density_px_per_cm": 29.1,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2030,18 +2030,18 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.46529
+        0.10995,
+        0.01496
       ],
       "uv_max": [
-        0.96424,
-        0.97737
+        0.97059,
+        0.94643
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 263,
       "zero_uv_area_mm2": 6.333,
       "zero_uv_max_face_mm2": 0.0495,
-      "texel_density_px_per_cm": 14.27,
+      "texel_density_px_per_cm": 28.69,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2112,18 +2112,18 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.0015
+        0.01957,
+        0.04111
       ],
       "uv_max": [
-        0.99308,
-        0.9948
+        0.98596,
+        0.99064
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 980,
       "zero_uv_area_mm2": 21.619,
       "zero_uv_max_face_mm2": 0.0499,
-      "texel_density_px_per_cm": 14.42,
+      "texel_density_px_per_cm": 28.76,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2194,18 +2194,18 @@
         }
       ],
       "uv_min": [
-        0.06761,
-        0.46217
+        0.51911,
+        0.174
       ],
       "uv_max": [
-        0.96364,
-        0.98665
+        0.97981,
+        0.97823
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 10.54,
+      "texel_density_px_per_cm": 20.28,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2276,18 +2276,18 @@
         }
       ],
       "uv_min": [
-        0.02409,
-        0.2942
+        0.0015,
+        0.09059
       ],
       "uv_max": [
-        0.97698,
-        0.99478
+        0.97978,
+        0.96785
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 800,
       "zero_uv_area_mm2": 18.815,
       "zero_uv_max_face_mm2": 0.046,
-      "texel_density_px_per_cm": 14.24,
+      "texel_density_px_per_cm": 28.64,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2358,18 +2358,18 @@
         }
       ],
       "uv_min": [
-        0.07656,
-        0.03808
+        0.27015,
+        0.00154
       ],
       "uv_max": [
-        0.99461,
-        0.98674
+        0.98596,
+        0.98535
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 910,
       "zero_uv_area_mm2": 19.003,
       "zero_uv_max_face_mm2": 0.0492,
-      "texel_density_px_per_cm": 14.4,
+      "texel_density_px_per_cm": 28.76,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2440,18 +2440,18 @@
         }
       ],
       "uv_min": [
-        0.05866,
-        0.2326
+        0.29893,
+        0.23524
       ],
       "uv_max": [
-        0.96364,
-        0.98665
+        0.97962,
+        0.97823
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 10.71,
+      "texel_density_px_per_cm": 20.31,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2522,18 +2522,18 @@
         }
       ],
       "uv_min": [
-        0.04917,
-        0.20953
+        0.05987,
+        0.35266
       ],
       "uv_max": [
-        0.97657,
-        0.99484
+        0.98518,
+        0.98457
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 636,
       "zero_uv_area_mm2": 14.188,
       "zero_uv_max_face_mm2": 0.0436,
-      "texel_density_px_per_cm": 14.29,
+      "texel_density_px_per_cm": 28.56,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2608,14 +2608,14 @@
         0.0015
       ],
       "uv_max": [
-        0.9946,
-        0.99479
+        0.98596,
+        0.99067
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 1414,
       "zero_uv_area_mm2": 32.671,
       "zero_uv_max_face_mm2": 0.0499,
-      "texel_density_px_per_cm": 13.27,
+      "texel_density_px_per_cm": 26.33,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2686,18 +2686,18 @@
         }
       ],
       "uv_min": [
-        0.04468,
-        0.23837
+        0.26451,
+        0.00856
       ],
       "uv_max": [
-        0.98647,
-        0.99433
+        0.97986,
+        0.98525
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 11.0,
+      "texel_density_px_per_cm": 20.6,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2958,18 +2958,18 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.00167
+        0.00199,
+        0.00154
       ],
       "uv_max": [
-        0.99674,
-        0.91675
+        0.97134,
+        0.91058
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 370,
       "zero_uv_area_mm2": 6.528,
       "zero_uv_max_face_mm2": 0.0497,
-      "texel_density_px_per_cm": 23.29,
+      "texel_density_px_per_cm": 46.4,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3040,18 +3040,18 @@
         }
       ],
       "uv_min": [
-        0.0999,
-        0.0025
+        0.4941,
+        0.00226
       ],
       "uv_max": [
-        0.99058,
-        0.95742
+        0.97338,
+        0.8981
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 40,
       "zero_uv_area_mm2": 1.988,
       "zero_uv_max_face_mm2": 0.0497,
-      "texel_density_px_per_cm": 18.58,
+      "texel_density_px_per_cm": 36.94,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3122,17 +3122,17 @@
         }
       ],
       "uv_min": [
-        0.0015,
+        0.00213,
         0.0015
       ],
       "uv_max": [
-        0.99426,
-        0.99434
+        0.97863,
+        0.98543
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 99,
-      "zero_uv_area_mm2": 4.616,
-      "zero_uv_max_face_mm2": 0.0893,
+      "zero_uv_faces": 95,
+      "zero_uv_area_mm2": 4.325,
+      "zero_uv_max_face_mm2": 0.05,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3204,16 +3204,16 @@
       ],
       "uv_min": [
         0.0015,
-        0.00199
+        0.0015
       ],
       "uv_max": [
-        0.99494,
-        0.99627
+        0.98603,
+        0.99077
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 12,
-      "zero_uv_area_mm2": 3.215,
-      "zero_uv_max_face_mm2": 2.9216,
+      "zero_uv_faces": 11,
+      "zero_uv_area_mm2": 0.293,
+      "zero_uv_max_face_mm2": 0.0483,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3288,8 +3288,8 @@
         0.0015
       ],
       "uv_max": [
-        0.99432,
-        0.99464
+        0.98583,
+        0.99062
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -3365,16 +3365,16 @@
         }
       ],
       "uv_min": [
-        0.01636,
-        0.03317
+        0.01074,
+        0.19509
       ],
       "uv_max": [
-        0.9947,
-        0.99466
+        0.98586,
+        0.99055
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 4,
-      "zero_uv_area_mm2": 0.174,
+      "zero_uv_faces": 6,
+      "zero_uv_area_mm2": 0.256,
       "zero_uv_max_face_mm2": 0.0439,
       "skin": {
         "armature": "SK_IV7",
@@ -3446,12 +3446,12 @@
         }
       ],
       "uv_min": [
-        0.00267,
-        0.00174
+        0.02157,
+        0.12538
       ],
       "uv_max": [
-        0.99446,
-        0.96349
+        0.98582,
+        0.97851
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -3527,12 +3527,12 @@
         }
       ],
       "uv_min": [
-        0.03156,
-        0.02192
+        0.02127,
+        0.0015
       ],
       "uv_max": [
-        0.99457,
-        0.99486
+        0.98592,
+        0.98567
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -3608,12 +3608,12 @@
         }
       ],
       "uv_min": [
-        0.09309,
-        0.02498
+        0.03595,
+        0.10671
       ],
       "uv_max": [
-        0.97629,
-        0.97661
+        0.96905,
+        0.96722
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -3689,16 +3689,16 @@
         }
       ],
       "uv_min": [
-        0.31203,
-        0.02729
+        0.24785,
+        0.36971
       ],
       "uv_max": [
-        0.9949,
-        0.99455
+        0.98566,
+        0.98497
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 8,
-      "zero_uv_area_mm2": 8.042,
+      "zero_uv_area_mm2": 8.071,
       "zero_uv_max_face_mm2": 7.7757,
       "skin": {
         "armature": "SK_IV7",
@@ -3770,12 +3770,12 @@
         }
       ],
       "uv_min": [
-        0.2914,
-        0.23576
+        0.74195,
+        0.08536
       ],
       "uv_max": [
-        0.81342,
-        0.99457
+        0.98542,
+        0.60602
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -3851,17 +3851,17 @@
         }
       ],
       "uv_min": [
-        0.00164,
-        0.00959
+        0.00298,
+        0.00214
       ],
       "uv_max": [
-        0.97722,
-        0.99438
+        0.97835,
+        0.96815
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 4,
-      "zero_uv_area_mm2": 0.177,
-      "zero_uv_max_face_mm2": 0.0475,
+      "zero_uv_faces": 5,
+      "zero_uv_area_mm2": 0.201,
+      "zero_uv_max_face_mm2": 0.0481,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3932,12 +3932,12 @@
         }
       ],
       "uv_min": [
-        0.12895,
-        0.03894
+        0.00155,
+        0.06913
       ],
       "uv_max": [
-        0.99479,
-        0.98674
+        0.98596,
+        0.97763
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -4013,12 +4013,12 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.07385
+        0.18683,
+        0.27576
       ],
       "uv_max": [
-        0.98759,
-        0.98678
+        0.87424,
+        0.98506
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -4094,12 +4094,12 @@
         }
       ],
       "uv_min": [
-        0.00317,
-        0.0016
+        0.26572,
+        0.00216
       ],
       "uv_max": [
-        0.94633,
-        0.85761
+        0.84483,
+        0.93299
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -4175,12 +4175,12 @@
         }
       ],
       "uv_min": [
-        0.00193,
-        0.00162
+        0.00178,
+        0.0015
       ],
       "uv_max": [
-        0.99411,
-        0.96851
+        0.97689,
+        0.98442
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 4,
@@ -4256,12 +4256,12 @@
         }
       ],
       "uv_min": [
-        0.00304,
-        0.14545
+        0.28506,
+        0.0059
       ],
       "uv_max": [
-        0.96079,
-        0.85391
+        0.94714,
+        0.86688
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -4337,17 +4337,17 @@
         }
       ],
       "uv_min": [
-        0.00168,
-        0.06625
+        0.0023,
+        0.04004
       ],
       "uv_max": [
-        0.98697,
-        0.99449
+        0.98593,
+        0.98501
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 15,
-      "zero_uv_area_mm2": 0.505,
-      "zero_uv_max_face_mm2": 0.048,
+      "zero_uv_area_mm2": 0.503,
+      "zero_uv_max_face_mm2": 0.0482,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -4418,17 +4418,17 @@
         }
       ],
       "uv_min": [
-        0.00222,
-        0.13483
+        0.00294,
+        0.04812
       ],
       "uv_max": [
-        0.97715,
-        0.99472
+        0.98589,
+        0.98474
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 1,
-      "zero_uv_area_mm2": 0.046,
-      "zero_uv_max_face_mm2": 0.0457,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -4499,16 +4499,16 @@
         }
       ],
       "uv_min": [
-        0.4147,
-        0.0131
+        0.01259,
+        0.00184
       ],
       "uv_max": [
-        0.96554,
-        0.51462
+        0.87454,
+        0.96831
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 13,
-      "zero_uv_area_mm2": 0.272,
+      "zero_uv_faces": 14,
+      "zero_uv_area_mm2": 0.285,
       "zero_uv_max_face_mm2": 0.0395,
       "skin": {
         "armature": "SK_IV7",
@@ -4580,12 +4580,12 @@
         }
       ],
       "uv_min": [
-        0.33258,
-        0.7341
+        0.18875,
+        0.57897
       ],
       "uv_max": [
-        0.36939,
-        0.99454
+        0.98544,
+        0.81311
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -4661,12 +4661,12 @@
         }
       ],
       "uv_min": [
-        0.00896,
-        0.03524
+        0.37531,
+        0.02753
       ],
       "uv_max": [
-        0.98764,
-        0.99477
+        0.9858,
+        0.98505
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 21,
@@ -4742,12 +4742,12 @@
         }
       ],
       "uv_min": [
-        0.33129,
-        0.0015
+        0.27032,
+        0.39191
       ],
       "uv_max": [
-        0.99442,
-        0.99454
+        0.98529,
+        0.9784
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -4823,12 +4823,12 @@
         }
       ],
       "uv_min": [
-        0.10251,
-        0.40374
+        0.27549,
+        0.15379
       ],
       "uv_max": [
-        0.97658,
-        0.97705
+        0.9695,
+        0.96751
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -4904,17 +4904,17 @@
         }
       ],
       "uv_min": [
-        0.00701,
-        0.0822
+        0.0373,
+        0.07302
       ],
       "uv_max": [
-        0.99877,
-        0.98612
+        0.9853,
+        0.99021
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 29,
-      "zero_uv_area_mm2": 0.771,
-      "zero_uv_max_face_mm2": 0.0612,
+      "zero_uv_faces": 30,
+      "zero_uv_area_mm2": 0.792,
+      "zero_uv_max_face_mm2": 0.0587,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -4985,17 +4985,17 @@
         }
       ],
       "uv_min": [
-        0.18692,
-        0.01569
+        0.05251,
+        0.00191
       ],
       "uv_max": [
-        0.99404,
-        0.99463
+        0.98575,
+        0.99045
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 2,
-      "zero_uv_area_mm2": 0.076,
-      "zero_uv_max_face_mm2": 0.0417,
+      "zero_uv_faces": 3,
+      "zero_uv_area_mm2": 0.147,
+      "zero_uv_max_face_mm2": 0.071,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -5066,12 +5066,12 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.46529
+        0.10992,
+        0.01684
       ],
       "uv_max": [
-        0.96424,
-        0.97737
+        0.97015,
+        0.94661
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 40,
@@ -5147,16 +5147,16 @@
         }
       ],
       "uv_min": [
-        0.00154,
-        0.0015
+        0.01957,
+        0.04111
       ],
       "uv_max": [
-        0.98754,
-        0.99478
+        0.98595,
+        0.99063
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 157,
-      "zero_uv_area_mm2": 5.542,
+      "zero_uv_faces": 155,
+      "zero_uv_area_mm2": 5.419,
       "zero_uv_max_face_mm2": 0.3261,
       "skin": {
         "armature": "SK_IV7",
@@ -5228,12 +5228,12 @@
         }
       ],
       "uv_min": [
-        0.06766,
-        0.46221
+        0.51911,
+        0.1741
       ],
       "uv_max": [
-        0.96364,
-        0.9866
+        0.97981,
+        0.97823
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -5309,16 +5309,16 @@
         }
       ],
       "uv_min": [
-        0.02409,
-        0.2942
+        0.0015,
+        0.09059
       ],
       "uv_max": [
-        0.97714,
-        0.99498
+        0.97978,
+        0.96825
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 78,
-      "zero_uv_area_mm2": 2.733,
+      "zero_uv_faces": 77,
+      "zero_uv_area_mm2": 2.68,
       "zero_uv_max_face_mm2": 0.0497,
       "skin": {
         "armature": "SK_IV7",
@@ -5390,17 +5390,17 @@
         }
       ],
       "uv_min": [
-        0.07656,
-        0.03809
+        0.27015,
+        0.00154
       ],
       "uv_max": [
-        0.99459,
-        0.98674
+        0.98596,
+        0.98534
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 209,
-      "zero_uv_area_mm2": 9.307,
-      "zero_uv_max_face_mm2": 2.2981,
+      "zero_uv_faces": 204,
+      "zero_uv_area_mm2": 6.734,
+      "zero_uv_max_face_mm2": 0.0497,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -5471,12 +5471,12 @@
         }
       ],
       "uv_min": [
-        0.05871,
-        0.23265
+        0.29893,
+        0.23532
       ],
       "uv_max": [
-        0.96364,
-        0.9866
+        0.97889,
+        0.97823
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -5552,16 +5552,16 @@
         }
       ],
       "uv_min": [
-        0.04908,
-        0.20953
+        0.05992,
+        0.35266
       ],
       "uv_max": [
-        0.97657,
-        0.99485
+        0.98518,
+        0.98457
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 134,
-      "zero_uv_area_mm2": 4.468,
+      "zero_uv_faces": 136,
+      "zero_uv_area_mm2": 4.525,
       "zero_uv_max_face_mm2": 0.0498,
       "skin": {
         "armature": "SK_IV7",
@@ -5637,12 +5637,12 @@
         0.0015
       ],
       "uv_max": [
-        0.9946,
-        0.99479
+        0.98596,
+        0.99067
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 48,
-      "zero_uv_area_mm2": 0.871,
+      "zero_uv_faces": 47,
+      "zero_uv_area_mm2": 0.833,
       "zero_uv_max_face_mm2": 0.0454,
       "skin": {
         "armature": "SK_IV7",
@@ -5714,12 +5714,12 @@
         }
       ],
       "uv_min": [
-        0.04487,
-        0.23837
+        0.26456,
+        0.00861
       ],
       "uv_max": [
-        0.98641,
-        0.99427
+        0.97986,
+        0.9852
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -5985,16 +5985,16 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.00167
+        0.00199,
+        0.00154
       ],
       "uv_max": [
-        0.99674,
-        0.91675
+        0.97134,
+        0.91058
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 21,
-      "zero_uv_area_mm2": 0.664,
+      "zero_uv_faces": 19,
+      "zero_uv_area_mm2": 0.595,
       "zero_uv_max_face_mm2": 0.0473,
       "skin": {
         "armature": "SK_IV7",
@@ -6066,12 +6066,12 @@
         }
       ],
       "uv_min": [
-        0.10118,
-        0.0025
+        0.49437,
+        0.00226
       ],
       "uv_max": [
-        0.99058,
-        0.95742
+        0.97338,
+        0.8981
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6147,12 +6147,12 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.0015
+        0.00213,
+        0.00154
       ],
       "uv_max": [
-        0.99426,
-        0.99434
+        0.97861,
+        0.98562
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6228,12 +6228,12 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.00209
+        0.00198,
+        0.0015
       ],
       "uv_max": [
-        0.99493,
-        0.99482
+        0.98591,
+        0.99067
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6310,11 +6310,11 @@
       ],
       "uv_min": [
         0.0015,
-        0.00161
+        0.0017
       ],
       "uv_max": [
-        0.99425,
-        0.99415
+        0.98524,
+        0.9904
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6390,12 +6390,12 @@
         }
       ],
       "uv_min": [
-        0.01636,
-        0.03331
+        0.01074,
+        0.19509
       ],
       "uv_max": [
-        0.99469,
-        0.99466
+        0.98573,
+        0.99055
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6471,12 +6471,12 @@
         }
       ],
       "uv_min": [
-        0.00277,
-        0.00179
+        0.02165,
+        0.12538
       ],
       "uv_max": [
-        0.99429,
-        0.96343
+        0.9857,
+        0.97844
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6552,12 +6552,12 @@
         }
       ],
       "uv_min": [
-        0.03156,
-        0.02192
+        0.02127,
+        0.0015
       ],
       "uv_max": [
-        0.99457,
-        0.99486
+        0.9858,
+        0.98567
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6633,12 +6633,12 @@
         }
       ],
       "uv_min": [
-        0.09333,
-        0.02498
+        0.03601,
+        0.10671
       ],
       "uv_max": [
-        0.97629,
-        0.97651
+        0.96896,
+        0.96722
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6714,12 +6714,12 @@
         }
       ],
       "uv_min": [
-        0.31217,
-        0.02744
+        0.24787,
+        0.36971
       ],
       "uv_max": [
-        0.99483,
-        0.99449
+        0.98566,
+        0.9849
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6795,12 +6795,12 @@
         }
       ],
       "uv_min": [
-        0.29176,
-        0.23576
+        0.74195,
+        0.08536
       ],
       "uv_max": [
-        0.81342,
-        0.99443
+        0.98523,
+        0.60556
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6876,12 +6876,12 @@
         }
       ],
       "uv_min": [
-        0.00164,
-        0.00959
+        0.00322,
+        0.00214
       ],
       "uv_max": [
-        0.97716,
-        0.99434
+        0.97831,
+        0.96809
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6957,12 +6957,12 @@
         }
       ],
       "uv_min": [
-        0.12908,
-        0.03902
+        0.00168,
+        0.18299
       ],
       "uv_max": [
-        0.99479,
-        0.96328
+        0.97795,
+        0.97763
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7038,12 +7038,12 @@
         }
       ],
       "uv_min": [
-        0.14097,
-        0.07385
+        0.18708,
+        0.276
       ],
       "uv_max": [
-        0.98724,
-        0.98565
+        0.87383,
+        0.98486
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7119,12 +7119,12 @@
         }
       ],
       "uv_min": [
-        0.00394,
-        0.00193
+        0.26572,
+        0.00361
       ],
       "uv_max": [
-        0.94633,
-        0.85726
+        0.84474,
+        0.93233
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7200,12 +7200,12 @@
         }
       ],
       "uv_min": [
-        0.00217,
-        0.00164
+        0.00198,
+        0.00171
       ],
       "uv_max": [
-        0.99388,
-        0.96842
+        0.97666,
+        0.98438
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7281,12 +7281,12 @@
         }
       ],
       "uv_min": [
-        0.00511,
-        0.14685
+        0.28712,
+        0.00796
       ],
       "uv_max": [
-        0.96059,
-        0.85242
+        0.94714,
+        0.86533
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7362,12 +7362,12 @@
         }
       ],
       "uv_min": [
-        0.0017,
-        0.06637
+        0.0023,
+        0.04018
       ],
       "uv_max": [
-        0.98606,
-        0.99449
+        0.98593,
+        0.98453
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7443,12 +7443,12 @@
         }
       ],
       "uv_min": [
-        0.00222,
-        0.13483
+        0.00294,
+        0.11886
       ],
       "uv_max": [
-        0.97715,
-        0.99472
+        0.98589,
+        0.98474
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7524,12 +7524,12 @@
         }
       ],
       "uv_min": [
-        0.4147,
-        0.0132
+        0.01259,
+        0.00184
       ],
       "uv_max": [
-        0.96554,
-        0.51461
+        0.87454,
+        0.96831
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7605,12 +7605,12 @@
         }
       ],
       "uv_min": [
-        0.33281,
-        0.7341
+        0.18887,
+        0.57908
       ],
       "uv_max": [
-        0.36928,
-        0.99423
+        0.98532,
+        0.81311
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7686,12 +7686,12 @@
         }
       ],
       "uv_min": [
-        0.00896,
-        0.03524
+        0.37534,
+        0.02753
       ],
       "uv_max": [
-        0.98761,
-        0.99474
+        0.9858,
+        0.98505
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7767,12 +7767,12 @@
         }
       ],
       "uv_min": [
-        0.33143,
-        0.0015
+        0.27032,
+        0.39205
       ],
       "uv_max": [
-        0.99406,
-        0.99411
+        0.98508,
+        0.9784
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7848,12 +7848,12 @@
         }
       ],
       "uv_min": [
-        0.10279,
-        0.40374
+        0.27549,
+        0.15408
       ],
       "uv_max": [
-        0.97658,
-        0.97677
+        0.96933,
+        0.96751
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7929,14 +7929,14 @@
         }
       ],
       "uv_min": [
-        0.00705,
-        0.0822
+        0.0373,
+        0.07302
       ],
       "uv_max": [
-        1.00146,
-        0.98612
+        0.98842,
+        0.99021
       ],
-      "uv_out_of_bounds_loops": 1,
+      "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 1,
       "zero_uv_area_mm2": 0.034,
       "zero_uv_max_face_mm2": 0.0341,
@@ -8010,12 +8010,12 @@
         }
       ],
       "uv_min": [
-        0.18692,
-        0.01569
+        0.13088,
+        0.00197
       ],
       "uv_max": [
-        0.98741,
-        0.99463
+        0.98575,
+        0.98557
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8091,12 +8091,12 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.46531
+        0.10995,
+        0.01686
       ],
       "uv_max": [
-        0.96424,
-        0.97737
+        0.97014,
+        0.94621
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8172,17 +8172,17 @@
         }
       ],
       "uv_min": [
-        0.00174,
-        0.00153
+        0.01957,
+        0.04111
       ],
       "uv_max": [
-        0.98734,
-        0.99462
+        0.9859,
+        0.99045
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 0,
-      "zero_uv_area_mm2": 0.0,
-      "zero_uv_max_face_mm2": 0.0,
+      "zero_uv_faces": 1,
+      "zero_uv_area_mm2": 0.886,
+      "zero_uv_max_face_mm2": 0.8855,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -8253,12 +8253,12 @@
         }
       ],
       "uv_min": [
-        0.068,
-        0.46261
+        0.5193,
+        0.1741
       ],
       "uv_max": [
-        0.9635,
-        0.98648
+        0.97973,
+        0.97816
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8334,12 +8334,12 @@
         }
       ],
       "uv_min": [
-        0.02416,
-        0.2942
+        0.00171,
+        0.09065
       ],
       "uv_max": [
-        0.97698,
-        0.99455
+        0.97978,
+        0.96785
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8415,12 +8415,12 @@
         }
       ],
       "uv_min": [
-        0.07656,
-        0.03813
+        0.27107,
+        0.00154
       ],
       "uv_max": [
-        0.9945,
-        0.98674
+        0.98596,
+        0.98534
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 1,
@@ -8496,12 +8496,12 @@
         }
       ],
       "uv_min": [
-        0.05883,
-        0.23281
+        0.29893,
+        0.23532
       ],
       "uv_max": [
-        0.96364,
-        0.98646
+        0.97889,
+        0.97823
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8577,12 +8577,12 @@
         }
       ],
       "uv_min": [
-        0.04917,
-        0.20953
+        0.05992,
+        0.35266
       ],
       "uv_max": [
-        0.97653,
-        0.99479
+        0.98504,
+        0.98457
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8658,12 +8658,12 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.0015
+        0.0016,
+        0.01756
       ],
       "uv_max": [
-        0.9946,
-        0.99479
+        0.98585,
+        0.98982
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8739,12 +8739,12 @@
         }
       ],
       "uv_min": [
-        0.04487,
-        0.23837
+        0.2647,
+        0.00872
       ],
       "uv_max": [
-        0.98629,
-        0.99417
+        0.97986,
+        0.98512
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -9010,14 +9010,14 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        -0.01923
+        0.00227,
+        0.0
       ],
       "uv_max": [
-        0.99674,
-        0.91675
+        0.97122,
+        0.91058
       ],
-      "uv_out_of_bounds_loops": 3,
+      "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
@@ -9091,12 +9091,12 @@
         }
       ],
       "uv_min": [
-        0.10126,
-        0.0025
+        0.49437,
+        0.0023
       ],
       "uv_max": [
-        0.99056,
-        0.95737
+        0.97336,
+        0.8981
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -9172,12 +9172,12 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.00167
+        0.00199,
+        0.00154
       ],
       "uv_max": [
-        0.99674,
-        0.95742
+        0.97338,
+        0.91058
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 410,
@@ -9188,8 +9188,8 @@
   },
   "summary": {
     "total_tris": 114666,
-    "problem_count": 12,
-    "validation_seconds": 4.0
+    "problem_count": 8,
+    "validation_seconds": 5.8
   },
   "texture_sets": {
     "Body": {
@@ -9225,18 +9225,18 @@
         "Optic",
         "OpticBolt"
       ],
-      "size": 1024,
+      "size": 2048,
       "uv_overlap": {
-        "resolution": 1024,
-        "covered_fraction": 0.4712,
-        "pixels_shared_by_different_islands": 4,
-        "islands": 8432,
-        "islands_without_pixel_centres": 334,
-        "collapsed_degenerate_faces": 6061,
+        "resolution": 2048,
+        "covered_fraction": 0.4717,
+        "pixels_shared_by_different_islands": 26,
+        "islands": 8433,
+        "islands_without_pixel_centres": 269,
+        "collapsed_degenerate_faces": 6060,
         "method": "pixel-centre rasterisation per island at the texture size"
       },
-      "texel_density_min": 5.0,
-      "texel_density_max": 18.73
+      "texel_density_min": 10.08,
+      "texel_density_max": 29.1
     },
     "Furniture": {
       "objects": [
@@ -9246,18 +9246,18 @@
         "Magazine",
         "MagRounds"
       ],
-      "size": 1024,
+      "size": 2048,
       "uv_overlap": {
-        "resolution": 1024,
-        "covered_fraction": 0.6779,
+        "resolution": 2048,
+        "covered_fraction": 0.6734,
         "pixels_shared_by_different_islands": 0,
         "islands": 596,
-        "islands_without_pixel_centres": 14,
+        "islands_without_pixel_centres": 3,
         "collapsed_degenerate_faces": 450,
         "method": "pixel-centre rasterisation per island at the texture size"
       },
-      "texel_density_min": 18.58,
-      "texel_density_max": 23.29
+      "texel_density_min": 36.94,
+      "texel_density_max": 46.41
     }
   },
   "armature": {
@@ -9420,18 +9420,14 @@
     }
   },
   "problems": [
-    "UpperReceiver: zero-UV-area face of 0.0602 mm2 (limit 0.05)",
-    "LowerReceiver: zero-UV-area face of 0.2509 mm2 (limit 0.05)",
-    "UpperReceiver_LOD1: zero-UV-area face of 0.0893 mm2 (limit 0.05)",
-    "LowerReceiver_LOD1: zero-UV-area face of 2.9216 mm2 (limit 0.05)",
+    "LowerReceiver: zero-UV-area face of 0.2505 mm2 (limit 0.05)",
     "GasBlock_LOD1: zero-UV-area face of 7.7757 mm2 (limit 0.05)",
-    "BoltCatch_LOD1: zero-UV-area face of 0.0612 mm2 (limit 0.05)",
+    "BoltCatch_LOD1: zero-UV-area face of 0.0587 mm2 (limit 0.05)",
+    "Selector_LOD1: zero-UV-area face of 0.071 mm2 (limit 0.05)",
     "RearSightBase_LOD1: zero-UV-area face of 0.3261 mm2 (limit 0.05)",
-    "FrontSightBase_LOD1: zero-UV-area face of 2.2981 mm2 (limit 0.05)",
-    "BoltCatch_LOD2: 1 UV loops outside 0..1",
+    "RearSightBase_LOD2: zero-UV-area face of 0.8855 mm2 (limit 0.05)",
     "FrontSightBase_LOD2: zero-UV-area face of 1.7314 mm2 (limit 0.05)",
-    "Magazine_LOD2: 3 UV loops outside 0..1",
-    "set Body: 4 px shared by different UV islands"
+    "set Body: 26 px shared by different UV islands"
   ],
   "asset": "IV-7 carbine",
   "measurements": {
@@ -9686,25 +9682,25 @@
   "uv_unwrap": {
     "Body": {
       "enlarged": [
-        935,
-        684
+        681,
+        389
       ],
       "shape": "CONCAVE",
-      "nudged": 79,
+      "nudged": 48,
       "coverage": 0.4725,
       "overlap_px": 0,
       "islands": 2019,
-      "islands_without_pixels": 9,
-      "collapsed_faces": 9907
+      "islands_without_pixels": 1,
+      "collapsed_faces": 9904
     },
     "Furniture": {
       "enlarged": [
-        29,
-        18
+        17,
+        15
       ],
       "shape": "CONCAVE",
-      "nudged": 4,
-      "coverage": 0.6781,
+      "nudged": 2,
+      "coverage": 0.6735,
       "overlap_px": 0,
       "islands": 141,
       "islands_without_pixels": 0,
@@ -9825,12 +9821,12 @@
           "T_IV7_Body_Normal_DX.png"
         ],
         "M_IV7_Glass": [],
-        "M_IV7_Reticle": [],
-        "M_IV7_ReticleMask": [],
         "M_IV7_Furniture": [
           "T_IV7_Furniture_BaseColor.png",
           "T_IV7_Furniture_Normal_DX.png"
-        ]
+        ],
+        "M_IV7_Reticle": [],
+        "M_IV7_ReticleMask": []
       },
       "images_resolved": true,
       "textured_materials_ok": true,
@@ -10091,47 +10087,47 @@
     "Art/Export/FBX/SK_IV7_Carbine.fbx": {
       "format": "FBX",
       "objects": 39,
-      "bytes": 6235324
+      "bytes": 6231980
     },
     "Art/Export/FBX/SK_IV7_Carbine_LOD1.fbx": {
       "format": "FBX",
       "objects": 39,
-      "bytes": 3806156
+      "bytes": 3803900
     },
     "Art/Export/FBX/SK_IV7_Carbine_LOD2.fbx": {
       "format": "FBX",
       "objects": 39,
-      "bytes": 2084396
+      "bytes": 2083516
     },
     "Art/Export/FBX/SM_IV7_Magazine.fbx": {
       "format": "FBX",
       "objects": 1,
-      "bytes": 352028
+      "bytes": 351724
     },
     "Art/Export/GLB/IV7_Carbine.glb": {
       "format": "GLB",
       "objects": 39,
-      "bytes": 9938620
+      "bytes": 17394236
     },
     "Art/Export/GLB/IV7/IV7_Carbine.gltf": {
       "format": "glTF (separate, shared textures)",
       "objects": 39,
-      "bytes": 5413350
+      "bytes": 5413758
     },
     "Art/Export/GLB/IV7/IV7_Carbine_LOD1.gltf": {
       "format": "glTF (separate, shared textures)",
       "objects": 39,
-      "bytes": 2755437
+      "bytes": 2756933
     },
     "Art/Export/GLB/IV7/IV7_Carbine_LOD2.gltf": {
       "format": "glTF (separate, shared textures)",
       "objects": 39,
-      "bytes": 1300437
+      "bytes": 1300029
     },
     "Art/Export/GLB/IV7/IV7_Magazine.gltf": {
       "format": "glTF (separate, shared textures)",
       "objects": 1,
-      "bytes": 217861
+      "bytes": 217909
     },
     "Art/Export/GLB/IV7/textures": {
       "format": "shared PNG textures of the glTF set",
@@ -10143,7 +10139,7 @@
         "T_IV7_Furniture_Normal.png",
         "T_IV7_Furniture_ORM.png"
       ],
-      "bytes": 4544889
+      "bytes": 11999857
     }
   }
 }

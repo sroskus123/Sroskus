@@ -380,11 +380,25 @@ export class PathFollower {
         }
       }
     }
-    if (bodiesNear && !staticAhead && this.recoveries <= 2) {
+    const op = bodiesNear ? bodiesNear.controller.position : null;
+    const ov = bodiesNear ? bodiesNear.controller.velocity : null;
+    // a body that stands still (arrived at its own spot) never runs a stuck check of its own, so it never
+    // yields: waiting for it is pointless
+    const otherStill = !!ov && Math.hypot(ov.x, ov.z) < 0.3;
+    const goalTaken = !!(op && this.goal && otherStill && Math.hypot(this.goal.x - op.x, this.goal.z - op.z) < 1.0);
+    if (bodiesNear && !staticAhead && goalTaken) {
+      // somebody stands on our goal: step aside and let the decision layer pick another spot
+      this.sidestep = this._freeSide(pos, dir);
+      this.waitUntil = t + 0.5;
+      this.stats.teammateWaits++;
+      ev.action = `goal_taken_by:${bodiesNear.id}`;
+      bot.onMoveFailed && bot.onMoveFailed('congestion');
+    } else if (bodiesNear && !staticAhead && this.recoveries <= 2) {
       // congestion: the bot with lower priority yields (sidestep to the free side + wait); never block the
-      // navmesh because of bodies. Priority: the player and lower bot index go first.
+      // navmesh because of bodies. Priority: the player and lower bot index go first; a body standing still
+      // does not move out of the way, so the moving bot steps around it.
       const other = sys.byId ? sys.byId.get(bodiesNear.id) : null;
-      const iYield = !other || other.index < bot.index || bodiesNear.isPlayer;
+      const iYield = !other || otherStill || other.index < bot.index || bodiesNear.isPlayer;
       if (iYield) {
         this.sidestep = this._freeSide(pos, dir);
         this.waitUntil = t + S.teammateWaitTime;

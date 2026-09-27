@@ -31,15 +31,19 @@ export const TRAVERSAL_DEFAULTS = Object.freeze({
   maxDropBehind: 1.0,
   landingExtra: 0.2,
   landingExtraPerSpeed: 0.05,
-  vaultDuration: 0.8,
-  vaultDurationPerSpeed: 0.045,
-  mantleDuration: 0.9,
-  mantleDurationPerSpeed: 0.03,
-  durationPerHeight: 0.15,
+  // timing: keypoint times from segment lengths and plausible speeds, total clamped to min..maxDuration
+  riseSpeed: 5.0, // average feet speed of the rise to the top (the body tucks: the eye rises only ~0.3 m)
+  dropSpeed: 5.0, // average feet speed of the drop behind a vault
+  minEntrySpeed: 2.5,
+  crossSpeedFactor: 0.75, // horizontal speed over the obstacle = factor x entry speed (a vault costs momentum)
+  minCrossSpeed: 2.2,
+  maxCrossSpeed: 4.5,
+  mantleSpeedFactor: 0.4,
+  minMantleSpeed: 1.2,
+  maxMantleSpeed: 2.0,
+  minMantleCrossTime: 0.25,
   minDuration: 0.5,
   maxDuration: 0.9,
-  vaultTimes: [0, 0.32, 0.64, 1],
-  mantleTimes: [0, 0.6, 1],
   lateralNudges: [0.1, 0.2, 0.3],
   sampleSpacing: 0.03,
   planShrink: 0.001,
@@ -279,6 +283,9 @@ export function planTraversal(ctrl, o) {
     let S;
     let Y;
     let endY;
+    // keypoint times (seconds) from distances and speeds; normalised below
+    const vH = Math.max(TP.minEntrySpeed, speed);
+    const tRise = Math.max(s1 / vH, Math.max(0, yLift - y0) / TP.riseSpeed, 0.1);
     if (type === 'vault') {
       const s2 = back + r + TP.gap;
       const s3 = s2 + TP.landingExtra + TP.landingExtraPerSpeed * speed;
@@ -288,20 +295,25 @@ export function planTraversal(ctrl, o) {
       if (land.y > topY - 0.3) return { ok: false, reason: 'landing_invalid', retry: true };
       if (land.y < baseY - TP.maxDropBehind) return { ok: false, reason: 'landing_too_low' };
       endY = land.y;
-      T = TP.vaultTimes.slice();
+      const vCross = Math.min(TP.maxCrossSpeed, Math.max(TP.minCrossSpeed, TP.crossSpeedFactor * vH));
+      const t2 = tRise + (s2 - s1) / vCross;
+      const t3 = t2 + Math.max((s3 - s2) / vCross, (yLift - endY) / TP.dropSpeed, 0.1);
+      T = [0, tRise, t2, t3];
       S = [0, s1, s2, s3];
       Y = [y0, yLift, yLift, endY];
     } else {
       const s2 = D + r + 0.08;
       endY = topY;
-      T = TP.mantleTimes.slice();
+      const vM = Math.min(TP.maxMantleSpeed, Math.max(TP.minMantleSpeed, TP.mantleSpeedFactor * vH));
+      T = [0, tRise, tRise + Math.max((s2 - s1) / vM, TP.minMantleCrossTime)];
       S = [0, s1, s2];
       Y = [y0, yLift, endY];
     }
+    const natural = T[T.length - 1];
+    for (let i = 0; i < T.length; i++) T[i] /= natural;
     const Lp = T.map((_, i) => (i === 0 ? 0 : lat));
-    // duration: faster with speed, a little slower for higher obstacles
-    const base = type === 'vault' ? TP.vaultDuration - TP.vaultDurationPerSpeed * speed : TP.mantleDuration - TP.mantleDurationPerSpeed * speed;
-    const duration = Math.min(TP.maxDuration, Math.max(TP.minDuration, base + TP.durationPerHeight * (height - 1.0)));
+    // duration: follows from the distances (faster with speed, longer for higher / deeper obstacles), clamped
+    const duration = Math.min(TP.maxDuration, Math.max(TP.minDuration, natural));
     // keep the take-off speed as the initial slope of s (continuity), vertical from the current velocity
     const ms0 = Math.max(0, speed) * duration;
     const my0 = Math.max(0, ctrl.velocity.y) * duration;
