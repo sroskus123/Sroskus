@@ -1,0 +1,226 @@
+{
+ "asset": "IV-7 carbine",
+ "review_round": 1,
+ "date": "2026-09-26",
+ "note": "Independent review round 1 (3 lenses). The fix round that followed was interrupted by a usage limit; the source may already contain partial fixes. Verify each item against the current source.",
+ "lenses": {
+  "silhouette": {
+   "pass": false,
+   "defects": [
+    {
+     "id": "SIL-1",
+     "severity": "P1",
+     "title": "Charging handle is a 4.3 cm stub that floats free of the receiver at its documented stroke",
+     "evidence": "ChargingHandle bbox X 0.41-4.69 cm (world, cm), so the whole part is 4.28 cm long. Only about 2.5 cm of it goes into the upper, whose rear face is at X 2.19. A real AR-type charging handle is about 17-18 cm long. Spec section 5 gives the stroke as -X, about 6.5-7 cm. I posed charging_handle at -7 cm (pose_overlap.py): the part touches nothing, its front end lands at X -2.31, which is 4.5 cm behind the upper, and it hovers 1.0 mm over the buffer tube. Renders: review/r1/silhouette/r1_charging_handle_pulled_right.png and r1_charging_handle_pulled_top.png. The builder's own Art/Previews/IV7/IV7_rig_pose_test_right.png shows the same detached T-handle, but the spec calls that pose verified. This area sits about 10 cm under the ADS eye line, so the floating handle would show in every first-person charging or reload animation.",
+     "fix": "Model the charging-handle shaft so it runs forward through a real channel under the upper's rail, at least to X of about 14 cm, so 7+ cm of shaft stays engaged at full stroke. Or cut the stroke to what the geometry supports and document it. Then re-run the -7 cm pose test and check that the handle stays in contact with the receiver."
+    },
+    {
+     "id": "SIL-2",
+     "severity": "P1",
+     "title": "Rear iron sight fold (+90 degrees, as documented) drives the leaf about 2 cm into the optic riser",
+     "evidence": "Spec section 5 says rear_sight +90 deg about local Y folds the leaf forward. The leaf reaches 3.1 cm above its hinge (hinge X 8.386, Z 13.69; leaf top Z 16.79). The optic riser starts at X 9.39, which is also where RearSightBase ends (max X 9.39), so there is zero clearance. In the folded pose, the BVH overlap test finds RearSightLeaf x Optic, 142 triangle pairs around (10.72, 0.0, 13.69) cm. The leaf tip reaches X of about 11.5, so it passes about 2.1 cm through the riser. Renders: r1_rear_sight_folded_into_optic.png and r1_rear_sight_folded_top.png. The builder's IV7_rig_pose_test_right.png shows the same clash, but its caption says 'sights folded' as if the pose were verified. The rear sight is the part closest to the camera in first person.",
+     "fix": "Choose one: (a) fold the rear leaf rearward (-90 deg) and check it clears the charging-handle and eye area; (b) move the rear sight or optic apart by at least the leaf height; (c) drop the fold from the spec and rig. Also check the front leaf fold. It overlaps its own base by less than 1 mm (109 triangle pairs near (49.76, 0, 13.6)), so add a recess in the base."
+    },
+    {
+     "id": "SIL-3",
+     "severity": "P2",
+     "title": "Trigger reach about 8.6 cm, noticeably longer than a typical carbine (about 7.0-7.6 cm)",
+     "evidence": "Cross-sections from measure.py, in cm. The grip backstrap is at X -1.17 at Z 3.5 and X -1.22 at Z 4.0. The trigger's front face is at X 7.43 at Z 3.5 and 7.38 at Z 3.0. Horizontal distance from the web of the hand to the trigger face is about 8.6 cm. Typical AR/A2 figures are about 7.4 cm (MOE-K style about 6.6-7.0). That is roughly 15% long. Grip rake (back edge 21.4 deg, front edge 24.0 deg), grip length (about 11.0 cm along the axis), depth (4.3-4.7 cm) and width (2.7-3.24 cm) all match a real grip. So the problem is the trigger's position relative to the grip, not the grip itself. The hand is invisible in first person, but this sets the finger pose for the FP arms.",
+     "fix": "Move the trigger, its pin and the trigger guard about 1 cm rearward, or the grip forward, to get a reach of about 7.4 cm. Or document the deviation so the arms rig accounts for it."
+    },
+    {
+     "id": "SIL-4",
+     "severity": "P2",
+     "title": "Length of pull about 35.8 cm at 'position 3' is beyond a real carbine stock's fully extended position; the stock reads long",
+     "evidence": "Trigger face X 7.43, butt-pad rear X -28.41, so LOP is about 35.8 cm (14.1 in). Bolt face to butt is 45.1 cm, against about 42.7 cm for an M4-type carbine at full extension. The stock extends 7.3 cm past the buffer-tube end (stock X -26.61 to -10.76, tube end -19.31). This follows from the brief's 86 cm OAL target. Spec section 9.1 documents only the OAL deviation, not the resulting LOP. Visible in IV7_ortho_right.png and IV7_clay_right.png as a long, slab-like stock.",
+     "fix": "Add the LOP number and the 'equivalent to beyond full extension' note to spec section 9.1 so animation and third-person shouldering use it. Optionally ask the brief owner whether about 83 cm OAL at position 3 is acceptable."
+    },
+    {
+     "id": "SIL-5",
+     "severity": "P2",
+     "title": "Magwell front wall is about 14 mm thick, which makes the magwell read long and blocky",
+     "evidence": "magwell_fit.py and measure.py, Z 1-5 cm. Inner walls: rear X 9.236, front 15.836. Outer walls: rear 8.46-8.74, front 17.236. The front wall ahead of the magazine is therefore 14 mm thick; the rear wall is 5-8 mm. Magazine clearance is a good 0.5-0.6 mm. The external fore-aft size is 8.8 cm, against about 7.4-7.8 cm on a typical lower. It shows as a thick band in front of the magazine in IV7_clay_right.png and IV7_ortho_right.png.",
+     "fix": "Thin the front magwell wall to about 5-7 mm below the pivot-pin lug, or add a relief or scallop to it, while keeping the flared mouth."
+    },
+    {
+     "id": "SIL-6",
+     "severity": "P2",
+     "title": "Bolt carrier seen through the ejection port reads like a rail segment",
+     "evidence": "IV7_closeup_receiver_right.png and r1_dustcover_hinge_front_low.png show eight deep, evenly spaced vertical slots along the whole visible carrier side (about 6 cm). Real carriers show a mostly smooth side with small forward-assist serrations over about 2.5 cm, plus the bolt head and extractor at the front.",
+     "fix": "Replace the full-length slots with a short band of fine forward-assist serrations near the rear of the port, and keep the rest of the carrier side smooth."
+    },
+    {
+     "id": "SIL-7",
+     "severity": "P2",
+     "title": "Small notch and exposed lip at the pistol-grip top rim where it meets the lower",
+     "evidence": "r1_grip_top_edge_closeup.png and r1_grip_junction_rear_low.png: the grip's top rim steps by about 1 mm on the right side just behind the trigger guard, and the flat top face shows as a thin ledge below the lower's edge. Contact itself is correct: grip and lower meet on the Z = 4.17 cm plane with a 0.0 mm gap. This is cosmetic and only visible close up.",
+     "fix": "Smooth the grip's top outline so it follows the lower's footprint, or tuck the grip top 0.5 mm under a small lip on the lower."
+    }
+   ]
+  },
+  "technical": {
+   "pass": false,
+   "defects": [
+    {
+     "id": "TECH-1",
+     "severity": "P1",
+     "title": "Rear-sight ghost ring floats: not connected to the leaf (0.8 mm gap to the post, about 2 mm to the ears), in LOD0, LOD1 and LOD2",
+     "evidence": "shells_check.py: RearSightLeaf has 2 shells. Shell 1 (672 faces) is the ring: y ±0.62, z 6.38 to 7.62 bore-frame cm. Its smallest distance to shell 0 (frame + post + knuckle) is 0.800 mm, with 0 overlapping triangle pairs. RearSightLeaf_LOD1 gap 0.814 mm, LOD2 0.875 mm. Cause in part_rear_sight() of iv7_carbine.py: the frame post ends at z=6.3 (points (±0.36, 6.3)), while the ring circle r=0.62 around SIGHT_Z=7.0 starts at z=6.38. The ear inner edges are at |y| ≥ 0.74, and the ring reaches only |y| = 0.62. Visible in review/r1/technical/rv_rear_sight_gap.png, and in rv_rear_sight_gap_nooptic.png with the optic hidden. It is also visible in the builder's own Art/Previews/IV7/IV7_ads.png, where there is a sliver of optic housing between the ring and the post top. This is the view the player sees most.",
+     "fix": "Make the ring part of the leaf. Either raise the post top to z ≥ 6.45 so it overlaps the ring's outer edge, or add two small bridges from the ring to the ears at z≈7.0. Then re-union and bevel. Add a validation rule: every part must be exactly 1 shell, except parts listed as multi-shell (Pins, HandguardScrews, MagRounds)."
+    },
+    {
+     "id": "TECH-2",
+     "severity": "P1",
+     "title": "The documented rear-sight fold (+90° about Y, 'folds forward') puts the leaf 6 mm into the optic riser",
+     "evidence": "interpenetration.py with pose rear_sight rot (0, +90, 0), as in the spec §5 table and TEST_POSE: 248 RearSightLeaf vertices end up inside Optic, max depth 6.002 mm, deepest point at bore (-5.2, 0, 4.38). Renders rv_rear_fold.png (from +Y) and rv_rear_fold_top.png show the front half of the folded leaf going into the riser's sloped rear face. The builder's IV7_rig_pose_test.png calls this pose verified but shows the same intersection. I also tested a rearward fold (-90°): it clears the optic and only overlaps its own base tower by 0.8 mm. The front sight's -90° fold also overlaps its base by 0.8 mm.",
+     "fix": "Change the documented fold direction of rear_sight to -90° (rearward) in the spec and in TEST_POSE. Also lower both sight-base tower tops (z 4.45) or raise HINGE_Z by about 0.1 cm so that neither folded leaf touches its base. Re-run the pose interpenetration check."
+    },
+    {
+     "id": "TECH-3",
+     "severity": "P2",
+     "title": "The zero-area UV collapse (uv_snap_degenerate) also hits visible faces, including the counter of the '6' in the roll mark",
+     "evidence": "zero_uv_locate.py: 6,454 faces (196.7 mm² in total) have zero UV area. Largest ones: DustCover rib faces, 4 × 6.5 to 7.4 mm² (at bore (-4.27/-6.03, -1.95, -2.38)); FrontSightBase, 4 × 2.6 mm²; MuzzleDevice 2.07 mm²; UpperReceiver, 4 × 1.33 mm²; the Optic windage turret flutes (a red ring in rv_zero_uv_right.png). rv_rollmark_zero_uv.png shows that the counter of the '6' in '5.56 mm' was collapsed onto a wall texel. In the builder's IV7_closeup_receiver_left.png it renders as a dark dot ('5.5●6 mm'). Zero-UV triangles also have undefined MikkTSpace tangents, so the normal map is meaningless on them. LOD1: DustCoverRod_LOD1 has a 34 mm² zero-UV triangle.",
+     "fix": "Collapse only faces that are truly degenerate, e.g. 3D area < 0.05 mm². Give small islands a minimum UV size (for example 3×3 texels) instead of collapsing them. Protect islands that touch paint or engraving material (glyph counters)."
+    },
+    {
+     "id": "TECH-4",
+     "severity": "P2",
+     "title": "UV overlap in the Furniture bake set: a feed-lip island sits on the magazine flank island",
+     "evidence": "uv_overlap.py at 2048² (strict interiors, owner attribution): the Body set has 0 overlapping px. The Furniture set has 550 px, all between Magazine island 1640 (10 faces, 0.385 cm², feed-lip inner face at bore (-4.92, -0.44, -1.39), normal +Y) and Magazine island 1633 (the 142.7 cm² flank). Texture px x 936–982, y 1760–1909 (image rows). uv_overlap_furniture_crop.png shows the overlap as a dark diagonal line in BaseColor and a green (low-AO) streak in the ORM, about 110 px long. At 44 px/cm that is about 2.5 cm on the magazine flank.",
+     "fix": "Repack Furniture with pack_islands shape_method='AABB' (or keep CONCAVE with a larger margin), or move that island. Then rebake. Add a validation rule that fails on any non-zero overlap between different islands (the current 0.5 % threshold hides it)."
+    },
+    {
+     "id": "TECH-5",
+     "severity": "P2",
+     "title": "Unbevelled hard (razor) edges remain on visible parts, including knife-edge and zero-thickness spots",
+     "evidence": "razor_edges.py counts manifold edges with face angle > 70° (a 1–2 segment bevel leaves ≤45° steps). Results: Optic 741 edges / 132 cm (knurl flutes cut after the bevel on purpose, plus a 41 mm clamp-jaw edge at bore (-3.85, ±0.87, 2.5), 103°). MuzzleDevice 220 edges / 54.7 cm (prong-slot edges 25–27 mm long, 73–103°). UpperReceiver 42 edges / 59.8 cm (90° rail cross-slot floor/undercut edges at y ±0.96, z 2.62). RearSightBase 96 edges / 37 cm (15.4 mm tower-top edges at z 4.45, visible when aiming down the sights). BoltCarrier serrations, 12.8 mm at 90°, visible through the port. LowerReceiver 514 edges / 61 cm, including a 172° knife edge (8 mm) at bore (-16.1, -0.13, 1.45): tube_hole r=1.46 almost breaks through the tower top flattened at z=1.45. DustCover has two 180° folded (zero-thickness) edges, 64.8 mm long, at the hinge. The brief requires bevelled hard edges with no razor edges.",
+     "fix": "Bevel after the last boolean (muzzle slots, rail slots, flutes, barrel-nut slot) or pre-bevel the cutters. Check bevel clamp_overlap, which sets widths to zero at tight spots. Raise the tower flat to ≥1.52 or reduce tube_hole to 1.455. Rebuild the dust-cover hinge junction so that it has no zero-thickness fin."
+    },
+    {
+     "id": "TECH-6",
+     "severity": "P2",
+     "title": "Unintended interpenetrations, hidden in the bind pose or visible only in animation poses",
+     "evidence": "interpenetration.py uses closest-point plus ray-parity checks. Bind pose: ForwardAssist sits 3.55 mm inside BoltCarrier at bore (-13.7, -0.77, 0.2), and the carrier's 7.5 cm travel sweeps through the plunger. GasTube is 1.40 mm inside the barrel extension at x 1.8–3.0. The ChargingHandle wings (front face x = -14.42) are 0.8 mm inside the UpperReceiver rear face (x = -14.5). EndPlate is 0.48 mm inside BufferTube. Poses: mag_release pressed 1.5 mm (as documented) puts the button 1.0 mm into solid material, because mr_hole ends at y = -0.85 and the button's inner end is at -0.90. bolt_catch at -9° (the test pose) puts 0.57 mm into the pocket edge at (-8.08, 1.21, -1.96), which is on the visible surface. front_sight folded -90° overlaps its base by 0.8 mm. Dust cover closed, trigger +12°, selector 90°/180°, charging handle -6.5 cm and magazine drop show no intersection.",
+     "fix": "Shorten or move the forward-assist plunger outside the carrier radius (1.15). Put the gas tube above z = 1.25 + clearance, or end it at x ≥ 3.05. Start the charging-handle wings at x ≤ -14.52. Deepen mr_hole to y ≥ -0.70. Enlarge bc_pocket upward by 0.1 cm. Handle the front-sight tower as in TECH-2."
+    },
+    {
+     "id": "TECH-7",
+     "severity": "P2",
+     "title": "Weighted normals leave a gradient on a large flat receiver face next to an edge that is neither bevelled nor sharp",
+     "evidence": "normals_check.py (faces in flat regions): UpperReceiver has a 4.63 cm² right-side face at bore (-0.08, -1.5, 0.18) whose corner normals deviate 12.2° from the face normal. Optic flat-ish faces deviate 5–9.5°. The upper profile's chamfer/side edge is about 26°. That is below the bevel limit (30°) and below the sharp angle (50°), so it is smooth-shaded and area-weighting pulls the side-face normals. rv_normals_upper_front_contrast8x.png (shading normal as colour, 8× contrast) shows the gradient across the flat right face. At 1× (rv_normals_upper.png) it is subtle; on glossy anodising it would show as a bent reflection.",
+     "fix": "On the receivers and the optic, mark edges of 20–30° as sharp, or lower the bevel angle to 20° for them. Keep weighted normals."
+    },
+    {
+     "id": "TECH-8",
+     "severity": "P2",
+     "title": "The FBX aimed at Unreal references the OpenGL normal map and stores an absolute machine path",
+     "evidence": "Raw FBX parse (export_check.json → raw_fbx): the texture links are 'normalmap_texture -> M_IV7_Body.NormalMap' pointing at T_IV7_Body_Normal.png (OpenGL), and likewise for Furniture. Texture FileName = '/home/user/Sroskus/IronValley/Art/Textures/Weapons/IV7/T_IV7_Body_BaseColor.png' (absolute path of this container); RelativeFilename '../../Textures/...' is correct. There is no ORM link (FBX limitation, documented). If Unreal creates materials automatically, it would use the un-flipped +Y map. The spec says to use _Normal_DX, but the file itself points at the wrong one.",
+     "fix": "Point the FBX-only export material at T_IV7_*_Normal_DX.png, or export without texture references and rely on the documented manual material set-up. Use path_mode='STRIP' or post-process so that no absolute path is embedded."
+    },
+    {
+     "id": "TECH-9",
+     "severity": "P2",
+     "title": "GLB delivery duplicates the same 12 MB of PNG textures in every file",
+     "evidence": "parse_glb: IV7_Carbine.glb 16.58 MB, IV7_Carbine_LOD1.glb 14.41 MB and IV7_Carbine_LOD2.glb 13.14 MB each embed the same 6 PNGs (11,964,092 bytes, 91 % of LOD2). IV7_Magazine.glb is 6.07 MB for 5,298 tris, 5.80 MB of it textures. T_IV7_Furniture_Normal.png alone is 4.30 MB. Across the 4 GLBs that is 50.2 MB, of which about 41.8 MB are duplicated textures. The browser (three.js) build loads these files directly.",
+     "fix": "Export glTF with shared external textures (GLTF_SEPARATE into a common folder), or one GLB with all LODs. Use JPEG/WebP for BaseColor, or KTX2 later. Reference the magazine textures from the same shared files."
+    },
+    {
+     "id": "TECH-10",
+     "severity": "P2",
+     "title": "The magazine pivot is not on the magazine-catch axis, and the release button sits behind the magazine well",
+     "evidence": "pivot_check.py: magazine bone head at bore (-6.0, 0, -4.3). mag_release (catch) axis at x = -8.95, z = -4.26. The magazine body near the top spans x -7.4 to -0.9, so a cross-bolt catch at the button's X is 1.55 cm behind the magazine and cannot engage it. The pivot is 2.95 cm forward of the release axis. The spec describes the pivot as 'magazine catch height, magazine centreline'. The brief asks for the pivot at the magazine catch.",
+     "fix": "Move the release button/catch forward over the rear of the magwell (x ≈ -6.3) and put the magazine bone on that axis, or state the deviation explicitly in the spec."
+    },
+    {
+     "id": "TECH-11",
+     "severity": "P2",
+     "title": "Data hygiene: orphan procedural data in the .blend, dangling weights and slightly different normals on SM_IV7_Magazine",
+     "evidence": "The .blend still contains IV7_Brass and IV7_Copper (0 users). They keep node group IV_Masks_Furniture alive, which uses the GENERATED image T_IV7_Furniture_Masks (no file, pixels not saved), even though purge_procedural() ran. SM_IV7_Magazine has 0 vertex groups but 2,655 vertices carry deform weights for missing group index 0 (a plain-weight loop raises KeyError). Its normals were re-derived and differ from the baked LOD0 Magazine + MagRounds on the same topology and identical UVs: >2° on 70.6 cm², >5° on 3.8 cm², >10° on 0.25 cm² (sm_mag_normals.py). This is probably invisible, but it does not match the bake exactly.",
+     "fix": "Purge repeatedly until nothing is removed, or call bpy.data.orphans_purge(do_recursive=True). In static_magazine(), clear the deform layer (mesh.attributes / vertex groups) and copy the custom normals from the source objects instead of re-deriving them."
+    },
+    {
+     "id": "TECH-12",
+     "severity": "P2",
+     "title": "The selector hub face is split into radial UV islands with stretch",
+     "evidence": "inspect_blend.json: Selector has anisotropic stretch (singular-value ratio >1.5) on 17.4 % of its area. All other LOD0 parts are ≤4.7 %, and most are <1 %. rv_uvchecker_selector.png shows the flat round face of the hub cut into wedge islands with rotated checkers. A baked AO/normal seam is likely on a control that is visible in first person. The rest of the model shows square, even checkers at a consistent density (rv_uvchecker_right.png, rv_uvchecker_receiver.png).",
+     "fix": "Unwrap the selector hub disc as one planar island: project that face group from its normal before packing, or raise angle_limit for this part."
+    }
+   ]
+  },
+  "materials": {
+   "pass": false,
+   "defects": [
+    {
+     "id": "MAT-1",
+     "severity": "P1",
+     "title": "The black anodised aluminium has almost the same BRDF as the polymer magazine, so metal cannot be told from polymer at first-person distance",
+     "evidence": "The anodised parts (receivers, handguard, buffer tube, optic, sight bases and leaves, charging handle) make up about 84% of the visible surface of the metal parts (1939 of 2305 cm2, visibility ray-cast in ao_visibility.json). They are baked with metallic 0: 99-100% of their texels are below 0.1 (texture_stats.json). Base colour is 0.020 linear, roughness 0.41-0.50, and the normal map is flat (MAT-5). The magazine polymer is also metallic 0, with base 0.044 and roughness 0.62, so the only parameter separating them is a 0.17 roughness step. Rendered result: in shade the upper receiver measures sRGB luminance 32.1 and the magazine 31.7, with the same blue-grey hue (r1_mat_inspect_shade.png). In sun the receiver face measures 61-64 with a standard deviation of only 0.5, a perfectly uniform satin, while the magazine measures 84-91 (r1_mat_inspect_sun.png). The metallic diagnostic r1_mat_diag_metal_left.png shows the whole receiver, handguard and optic as black (non-metal), exactly like the polymer parts. Side-by-side evidence: r1_mat_material_identity_sheet.png. In every view I rendered (fp_sun, fp_shade, inspect, optic_rear) and in the builder's IV7_shade_right.png, the receivers read as the same slate satin plastic as the magazine. This breaks the lens rule (metal parts ~1, roughness and metallic clearly different) and the quality-bar rule to clearly distinguish metal from polymer. Spec section 6 treats the dyed oxide as a dielectric on purpose. That is physically arguable, but combined with MAT-2 and MAT-5 the result reads as plastic.",
+     "fix": "Give anodised aluminium a metal response: metallic 1 with base colour about 0.035-0.05 linear, roughness about 0.30-0.38 with low-frequency breakup and slightly lower roughness on bevel highlights. If the dielectric model is kept, those other cues become mandatory: wear (MAT-2), micro-normal (MAT-5) and roughness breakup. Push the magazine polymer to a clearly matte finish (roughness 0.72-0.8) and a slightly lighter or warmer grey. Re-render r1_mat_inspect_sun/shade with render_views.py and check that receiver and magazine separate in both value and highlight character."
+    },
+    {
+     "id": "MAT-2",
+     "severity": "P1",
+     "title": "Edge wear to bare aluminium is practically absent; the rifle reads as brand-new CG, not a used military rifle",
+     "evidence": "Only 3,319 of 1,492,422 anodised texels are worn (metallic above 0.5, bare-aluminium colour): 0.22% overall. By part: UpperReceiver 0.73%, LowerReceiver 0.11%, Handguard 0.15% (the support-hand area), Optic 0.22%, and exactly 0% on ChargingHandle, BufferTube, RearSightLeaf, FrontSightLeaf and FrontSightBase (wear_maps.py; the red-marked texels in r1_mat_body_wear_mask_1024.png are nearly absent). No wear is visible anywhere in my renders, including the raking-light close-ups: r1_mat_graze_receiver_grip_left.png, r1_mat_graze_receiver_right.png, the 2x crop r1_mat_inspect_sun_crop_receiver_2x.png (clean rail teeth, charging-handle latch and receiver edges) and r1_mat_optic_rear.png. The builder's close-ups show the same. Cause: in mat_anodized the value 'worn' is remap(edge x patch x noise, 0.56, 0.78), and the edge mask comes from a 1.0 mm inside-AO on bevels about 0.45 mm wide, so it almost never passes the threshold. The brief explicitly asks for subtle edge wear to bare aluminium and a used rifle.",
+     "fix": "Widen and lower the wear detection: a 2-3 mm convexity or curvature mask, or thresholds around 0.35-0.55. Target roughly 1.5-4% of exterior anodised texels, concentrated where hands and gear make contact: handguard bottom edges at the support hand, rail tooth edges, magwell flare, charging-handle T-bar and latch, bolt-catch paddle, selector lever, trigger guard, optic turret caps, end-plate and buffer-tube contact. Add light handling polish (lower roughness) on the grip-contact areas. Verify with wear_maps.py fractions and a grazing render."
+    },
+    {
+     "id": "MAT-3",
+     "severity": "P1",
+     "title": "The dust cover's AO and grime are baked in its open pose: when closed the cover renders black and leaves a ghost shadow on the lower receiver",
+     "evidence": "In the bind (open) pose, the DustCover faces that become the outer face when closed (normal +Y) have ORM.R AO averaging 0.032 over 16.4 cm2, minimum 0.00 (ao_per_tri.py and my face-orientation query). The cover's occlusion is also baked into the lower-receiver magwell flank under the port. r1_mat_diag_AO_right_close_dustcover_closed.png (dust_cover bone at -176 deg, the documented close) shows a pitch-black cover plus a dark smudge on the flank. The GLB M_IV7_Body carries occlusionTexture, which three.js applies to indirect light; Unreal material AO does the same. An engine-like shade render with AO multiplied in, r1_mat_engineAO_shade_right_dustcover_closed.png, shows a black rectangle and a smudge; the open-state render r1_mat_engineAO_shade_right_dustcover_open.png is clean. The BaseColor also holds a ghost: a brownish cavity-dust patch under the port and a band on the cover (r1_mat_diag_basecolor_right_close_dustcover_closed.png, exposure +2). The same pipeline isolates the magazine for exactly this reason (spec section 6) but not the dust cover.",
+     "fix": "In bake_texture_set, add the DustCover to `isolate` for the mask bake so it neither receives nor casts inter-part AO or cavity. Or bake it in the closed pose and keep its occlusion off the lower receiver. Check ChargingHandle and BoltCarrier the same way. Re-check with render_diag.py R right_close closed and render_engine_ao.py closed."
+    },
+    {
+     "id": "MAT-4",
+     "severity": "P2",
+     "title": "Metallic is not binary: phosphated steel is 0.42-0.55 across every texel, and nitrided parts carry large mid-metal areas",
+     "evidence": "All 13 phosphate objects have 100% of their texels in the 0.1-0.9 metallic band, with medians 0.42-0.55: HandguardScrews, BarrelNut, GasBlock, EndPlate, CastleNut, ForwardAssist, Pins, MagRelease, BoltCatch, Selector, and the Rear, Front and Optic bolts (texture_stats.json; mat_phosphate uses metal=0.55, and dirt drops it to 0.33). Nitrided steel also has mid values: Barrel 39.5%, MuzzleDevice 57%, BoltCarrier 63% of texels between 0.1 and 0.9. Visually the pins and controls render as light grey putty: rear takedown pin head 95 vs receiver 60 sRGB luminance in sun, 46 vs 23 in shade (r1_mat_inspect_sun/shade.png). The lens asks for metallic that is essentially binary per material.",
+     "fix": "Choose a binary value for phosphate: metallic 1, base about 0.05-0.07, roughness 0.55-0.65. Keep intermediate values only in thin transitions (soot or dirt edges). For carbon fouling, fade metallic to 0 with a narrow transition rather than leaving large 0.3-0.6 areas."
+    },
+    {
+     "id": "MAT-5",
+     "severity": "P2",
+     "title": "The Body normal map is effectively empty: no surface micro-detail on any metal part",
+     "evidence": "Mean normal tilt in T_IV7_Body_Normal.png is 0.32-0.45 deg, with the 99th percentile at 0.32-0.71 deg, on UpperReceiver, LowerReceiver, Handguard, Optic, BoltCarrier, MuzzleDevice and BarrelNut (normal_stats.json). That is 1-2 8-bit steps, so the procedural micro-bump (strength 0.08, distance 0.3 mm) was quantised away. The 2048-px texture is essentially constant (128,128,255) outside a few small parts. The receiver face renders with a luminance standard deviation of 0.5 in sun (r1_mat_inspect_sun.png), and the panel under raking light shows only faint noise (r1_mat_graze_left_crop_panel_x2_gain.png). This adds to the clean-CG look.",
+     "fix": "Author detail that survives 8 bits (about 2-6 deg tilt): anodise orange-peel, milling and tool marks on flats, handling scuffs on high-contact areas. Or bake 16-bit and convert with dithering."
+    },
+    {
+     "id": "MAT-6",
+     "severity": "P2",
+     "title": "The Body UV layout fills only about 41% of the 2048 sheet, so texel density is wasted on the metal parts closest to the eye",
+     "evidence": "Rasterising the Body UV layout gives 40.9% coverage (uv_raster_summary.json; the validation report's figure is 40.6%). Large empty regions are visible in r1_mat_body_wear_mask_1024.png. Exterior density on the receivers is about 26.4 px/cm (area-weighted median, texel_density.json). Furniture, which is less exposed in first person, gets 44.5 px/cm. The ~25 px/cm target is met, but with 59% of the Body sheet unused.",
+     "fix": "Repack Body islands to at least 65-70% coverage (rotation allowed, smaller margins with the existing 16 px dilation). That gives about 33 px/cm on the receivers. Or rebalance the split so the receivers get the higher density."
+    },
+    {
+     "id": "MAT-7",
+     "severity": "P2",
+     "title": "Grip stippling is aliased at the bake resolution and renders as sparse, clumpy pockmarks",
+     "evidence": "Stipple cells are about 1.05 mm, roughly 4.7 texels at 44.5 px/cm, so each dimple is only 2-3 texels in T_IV7_Furniture_Normal.png (r1_mat_tex_grip_stipple_normal_8x.png). Under raking light the grip shows irregular clusters of dimples with bald patches between them, not an even stippled field (r1_mat_graze_left_crop_grip_x3.png, r1_mat_graze_grip_macro_crop_x4.png). At first-person distance, mips 1-2 will blur it away or make it shimmer. The magazine stipple (scale 700, about 6 px) is only slightly better.",
+     "fix": "Enlarge the stipple features to 2-3 mm (at least 9-13 texels) with a denser, even distribution, and bake with more samples per texel. Or use a tiling detail-normal for the grip texture."
+    },
+    {
+     "id": "MAT-8",
+     "severity": "P2",
+     "title": "The red-dot reticle is large, washes out to pink-white, and is visible from the front",
+     "evidence": "The 1.4 mm disc sits about 14 cm from socket_ads, which subtends about 0.57 deg (about 34 MOA); typical dots are 2-4 MOA. With emission 150 it tone-maps to a pale pink-white disc: in a 60x60 px window of IV7_ads.png there are 2,316 near-white pixels against 19 saturated red ones (crop r1_mat_ads_reticle_crop_4x.png). The GLB exports emissiveStrength 150, which will clip to white in three.js. The dot is also visible from the muzzle side (r1_mat_optic_front.png), which the spec already lists as a known P2.",
+     "fix": "Shrink the dot to about 0.25-0.4 mm, or render it as a collimated or far-plane reticle in engine. Use emissive strength about 5-20 with a saturated red, and make it one-sided or occluded from the front."
+    },
+    {
+     "id": "MAT-9",
+     "severity": "P2",
+     "title": "The SAFE pictogram does not read as a crossed-out bullet",
+     "evidence": "The slash is filled with the same white paint as the bullet, and a dark sliver appears where the two separate booleans overlap. At close range it reads as a malformed X or Y glyph (r1_mat_pictogram_crop_3x.png, r1_mat_inspect_sun_crop_receiver_2x.png). The SEMI and AUTO red pictograms read fine.",
+     "fix": "Cut the slash as an unpainted gap through the bullet, or fill it with a contrasting colour. Use one boolean on the unioned cutter so the overlap leaves no sliver."
+    },
+    {
+     "id": "MAT-10",
+     "severity": "P2",
+     "title": "The optic housing silhouette is visibly faceted in the ADS view",
+     "evidence": "In IV7_ads.png, the view where the optic is closest to the eye, the rounded eyepiece hood shows about 6-7 straight segments per 90 deg corner (crop r1_mat_ads_housing_edge_crop.png), and the rear-sight ears are faceted too. This is geometry, but it is the most prominent first-person surface.",
+     "fix": "Raise the segment count of the housing and hood profile to at least 12 per quarter, or add a smoothing bevel. It costs few triangles relative to the 62.6k LOD0."
+    }
+   ]
+  }
+ }
+}
