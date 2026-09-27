@@ -224,12 +224,12 @@ asi 32 m od návsi, vzorec „dva blízké týmy a jeden vzdálený“, kompaktn
 | --- | --- |
 | rozsah dat | 350 × 350 m (x, y ∈ [−175, 175]) |
 | hrací plocha (měkká hranice) | **42 442 m²** |
-| zóny | Dílna 429 m², Sklad 481 m², Dvůr 494 m² |
-| cesta ze spawnu k okraji zóny | 113–125 m (FMM), 116–127 m (Recast), běh 3,5 m/s **32–36 s**, sprint ~20–22 s |
-| bilance (nejdelší/nejkratší) | FMM (kontrola S03) 1,030 / 1,044 / 1,047; Recast 1,034 / 1,036 / 1,046 |
-| rozestup aktivních spawnů různých týmů | ≥ 169 m; směry příchodu k zóně ≥ 88° |
-| budovy | 3 hlavní (všechny plně průchozí, dílna a dům dvoupodlažní) + 21 vedlejších (neprůchozí) |
-| rekvizity / stromy / krycí body / úzká místa / testovací body | 103 / 1626 / 593 / 57 / 186 (oddíl 13) |
+| zóny | Dílna 442 m², Sklad 483 m², Dvůr 494 m² |
+| cesta ze spawnu k okraji zóny | 118–128 m (FMM), 117–128 m (Recast), běh 3,5 m/s **34–36 s** |
+| bilance (nejdelší/nejkratší) | FMM (S03) Dílna 1,038, Sklad 1,027, Dvůr 1,020; Recast (N01) 1,014 / 1,051 / 1,042 |
+| budovy | 3 hlavní (všechny plně průchozí; dílna jednopodlažní, dům dvoupodlažní s přízemním křídlem, sklad s kanceláří) + 23 vedlejších (neprůchozí, na plošinách se soklem) |
+| okraj mapy | 12 úseků fyzických bariér, 1 031 m, souvislý kruh 0,5 m uvnitř tvrdé hranice |
+| rekvizity / stromy / krycí body / úzká místa / testovací body | 109 / 1650 / 900 (z toho 115 u nábytku v budovách, 17 u oken, 2 hlídání schodiště) / 56 / 183 |
 
 ---
 
@@ -293,9 +293,9 @@ Týmové barvy (modrá, červená, žlutá) jsou vyhrazeny vlastnictví.
 
 | Zóna | Plocha / pásmo z | Co se počítá | Co se nepočítá | Charakter boje | Krycí body uvnitř |
 | --- | --- | --- | --- | --- | --- |
-| **Dílna** `zone_dilna` | ZONE_DL_AREA m², z 0,70–3,80 | celá jednopodlažní dílna (hala, výdejna, šatna, kompresorovna v kůlně) a dvůr mezi halou a potokem | náhonová terasa za opěrnou zdí (z 3,13), svah břehu a koryto potoka, deska mostu | CQB v hale (výheň, soustruhy, regály, pracovní stoly) + dvůr s hromadami materiálu, VZV a přívěsem; dvoje vrata (3,40 a 2,60 m), zadní dveře, dvoje štítové dveře, dveře přístavku a kůlny | ZONE_DL_CP |
-| **Sklad** `zone_sklad` | ZONE_SK_AREA m², z 0,80–5,00 | nakládací rampa se schody a nájezdem, přední ulička, kancelář a první řada regálů, předpolí rampy ve dvoře | zadní ulička a druhá řada regálů, zadní dvůr, zástěry u štítů dál než 0,5 m | střední vzdálenost podél rampy (výškový rozdíl 1,10 m, jednosměrný seskok nebo vyšplhání 0,5–1,3 m), regály jako kryt; posuvná vrata: vpředu jedna otevřená a jedna zavřená, vzadu otevřená | ZONE_SK_CP |
-| **Dvůr** `zone_dvur` | ZONE_DV_AREA m², z 1,90–5,54 | zděná zahrada na terase, přízemí domu včetně přízemního křídla, pás 1,25 m za domem (podesta zadních dveří) | náves pod opěrnou zdí, zadní dvůr (za pásem 1,25 m), patro a balkon domu (z 5,94); ramena schodiště jsou spojité přechody | smíšený: dům jako pevnost s mnoha vstupy, zahradní zdi 1,0 / 1,8 m, útok z návsi po schodech nebo po příjezdu | ZONE_DV_CP |
+| **Dílna** `zone_dilna` | 442 m², z 0,70–3,80 | celá jednopodlažní dílna (hala, výdejna, šatna, kompresorovna v kůlně) a dvůr mezi halou a potokem | náhonová terasa za opěrnou zdí (z 3,13), svah břehu a koryto potoka, deska mostu | CQB v hale (výheň, soustruhy, regály, pracovní stoly) + dvůr s hromadami materiálu, VZV a přívěsem; dvoje vrata (3,40 a 2,60 m), zadní dveře, dvoje štítové dveře, dveře přístavku a kůlny | 96 |
+| **Sklad** `zone_sklad` | 483 m², z 0,80–5,00 | nakládací rampa se schody a nájezdem, přední ulička, kancelář a první řada regálů, předpolí rampy ve dvoře | zadní ulička a druhá řada regálů, zadní dvůr, zástěry u štítů dál než 0,5 m | střední vzdálenost podél rampy (výškový rozdíl 1,10 m, jednosměrný seskok nebo vyšplhání 0,5–1,3 m), regály jako kryt; posuvná vrata: vpředu jedna otevřená a jedna zavřená, vzadu otevřená | 87 |
+| **Dvůr** `zone_dvur` | 494 m², z 1,90–5,54 | zděná zahrada na terase, přízemí domu včetně přízemního křídla, pás 1,25 m za domem (podesta zadních dveří) | náves pod opěrnou zdí, zadní dvůr (za pásem 1,25 m), patro a balkon domu (z 5,94); ramena schodiště jsou spojité přechody | smíšený: dům jako pevnost s mnoha vstupy, zahradní zdi 1,0 / 1,8 m, útok z návsi po schodech nebo po příjezdu | 53 |
 
 Vyvýšená pozice u zóny (mimo zónu, dva východy): jen patro domu (okna do zahrady a dvora, balkon se schodištěm do zadního
 dvora). Není bezpečné: je dostupné ze dvou stran a na dohled z více směrů. Dílna je jednopodlažní.
@@ -306,9 +306,9 @@ dvora). Není bezpečné: je dostupné ze dvou stran a na dohled z více směrů
 
 - Každý tým má **dvě řady po 8 bodech** (2 × 4, rozestup 1,5 m a více, rozpětí 9,5 m) na ose podél své silnice
   (`spawn_spines`, `s` = metry od návsi). Pro každou zónu je aktivní jedna řada (`zone_spawn_rows`). Vzdálený tým používá
-  přední řadu (s 85–92 m), blízké týmy zadní (s 132–158 m).
+  přední řadu (s 85–92 m), blízké týmy zadní (s 136–160 m).
 - Body leží na pochozím terénu se sklonem do 15°, ≥ 0,85 m od objektů, ne v budovách, ≥ 10 m uvnitř měkké hranice (mimo pás
-  varování; skutečné minimum je 13,9 m).
+  varování; skutečné minimum je 11,1 m).
 - **Clony:** před každou řadou stojí pevná clona kolmo ke směru na zónu, 3,5–4,5 m před první řadou. Konce clony zůstávají
   otevřené jako šikana. Typy: **HESCO** (2 patra gabionů, 2,74 m, celé buňky po 1,07 m) nebo **dva kontejnery na sobě**
   (5,18 m, 20 ft = 6,06 m nebo 10 ft = 2,99 m), pokud řada hledí do kopce k zóně. Výška clony se volí podle potřebné výšky
@@ -329,35 +329,35 @@ dvora). Není bezpečné: je dostupné ze dvou stran a na dohled z více směrů
 ### 6.1 Bilance (generováno z dat)
 
 <!-- BALANCE:BEGIN -->
-**Dílna** (429 m², z 0,70–3,80 m)
+**Dílna** (442 m², z 0,70–3,80 m)
 
 | tým | spawn řada (s) | přímo ke středu / k okraji | FMM chůze k okraji | Recast cesta k okraji | běh 3,5 m/s | obchvat |
 | --- | --- | ---: | ---: | ---: | ---: | --- |
-| alfa | ALFA_R1 (142 m) | 130,9 / 116,2 m | 121,8 m | 122,8 m | 34,8 s | P_BANK_TERRACE ramp -> mill-race terrace -> RW stairs: 143,5 m (+4,9 %) |
-| bravo | BRAVO_R1 (157 m) | 136,9 / 123,3 m | 125,4 m | 125,2 m | 35,8 s | footbridge B -> west bank -> gable door DL_D3: 140,3 m (-0,1 %) |
-| charlie | CHARLIE_R1 (89 m) | 126,5 / 118,6 m | 125,7 m | 126,9 m | 35,9 s | brook bed from the square culvert (low covered lane): 136,9 m (+3,9 %) |
+| alfa | ALFA_R1 (146 m) | 134,9 / 119,7 m | 124,4 m | 127,8 m | 35,5 s | P_BANK_TERRACE ramp -> mill-race terrace -> RW stairs: 147,5 m (+4,5 %) |
+| bravo | BRAVO_R1 (160 m) | 139,9 / 125,4 m | 127,7 m | 127,8 m | 36,5 s | footbridge B -> west bank -> gable door DL_D3: 145,4 m (-0,3 %) |
+| charlie | CHARLIE_R1 (89 m) | 126,5 / 118,6 m | 123,0 m | 126,0 m | 35,2 s | brook bed from the square culvert (low covered lane): 133,2 m (+2,5 %) |
 
-Poměr nejdelší/nejkratší: FMM 1,032, Recast 1,034 (cíl ≤ 1,06; zadání ±10 %).
+Poměr nejdelší/nejkratší: FMM 1,038, Recast 1,014 (cíl ≤ 1,06; zadání ±10 %).
 
-**Sklad** (481 m², z 0,80–5,00 m)
+**Sklad** (483 m², z 0,80–5,00 m)
 
 | tým | spawn řada (s) | přímo ke středu / k okraji | FMM chůze k okraji | Recast cesta k okraji | běh 3,5 m/s | obchvat |
 | --- | --- | ---: | ---: | ---: | ---: | --- |
-| alfa | ALFA_R2 (84 m) | 123,7 / 108,9 m | 121,4 m | 125,9 m | 34,7 s | track C start -> warehouse yard S gate (P_SKLAD_S): 139,8 m (+1,3 %) |
-| bravo | BRAVO_R1 (157 m) | 129,1 / 116,1 m | 117,8 m | 121,5 m | 33,7 s | E ring hedgerow -> field ramp -> rear yard -> RD3/D4: 164,9 m (+23,1 %, hluboký obchvat) |
-| charlie | CHARLIE_R2 (132 m) | 128,0 / 112,6 m | 116,5 m | 122,5 m | 33,3 s | E ring from track C -> rear yard: 137,7 m (+3,8 %) |
+| alfa | ALFA_R2 (85 m) | 123,1 / 110,0 m | 121,5 m | 126,6 m | 34,7 s | track C start -> warehouse yard S gate (P_SKLAD_S): 143,4 m (+3,5 %) |
+| bravo | BRAVO_R1 (160 m) | 132,0 / 116,4 m | 118,3 m | 120,5 m | 33,8 s | E ring track -> rear yard at grade (SE corner) -> rear sliding door SK_SD3 / SK_D4: 182,8 m (+36,6 %, hluboký obchvat) |
+| charlie | CHARLIE_R2 (136 m) | 132,1 / 116,4 m | 120,7 m | 124,8 m | 34,5 s | E ring from track C -> rear-yard branch track -> rear yard at grade (SE corner): 137,7 m (+0,9 %) |
 
-Poměr nejdelší/nejkratší: FMM 1,042, Recast 1,036 (cíl ≤ 1,06; zadání ±10 %).
+Poměr nejdelší/nejkratší: FMM 1,027, Recast 1,051 (cíl ≤ 1,06; zadání ±10 %).
 
 **Dvůr** (494 m², z 1,90–5,54 m)
 
 | tým | spawn řada (s) | přímo ke středu / k okraji | FMM chůze k okraji | Recast cesta k okraji | běh 3,5 m/s | obchvat |
 | --- | --- | ---: | ---: | ---: | ---: | --- |
-| alfa | ALFA_R1 (142 m) | 121,4 / 105,6 m | 113,9 m | 115,9 m | 32,5 s | S ring path -> rear yard gate: 135,5 m (+8,6 %) |
-| bravo | BRAVO_R2 (92 m) | 122,2 / 113,1 m | 117,5 m | 119,5 m | 33,6 s | square -> driveway (E) instead of the wall stairs: 139,7 m (+9,7 %) |
-| charlie | CHARLIE_R2 (132 m) | 120,3 / 105,5 m | 119,3 m | 121,3 m | 34,1 s | S ring -> sunken lane (úvoz) -> north exit -> rear yard gate: 144,3 m (+9,8 %) |
+| alfa | ALFA_R1 (146 m) | 125,6 / 109,8 m | 118,5 m | 119,0 m | 33,9 s | S ring path -> rear yard gate: 139,5 m (+7,8 %) |
+| bravo | BRAVO_R2 (92 m) | 122,2 / 113,1 m | 117,6 m | 122,2 m | 33,6 s | square -> driveway (E) instead of the wall stairs: 139,7 m (+9,6 %) |
+| charlie | CHARLIE_R2 (136 m) | 124,3 / 109,4 m | 120,0 m | 117,3 m | 34,3 s | S ring -> sunken lane (úvoz) -> north exit -> rear yard gate: 141,4 m (+8,0 %) |
 
-Poměr nejdelší/nejkratší: FMM 1,048, Recast 1,046 (cíl ≤ 1,06; zadání ±10 %).
+Poměr nejdelší/nejkratší: FMM 1,020, Recast 1,042 (cíl ≤ 1,06; zadání ±10 %).
 
 <!-- BALANCE:END -->
 
@@ -371,9 +371,9 @@ nejkratší cesta přes určený průjezdní bod, porovnaná s hlavní trasou.
 ## 7. Trasy a úzká místa
 
 Hlavní trasy (`lanes.<zone>.primary`) jsou nejkratší cesty z aktivní řady. Obchvaty (`lanes.<zone>.flank`) vedou přes
-průjezdní bod a smějí být nejvýš o 10 % delší. Jedinou výjimkou je záměrný **hluboký obchvat Brava ke skladu (+23,1 %)**
-podél meze východního okruhu do zadního dvora skladu: jde o manévr do týlu. Bravo má ke skladu i běžné alternativy
-(severní konec dvora, krajnice silnice B) v rámci 10 %.
+průjezdní bod a smějí být nejvýš o 10 % delší. Jedinou výjimkou je záměrný **hluboký obchvat Brava ke skladu (+36,6 %)**
+po východní polní cestě a odbočce do zadního dvora skladu (po rovině od JV rohu): jde o manévr do týlu. Bravo má ke skladu i
+běžné alternativy (severní konec dvora, krajnice silnice B) v rámci 10 %.
 
 | Zóna | Tým | Hlavní trasa | Obchvat |
 | --- | --- | --- | --- |
@@ -401,7 +401,7 @@ Terénní prvky tras:
 - **Potok**: brodit se dá všude (rychlost × 0,75, šplouchání), břehy 1 : 1,5 jsou pochozí, kromě kamenných opěr hlavního
   mostu.
 
-Úzká místa (`chokepoints`, 57 položek se šířkou): hlavní most (4,5 m, zábradlí průhledné), lávky A a B (1,5 m), schody
+Úzká místa (`chokepoints`, 56 položek se šířkou): hlavní most (4,5 m, zábradlí průhledné), lávky A a B (1,5 m), schody
 v opěrných zdech (1,4 a 1,5 m), příjezd k domu (3,2 m), branky zahrady (2,2–2,4 m), vrata dvora skladu (7 m), schody
 a nájezd rampy (1,5 / 2,0 / 2,8 m), odbočka k zadnímu dvoru skladu (3,0 m), výstupy z úvozu (3,5–4 m), všechny dveře
 (1,10 m, vrata dílny 3,20 a 2,40 m, posuvná vrata 3,50 m) a všechna schodiště (1,1–2,0 m).
@@ -428,33 +428,35 @@ husté vizuální proxy keřů, živých plotů a remízků. Koruny stromů se n
 <!-- SIGHTLINES:BEGIN -->
 | zóna | model | plocha, odkud je vidět (m²) | nejdál (m) | > 100 m a vidí ≥ 25 % zóny (m²) | sektory útoku 20–80 m | vyvýšené pozorovatelny | okna v patře: podíl viditelné zóny |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| Dílna | jen pevná geometrie | 23 808 | 198 | 2 864 | 8 / 8 | 0 | DL_W10 0 %, DL_W11 0 %, DL_W12 0 %, DL_W13 0 %, DL_WI1 6 %, DL_WI2 12 % |
-| Dílna | + keře, živé ploty, remízky | 18 672 | 193 | 1 232 | 8 / 8 | 0 | DL_W10 0 %, DL_W11 0 %, DL_W12 0 %, DL_W13 0 %, DL_WI1 6 %, DL_WI2 12 % |
-| Sklad | jen pevná geometrie | 19 408 | 191 | 528 | 7 / 8 | 0 | – |
-| Sklad | + keře, živé ploty, remízky | 11 872 | 189 | 16 | 7 / 8 | 0 | – |
-| Dvůr | jen pevná geometrie | 24 512 | 198 | 6 448 | 8 / 8 | 16 | DM1_WN1 21 %, DM1_WN2 21 %, DM1_WN3 21 %, DM1_WN4 17 %, DM1_WS2 0 %, DM1_WW1 0 %, DM1_WW2 0 %, DM1_WE1 4 % |
-| Dvůr | + keře, živé ploty, remízky | 12 288 | 198 | 112 | 8 / 8 | 0 | DM1_WN1 21 %, DM1_WN2 21 %, DM1_WN3 21 %, DM1_WN4 17 %, DM1_WS2 0 %, DM1_WW1 0 %, DM1_WW2 0 %, DM1_WE1 4 % |
+| Dílna | jen pevná geometrie | 22 496 | 203 | 1 024 | 8 / 8 | 1 | – |
+| Dílna | + keře, živé ploty, remízky | 15 584 | 192 | 576 | 8 / 8 | 1 | – |
+| Sklad | jen pevná geometrie | 19 872 | 203 | 272 | 8 / 8 | 4 | – |
+| Sklad | + keře, živé ploty, remízky | 12 880 | 199 | 240 | 7 / 8 | 0 | – |
+| Dvůr | jen pevná geometrie | 19 296 | 198 | 4 736 | 8 / 8 | 7 | DM1_WN2 24 %, DM1_WN3 24 %, DM1_WS2 0 %, DM1_WW2 0 %, DM1_WE1 5 % |
+| Dvůr | + keře, živé ploty, remízky | 13 344 | 198 | 0 | 8 / 8 | 0 | DM1_WN2 24 %, DM1_WN3 24 %, DM1_WS2 0 %, DM1_WW2 0 %, DM1_WE1 5 % |
 <!-- SIGHTLINES:END -->
 
-V modelu jen s pevnou geometrií zůstává u Dvora 16 buněk louky na jižním ostrohu (4–7 m nad zónou, 32–44 m daleko). Mez
-s javory na jižní hraně úvozu (`VB_UVOZ_S`, 4,5 m) je zakrývá a v modelu s keři klesnou na 0. Mez je jen vizuální překážka,
-střely projdou oběma směry a louka zůstává bez krytu.
+V modelu jen s pevnou geometrií zůstává u Dvora 7 buněk louky na jižním ostrohu (4–7 m nad zónou, 30–40 m daleko) a u Skladu
+4 buňky na svahu severně od větrolamu. Mez s javory na jižní hraně úvozu (`VB_UVOZ_S`, 4,5 m) a větrolam je zakrývají; v modelu
+s keři klesnou na 0. Jsou to jen vizuální překážky, střely projdou oběma směry a louky zůstávají bez krytu. U Dílny zůstává
+v obou modelech **1 buňka** (16 m²) ve starém sadu na SZ ostrohu (−60, 44; 5,6 m nad dvorem, 34 m daleko): otevřené místo bez
+krytu, na dohled z náhonové terasy i ze dvora – přijato jako riskantní palebné postavení, ne bezpečná pozorovatelna.
 
 Čtení tabulky: „sektory útoku“ = počet 45° sektorů (z 8), ze kterých je zóna vidět na 20–80 m. Je to žádoucí, aby šlo
 útočit z více stran. „Vyvýšené pozorovatelny“ = buňky do 80 m, oči ≥ 4 m nad podlahou zóny, vidí ≥ 40 % zóny. Poslední
-sloupec ukazuje, jakou část zóny vidí střelec u okna v patře. Kancelář dílny hledí vnitřními okny do haly, patro domu do
-zahrady. Obě místa jsou záměrná, mimo zónu a přístupná ze dvou stran.
+sloupec ukazuje, jakou část zóny vidí střelec u okna v patře. Dílna je jednopodlažní (žádné okno v patře); patro domu hledí
+do zahrady – záměrně, mimo zónu a přístupné ze dvou stran.
 
 ---
 
 ## 9. Kryty
 
-- **593 krycích bodů** (`cover_points`) ve vzdálenosti do 30 m od zón: 0,60 m od lícních ploch překážek (poloměr kapsle
+- **900 krycích bodů** (`cover_points`; 766 venkovních, 115 u nábytku v budovách, 17 u oken, 2 hlídání schodiště) ve vzdálenosti do 30 m od zón: 0,60 m od lícních ploch překážek (poloměr kapsle
   0,35 + 0,25), rozestup 1,5 m, jen na pochozích buňkách. K nim patří střelecké pozice 0,60 m za okny s parapetem do 1,25 m
   (i vnitřní okna kanceláře dílny). Každý bod má `facing_deg` (směr hrozby, 0 = sever, proti směru hodin), `height` (low =
   jen v dřepu 0,8–1,5 m, high ≥ 1,6 m, window), `peek` (left/right/over) a `capacity` 1. Platí, když je hrozba do ±60°
   od `facing_deg` a oči v dřepu (1,05 m) jsou zakryté.
-- Kryt uvnitř zón: Dílna 71, Sklad 44, Dvůr 41 bodů (požadavek ≥ 40).
+- Kryt uvnitř zón: Dílna 96, Sklad 87, Dvůr 53 bodů; do 30 m od zóny 277 / 383 / 384 (požadavek ≥ 40).
 - **Kryt ≠ zakrytí:** živé ploty, keře (R13) a měkký nábytek jen zakrývají, střely jimi projdou; **dřevěné bedny a palety
   (R08) jsou průstřelné**; pletivo (R14) je průhledné (kryje jen podezdívka 0,35 m). Pevný kryt tvoří zdi, zídky,
   opěrné zdi, HESCO, auta (kola a motor), palety cihel, betonové skruže, kontejnery a těžký nábytek (výheň, soustruhy,
@@ -502,9 +504,9 @@ zahrady. Obě místa jsou záměrná, mimo zónu a přístupná ze dvou stran.
 
 ## 11. Hranice mapy
 
-Tři polygony: **pás varování** (8 m uvnitř měkké hranice), **měkká hranice** (SOFT_AREA m²) a **tvrdá hranice** (6 m vně
+Tři polygony: **pás varování** (8 m uvnitř měkké hranice), **měkká hranice** (42 442 m²) a **tvrdá hranice** (6 m vně
 měkké). Tvrdá hranice je neviditelná kolizní stěna jen pro kapsle, výšky 6 m, a stojí vždy za viditelnou bariérou, nikdy
-na otevřeném terénu: **souvislý kruh fyzických bariér** (`boundary.barriers`, BARRIER_N úseků) vede 0,5 m uvnitř tvrdé
+na otevřeném terénu: **souvislý kruh fyzických bariér** (`boundary.barriers`, 12 úseků) vede 0,5 m uvnitř tvrdé
 hranice – lesní oplocenka 2 m na ostrozích, pastevní ohradník s ostnatým drátem a dřevěný plot u polí, plot štěrkovny
 2 m a zátarasy z betonových zábran se žiletkovým drátem přes silnice, cedule po 25 m obrácené do obce. `check_layout.py`
 BND2 vzorkuje tvrdou hranici po 2 m.
@@ -540,21 +542,23 @@ rozpočet, ne měření: PERF-01 = NOT TESTED**, dokud se neměří v reálném 
 
 | Položka (nejhorší pohled: z terasy Dvora na sever přes náves k dílně a rameni B) | Draw cally |
 | --- | ---: |
-| terén (7 × 7 bloků po 50 m, 1 splat materiál, frustum culling) | 30 |
-| hlavní budovy zvenku (sloučeno po materiálech, 3 × ~9) | 27 |
-| interiéry (sloučeno po skupinách místností, culling přes portály) | 25 |
-| vedlejší budovy (sloučeno po materiálu a bloku 50 m) | 20 |
-| rekvizity (InstancedMesh na typ katalogu, ~48 typů) | 48 |
-| stromy (InstancedMesh na druh × LOD, 14 × 3 včetně impostorů) | 42 |
-| podrost a tráva (instancovaně, 3 typy × 2 LOD, poloměr 40 m) | 6 |
-| postavy (18 skinned těl + výstroj + zbraně + FPS paže) | 60 |
-| voda, dekály, obloha, mraky, značka zóny | 12 |
-| stínový průchod (3 kaskády CSM; stromy za 60 m a props pod 0,5 m nevrhají stín) | 150 |
-| post (tone mapping, AA, bloom) | 6 |
-| **celkem / rozpočet** | **426 / 450** |
+| terrain (7x7 chunks of 50 m, 1 splat material, frustum-culled) | 30 |
+| main buildings exterior (merged per material, 3 x ~9) | 27 |
+| building interiors (merged per room group, culled by portals) | 25 |
+| secondary buildings (merged per material per 50 m chunk) | 20 |
+| props (InstancedMesh per catalog type, ~48 types) | 48 |
+| trees (InstancedMesh per species x LOD, 17 species; distant species share impostor atlases -> 42 batches) | 42 |
+| understory / grass / flowers (instanced, R09 + R17: 5 types x 2 LOD, 40 m radius) | 8 |
+| utility poles + wires (InstancedMesh + 1 line batch) | 2 |
+| boundary barriers (fence posts, mesh, jersey barriers, signs: 4 instanced batches) | 4 |
+| characters (18 skinned bodies + gear + weapons + FPS arms) | 60 |
+| water, decals, sky, clouds, zone marker | 12 |
+| shadow pass (3 CSM cascades; trees beyond 60 m and props < 0.5 m do not cast) | 150 |
+| post (tone map, AA, bloom) | 6 |
+| **celkem / rozpočet** | **434 / 450** |
 
 Trojúhelníky ve výhledu: terén 250 k, budovy 300 k, props 250 k, stromy 700 k, postavy 18 × 18 k = 324 k, tráva 100 k,
-**celkem 1,92 M z 2 M**. Stromy: 1626 instancí, z toho 85 uvnitř hrací plochy, 417 vně do 25 m a 1124 dál než 25 m vně
+**celkem 1,92 M z 2 M**. Stromy: 1650 instancí, z toho 103 uvnitř hrací plochy, 418 vně do 25 m a 1129 dál než 25 m vně
 (jen impostory). LOD0 do 35 m, LOD1 35–90 m, impostor 90–250 m, přepočet LOD každý 4. snímek. Textury: DDS BC1/BC3/BC5
 s mipmapami, záložní JPEG/PNG, **žádné KTX2** (D3). VRAM ≤ 700 MB. CPU: fyzika (cannon-es) jen pro křídla dveří
 (kinematická), ragdolly (nejvýš 6 aktivních) a drobné předměty (nejvýš 20 bdělých). Zásahy řeší raycasty přes BVH. Vnímání AI
@@ -570,87 +574,83 @@ Pojmenované pozice pro QA: každá zóna (střed, vrcholy polygonu, test výšk
 podle `id`. Body leží na podlaze nebo terénu a kamera se přidá ve výšce očí 1,65 m.
 
 <!-- QA_POINTS:BEGIN -->
-Celkem **186** bodů. Souřadnice jsou ve světě mapy (m, +X východ, +Y sever, z = podlaha / terén). Tabulky generuje `Tools/level/draw_plans.py` z `layout.json` (`qa_points`); `check_layout.py` (Q02) hlídá shodu.
+Celkem **183** bodů. Souřadnice jsou ve světě mapy (m, +X východ, +Y sever, z = podlaha / terén). Tabulky generuje `Tools/level/draw_plans.py` z `layout.json` (`qa_points`); `check_layout.py` (Q02) hlídá shodu.
 
 #### Zóny – střed (3)
 
 | ID | x | y | z | co ověřit |
 | --- | ---: | ---: | ---: | --- |
 | `QA_zone_dilna_center` | -26,80 | 21,00 | 1,13 | střed zóny: postav se sem, musí se počítat |
-| `QA_zone_sklad_center` | 33,50 | 16,00 | 2,24 | střed zóny: postav se sem, musí se počítat |
+| `QA_zone_sklad_center` | 32,00 | 16,00 | 2,40 | střed zóny: postav se sem, musí se počítat |
 | `QA_zone_dvur_center` | -6,52 | -31,63 | 2,40 | střed zóny: postav se sem, musí se počítat |
 
-#### Zóny – okraje (19)
+#### Zóny – okraje (16)
 
 | ID | x | y | z | co ověřit |
 | --- | ---: | ---: | ---: | --- |
-| `QA_zone_dilna_corner1` | -31,38 | 38,08 | 1,13 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
-| `QA_zone_dilna_corner2` | -39,65 | 23,74 | 1,13 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
-| `QA_zone_dilna_corner3` | -35,76 | 21,49 | 1,13 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
-| `QA_zone_dilna_corner4` | -40,23 | 13,74 | 1,13 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
-| `QA_zone_dilna_corner5` | -30,27 | 7,99 | 1,13 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
-| `QA_zone_dilna_corner6` | -27,30 | 9,74 | 1,13 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
-| `QA_zone_dilna_corner7` | -23,35 | 14,39 | 1,11 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
-| `QA_zone_dilna_corner8` | -18,86 | 22,76 | 1,13 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
-| `QA_zone_dilna_corner9` | -16,97 | 28,03 | 1,02 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
-| `QA_zone_dilna_corner10` | -17,71 | 30,76 | 1,13 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
-| `QA_zone_dilna_corner11` | -31,13 | 38,51 | 1,13 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
-| `QA_zone_sklad_corner1` | 42,00 | 3,00 | 2,35 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
-| `QA_zone_sklad_corner2` | 42,00 | 29,00 | 2,35 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
-| `QA_zone_sklad_corner3` | 23,50 | 29,00 | 1,30 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
-| `QA_zone_sklad_corner4` | 23,50 | 3,00 | 1,30 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
+| `QA_zone_dilna_corner1` | -29,68 | 38,82 | 1,13 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
+| `QA_zone_dilna_corner2` | -42,98 | 15,79 | 1,13 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
+| `QA_zone_dilna_corner3` | -29,99 | 8,29 | 1,13 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
+| `QA_zone_dilna_corner4` | -27,30 | 9,74 | 1,13 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
+| `QA_zone_dilna_corner5` | -23,35 | 14,39 | 1,11 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
+| `QA_zone_dilna_corner6` | -18,86 | 22,76 | 1,13 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
+| `QA_zone_dilna_corner7` | -17,74 | 27,89 | 1,13 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
+| `QA_zone_dilna_corner8` | -17,63 | 31,29 | 1,13 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
+| `QA_zone_sklad_corner1` | 40,80 | 3,00 | 2,35 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
+| `QA_zone_sklad_corner2` | 40,80 | 31,60 | 2,35 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
+| `QA_zone_sklad_corner3` | 23,90 | 31,60 | 1,30 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
+| `QA_zone_sklad_corner4` | 23,90 | 3,00 | 1,30 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
 | `QA_zone_dvur_corner1` | -19,38 | -44,09 | 2,40 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
 | `QA_zone_dvur_corner2` | 1,30 | -47,73 | 2,40 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
 | `QA_zone_dvur_corner3` | 5,38 | -24,59 | 2,40 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
 | `QA_zone_dvur_corner4` | -15,30 | -20,94 | 2,40 | vrchol polygonu zóny: 0,5 m dovnitř se počítá, 0,5 m ven ne |
 
-#### Zóny – výškové pásmo (nesmí se počítat) (2)
+#### Zóny – výškové pásmo (nesmí se počítat) (1)
 
 | ID | x | y | z | co ověřit |
 | --- | ---: | ---: | ---: | --- |
-| `QA_zone_dilna_above_DL_R_KANCELAR` | -34,79 | 16,64 | 4,30 | uvnitř polygonu, ale v patře L1 (podlaha z 4,30 > z_max 3,80): nesmí se počítat |
 | `QA_zone_dvur_above_DM_R1_LOZ_Z` | -10,14 | -37,36 | 5,94 | uvnitř polygonu, ale v patře L1 (podlaha z 5,94 > z_max 5,54): nesmí se počítat |
 
 #### Spawn řady (6)
 
 | ID | x | y | z | co ověřit |
 | --- | ---: | ---: | ---: | --- |
-| `QA_ALFA_R1` | -122,06 | -68,79 | -3,05 | střed spawn řady; aktivní pro zóny Dílna, Dvůr |
-| `QA_ALFA_R2` | -74,96 | -43,42 | -2,53 | střed spawn řady; aktivní pro zóny Sklad |
-| `QA_BRAVO_R1` | 30,85 | 145,11 | 3,31 | střed spawn řady; aktivní pro zóny Dílna, Sklad |
+| `QA_ALFA_R1` | -125,97 | -70,47 | -2,97 | střed spawn řady; aktivní pro zóny Dílna, Dvůr |
+| `QA_ALFA_R2` | -75,61 | -43,77 | -2,59 | střed spawn řady; aktivní pro zóny Sklad |
+| `QA_BRAVO_R1` | 31,83 | 148,03 | 3,42 | střed spawn řady; aktivní pro zóny Dílna, Sklad |
 | `QA_BRAVO_R2` | 11,00 | 89,26 | 2,12 | střed spawn řady; aktivní pro zóny Dvůr |
 | `QA_CHARLIE_R1` | 56,83 | -73,88 | 2,71 | střed spawn řady; aktivní pro zóny Dílna |
-| `QA_CHARLIE_R2` | 94,96 | -96,29 | 4,23 | střed spawn řady; aktivní pro zóny Sklad, Dvůr |
+| `QA_CHARLIE_R2` | 98,40 | -98,18 | 4,43 | střed spawn řady; aktivní pro zóny Sklad, Dvůr |
 
 #### Spawn body (48)
 
 | ID | x | y | z | co ověřit |
 | --- | ---: | ---: | ---: | --- |
-| `QA_ALFA_R1_1` | -118,51 | -65,63 | -3,15 | spawn bod, natočení 293,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_ALFA_R1_2` | -117,33 | -68,39 | -3,13 | spawn bod, natočení 293,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_ALFA_R1_3` | -121,27 | -66,82 | -3,05 | spawn bod, natočení 293,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_ALFA_R1_4` | -120,09 | -69,57 | -3,07 | spawn bod, natočení 293,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_ALFA_R1_5` | -124,03 | -68,00 | -2,99 | spawn bod, natočení 293,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_ALFA_R1_6` | -122,84 | -70,76 | -3,01 | spawn bod, natočení 293,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_ALFA_R1_7` | -126,78 | -69,18 | -2,95 | spawn bod, natočení 293,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_ALFA_R1_8` | -125,60 | -71,94 | -2,96 | spawn bod, natočení 293,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_ALFA_R2_1` | -71,61 | -40,06 | -2,19 | spawn bod, natočení 296,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_ALFA_R2_2` | -70,27 | -42,75 | -2,17 | spawn bod, natočení 296,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_ALFA_R2_3` | -74,29 | -41,41 | -2,41 | spawn bod, natočení 296,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_ALFA_R2_4` | -72,95 | -44,09 | -2,40 | spawn bod, natočení 296,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_ALFA_R2_5` | -76,98 | -42,75 | -2,63 | spawn bod, natočení 296,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_ALFA_R2_6` | -75,63 | -45,43 | -2,63 | spawn bod, natočení 296,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_ALFA_R2_7` | -79,66 | -44,09 | -2,83 | spawn bod, natočení 296,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_ALFA_R2_8` | -78,32 | -46,77 | -2,83 | spawn bod, natočení 296,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_BRAVO_R1_1` | 30,72 | 140,37 | 3,19 | spawn bod, natočení 160,0°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_BRAVO_R1_2` | 27,90 | 141,39 | 3,18 | spawn bod, natočení 160,0°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_BRAVO_R1_3` | 31,75 | 143,19 | 3,27 | spawn bod, natočení 160,0°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_BRAVO_R1_4` | 28,93 | 144,21 | 3,25 | spawn bod, natočení 160,0°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_BRAVO_R1_5` | 32,77 | 146,01 | 3,37 | spawn bod, natočení 160,0°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_BRAVO_R1_6` | 29,95 | 147,03 | 3,36 | spawn bod, natočení 160,0°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_BRAVO_R1_7` | 33,80 | 148,82 | 3,49 | spawn bod, natočení 160,0°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_BRAVO_R1_8` | 30,98 | 149,85 | 3,49 | spawn bod, natočení 160,0°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_BRAVO_R2_1` | 14,35 | 85,91 | 1,98 | spawn bod, natočení 206,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_ALFA_R1_1` | -122,43 | -67,32 | -3,02 | spawn bod, natočení 293,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_ALFA_R1_2` | -121,25 | -70,08 | -3,05 | spawn bod, natočení 293,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_ALFA_R1_3` | -125,18 | -68,50 | -2,97 | spawn bod, natočení 293,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_ALFA_R1_4` | -124,00 | -71,26 | -2,99 | spawn bod, natočení 293,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_ALFA_R1_5` | -127,94 | -69,68 | -2,93 | spawn bod, natočení 293,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_ALFA_R1_6` | -126,76 | -72,44 | -2,95 | spawn bod, natočení 293,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_ALFA_R1_7` | -130,70 | -70,86 | -2,90 | spawn bod, natočení 293,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_ALFA_R1_8` | -129,52 | -73,62 | -2,94 | spawn bod, natočení 293,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_ALFA_R2_1` | -72,26 | -40,42 | -2,26 | spawn bod, natočení 296,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_ALFA_R2_2` | -70,91 | -43,10 | -2,16 | spawn bod, natočení 296,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_ALFA_R2_3` | -74,94 | -41,76 | -2,42 | spawn bod, natočení 296,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_ALFA_R2_4` | -73,60 | -44,44 | -2,45 | spawn bod, natočení 296,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_ALFA_R2_5` | -77,62 | -43,10 | -2,65 | spawn bod, natočení 296,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_ALFA_R2_6` | -76,28 | -45,78 | -2,67 | spawn bod, natočení 296,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_ALFA_R2_7` | -80,31 | -44,44 | -2,88 | spawn bod, natočení 296,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_ALFA_R2_8` | -78,96 | -47,12 | -2,89 | spawn bod, natočení 296,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_BRAVO_R1_1` | 32,04 | 143,30 | 3,28 | spawn bod, natočení 164,1°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_BRAVO_R1_2` | 29,15 | 144,12 | 3,25 | spawn bod, natočení 164,1°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_BRAVO_R1_3` | 32,86 | 146,18 | 3,38 | spawn bod, natočení 164,1°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_BRAVO_R1_4` | 29,97 | 147,00 | 3,36 | spawn bod, natočení 164,1°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_BRAVO_R1_5` | 33,68 | 149,06 | 3,50 | spawn bod, natočení 164,1°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_BRAVO_R1_6` | 30,80 | 149,89 | 3,50 | spawn bod, natočení 164,1°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_BRAVO_R1_7` | 34,51 | 151,95 | 3,67 | spawn bod, natočení 164,1°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_BRAVO_R1_8` | 31,62 | 152,77 | 3,66 | spawn bod, natočení 164,1°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_BRAVO_R2_1` | 14,35 | 85,91 | 2,02 | spawn bod, natočení 206,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
 | `QA_BRAVO_R2_2` | 11,67 | 84,57 | 1,92 | spawn bod, natočení 206,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
 | `QA_BRAVO_R2_3` | 13,01 | 88,59 | 2,07 | spawn bod, natočení 206,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
 | `QA_BRAVO_R2_4` | 10,33 | 87,25 | 2,03 | spawn bod, natočení 206,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
@@ -658,112 +658,112 @@ Celkem **186** bodů. Souřadnice jsou ve světě mapy (m, +X východ, +Y sever,
 | `QA_BRAVO_R2_6` | 8,99 | 89,94 | 2,18 | spawn bod, natočení 206,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
 | `QA_BRAVO_R2_7` | 10,33 | 93,96 | 2,41 | spawn bod, natočení 206,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
 | `QA_BRAVO_R2_8` | 7,65 | 92,62 | 2,38 | spawn bod, natočení 206,6°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_CHARLIE_R1_1` | 52,44 | -72,09 | 2,44 | spawn bod, natočení 49,4°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_CHARLIE_R1_2` | 54,39 | -69,82 | 2,39 | spawn bod, natočení 49,4°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_CHARLIE_R1_1` | 52,44 | -72,09 | 2,56 | spawn bod, natočení 49,4°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_CHARLIE_R1_2` | 54,39 | -69,82 | 2,46 | spawn bod, natočení 49,4°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
 | `QA_CHARLIE_R1_3` | 54,72 | -74,05 | 2,64 | spawn bod, natočení 49,4°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
 | `QA_CHARLIE_R1_4` | 56,67 | -71,77 | 2,59 | spawn bod, natočení 49,4°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
 | `QA_CHARLIE_R1_5` | 57,00 | -76,00 | 2,84 | spawn bod, natočení 49,4°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
 | `QA_CHARLIE_R1_6` | 58,95 | -73,72 | 2,80 | spawn bod, natočení 49,4°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
 | `QA_CHARLIE_R1_7` | 59,27 | -77,95 | 3,01 | spawn bod, natočení 49,4°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
 | `QA_CHARLIE_R1_8` | 61,23 | -75,67 | 2,97 | spawn bod, natočení 49,4°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_CHARLIE_R2_1` | 90,29 | -95,44 | 4,02 | spawn bod, natočení 61,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_CHARLIE_R2_2` | 91,74 | -92,81 | 3,85 | spawn bod, natočení 61,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_CHARLIE_R2_3` | 92,92 | -96,88 | 4,22 | spawn bod, natočení 61,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_CHARLIE_R2_4` | 94,37 | -94,25 | 4,05 | spawn bod, natočení 61,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_CHARLIE_R2_5` | 95,55 | -98,33 | 4,38 | spawn bod, natočení 61,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_CHARLIE_R2_6` | 97,00 | -95,70 | 4,24 | spawn bod, natočení 61,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_CHARLIE_R2_7` | 98,18 | -99,77 | 4,52 | spawn bod, natočení 61,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
-| `QA_CHARLIE_R2_8` | 99,63 | -97,15 | 4,39 | spawn bod, natočení 61,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_CHARLIE_R2_1` | 93,74 | -97,33 | 4,26 | spawn bod, natočení 61,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_CHARLIE_R2_2` | 95,18 | -94,70 | 4,12 | spawn bod, natočení 61,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_CHARLIE_R2_3` | 96,36 | -98,77 | 4,43 | spawn bod, natočení 61,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_CHARLIE_R2_4` | 97,81 | -96,14 | 4,29 | spawn bod, natočení 61,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_CHARLIE_R2_5` | 98,99 | -100,22 | 4,56 | spawn bod, natočení 61,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_CHARLIE_R2_6` | 100,44 | -97,59 | 4,42 | spawn bod, natočení 61,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_CHARLIE_R2_7` | 101,62 | -101,66 | 4,63 | spawn bod, natočení 61,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
+| `QA_CHARLIE_R2_8` | 103,07 | -99,04 | 4,52 | spawn bod, natočení 61,2°: nesmí být v objektu, na svahu ani na dohled zóny či nepřítele |
 
-#### Dveře (obě strany) (64)
+#### Dveře (obě strany) (66)
 
 | ID | x | y | z | co ověřit |
 | --- | ---: | ---: | ---: | --- |
-| `QA_DL_G1_L` | -26,00 | 26,89 | 1,30 | dílna L0, světlost 3,18 × 3,55 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_G1_R` | -24,23 | 25,86 | 1,30 | dílna L0, světlost 3,18 × 3,55 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D2_L` | -34,22 | 27,65 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D2_R` | -36,00 | 28,68 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D3_L` | -26,27 | 32,53 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D3_R` | -25,24 | 34,30 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D4_L` | -37,96 | 21,32 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D4_R` | -36,94 | 23,10 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D5_L` | -34,11 | 19,10 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D5_R` | -33,08 | 20,87 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D6_L` | -34,33 | 13,51 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D6_R` | -35,36 | 11,74 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D7_L` | -32,65 | 15,37 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D7_R` | -30,88 | 14,35 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D8_L` | -38,17 | 15,76 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D8_R` | -39,69 | 16,63 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D9_L` | -40,44 | 16,89 | 4,30 | dílna L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D9_R` | -42,21 | 17,91 | 4,30 | dílna L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D10_L` | -35,72 | 20,00 | 4,30 | dílna L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D10_R` | -37,24 | 20,88 | 4,30 | dílna L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D11_L` | -38,17 | 15,76 | 4,30 | dílna L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DL_D11_R` | -39,69 | 16,63 | 4,30 | dílna L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_SK_RD1_L` | 35,30 | 13,00 | 2,40 | sklad L0, světlost 3,90 × 4,15 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_SK_RD1_R` | 33,45 | 13,00 | 2,40 | sklad L0, světlost 3,90 × 4,15 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_SK_D1_L` | 35,30 | 17,35 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_SK_D1_R` | 33,45 | 17,35 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_SK_D2_L` | 35,30 | 5,15 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_SK_D2_R` | 33,45 | 5,15 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_SK_RD3_L` | 48,70 | 13,00 | 2,40 | sklad L0, světlost 3,90 × 2,55 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_SK_RD3_R` | 50,55 | 13,00 | 2,40 | sklad L0, světlost 3,90 × 2,55 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_SK_D4_L` | 48,70 | 24,05 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_SK_D4_R` | 50,55 | 24,05 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_SK_D5_L` | 47,45 | 4,80 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_SK_D5_R` | 47,45 | 2,95 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_SK_D6_L` | 41,45 | 27,20 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_SK_D6_R` | 41,45 | 29,05 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_SK_D3_L` | 38,45 | 7,05 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_SK_D3_R` | 38,45 | 8,80 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DM0_D1_L` | -7,82 | -43,59 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DM0_D1_R` | -8,18 | -45,60 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_G1_L` | -29,65 | 20,57 | 1,30 | dílna L0, světlost 3,18 × 3,35 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_G1_R` | -27,88 | 19,54 | 1,30 | dílna L0, světlost 3,18 × 3,35 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_G2_L` | -26,50 | 26,02 | 1,30 | dílna L0, světlost 2,38 × 3,35 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_G2_R` | -24,73 | 25,00 | 1,30 | dílna L0, světlost 2,38 × 3,35 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_D2_L` | -34,25 | 27,61 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_D2_R` | -36,02 | 28,63 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_D3_L` | -30,50 | 31,80 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_D3_R` | -29,48 | 33,57 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_D9_L` | -26,86 | 29,70 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_D9_R` | -25,84 | 31,47 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_D5_L` | -33,47 | 19,65 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_D5_R` | -34,50 | 17,88 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_D4_L` | -36,72 | 21,53 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_D4_R` | -37,74 | 19,75 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_D6_L` | -36,46 | 13,87 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_D6_R` | -37,49 | 12,10 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_D8_L` | -37,22 | 15,01 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_D8_R` | -38,74 | 15,88 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_D7_L` | -23,78 | 31,44 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DL_D7_R` | -22,14 | 30,49 | 1,30 | dílna L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_SK_D1_L` | 35,50 | 17,40 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_SK_D1_R` | 33,45 | 17,40 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_SK_SD1_L` | 35,50 | 11,00 | 2,40 | sklad L0, světlost 3,50 × 3,95 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_SK_SD1_R` | 33,45 | 11,00 | 2,40 | sklad L0, světlost 3,50 × 3,95 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_SK_D2_L` | 35,50 | 4,80 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_SK_D2_R` | 33,45 | 4,80 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_SK_SD3_L` | 45,50 | 11,00 | 2,40 | sklad L0, světlost 3,50 × 3,95 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_SK_SD3_R` | 47,55 | 11,00 | 2,40 | sklad L0, světlost 3,50 × 3,95 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_SK_D4_L` | 45,50 | 25,00 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_SK_D4_R` | 47,55 | 25,00 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_SK_D5_L` | 43,80 | 4,75 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_SK_D5_R` | 43,80 | 2,70 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_SK_D6_L` | 39,30 | 27,25 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_SK_D6_R` | 39,30 | 29,30 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_SK_D3_L` | 37,15 | 6,85 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_SK_D3_R` | 37,15 | 8,60 | 2,40 | sklad L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DM0_D1_L` | -6,98 | -43,73 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DM0_D1_R` | -7,34 | -45,75 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DM0_D9_L` | -11,80 | -37,10 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DM0_D9_R` | -13,82 | -36,74 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
 | `QA_DM0_D2_L` | -3,49 | -38,92 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
 | `QA_DM0_D2_R` | -1,47 | -39,27 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DM0_D3_L` | -6,26 | -39,34 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DM0_D3_R` | -6,59 | -41,21 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DM0_D10_L` | -15,66 | -35,09 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DM0_D10_R` | -15,31 | -33,08 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DM0_D3_L` | -6,21 | -39,35 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DM0_D3_R` | -6,54 | -41,22 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
 | `QA_DM0_D4_L` | -3,58 | -39,82 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
 | `QA_DM0_D4_R` | -3,91 | -41,69 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
 | `QA_DM0_D5_L` | -11,48 | -38,42 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
 | `QA_DM0_D5_R` | -11,81 | -40,29 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
 | `QA_DM0_D6_L` | -11,03 | -43,10 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
 | `QA_DM0_D6_R` | -9,31 | -43,40 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DM0_D7_L` | -6,92 | -42,53 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DM0_D7_R` | -5,20 | -42,83 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DM0_D7_L` | -6,82 | -42,54 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DM0_D7_R` | -5,10 | -42,85 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
 | `QA_DM0_D8_L` | -6,17 | -39,10 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
 | `QA_DM0_D8_R` | -4,44 | -39,41 | 2,94 | dům L0, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
 | `QA_DM1_D6_L` | -12,03 | -42,84 | 5,94 | dům L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
 | `QA_DM1_D6_R` | -12,39 | -44,86 | 5,94 | dům L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DM1_D1_L` | -6,26 | -39,34 | 5,94 | dům L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DM1_D1_R` | -6,59 | -41,21 | 5,94 | dům L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DM1_D1_L` | -6,21 | -39,35 | 5,94 | dům L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DM1_D1_R` | -6,54 | -41,22 | 5,94 | dům L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
 | `QA_DM1_D2_L` | -11,48 | -38,42 | 5,94 | dům L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
 | `QA_DM1_D2_R` | -11,81 | -40,29 | 5,94 | dům L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
 | `QA_DM1_D3_L` | -8,29 | -36,60 | 5,94 | dům L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
 | `QA_DM1_D3_R` | -6,57 | -36,90 | 5,94 | dům L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DM1_D5_L` | -6,70 | -41,25 | 5,94 | dům L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
-| `QA_DM1_D5_R` | -4,97 | -41,55 | 5,94 | dům L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DM1_D5_L` | -6,60 | -41,26 | 5,94 | dům L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
+| `QA_DM1_D5_R` | -4,87 | -41,57 | 5,94 | dům L1, světlost 1,10 × 2,25 m: projít oběma směry (hráč i bot), křídlo, zárubeň, kapsle |
 
-#### Schodiště (spodek a vršek) (22)
+#### Schodiště (spodek a vršek) (20)
 
 | ID | x | y | z | co ověřit |
 | --- | ---: | ---: | ---: | --- |
-| `QA_DL_S1_bottom` | -37,91 | 21,76 | 1,30 | spodek schodiště, 16 × 188,0 mm / 270 mm: vyjít a sejít, výška nad stupni, došlap |
-| `QA_DL_S1_top` | -40,74 | 16,86 | 4,30 | horní konec schodiště: sejít, podesta, zábradlí |
-| `QA_DL_ES1_bottom` | -39,13 | 22,95 | 1,13 | spodek schodiště, 17 × 186,0 mm / 270 mm: vyjít a sejít, výška nad stupni, došlap |
-| `QA_DL_ES1_top` | -42,09 | 17,82 | 4,30 | horní konec schodiště: sejít, podesta, zábradlí |
-| `QA_SK_X1_bottom` | 32,75 | 1,55 | 1,30 | spodek schodiště, 6 × 183,0 mm / 280 mm: vyjít a sejít, výška nad stupni, došlap |
-| `QA_SK_X1_top` | 32,75 | 4,55 | 2,40 | horní konec schodiště: sejít, podesta, zábradlí |
-| `QA_SK_X2_bottom` | 29,05 | 16,00 | 1,30 | spodek schodiště, 6 × 183,0 mm / 280 mm: vyjít a sejít, výška nad stupni, došlap |
-| `QA_SK_X2_top` | 32,05 | 16,00 | 2,40 | horní konec schodiště: sejít, podesta, zábradlí |
+| `QA_SK_X1_bottom` | 29,05 | 7,00 | 1,30 | spodek schodiště, 6 × 183,0 mm / 280 mm: vyjít a sejít, výška nad stupni, došlap |
+| `QA_SK_X1_top` | 32,05 | 7,00 | 2,40 | horní konec schodiště: sejít, podesta, zábradlí |
+| `QA_SK_X2_bottom` | 29,05 | 19,80 | 1,30 | spodek schodiště, 6 × 183,0 mm / 280 mm: vyjít a sejít, výška nad stupni, došlap |
+| `QA_SK_X2_top` | 32,05 | 19,80 | 2,40 | horní konec schodiště: sejít, podesta, zábradlí |
 | `QA_DM_S1a_bottom` | -9,62 | -43,72 | 2,94 | spodek schodiště, 8 × 188,0 mm / 270 mm: vyjít a sejít, výška nad stupni, došlap |
 | `QA_DM_S1a_top` | -9,01 | -40,28 | 4,44 | horní konec schodiště: sejít, podesta, zábradlí |
 | `QA_DM_S1b_bottom` | -7,83 | -40,49 | 4,44 | spodek schodiště, 8 × 188,0 mm / 270 mm: vyjít a sejít, výška nad stupni, došlap |
 | `QA_DM_S1b_top` | -8,44 | -43,92 | 5,94 | horní konec schodiště: sejít, podesta, zábradlí |
-| `QA_DM_X1_bottom` | -8,48 | -47,34 | 2,40 | spodek schodiště, 3 × 180,0 mm / 280 mm: vyjít a sejít, výška nad stupni, došlap |
-| `QA_DM_X1_top` | -8,11 | -45,21 | 2,94 | horní konec schodiště: sejít, podesta, zábradlí |
+| `QA_DM_X1_bottom` | -7,64 | -47,49 | 2,40 | spodek schodiště, 3 × 180,0 mm / 280 mm: vyjít a sejít, výška nad stupni, došlap |
+| `QA_DM_X1_top` | -7,27 | -45,36 | 2,94 | horní konec schodiště: sejít, podesta, zábradlí |
 | `QA_DM_X2_bottom` | 0,06 | -39,54 | 2,40 | spodek schodiště, 3 × 180,0 mm / 280 mm: vyjít a sejít, výška nad stupni, došlap |
 | `QA_DM_X2_top` | -2,07 | -39,17 | 2,94 | horní konec schodiště: sejít, podesta, zábradlí |
+| `QA_DM_X3_bottom` | -15,00 | -31,34 | 2,40 | spodek schodiště, 3 × 180,0 mm / 280 mm: vyjít a sejít, výška nad stupni, došlap |
+| `QA_DM_X3_top` | -15,38 | -33,47 | 2,94 | horní konec schodiště: sejít, podesta, zábradlí |
 | `QA_DM_S2_bottom` | -12,20 | -51,45 | 2,40 | spodek schodiště, 19 × 186,0 mm / 270 mm: vyjít a sejít, výška nad stupni, došlap |
 | `QA_DM_S2_top` | -11,08 | -45,09 | 5,94 | horní konec schodiště: sejít, podesta, zábradlí |
 | `QA_ST_RW_DILNA_bottom` | -33,25 | 39,73 | 1,13 | spodek schodiště, 11 × 182,0 mm / 280 mm: vyjít a sejít, výška nad stupni, došlap |
@@ -771,7 +771,7 @@ Celkem **186** bodů. Souřadnice jsou ve světě mapy (m, +X východ, +Y sever,
 | `QA_ST_RW_DUM_bottom` | -5,03 | -17,42 | 0,30 | spodek schodiště, 12 × 175,0 mm / 280 mm: vyjít a sejít, výška nad stupni, došlap |
 | `QA_ST_RW_DUM_top` | -5,57 | -20,46 | 2,40 | horní konec schodiště: sejít, podesta, zábradlí |
 
-#### Úzká místa (12)
+#### Úzká místa (13)
 
 | ID | x | y | z | co ověřit |
 | --- | ---: | ---: | ---: | --- |
@@ -779,11 +779,12 @@ Celkem **186** bodů. Souřadnice jsou ve světě mapy (m, +X východ, +Y sever,
 | `QA_CK_FOOT_A` | -58,00 | -5,40 | -2,79 | úzké místo, šířka 1,50 m: průchod 3 botů najednou, kryt z obou stran |
 | `QA_CK_FOOT_B` | -14,80 | 58,00 | -0,26 | úzké místo, šířka 1,50 m: průchod 3 botů najednou, kryt z obou stran |
 | `QA_CK_DRIVE` | 16,00 | -19,80 | 1,60 | úzké místo, šířka 3,20 m: průchod 3 botů najednou, kryt z obou stran |
-| `QA_CK_DUM_W_GATE` | -22,55 | -34,39 | 2,38 | úzké místo, šířka 2,40 m: průchod 3 botů najednou, kryt z obou stran |
+| `QA_CK_DUM_W_GATE` | -22,55 | -34,39 | 1,98 | úzké místo, šířka 2,40 m: průchod 3 botů najednou, kryt z obou stran |
 | `QA_CK_DUM_S_GATE` | -11,28 | -52,83 | 2,40 | úzké místo, šířka 2,20 m: průchod 3 botů najednou, kryt z obou stran |
 | `QA_CK_SKLAD_GATE` | 12,50 | 17,00 | 1,26 | úzké místo, šířka 7,00 m: průchod 3 botů najednou, kryt z obou stran |
-| `QA_CK_DOCK_RAMP` | 32,75 | 31,50 | 2,00 | úzké místo, šířka 3,00 m: průchod 3 botů najednou, kryt z obou stran |
-| `QA_CK_SKLAD_RAMP_E` | 61,00 | 17,00 | 4,97 | úzké místo, šířka 5,00 m: průchod 3 botů najednou, kryt z obou stran |
+| `QA_CK_DOCK_RAMP` | 28,00 | 30,00 | 1,30 | úzké místo, šířka 2,80 m: průchod 3 botů najednou, kryt z obou stran |
+| `QA_CK_SKLAD_REAR_SE` | 53,50 | 2,50 | 2,35 | úzké místo, šířka 7,00 m: průchod 3 botů najednou, kryt z obou stran |
+| `QA_CK_SKLAD_NORTH` | 34,50 | 33,50 | 2,57 | úzké místo, šířka 5,00 m: průchod 3 botů najednou, kryt z obou stran |
 | `QA_UVOZ_S_exit_14` | 24,03 | -60,00 | 0,87 | výstup z úvozu: vyjít bez skoku, nahoře volno |
 | `QA_UVOZ_S_exit_31` | 7,17 | -60,95 | 2,45 | výstup z úvozu: vyjít bez skoku, nahoře volno |
 | `QA_UVOZ_S_exit_50` | -11,97 | -59,23 | 3,16 | výstup z úvozu: vyjít bez skoku, nahoře volno |
@@ -798,7 +799,7 @@ Celkem **186** bodů. Souřadnice jsou ve světě mapy (m, +X východ, +Y sever,
 | `QA_BOUNDARY_12` | 4,00 | 166,00 | 5,30 | vyjít ven: text varovného pásu, pak odpočet 10 s; ověřit viditelnou bariéru a vysvětlení |
 | `QA_BOUNDARY_16` | 70,00 | 84,00 | 9,20 | vyjít ven: text varovného pásu, pak odpočet 10 s; ověřit viditelnou bariéru a vysvětlení |
 | `QA_BOUNDARY_20` | 73,00 | -10,00 | 4,61 | vyjít ven: text varovného pásu, pak odpočet 10 s; ověřit viditelnou bariéru a vysvětlení |
-| `QA_BOUNDARY_24` | 140,00 | -94,00 | 4,36 | vyjít ven: text varovného pásu, pak odpočet 10 s; ověřit viditelnou bariéru a vysvětlení |
+| `QA_BOUNDARY_24` | 140,00 | -94,00 | 4,33 | vyjít ven: text varovného pásu, pak odpočet 10 s; ověřit viditelnou bariéru a vysvětlení |
 | `QA_BOUNDARY_28` | 72,00 | -104,00 | 4,98 | vyjít ven: text varovného pásu, pak odpočet 10 s; ověřit viditelnou bariéru a vysvětlení |
 | `QA_BOUNDARY_32` | -24,00 | -77,00 | 9,55 | vyjít ven: text varovného pásu, pak odpočet 10 s; ověřit viditelnou bariéru a vysvětlení |
 | `QA_BOUNDARY_36` | -128,00 | -86,00 | -1,95 | vyjít ven: text varovného pásu, pak odpočet 10 s; ověřit viditelnou bariéru a vysvětlení |

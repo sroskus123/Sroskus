@@ -314,8 +314,9 @@ aktualizuje.
 | odpovídající čas | 10. 9. 2026 15:05 SELČ, 49,90° s. š. 15,10° v. d. (fiktivní místo), odchylka do 0,3° |
 | UE5 | Directional Light jako Atmosphere Sun, 75 000 lx, úhel zdroje 0,53° |
 
-Důsledky pro čitelnost: stíny padají k severovýchodu. Průčelí skladu (západ) a zahrada domu (jih) jsou na slunci, dvůr
-dílny (průčelí na JV) je v bočním světle a severní průčelí domu je ve stínu. Každá zóna tak má jiný světelný charakter.
+Důsledky pro čitelnost: stíny padají k severovýchodu. Průčelí skladu s rampou (západ) je na slunci, dvůr dílny (průčelí na
+VJV) je v bočním světle, zděná zahrada domu leží na severní (návesní) straně domu a jeho stín ji v odpoledni zčásti kryje –
+zahradní zdi a živé ploty tam vrhají dlouhé stíny k SV. Každá zóna tak má jiný světelný charakter.
 Stín nesmí být černý. Minimum dává odražené světlo z oblohy a ze země (oddíl 5.3).
 
 ### 5.2 Obloha a mraky

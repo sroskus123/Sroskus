@@ -37,7 +37,7 @@ from mathutils.bvhtree import BVHTree
 
 import ivchar as C
 
-IVHANDS_VERSION = "1.0.0"
+IVHANDS_VERSION = "1.1.0"
 
 FINGERS4 = C.FINGERS4
 FINGERS = C.FINGERS
@@ -284,11 +284,15 @@ def boundary_loop(me):
     return max(loops, key=len)
 
 
-def add_hem(ob, inward=0.0022, depth=0.009, arm_axis=None, centre=None):
+def add_hem(ob, inward=0.0022, depth=0.009, arm_axis=None, centre=None, lining_inset=0.0030):
     """Rolled hem at the cuff opening: the boundary ring is extruded towards the arm axis by
     `inward` (the edge thickness) and then `depth` back inside the glove (distally), so the
-    opening shows a thick edge and an inner lining instead of a zero-thickness rim.  New
-    vertices copy the weights of their boundary vertex.  Returns the new vertex indices."""
+    opening shows a thick edge and an inner lining instead of a zero-thickness rim.  The edge ring
+    copies the weights of its boundary vertex; the lining ring copies the weights of the shell
+    vertex it lies under (same position along the forearm), so the lining follows the shell when
+    the forearm twists (the twist-bone weights ramp along the forearm; with the boundary's weights
+    the lining crossed the shell at a driven wrist twist).  Returns the new vertex indices."""
+    from scipy.spatial import cKDTree
     me = ob.data
     loop = boundary_loop(me)
     co = mesh_co(me)
@@ -300,17 +304,31 @@ def add_hem(ob, inward=0.0022, depth=0.009, arm_axis=None, centre=None):
     dl = bm.verts.layers.deform.verify()
     ring1, ring2 = [], []
     outer = [bm.verts[vi] for vi in loop]
-    for vi, v in zip(loop, outer):
+    tree = cKDTree(co)
+    shell_bvh = bvh_arrays(co, mesh_tris(me))
+    # the shell vertex above each lining vertex (looked up BEFORE new vertices invalidate the table)
+    lin_src = []
+    for vi in loop:
+        p = co[vi]
+        lin_src.append(bm.verts[int(tree.query(p + ax * depth)[1])])
+    for vi, v, src2 in zip(loop, outer, lin_src):
         p = co[vi]
         rel = p - cen
         radial = rel - ax * (rel @ ax)
         radial /= max(np.linalg.norm(radial), 1e-9)
         p1 = p - radial * inward
-        p2 = p1 + ax * depth
-        for pp, ring in ((p1, ring1), (p2, ring2)):
+        # the lining follows the shell's taper: `lining_inset` under the shell point `depth` distal
+        # (a constant-radius lining ended up touching the shell where the forearm narrows)
+        loc, nrm, _, _ = shell_bvh.find_nearest(Vector(tuple(map(float, p + ax * depth))))
+        q = np.array(loc)
+        nq = np.array(nrm)
+        if nq @ radial < 0:
+            nq = -nq
+        p2 = q - nq * lining_inset
+        for pp, ring, srcv in ((p1, ring1, v), (p2, ring2, src2)):
             nv = bm.verts.new(tuple(map(float, pp)))
             nv[dl].clear()
-            for k, w in v[dl].items():
+            for k, w in srcv[dl].items():
                 nv[dl][k] = w
             ring.append(nv)
     bm.verts.ensure_lookup_table()

@@ -728,9 +728,9 @@ def check_building(bd, rep):
                     errs.append(f"{o['id']}: parked leaf covers opening {o2['id']}")
         pil = [pp for pp in bd.get("pilasters", []) if pp["wall"] == w["id"]]
         for pp in pil:
-            pu = (pp["x"] - sx) * ux + (pp.get("y", sy) - sy) * uy
+            pu = (pp.get("x", sx) - sx) * ux + (pp.get("y", sy) - sy) * uy
             if u0 - pp["width"] / 2 < pu < u1 + pp["width"] / 2 and lr["offset_from_face"] < pp["proud"] + 0.05 - EPS:
-                errs.append(f"{o['id']}: parked leaf {lr['offset_from_face']} m off the face hits pilaster at {pp['x']} (proud {pp['proud']})")
+                errs.append(f"{o['id']}: parked leaf {lr['offset_from_face']} m off the face hits pilaster at u {pu:.2f} (proud {pp['proud']})")
         side = -1.0 if lr["side"] == "right" else 1.0
         off = w["thickness"] / 2 + lr["offset_from_face"]
         lpoly = Polygon([(sx + ux * u0 + nx * side * off, sy + uy * u0 + ny * side * off),

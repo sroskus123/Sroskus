@@ -899,6 +899,8 @@ WINGS = {
                      "east end (beside the driveway): the terrace edge wraps round onto the square side")],
     "RW_SKLAD_SW": [_wing("RW_SKLAD_SW", "WG_SKLAD_SW", [[36.65, 0.65], [36.65, -1.6]], "the platform 2.35",
                           "east end of the south return: holds the platform edge above the yard's south-east corner")],
+    "RW_SKLAD_NE": [_wing("RW_SKLAD_NE", "WG_SKLAD_NE_S", [[54.7, 1.6], [57.0, 1.6]], "the coping 3.5",
+                          "south end of the cut wall: holds the E spur meadow above the rear-yard branch track")],
     "RW_SKLAD_DOCK_N": [_wing("RW_SKLAD_DOCK_N", "WG_SKLAD_DOCK_N", [[34.55, 31.35], [34.55, 33.6]], "the dock 2.40",
                               "east end of the dock's north return: holds the hillside beside the yard's north corner")],
 }
@@ -1223,7 +1225,7 @@ prop("P_A_1", "stone_cross", [-64.0, -15.8], 0, "armA")
 prop("P_A_2", "tractor_with_trailer", [-73.5, -16.6], 180, "armA", "parked on the north verge")
 prop("P_A_3", "military_truck_wreck", [-108.0, -31.5], 212, "armA")
 prop("P_A_4", "log_pile", [-106.0, -48.0], 30, "spawnA")
-prop("P_A_5", "log_pile_high", [-131.0, -71.5], 25, "spawnA")
+prop("P_A_5", "log_pile_high", [-128.5, -77.5], 25, "spawnA", "moved off the spawn spine (rows up to s = 146)")
 prop("P_A_6", "log_pile", [-131.0, -56.0], 20, "spawnA")
 prop("P_A_7", "military_truck", [-139.0, -66.0], 25, "spawnA")
 prop("P_A_8", "military_4x4", [-114.0, -50.5], 30, "spawnA")
@@ -1329,9 +1331,12 @@ SPINE_XY = {t: offset_polyline(v["xy"], v["offset"]) for t, v in SPINES.items()}
 # with the screens present (Tools/level/check_layout.py S03 enforces max/min <= 1.06).
 # Re-solved for the reference revision (warehouse platform, pads under the secondary buildings): alfa 84 -> 85 (the PAD_DOMEK_3
 # blend put one row point on a 17 deg slope), bravo 157 -> 158 (warehouse edge distance 115.3 -> 116.0 m).
-FIXED_ROWS = {"alfa": {"zone_dilna": 142.0, "zone_dvur": 142.0, "zone_sklad": 85.0},
-              "bravo": {"zone_dilna": 158.0, "zone_sklad": 158.0, "zone_dvur": 92.0},
-              "charlie": {"zone_dilna": 89.0, "zone_sklad": 132.0, "zone_dvur": 132.0}}
+# Second re-solve (N01): the spawn screens lengthen the Recast paths of the front rows more than the FMM ones, so the rows were
+# chosen against BOTH metrics with the screens present: alfa R1 142 -> 146 (log pile P_A_5 moved off the spine), bravo R1
+# 158 -> 160, charlie R2 132 -> 136.
+FIXED_ROWS = {"alfa": {"zone_dilna": 146.0, "zone_dvur": 146.0, "zone_sklad": 85.0},
+              "bravo": {"zone_dilna": 160.0, "zone_sklad": 160.0, "zone_dvur": 92.0},
+              "charlie": {"zone_dilna": 89.0, "zone_sklad": 136.0, "zone_dvur": 136.0}}
 for _t, _r in FIXED_ROWS.items():
     SPINES[_t]["fixed_rows"] = _r
 
@@ -1704,6 +1709,22 @@ def fit_plinths():
 # =================================================================================================
 # 10.  Assemble + write
 # =================================================================================================
+def face_offset(pl, off):
+    """wall face polyline at exactly |off| from the axis everywhere: inner corners mitred, outer corners rounded (review
+    T02 -- the plain offset_polyline() puts an inner corner vertex only off * cos(half angle) from the axis)."""
+    from shapely.geometry import LineString as _Ls
+    g = _Ls([p[:2] for p in pl]).offset_curve(off, quad_segs=2, join_style="round")
+    return [[r2(x), r2(y)] for x, y in g.coords]
+
+
+def profile_at(pl, zs, p):
+    """per-vertex profile of a polyline interpolated at the projection of p (arc length)."""
+    from shapely.geometry import LineString as _Ls, Point as _Pt
+    ln = _Ls([q[:2] for q in pl])
+    cs = [0.0] + list(np.cumsum([math.dist(pl[k][:2], pl[k + 1][:2]) for k in range(len(pl) - 1)]))
+    return float(np.interp(ln.project(_Pt(p[0], p[1])), cs, zs))
+
+
 def vertical_steps():
     """Both faces of every vertical terrain step, for constrained triangulation in the terrain generator."""
     out = []
@@ -1711,12 +1732,12 @@ def vertical_steps():
     for st in stamps:
         if st["kind"] == "wall":
             t = rwt[st["id"]]["thickness"]
-            left = offset_polyline(st["polyline"], t / 2)
-            right = offset_polyline(st["polyline"], -t / 2)
+            left = face_offset(st["polyline"], t / 2)
+            right = face_offset(st["polyline"], -t / 2)
             hi, lo = (left, right) if st["high_side"] == "left" else (right, left)
             out.append({"stamp": st["id"], "type": "retaining_wall",
-                        "high_face": [[p[0], p[1], st["top_z"][min(i, len(st["top_z"]) - 1)]] for i, p in enumerate(hi)],
-                        "low_face": [[p[0], p[1], st["bottom_z"][min(i, len(st["bottom_z"]) - 1)]] for i, p in enumerate(lo)],
+                        "high_face": [[p[0], p[1], r2(profile_at(st["polyline"], st["top_z"], p))] for p in hi],
+                        "low_face": [[p[0], p[1], r2(profile_at(st["polyline"], st["bottom_z"], p))] for p in lo],
                         "rule": "insert both face polylines as constraint edges of the terrain triangulation (vertices every <= 1 m "
                                 "along them); drop the triangles between the faces (the wall mesh occupies that band); the terrain on "
                                 "each side is sampled from the reference implementation on its own side of the wall"})

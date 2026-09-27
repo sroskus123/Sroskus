@@ -613,7 +613,7 @@ def draw_floorplan(L, bd, level, fname):
             if not w:
                 continue
             sx, sy, ux, uy, nx, ny, Lw = wall_frame(w)
-            u = (pp["x"] - sx) * ux + (pp.get("y", sy) - sy) * uy
+            u = (pp.get("x", sx) - sx) * ux + (pp.get("y", sy) - sy) * uy
             t = w["thickness"] / 2
             for sd_ in (1.0, -1.0):
                 probe = (sx + ux * u + nx * sd_ * (t + 0.3), sy + uy * u + ny * sd_ * (t + 0.3))

@@ -4685,20 +4685,6 @@
    "kind": "grip",
    "weapon": "PROXY pistol (generic compact 9 mm, not a game asset)",
    "socket": "pistol hold point (proxy origin)",
-   "proxy_dimensions_m": {
-    "rake_deg": 18.0,
-    "grip_len": 0.108,
-    "grip_depth": 0.05,
-    "grip_width": 0.03,
-    "grip_top": 0.04,
-    "slide_len": 0.185,
-    "slide_h": 0.03,
-    "slide_w": 0.026,
-    "bore_z": 0.066,
-    "trigger_x": 0.052,
-    "trigger_z": 0.028,
-    "guard_depth": 0.034
-   },
    "angles": {
     "r": {
      "index": {
@@ -6580,7 +6566,22 @@
       "evaluations": 255
      }
     }
-   }
+   },
+   "proxy_dimensions_m": {
+    "rake_deg": 18.0,
+    "grip_len": 0.108,
+    "grip_depth": 0.05,
+    "grip_width": 0.03,
+    "grip_top": 0.04,
+    "slide_len": 0.185,
+    "slide_h": 0.03,
+    "slide_w": 0.026,
+    "bore_z": 0.066,
+    "trigger_x": 0.052,
+    "trigger_z": 0.028,
+    "guard_depth": 0.034
+   },
+   "action": "A_Hand_Pistol2h"
   }
  },
  "clips": {
@@ -6615,5 +6616,5 @@
   "A_Hand_Pistol2h",
   "A_Hand_OpenToFist"
  ],
- "seconds": 1092.3
+ "seconds": 1119.5
 }

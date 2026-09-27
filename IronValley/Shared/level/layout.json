@@ -10871,20 +10871,20 @@
       "src": "P_A_5",
       "pts": [
        [
-        -133.21,
-        -73.86
+        -130.71,
+        -79.86
        ],
        [
-        -127.77,
-        -71.32
+        -125.27,
+        -77.32
        ],
        [
-        -128.79,
-        -69.14
+        -126.29,
+        -75.14
        ],
        [
-        -134.23,
-        -71.68
+        -131.73,
+        -77.68
        ]
       ]
      },
@@ -11528,67 +11528,67 @@
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_ALFA_142_1",
+      "src": "P_SCREEN_ALFA_146_1",
       "pts": [
        [
-        -108.74,
-        -71.22
+        -112.67,
+        -72.95
        ],
        [
-        -111.74,
-        -65.95
+        -115.65,
+        -67.67
        ],
        [
-        -113.86,
-        -67.16
+        -117.77,
+        -68.87
        ],
        [
-        -110.86,
-        -72.43
+        -114.79,
+        -74.15
        ]
       ]
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_ALFA_142_2",
+      "src": "P_SCREEN_ALFA_146_2",
       "pts": [
        [
-        -111.74,
-        -65.96
+        -115.66,
+        -67.68
        ],
        [
-        -114.74,
-        -60.69
+        -118.64,
+        -62.4
        ],
        [
-        -116.86,
-        -61.9
+        -120.76,
+        -63.6
        ],
        [
-        -113.86,
-        -67.17
+        -117.78,
+        -68.88
        ]
       ]
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_ALFA_142_3",
+      "src": "P_SCREEN_ALFA_146_3",
       "pts": [
        [
-        -114.75,
-        -60.7
+        -118.64,
+        -62.41
        ],
        [
-        -117.75,
-        -55.43
+        -121.62,
+        -57.13
        ],
        [
-        -119.87,
-        -56.64
+        -123.74,
+        -58.33
        ],
        [
-        -116.87,
-        -61.91
+        -120.76,
+        -63.61
        ]
       ]
      },
@@ -11638,67 +11638,67 @@
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_BRAVO_158_1",
+      "src": "P_SCREEN_BRAVO_160_1",
       "pts": [
        [
-        22.79,
-        138.11
+        23.16,
+        140.2
        ],
        [
-        28.0,
-        136.88
+        28.37,
+        138.97
        ],
        [
-        28.25,
-        137.95
+        28.62,
+        140.04
        ],
        [
-        23.04,
-        139.18
+        23.41,
+        141.27
        ]
       ]
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_BRAVO_158_2",
+      "src": "P_SCREEN_BRAVO_160_2",
       "pts": [
        [
-        28.0,
-        136.88
+        28.36,
+        138.98
        ],
        [
-        32.17,
-        135.91
+        32.53,
+        137.99
        ],
        [
-        32.42,
-        136.98
+        32.78,
+        139.06
        ],
        [
-        28.25,
-        137.95
+        28.61,
+        140.05
        ]
       ]
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_BRAVO_158_3",
+      "src": "P_SCREEN_BRAVO_160_3",
       "pts": [
        [
-        32.16,
-        135.9
+        32.53,
+        137.99
        ],
        [
-        36.33,
-        134.93
+        36.7,
+        137.0
        ],
        [
-        36.58,
-        136.0
+        36.95,
+        138.07
        ],
        [
-        32.41,
-        136.97
+        32.78,
+        139.06
        ]
       ]
      },
@@ -11748,67 +11748,67 @@
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_CHARLIE_132_1",
+      "src": "P_SCREEN_CHARLIE_136_1",
       "pts": [
        [
-        94.91,
-        -81.69
+        98.21,
+        -83.59
        ],
        [
-        90.58,
-        -85.93
+        93.92,
+        -87.87
        ],
        [
-        92.29,
-        -87.67
+        95.65,
+        -89.59
        ],
        [
-        96.62,
-        -83.43
+        99.94,
+        -85.31
        ]
       ]
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_CHARLIE_132_2",
+      "src": "P_SCREEN_CHARLIE_136_2",
       "pts": [
        [
-        90.58,
-        -85.94
+        93.93,
+        -87.87
        ],
        [
-        86.25,
-        -90.18
+        89.64,
+        -92.15
        ],
        [
-        87.96,
-        -91.92
+        91.37,
+        -93.87
        ],
        [
-        92.29,
-        -87.68
+        95.66,
+        -89.59
        ]
       ]
      },
      {
       "kind": "polygon",
-      "src": "P_SCREEN_CHARLIE_132_3",
+      "src": "P_SCREEN_CHARLIE_136_3",
       "pts": [
        [
-        86.25,
-        -90.18
+        89.64,
+        -92.15
        ],
        [
-        81.92,
-        -94.42
+        85.35,
+        -96.43
        ],
        [
-        83.63,
-        -96.16
+        87.08,
+        -98.15
        ],
        [
-        87.96,
-        -91.92
+        91.37,
+        -93.87
        ]
       ]
      },
@@ -16784,12 +16784,12 @@
      [
       -46.5,
       16.78,
-      1.1300000000000001
+      1.13
      ],
      [
       -31.0,
       43.63,
-      1.1300000000000001
+      1.13
      ]
     ],
     "rule": "insert both face polylines as constraint edges of the terrain triangulation (vertices every <= 1 m along them); drop the triangles between the faces (the wall mesh occupies that band); the terrain on each side is sampled from the reference implementation on its own side of the wall"
@@ -16833,19 +16833,24 @@
       3.25
      ],
      [
-      41.5,
+      54.5,
       31.9,
-      3.99
+      7.21
      ],
      [
-      45.5,
+      54.54,
       31.9,
-      4.8
+      7.21
      ],
      [
-      49.5,
-      31.9,
-      5.69
+      54.58,
+      31.88,
+      7.21
+     ],
+     [
+      54.61,
+      31.87,
+      7.21
      ],
      [
       54.64,
@@ -16853,34 +16858,24 @@
       7.21
      ],
      [
-      54.7,
-      27.5,
-      6.75
+      54.67,
+      31.81,
+      7.21
+     ],
+     [
+      54.68,
+      31.78,
+      7.21
      ],
      [
       54.7,
-      23.0,
-      6.28
+      31.74,
+      7.21
      ],
      [
       54.7,
-      18.5,
-      5.73
-     ],
-     [
-      54.7,
-      14.0,
-      5.14
-     ],
-     [
-      54.7,
-      9.5,
-      4.53
-     ],
-     [
-      54.7,
-      5.0,
-      3.94
+      31.7,
+      7.21
      ],
      [
       54.7,
@@ -16895,53 +16890,8 @@
       2.35
      ],
      [
-      41.5,
+      54.3,
       31.5,
-      2.35
-     ],
-     [
-      45.5,
-      31.5,
-      2.35
-     ],
-     [
-      49.5,
-      31.5,
-      2.35
-     ],
-     [
-      54.36,
-      31.56,
-      2.35
-     ],
-     [
-      54.3,
-      27.5,
-      2.35
-     ],
-     [
-      54.3,
-      23.0,
-      2.35
-     ],
-     [
-      54.3,
-      18.5,
-      2.35
-     ],
-     [
-      54.3,
-      14.0,
-      2.35
-     ],
-     [
-      54.3,
-      9.5,
-      2.35
-     ],
-     [
-      54.3,
-      5.0,
       2.35
      ],
      [
@@ -16971,12 +16921,12 @@
      [
       31.25,
       31.35,
-      1.2999999999999998
+      1.3
      ],
      [
       31.25,
       0.65,
-      1.2999999999999998
+      1.3
      ]
     ],
     "rule": "insert both face polylines as constraint edges of the terrain triangulation (vertices every <= 1 m along them); drop the triangles between the faces (the wall mesh occupies that band); the terrain on each side is sampled from the reference implementation on its own side of the wall"
@@ -17000,12 +16950,12 @@
      [
       34.4,
       31.5,
-      1.2999999999999998
+      1.3
      ],
      [
       31.55,
       31.5,
-      1.2999999999999998
+      1.3
      ]
     ],
     "rule": "insert both face polylines as constraint edges of the terrain triangulation (vertices every <= 1 m along them); drop the triangles between the faces (the wall mesh occupies that band); the terrain on each side is sampled from the reference implementation on its own side of the wall"
@@ -17017,12 +16967,17 @@
      [
       -44.53,
       12.3,
-      1.1300000000000001
+      1.13
      ],
      [
       -44.87,
       12.5,
-      1.1300000000000001
+      1.13
+     ],
+     [
+      -44.87,
+      12.5,
+      1.13
      ],
      [
       -50.93,
@@ -17078,12 +17033,12 @@
      [
       31.4,
       0.5,
-      1.2999999999999998
+      1.3
      ],
      [
       36.5,
       0.5,
-      1.2999999999999998
+      1.3
      ]
     ],
     "rule": "insert both face polylines as constraint edges of the terrain triangulation (vertices every <= 1 m along them); drop the triangles between the faces (the wall mesh occupies that band); the terrain on each side is sampled from the reference implementation on its own side of the wall"
@@ -19355,6 +19310,28 @@
    "height_range_m": [
     0.9,
     4.86
+   ],
+   "wing_walls": [
+    {
+     "id": "WG_SKLAD_NE_S",
+     "of": "RW_SKLAD_NE",
+     "polyline": [
+      [
+       54.7,
+       1.6
+      ],
+      [
+       57.0,
+       1.6
+      ]
+     ],
+     "thickness": 0.3,
+     "top": "stepped: from the coping 3.5 at the wall end down to the ground at the free end",
+     "blocks_movement": true,
+     "blocks_bullets": true,
+     "blocks_vision": "below its stepped top (ignored by the conservative spawn-LOS model)",
+     "note": "south end of the cut wall: holds the E spur meadow above the rear-yard branch track"
+    }
    ]
   },
   {
@@ -24822,9 +24799,9 @@
    "id": "P_A_5",
    "type": "log_pile_high",
    "position": [
-    -131.0,
-    -71.5,
-    -2.92
+    -128.5,
+    -77.5,
+    -2.81
    ],
    "rotation_deg": 25.0,
    "size": [
@@ -24836,12 +24813,13 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "spawnA",
+   "note": "moved off the spawn spine (rows up to s = 146)",
    "ground_fit": {
     "mode": "conform",
     "corner_z": [
-     -2.96,
-     -2.95,
-     -2.9,
+     -2.76,
+     -2.73,
+     -2.87,
      -2.89
     ],
     "rule": "each module / the heap base follows the terrain under it"
@@ -25726,14 +25704,14 @@
    }
   },
   {
-   "id": "P_SCREEN_ALFA_142_1",
+   "id": "P_SCREEN_ALFA_146_1",
    "type": "container_stack_2",
    "position": [
-    -111.3,
-    -69.19,
-    -3.04
+    -115.22,
+    -70.91,
+    -2.94
    ],
-   "rotation_deg": 119.75,
+   "rotation_deg": 119.53,
    "size": [
     6.06,
     2.44,
@@ -25743,30 +25721,30 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "spawn_screen_alfa",
-   "note": "hard spawn screen of row s=142 (zone_dilna, zone_dvur), 4.5 m in front of the front rank, needs 3.25 m of 5.18 m; ends open as chicane exits",
+   "note": "hard spawn screen of row s=146 (zone_dilna, zone_dvur), 4.5 m in front of the front rank, needs 3.09 m of 5.18 m; ends open as chicane exits",
    "ground_fit": {
     "mode": "tilt",
-    "pitch_deg": -4.47,
-    "roll_deg": 1.88,
+    "pitch_deg": -3.94,
+    "roll_deg": 1.61,
     "corner_z": [
-     -2.84,
-     -3.32,
-     -3.23,
-     -2.77
+     -2.77,
+     -3.19,
+     -3.11,
+     -2.7
     ],
     "residual_m": 0.0,
     "rule": "rigid object tilted onto the plane through its corners (pitch about local Y = along size[0], roll along size[1]); position z = plane height at the centre"
    }
   },
   {
-   "id": "P_SCREEN_ALFA_142_2",
+   "id": "P_SCREEN_ALFA_146_2",
    "type": "container_stack_2",
    "position": [
-    -114.3,
-    -63.93,
-    -3.23
+    -118.21,
+    -65.64,
+    -3.1
    ],
-   "rotation_deg": 119.75,
+   "rotation_deg": 119.53,
    "size": [
     6.06,
     2.44,
@@ -25776,30 +25754,30 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "spawn_screen_alfa",
-   "note": "hard spawn screen of row s=142 (zone_dilna, zone_dvur), 4.5 m in front of the front rank, needs 3.25 m of 5.18 m; ends open as chicane exits",
+   "note": "hard spawn screen of row s=146 (zone_dilna, zone_dvur), 4.5 m in front of the front rank, needs 3.09 m of 5.18 m; ends open as chicane exits",
    "ground_fit": {
     "mode": "tilt",
-    "pitch_deg": 0.96,
-    "roll_deg": 1.82,
+    "pitch_deg": 1.0,
+    "roll_deg": 1.53,
     "corner_z": [
-     -3.32,
-     -3.21,
-     -3.14,
-     -3.23
+     -3.19,
+     -3.07,
+     -3.02,
+     -3.11
     ],
-    "residual_m": 0.01,
+    "residual_m": 0.0,
     "rule": "rigid object tilted onto the plane through its corners (pitch about local Y = along size[0], roll along size[1]); position z = plane height at the centre"
    }
   },
   {
-   "id": "P_SCREEN_ALFA_142_3",
+   "id": "P_SCREEN_ALFA_146_3",
    "type": "container_stack_2",
    "position": [
-    -117.31,
-    -58.67,
-    -3.06
+    -121.19,
+    -60.37,
+    -2.93
    ],
-   "rotation_deg": 119.75,
+   "rotation_deg": 119.53,
    "size": [
     6.06,
     2.44,
@@ -25809,16 +25787,16 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "spawn_screen_alfa",
-   "note": "hard spawn screen of row s=142 (zone_dilna, zone_dvur), 4.5 m in front of the front rank, needs 3.25 m of 5.18 m; ends open as chicane exits",
+   "note": "hard spawn screen of row s=146 (zone_dilna, zone_dvur), 4.5 m in front of the front rank, needs 3.09 m of 5.18 m; ends open as chicane exits",
    "ground_fit": {
     "mode": "tilt",
-    "pitch_deg": 2.28,
-    "roll_deg": 1.55,
+    "pitch_deg": 2.2,
+    "roll_deg": 1.41,
     "corner_z": [
-     -3.21,
-     -2.97,
-     -2.9,
-     -3.14
+     -3.07,
+     -2.84,
+     -2.78,
+     -3.02
     ],
     "residual_m": 0.0,
     "rule": "rigid object tilted onto the plane through its corners (pitch about local Y = along size[0], roll along size[1]); position z = plane height at the centre"
@@ -25885,14 +25863,14 @@
    }
   },
   {
-   "id": "P_SCREEN_BRAVO_158_1",
+   "id": "P_SCREEN_BRAVO_160_1",
    "type": "hesco_line",
    "position": [
-    25.52,
-    138.03,
-    3.12
+    25.89,
+    140.12,
+    3.18
    ],
-   "rotation_deg": 346.8,
+   "rotation_deg": 346.73,
    "size": [
     5.35,
     1.1,
@@ -25902,57 +25880,27 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "spawn_screen_bravo",
-   "note": "hard spawn screen of row s=158 (zone_dilna, zone_sklad), 4.5 m in front of the front rank, needs 2.13 m of 2.74 m; ends open as chicane exits",
+   "note": "hard spawn screen of row s=160 (zone_dilna, zone_sklad), 4.5 m in front of the front rank, needs 2.20 m of 2.74 m; ends open as chicane exits",
    "ground_fit": {
     "mode": "conform",
     "corner_z": [
-     3.49,
-     3.11,
-     3.12,
-     3.52
-    ],
-    "rule": "each module / the heap base follows the terrain under it"
-   }
-  },
-  {
-   "id": "P_SCREEN_BRAVO_158_2",
-   "type": "hesco_line",
-   "position": [
-    30.21,
-    136.93,
-    3.13
-   ],
-   "rotation_deg": 346.8,
-   "size": [
-    4.28,
-    1.1,
-    2.74
-   ],
-   "cover": "high",
-   "blocks_bullets": true,
-   "blocks_vision": true,
-   "cluster": "spawn_screen_bravo",
-   "note": "hard spawn screen of row s=158 (zone_dilna, zone_sklad), 4.5 m in front of the front rank, needs 2.13 m of 2.74 m; ends open as chicane exits",
-   "ground_fit": {
-    "mode": "conform",
-    "corner_z": [
-     3.11,
+     3.56,
      3.13,
-     3.16,
-     3.12
+     3.15,
+     3.59
     ],
     "rule": "each module / the heap base follows the terrain under it"
    }
   },
   {
-   "id": "P_SCREEN_BRAVO_158_3",
+   "id": "P_SCREEN_BRAVO_160_2",
    "type": "hesco_line",
    "position": [
-    34.37,
-    135.95,
+    30.57,
+    139.02,
     3.16
    ],
-   "rotation_deg": 346.8,
+   "rotation_deg": 346.73,
    "size": [
     4.28,
     1.1,
@@ -25962,14 +25910,44 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "spawn_screen_bravo",
-   "note": "hard spawn screen of row s=158 (zone_dilna, zone_sklad), 4.5 m in front of the front rank, needs 2.13 m of 2.74 m; ends open as chicane exits",
+   "note": "hard spawn screen of row s=160 (zone_dilna, zone_sklad), 4.5 m in front of the front rank, needs 2.20 m of 2.74 m; ends open as chicane exits",
    "ground_fit": {
     "mode": "conform",
     "corner_z": [
      3.13,
-     3.16,
+     3.17,
      3.2,
-     3.16
+     3.15
+    ],
+    "rule": "each module / the heap base follows the terrain under it"
+   }
+  },
+  {
+   "id": "P_SCREEN_BRAVO_160_3",
+   "type": "hesco_line",
+   "position": [
+    34.74,
+    138.03,
+    3.22
+   ],
+   "rotation_deg": 346.73,
+   "size": [
+    4.28,
+    1.1,
+    2.74
+   ],
+   "cover": "high",
+   "blocks_bullets": true,
+   "blocks_vision": true,
+   "cluster": "spawn_screen_bravo",
+   "note": "hard spawn screen of row s=160 (zone_dilna, zone_sklad), 4.5 m in front of the front rank, needs 2.20 m of 2.74 m; ends open as chicane exits",
+   "ground_fit": {
+    "mode": "conform",
+    "corner_z": [
+     3.17,
+     3.23,
+     3.27,
+     3.2
     ],
     "rule": "each module / the heap base follows the terrain under it"
    }
@@ -26035,14 +26013,14 @@
    }
   },
   {
-   "id": "P_SCREEN_CHARLIE_132_1",
+   "id": "P_SCREEN_CHARLIE_136_1",
    "type": "container_stack_2",
    "position": [
-    93.6,
-    -84.68,
-    3.49
+    96.93,
+    -86.59,
+    3.65
    ],
-   "rotation_deg": 224.44,
+   "rotation_deg": 224.97,
    "size": [
     6.06,
     2.44,
@@ -26052,63 +26030,30 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "spawn_screen_charlie",
-   "note": "hard spawn screen of row s=132 (zone_sklad, zone_dvur), 4.5 m in front of the front rank, needs 3.02 m of 5.18 m; ends open as chicane exits",
+   "note": "hard spawn screen of row s=136 (zone_sklad, zone_dvur), 4.5 m in front of the front rank, needs 2.93 m of 5.18 m; ends open as chicane exits",
    "ground_fit": {
     "mode": "tilt",
-    "pitch_deg": 0.39,
-    "roll_deg": 3.39,
+    "pitch_deg": 0.11,
+    "roll_deg": 3.16,
     "corner_z": [
-     3.36,
-     3.47,
      3.55,
-     3.57
-    ],
-    "residual_m": 0.03,
-    "rule": "rigid object tilted onto the plane through its corners (pitch about local Y = along size[0], roll along size[1]); position z = plane height at the centre"
-   }
-  },
-  {
-   "id": "P_SCREEN_CHARLIE_132_2",
-   "type": "container_stack_2",
-   "position": [
-    89.27,
-    -88.93,
-    3.55
-   ],
-   "rotation_deg": 224.44,
-   "size": [
-    6.06,
-    2.44,
-    5.18
-   ],
-   "cover": "high",
-   "blocks_bullets": true,
-   "blocks_vision": true,
-   "cluster": "spawn_screen_charlie",
-   "note": "hard spawn screen of row s=132 (zone_sklad, zone_dvur), 4.5 m in front of the front rank, needs 3.02 m of 5.18 m; ends open as chicane exits",
-   "ground_fit": {
-    "mode": "tilt",
-    "pitch_deg": 0.73,
-    "roll_deg": 2.96,
-    "corner_z": [
-     3.47,
-     3.5,
-     3.67,
-     3.55
+     3.61,
+     3.7,
+     3.73
     ],
     "residual_m": 0.02,
     "rule": "rigid object tilted onto the plane through its corners (pitch about local Y = along size[0], roll along size[1]); position z = plane height at the centre"
    }
   },
   {
-   "id": "P_SCREEN_CHARLIE_132_3",
+   "id": "P_SCREEN_CHARLIE_136_2",
    "type": "container_stack_2",
    "position": [
-    84.94,
-    -93.17,
-    3.67
+    92.65,
+    -90.87,
+    3.74
    ],
-   "rotation_deg": 224.44,
+   "rotation_deg": 224.97,
    "size": [
     6.06,
     2.44,
@@ -26118,16 +26063,49 @@
    "blocks_bullets": true,
    "blocks_vision": true,
    "cluster": "spawn_screen_charlie",
-   "note": "hard spawn screen of row s=132 (zone_sklad, zone_dvur), 4.5 m in front of the front rank, needs 3.02 m of 5.18 m; ends open as chicane exits",
+   "note": "hard spawn screen of row s=136 (zone_sklad, zone_dvur), 4.5 m in front of the front rank, needs 2.93 m of 5.18 m; ends open as chicane exits",
    "ground_fit": {
     "mode": "tilt",
-    "pitch_deg": 1.54,
-    "roll_deg": 4.19,
+    "pitch_deg": 1.68,
+    "roll_deg": 3.24,
     "corner_z": [
-     3.5,
-     3.66,
-     3.84,
-     3.67
+     3.61,
+     3.74,
+     3.93,
+     3.7
+    ],
+    "residual_m": 0.02,
+    "rule": "rigid object tilted onto the plane through its corners (pitch about local Y = along size[0], roll along size[1]); position z = plane height at the centre"
+   }
+  },
+  {
+   "id": "P_SCREEN_CHARLIE_136_3",
+   "type": "container_stack_2",
+   "position": [
+    88.36,
+    -95.15,
+    3.93
+   ],
+   "rotation_deg": 224.97,
+   "size": [
+    6.06,
+    2.44,
+    5.18
+   ],
+   "cover": "high",
+   "blocks_bullets": true,
+   "blocks_vision": true,
+   "cluster": "spawn_screen_charlie",
+   "note": "hard spawn screen of row s=136 (zone_sklad, zone_dvur), 4.5 m in front of the front rank, needs 2.93 m of 5.18 m; ends open as chicane exits",
+   "ground_fit": {
+    "mode": "tilt",
+    "pitch_deg": 1.82,
+    "roll_deg": 4.48,
+    "corner_z": [
+     3.74,
+     3.93,
+     4.12,
+     3.93
     ],
     "residual_m": 0.0,
     "rule": "rigid object tilted onto the plane through its corners (pitch about local Y = along size[0], roll along size[1]); position z = plane height at the centre"
@@ -26280,24 +26258,24 @@
    "team": "alfa",
    "polygon": [
     [
-     -127.18,
-     -75.88
+     -131.1,
+     -77.56
     ],
     [
-     -130.62,
-     -67.83
+     -134.55,
+     -69.49
     ],
     [
      -70.93,
      -36.4
     ],
     [
-     -66.92,
-     -44.34
+     -66.91,
+     -44.36
     ],
     [
-     -116.02,
-     -71.09
+     -119.95,
+     -72.79
     ]
    ],
    "polygon_role": "team staging area (convex hull of all rows + 3 m); enemies inside it never count for respawn selection",
@@ -26305,9 +26283,9 @@
     {
      "id": "ALFA_R1_1",
      "pos": [
-      -118.51,
-      -65.63,
-      -3.15
+      -122.43,
+      -67.32,
+      -3.02
      ],
      "yaw_deg": 293.2,
      "row": "ALFA_R1",
@@ -26320,9 +26298,9 @@
     {
      "id": "ALFA_R1_2",
      "pos": [
-      -117.33,
-      -68.39,
-      -3.13
+      -121.25,
+      -70.08,
+      -3.05
      ],
      "yaw_deg": 293.2,
      "row": "ALFA_R1",
@@ -26335,9 +26313,9 @@
     {
      "id": "ALFA_R1_3",
      "pos": [
-      -121.27,
-      -66.82,
-      -3.05
+      -125.18,
+      -68.5,
+      -2.97
      ],
      "yaw_deg": 293.2,
      "row": "ALFA_R1",
@@ -26350,9 +26328,9 @@
     {
      "id": "ALFA_R1_4",
      "pos": [
-      -120.09,
-      -69.57,
-      -3.07
+      -124.0,
+      -71.26,
+      -2.99
      ],
      "yaw_deg": 293.2,
      "row": "ALFA_R1",
@@ -26365,9 +26343,9 @@
     {
      "id": "ALFA_R1_5",
      "pos": [
-      -124.03,
-      -68.0,
-      -2.99
+      -127.94,
+      -69.68,
+      -2.93
      ],
      "yaw_deg": 293.2,
      "row": "ALFA_R1",
@@ -26380,9 +26358,9 @@
     {
      "id": "ALFA_R1_6",
      "pos": [
-      -122.84,
-      -70.76,
-      -3.01
+      -126.76,
+      -72.44,
+      -2.95
      ],
      "yaw_deg": 293.2,
      "row": "ALFA_R1",
@@ -26395,9 +26373,9 @@
     {
      "id": "ALFA_R1_7",
      "pos": [
-      -126.78,
-      -69.18,
-      -2.95
+      -130.7,
+      -70.86,
+      -2.9
      ],
      "yaw_deg": 293.2,
      "row": "ALFA_R1",
@@ -26410,9 +26388,9 @@
     {
      "id": "ALFA_R1_8",
      "pos": [
-      -125.6,
-      -71.94,
-      -2.96
+      -129.52,
+      -73.62,
+      -2.94
      ],
      "yaw_deg": 293.2,
      "row": "ALFA_R1",
@@ -26538,10 +26516,10 @@
    "rows": [
     {
      "row_id": "ALFA_R1",
-     "s": 142.0,
+     "s": 146.0,
      "center": [
-      -122.06,
-      -68.79
+      -125.97,
+      -70.47
      ],
      "zones": [
       "zone_dilna",
@@ -26549,28 +26527,24 @@
      ],
      "polygon": [
       [
-       -126.39,
-       -73.91
+       -130.31,
+       -75.59
       ],
       [
-       -128.75,
-       -68.39
+       -132.67,
+       -70.08
       ],
       [
-       -124.62,
-       -66.62
+       -121.64,
+       -65.35
       ],
       [
-       -117.72,
-       -63.66
+       -119.28,
+       -70.86
       ],
       [
-       -115.36,
-       -69.18
-      ],
-      [
-       -119.5,
-       -70.95
+       -123.41,
+       -72.64
       ]
      ]
     },
@@ -26614,16 +26588,16 @@
      80.55
     ],
     [
-     4.36,
-     92.49
+     4.37,
+     92.48
     ],
     [
-     29.64,
-     154.64
+     29.84,
+     156.39
     ],
     [
-     37.86,
-     151.64
+     38.22,
+     154.02
     ],
     [
      16.84,
@@ -26635,11 +26609,11 @@
     {
      "id": "BRAVO_R1_1",
      "pos": [
-      31.08,
-      141.34,
-      3.21
+      32.04,
+      143.3,
+      3.28
      ],
-     "yaw_deg": 160.02,
+     "yaw_deg": 164.05,
      "row": "BRAVO_R1",
      "zones": [
       "zone_dilna",
@@ -26650,11 +26624,11 @@
     {
      "id": "BRAVO_R1_2",
      "pos": [
-      28.26,
-      142.37,
-      3.2
+      29.15,
+      144.12,
+      3.25
      ],
-     "yaw_deg": 160.02,
+     "yaw_deg": 164.05,
      "row": "BRAVO_R1",
      "zones": [
       "zone_dilna",
@@ -26665,11 +26639,11 @@
     {
      "id": "BRAVO_R1_3",
      "pos": [
-      32.1,
-      144.16,
-      3.3
+      32.86,
+      146.18,
+      3.38
      ],
-     "yaw_deg": 160.02,
+     "yaw_deg": 164.05,
      "row": "BRAVO_R1",
      "zones": [
       "zone_dilna",
@@ -26680,11 +26654,11 @@
     {
      "id": "BRAVO_R1_4",
      "pos": [
-      29.28,
-      145.19,
-      3.29
+      29.97,
+      147.0,
+      3.36
      ],
-     "yaw_deg": 160.02,
+     "yaw_deg": 164.05,
      "row": "BRAVO_R1",
      "zones": [
       "zone_dilna",
@@ -26695,11 +26669,11 @@
     {
      "id": "BRAVO_R1_5",
      "pos": [
-      33.13,
-      146.98,
-      3.42
+      33.68,
+      149.06,
+      3.5
      ],
-     "yaw_deg": 160.02,
+     "yaw_deg": 164.05,
      "row": "BRAVO_R1",
      "zones": [
       "zone_dilna",
@@ -26710,11 +26684,11 @@
     {
      "id": "BRAVO_R1_6",
      "pos": [
-      30.31,
-      148.01,
-      3.4
+      30.8,
+      149.89,
+      3.5
      ],
-     "yaw_deg": 160.02,
+     "yaw_deg": 164.05,
      "row": "BRAVO_R1",
      "zones": [
       "zone_dilna",
@@ -26725,11 +26699,11 @@
     {
      "id": "BRAVO_R1_7",
      "pos": [
-      34.15,
-      149.8,
-      3.55
+      34.51,
+      151.95,
+      3.67
      ],
-     "yaw_deg": 160.02,
+     "yaw_deg": 164.05,
      "row": "BRAVO_R1",
      "zones": [
       "zone_dilna",
@@ -26740,11 +26714,11 @@
     {
      "id": "BRAVO_R1_8",
      "pos": [
-      31.33,
-      150.83,
-      3.54
+      31.62,
+      152.77,
+      3.66
      ],
-     "yaw_deg": 160.02,
+     "yaw_deg": 164.05,
      "row": "BRAVO_R1",
      "zones": [
       "zone_dilna",
@@ -26868,10 +26842,10 @@
    "rows": [
     {
      "row_id": "BRAVO_R1",
-     "s": 158.0,
+     "s": 160.0,
      "center": [
-      31.21,
-      146.08
+      31.83,
+      148.03
      ],
      "zones": [
       "zone_dilna",
@@ -26879,24 +26853,24 @@
      ],
      "polygon": [
       [
-       31.98,
-       139.42
+       33.07,
+       141.44
       ],
       [
-       26.34,
-       141.47
+       27.3,
+       143.09
       ],
       [
-       30.44,
-       152.75
+       30.59,
+       154.63
       ],
       [
-       36.08,
-       150.7
+       36.36,
+       152.98
       ],
       [
-       33.51,
-       143.65
+       34.3,
+       145.77
       ]
      ]
     },
@@ -26944,8 +26918,8 @@
    "team": "charlie",
    "polygon": [
     [
-     99.36,
-     -103.84
+     102.8,
+     -105.73
     ],
     [
      57.54,
@@ -26956,12 +26930,12 @@
      -72.41
     ],
     [
-     53.77,
-     -65.94
+     53.76,
+     -65.95
     ],
     [
-     103.65,
-     -96.08
+     107.1,
+     -97.96
     ]
    ],
    "polygon_role": "team staging area (convex hull of all rows + 3 m); enemies inside it never count for respawn selection",
@@ -27081,9 +27055,9 @@
     {
      "id": "CHARLIE_R2_1",
      "pos": [
-      90.29,
-      -95.44,
-      4.02
+      93.74,
+      -97.33,
+      4.26
      ],
      "yaw_deg": 61.19,
      "row": "CHARLIE_R2",
@@ -27096,9 +27070,9 @@
     {
      "id": "CHARLIE_R2_2",
      "pos": [
-      91.74,
-      -92.81,
-      3.85
+      95.18,
+      -94.7,
+      4.12
      ],
      "yaw_deg": 61.19,
      "row": "CHARLIE_R2",
@@ -27111,9 +27085,9 @@
     {
      "id": "CHARLIE_R2_3",
      "pos": [
-      92.92,
-      -96.88,
-      4.22
+      96.36,
+      -98.77,
+      4.43
      ],
      "yaw_deg": 61.19,
      "row": "CHARLIE_R2",
@@ -27126,9 +27100,9 @@
     {
      "id": "CHARLIE_R2_4",
      "pos": [
-      94.37,
-      -94.25,
-      4.05
+      97.81,
+      -96.14,
+      4.29
      ],
      "yaw_deg": 61.19,
      "row": "CHARLIE_R2",
@@ -27141,9 +27115,9 @@
     {
      "id": "CHARLIE_R2_5",
      "pos": [
-      95.55,
-      -98.33,
-      4.38
+      98.99,
+      -100.22,
+      4.56
      ],
      "yaw_deg": 61.19,
      "row": "CHARLIE_R2",
@@ -27156,9 +27130,9 @@
     {
      "id": "CHARLIE_R2_6",
      "pos": [
-      97.0,
-      -95.7,
-      4.24
+      100.44,
+      -97.59,
+      4.42
      ],
      "yaw_deg": 61.19,
      "row": "CHARLIE_R2",
@@ -27171,9 +27145,9 @@
     {
      "id": "CHARLIE_R2_7",
      "pos": [
-      98.18,
-      -99.77,
-      4.52
+      101.62,
+      -101.66,
+      4.63
      ],
      "yaw_deg": 61.19,
      "row": "CHARLIE_R2",
@@ -27186,9 +27160,9 @@
     {
      "id": "CHARLIE_R2_8",
      "pos": [
-      99.63,
-      -97.15,
-      4.39
+      103.07,
+      -99.04,
+      4.52
      ],
      "yaw_deg": 61.19,
      "row": "CHARLIE_R2",
@@ -27239,10 +27213,10 @@
     },
     {
      "row_id": "CHARLIE_R2",
-     "s": 132.0,
+     "s": 136.0,
      "center": [
-      94.96,
-      -96.29
+      98.4,
+      -98.18
      ],
      "zones": [
       "zone_sklad",
@@ -27250,28 +27224,28 @@
      ],
      "polygon": [
       [
-       98.77,
-       -101.81
+       102.21,
+       -103.7
       ],
       [
-       94.83,
-       -99.64
+       98.27,
+       -101.53
       ],
       [
-       88.26,
-       -96.03
+       91.7,
+       -97.92
       ],
       [
-       91.15,
-       -90.77
+       94.59,
+       -92.66
       ],
       [
-       95.09,
-       -92.94
+       98.53,
+       -94.83
       ],
       [
-       101.66,
-       -96.55
+       105.1,
+       -98.44
       ]
      ]
     }
@@ -27289,8 +27263,8 @@
    ],
    "side": "S of road A behind the pub (timber yard)",
    "fixed_rows": {
-    "zone_dilna": 142.0,
-    "zone_dvur": 142.0,
+    "zone_dilna": 146.0,
+    "zone_dvur": 146.0,
     "zone_sklad": 85.0
    },
    "spine_polyline": [
@@ -27341,8 +27315,8 @@
    ],
    "side": "E of road B (gravel works yard)",
    "fixed_rows": {
-    "zone_dilna": 158.0,
-    "zone_sklad": 158.0,
+    "zone_dilna": 160.0,
+    "zone_sklad": 160.0,
     "zone_dvur": 92.0
    },
    "spine_polyline": [
@@ -27398,8 +27372,8 @@
    "side": "SW of track C (farm meadow)",
    "fixed_rows": {
     "zone_dilna": 89.0,
-    "zone_sklad": 132.0,
-    "zone_dvur": 132.0
+    "zone_sklad": 136.0,
+    "zone_dvur": 136.0
    },
    "spine_polyline": [
     [
@@ -30835,9 +30809,9 @@
     "id": "POLE_B_5",
     "line": "B",
     "pos": [
-     23.89,
-     141.44,
-     3.56
+     22.86,
+     138.62,
+     3.51
     ],
     "type": "wood_pole_8p5",
     "height": 8.5,
@@ -51452,24 +51426,24 @@
     "priority": 58,
     "polygon": [
      [
-      -127.18,
-      -75.88
+      -131.1,
+      -77.56
      ],
      [
-      -130.62,
-      -67.83
+      -134.55,
+      -69.49
      ],
      [
       -70.93,
       -36.4
      ],
      [
-      -66.92,
-      -44.34
+      -66.91,
+      -44.36
      ],
      [
-      -116.02,
-      -71.09
+      -119.95,
+      -72.79
      ]
     ],
     "note": "spawn alfa timber yard"
@@ -51483,16 +51457,16 @@
       80.55
      ],
      [
-      4.36,
-      92.49
+      4.37,
+      92.48
      ],
      [
-      29.64,
-      154.64
+      29.84,
+      156.39
      ],
      [
-      37.86,
-      151.64
+      38.22,
+      154.02
      ],
      [
       16.84,
@@ -51506,8 +51480,8 @@
     "priority": 58,
     "polygon": [
      [
-      99.36,
-      -103.84
+      102.8,
+      -105.73
      ],
      [
       57.54,
@@ -51518,12 +51492,12 @@
       -72.41
      ],
      [
-      53.77,
-      -65.94
+      53.76,
+      -65.95
      ],
      [
-      103.65,
-      -96.08
+      107.1,
+      -97.96
      ]
     ],
     "note": "spawn charlie farmyard (mud + straw)"
@@ -51554,11 +51528,11 @@
   "zone_dilna": {
    "alfa": {
     "row": "ALFA_R1",
-    "s": 142.0
+    "s": 146.0
    },
    "bravo": {
     "row": "BRAVO_R1",
-    "s": 158.0
+    "s": 160.0
    },
    "charlie": {
     "row": "CHARLIE_R1",
@@ -51568,7 +51542,7 @@
   "zone_dvur": {
    "alfa": {
     "row": "ALFA_R1",
-    "s": 142.0
+    "s": 146.0
    },
    "bravo": {
     "row": "BRAVO_R2",
@@ -51576,7 +51550,7 @@
    },
    "charlie": {
     "row": "CHARLIE_R2",
-    "s": 132.0
+    "s": 136.0
    }
   },
   "zone_sklad": {
@@ -51586,11 +51560,11 @@
    },
    "bravo": {
     "row": "BRAVO_R1",
-    "s": 158.0
+    "s": 160.0
    },
    "charlie": {
     "row": "CHARLIE_R2",
-    "s": 132.0
+    "s": 136.0
    }
   }
  },
@@ -51601,119 +51575,99 @@
   "zones": {
    "zone_dilna": {
     "rows_s": {
-     "alfa": 142.0,
-     "bravo": 158.0,
+     "alfa": 146.0,
+     "bravo": 160.0,
      "charlie": 89.0
     },
     "distances_center_m": {
-     "alfa": 137.19,
-     "bravo": 143.7,
+     "alfa": 141.07,
+     "bravo": 145.78,
      "charlie": 129.99
     },
     "distances_edge_m": {
-     "alfa": 120.76,
-     "bravo": 125.68,
+     "alfa": 124.44,
+     "bravo": 127.7,
      "charlie": 123.05
     },
-    "mean_center_m": 136.96,
-    "mean_edge_m": 123.16,
+    "mean_center_m": 138.94,
+    "mean_edge_m": 125.06,
     "deviation_center_pct": {
-     "alfa": 0.17,
+     "alfa": 1.53,
      "bravo": 4.92,
-     "charlie": -5.09
+     "charlie": -6.45
     },
     "deviation_edge_pct": {
-     "alfa": -1.95,
-     "bravo": 2.04,
-     "charlie": -0.09
+     "alfa": -0.5,
+     "bravo": 2.11,
+     "charlie": -1.61
     },
-    "max_deviation_pct": 5.09,
+    "max_deviation_pct": 6.45,
     "run_time_s_edge": {
-     "alfa": 34.5,
-     "bravo": 35.91,
+     "alfa": 35.55,
+     "bravo": 36.49,
      "charlie": 35.16
     },
     "sprint_time_s_edge": {
-     "alfa": 21.0,
-     "bravo": 21.86,
+     "alfa": 21.64,
+     "bravo": 22.21,
      "charlie": 21.4
     },
     "primary_lanes": {
      "alfa": [
       [
-       -122.0,
-       -68.75,
-       -3.05
+       -126.0,
+       -70.5,
+       -2.97
       ],
       [
-       -120.25,
-       -67.0,
-       -3.09
+       -124.0,
+       -68.5,
+       -3.0
       ],
       [
-       -120.25,
-       -56.75,
-       -2.89
-      ],
-      [
-       -116.5,
-       -53.0,
-       -2.99
-      ],
-      [
-       -115.5,
-       -53.0,
-       -3.03
-      ],
-      [
-       -111.5,
-       -50.75,
-       -3.16
-      ],
-      [
-       -79.5,
-       -18.5,
-       -1.83
-      ],
-      [
-       -69.0,
-       -18.25,
-       -1.56
-      ],
-      [
-       -60.75,
-       -10.0,
-       -1.21
-      ],
-      [
+       -124.0,
        -58.25,
-       -10.0,
+       -2.77
+      ],
+      [
+       -69.75,
+       -3.5,
+       -1.26
+      ],
+      [
+       -66.5,
+       -3.0,
+       -1.3
+      ],
+      [
+       -65.5,
+       -2.0,
+       -1.32
+      ],
+      [
+       -63.75,
+       -2.0,
+       -1.28
+      ],
+      [
+       -60.5,
+       1.25,
        -1.17
       ],
       [
-       -56.75,
-       -9.0,
-       -1.17
+       -49.25,
+       1.5,
+       -0.93
       ],
       [
-       -36.0,
-       11.75,
-       1.13
+       -35.75,
+       14.75,
+       1.3
       ],
       [
-       -33.5,
-       13.75,
-       1.13
-      ],
-      [
-       -30.75,
-       13.5,
-       1.13
-      ],
-      [
-       -27.5,
-       16.75,
-       1.13
+       -32.25,
+       20.75,
+       1.3
       ],
       [
        -26.75,
@@ -51723,24 +51677,24 @@
      ],
      "bravo": [
       [
-       31.25,
-       146.0,
-       3.34
+       31.75,
+       148.0,
+       3.42
       ],
       [
-       24.75,
-       139.5,
-       3.29
+       25.25,
+       141.5,
+       3.36
       ],
       [
-       23.0,
-       139.5,
-       3.54
+       23.5,
+       141.5,
+       3.6
       ],
       [
        -3.5,
-       113.0,
-       3.45
+       114.5,
+       3.5
       ],
       [
        -3.5,
@@ -51898,42 +51852,32 @@
     "flank_lanes": {
      "alfa": {
       "desc": "P_BANK_TERRACE ramp -> mill-race terrace -> RW stairs",
-      "length_m": 143.76,
-      "extra_vs_primary_pct": 4.79,
+      "length_m": 147.46,
+      "extra_vs_primary_pct": 4.53,
       "via": [
        -45.6,
        15.5
       ],
       "waypoints": [
        [
-        -122.0,
-        -68.75,
-        -3.05
+        -126.0,
+        -70.5,
+        -2.97
        ],
        [
-        -122.0,
-        -58.5,
-        -2.84
+        -126.0,
+        -59.75,
+        -2.74
        ],
        [
-        -118.25,
-        -55.25,
-        -2.95
+        -111.0,
+        -45.0,
+        -3.03
        ],
        [
-        -115.75,
-        -55.0,
-        -3.04
-       ],
-       [
-        -105.75,
-        -44.75,
-        -3.2
-       ],
-       [
-        -105.75,
-        -42.75,
-        -3.09
+        -108.0,
+        -45.0,
+        -3.16
        ],
        [
         -78.0,
@@ -52014,31 +51958,31 @@
      },
      "bravo": {
       "desc": "footbridge B -> west bank -> gable door DL_D3",
-      "length_m": 143.31,
-      "extra_vs_primary_pct": -0.27,
+      "length_m": 145.4,
+      "extra_vs_primary_pct": -0.26,
       "via": [
        -19.5,
        45.0
       ],
       "waypoints": [
        [
-        31.25,
-        146.0,
-        3.34
+        31.75,
+        148.0,
+        3.42
        ],
        [
-        28.75,
-        145.25,
-        3.28
+        29.25,
+        147.25,
+        3.36
        ],
        [
-        8.0,
-        124.5,
-        3.3
+        8.5,
+        126.5,
+        3.31
        ],
        [
-        7.75,
-        88.0,
+        8.25,
+        88.5,
         2.12
        ],
        [
@@ -52189,41 +52133,41 @@
    "zone_sklad": {
     "rows_s": {
      "alfa": 85.0,
-     "bravo": 158.0,
-     "charlie": 132.0
+     "bravo": 160.0,
+     "charlie": 136.0
     },
     "distances_center_m": {
      "alfa": 138.6,
-     "bravo": 131.89,
-     "charlie": 133.28
+     "bravo": 133.78,
+     "charlie": 136.49
     },
     "distances_edge_m": {
      "alfa": 121.47,
-     "bravo": 116.4,
-     "charlie": 117.44
+     "bravo": 118.28,
+     "charlie": 120.66
     },
-    "mean_center_m": 134.59,
-    "mean_edge_m": 118.44,
+    "mean_center_m": 136.29,
+    "mean_edge_m": 120.14,
     "deviation_center_pct": {
-     "alfa": 2.98,
-     "bravo": -2.01,
-     "charlie": -0.97
+     "alfa": 1.7,
+     "bravo": -1.84,
+     "charlie": 0.15
     },
     "deviation_edge_pct": {
-     "alfa": 2.56,
-     "bravo": -1.72,
-     "charlie": -0.84
+     "alfa": 1.11,
+     "bravo": -1.54,
+     "charlie": 0.43
     },
-    "max_deviation_pct": 2.98,
+    "max_deviation_pct": 1.84,
     "run_time_s_edge": {
      "alfa": 34.71,
-     "bravo": 33.26,
-     "charlie": 33.56
+     "bravo": 33.8,
+     "charlie": 34.47
     },
     "sprint_time_s_edge": {
      "alfa": 21.13,
-     "bravo": 20.24,
-     "charlie": 20.43
+     "bravo": 20.57,
+     "charlie": 20.98
     },
     "primary_lanes": {
      "alfa": [
@@ -52295,24 +52239,24 @@
      ],
      "bravo": [
       [
-       31.25,
-       146.0,
-       3.34
+       31.75,
+       148.0,
+       3.42
       ],
       [
-       37.0,
-       140.25,
-       3.33
+       37.25,
+       142.5,
+       3.4
       ],
       [
-       36.75,
-       135.0,
-       3.17
+       37.25,
+       137.25,
+       3.25
       ],
       [
        34.25,
-       132.5,
-       3.08
+       134.25,
+       3.12
       ],
       [
        34.25,
@@ -52352,24 +52296,24 @@
      ],
      "charlie": [
       [
-       95.0,
-       -96.25,
-       4.22
+       98.5,
+       -98.25,
+       4.44
       ],
       [
-       97.0,
-       -94.25,
-       4.13
+       100.25,
+       -96.5,
+       4.36
       ],
       [
-       97.0,
-       -83.5,
-       3.57
+       100.25,
+       -85.25,
+       3.73
       ],
       [
        91.25,
-       -77.75,
-       2.97
+       -76.25,
+       2.93
       ],
       [
        91.25,
@@ -52551,57 +52495,42 @@
      },
      "bravo": {
       "desc": "E ring track -> rear yard at grade (SE corner) -> rear sliding door SK_SD3 / SK_D4",
-      "length_m": 180.16,
-      "extra_vs_primary_pct": 36.6,
+      "length_m": 182.79,
+      "extra_vs_primary_pct": 36.64,
       "via": [
        59.0,
        12.0
       ],
       "waypoints": [
        [
-        31.25,
-        146.0,
-        3.34
-       ],
-       [
-        32.0,
-        143.5,
-        3.28
-       ],
-       [
-        52.75,
-        122.75,
-        4.05
-       ],
-       [
-        52.75,
-        104.5,
-        3.93
-       ],
-       [
-        53.25,
-        104.0,
-        4.09
-       ],
-       [
-        53.5,
-        91.0,
-        5.5
-       ],
-       [
-        53.5,
-        35.25,
-        7.03
-       ],
-       [
-        54.0,
-        32.75,
-        7.06
-       ],
-       [
-        55.0,
         31.75,
-        7.21
+        148.0,
+        3.42
+       ],
+       [
+        41.5,
+        138.25,
+        3.41
+       ],
+       [
+        42.5,
+        135.75,
+        3.32
+       ],
+       [
+        53.5,
+        124.75,
+        4.11
+       ],
+       [
+        53.75,
+        35.0,
+        7.07
+       ],
+       [
+        55.25,
+        29.5,
+        6.97
        ],
        [
         55.25,
@@ -52615,13 +52544,13 @@
        ],
        [
         59.25,
-        4.25,
-        4.6
+        3.25,
+        4.45
        ],
        [
-        56.0,
+        57.0,
         1.0,
-        3.0
+        3.58
        ],
        [
         46.5,
@@ -52653,42 +52582,42 @@
      },
      "charlie": {
       "desc": "E ring from track C -> rear-yard branch track -> rear yard at grade (SE corner)",
-      "length_m": 134.5,
-      "extra_vs_primary_pct": 0.91,
+      "length_m": 137.71,
+      "extra_vs_primary_pct": 0.9,
       "via": [
        54.5,
        -3.5
       ],
       "waypoints": [
        [
-        95.0,
-        -96.25,
-        4.22
+        98.5,
+        -98.25,
+        4.44
        ],
        [
-        95.0,
-        -85.5,
-        3.6
+        98.5,
+        -87.0,
+        3.74
        ],
        [
-        97.0,
-        -83.5,
-        3.57
+        100.25,
+        -85.25,
+        3.73
        ],
        [
-        97.0,
-        -76.75,
-        3.06
+        100.25,
+        -80.5,
+        3.35
        ],
        [
-        88.5,
-        -68.25,
-        2.8
+        90.5,
+        -70.75,
+        2.86
        ],
        [
-        88.5,
-        -49.25,
-        2.17
+        90.5,
+        -51.25,
+        2.41
        ],
        [
         57.5,
@@ -52736,69 +52665,69 @@
    },
    "zone_dvur": {
     "rows_s": {
-     "alfa": 142.0,
+     "alfa": 146.0,
      "bravo": 92.0,
-     "charlie": 132.0
+     "charlie": 136.0
     },
     "distances_center_m": {
-     "alfa": 125.07,
+     "alfa": 129.42,
      "bravo": 127.5,
-     "charlie": 126.96
+     "charlie": 130.89
     },
     "distances_edge_m": {
-     "alfa": 114.2,
+     "alfa": 118.55,
      "bravo": 117.64,
-     "charlie": 116.09
+     "charlie": 120.02
     },
-    "mean_center_m": 126.51,
-    "mean_edge_m": 115.98,
+    "mean_center_m": 129.27,
+    "mean_edge_m": 118.74,
     "deviation_center_pct": {
-     "alfa": -1.14,
-     "bravo": 0.78,
-     "charlie": 0.36
+     "alfa": 0.12,
+     "bravo": -1.37,
+     "charlie": 1.25
     },
     "deviation_edge_pct": {
-     "alfa": -1.53,
-     "bravo": 1.43,
-     "charlie": 0.1
+     "alfa": -0.16,
+     "bravo": -0.92,
+     "charlie": 1.08
     },
-    "max_deviation_pct": 1.53,
+    "max_deviation_pct": 1.37,
     "run_time_s_edge": {
-     "alfa": 32.63,
+     "alfa": 33.87,
      "bravo": 33.61,
-     "charlie": 33.17
+     "charlie": 34.29
     },
     "sprint_time_s_edge": {
-     "alfa": 19.86,
+     "alfa": 20.62,
      "bravo": 20.46,
-     "charlie": 20.19
+     "charlie": 20.87
     },
     "primary_lanes": {
      "alfa": [
       [
-       -122.0,
-       -68.75,
-       -3.05
+       -126.0,
+       -70.5,
+       -2.97
       ],
       [
-       -117.5,
-       -72.75,
-       -2.89
+       -122.25,
+       -74.25,
+       -2.84
       ],
       [
-       -110.75,
-       -72.75,
-       -2.73
+       -114.75,
+       -74.5,
+       -2.66
       ],
       [
-       -109.25,
-       -72.0,
-       -2.77
+       -113.25,
+       -73.75,
+       -2.7
       ],
       [
-       -87.0,
+       -89.25,
        -49.75,
-       -3.46
+       -3.53
       ],
       [
        -57.5,
@@ -52935,19 +52864,19 @@
      ],
      "charlie": [
       [
-       95.0,
-       -96.25,
-       4.22
+       98.5,
+       -98.25,
+       4.44
       ],
       [
-       83.5,
-       -96.5,
-       3.86
+       87.0,
+       -98.5,
+       4.15
       ],
       [
-       56.25,
+       57.75,
        -69.25,
-       2.43
+       2.48
       ],
       [
        50.75,
@@ -53013,42 +52942,42 @@
     "flank_lanes": {
      "alfa": {
       "desc": "S ring path -> rear yard gate",
-      "length_m": 135.19,
-      "extra_vs_primary_pct": 8.09,
+      "length_m": 139.47,
+      "extra_vs_primary_pct": 7.77,
       "via": [
        -26.0,
        -55.5
       ],
       "waypoints": [
        [
-        -122.0,
-        -68.75,
-        -3.05
+        -126.0,
+        -70.5,
+        -2.97
+       ],
+       [
+        -118.75,
+        -70.5,
+        -3.04
        ],
        [
         -114.75,
-        -68.75,
-        -3.14
+        -74.5,
+        -2.66
        ],
        [
-        -110.75,
-        -72.75,
-        -2.73
+        -113.25,
+        -74.5,
+        -2.62
        ],
        [
-        -109.25,
-        -72.75,
-        -2.68
+        -100.5,
+        -62.0,
+        -3.59
        ],
        [
-        -96.5,
-        -60.25,
-        -3.62
-       ],
-       [
-        -30.5,
-        -60.0,
-        4.35
+        -32.25,
+        -61.75,
+        4.66
        ],
        [
         -26.0,
@@ -53175,42 +53104,32 @@
      },
      "charlie": {
       "desc": "S ring -> sunken lane (úvoz) -> north exit -> rear yard gate",
-      "length_m": 137.37,
-      "extra_vs_primary_pct": 8.2,
+      "length_m": 141.36,
+      "extra_vs_primary_pct": 8.0,
       "via": [
        7.2,
        -58.0
       ],
       "waypoints": [
        [
-        95.0,
-        -96.25,
-        4.22
+        98.5,
+        -98.25,
+        4.44
        ],
        [
-        83.0,
-        -96.5,
-        3.84
+        86.5,
+        -98.5,
+        4.13
        ],
        [
-        68.75,
-        -82.25,
+        72.25,
+        -84.25,
         3.24
        ],
        [
-        63.25,
-        -82.25,
-        3.23
-       ],
-       [
-        62.25,
-        -81.25,
-        3.2
-       ],
-       [
-        41.25,
-        -81.25,
-        3.18
+        44.25,
+        -84.25,
+        3.95
        ],
        [
         21.5,
@@ -53302,6 +53221,12 @@
      119.89,
      169.27,
      105.09
+    ],
+    [
+     131.0,
+     124.25,
+     174.31,
+     110.13
     ]
    ],
    "bravo": [
@@ -53372,10 +53297,10 @@
      167.82
     ],
     [
-     158.0,
-     143.7,
-     131.89,
-     186.72
+     159.0,
+     145.0,
+     133.05,
+     187.87
     ]
    ],
    "charlie": [
@@ -53410,16 +53335,16 @@
      104.95
     ],
     [
-     132.0,
-     174.83,
-     133.28,
-     126.96
+     117.0,
+     156.71,
+     118.61,
+     109.87
     ],
     [
      137.0,
-     179.25,
-     135.78,
-     131.39
+     179.36,
+     136.9,
+     131.64
     ]
    ]
   },
@@ -53435,79 +53360,59 @@
    "primary": {
     "alfa": [
      [
-      -122.0,
-      -68.75,
-      -3.05
+      -126.0,
+      -70.5,
+      -2.97
      ],
      [
-      -120.25,
-      -67.0,
-      -3.09
+      -124.0,
+      -68.5,
+      -3.0
      ],
      [
-      -120.25,
-      -56.75,
-      -2.89
-     ],
-     [
-      -116.5,
-      -53.0,
-      -2.99
-     ],
-     [
-      -115.5,
-      -53.0,
-      -3.03
-     ],
-     [
-      -111.5,
-      -50.75,
-      -3.16
-     ],
-     [
-      -79.5,
-      -18.5,
-      -1.83
-     ],
-     [
-      -69.0,
-      -18.25,
-      -1.56
-     ],
-     [
-      -60.75,
-      -10.0,
-      -1.21
-     ],
-     [
+      -124.0,
       -58.25,
-      -10.0,
+      -2.77
+     ],
+     [
+      -69.75,
+      -3.5,
+      -1.26
+     ],
+     [
+      -66.5,
+      -3.0,
+      -1.3
+     ],
+     [
+      -65.5,
+      -2.0,
+      -1.32
+     ],
+     [
+      -63.75,
+      -2.0,
+      -1.28
+     ],
+     [
+      -60.5,
+      1.25,
       -1.17
      ],
      [
-      -56.75,
-      -9.0,
-      -1.17
+      -49.25,
+      1.5,
+      -0.93
      ],
      [
-      -36.0,
-      11.75,
-      1.13
+      -35.75,
+      14.75,
+      1.3
      ],
      [
-      -33.5,
-      13.75,
-      1.13
-     ],
-     [
-      -30.75,
-      13.5,
-      1.13
-     ],
-     [
-      -27.5,
-      16.75,
-      1.13
+      -32.25,
+      20.75,
+      1.3
      ],
      [
       -26.75,
@@ -53517,24 +53422,24 @@
     ],
     "bravo": [
      [
-      31.25,
-      146.0,
-      3.34
+      31.75,
+      148.0,
+      3.42
      ],
      [
-      24.75,
-      139.5,
-      3.29
+      25.25,
+      141.5,
+      3.36
      ],
      [
-      23.0,
-      139.5,
-      3.54
+      23.5,
+      141.5,
+      3.6
      ],
      [
       -3.5,
-      113.0,
-      3.45
+      114.5,
+      3.5
      ],
      [
       -3.5,
@@ -53688,42 +53593,32 @@
    "flank": {
     "alfa": {
      "desc": "P_BANK_TERRACE ramp -> mill-race terrace -> RW stairs",
-     "length_m": 143.76,
-     "extra_vs_primary_pct": 4.79,
+     "length_m": 147.46,
+     "extra_vs_primary_pct": 4.53,
      "via": [
       -45.6,
       15.5
      ],
      "waypoints": [
       [
-       -122.0,
-       -68.75,
-       -3.05
+       -126.0,
+       -70.5,
+       -2.97
       ],
       [
-       -122.0,
-       -58.5,
-       -2.84
+       -126.0,
+       -59.75,
+       -2.74
       ],
       [
-       -118.25,
-       -55.25,
-       -2.95
+       -111.0,
+       -45.0,
+       -3.03
       ],
       [
-       -115.75,
-       -55.0,
-       -3.04
-      ],
-      [
-       -105.75,
-       -44.75,
-       -3.2
-      ],
-      [
-       -105.75,
-       -42.75,
-       -3.09
+       -108.0,
+       -45.0,
+       -3.16
       ],
       [
        -78.0,
@@ -53804,31 +53699,31 @@
     },
     "bravo": {
      "desc": "footbridge B -> west bank -> gable door DL_D3",
-     "length_m": 143.31,
-     "extra_vs_primary_pct": -0.27,
+     "length_m": 145.4,
+     "extra_vs_primary_pct": -0.26,
      "via": [
       -19.5,
       45.0
      ],
      "waypoints": [
       [
-       31.25,
-       146.0,
-       3.34
+       31.75,
+       148.0,
+       3.42
       ],
       [
-       28.75,
-       145.25,
-       3.28
+       29.25,
+       147.25,
+       3.36
       ],
       [
-       8.0,
-       124.5,
-       3.3
+       8.5,
+       126.5,
+       3.31
       ],
       [
-       7.75,
-       88.0,
+       8.25,
+       88.5,
        2.12
       ],
       [
@@ -54047,24 +53942,24 @@
     ],
     "bravo": [
      [
-      31.25,
-      146.0,
-      3.34
+      31.75,
+      148.0,
+      3.42
      ],
      [
-      37.0,
-      140.25,
-      3.33
+      37.25,
+      142.5,
+      3.4
      ],
      [
-      36.75,
-      135.0,
-      3.17
+      37.25,
+      137.25,
+      3.25
      ],
      [
       34.25,
-      132.5,
-      3.08
+      134.25,
+      3.12
      ],
      [
       34.25,
@@ -54104,24 +53999,24 @@
     ],
     "charlie": [
      [
-      95.0,
-      -96.25,
-      4.22
+      98.5,
+      -98.25,
+      4.44
      ],
      [
-      97.0,
-      -94.25,
-      4.13
+      100.25,
+      -96.5,
+      4.36
      ],
      [
-      97.0,
-      -83.5,
-      3.57
+      100.25,
+      -85.25,
+      3.73
      ],
      [
       91.25,
-      -77.75,
-      2.97
+      -76.25,
+      2.93
      ],
      [
       91.25,
@@ -54299,57 +54194,42 @@
     },
     "bravo": {
      "desc": "E ring track -> rear yard at grade (SE corner) -> rear sliding door SK_SD3 / SK_D4",
-     "length_m": 180.16,
-     "extra_vs_primary_pct": 36.6,
+     "length_m": 182.79,
+     "extra_vs_primary_pct": 36.64,
      "via": [
       59.0,
       12.0
      ],
      "waypoints": [
       [
-       31.25,
-       146.0,
-       3.34
-      ],
-      [
-       32.0,
-       143.5,
-       3.28
-      ],
-      [
-       52.75,
-       122.75,
-       4.05
-      ],
-      [
-       52.75,
-       104.5,
-       3.93
-      ],
-      [
-       53.25,
-       104.0,
-       4.09
-      ],
-      [
-       53.5,
-       91.0,
-       5.5
-      ],
-      [
-       53.5,
-       35.25,
-       7.03
-      ],
-      [
-       54.0,
-       32.75,
-       7.06
-      ],
-      [
-       55.0,
        31.75,
-       7.21
+       148.0,
+       3.42
+      ],
+      [
+       41.5,
+       138.25,
+       3.41
+      ],
+      [
+       42.5,
+       135.75,
+       3.32
+      ],
+      [
+       53.5,
+       124.75,
+       4.11
+      ],
+      [
+       53.75,
+       35.0,
+       7.07
+      ],
+      [
+       55.25,
+       29.5,
+       6.97
       ],
       [
        55.25,
@@ -54363,13 +54243,13 @@
       ],
       [
        59.25,
-       4.25,
-       4.6
+       3.25,
+       4.45
       ],
       [
-       56.0,
+       57.0,
        1.0,
-       3.0
+       3.58
       ],
       [
        46.5,
@@ -54401,42 +54281,42 @@
     },
     "charlie": {
      "desc": "E ring from track C -> rear-yard branch track -> rear yard at grade (SE corner)",
-     "length_m": 134.5,
-     "extra_vs_primary_pct": 0.91,
+     "length_m": 137.71,
+     "extra_vs_primary_pct": 0.9,
      "via": [
       54.5,
       -3.5
      ],
      "waypoints": [
       [
-       95.0,
-       -96.25,
-       4.22
+       98.5,
+       -98.25,
+       4.44
       ],
       [
-       95.0,
-       -85.5,
-       3.6
+       98.5,
+       -87.0,
+       3.74
       ],
       [
-       97.0,
-       -83.5,
-       3.57
+       100.25,
+       -85.25,
+       3.73
       ],
       [
-       97.0,
-       -76.75,
-       3.06
+       100.25,
+       -80.5,
+       3.35
       ],
       [
-       88.5,
-       -68.25,
-       2.8
+       90.5,
+       -70.75,
+       2.86
       ],
       [
-       88.5,
-       -49.25,
-       2.17
+       90.5,
+       -51.25,
+       2.41
       ],
       [
        57.5,
@@ -54486,29 +54366,29 @@
    "primary": {
     "alfa": [
      [
-      -122.0,
-      -68.75,
-      -3.05
+      -126.0,
+      -70.5,
+      -2.97
      ],
      [
-      -117.5,
-      -72.75,
-      -2.89
+      -122.25,
+      -74.25,
+      -2.84
      ],
      [
-      -110.75,
-      -72.75,
-      -2.73
+      -114.75,
+      -74.5,
+      -2.66
      ],
      [
-      -109.25,
-      -72.0,
-      -2.77
+      -113.25,
+      -73.75,
+      -2.7
      ],
      [
-      -87.0,
+      -89.25,
       -49.75,
-      -3.46
+      -3.53
      ],
      [
       -57.5,
@@ -54645,19 +54525,19 @@
     ],
     "charlie": [
      [
-      95.0,
-      -96.25,
-      4.22
+      98.5,
+      -98.25,
+      4.44
      ],
      [
-      83.5,
-      -96.5,
-      3.86
+      87.0,
+      -98.5,
+      4.15
      ],
      [
-      56.25,
+      57.75,
       -69.25,
-      2.43
+      2.48
      ],
      [
       50.75,
@@ -54719,42 +54599,42 @@
    "flank": {
     "alfa": {
      "desc": "S ring path -> rear yard gate",
-     "length_m": 135.19,
-     "extra_vs_primary_pct": 8.09,
+     "length_m": 139.47,
+     "extra_vs_primary_pct": 7.77,
      "via": [
       -26.0,
       -55.5
      ],
      "waypoints": [
       [
-       -122.0,
-       -68.75,
-       -3.05
+       -126.0,
+       -70.5,
+       -2.97
+      ],
+      [
+       -118.75,
+       -70.5,
+       -3.04
       ],
       [
        -114.75,
-       -68.75,
-       -3.14
+       -74.5,
+       -2.66
       ],
       [
-       -110.75,
-       -72.75,
-       -2.73
+       -113.25,
+       -74.5,
+       -2.62
       ],
       [
-       -109.25,
-       -72.75,
-       -2.68
+       -100.5,
+       -62.0,
+       -3.59
       ],
       [
-       -96.5,
-       -60.25,
-       -3.62
-      ],
-      [
-       -30.5,
-       -60.0,
-       4.35
+       -32.25,
+       -61.75,
+       4.66
       ],
       [
        -26.0,
@@ -54881,42 +54761,32 @@
     },
     "charlie": {
      "desc": "S ring -> sunken lane (úvoz) -> north exit -> rear yard gate",
-     "length_m": 137.37,
-     "extra_vs_primary_pct": 8.2,
+     "length_m": 141.36,
+     "extra_vs_primary_pct": 8.0,
      "via": [
       7.2,
       -58.0
      ],
      "waypoints": [
       [
-       95.0,
-       -96.25,
-       4.22
+       98.5,
+       -98.25,
+       4.44
       ],
       [
-       83.0,
-       -96.5,
-       3.84
+       86.5,
+       -98.5,
+       4.13
       ],
       [
-       68.75,
-       -82.25,
+       72.25,
+       -84.25,
        3.24
       ],
       [
-       63.25,
-       -82.25,
-       3.23
-      ],
-      [
-       62.25,
-       -81.25,
-       3.2
-      ],
-      [
-       41.25,
-       -81.25,
-       3.18
+       44.25,
+       -84.25,
+       3.95
       ],
       [
        21.5,
@@ -78352,9 +78222,9 @@
    "id": "QA_ALFA_R1",
    "kind": "spawn_row",
    "pos": [
-    -122.06,
-    -68.79,
-    -3.05
+    -125.97,
+    -70.47,
+    -2.97
    ],
    "note": "row centre; active for zone_dilna, zone_dvur"
   },
@@ -78372,9 +78242,9 @@
    "id": "QA_ALFA_R1_1",
    "kind": "spawn_point",
    "pos": [
-    -118.51,
-    -65.63,
-    -3.15
+    -122.43,
+    -67.32,
+    -3.02
    ],
    "note": "yaw 293.2"
   },
@@ -78382,9 +78252,9 @@
    "id": "QA_ALFA_R1_2",
    "kind": "spawn_point",
    "pos": [
-    -117.33,
-    -68.39,
-    -3.13
+    -121.25,
+    -70.08,
+    -3.05
    ],
    "note": "yaw 293.2"
   },
@@ -78392,9 +78262,9 @@
    "id": "QA_ALFA_R1_3",
    "kind": "spawn_point",
    "pos": [
-    -121.27,
-    -66.82,
-    -3.05
+    -125.18,
+    -68.5,
+    -2.97
    ],
    "note": "yaw 293.2"
   },
@@ -78402,9 +78272,9 @@
    "id": "QA_ALFA_R1_4",
    "kind": "spawn_point",
    "pos": [
-    -120.09,
-    -69.57,
-    -3.07
+    -124.0,
+    -71.26,
+    -2.99
    ],
    "note": "yaw 293.2"
   },
@@ -78412,9 +78282,9 @@
    "id": "QA_ALFA_R1_5",
    "kind": "spawn_point",
    "pos": [
-    -124.03,
-    -68.0,
-    -2.99
+    -127.94,
+    -69.68,
+    -2.93
    ],
    "note": "yaw 293.2"
   },
@@ -78422,9 +78292,9 @@
    "id": "QA_ALFA_R1_6",
    "kind": "spawn_point",
    "pos": [
-    -122.84,
-    -70.76,
-    -3.01
+    -126.76,
+    -72.44,
+    -2.95
    ],
    "note": "yaw 293.2"
   },
@@ -78432,9 +78302,9 @@
    "id": "QA_ALFA_R1_7",
    "kind": "spawn_point",
    "pos": [
-    -126.78,
-    -69.18,
-    -2.95
+    -130.7,
+    -70.86,
+    -2.9
    ],
    "note": "yaw 293.2"
   },
@@ -78442,9 +78312,9 @@
    "id": "QA_ALFA_R1_8",
    "kind": "spawn_point",
    "pos": [
-    -125.6,
-    -71.94,
-    -2.96
+    -129.52,
+    -73.62,
+    -2.94
    ],
    "note": "yaw 293.2"
   },
@@ -78532,9 +78402,9 @@
    "id": "QA_BRAVO_R1",
    "kind": "spawn_row",
    "pos": [
-    31.21,
-    146.08,
-    3.34
+    31.83,
+    148.03,
+    3.42
    ],
    "note": "row centre; active for zone_dilna, zone_sklad"
   },
@@ -78552,81 +78422,81 @@
    "id": "QA_BRAVO_R1_1",
    "kind": "spawn_point",
    "pos": [
-    31.08,
-    141.34,
-    3.21
+    32.04,
+    143.3,
+    3.28
    ],
-   "note": "yaw 160.02"
+   "note": "yaw 164.05"
   },
   {
    "id": "QA_BRAVO_R1_2",
    "kind": "spawn_point",
    "pos": [
-    28.26,
-    142.37,
-    3.2
+    29.15,
+    144.12,
+    3.25
    ],
-   "note": "yaw 160.02"
+   "note": "yaw 164.05"
   },
   {
    "id": "QA_BRAVO_R1_3",
    "kind": "spawn_point",
    "pos": [
-    32.1,
-    144.16,
-    3.3
+    32.86,
+    146.18,
+    3.38
    ],
-   "note": "yaw 160.02"
+   "note": "yaw 164.05"
   },
   {
    "id": "QA_BRAVO_R1_4",
    "kind": "spawn_point",
    "pos": [
-    29.28,
-    145.19,
-    3.29
+    29.97,
+    147.0,
+    3.36
    ],
-   "note": "yaw 160.02"
+   "note": "yaw 164.05"
   },
   {
    "id": "QA_BRAVO_R1_5",
    "kind": "spawn_point",
    "pos": [
-    33.13,
-    146.98,
-    3.42
+    33.68,
+    149.06,
+    3.5
    ],
-   "note": "yaw 160.02"
+   "note": "yaw 164.05"
   },
   {
    "id": "QA_BRAVO_R1_6",
    "kind": "spawn_point",
    "pos": [
-    30.31,
-    148.01,
-    3.4
+    30.8,
+    149.89,
+    3.5
    ],
-   "note": "yaw 160.02"
+   "note": "yaw 164.05"
   },
   {
    "id": "QA_BRAVO_R1_7",
    "kind": "spawn_point",
    "pos": [
-    34.15,
-    149.8,
-    3.55
+    34.51,
+    151.95,
+    3.67
    ],
-   "note": "yaw 160.02"
+   "note": "yaw 164.05"
   },
   {
    "id": "QA_BRAVO_R1_8",
    "kind": "spawn_point",
    "pos": [
-    31.33,
-    150.83,
-    3.54
+    31.62,
+    152.77,
+    3.66
    ],
-   "note": "yaw 160.02"
+   "note": "yaw 164.05"
   },
   {
    "id": "QA_BRAVO_R2_1",
@@ -78722,9 +78592,9 @@
    "id": "QA_CHARLIE_R2",
    "kind": "spawn_row",
    "pos": [
-    94.96,
-    -96.29,
-    4.23
+    98.4,
+    -98.18,
+    4.43
    ],
    "note": "row centre; active for zone_sklad, zone_dvur"
   },
@@ -78812,9 +78682,9 @@
    "id": "QA_CHARLIE_R2_1",
    "kind": "spawn_point",
    "pos": [
-    90.29,
-    -95.44,
-    4.02
+    93.74,
+    -97.33,
+    4.26
    ],
    "note": "yaw 61.19"
   },
@@ -78822,9 +78692,9 @@
    "id": "QA_CHARLIE_R2_2",
    "kind": "spawn_point",
    "pos": [
-    91.74,
-    -92.81,
-    3.85
+    95.18,
+    -94.7,
+    4.12
    ],
    "note": "yaw 61.19"
   },
@@ -78832,9 +78702,9 @@
    "id": "QA_CHARLIE_R2_3",
    "kind": "spawn_point",
    "pos": [
-    92.92,
-    -96.88,
-    4.22
+    96.36,
+    -98.77,
+    4.43
    ],
    "note": "yaw 61.19"
   },
@@ -78842,9 +78712,9 @@
    "id": "QA_CHARLIE_R2_4",
    "kind": "spawn_point",
    "pos": [
-    94.37,
-    -94.25,
-    4.05
+    97.81,
+    -96.14,
+    4.29
    ],
    "note": "yaw 61.19"
   },
@@ -78852,9 +78722,9 @@
    "id": "QA_CHARLIE_R2_5",
    "kind": "spawn_point",
    "pos": [
-    95.55,
-    -98.33,
-    4.38
+    98.99,
+    -100.22,
+    4.56
    ],
    "note": "yaw 61.19"
   },
@@ -78862,9 +78732,9 @@
    "id": "QA_CHARLIE_R2_6",
    "kind": "spawn_point",
    "pos": [
-    97.0,
-    -95.7,
-    4.24
+    100.44,
+    -97.59,
+    4.42
    ],
    "note": "yaw 61.19"
   },
@@ -78872,9 +78742,9 @@
    "id": "QA_CHARLIE_R2_7",
    "kind": "spawn_point",
    "pos": [
-    98.18,
-    -99.77,
-    4.52
+    101.62,
+    -101.66,
+    4.63
    ],
    "note": "yaw 61.19"
   },
@@ -78882,9 +78752,9 @@
    "id": "QA_CHARLIE_R2_8",
    "kind": "spawn_point",
    "pos": [
-    99.63,
-    -97.15,
-    4.39
+    103.07,
+    -99.04,
+    4.52
    ],
    "note": "yaw 61.19"
   },
@@ -80071,32 +79941,32 @@
    "walkableRadius_cells": 7
   },
   "input": {
-   "vertices": 1022640,
-   "triangles": 340880
+   "vertices": 1022676,
+   "triangles": 340892
   },
-  "bake_seconds": 7.2,
+  "bake_seconds": 6.9,
   "tiles": 305,
-  "polys": 8566,
+  "polys": 8577,
   "disconnected_entrances": [],
   "entrances_checked": 80,
   "balance": {
    "zone_dilna": {
     "teams": {
      "alfa": {
-      "mean_m": 124.09
+      "mean_m": 127.77
      },
      "bravo": {
-      "mean_m": 126.41
+      "mean_m": 127.85
      },
      "charlie": {
       "mean_m": 126.03
      }
     },
-    "max_over_min": 1.0187,
+    "max_over_min": 1.0144,
     "unreachable": 0,
     "run_time_s_3_5": [
-     35.5,
-     36.1
+     36,
+     36.5
     ]
    },
    "zone_sklad": {
@@ -80105,43 +79975,43 @@
       "mean_m": 126.63
      },
      "bravo": {
-      "mean_m": 118.36
+      "mean_m": 120.45
      },
      "charlie": {
-      "mean_m": 121.7
+      "mean_m": 124.76
      }
     },
-    "max_over_min": 1.0699,
+    "max_over_min": 1.0513,
     "unreachable": 0,
     "run_time_s_3_5": [
-     33.8,
+     34.4,
      36.2
     ]
    },
    "zone_dvur": {
     "teams": {
      "alfa": {
-      "mean_m": 114.71
+      "mean_m": 118.98
      },
      "bravo": {
       "mean_m": 122.21
      },
      "charlie": {
-      "mean_m": 113.37
+      "mean_m": 117.31
      }
     },
-    "max_over_min": 1.078,
+    "max_over_min": 1.0418,
     "unreachable": 0,
     "run_time_s_3_5": [
-     32.4,
+     33.5,
      34.9
     ]
    }
   },
   "method": "Detour computePath (straight path length) from each active spawn point to every zone target point (2 m grid of walkable zone cells, exact minimum with straight-line pruning); a target counts as reached only when the path ends within 0.6 m of it; entrances are reached from the village square (0, 0, 0.30).",
   "entrances_failed": [],
-  "level_hash": "51c58ae82e8df044",
-  "status": "FAIL",
+  "level_hash": "47d8720dd61e1945",
+  "status": "PASS",
   "note": "design-time validation bake from the level JSON proxy geometry (Tools/level/nav). The shipping navmesh is baked the same way from the generated collision meshes (ARCHITECTURE D4) and must reproduce these results."
  }
 }

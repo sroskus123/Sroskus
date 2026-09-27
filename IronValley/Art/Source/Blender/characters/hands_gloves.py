@@ -1201,6 +1201,22 @@ def glove_arrays(g):
     return co, tris
 
 
+def lining_outside_shell(co, tris, n_loop, nv):
+    """Hem / lining vertices (the 2 * n_loop vertices add_hem appended) lying outside the glove's
+    own shell (nearest shell face normal test).  Returns (count, max mm)."""
+    hem_start = nv - 2 * n_loop
+    shell = tris[~(tris >= hem_start).any(1)]
+    bvh = HN.bvh_arrays(co, shell)
+    n, worst = 0, 0.0
+    for v in range(hem_start, nv):
+        q = Vector(tuple(map(float, co[v])))
+        loc, nn, fi, d = bvh.find_nearest(q, 0.02)
+        if loc is not None and (q - loc).dot(nn) > 0:
+            n += 1
+            worst = max(worst, d)
+    return n, round(worst * 1000, 2)
+
+
 def validate():
     t0 = time.time()
     arm, lib, props = load_pose_scene()
@@ -1272,6 +1288,8 @@ def validate():
                                                            skin_rest=rest_b, glove_rest=grest[s][:-1])
             gm = C.hand_contact_metrics(gco2, grest[s], gt2, gdom[s], s)
             r["glove_self_contact"] = {k: v for k, v in gm.items() if k != "penetration"}
+            nl, ml = lining_outside_shell(gco, HN.mesh_tris(gl[s].data), len(loop), len(gco))
+            r["glove_lining_outside_shell"] = {"verts": nl, "max_mm": ml}
             r["glove_self_contact_pairs"] = gm["penetration"]
             if e["kind"] != "grip":
                 bm = C.hand_contact_metrics(cob, rest_b, tris_b, dom_b, s)
@@ -1341,6 +1359,22 @@ def validate():
             er["sides"][s] = r
         out["poses"][pn] = er
         log("validated", pn, round(time.time() - t0, 1))
+    # wrist extremes (relaxed fingers, twist bones driven): glove vs the shipped skin and the cuff
+    # lining vs the shell (HAND-01: wrist and hand-to-forearm transition)
+    wx = {}
+    for kind in ("flex70", "ext60", "ulnar30", "twist80"):
+        wrist_pose(arm, kind)
+        cob = C.mesh_arrays(body, evaluated=True)
+        wx[kind] = {}
+        for s in ("l", "r"):
+            gco, _ = glove_arrays(gl[s])
+            gt_ = HN.mesh_tris(gl[s].data)
+            nl, ml = lining_outside_shell(gco, gt_, len(gtris_c[s][1]), len(gco))
+            wx[kind][s] = {"glove_vs_skin": HN.skin_vs_glove(cob, shipped_skin[s], gco, gt_, skin_rest=rest_b,
+                                                             glove_rest=grest[s][:-1]),
+                           "glove_lining_outside_shell": {"verts": nl, "max_mm": ml}}
+    C.reset_pose(arm)
+    out["wrist_extremes"] = wx
     out["checks"] = hand_checks(out)
     out["seconds"] = round(time.time() - t0, 1)
     return out
@@ -1375,7 +1409,17 @@ def hand_checks(v):
     chk["joint_angles_exact_readback"] = "PASS" if worst["angle_dev"] < 0.05 else "FAIL"
     chk["phalanx_lengths_constant"] = "PASS" if worst["bone_len"] < 1e-3 else "FAIL"
     chk["no_fingertip_through_back_of_hand"] = "PASS" if worst["through_back"] == 0 else "FAIL"
+    lin = 0.0
+    for pn, e in v["poses"].items():
+        for s, r in e["sides"].items():
+            lin = max(lin, r["glove_lining_outside_shell"]["max_mm"])
+    for kind, e in v.get("wrist_extremes", {}).items():
+        for s, r in e.items():
+            lin = max(lin, r["glove_lining_outside_shell"]["max_mm"])
+            worst["poke"] = max(worst["poke"], r["glove_vs_skin"]["poke_through_max_mm"])
+    worst["lining_out"] = lin
     chk["glove_never_penetrated_by_skin"] = "PASS" if worst["poke"] <= L["glove_poke_mm"] else "FAIL"
+    chk["glove_cuff_lining_inside_shell"] = "PASS" if lin <= 0.1 else "FAIL"
     ex = L["glove_shells_extra_mm"]
     chk["bare_fingertip_into_palm_le_1.5mm"] = "PASS" if worst["bare_tip_palm"] <= L["tip_palm_mm"] else "FAIL"
     chk["bare_finger_finger_overlap_le_4mm"] = "PASS" if worst["bare_finger_finger"] <= L["finger_finger_mm"] else "FAIL"
@@ -1671,7 +1715,10 @@ def render_grips(arm, lib, props):
         ivlib.render(pth, cam, res=(1600, 900), samples=RENDER_SAMPLES + 8)
         made.append(label(pth, f"{pn}: first-person camera ({FP['fov']:.0f} deg horizontal FOV, eye at the head), full body posed, arms two-bone IK",
                           "IK: " + json.dumps(ik)))
-        # external full-body check of the same stance (shoulders -> hands continuity)
+        # external full-body check of the same stance (shoulders -> hands continuity); the head is
+        # only hidden for the camera inside it
+        head_hide()
+        head_hide = lambda: None                                       # noqa: E731
         cam = ivlib.camera(f"cfb_{pn}", (0.95, -1.35, 1.75), (0.0, -0.35, 1.35), lens=45, up=(0, 0, 1))
         pth = os.path.join(PREV, f"Hands_grip_{pn}_stance.png")
         ivlib.render(pth, cam, res=(1280, 720), samples=RENDER_SAMPLES)
@@ -1874,7 +1921,7 @@ def _reimport_anim(path, lib):
     rest = {s: C.hand_rest_angles(a, s) for s in ("l", "r")}
     a.animation_data_create()
     for pn, e in lib["poses"].items():
-        an = e["action"]
+        an = e.get("action") or "A_Hand_" + "".join(w.capitalize() for w in pn.split("_"))
         cand = [x for k, x in acts.items() if k == an or k.endswith(an) or an in k]
         if not cand:
             res["missing"].append(an)
