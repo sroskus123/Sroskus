@@ -26,6 +26,7 @@ export class WeaponHandle {
     this.shotsFired = 0; // cumulative for the engine (core counters reset on respawn / refill)
     this.infiniteAmmo = false; // debug / test only
     this.lastEvents = [];
+    this.adsTime = null; // per-attachment ADS time (s), e.g. the mounted optic's ads_time_s; null = def.adsTime
   }
 
   get magazine() {
@@ -90,7 +91,7 @@ export class WeaponHandle {
     const c = this.core;
     this.adsHeld = !!inp.ads && c.state === 'ready' && !inp.sprinting && !c.disabledBy.includes('switch') && !c.disabledBy.includes('life');
     const target = this.adsHeld ? 1 : 0;
-    const rate = dt / Math.max(this.def.adsTime || 0.2, 1e-3);
+    const rate = dt / Math.max(this.adsTime || this.def.adsTime || 0.2, 1e-3);
     this.ads = this.ads < target ? Math.min(target, this.ads + rate) : Math.max(target, this.ads - rate);
 
     if (this.infiniteAmmo && c.state === 'ready') {

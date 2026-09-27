@@ -221,3 +221,42 @@ posluchače, dozvuk, zpoždění šíření d/343 m/s, průlet střely kolem pos
 `traverse:start`, `combatant:died` (zastaví kroky / přebíjení / pohyb oběti), `round:reset`, `game:state` (ambience
 jen ve stavu `playing`, jiný stav zastaví vše). Mapování povrch → zvuk a hlasitosti: `src/data/audio.json`.
 Zdroje a licence: `Shared/audio/SOURCES.md`.
+
+## Optiky IV-7: výbava, zbrojní bedna, náhradní optika v batohu (2026-09-27)
+
+Data: `Shared/config/optics.json` (optika: zvětšení, oko, osa, eyebox, síťka, ADS čas, montáž na lištu; generuje Blender),
+`src/data/attachments.json` (herní pravidla a zobrazení: volby s českými názvy, výchozí výbava, výměna z batohu, zbrojní
+bedna, optiky botů podle role), `src/data/optics_web.json` (názvy webových souborů a parametry SDF síťky; generuje
+`Tools/web_assets/build_web_assets.py`). Id: `IVH1`, `IVR1`, `IVP2`, `IVS3`, `IVS6`, `irons` (= bez optiky, sklopná
+mířidla vyklopená); `collimator` je starý alias pro `IVR1`.
+
+- **Stejná pravidla pro hráče i boty** (`src/game/opticLoadout.js`, `Combatant.opticLoadout`): `kit` = volba z výbavy
+  nebo bedny `{ optic, spare }` (náhradní ≠ hlavní, `null` = žádná), `mounted` / `spare` = stav teď. Respawn vrací `kit`
+  (výměna v poli smrt nepřežije). Oko při míření, logické ústí (D8) a ADS čas primární zbraně se řídí nasazenou optikou
+  (`Combatant._applyOpticPose` → `WeaponSystem.setViewModel`, `WeaponHandle.adsTime`).
+- **Výměna z batohu:** `cmd.swapOptic` (stisk; hráč klávesa akce `swapOptic`, výchozí B) spustí výměnu `mounted ↔ spare`
+  na `attachments.swap.durationS` (3 s). Jen s puškou v rukou, ne za sprintu, při přebíjení, výměně zbraně, přeskoku
+  (`optic:swap_rejected` s důvodem). Po celou dobu (a `interruptRaiseS` po přerušení) má puška zámek jádra **`other`**
+  (nestřílí, nepřebíjí) a ADS vstup je vypnutý. Zapíše se až na konci; přeruší ji znovu `swapOptic`, sprint, výměna
+  zbraně, přeskok / vylezení, smrt, reset kola (poškození podle dat, výchozí ne). Stav rukou pro budoucí animaci:
+  `opticLoadout.visualOptic` (stará → prázdná lišta → nová) a události fází.
+- **Zbrojní bedna:** úroveň `match.armories: [{ id, team, center: [x, 0, z], size: [sx, sy, sz] }]` — kolizní kvádr
+  (skupina BVH `armory`, zahrnut v pečení navmeshe) + vzhled `src/game/armoryView.js`. `MatchSession.armoryFor(c)` =
+  bedna vlastního týmu v dosahu `attachments.armory.interactRadiusM`, živý bojovník; `useArmory(c, kit)` změní výbavu
+  ihned. Hráč: Použít (E) otevře obrazovku bedny (simulace stojí jako v pauze).
+- **Boti:** role podle pořadí v týmu (`attachments.bots.pattern`) → optika + náhradní; `Combatant.opticRole`.
+  Ve třetí osobě LOD1 optiky na provizorní pušce (`CharacterView.setOptic`).
+
+| Událost | Data |
+| --- | --- |
+| `optic:swap_started` | `{ id, team, weaponId, from, to, duration }` |
+| `optic:swap_phase` | `{ id, team, weaponId, phase: 'lower' \| 'detach' \| 'stow' \| 'attach' \| 'raise', t }` — okamžiky z `attachments.swap.phases` (háček pro animaci rukou) |
+| `optic:swap_finished` | `{ id, team, weaponId, mounted, spare }` |
+| `optic:swap_interrupted` | `{ id, team, weaponId, reason: 'swapKey' \| 'sprint' \| 'switch' \| 'traverse' \| 'death' \| 'damage' \| 'reset' \| 'armory', mounted, spare, progress }` |
+| `optic:swap_rejected` | `{ id, team, weaponId, reason }` |
+| `optic:changed` | `{ id, team, weaponId, mounted, spare, source: 'swap' \| 'armory' \| 'loadout' \| 'spawn' }` |
+| `armory:opened` | `{ id, armoryId }` (jen hráč) |
+
+Zobrazení (jen vizuál, `src/weapons/opticView.js`): viz `Art/Reference/OPTICS_spec.md` oddíl 11 (webová integrace).
+Míření je dál D8: kamera určuje bod, zásah ověřuje paprsek od ústí; v plném ADS je osa optiky = osa kamery = směr
+zásahu včetně recoilu, takže síťka neukazuje jinam, než kam jde rána (GUN-03).

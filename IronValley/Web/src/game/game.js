@@ -42,6 +42,9 @@ import { DEFAULT_LEVEL_ID, listAvailableLevels, loadLevelData } from './levels.j
 import { baseRulesCompiled } from './gameRules.js';
 import { createAISystem } from '../ai/index.js';
 import { horizontalToVerticalFov, wrapAngle, DEG2RAD } from '../util/math.js';
+import { OpticAssets, FirstPersonOptics } from '../weapons/opticView.js';
+import { ATTACHMENTS, IRONS, getOpticDef, opticName, resolveOpticId, sensitivityFactor, validateOpticLoadout } from '../weapons/optics.js';
+import { ArmoryView } from './armoryView.js';
 
 function safeStorage() {
   try {
@@ -56,6 +59,7 @@ function safeStorage() {
 }
 
 const smooth = (t) => t * t * (3 - 2 * t);
+const OPTIC_SIG = { irons: 1, IVH1: 2, IVR1: 3, IVP2: 4, IVS3: 5, IVS6: 6, null: 7 };
 const _v = new Vector3();
 const _qRecoilRoll = new Quaternion();
 const RECOIL_PITCH_LIMIT = 88 * DEG2RAD; // same as Player
@@ -96,7 +100,12 @@ export class Game {
     this.seedOverride = null;
     this.aiEnabled = true;
     this.infiniteAmmo = false;
-    this.optic = weaponsData.iv7_carbine.optics.default;
+    // the player's optic kit (loadout screen / armory crate): primary optic + spare optic in the backpack
+    this.kit = { ...ATTACHMENTS.loadoutDefault };
+    this.opticAssets = null;
+    this.fpOptics = null;
+    this.armoryView = null;
+    this._lastOpticPose = null;
     this.resultsAt = null;
     this.deathCam = null;
     this.levels = [];
@@ -160,6 +169,11 @@ export class Game {
         if (screen === 'title' && this.state === 'loadout') this.state = 'start';
       },
       actions: {
+        armoryChoose: (k) => this.armoryChoose(k),
+        armoryState: () => {
+          const pc = this.playerCombatant;
+          return pc ? { mounted: pc.optic, spare: pc.spareOptic, kit: { ...pc.opticLoadout.kit } } : null;
+        },
         gesture: () => this.audio.unlock(),
         start: () => this.openLoadout(),
         practice: () => this.startPractice(true),
@@ -194,12 +208,8 @@ export class Game {
     this.levels = await listAvailableLevels();
     await this.loadLevel(DEFAULT_LEVEL_ID);
     await this.loadWeaponAssets();
-    try {
-      this.renderer.renderer.compile(this.scene, this.camera);
-      for (const vm of this.viewModels) this.renderer.renderer.compile(vm.scene, vm.camera);
-    } catch {
-      /* compile is an optimisation only */
-    }
+    await this.loadOpticAssets();
+    this._compileAll();
     this.setState('start');
     this.loop.start();
     this.audio.prefetch(); // encoded files only; decoded after the first user gesture
@@ -257,6 +267,17 @@ export class Game {
       lighting: this.bakedLighting ? { world: this.world, sunDirection: this.env.sunDirection, ...this.bakedLighting } : null,
     });
     this.scene.add(this.levelView.group);
+    if (this.armoryView) this.armoryView.dispose();
+    this.armoryView = new ArmoryView(level, teamsData);
+    this.scene.add(this.armoryView.group);
+    if (this.bakedLighting) {
+      const bl = this.bakedLighting;
+      this.armoryView.setAmbient((p) => {
+        const q = p.clone();
+        q.y += 0.5;
+        return bl.ambientFloor + (1 - bl.ambientFloor) * probeSkyVisibility(this.world, q, { sunDirection: this.env.sunDirection, rays: bl.rays }).skyVis;
+      });
+    }
     const levelBounds = new Box3().setFromObject(this.levelView.group);
     this.env.setShadowCasterHeights(levelBounds.min.y, levelBounds.max.y);
     this.dynamics = new DynamicsWorld({ gravity: movement.gravity });
@@ -294,7 +315,10 @@ export class Game {
     const mode = o.mode || 'match';
     if (mode === 'match' && !this.level.match) throw new Error(`Mapa ${this.levelId} nemá zápasová data`);
     const seed = o.seed !== undefined ? o.seed >>> 0 : this.nextSeed();
-    if (o.optic) this.optic = o.optic;
+    if (o.optic || o.spare !== undefined) {
+      const v = validateOpticLoadout({ optic: o.optic || this.kit.optic, spare: o.spare !== undefined ? o.spare : this.kit.spare === o.optic ? null : this.kit.spare });
+      if (v.ok) this.kit = { optic: v.optic, spare: v.spare };
+    }
     const s = new MatchSession({
       level: this.level,
       world: this.world,
@@ -308,7 +332,7 @@ export class Game {
       seed,
       bots: mode === 'match' ? (o.bots || this.botCounts) : [0, 0, 0],
       rulesPatch: o.rulesPatch || null,
-      loadout: { optic: this.optic },
+      loadout: { optic: this.kit.optic, spare: this.kit.spare },
     });
     s.aiEnabled = this.aiEnabled;
     if (this.session) this.session.dispose();
@@ -317,6 +341,7 @@ export class Game {
     const pc = s.player;
     if (!this.player) {
       this.player = new Player({ controller: pc.controller, input: this.input, settings: this.settings, events: this.events, mouse: this.data.bindings.mouse });
+      this.player.lookScaleFn = () => this._lookScale();
     } else {
       this.player.attachController(pc.controller);
     }
@@ -340,7 +365,7 @@ export class Game {
       }
     }
     this.combatantViews.setSession(s);
-    this.applyOptic(this.optic);
+    this._syncOpticView(true);
     this.effects.clear();
     this.hud.clearTransient();
     this.audio.reset();
@@ -351,12 +376,93 @@ export class Game {
     return s;
   }
 
+  /** Optic mounted on the player's rifle now ('irons' = none). */
+  get optic() {
+    const pc = this.playerCombatant;
+    return pc ? pc.optic : this.kit.optic;
+  }
+
+  /**
+   * The player's optic kit (loadout / armory / tests): applied at once to the current combatant and kept for the
+   * next sessions. Returns { ok, reason }.
+   */
+  setPlayerKit({ optic, spare = null }, source = 'loadout') {
+    const v = validateOpticLoadout({ optic, spare });
+    if (!v.ok) return { ok: false, reason: v.reason };
+    this.kit = { optic: v.optic, spare: v.spare };
+    const pc = this.playerCombatant;
+    const r = pc ? pc.setOpticKit(this.kit, source) : { ok: true };
+    this._syncOpticView(true);
+    return r;
+  }
+
+  /** Legacy name: set the primary optic (spare kept when valid). */
   applyOptic(optic) {
-    this.optic = optic;
-    const opt = weaponsData.iv7_carbine.optics.list.find((x) => x.id === optic) || weaponsData.iv7_carbine.optics.list[0];
-    this.viewModels[0].setHiddenNodes(opt.hideNodes || []);
-    if (this.playerCombatant) this.playerCombatant.optic = opt.id;
-    this._drawDirty = true;
+    const o = resolveOpticId(optic) || this.kit.optic;
+    return this.setPlayerKit({ optic: o, spare: this.kit.spare === o ? null : this.kit.spare });
+  }
+
+  /** First-person rifle shows the optic of the player's loadout (visual optic mid-swap) and aims through it. */
+  _syncOpticView(force = false) {
+    const pc = this.playerCombatant;
+    const vm0 = this.viewModels[0];
+    if (!pc) return;
+    const L = pc.opticLoadout;
+    if (force || this._lastOpticPose !== L.mounted) {
+      vm0.setOpticPose(getOpticDef(L.mounted).eyeRifle);
+      this._lastOpticPose = L.mounted;
+      this._drawDirty = true;
+    }
+    if (this.fpOptics && (force || this.fpOptics.id !== L.visualOptic)) {
+      this.fpOptics.setOptic(L.visualOptic);
+      this._drawDirty = true;
+    }
+  }
+
+  /** Mouse look factor while aiming (magnification scaling + ADS sensitivity setting). */
+  _lookScale() {
+    const pc = this.playerCombatant;
+    if (!pc || !this.renderer) return 1;
+    const w = pc.weapon;
+    const hipV = horizontalToVerticalFov(this.settings.get('fovDeg'), this.renderer.aspect);
+    return sensitivityFactor({
+      def: pc.activeWeapon === 0 ? pc.opticDef : null,
+      ads: w.state.ads,
+      hipVfovDeg: hipV,
+      curVfovDeg: this.camera.fov,
+      scaling: this.settings.get('adsSensitivityScaling'),
+      multiplier: this.settings.get('adsSensitivity'),
+    });
+  }
+
+  // ------------------------------------------------------------------ armory crate
+
+  /** Opens the armory crate screen (the simulation stops behind it like the pause menu). */
+  openArmory(armory) {
+    if (this.state !== 'playing') return false;
+    const pc = this.playerCombatant;
+    if (!pc || !this.session.armoryFor(pc)) return false;
+    for (const w of pc.weapons) w.state.releaseInputs();
+    this.session.setMenuLock(true);
+    this.armoryOpen = armory || this.session.armoryFor(pc);
+    this.setState('paused');
+    this.menus.setStatus('');
+    this.menus.show('armory', { mounted: pc.optic, spare: pc.spareOptic, kit: { ...pc.opticLoadout.kit } });
+    this.input.exitPointerLock();
+    this.events.emit('armory:opened', { id: pc.id, armoryId: this.armoryOpen.id });
+    return true;
+  }
+
+  /** Armory screen choice: changes the kit at once (only at the crate). Returns { ok, reason }. */
+  armoryChoose({ optic, spare }) {
+    const pc = this.playerCombatant;
+    if (!pc) return { ok: false, reason: 'no_player' };
+    const r = this.session.useArmory(pc, { optic, spare });
+    if (r.ok) {
+      this.kit = { ...pc.opticLoadout.kit };
+      this._syncOpticView(true);
+    }
+    return r;
   }
 
   rulesInfo() {
@@ -389,12 +495,15 @@ export class Game {
 
   openLoadout() {
     this.setState('loadout');
+    // the loadout screen starts from the current kit (it may have changed at an armory crate)
+    this.menus.optic = this.kit.optic;
+    this.menus.spare = this.kit.spare;
     this.menus.show('loadout');
   }
 
   /** Start a match from the loadout screen. */
   deploy(lo = {}, fromGesture = false) {
-    this.newSession({ mode: 'match', optic: lo.optic || this.optic });
+    this.newSession({ mode: 'match', optic: lo.optic || this.kit.optic, spare: lo.spare !== undefined ? lo.spare : this.kit.spare });
     this.startPlaying(fromGesture);
   }
 
@@ -406,6 +515,7 @@ export class Game {
   /** Enter gameplay (resume). fromGesture: request pointer lock (must be inside a user gesture). */
   startPlaying(fromGesture) {
     if (this.state === 'loading' || !this.session) return;
+    this.armoryOpen = null;
     this.session.setMenuLock(false);
     this.menus.hide();
     this.setState('playing');
@@ -562,6 +672,24 @@ export class Game {
     ev.on('weapon:reload_finished', (p) => log('reload-done', { id: p.id, kind: p.kind }));
     ev.on('weapon:reload_interrupted', (p) => log('reload-interrupted', { id: p.id, kind: p.kind }));
     ev.on('player:landed', (p) => log('landed', { speed: Number(p.speed.toFixed(3)) }));
+    // optics: the first-person view follows the player's loadout; swap feedback in the HUD
+    ev.on('optic:changed', (p) => {
+      if (isPlayer(p.id)) this._syncOpticView(true);
+      log('optic', { id: p.id, mounted: p.mounted, spare: p.spare, source: p.source });
+    });
+    ev.on('optic:swap_started', (p) => log('optic-swap', { id: p.id, from: p.from, to: p.to }));
+    ev.on('optic:swap_interrupted', (p) => {
+      if (isPlayer(p.id)) this.hud.showNotice('Výměna optiky přerušena', 1.6);
+      log('optic-swap-interrupted', { id: p.id, reason: p.reason });
+    });
+    ev.on('optic:swap_rejected', (p) => {
+      if (!isPlayer(p.id)) return;
+      const txt = { nothing_to_swap: 'V batohu není náhradní optika', primary_not_active: 'Optiku lze měnit jen na pušce', reloading: 'Nejdřív dokonči přebíjení', sprinting: 'Za sprintu optiku nevyměníš' }[p.reason];
+      if (txt) this.hud.showNotice(txt, 1.6);
+    });
+    ev.on('optic:swap_finished', (p) => {
+      if (isPlayer(p.id)) this.hud.showNotice(`Nasazeno: ${opticName(p.mounted)}`, 1.6);
+    });
     this.settings.onChange((key) => {
       this._drawDirty = true;
       if (key === 'renderScale' || key === 'adaptiveResolution' || key === '*') this._applyRenderScale();
@@ -613,6 +741,15 @@ export class Game {
     // trigger state (core contract), so a trigger held through death does not fire after the respawn
     const cmd = this.player.buildCommand();
     s.tick(dt, { playerCmd: cmd });
+    // E at the own team's armory crate: optic kit screen
+    if (cmd.interact && this.state === 'playing') {
+      const a = s.armoryFor(pc);
+      if (a) {
+        this.openArmory(a);
+        this.input.consumeTick();
+        return;
+      }
+    }
     this.audio.tick(dt);
     // partial recoil recovery (weapons/recoil.js): what the automatic return leaves goes into the look
     for (const w of pc.weapons) {
@@ -682,8 +819,15 @@ export class Game {
     this.camera.position.copy(eye);
     const ws = w.state;
     const adsEase = smooth(ws.ads);
-    const hfov = this.settings.get('fovDeg') * (1 + ((w.def.adsFovMultiplier || 1) - 1) * adsEase);
-    this.camera.fov = horizontalToVerticalFov(hfov, r.aspect);
+    // ADS field of view: per optic on the rifle (1x sights: no zoom; 6x: the overlay's documented vertical FOV
+    // once scoped in), the weapon's own value otherwise (pistol)
+    this._syncOpticView();
+    const primary = pc.activeWeapon === 0;
+    const odef = primary ? pc.opticDef : null;
+    const fovMult = odef ? odef.worldFovMultiplier : w.def.adsFovMultiplier || 1;
+    const hfov = this.settings.get('fovDeg') * (1 + (fovMult - 1) * adsEase);
+    const scopedFov = !!(odef && odef.mode === 'fullscreen' && odef.overlay && this.fpOptics && this.fpOptics.id === odef.id && ws.ads >= odef.scopeIn && alive);
+    this.camera.fov = scopedFov ? odef.overlay.vfovDeg : horizontalToVerticalFov(hfov, r.aspect);
     this.camera.aspect = r.aspect;
     this.camera.updateProjectionMatrix();
     this.camera.updateMatrixWorld();
@@ -705,6 +849,7 @@ export class Game {
     this._updateEyeAdaptation(frameDt, snapped);
 
     const sw = pc.switchTimer > 0 ? pc.switchTimer / Math.max(1e-3, w.def.switchTime || 0.4) : 0;
+    const swapLower = this._opticSwapLower(pc);
     vm.update({
       dt: frameDt,
       alpha,
@@ -717,10 +862,12 @@ export class Game {
       lookDX,
       lookDY,
       reload: ws.state === 'reloading' || ws.state === 'chambering' ? ws.reloadProgress : 0,
-      lower: Math.max(sw, this.player.getWeaponLower(alpha)), // weapon switch or vault / mantle
+      lower: Math.max(sw, this.player.getWeaponLower(alpha), swapLower), // weapon switch, vault / mantle, optic swap
       motion: this.settings.get('cameraMotion'),
       sunVisibility: this._sunVis,
     });
+    const showVm = alive && (this.state === 'playing' || this.state === 'paused');
+    if (this.fpOptics) this.fpOptics.update({ worldCamera: this.camera, ads: ws.ads, primary, renderer: r.renderer, vmVisible: showVm });
     this.dummyView.update(alpha);
     this.combatantViews.update(alpha);
     const ri = s.roundInfo();
@@ -733,7 +880,12 @@ export class Game {
         const gl = r.renderer;
         gl.clear();
         gl.render(this.scene, this.camera);
-        if (alive && (this.state === 'playing' || this.state === 'paused')) {
+        const fo = this.fpOptics;
+        if (showVm && primary && fo && fo.scoped) {
+          // 6x scoped: overlay + reticle over the zoomed world, no view model
+          fo.renderScope(gl);
+        } else if (showVm) {
+          if (primary && fo && fo.pipActive) fo.renderPip(gl, this.scene); // eyepiece image (2x / 3x / 6x raising)
           gl.clearDepth();
           gl.render(vm.scene, vm.camera);
         }
@@ -763,8 +915,17 @@ export class Game {
         waiting: part.state === 'respawning',
       };
     }
-    const optic = weaponsData.iv7_carbine.optics.list.find((o) => o.id === this.optic);
-    const weaponLabel = pc.activeWeapon === 0 ? `${w.def.displayName} · ${optic ? optic.name.toLowerCase() : ''}` : w.def.displayName;
+    const L = pc.opticLoadout;
+    const weaponLabel = pc.activeWeapon === 0 ? `${w.def.displayName} · ${opticName(pc.optic).toLowerCase()}` : w.def.displayName;
+    const armory = alive && this.state === 'playing' ? s.armoryFor(pc) : null;
+    const opticHud = {
+      spare: opticName(pc.spareOptic),
+      hasSpare: pc.spareOptic !== null,
+      swapping: L.swapping,
+      progress: L.progress,
+      swapKey: this._keyLabel('swapOptic'),
+      armoryPrompt: armory ? `${this._keyLabel('interact')} — zbrojní bedna (změna optiky)` : '',
+    };
     this.hud.update(frameDt, {
       weapon: ws.getState(),
       weaponLabel,
@@ -781,6 +942,7 @@ export class Game {
       killFeed: s.killFeed,
       death,
       allies: this._allyMarkers(pc),
+      optic: opticHud,
     });
 
     // audio listener on the camera
@@ -789,7 +951,8 @@ export class Game {
     this.audio.setListener(this.camera.position, _fwd, _up);
 
     if (this.settings.get('adaptiveResolution') && !this.loop.frozen && this.state === 'playing') {
-      const sc = this.adaptive.update(this.loop.lastFrameMs, frameDt);
+      // no resolution change while aiming (a scale step would be visible in the sight picture)
+      const sc = this.adaptive.update(this.loop.lastFrameMs, frameDt, { hold: alive && ws.ads > 0.01 });
       if (sc !== null) r.setScale(sc);
     }
     this.frameCount++;
@@ -835,6 +998,8 @@ export class Game {
       vm.ambientScale,
       vm.sun.intensity,
       vm.flash.visible ? 1 : 0,
+      this.fpOptics ? (this.fpOptics.scoped ? 2 : 0) + (this.fpOptics.pipActive ? 4 : 0) + this.fpOptics.rtSize : 0,
+      this.fpOptics ? OPTIC_SIG[this.fpOptics.id] ?? 9 : 0,
       r.domElement.width,
       r.domElement.height,
       this.env.sun.intensity,
@@ -842,6 +1007,29 @@ export class Game {
     let s = '';
     for (const v of parts) s += `${Math.round(v * 1e5)},`;
     return s;
+  }
+
+  /** Weapon lowering 0..1 of the player's optic swap (hook for the arms animation: lower -> swap -> raise). */
+  _opticSwapLower(pc) {
+    const L = pc.opticLoadout;
+    const P = L.rules.phases;
+    if (L.swap) {
+      const u = L.progress;
+      if (u < P.detach) return smooth(Math.min(1, u / Math.max(1e-3, P.detach)));
+      if (u < P.raise) return 1;
+      return 1 - smooth(Math.min(1, (u - P.raise) / Math.max(1e-3, 1 - P.raise)));
+    }
+    if (L.raise > 0) return smooth(Math.min(1, L.raise / Math.max(1e-3, L.rules.interruptRaiseS || 0.3)));
+    return 0;
+  }
+
+  _keyLabel(action) {
+    const codes = (this.data.bindings.actions && this.data.bindings.actions[action]) || [];
+    const c = codes[0];
+    if (!c) return '?';
+    if (c.startsWith('Key')) return c.slice(3);
+    if (c.startsWith('Digit')) return c.slice(5);
+    return c;
   }
 
   _updateEyeAdaptation(frameDt, snapped) {
@@ -867,6 +1055,45 @@ export class Game {
     await this.loadWeaponAsset();
     await this.loadPistolAsset();
     this._updatePlaceholderNote();
+  }
+
+  /** Optic set (LOD0 first person, LOD1 third person, reticle SDFs, 6x overlay), then the first-person mount. */
+  async loadOpticAssets() {
+    const maxAniso = Math.min(8, this.renderer.renderer.capabilities.getMaxAnisotropy());
+    this.opticAssets = new OpticAssets({ maxAnisotropy: maxAniso });
+    try {
+      await this.opticAssets.loadAll();
+    } catch (err) {
+      console.warn('[optics] loading failed:', err && err.message);
+    }
+    this.fpOptics = new FirstPersonOptics({ viewModel: this.viewModels[0], assets: this.opticAssets });
+    this.fpOptics.onRifleModel();
+    this.combatantViews.setOpticAssets(this.opticAssets);
+    this._syncOpticView(true);
+  }
+
+  /** Precompiles every shader the game can need (world, view models, each optic, the 6x overlay): no first-ADS hitch. */
+  _compileAll() {
+    const gl = this.renderer.renderer;
+    try {
+      gl.compile(this.scene, this.camera);
+      for (const vm of this.viewModels) gl.compile(vm.scene, vm.camera);
+      if (this.fpOptics) {
+        const keep = this.fpOptics.id;
+        for (const id of ['IVH1', 'IVR1', 'IVP2', 'IVS3', 'IVS6']) {
+          if (!this.opticAssets.has(id)) continue;
+          this.fpOptics.setOptic(id);
+          gl.compile(this.viewModels[0].scene, this.viewModels[0].camera);
+        }
+        for (const m of this.fpOptics.compileTargets()) {
+          this.fpOptics.overlayQuad.material = m;
+          gl.compile(this.fpOptics.overlayScene, this.fpOptics.overlayCamera);
+        }
+        this.fpOptics.setOptic(keep);
+      }
+    } catch {
+      /* compile is an optimisation only */
+    }
   }
 
   /** Loads a GLB and prepares it for the view-model pass (glass fix, sockets). */
@@ -919,6 +1146,15 @@ export class Game {
       const { obj, muzzle, adsEye, box, size, glassFixed } = await this._loadViewModelGlb(path, def.viewModel.sockets || {});
       const vm0 = this.viewModels[0];
       vm0.setModel(obj, muzzle, { placeholder: false, name: path.split('/').pop(), adsEye });
+      const maxAniso = Math.min(8, this.renderer.renderer.capabilities.getMaxAnisotropy());
+      obj.traverse((o) => {
+        if (!o.isMesh) return;
+        for (const m of Array.isArray(o.material) ? o.material : [o.material]) {
+          for (const k of ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap']) if (m && m[k]) m[k].anisotropy = maxAniso;
+        }
+      });
+      if (this.fpOptics) this.fpOptics.onRifleModel();
+      this._syncOpticView(true);
       this._drawDirty = true;
       this.weaponAsset = {
         path,
@@ -1016,6 +1252,13 @@ export class Game {
       weapon: this.weapon ? this.weapon.getState() : null,
       weapons: pc ? pc.weapons.map((w) => w.getState()) : [],
       optic: this.optic,
+      opticSpare: pc ? pc.spareOptic : this.kit.spare,
+      opticKit: { ...this.kit },
+      opticLoadout: pc ? pc.opticLoadout.getState() : null,
+      opticView: this.fpOptics ? this.fpOptics.getDebug() : null,
+      opticAssets: this.opticAssets ? { loaded: [...this.opticAssets.items.keys()], errors: this.opticAssets.errors.slice() } : null,
+      armory: pc && this.session ? (this.session.armoryFor(pc) || {}).id || null : null,
+      lookScale: this.player ? this.player.lastLookScale : 1,
       weaponAsset: { ...this.weaponAsset, viewModel: this.viewModels[0].assetName, isPlaceholder: this.viewModels[0].isPlaceholder, hiddenNodes: this.viewModels[0].hiddenCount || 0 },
       pistolAsset: { ...this.pistolAsset, viewModel: this.viewModels[1].assetName, isPlaceholder: this.viewModels[1].isPlaceholder },
       viewModel: {

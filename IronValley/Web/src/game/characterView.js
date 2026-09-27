@@ -10,6 +10,10 @@
 
 import { CapsuleGeometry, Color, Group, Mesh, MeshStandardMaterial, Object3D, Quaternion, SphereGeometry, BoxGeometry, Vector3 } from 'three';
 
+// placeholder rifle in the IV-7 model frame (glTF: +X muzzle, +Y up, origin at the grip): receiver / handguard
+// box centred on the bore (y 0.0917) with its top at the rail (0.1217), so a mounted optic (LOD1) sits on it
+const RIFLE_BOX = { x0: -0.26, x1: 0.5759, yBore: 0.0917, height: 0.06, width: 0.05 };
+
 export const MANNEQUIN_BONES = [
   'pelvis', 'spine_01', 'spine_02', 'spine_03', 'neck_01', 'head',
   'clavicle_l', 'upperarm_l', 'lowerarm_l', 'hand_l',
@@ -18,6 +22,7 @@ export const MANNEQUIN_BONES = [
 ];
 
 const UP = new Vector3(0, 1, 0);
+const _X = new Vector3(1, 0, 0);
 const _d = new Vector3();
 const _m = new Vector3();
 const _q = new Quaternion();
@@ -90,10 +95,35 @@ export class CharacterView {
       armL: mk(capsuleGeo('arm', 0.055), mats.limb, 'arm_l_mesh'),
       legR: mk(capsuleGeo('leg', 0.085), mats.limb, 'leg_r_mesh'),
       legL: mk(capsuleGeo('leg', 0.085), mats.limb, 'leg_l_mesh'),
-      gun: mk(new BoxGeometry(0.05, 1, 0.07), mats.gun, 'rifle_placeholder'),
-      gunBand: mk(new BoxGeometry(0.055, 0.04, 0.075), mats.marker, 'rifle_placeholder_band'),
     };
+    // rifle frame: placeholder rifle + attachments (optic LOD1 at the rail socket)
+    this.rifle = new Group();
+    this.rifle.name = 'rifle_frame';
+    this.root.add(this.rifle);
+    const B = RIFLE_BOX;
+    const gunGeo = new BoxGeometry(B.x1 - B.x0, B.height, B.width);
+    gunGeo.translate((B.x0 + B.x1) / 2, B.yBore, 0);
+    const gripGeo = new BoxGeometry(0.035, 0.11, 0.032);
+    gripGeo.rotateZ(0.3);
+    gripGeo.translate(-0.005, 0.02, 0);
+    const bandGeo = new BoxGeometry(0.04, B.height + 0.006, B.width + 0.006);
+    bandGeo.translate(0.3, B.yBore, 0);
+    this.parts.gun = new Mesh(gunGeo, mats.gun);
+    this.parts.gun.name = 'rifle_placeholder';
+    this.parts.gunGrip = new Mesh(gripGeo, mats.gun);
+    this.parts.gunGrip.name = 'rifle_placeholder_grip';
+    this.parts.gunBand = new Mesh(bandGeo, mats.marker);
+    this.parts.gunBand.name = 'rifle_placeholder_band';
+    for (const m of [this.parts.gun, this.parts.gunGrip]) {
+      m.castShadow = true;
+      m.receiveShadow = true;
+    }
     this.parts.gunBand.castShadow = false;
+    this.rifle.add(this.parts.gun, this.parts.gunGrip, this.parts.gunBand);
+    this.opticSlot = new Group();
+    this.opticSlot.name = 'optic_slot';
+    this.rifle.add(this.opticSlot);
+    this.opticId = null;
     // joint nodes (Unreal Mannequin names) for attachments / future skinned model
     this.bones = {};
     for (const b of MANNEQUIN_BONES) {
@@ -129,14 +159,16 @@ export class CharacterView {
     placeBetween(P.armL, toLocal(L.al, armL.a), toLocal(L.alb, armL.b), GEO.arm.len);
     placeBetween(P.legR, toLocal(L.lr, legR.a), toLocal(L.lrb, legR.b), GEO.leg.len);
     placeBetween(P.legL, toLocal(L.ll, legL.a), toLocal(L.llb, legL.b), GEO.leg.len);
-    // placeholder rifle: from 0.25 m behind the grip to the gameplay muzzle
+    // placeholder rifle in its model frame at the grip (orientation = look x hip cant, like the first-person pose),
+    // so its muzzle end is the gameplay muzzle (GUN-02) and a mounted optic sits on the rail
     toLocal(L.grip, st.grip);
     toLocal(L.muzzle, st.muzzle);
-    _d.subVectors(L.muzzle, L.grip).normalize();
-    _m.copy(L.grip).addScaledVector(_d, -0.25);
-    placeBetween(P.gun, _m, L.muzzle, 1);
-    P.gunBand.position.copy(L.grip).addScaledVector(_d, 0.22);
-    P.gunBand.quaternion.copy(P.gun.quaternion);
+    this.rifle.position.copy(st.rifleOrigin ? toLocal(_m, st.rifleOrigin) : L.grip);
+    if (st.rifleQuat) this.rifle.quaternion.copy(st.rifleQuat);
+    else {
+      _d.subVectors(L.muzzle, L.grip).normalize();
+      this.rifle.quaternion.setFromUnitVectors(_X, _d);
+    }
     // joints
     const B = this.bones;
     B.pelvis.position.copy(L.ta);
@@ -186,10 +218,25 @@ export class CharacterView {
     this.root.visible = v;
   }
 
+  /**
+   * Optic on the rifle's rail (third person: LOD1 copy from OpticAssets.cloneLod1), or null. `rail` = the
+   * socket_rail position in the rifle model frame (Shared/config/optics.json mount_on_iv7).
+   */
+  setOptic(id, object = null, rail = null) {
+    if (id === this.opticId && (object === null || this.opticSlot.children[0] === object)) return;
+    this.opticSlot.clear();
+    this.opticId = id;
+    if (object) {
+      if (rail) object.position.set(rail[0], rail[1], rail[2]);
+      this.opticSlot.add(object);
+    }
+  }
+
   dispose() {
     this.root.removeFromParent();
     for (const m of Object.values(this.parts)) {
       if (m.geometry !== GEO.torso.geo && m.geometry !== GEO.arm.geo && m.geometry !== GEO.leg.geo) m.geometry.dispose();
     }
+    this.opticSlot.clear();
   }
 }

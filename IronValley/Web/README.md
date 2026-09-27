@@ -106,6 +106,19 @@ vykreslování vypnuté, časově zrychlené přes skutečnou smyčku, kolo skon
 bojoval o spornou oblast, žádný bot zaseknutý 5 s, žádný teleport, žádná chyba v konzoli, „Nové kolo“ vynuluje skóre, časy,
 paměť AI, rezervace krytů a blokace navmeshe); čitelnost HUD v 960×540 i 1920×1080 (bez přetečení
 textu, bez překryvů); načítání map podle id; náhradní cesta pro GLB pistole.
+
+**Optiky (`tests/e2e/10_optics.test.mjs`, `tests/unit/optics.test.mjs`, `optic_loadout.test.mjs`, `adaptive_resolution.test.mjs`):**
+načtení všech optik (LOD0, LOD1, SDF, překryv); vestavěná optika skrytá; sklopná mířidla sklopená −90° (špička k pažbě,
+ne dopředu do optiky) s optikou a vyklopená jen s mechanickými mířidly; pro každou optiku v plném ADS po dávce (recoil)
+střed vykreslené síťky = směr zásahu (osa optiky / osa kamery PiP / střed překryvu do 0,05 px nebo 1e-4°, červené
+pixely síťky do 0,75 px od bodu zásahu) + snímek `optic_ads_<ID>.png`; síťka neplave při chůzi a rozhlížení (< 0,5 px);
+snímky kolem výstřelu bez NaN, bez černého snímku, síťka vždy vidět a na místě, bez záblesku a bez zablikání krytu optiky
+(prominence jasu < 3); citlivost podle zvětšení; cíl obrazu v obraze nikdy menší než disk okuláru; výbava (české názvy,
+náhradní ≠ hlavní) a HUD; zbrojní bedna (jen vlastní tým, v dosahu, změna ihned, `armory_menu.png`); výměna z batohu
+(přesně 3 s, bez výstřelu a míření, průběh v HUD, přerušení, události fází); boti s optikou podle role jako LOD1. Unit:
+data optik, pozice oka a osy v ADS (oko v kameře do 1e-9 m, osa = osa kamery), ústí podle optiky, pokrytí dilatace SDF
+při 540p / 1080p, eyebox, pravidla výbavy, časování a přerušení výměny, zbraň během výměny nestřílí / nemíří / nepřebíjí,
+respawn vrací výbavu, bedna jen pro svůj tým, adaptivní rozlišení se na 60 Hz vrací a v míření stojí.
 ## Ovládání (výchozí, `src/data/input_bindings.json`)
 
 | Akce | Klávesa |
@@ -118,12 +131,15 @@ textu, bez překryvů); načítání map podle id; náhradní cesta pro GLB pist
 | Chůze (držet) | Alt |
 | Dřep | C nebo Ctrl (Ctrl+W v prohlížeči zavírá kartu — doporučujeme C) |
 | Skok | mezerník |
-| Použít | E |
+| Použít / zbrojní bedna (u bedny svého týmu na spawnu: změna optiky) | E |
+| Výměna optiky z batohu (3 s, přeruší ji znovu B, sprint nebo výměna zbraně) | B |
 | Puška / pistole | 1 / 2 (pistole IV-P9 je zatím provizorní model) |
 | Menu, pauza, uvolnění kurzoru | Esc (v podnabídce Esc = zpět; do hry tlačítkem „Pokračovat“) |
 | FPS | F3 |
 
-Nastavení v menu: citlivost myši, zorné pole 70–100° (horizontální, výchozí 80°), intenzita pohybu
+Nastavení v menu: citlivost myši, citlivost v míření (násobek) a „citlivost podle zvětšení“ (výchozí zapnuto: v míření se
+rozhlížíš úhlovou rychlostí zobrazeného obrazu — 1× beze změny, 2× polovinou, 3× třetinou, 6× podle zorného pole
+puškohledu), zorné pole 70–100° (horizontální, výchozí 80°), intenzita pohybu
 kamery, hlasitost, automatické rozlišení nebo pevné měřítko vykreslování 50–100 %, zobrazení FPS a **změna
 kláves** (klikni na akci a stiskni klávesu nebo tlačítko myši; Esc změnit nelze). Nastavení i klávesy se ukládají
 do `localStorage` (když prohlížeč úložiště nepovolí, platí jen do zavření stránky).
@@ -132,7 +148,11 @@ do `localStorage` (když prohlížeč úložiště nepovolí, platí jen do zav�
 
 * **Úvod:** Začít, Trénink (bez botů), Nastavení, Ovládání, Ukončit (webová stránka kartu sama zavřít nemůže —
   uvolní kurzor a řekne, jak hru ukončit). Volba mapy nahoře.
-* **Výbava:** hlavní zbraň IV-7 karabina (kolimátor / mechanická mířidla), vedlejší IV-P9 pistole (klávesa 2).
+* **Výbava:** hlavní zbraň IV-7 karabina s optikou — Holografický zaměřovač 1×, Kolimátor 1×, Hranolový 2×, Puškohled 3×,
+  Puškohled 6× nebo Mechanická mířidla — a jedna náhradní optika v batohu (nebo žádná); vedlejší IV-P9 pistole (klávesa 2).
+  Optiku změníš u **zbrojní bedny** na spawnu svého týmu (E) nebo v poli výměnou s náhradní z batohu (B, 3 s, mezitím
+  nestřílíš ani nemíříš; zapíše se až na konci). Po smrti se vracíš s výbavou z nabídky / bedny. Boti mají optiku podle
+  role (střelec, útočník, podpora, průzkumník, určený střelec s 6×). Pravidla: `src/data/attachments.json`.
 * **Kolo:** 5 s odpočet, pak 10 minut. Aktivní oblast vybere jádro ze tří míst mapy podle semene zápasu. Oblast drží
   tým s jednoznačně největším počtem živých členů uvnitř; 1 bod za 2 s; vyhrává 100 bodů nebo nejvyšší skóre
   po 10 minutách (shoda = remíza). Všechny hodnoty v `Shared/config/rules.json`.
@@ -182,6 +202,7 @@ do `localStorage` (když prohlížeč úložiště nepovolí, platí jen do zav�
 | Klávesy | `src/player/bindingsStore.js` | přemapování kláves z dat, uložení v `localStorage` |
 | HUD / menu | `src/game/hud.js`, `menus.js`, `src/styles.css` | české texty, jen skutečné hodnoty; úvod, výbava, pauza, nastavení, ovládání, výsledky |
 | Testovací rozhraní | `src/debug/testApi.js` | `window.__IV` — jen pro testy a ladění, hra na něm nezávisí |
+| Optiky | `src/weapons/optics.js`, `opticView.js`, `src/game/opticLoadout.js`, `armoryView.js`, `src/data/attachments.json`, `../Shared/config/optics.json` | pět optik IV-H1 / IV-R1 / IV-P2 / IV-S3 / IV-S6 + mechanická mířidla na liště IV-7 (vestavěná optika skrytá, sklopná mířidla sklopená −90° k pažbě); v míření oko v `socket_eye` optiky; 1× kolimovaná síťka z nekonečna podél osy (bez paralaxy, SDF + minimální velikost na obrazovce, nezoomuje); 2× / 3× obraz v obraze (druhá kamera se skutečným zorným polem do HDR MSAA cíle velikosti disku okuláru, síťka, vinětace, eyebox); 6× přes celou obrazovku (překryv + kamera 4,125°); citlivost podle zvětšení; výměna z batohu, zbrojní bedny, optiky botů (LOD1). Podrobně `../Art/Reference/OPTICS_spec.md` oddíl 11 |
 
 ### Kapslový kontroler — klíčová pravidla
 
@@ -243,17 +264,36 @@ v čase, změny a spory oblasti, přítomnost týmů v oblasti, zabití / smrti 
 zaseknutí, největší posun za tik, cena tiku; totéž v Node `node tools/match_report.mjs`). `_game` je přímý přístup jen pro
 interaktivní ladění.
 
+## Webové varianty assetů (`npm run assets:web`)
+
+GLB z Blenderu mají textury PNG (puška 16,6 MiB, optiky 19,3 MiB), což je pro prohlížeč i hostitele Artifact (limit
+15 MiB na soubor po base64) moc. `../Tools/web_assets/build_web_assets.py` (Python 3 + Pillow + numpy + scipy, bez sítě
+a bez Blenderu; `npm run assets:web`) z `../Art/Export/GLB` a `../Art/Textures/Optics` reprodukovatelně zapíše do
+`public/assets/` webové varianty a `src/data/optics_web.json`:
+
+| Výstup | Obsah | Velikost |
+| --- | --- | --- |
+| `weapons/IV7_Carbine.glb` | puška, textury ≤ 2048: základní barva WebP q90 (`EXT_texture_webp`), normála a ORM JPEG 4:4:4 q92; váhy kostí u8 (rigidní skin, přesné); sklo bez `KHR_materials_transmission` | 16,59 → 6,98 MiB |
+| `optics/<ID>_*.glb`, `*_LOD1.glb` | optiky (tělo ≤ 1024, LOD1 ≤ 512), síťky WebP bezeztrátově v plném rozlišení | 19,30 → 8,83 MiB (LOD0 6,83 + LOD1 2,92) |
+| `optics/<ID>_reticle_sdf.png` | pole vzdáleností síťky pro shader (R vše, G svítící, B leptané), rozsah volený tak, aby pokryl minimální šířku čar i při 960 × 540 | 12–37 KiB |
+| `optics/IVS6_ads_overlay.webp` | překryv 6× (bezeztrátově, 4096², stejné px/mrad jako síťka) | 224 KiB |
+| `web_assets_manifest.json` | zdroje (velikost + SHA-256) a výstupy; `tools/build.mjs` varuje, když se zdroje změnily | |
+
+Proč JPEG 4:4:4 pro normálu a ORM: WebP ztrátově vždy podvzorkuje barvu 4:2:0; na zabaleném ORM (AO / drsnost / kov)
+to míchá kanály (PSNR 25–30 dB), JPEG 4:4:4 q92 drží 39–44 dB (normála: střední úhlová chyba 0,56° / 0,88°).
+Textury se dekódují z bajtů (`createImageBitmap(Blob)`), takže WebP i JPEG projdou i přísným CSP. V `dist-artifact/`
+jsou kromě GLB i obrázky pod `assets/` jako `<soubor>.b64.txt`.
+
 ## Zbraň IV-7
 
 Pokud existuje `public/assets/weapons/IV7_Carbine.glb`, hra ho použije jako zbraň v rukou; jinak
-zobrazí zřetelně označený provizorní model (oranžové prvky, text v HUD). Aktuální GLB je kopie
-`../Art/Export/GLB/IV7_Carbine.glb` (Blender 4.5, konvence: ústí +X, nahoru +Y v glTF, metry, počátek na
+zobrazí zřetelně označený provizorní model (oranžové prvky, text v HUD). Aktuální GLB je webová varianta
+`../Art/Export/GLB/IV7_Carbine.glb` (viz výše; Blender 4.5, konvence: ústí +X, nahoru +Y v glTF, metry, počátek na
 úchopu). Pozice se řídí sockety `socket_muzzle` (ústí) a `socket_ads` (oko při míření); logické ústí pro
 střelbu v `weapons.json` odpovídá skutečně vykreslené póze včetně náklonu u boku
 (`viewModel.hipRotation`) — test měří polohu uzlu `socket_muzzle` v prostoru kamery po
-`viewModel.update()` (do 2 mm). Sklo optiky používá `KHR_materials_transmission`,
-které by ve zvláštním průchodu pro zbraň vykreslilo černou čočku — hra ho při načtení nahradí tenkým
-průhledným sklem. Textury vložené v GLB se dekódují přímo z bajtů (`createImageBitmap(Blob)`), bez
+`viewModel.update()` (do 2 mm). Vestavěná optika pušky (uzly `^Optic`) se vždy skryje a na lištu se nasadí zvolená
+optika (IV-R1 je její samostatná dvojče na stejném místě). Textury vložené v GLB se dekódují přímo z bajtů (`createImageBitmap(Blob)`), bez
 `blob:` URL, takže je nezablokuje ani přísné CSP hostitele (`connect-src 'self'`).
 
 ### Recoil a pocit ze střelby (`weapons.json` → `recoil`, `feel`)
@@ -273,6 +313,10 @@ průhledným sklem. Textury vložené v GLB se dekódují přímo z bajtů (`cre
 
 ## Známá omezení
 
+* Optiky: síťky BDC / holdover jsou dekorativní, dokud hra nemá balistiku (hitscan, D8). Na 960 × 540 je šipka IV-P2
+  (6 MOA při 2×) jen ~2 px — skutečná úhlová velikost; minimální šířka čar (1,25 px) ji drží viditelnou. Obraz v obraze
+  vykresluje scénu podruhé (jen s úzkým zorným polem); výkon na skutečném GPU NOT TESTED. Animace rukou při výměně
+  optiky zatím není (zbraň se spustí mimo obraz; události fází jsou připravené).
 * Postavy, pistole a zvuky jsou **provizorní** (viz výše). FPS paže/ruce a animace přebíjení zatím nejsou (přebití
   je časovaný stav jádra s jednoduchým pohybem zbraně). Figuríny nemají animaci chůze; mezi sebou se tělesně
   nesrážejí (kapsle koliduje jen se statickou geometrií — vyhýbání řeší AI).

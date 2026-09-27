@@ -1993,9 +1993,11 @@ HAND_CHAINS["thumb"] = ("thumb_02", "thumb_03")         # MCP + IP hinge; CMC (t
 
 
 def unify_chain_axes(bones, sides=("l", "r")):
-    """Give every bone of a finger chain the same local X (flexion axis): the normalised mean
-    of the chain's current X axes, projected perpendicular to each bone.  Heads / tails are not
-    moved.  Returns a report (angle between the X axes before / after, deg)."""
+    """Give every bone of a finger chain the same local X (flexion axis): the normalised mean of
+    the chain's current X axes.  The distal joints and the tip marker are first moved onto the
+    plane through the chain's first joint with that normal (sub-millimetre shifts), so the chain
+    is planar and X is exactly shared (curling about X cannot twist or drift sideways).  A
+    parent's tail follows its child's head (same point).  Returns a report."""
     rep = {}
     for s in sides:
         for f, chain in HAND_CHAINS.items():
@@ -2004,6 +2006,17 @@ def unify_chain_axes(bones, sides=("l", "r")):
             spread0 = max(math.degrees(math.acos(max(-1.0, min(1.0, float(a @ b))))) for a in X for b in X)
             xm = np.mean(X, axis=0)
             xm /= np.linalg.norm(xm)
+            # make the chain planar: move the distal joints (and the tip marker) onto the plane
+            # through the first joint with normal xm (sub-millimetre shifts), so one X fits all
+            h0 = np.asarray(bones[names[0]]["head"], float)
+            moved = 0.0
+            for i, n in enumerate(names):
+                b = bones[n]
+                for key in (("head",) if i else ()) + ("tail",):
+                    q = np.asarray(b[key], float)
+                    dq = xm * ((q - h0) @ xm)
+                    b[key] = q - dq
+                    moved = max(moved, float(np.linalg.norm(dq)))
             for n in names:
                 b = bones[n]
                 b["roll"] = roll_keeping_x(b["head"], b["tail"], xm)
@@ -2012,7 +2025,8 @@ def unify_chain_axes(bones, sides=("l", "r")):
             ys = [np.asarray(bones[n]["tail"], float) - np.asarray(bones[n]["head"], float) for n in names]
             offplane = max(abs(math.degrees(math.asin(max(-1.0, min(1.0, float(y @ xm) / np.linalg.norm(y)))))) for y in ys)
             rep[f"{f}_{s}"] = {"x_spread_before_deg": round(spread0, 3), "x_spread_after_deg": round(spread1, 4),
-                               "max_bone_tilt_from_flexion_plane_deg": round(offplane, 3)}
+                               "max_bone_tilt_from_flexion_plane_deg": round(offplane, 3),
+                               "planarise_max_joint_shift_mm": round(moved * 1000, 3)}
     return rep
 
 

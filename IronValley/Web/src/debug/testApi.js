@@ -49,7 +49,7 @@ export function installTestApi(game, target = window) {
       if (opts.level && opts.level !== game.levelId) await game.loadLevel(opts.level);
       if (opts.ai !== undefined) game.aiEnabled = !!opts.ai;
       if (opts.bots) game.botCounts = opts.bots.slice();
-      game.newSession({ mode: 'match', bots: opts.bots, seed: opts.seed, optic: opts.optic, rulesPatch: opts.rules || null, skipPreRound: !!opts.skipPreRound });
+      game.newSession({ mode: 'match', bots: opts.bots, seed: opts.seed, optic: opts.optic, spare: opts.spare, rulesPatch: opts.rules || null, skipPreRound: !!opts.skipPreRound });
       game.startPlaying(false);
       return api.getMatchState();
     },
@@ -98,9 +98,84 @@ export function installTestApi(game, target = window) {
     },
     toTitle: () => game.toTitle(),
     openLoadout: () => game.openLoadout(),
-    deploy: (optic) => {
-      game.deploy({ optic }, false);
+    deploy: (optic, spare) => {
+      game.deploy({ optic, spare }, false);
       return game.state;
+    },
+
+    // ---- optics (test / debug) ----
+    /** Test only: the player's optic kit without menus ({ optic, spare }); returns { ok, reason }. */
+    setOptic: (optic, spare = undefined) => {
+      const pc = game.playerCombatant;
+      const sp = spare === undefined ? (pc ? pc.spareOptic : game.kit.spare) : spare;
+      const r = game.setPlayerKit({ optic, spare: sp === optic ? null : sp });
+      game._drawDirty = true;
+      return r;
+    },
+    /** Opens the armory screen if the player stands at the own team's crate (as E would). */
+    openArmory: () => game.openArmory(),
+    /** Armory screen choice (only valid at the crate): returns { ok, reason }. */
+    armoryChoose: (optic, spare = null) => game.armoryChoose({ optic, spare }),
+    /**
+     * Optic state for tests: where the drawn reticle's centre is on screen (the optic's sight axis projected with
+     * the world camera; 6x: the screen centre; PiP: the ocular disc centre and the PiP camera axis) vs the hitscan
+     * direction of the next round (aim incl. recoil), plus the view state (eyebox, render target, scope).
+     */
+    getOpticDebug: () => {
+      const vm = game.viewModels[0];
+      const fo = game.fpOptics;
+      const cam = game.camera;
+      const cv = game.renderer.renderer.domElement;
+      const W = cv.width;
+      const H = cv.height;
+      cam.updateMatrixWorld(true);
+      const proj = (dirWorld) => {
+        const p = cam.position.clone().addScaledVector(dirWorld, 1000).project(cam);
+        return [((p.x + 1) / 2) * W, ((1 - p.y) / 2) * H];
+      };
+      const q = vm.holder.quaternion.clone().multiply(vm.modelRoot.quaternion);
+      const axisCam = new Vector3(1, 0, 0).applyQuaternion(q);
+      const axisWorld = axisCam.clone().applyQuaternion(cam.quaternion);
+      const aim = game.weapon.aimDirection(game.player.yaw, game.player.pitch, new Vector3());
+      const pc = game.playerCombatant;
+      const out = {
+        canvas: [W, H],
+        optic: pc ? pc.optic : null,
+        visual: fo ? fo.id : null,
+        mode: fo ? fo.mode : null,
+        ads: game.weapon.state.ads,
+        cameraFov: cam.fov,
+        aimPx: proj(aim),
+        axisPx: proj(axisWorld),
+        axisCam: axisCam.toArray(),
+        aimCamAngleDeg: (aim.angleTo(new Vector3(0, 0, -1).applyQuaternion(cam.quaternion)) * 180) / Math.PI,
+        view: fo ? fo.getDebug() : null,
+        lookScale: game.player.lastLookScale,
+      };
+      if (fo && (fo.mode === 'pip' || fo.mode === 'fullscreen')) {
+        const f = new Vector3(0, 0, -1).applyQuaternion(fo.pipCamera.quaternion);
+        out.pipAxisAimDeg = (f.angleTo(aim) * 180) / Math.PI;
+        out.pipAxisPx = proj(f);
+        const rec = fo.mounts.get(fo.id);
+        if (rec) {
+          vm.holder.updateMatrixWorld(true);
+          const r = rec.item.sockets.socket_sight_axis_rear.getWorldPosition(new Vector3());
+          const p = r.project(vm.camera);
+          out.ocularPx = [((p.x + 1) / 2) * W, ((1 - p.y) / 2) * H];
+        }
+      }
+      if (fo && fo.scoped) out.scopeCentrePx = [W / 2, H / 2];
+      // irons fold: leaf tip (bone-local +Z, 3 cm) in the rifle model frame vs the hinge
+      const leaf = [];
+      for (const { bone } of fo ? fo.bindQuat.values() : []) {
+        bone.updateMatrixWorld(true);
+        const hinge = vm.modelRoot.worldToLocal(bone.getWorldPosition(new Vector3()));
+        const tip = vm.modelRoot.worldToLocal(bone.localToWorld(new Vector3(0, 0, 0.03)));
+        leaf.push({ bone: bone.name, dx: tip.x - hinge.x, dy: tip.y - hinge.y, dz: tip.z - hinge.z });
+      }
+      out.irons = { folded: fo ? fo.ironsFolded : null, leaf };
+      out.hiddenRifleNodes = vm.hiddenCount || 0;
+      return out;
     },
 
     getMatchState: () => {
@@ -446,7 +521,8 @@ export function installTestApi(game, target = window) {
       };
       for (const ads of [0, 1]) {
         const visual = vm.muzzleInCameraSpace(ads);
-        const logic = new Vector3().fromArray(ads ? def.muzzleOffsetAds : def.muzzleOffsetHip);
+        // gameplay muzzle of the weapon system (per mounted optic: its eye point sets the ADS pose)
+        const logic = game.weapon.muzzleOffset(ads);
         const rendered = drawnAt(ads);
         res[ads ? 'ads' : 'hip'] = {
           visual: visual.toArray(),

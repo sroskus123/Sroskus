@@ -27,8 +27,13 @@ import {
   Vector3,
 } from 'three';
 import weaponsData from '../data/weapons.json' with { type: 'json' };
+import attachments from '../data/attachments.json' with { type: 'json' };
 import { MuzzleEffects, resolveFeel } from './muzzleEffects.js';
-import { viewModelPointInCamera } from './viewModelMotion.js';
+import { adsBlend, viewModelPointInCamera } from './viewModelMotion.js';
+
+// first-person muzzle light / smoke in ADS (attachments.json view.flashAds): the world light lit everything in
+// front for 0.04 s at every shot, the smoke puff drifted across the sight picture
+const FLASH_ADS = { worldLight: 1, smoke: 1, ...((attachments.view && attachments.view.flashAds) || {}) };
 
 // level material -> surface (mirrors SURFACE_OF_MAT in src/game/worldQuery.js, used for footsteps)
 const SURFACE_OF_MAT = {
@@ -265,9 +270,10 @@ export class ImpactEffects {
     const firstPerson = !!viewModel || !shot;
     const info = shot && shot.weaponId ? this.feelOf(shot.weaponId) : null;
     if (firstPerson) {
+      const a = adsBlend((shot && shot.ads) || 0);
       this.muzzleLight.position.copy(muzzleWorld);
       this.muzzleLightTimer = info ? info.feel.flash.worldLightTime : 0.04;
-      this.muzzleLightPower = info ? info.feel.flash.worldLight : 5;
+      this.muzzleLightPower = (info ? info.feel.flash.worldLight : 5) * (1 + (FLASH_ADS.worldLight - 1) * a);
     }
     if (!shot || !info || !info.def || !shot.dir) return;
     const f = info.feel;
@@ -287,7 +293,7 @@ export class ImpactEffects {
         const m = vm.renderedMuzzleInCameraSpace ? vm.renderedMuzzleInCameraSpace(_tmp) : null;
         if (m && vm.updated) this._fpToWorld(m, shot.shot.eye, q, vm, pos);
       }
-      this.muzzle.puff(pos, dir, f.smoke, firstPerson ? 1 - 0.35 * ads : 1);
+      this.muzzle.puff(pos, dir, f.smoke, firstPerson ? 1 + (FLASH_ADS.smoke - 1) * adsBlend(ads) : 1);
     }
     // --- spent casing from the eject port ---
     if (!(firstPerson || dist <= f.casing.maxDistance)) return;

@@ -124,6 +124,7 @@
       { "id": "zone_dilna", "name": "Dílna", "center": [-20, 0, -16], "radius": 4.5, "height": 4.0 },
       { "id": "zone_sklad", "name": "Sklad", "center": [18, 0, -16], "radius": 4.5, "height": 4.0 },
       { "id": "zone_dvur", "name": "Dvůr", "center": [0, 0, -22], "radius": 5.0, "height": 4.0 }
-    ]
+    ],
+    "armories": [{"id": "armory_alfa", "team": 0, "center": [39.18, 0, 26.25], "size": [0.62, 0.62, 1.0]}, {"id": "armory_bravo", "team": 1, "center": [-39.18, 0, -36.25], "size": [0.62, 0.62, 1.0]}, {"id": "armory_charlie", "team": 2, "center": [39.18, 0, -36.25], "size": [0.62, 0.62, 1.0]}]
   }
 }

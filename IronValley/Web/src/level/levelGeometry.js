@@ -208,7 +208,23 @@ export function buildLevelSolids(level) {
         throw new Error(`Unknown solid type: ${s.type}`);
     }
   }
+  // armory crates at the team spawns (match.armories): solid for movement / shots / the nav bake, drawn by
+  // src/game/armoryView.js (render: false keeps them out of the merged level meshes)
+  for (const b of armoryBoxes(level)) {
+    addBox(b, b.id, 'armory');
+    out[out.length - 1].render = false;
+  }
   return out;
+}
+
+/** Axis-aligned boxes of the armory crates of a level (match.armories: { id, team, center (floor), size [x, y, z] }). */
+export function armoryBoxes(level) {
+  const list = (level.match && level.match.armories) || [];
+  return list.map((a) => {
+    const [cx, cy, cz] = a.center;
+    const [sx, sy, sz] = a.size || [1.0, 0.62, 0.62];
+    return { id: a.id, min: [cx - sx / 2, cy, cz - sz / 2], max: [cx + sx / 2, cy + sy, cz + sz / 2], mat: 'armory', team: a.team };
+  });
 }
 
 /** All axis-aligned boxes of a level (boxes, expanded stairs and wall pieces); ramps excluded. */
@@ -219,5 +235,6 @@ export function listLevelBoxes(level) {
     else if (s.type === 'stairs') expandStairs(s).forEach((b) => out.push({ ...b, collide: true }));
     else if (s.type === 'wall') expandWall(s).forEach((b) => out.push({ ...b, collide: true }));
   }
+  for (const b of armoryBoxes(level)) out.push({ id: b.id, min: b.min, max: b.max, collide: true });
   return out;
 }

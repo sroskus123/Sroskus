@@ -215,6 +215,6 @@ export function buildLightingGeometry(solid, { cell = 0.5, largeCell = 1.0, larg
 
 /** Lighting geometry for every solid of a level (box edges shared between solids). */
 export function buildLightingGeometries(solids, opts = {}) {
-  const others = solids.filter((s) => s.box).map((s) => s.box);
+  const others = opts.others || solids.filter((s) => s.box).map((s) => s.box);
   return solids.map((s) => buildLightingGeometry(s, { ...opts, others }));
 }

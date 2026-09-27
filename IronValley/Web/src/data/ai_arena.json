@@ -217,8 +217,9 @@
     "height": 2.5,
     "note": "za zdi s pruchody K1/K2; blize tymum Bravo a Charlie (testovaci kandidat)"
    }
-  ]
- },
+  ],
+    "armories": [{"id": "armory_a", "team": 0, "center": [4.9, 0, 31.19], "size": [1.0, 0.62, 0.62]}, {"id": "armory_b", "team": 1, "center": [-30.69, 0, -19.3], "size": [0.62, 0.62, 1.0]}, {"id": "armory_c", "team": 2, "center": [30.69, 0, -19.3], "size": [0.62, 0.62, 1.0]}]
+  },
  "nav": { "file": "assets/nav/ai_arena.json", "coverExcludeSolids": ["boundary_n", "boundary_s", "boundary_w", "boundary_e"] },
  "markers": { "spawn": { "pos": [0, 0, 26], "yaw": 0 }, "overview": { "pos": [0, 0, 30], "yaw": 0, "pitch": -8 } },
  "aiTest": {

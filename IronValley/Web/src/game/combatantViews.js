@@ -2,9 +2,19 @@
 // the last two simulation ticks, death poses, and muzzle flashes at the gameplay muzzle of bots' shots.
 // Advances on the fixed tick (tick / hold) and draws in update(alpha), like the other views.
 
-import { AdditiveBlending, CanvasTexture, Group, SRGBColorSpace, Sprite, SpriteMaterial, Vector3 } from 'three';
+import { AdditiveBlending, CanvasTexture, Euler, Group, Quaternion, SRGBColorSpace, Sprite, SpriteMaterial, Vector3 } from 'three';
 import { CharacterView } from './characterView.js';
 import { createHitShapeSet } from './hitShapes.js';
+import { lookQuaternion } from '../weapons/weaponSystem.js';
+import { adsBlend } from '../weapons/viewModelMotion.js';
+import { getOpticDef, IRONS } from '../weapons/optics.js';
+
+const _lq = new Quaternion();
+const _hq = new Quaternion();
+const _ry = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2); // model +X -> camera -Z
+const _he = new Euler(0, 0, 0, 'XYZ');
+const _eye = new Vector3();
+const _ro = new Vector3();
 
 function flashTexture() {
   const s = 64;
@@ -52,6 +62,14 @@ export class CombatantViews {
     this.session = null;
     this._flashTex = null;
     this._tmpFeet = new Vector3();
+    this.opticAssets = null; // OpticAssets (LOD1 optics for bots), set by the game once loaded
+    this._rifleQuat = new Quaternion();
+  }
+
+  /** Third-person optics (LOD1) become available: bots show their mounted optic from now on. */
+  setOpticAssets(assets) {
+    this.opticAssets = assets;
+    for (const it of this.items.values()) it.view.setOptic(null, null);
   }
 
   /** Rebuilds the views for a new session (all combatants except the local player). */
@@ -126,9 +144,30 @@ export class CombatantViews {
         eyeHeight: p.eyeHeight + (q.eyeHeight - p.eyeHeight) * a,
       };
       it.c.poseShapesAt(st, it.shapes, it.pts);
+      // rifle frame of the drawn weapon: eye + look x (ADS / hip pose of the weapon's view-model definition)
+      const w = it.c.weapon;
+      const vm = w.viewModelDef;
+      const ads = w.state.ads;
+      const hipW = 1 - adsBlend(ads);
+      const hr = vm.hipRotation || [0, 0, 0];
+      lookQuaternion(st.yaw, st.pitch, _lq);
+      _hq.setFromEuler(_he.set(hr[0] * hipW, hr[1] * hipW, hr[2] * hipW, 'XYZ'));
+      this._rifleQuat.copy(_lq).multiply(_hq).multiply(_ry);
+      const aw = adsBlend(ads);
+      _ro.set(vm.hipPosition[0] + (vm.adsPosition[0] - vm.hipPosition[0]) * aw, vm.hipPosition[1] + (vm.adsPosition[1] - vm.hipPosition[1]) * aw, vm.hipPosition[2] + (vm.adsPosition[2] - vm.hipPosition[2]) * aw);
+      _eye.set(feet.x, feet.y + st.eyeHeight, feet.z);
+      _ro.applyQuaternion(_lq).add(_eye);
+      // optic (LOD1) on the primary only
+      if (this.opticAssets) {
+        const id = it.c.activeWeapon === 0 ? it.c.optic : null;
+        if (id !== it.view.opticId) {
+          const obj = id && id !== IRONS ? this.opticAssets.cloneLod1(id) : null;
+          it.view.setOptic(id, obj, obj ? getOpticDef(id).railRifle : null);
+        }
+      }
       let death = null;
       if (q.death) death = { dir: q.death.dir, mode: q.death.mode, angle: (p.death ? p.death.angle : 0) + (q.death.angle - (p.death ? p.death.angle : 0)) * a };
-      it.view.pose({ feet, shapes: it.shapes, grip: it.pts.grip, support: it.pts.support, muzzle: it.pts.muzzle, death });
+      it.view.pose({ feet, shapes: it.shapes, grip: it.pts.grip, support: it.pts.support, muzzle: it.pts.muzzle, death, rifleOrigin: _ro, rifleQuat: this._rifleQuat });
     }
     this.visibleCount = visible;
   }
@@ -144,6 +183,9 @@ export class CombatantViews {
         finite: r.position.toArray().every(Number.isFinite) && [r.quaternion.x, r.quaternion.y, r.quaternion.z, r.quaternion.w].every(Number.isFinite),
         tiltDeg: (2 * Math.acos(Math.min(1, Math.abs(r.quaternion.w))) * 180) / Math.PI,
         bones: Object.keys(it.view.bones).length,
+        optic: it.view.opticId,
+        opticLod1: it.view.opticSlot.children.length > 0,
+        opticRole: it.c.opticRole,
       });
     }
     return out;

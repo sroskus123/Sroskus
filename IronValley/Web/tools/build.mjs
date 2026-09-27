@@ -6,9 +6,11 @@
 //                       that wrap the page in their own skeleton (claude.ai Artifact)
 // Both reference game.js and assets with relative URLs.
 // It also writes dist-artifact/, a self-contained copy for the claude.ai Artifact host, which
-// refuses binary model files: every .glb becomes <name>.glb.b64.txt (base64 text) and the bundle
-// there is built with that asset list (src/engine/assets.js decodes it). Publish
-// dist-artifact/iron-valley.html together with every other file in dist-artifact/.
+// refuses binary model files: every .glb (and every image under assets/, e.g. the optic reticle SDFs and the
+// 6x overlay) becomes <name>.b64.txt (base64 text) and the bundle there is built with that asset list
+// (src/engine/assets.js decodes it). Publish dist-artifact/iron-valley.html together with every other file in
+// dist-artifact/. The web variants of the Blender exports (WebP / JPEG textures) are made by
+// ../Tools/web_assets/build_web_assets.py (npm run assets:web); a stale manifest is reported here.
 
 import { build } from 'esbuild';
 import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
@@ -34,11 +36,40 @@ async function listFiles(dir, base = dir) {
   return out;
 }
 
+/**
+ * Warns when the web asset variants are older than their sources (Tools/web_assets/build_web_assets.py writes
+ * public/assets/web_assets_manifest.json with the size and SHA-256 of every source it read).
+ */
+async function checkWebAssets() {
+  const manifestPath = path.join(publicDir, 'assets', 'web_assets_manifest.json');
+  if (!existsSync(manifestPath)) {
+    console.warn('warning: public/assets/web_assets_manifest.json missing - run "npm run assets:web"');
+    return;
+  }
+  const { createHash } = await import('node:crypto');
+  const m = JSON.parse(await readFile(manifestPath, 'utf8'));
+  const repo = path.resolve(webRoot, '..');
+  const stale = [];
+  for (const s of m.sources || []) {
+    const f = path.join(repo, s.path);
+    if (!existsSync(f)) continue; // sources are optional in a web-only checkout
+    const st = await stat(f);
+    if (st.size !== s.bytes) {
+      stale.push(s.path);
+      continue;
+    }
+    const h = createHash('sha256').update(await readFile(f)).digest('hex');
+    if (h !== s.sha256) stale.push(s.path);
+  }
+  if (stale.length) console.warn(`warning: web assets are stale (sources changed: ${stale.join(', ')}) - run "npm run assets:web"`);
+}
+
 async function main() {
   const t0 = Date.now();
   await rm(dist, { recursive: true, force: true });
   await mkdir(dist, { recursive: true });
 
+  await checkWebAssets();
   const publicFiles = await listFiles(publicDir);
   const assets = publicFiles.filter((f) => f.startsWith('assets/') && !f.endsWith('.gitkeep') && !f.endsWith('README.md'));
 
@@ -106,7 +137,8 @@ ${body}
   // Artifact-host variant: .glb -> .glb.b64.txt, bundle built with the renamed asset list.
   await rm(distArtifact, { recursive: true, force: true });
   await mkdir(distArtifact, { recursive: true });
-  const artifactAssets = assets.map((a) => (a.endsWith('.glb') ? a + '.b64.txt' : a));
+  const b64 = (a) => /\.(glb|png|webp|jpe?g)$/i.test(a);
+  const artifactAssets = assets.map((a) => (b64(a) ? a + '.b64.txt' : a));
   await build(bundleOptions(path.join(distArtifact, 'game.js'), artifactAssets));
   const artifactJs = await readFile(path.join(distArtifact, 'game.js'), 'utf8');
   for (const [re, name] of forbidden) {
@@ -116,7 +148,7 @@ ${body}
     const src = path.join(publicDir, a);
     const dst = path.join(distArtifact, a);
     await mkdir(path.dirname(dst), { recursive: true });
-    if (a.endsWith('.glb')) {
+    if (b64(a)) {
       await writeFile(dst + '.b64.txt', (await readFile(src)).toString('base64'));
     } else {
       await cp(src, dst);

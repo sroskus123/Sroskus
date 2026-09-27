@@ -11,7 +11,10 @@ import { Quaternion, Vector3 } from 'three';
 import { CharacterController } from '../physics/characterController.js';
 import { bindMovementEvents } from '../player/movementEvents.js';
 import { WeaponSystem, lookQuaternion } from '../weapons/weaponSystem.js';
+import { viewModelPointInCamera } from '../weapons/viewModelMotion.js';
+import { getOpticDef, opticViewModel } from '../weapons/optics.js';
 import { createHitShapeSet, shapeBounds, updateHitShapes } from './hitShapes.js';
+import { OpticLoadout } from './opticLoadout.js';
 import { DEG2RAD, clamp, wrapAngle } from '../util/math.js';
 
 export const IDLE_COMMAND = Object.freeze({
@@ -28,6 +31,7 @@ export const IDLE_COMMAND = Object.freeze({
   reload: false,
   switchTo: null,
   interact: false,
+  swapOptic: false,
 });
 
 const _q = new Quaternion();
@@ -74,7 +78,7 @@ export class Combatant {
     this.lastAttackerId = null;
     this.deathPose = null; // { dir:[x,z], mode:'fall'|'crumple', t, duration, angle }
     this.footDist = 0;
-    this.optic = 'collimator';
+    this._damaged = false; // hit this tick (optic swap interruption rule)
 
     // weapons: [primary, secondary] from the core participant (Match owns the WeaponState objects)
     const wd = ctx.weaponsData;
@@ -98,6 +102,11 @@ export class Combatant {
     this.activeWeapon = 0;
     this.switchTimer = 0;
     this.weapons[1].state.core.disable('switch'); // holstered
+
+    // optic on the primary's rail + spare in the backpack (same rules for the player and bots, opticLoadout.js)
+    this.opticLoadout = new OpticLoadout();
+    this.opticRole = null; // bots: role name (attachments.json bots.roles)
+    this._applyOpticPose();
 
     this._shapes = createHitShapeSet();
     this._shapeKey = '';
@@ -137,6 +146,53 @@ export class Combatant {
     return this.weapons[this.activeWeapon];
   }
 
+  /** Optic mounted on the primary now ('irons' = none). */
+  get optic() {
+    return this.opticLoadout.mounted;
+  }
+
+  /** Spare optic in the backpack (null = none). */
+  get spareOptic() {
+    return this.opticLoadout.spare;
+  }
+
+  /**
+   * New optic kit (loadout screen, armory crate, bot role): applied at once, restored on respawn.
+   * Returns { ok, reason }.
+   */
+  setOpticKit(kit, source = 'loadout') {
+    const r = this.opticLoadout.setKit(kit, source);
+    if (r.ok) this._handleOpticEvents(r.events);
+    return { ok: r.ok, reason: r.reason };
+  }
+
+  /** The primary's ADS pose, gameplay muzzle and ADS time follow the mounted optic's eye point. */
+  _applyOpticPose() {
+    const w = this.weapons[0];
+    const def = w.def;
+    const optic = getOpticDef(this.opticLoadout.mounted);
+    const vm = opticViewModel(def.viewModel, optic);
+    const ads = viewModelPointInCamera(vm, vm.muzzleLocal, 1).toArray();
+    w.setViewModel(vm, def.muzzleOffsetHip, ads);
+    w.state.adsTime = optic.adsTime;
+    this.opticDef = optic;
+    this._shapeKey = '';
+  }
+
+  _handleOpticEvents(events) {
+    if (!events || events.length === 0) return;
+    for (const e of events) {
+      if (e.type === 'optic:changed') this._applyOpticPose();
+      const { type, ...payload } = e;
+      this.ctx.events.emit(type, { id: this.id, team: this.team, weaponId: this.weapons[0].def.id, ...payload });
+    }
+  }
+
+  /** A round hit this combatant this tick (the optic swap can be set to be interrupted by damage). */
+  markDamaged() {
+    this._damaged = true;
+  }
+
   getEye(out = new Vector3()) {
     const c = this.controller;
     return out.set(c.position.x, c.position.y + c.eyeHeight, c.position.z);
@@ -167,7 +223,7 @@ export class Combatant {
    */
   poseShapesAt(st, outShapes, outPts) {
     const w = this.weapon;
-    const vm = w.def.viewModel;
+    const vm = w.viewModelDef;
     const ads = w.state.ads;
     const eye = _v.set(st.feet.x, st.feet.y + st.eyeHeight, st.feet.z);
     lookQuaternion(st.yaw, st.pitch, _q);
@@ -219,6 +275,9 @@ export class Combatant {
       w.state.ads = 0;
       w.state.releaseInputs();
     }
+    // back to the chosen optic kit (a field swap does not survive death), weapon unlocked
+    this._handleOpticEvents(this.opticLoadout.resetToKit('spawn'));
+    this.weapons[0].state.core.enable('other');
     this._shapeKey = '';
   }
 
@@ -288,8 +347,11 @@ export class Combatant {
           this.pitch += clamp(target - this.pitch, -maxTurn, maxTurn);
         }
       }
-      // --- weapon switch (core 'switch' lock on the holstered / drawing weapon) ---
-      if ((cmd.switchTo === 0 || cmd.switchTo === 1) && cmd.switchTo !== this.activeWeapon) this.switchWeapon(cmd.switchTo);
+      // --- weapon switch (core 'switch' lock on the holstered / drawing weapon); interrupts an optic swap ---
+      if ((cmd.switchTo === 0 || cmd.switchTo === 1) && cmd.switchTo !== this.activeWeapon) {
+        if (this.opticLoadout.swapping) this._handleOpticEvents(this.opticLoadout.tick(0, { alive, switchRequested: true }));
+        if (!this.opticLoadout.swapping) this.switchWeapon(cmd.switchTo);
+      }
       // --- movement ---
       c.update(dt, {
         moveX: cmd.moveX || 0,
@@ -316,6 +378,8 @@ export class Combatant {
         this.weapon.state.core.enable('switch');
       }
     }
+    // --- optic: backpack swap (timed, interruptible), phase events for the arms animation ---
+    this._tickOptic(cmd, dt, alive);
     // --- sprint lock (sprint interrupts reload, core reason 'sprint'); a vault / mantle needs the hands too,
     // until the weapon is raised again (controller.handsBusy) ---
     for (const w of this.weapons) {
@@ -329,10 +393,39 @@ export class Combatant {
     for (let i = 0; i < this.weapons.length; i++) {
       const w = this.weapons[i];
       const active = i === this.activeWeapon;
-      w.tick(dt, { trigger: active && !!cmd.fire, ads: active && alive && !!cmd.ads, reload: active && alive && !!cmd.reload, sprinting: c.sprinting, dtUs }, eye, this.yaw, this.pitch);
+      // the hands are on the optic during a swap: no ADS, no reload (fire is blocked by the core lock 'other')
+      const busy = i === 0 && this.opticLoadout.busy;
+      w.tick(dt, { trigger: active && !!cmd.fire, ads: active && alive && !busy && !!cmd.ads, reload: active && alive && !busy && !!cmd.reload, sprinting: c.sprinting, dtUs }, eye, this.yaw, this.pitch);
       this._forwardWeaponEvents(w, active && alive);
     }
     this._shapeKey = '';
+  }
+
+  _tickOptic(cmd, dt, alive) {
+    const L = this.opticLoadout;
+    const c = this.controller;
+    const w0 = this.weapons[0];
+    const pressed = !!cmd.swapOptic && alive;
+    let events;
+    if (L.swapping) {
+      events = L.tick(dt, { alive, sprinting: c.sprinting, handsBusy: c.handsBusy, swapPressed: pressed, damaged: this._damaged, switchRequested: false });
+    } else if (pressed) {
+      const r = L.startSwap({
+        alive,
+        activeSlot: this.activeWeapon,
+        switching: this.switchTimer > 0,
+        reloading: w0.state.state !== 'ready',
+        sprinting: c.sprinting,
+        handsBusy: c.handsBusy,
+      });
+      events = r.ok ? r.events : [{ type: 'optic:swap_rejected', reason: r.reason }];
+    } else {
+      events = L.tick(dt, { alive });
+    }
+    this._damaged = false;
+    this._handleOpticEvents(events);
+    if (L.busy && alive) w0.state.core.disable('other');
+    else w0.state.core.enable('other');
   }
 
   switchWeapon(slot) {
@@ -399,6 +492,8 @@ export class Combatant {
       kills: this.kills,
       respawnInS: part ? part.respawnInUs / 1e6 : 0,
       spawnPoint: this.spawnPointIndex,
+      optic: this.opticLoadout.getState(),
+      opticRole: this.opticRole,
       deathPose: this.deathPose ? { ...this.deathPose } : null,
       lastStepTick: this.lastStepTick,
     };

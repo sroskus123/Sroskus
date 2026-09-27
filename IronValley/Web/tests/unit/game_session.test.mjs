@@ -97,9 +97,12 @@ test('levels load by id from src/data/<id>.json; missing or invalid ids reject',
 });
 
 test('spawn shelters are in their own collision BVH group (base level collision unchanged)', () => {
-  assert.equal(world.parts.length, 2);
+  // groups: base level, spawn shelters, armory crates at the spawns (added with the optics, own group as well)
+  assert.equal(world.parts.length, 3);
   assert.equal(world.parts[1].name, 'spawns');
+  assert.equal(world.parts[2].name, 'armory');
   assert.ok(world.parts[1].triangleCount > 0);
+  assert.equal(world.parts[2].triangleCount, 3 * 12, 'three crates (12 triangles each)');
   // a ray into a shelter wall is still blocked (queries combine the groups)
   const hit = world.raycast(new Vector3(20, 1.5, 24), new Vector3(1, 0, 0), 20);
   assert.ok(hit && hit.solidId === 'spawn_alfa_w', JSON.stringify(hit && hit.solidId));

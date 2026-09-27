@@ -5,6 +5,7 @@
 import { keyLabel } from '../player/input.js';
 import { REBINDABLE } from '../player/bindingsStore.js';
 import audioConfig from '../data/audio.json' with { type: 'json' };
+import { ATTACHMENTS, IRONS, opticChoices, opticName } from '../weapons/optics.js';
 
 const el = (tag, cls, text) => {
   const e = document.createElement(tag);
@@ -24,7 +25,7 @@ function button(text, cls, onClick, name) {
   return b;
 }
 
-const CONTROL_ROWS = ['moveForward', 'moveBackward', 'moveLeft', 'moveRight', 'fire', 'aim', 'reload', 'sprint', 'walk', 'crouch', 'jump', 'interact', 'weapon1', 'weapon2', 'menu'];
+const CONTROL_ROWS = ['moveForward', 'moveBackward', 'moveLeft', 'moveRight', 'fire', 'aim', 'reload', 'sprint', 'walk', 'crouch', 'jump', 'interact', 'swapOptic', 'weapon1', 'weapon2', 'menu'];
 
 export class Menus {
   /**
@@ -47,7 +48,9 @@ export class Menus {
     this.screen = null;
     this.parent = null; // screen to return to from settings / controls
     this.statusText = '';
-    this.optic = (o.weaponsData.iv7_carbine.optics && o.weaponsData.iv7_carbine.optics.default) || 'collimator';
+    this.optic = ATTACHMENTS.loadoutDefault.optic;
+    this.spare = ATTACHMENTS.loadoutDefault.spare ?? null;
+    this.armoryData = null;
     this.capturing = null;
     this._onCaptureKey = (e) => this._captureKey(e);
     this._onCaptureMouse = (e) => this._captureMouse(e);
@@ -85,6 +88,10 @@ export class Menus {
       this.show('title');
       return true;
     }
+    if (this.screen === 'armory') {
+      this.show('paused');
+      return true;
+    }
     return false;
   }
 
@@ -94,6 +101,7 @@ export class Menus {
       if (this.screen && this.screen !== 'settings' && this.screen !== 'controls' && this.screen !== 'quit') this.parent = this.screen;
     }
     if (data && screen === 'results') this.results = data;
+    if (screen === 'armory') this.armoryData = data || (this.o.actions.armoryState ? this.o.actions.armoryState() : null);
     this.screen = screen;
     this.menu.classList.add('iv-open');
     this.menu.dataset.screen = screen;
@@ -107,6 +115,7 @@ export class Menus {
       controls: () => this._controls(),
       results: () => this._results(),
       quit: () => this._quit(),
+      armory: () => this._armory(),
     }[screen];
     this.panel.replaceChildren(...build());
     this.panel.scrollTop = 0;
@@ -168,17 +177,11 @@ export class Menus {
     // primary
     const prim = el('section', 'iv-slot');
     prim.append(el('h2', '', 'Hlavní zbraň'), el('div', 'iv-slot-weapon', rifle.displayName), el('div', 'iv-slot-ammo', `${info.rifleAmmo}`));
-    const optRow = el('div', 'iv-optics');
-    optRow.append(el('span', 'iv-optics-label', 'Mířidla:'));
-    for (const opt of rifle.optics.list) {
-      const b = button(opt.name, `iv-btn-small iv-optic${opt.id === this.optic ? ' iv-selected' : ''}`, () => {
-        this.optic = opt.id;
-        this.show('loadout');
-      }, `optic-${opt.id}`);
-      b.setAttribute('aria-pressed', opt.id === this.optic ? 'true' : 'false');
-      optRow.append(b);
-    }
-    prim.append(optRow);
+    prim.append(...this._opticRows(this.optic, this.spare, (optic, spare) => {
+      this.optic = optic;
+      this.spare = spare;
+      this.show('loadout');
+    }));
     // secondary
     const sec = el('section', 'iv-slot');
     sec.append(el('h2', '', 'Vedlejší zbraň'), el('div', 'iv-slot-weapon', pistol.displayName), el('div', 'iv-slot-ammo', `${info.pistolAmmo}`), el('div', 'iv-slot-note', 'provizorní model · klávesa 2'));
@@ -186,7 +189,60 @@ export class Menus {
     out.push(grid);
     out.push(el('p', 'iv-hint', `Aktivní oblast se vybere ze tří míst při startu kola. Cíl: ${info.scoreTarget} bodů nebo nejvíc bodů po ${Math.round(info.timeLimitS / 60)} minutách.`));
     const btns = el('div', 'iv-menu-buttons');
-    btns.append(button('Do boje', 'iv-btn-primary', () => this._act('deploy', { optic: this.optic }), 'deploy'), button('Zpět', '', () => this.show('title'), 'back'));
+    btns.append(button('Do boje', 'iv-btn-primary', () => this._act('deploy', { optic: this.optic, spare: this.spare }), 'deploy'), button('Zpět', '', () => this.show('title'), 'back'));
+    out.push(btns, this._statusEl());
+    return out;
+  }
+
+  /**
+   * Optic on the rifle + spare optic in the backpack (loadout screen and armory crate). Choosing the spare's optic
+   * as the primary swaps the two; the spare can never equal the primary.
+   */
+  _opticRows(optic, spare, onChange) {
+    const rows = [];
+    const optRow = el('div', 'iv-optics');
+    optRow.append(el('span', 'iv-optics-label', 'Optika:'));
+    for (const c of opticChoices()) {
+      const b = button(c.name, `iv-btn-small iv-optic${c.id === optic ? ' iv-selected' : ''}`, () => {
+        let sp = spare;
+        if (c.id === spare) sp = optic !== IRONS ? optic : null;
+        onChange(c.id, sp);
+      }, `optic-${c.id}`);
+      b.title = c.hint || '';
+      b.setAttribute('aria-pressed', c.id === optic ? 'true' : 'false');
+      optRow.append(b);
+    }
+    const spareRow = el('div', 'iv-optics iv-spare');
+    spareRow.append(el('span', 'iv-optics-label', 'Batoh:'));
+    const spareChoices = [{ id: null, name: ATTACHMENTS.noSpare.name }, ...opticChoices().filter((c) => c.id !== IRONS && c.id !== optic)];
+    for (const c of spareChoices) {
+      const sel = (c.id ?? null) === (spare ?? null);
+      const b = button(c.name, `iv-btn-small iv-optic${sel ? ' iv-selected' : ''}`, () => onChange(optic, c.id), `spare-${c.id || 'none'}`);
+      b.setAttribute('aria-pressed', sel ? 'true' : 'false');
+      spareRow.append(b);
+    }
+    rows.push(optRow, spareRow);
+    const acts = this.o.bindingsStore.get().actions;
+    const k = (a, d) => (acts[a] && acts[a][0] ? keyLabel(acts[a][0]) : d);
+    const secs = String(ATTACHMENTS.swap.durationS).replace('.', ',');
+    rows.push(el('p', 'iv-hint iv-optic-hint', `Náhradní optiku z batohu nasadíš v poli klávesou ${k('swapOptic', 'B')} (${secs} s, mezitím nestřílíš ani nemíříš; znovu ${k('swapOptic', 'B')}, sprint nebo výměna zbraně ji přeruší). U zbrojní bedny na spawnu svého týmu (${k('interact', 'E')}) změníš obě.`));
+    return rows;
+  }
+
+  _armory() {
+    const d = this.armoryData || { mounted: this.optic, spare: this.spare, kit: { optic: this.optic, spare: this.spare } };
+    const out = [el('h1', 'iv-title iv-title-small', 'Zbrojní bedna')];
+    out.push(el('p', 'iv-subtitle', `Na pušce: ${opticName(d.mounted)} · v batohu: ${opticName(d.spare).toLowerCase()}`));
+    const box = el('section', 'iv-slot');
+    box.append(el('h2', '', 'Optika IV-7 a náhradní optika'));
+    box.append(...this._opticRows(d.kit.optic, d.kit.spare, (optic, spare) => {
+      const r = this.o.actions.armoryChoose ? this.o.actions.armoryChoose({ optic, spare }) : { ok: false };
+      if (!r.ok) this.setStatus('Změna není možná (jsi u bedny svého týmu?)');
+      this.show('armory');
+    }));
+    out.push(box);
+    const btns = el('div', 'iv-menu-buttons');
+    btns.append(button('Zpět do boje', 'iv-btn-primary', () => this._act('resume'), 'resume'));
     out.push(btns, this._statusEl());
     return out;
   }

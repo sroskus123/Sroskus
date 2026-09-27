@@ -16,6 +16,8 @@ export function sanitizeSettings(raw) {
   const s = raw || {};
   return {
     mouseSensitivity: clampNum(s.mouseSensitivity, 0.1, 5, d.mouseSensitivity),
+    adsSensitivity: clampNum(s.adsSensitivity, 0.2, 2, d.adsSensitivity),
+    adsSensitivityScaling: typeof s.adsSensitivityScaling === 'boolean' ? s.adsSensitivityScaling : d.adsSensitivityScaling,
     fovDeg: Math.round(clampNum(s.fovDeg, d.fovMinDeg, d.fovMaxDeg, d.fovDeg)),
     cameraMotion: clampNum(s.cameraMotion, 0, 1, d.cameraMotion),
     adaptiveResolution: typeof s.adaptiveResolution === 'boolean' ? s.adaptiveResolution : d.adaptiveResolution,

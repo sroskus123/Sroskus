@@ -29,6 +29,7 @@ import { createPlaceholderRifle } from './placeholderRifle.js';
 import { adsBlend, viewModelPointInCamera, ViewModelMotion } from './viewModelMotion.js';
 import { FlashTimer, resolveFeel } from './muzzleEffects.js';
 import { createRng } from '../util/rng.js';
+import attachments from '../data/attachments.json' with { type: 'json' };
 
 const SIM_DT = 1 / 60;
 const _qR = new Quaternion();
@@ -107,8 +108,18 @@ export class ViewModel {
     this.modelRoot = new Group();
     this.modelRoot.rotation.y = Math.PI / 2; // model +X (muzzle) -> camera -Z (forward)
     this.holder.add(this.modelRoot);
+    // attachments (optics) in the rifle model frame; not touched by setHiddenNodes
+    this.attachRoot = new Group();
+    this.attachRoot.name = 'attachments';
+    this.model = null;
+    // ADS: share of the walk bob / look sway left on the weapon in full ADS (0 = the sight stays put) and the muzzle
+    // flash sprite / light in ADS (attachments.json view)
+    const view = attachments.view || {};
+    this.adsBob = view.adsBob ?? 0.25;
+    this.adsSway = view.adsSway ?? 0;
+    this.flashAds = { sprite: 1, viewLight: 1, ...(view.flashAds || {}) };
 
-    this.flashLight = new PointLight(new Color('#ffb56b'), 0, 1.2, 2);
+    this.flashLight = new PointLight(new Color('#ffb56b'), 0, 0.35, 2);
     this.scene.add(this.flashLight);
     this.flash = new Sprite(
       new SpriteMaterial({ map: makeFlashTexture(), blending: AdditiveBlending, depthWrite: false, transparent: true, toneMapped: false }),
@@ -123,6 +134,7 @@ export class ViewModel {
     this.assetName = 'placeholder';
     this.muzzleLocal = new Vector3().fromArray(vm.muzzleLocal);
     this.adsEyeLocal = new Vector3().fromArray(vm.adsEyeLocal || [0, 0, 0]);
+    this.vmDef = vm; // view-model definition of the current ADS pose (per optic, setOpticPose)
     const ph = createPlaceholder();
     this.setModel(ph.object, ph.muzzle, { placeholder: true, name: 'placeholder', adsEye: ph.adsEye });
     this.hiddenPatterns = [];
@@ -149,6 +161,8 @@ export class ViewModel {
   setModel(object, muzzleNode, { placeholder = false, name = 'model', adsEye = null } = {}) {
     while (this.modelRoot.children.length) this.modelRoot.remove(this.modelRoot.children[0]);
     this.modelRoot.add(object);
+    this.modelRoot.add(this.attachRoot);
+    this.model = object;
     this.muzzleNode = muzzleNode;
     this.adsEyeNode = adsEye;
     this.isPlaceholder = placeholder;
@@ -158,6 +172,7 @@ export class ViewModel {
     const tmp = new Vector3();
     if (muzzleNode) this.muzzleLocal.copy(this.modelRoot.worldToLocal(muzzleNode.getWorldPosition(tmp)));
     if (adsEye) this.adsEyeLocal.copy(this.modelRoot.worldToLocal(adsEye.getWorldPosition(tmp)));
+    this.modelAdsEyeLocal = this.adsEyeLocal.clone(); // the model's own sight line (irons)
     this._setupFeelNodes(object);
     if (this.flash.parent) this.flash.parent.remove(this.flash);
     this.modelRoot.add(this.flash);
@@ -172,8 +187,9 @@ export class ViewModel {
   setHiddenNodes(patterns = []) {
     this.hiddenPatterns = patterns.map((p) => new RegExp(p, 'i'));
     let hidden = 0;
-    this.modelRoot.traverse((o) => {
-      if (o === this.modelRoot || o === this.flash) return;
+    if (!this.model) return 0;
+    this.model.traverse((o) => {
+      if (o === this.model || o === this.flash) return;
       const hide = this.hiddenPatterns.some((re) => re.test(o.name || ''));
       if (o.isMesh || o.isGroup || o.isObject3D) {
         if (hide) hidden++;
@@ -182,6 +198,17 @@ export class ViewModel {
     });
     this.hiddenCount = hidden;
     return hidden;
+  }
+
+  /**
+   * ADS pose for a mounted attachment: the eye point `adsEyeLocal` (model space, e.g. the optic's socket_eye)
+   * lands on the camera in full ADS. Also the pivot of the ADS recoil roll.
+   */
+  setOpticPose(adsEyeLocal) {
+    const e = adsEyeLocal;
+    this.adsEyeLocal.set(e[0], e[1], e[2]);
+    this.adsPos.set(-e[2], -e[1], e[0]);
+    this.vmDef = { ...this.def.viewModel, adsEyeLocal: [e[0], e[1], e[2]], adsPosition: [-e[2], -e[1], e[0]] };
   }
 
   /** Ambient light scale 0..1 (sky visibility at the eye, already smoothed by the caller). */
@@ -300,10 +327,12 @@ export class ViewModel {
     const hipW = 1 - ads;
     const motion = p.motion;
     const pos = this._tmpV.lerpVectors(this.hip, this.adsPos, ads);
-    // bob (reduced in ADS)
-    const bob = p.bobAmount * motion * (0.25 + 0.75 * hipW);
-    pos.x += Math.cos(p.bobPhase) * 0.006 * bob + swayX * hipW;
-    pos.y += Math.abs(Math.sin(p.bobPhase)) * -0.006 * bob + swayY * hipW;
+    // bob and sway on the weapon fade out in ADS (attachments.json view.adsBob / adsSway): in full ADS the
+    // sight stays on the camera axis, so the reticle does not swim (the eye itself still bobs with the camera)
+    const bob = p.bobAmount * motion * (this.adsBob + (1 - this.adsBob) * hipW);
+    const swayW = this.adsSway + (1 - this.adsSway) * hipW;
+    pos.x += Math.cos(p.bobPhase) * 0.006 * bob + swayX * swayW;
+    pos.y += Math.abs(Math.sin(p.bobPhase)) * -0.006 * bob + swayY * swayW;
     // recoil pushes the weapon back (along the view axis) and up (rise is 0 in ADS by data)
     pos.z += k.back;
     pos.y += k.rise;
@@ -322,8 +351,8 @@ export class ViewModel {
     const hr = this.hipRotation;
     this.holder.rotation.set(
       hr[0] * hipW + r * -0.5 - sprint * 0.25 - lower * 0.7,
-      hr[1] * hipW + sprint * 0.55 + swayX * 2 * hipW,
-      hr[2] * hipW + sprint * 0.3 + r * 0.35 + swayX * 1.5 * hipW,
+      hr[1] * hipW + sprint * 0.55 + swayX * 2 * swayW,
+      hr[2] * hipW + sprint * 0.3 + r * 0.35 + swayX * 1.5 * swayW,
     );
     // recoil rotations about fixed holder-local pivots p (position += q * (p - q_kick * p)):
     // muzzle rise / yaw about feel.viewModel.pivot (shoulder pocket / wrist), roll about the sight line
@@ -343,13 +372,19 @@ export class ViewModel {
     this.sun.intensity = this.sunIntensity * (0.12 + 0.88 * this.sunVisibility);
 
     // muzzle flash: fixed simulated lifetime (FlashTimer), drawn at least once per shot
+    // In ADS the sprite and the light fade by attachments.json view.flashAds: the flash is hidden by the flash hider
+    // from the shooter's eye, and a light on the weapon lit the optic's housing for two frames ("the whole scope
+    // flickers"); the flash light also only reaches the front of the handguard (distance), never the optic.
     const fI = this.flashTimer.sample(p.alpha ?? 1, this._simDt);
     this.flashIntensity = fI;
-    const flashOn = fI > 1e-6;
+    const fa = adsBlend(this._flashAds);
+    const spriteK = 1 + ((this.flashAds.sprite ?? 1) - 1) * fa;
+    const lightK = 1 + ((this.flashAds.viewLight ?? 1) - 1) * fa;
+    const flashOn = fI * spriteK > 0.02;
     this.flash.visible = flashOn;
-    this.flash.material.opacity = Math.min(1, fI);
+    this.flash.material.opacity = Math.min(1, fI * spriteK);
     this.flash.getWorldPosition(this.flashLight.position);
-    this.flashLight.intensity = flashOn ? this.feel.flash.light * fI * (1 - 0.4 * adsBlend(this._flashAds)) : 0;
+    this.flashLight.intensity = fI > 1e-6 ? this.feel.flash.light * fI * lightK : 0;
   }
 
   /** Rotates the holder by q (holder-local) about the model-space point `local`, which stays fixed. */
@@ -366,7 +401,7 @@ export class ViewModel {
    * included, animation offsets excluded) - the same pose update() draws at rest.
    */
   _poseToCamera(local, ads, out) {
-    return viewModelPointInCamera(this.def.viewModel, local, ads, out);
+    return viewModelPointInCamera(this.vmDef, local, ads, out);
   }
 
   /**

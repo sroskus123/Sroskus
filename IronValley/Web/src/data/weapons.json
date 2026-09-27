@@ -151,24 +151,7 @@
         "spin": 28
       }
     },
-    "optics": {
-      "_comment": "Volba v nabidce vybavy. 'hideNodes' = uzly GLB (regularni vyraz nazvu), ktere se pro danou volbu skryji. IV-7 ma kolimator a mechanicka miridla v souose (co-witness), bod oka pri mireni je pro obe volby stejny.",
-      "default": "collimator",
-      "list": [
-        {
-          "id": "collimator",
-          "name": "Kolimátor",
-          "hideNodes": []
-        },
-        {
-          "id": "irons",
-          "name": "Mechanická mířidla",
-          "hideNodes": [
-            "^Optic"
-          ]
-        }
-      ]
-    },
+    "_opticsComment": "Optiky (IV-H1, IV-R1, IV-P2, IV-S3, IV-S6, mechanicka miridla) a jejich pravidla: src/data/attachments.json + Shared/config/optics.json.",
     "viewModel": {
       "asset": "assets/weapons/IV7_Carbine.glb",
       "_comment": "Pozice uchopu (pocatek modelu = firing-hand grip) v prostoru kamery. Model glTF: usti +X, nahoru +Y, vpravo +Z; otacen o +90 st. kolem Y. adsPosition umisti socket_ads (oko 8 cm za optikou) presne do kamery.",

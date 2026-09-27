@@ -105,7 +105,16 @@ export class Hud {
     this.reloadFill = el('i');
     this.reloadBar.append(this.reloadFill);
     this.reloadText = el('div', 'iv-reload-text', '');
-    this.ammoBox.append(this.weaponName, ammoLine, this.fireMode, this.reloadText, this.reloadBar);
+    this.opticLine = el('div', 'iv-optic-line', '');
+    this.ammoBox.append(this.weaponName, this.opticLine, ammoLine, this.fireMode, this.reloadText, this.reloadBar);
+    // optic swap progress (centre) and the armory crate prompt
+    this.swap = el('div', 'iv-swap');
+    this.swapText = el('div', '', 'VÝMĚNA OPTIKY');
+    this.swapBar = el('div', 'iv-swap-bar');
+    this.swapFill = el('i');
+    this.swapBar.append(this.swapFill);
+    this.swap.append(this.swapText, this.swapBar);
+    this.prompt = el('div', 'iv-prompt', '');
 
     // allies, notices, death overlay, banner
     this.allies = el('div', 'iv-allies');
@@ -133,6 +142,8 @@ export class Hud {
       this.stance,
       this.ammoBox,
       this.notice,
+      this.swap,
+      this.prompt,
       this.banner,
       this.death,
       this.fps,
@@ -280,6 +291,15 @@ export class Hud {
       setText(this.fireMode, w.fireMode === 'auto' ? 'DÁVKA' : 'JEDNOTLIVĚ');
       this.crosshair.style.opacity = String(s.alive === false ? 0 : Math.max(0, 1 - w.ads * 2.2) * (s.sprinting ? 0.35 : 1));
     }
+    const o = s.optic;
+    if (o) {
+      setText(this.opticLine, o.hasSpare ? `batoh: ${o.spare.toLowerCase()} [${o.swapKey}]` : 'batoh: bez náhradní optiky');
+      const show = !!o.swapping && s.alive !== false;
+      this.swap.classList.toggle('iv-show', show);
+      if (show) this.swapFill.style.transform = `scaleX(${Math.min(1, o.progress).toFixed(3)})`;
+      setText(this.prompt, o.armoryPrompt || '');
+      this.prompt.classList.toggle('iv-show', !!o.armoryPrompt);
+    }
     if (s.player) {
       const txt = s.alive === false ? '' : s.player.crouched ? 'DŘEP' : s.sprinting ? 'SPRINT' : '';
       setText(this.stance, txt);
@@ -410,6 +430,10 @@ export class Hud {
       ammoChamber: this.ammoChamber.classList.contains('iv-on'),
       ammoReserve: this.ammoReserve.textContent,
       weapon: this.weaponName.textContent,
+      optic: this.opticLine.textContent,
+      swapVisible: this.swap.classList.contains('iv-show'),
+      swapProgress: this.swapFill.style.transform,
+      prompt: this.prompt.classList.contains('iv-show') ? this.prompt.textContent : '',
       fireMode: this.fireMode.textContent,
       reloadVisible: this.reloadBar.classList.contains('iv-show'),
       reloadText: this.reloadText.textContent,

@@ -158,7 +158,9 @@ export function paletteAlbedo(mat) {
  * @param {object} [opts.lighting] { world, sunDirection, ambientFloor, rays, cell, largeCell } bakes indirect light
  * @returns {{group: Group, materials: object, lighting: object|null}}
  */
-export function buildTestRangeView(level, solids, { maxAnisotropy = 8, lighting = null } = {}) {
+export function buildTestRangeView(level, allSolids, { maxAnisotropy = 8, lighting = null } = {}) {
+  // solids with render: false (armory crates) are drawn by their own views; they still occlude the light bake
+  const solids = allSolids.filter((s) => s.render !== false);
   const group = new Group();
   group.name = 'test_range';
   const mats = createGridMaterials(maxAnisotropy);
@@ -166,7 +168,7 @@ export function buildTestRangeView(level, solids, { maxAnisotropy = 8, lighting 
   let bake = null;
   if (lighting) {
     const t0 = typeof performance !== 'undefined' ? performance.now() : 0;
-    const geos = buildLightingGeometries(solids, { cell: lighting.cell ?? 0.5, largeCell: lighting.largeCell ?? 1.0 });
+    const geos = buildLightingGeometries(solids, { cell: lighting.cell ?? 0.5, largeCell: lighting.largeCell ?? 1.0, others: allSolids.filter((s) => s.box).map((s) => s.box) });
     let vertices = 0;
     let hidden = 0;
     geos.forEach((g, i) => {

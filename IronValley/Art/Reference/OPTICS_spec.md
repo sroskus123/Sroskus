@@ -13,9 +13,9 @@ build into `Art/Previews/Optics/optics_validation.json`. The runtime data file i
 `Shared/config/optics.json`, written by the same script.
 
 Status: built, baked, exported and validated in Blender (bpy 4.5.14 LTS, headless, Cycles CPU).
-**Nothing was imported into Unreal** (Unreal is not available in this environment) and **nothing
-has been integrated into the web runtime yet**. The through-sight images are Blender renders that
-*emulate* the runtime rules in section 5. They are not in-game screenshots.
+**Nothing was imported into Unreal** (Unreal is not available in this environment). **Integrated into the web
+runtime on 2026-09-27** (section 11: what was implemented, measurements, in-game screenshots). The through-sight
+images in section 9 are Blender renders that *emulate* the runtime rules in section 5.
 
 ---
 
@@ -481,12 +481,7 @@ Rear leaf bounding box, bore frame (cm):
 
 ## 10. Known issues and limits
 
-1. **Not integrated and not tested in any engine.** The web runtime and Unreal are untouched.
-   - Not implemented: the collimated reticle shader, the PiP, the overlay and the minimum reticle
-     size (section 5).
-   - The playtest problems are fixed in the *assets*. They disappear in game only after that
-     integration.
-   - Unreal import is BLOCKED (not available).
+1. **Web: integrated (section 11). Unreal: not integrated**; Unreal import is BLOCKED (not available).
 2. **The game is hitscan.** The BDC and holdover marks match real 5.56 mm ballistics but have no
    effect until bullet drop exists.
 3. **True-scale small features are sub-pixel** at the default ADS FOV (0.43 px/MOA at 1080p): the
@@ -494,9 +489,10 @@ Rear leaf bounding box, bore frame (cm):
    (SDF).
 4. The **IV-H1 LOD1** has one 0.6 mm² decimated triangle with zero UV area; it samples a single
    texel. Third person only; cosmetic.
-5. **The IV-7 itself is unchanged.** It still carries its old optic, with transmission glass and a
-   geometry reticle, and the fold-sign documentation issue (section 8). The rifle's fix pass should
-   hide `^Optic`, or treat IV-R1 as its replacement, and correct the fold documentation.
+5. **The IV-7 asset itself is unchanged.** It still carries its old optic, with transmission glass and a
+   geometry reticle, and the fold-sign documentation issue (section 8). The web runtime hides `^Optic`
+   for every loadout (IV-R1 replaces it) and folds with -90 deg (section 11); the web variant of the GLB
+   also drops the transmission extension. The rifle's own documentation still needs the fold-sign fix.
 6. **Eye points differ per optic** (bore x -14.9 to -16.95 cm; heights 7.0 to 7.6 cm). This is
    realistic, but the ADS camera must follow `socket_eye`.
 7. **The magnified through-sight images are composites** that emulate the runtime PiP; they are
@@ -512,3 +508,64 @@ Rear leaf bounding box, bore frame (cm):
     vignette is a simple model, not derived from the eye's offset from the exit pupil.
 11. The test-range ground in the through-sight renders shows stretched noise at grazing angles.
     This belongs to the preview scene only.
+
+## 11. Web integration (2026-09-27)
+
+Code: `Web/src/weapons/optics.js` (data + math), `opticView.js` (rendering), `Web/src/game/opticLoadout.js` (loadout /
+swap rules), `armoryView.js`, data `Web/src/data/attachments.json`; asset variants `Tools/web_assets/build_web_assets.py`.
+Tests: `Web/tests/e2e/10_optics.test.mjs`, `Web/tests/unit/optics.test.mjs`, `optic_loadout.test.mjs`,
+`adaptive_resolution.test.mjs`. Screenshots (SwiftShader, 960 x 540): `Web/tests/e2e/screens/optic_ads_<ID>.png`,
+`armory_menu.png`, `menu_loadout_optics.png`.
+
+### 11.1 Causes of the reported flicker and blur (measured in the web build before the change)
+
+Setup: test range, ADS at the 30 m board, 960 x 540, SwiftShader, frames read back right after each draw, one shot.
+The rifle's transmission glass was **not** a cause in the web build: the loader already replaced transmission with
+thin glass before the playtest build (commit 3d61fe8). What the measurements found:
+
+| # | Cause | Measurement (before) | Fix | After |
+| --- | --- | --- | --- | --- |
+| 1 | The view-model muzzle-flash **PointLight** (1.6 x 0.6 in ADS, range 1.2 m) lit the optic housing and tube interior for two frames at every shot: "the whole scope flickers" | housing ring luminance 43.6 -> 56.5 -> 56.9 -> 43.7 (flash prominence 13.2 / 255; with the light and sprite disabled 0.6) | range 0.35 m (handguard only), 0 in full ADS (`attachments.view.flashAds.viewLight`) | prominence <= 0.3 (e2e threshold 3) |
+| 2 | The **flash sprite** was drawn through the transparent optic glass (bottom of the sight picture) | visible in the window on 2 frames per shot | 0 in full ADS (`flashAds.sprite`; the flash hider hides it from the eye) | never visible in full ADS (e2e) |
+| 3 | The **world muzzle light** (5 over 7 m) lit everything in front for 0.04 s | minor (target outline lit) | x0.35 in ADS | |
+| 4 | The **reticle was HDR emissive geometry** (0.3 mm disc, strength 8) 14 cm from the eye: ACES tone mapping turned it **white** (f4eee5), a hard 4 x 4 px square, and it had parallax | 0 red pixels; swim while walking in ADS up to **3.1 px** (range 3.0 x 3.05 px) | collimated SDF reticle, not tone mapped, min-size rule; weapon bob / sway 0 in full ADS | saturated red, antialiased; swim **0.00 px** (IV-R1), 0.13 px (IV-H1 ring AA) |
+| 5 | The **two glass sheets washed the view out** (white base colour, opacity 0.16, sky reflection) | contrast through the window: std 53.4 -> 31.1 (-42 %), mean +67 | optic glass: dark tint (asset), environment reflection x0.35, coating tint capped | see 11.4 |
+| 6 | **Adaptive resolution could only go down on 60 Hz displays**: its raise threshold (11.5 ms) is below the vsync interval (16.7 ms), so after any slow stretch the render scale stayed at 0.9 / 0.8 ... 0.5 for the session (blurry), stepping visibly | simulated 60 Hz: 1.0 -> 0.9 -> 0.8, never back | headroom = frames at the measured refresh period; hitches (> 120 ms) ignored; failed scales retried with a doubling cooldown; **frozen while aiming** | recovers to 1.0 (unit test) |
+| 7 | GLB textures had **anisotropy 1** (housing blurry at grazing angles) | | anisotropy min(8, max) on rifle and optics | |
+| 8 | No real magnification existed (ADS only narrowed the camera to 0.82 of the FOV) | | 2x / 3x picture-in-picture, 6x overlay (below) | |
+
+A first-shot shader compile was checked and ruled out (0 programs added at the first shot); all optic materials are
+precompiled at load anyway.
+
+### 11.2 What the runtime does
+
+- **Mounting:** the chosen LOD0 at `mount_on_iv7.socket_rail_rifle_m` (glTF), the IV-7's `^Optic` nodes hidden for
+  every choice, bones `rear_sight` / `front_sight` rotated -90 deg about their local Y whenever an optic is mounted
+  (e2e: leaf tip 3 cm moves to -X by > 2.8 cm, lies flat; deployed only for "Mechanická mířidla"). Third person:
+  LOD1 on the bots' placeholder rifle (now drawn in the rifle model frame, top at the rail).
+- **ADS eye:** `socket_eye` of the optic (`ViewModel.setOpticPose`, per combatant `WeaponSystem.setViewModel`, so the
+  gameplay muzzle (D8) follows the drawn pose); ADS time `ads_time_s`.
+- **1x (IV-H1, IV-R1):** no zoom (`worldFovMultiplier` 1). Reticle sheet drawn with the collimated shader of 5.2,
+  except that the view ray is built from the **world camera's** projection (the view model uses its own fixed
+  50.5 deg FOV), so the reticle lies on the world point it aims at. Coverage from a runtime SDF (tool: from the
+  reticle alpha / emissive via exact EDT, R all / G lit / B etched, size and spread per optic chosen so the dilation
+  never leaves the encoded range at 960 x 540, unit-tested) with per-fragment dilation to `min_stroke_px`, the centre
+  dot analytic with `min_dot_diameter_px`; unlit, `toneMapped: false`.
+- **2x / 3x (IV-P2, IV-S3): PiP.** Second camera at the eye along the optic axis (camera orientation x weapon holder),
+  vertical FOV = `true_fov_deg`, square **half-float, 4x MSAA** target sized to the ocular disc on screen (device px,
+  rounded up to 64, 256..2048; never smaller than the disc: e2e), shadow maps reused. The ocular sheet shows it
+  through its UVs, tone mapped like the main view, reticle composited at object-space scale, vignette from 0.8 R,
+  eyebox fade (lateral offset vs `eyebox_radius_m`, eye relief +-25 mm), dark when not aiming.
+- **6x (IV-S6):** while raising the ocular shows the PiP; at ADS >= 0.9 the main camera goes to **4.1253 deg**
+  vertical, the view model is hidden and `T_IVS6_ADS_Overlay` (height = screen height, black outside) plus the SDF
+  reticle (same px/mrad) are drawn full screen, with a 0.1-ADS fade from black.
+- **Aim:** in full ADS the optic axis = camera axis = hitscan direction incl. recoil (camera and shot use the same
+  recoil). e2e after a burst: axis vs aim < 0.05 px (1x), PiP camera axis vs aim < 1e-4 deg and ocular centre < 0.5 px,
+  6x aim at the screen centre < 0.05 px; red reticle pixels within 0.75 px of the aim (IV-P2 1.5 px: the chevron's
+  centroid lies below its apex by design).
+- **Sensitivity:** x tan(fov/2) ratio of the shown image (1x: 1, irons 0.77, PiP 1/M, 6x 0.076), setting
+  "Citlivost podle zvětšení" + ADS multiplier.
+- **Choosing / swapping:** loadout screen (optic + spare), armory crate per team spawn in both levels (E), backpack
+  swap (B, 3 s, weapon locked with core reason `other`, interruptible, phase events), bots by role. Rules in
+  `attachments.json`, contract in `Docs/GAMEPLAY_CONTRACTS.md`.
+

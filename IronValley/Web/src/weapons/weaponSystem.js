@@ -88,6 +88,11 @@ export class WeaponSystem {
     }
   }
 
+  /** View-model definition the muzzle / ADS pose uses now (per attachment, e.g. the mounted optic's eye point). */
+  get viewModelDef() {
+    return this._vm || this.def.viewModel;
+  }
+
   /** Nearest hit among static world and dummies (standalone use / unit tests). */
   _raycast(origin, dir, far) {
     let best = null;

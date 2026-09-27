@@ -1,5 +1,7 @@
 {
   "mouseSensitivity": 1.0,
+  "adsSensitivity": 1.0,
+  "adsSensitivityScaling": true,
   "fovDeg": 80,
   "fovMinDeg": 70,
   "fovMaxDeg": 100,

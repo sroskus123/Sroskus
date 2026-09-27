@@ -17,6 +17,7 @@ export const REBINDABLE = [
   'crouch',
   'jump',
   'interact',
+  'swapOptic',
   'weapon1',
   'weapon2',
 ];

@@ -320,12 +320,16 @@ test('screenshots mid-burst: the weapon visibly kicks (hip), ADS sight picture s
     return c / n;
   };
   const hipChange = changed(rest, hip, 520, 300, 940, 430);
-  // ADS: the reticle dot is at the screen centre (bright pixel within 3 px of the centre)
+  // ADS: the reticle dot is at the screen centre (lit reticle pixel within 3 px of the centre). The collimated
+  // reticle is saturated red (not tone mapped); the old emissive geometry dot rendered white.
   let bright = 0;
   for (let y = 267; y <= 273; y++)
     for (let x = 477; x <= 483; x++) {
       const i = (y * ads.width + x) * ads.channels;
-      if (ads.data[i] + ads.data[i + 1] + ads.data[i + 2] > 600) bright++;
+      const r = ads.data[i];
+      const gg = ads.data[i + 1];
+      const b = ads.data[i + 2];
+      if (r + gg + b > 600 || (r > 150 && r > 2 * gg && r > 2 * b)) bright++;
     }
   const pistolChange = changed(rest, pistol, 520, 300, 940, 540);
   console.log(`# screenshots: hip weapon-area change ${(hipChange * 100).toFixed(1)} %, ADS centre bright px ${bright}, pistol vs rifle ${(pistolChange * 100).toFixed(1)} %`);

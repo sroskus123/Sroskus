@@ -3,7 +3,7 @@
 // placeholders otherwise. GLB files must not require Draco / meshopt / KTX2 decoders
 // (those need WebAssembly, which this runtime avoids).
 
-import { Texture } from 'three';
+import { LinearFilter, LinearMipmapLinearFilter, ClampToEdgeWrapping, Texture } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 /* global __IV_ASSETS__ */
@@ -78,6 +78,48 @@ export class GLTFEmbeddedImagePlugin {
       return promise;
     };
   }
+}
+
+/**
+ * Fetches an asset file (or its "<path>.b64.txt" twin on the Artifact host) as bytes.
+ * No blob: / data: URL is ever created (strict CSP, see GLTFEmbeddedImagePlugin).
+ */
+export async function fetchAssetBytes(path) {
+  if (!AVAILABLE.has(path) && AVAILABLE.has(path + B64_SUFFIX)) {
+    const res = await fetch(path + B64_SUFFIX);
+    if (!res.ok) throw new Error(`HTTP ${res.status} for ${path + B64_SUFFIX}`);
+    return base64ToArrayBuffer(await res.text());
+  }
+  const res = await fetch(path);
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${path}`);
+  return res.arrayBuffer();
+}
+
+const MIME_BY_EXT = { png: 'image/png', webp: 'image/webp', jpg: 'image/jpeg', jpeg: 'image/jpeg' };
+
+/**
+ * Loads an image asset (PNG / WebP / JPEG) into a Texture: bytes -> createImageBitmap(Blob), no URL, no
+ * vertical flip (row 0 = top at v = 0, like glTF textures). Linear data by default (set colorSpace for
+ * colour images). mipmaps: false keeps LinearFilter (distance fields), true = trilinear.
+ */
+export async function loadTextureAsset(path, { mipmaps = false, colorSpace = null } = {}) {
+  const bytes = await fetchAssetBytes(path);
+  const ext = path.split('.').pop().toLowerCase();
+  const bitmap = await createImageBitmap(new Blob([bytes], { type: MIME_BY_EXT[ext] || 'application/octet-stream' }), {
+    premultiplyAlpha: 'none',
+    colorSpaceConversion: 'none',
+    imageOrientation: 'none',
+  });
+  const t = new Texture(bitmap);
+  t.flipY = false;
+  t.wrapS = t.wrapT = ClampToEdgeWrapping;
+  t.generateMipmaps = mipmaps;
+  t.minFilter = mipmaps ? LinearMipmapLinearFilter : LinearFilter;
+  t.magFilter = LinearFilter;
+  if (colorSpace) t.colorSpace = colorSpace;
+  t.needsUpdate = true;
+  t.name = path.split('/').pop();
+  return t;
 }
 
 let loader = null;

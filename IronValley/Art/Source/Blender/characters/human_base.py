@@ -517,12 +517,31 @@ def validate(arm, body, info):
             for tag, curl in HAND_CURL_TESTS:
                 hc[f"{sd}_{hinge}_{tag}"] = C.hand_curl_metrics(arm, body, sd, curl, hinge, rest=co,
                                                                 tris=tris, dom=dom)
-    rep["hand_curl_tests"] = hc
-    fist_ok = all(v["verts_beyond_dorsal"] == 0 and v["finger_x_dorsal_pairs"] == 0
-                  for k, v in hc.items() if "_fist_" in k)
+    rep["hand_curl_tests_on_top_of_rest"] = hc
+    # hands task: anatomical fists (angles measured from straight fingers, ivchar section 10) --
+    # fingertip-into-palm / finger-finger / thumb penetration of the closed skin, and
+    # fingertips through the back of the hand
+    rest_ang = {sd: C.hand_rest_angles(arm, sd) for sd in ("l", "r")}
+    af = {}
+    for tag, pose in ANAT_FIST_TESTS:
+        for sd in ("l", "r"):
+            C.reset_pose(arm)
+            C.pose_hand_anat(arm, sd, pose, rest_ang[sd])
+            cop = C.mesh_arrays(body, evaluated=True)
+            m = C.hand_contact_metrics(cop, co, tris, dom, sd)
+            nb, mb = C.verts_beyond_dorsal(cop, co, tris, dom, sd, arm)
+            af[f"{sd}_{tag}"] = dict({k: v for k, v in m.items() if k != "penetration"},
+                                     fingertips_through_back_verts=nb, fingertips_through_back_max_mm=round(mb * 1000, 2),
+                                     pairs=m["penetration"])
+    C.reset_pose(arm)
+    rep["hand_anatomical_fist_tests"] = af
+    rep["hand_rest_angles_deg"] = rest_ang
+    fist_ok = all(v["fingertips_through_back_verts"] == 0 for v in af.values())
+    tip_ok = all(v["tip_palm_max_mm"] <= 2.0 for k, v in af.items() if "_fist_tuned" in k)
+    checks["hand_anatomical_fists_no_fingertip_through_back"] = "PASS" if fist_ok else "FAIL"
+    checks["hand_tuned_full_fist_fingertip_into_palm_le_2mm"] = "PASS" if tip_ok else "FAIL"
     grip_ok = all(v["tip_x_palm_pairs"] == 0 and v["tip_gap_to_palm_m"] >= GRIP_MIN_GAP
                   for k, v in hc.items() if "_grip_" in k)
-    checks["hand_fist_90_100_70_and_90_110_80_no_fingertip_through_back"] = "PASS" if fist_ok else "FAIL"
     checks["hand_grip_60_80_50_no_fingertip_palm_contact"] = "PASS" if grip_ok else "FAIL"
     # ---- review R1 toe weights: no spikes in the foot / ball weights
     nbrs = C.mesh_neighbours([tuple(p.vertices) for p in body.data.polygons], len(co))
@@ -537,11 +556,20 @@ def validate(arm, body, info):
     return rep
 
 
-# review R1 (HAND-01) curl tests: (tag, (MCP, PIP, DIP) deg) for index..pinky, thumb neutral.
-# 90/100/70 and 90/110/80 are normal tight human fists; at 60/80/50 a real hand still leaves
-# a few centimetres around a held object.
+# review R1 (HAND-01) curl tests: (tag, (MCP, PIP, DIP) deg) ADDED ON TOP OF THE RELAXED REST POSE
+# (which is already flexed ~11-14 / 8-14 / 0-4 deg), index..pinky, thumb neutral.  Kept for
+# continuity with the R1 review; the anatomical tests below are the meaningful ones.
 HAND_CURL_TESTS = (("fist_90_100_70", (90, 100, 70)), ("fist_90_110_80", (90, 110, 80)),
                    ("grip_60_80_50", (60, 80, 50)))
+# hands task: anatomical fists (0 = straight finger).  'fist_tuned' = the pose library's full
+# fist (hands_gloves.py tunes PIP / DIP per finger so the fingertip pad just meets the palm).
+_F = lambda a, b, c, d=0.0: {"mcp": a, "pip": b, "dip": c, "abd": d}      # noqa: E731
+ANAT_FIST_TESTS = (
+    ("fist_90_100_70", {f: _F(90, 100, 70) for f in C.FINGERS4}),
+    ("fist_tuned", {"index": _F(90, 88, 55, -1), "middle": _F(90, 100, 70), "ring": _F(90, 92, 60, 1),
+                    "pinky": _F(90, 100, 70, 2)}),
+    ("grip_60_80_50", {f: _F(60, 80, 50) for f in C.FINGERS4}),
+)
 GRIP_MIN_GAP = 0.004          # m, fingertip to palm at 60/80/50
 
 
@@ -658,12 +686,14 @@ def p_wrist_twist(arm):
         C.rotate_bone_world(arm, f"hand_{side}", fa, 80.0 * sg)
 
 
-# Hand test poses (ivchar.pose_hand: local +X = flexion).  Since the R1 finger re-seat the fist
-# uses normal human angles (MCP/PIP/DIP 90/100/70); the old 80/90/45 cap is gone.
-FIST = dict(curl=(90, 100, 70), thumb=(45, 10, 35, 40))
-GRIP = dict(curl=(60, 80, 50), thumb=(30, 20, 20, 25))
-HALF = dict(curl=(42, 48, 30), thumb=(14, 8, 12, 18))
-SPREAD = dict(spread=14.0, curl=(-6, 0, 0), thumb=(-18, 0, -5, 0))
+# Hand test poses in ANATOMICAL angles (ivchar.pose_hand_anat; 0 = straight finger).  The full
+# fist is the pose library's tuned fist (hands_gloves.py), thumb over the index / middle.
+_T = lambda a, b, c, d, e: {"cmc_flex": a, "cmc_abd": b, "cmc_rot": c, "mcp": d, "ip": e}   # noqa: E731
+FIST = dict(ANAT_FIST_TESTS[1][1], thumb=_T(35, 5, 15, 30, 45))
+GRIP = dict({f: _F(60, 80, 50) for f in C.FINGERS4}, thumb=_T(20, 20, 10, 20, 25))
+HALF = dict({f: _F(45, 50, 30) for f in C.FINGERS4}, thumb=_T(10, 8, 8, 12, 20))
+SPREAD = dict(index=_F(-5, 0, 0, 12), middle=_F(-5, 0, 0, 2), ring=_F(-5, 0, 0, -10), pinky=_F(-5, 0, 0, -22),
+              thumb=_T(-35, -5, 0, 0, -5))
 
 
 def p_upperarm_roll(arm):
@@ -680,22 +710,22 @@ def p_upperarm_roll(arm):
 
 def p_fist(arm):
     for side in ("l", "r"):
-        C.pose_hand(arm, side, **FIST)
+        C.pose_hand_anat(arm, side, FIST)
 
 
 def p_grip(arm):
     for side in ("l", "r"):
-        C.pose_hand(arm, side, **GRIP)
+        C.pose_hand_anat(arm, side, GRIP)
 
 
 def p_half(arm):
     for side in ("l", "r"):
-        C.pose_hand(arm, side, **HALF)
+        C.pose_hand_anat(arm, side, HALF)
 
 
 def p_spread(arm):
     for side in ("l", "r"):
-        C.pose_hand(arm, side, **SPREAD)
+        C.pose_hand_anat(arm, side, SPREAD)
 
 
 POSES = [
@@ -713,10 +743,10 @@ POSES = [
     ("wrist_flex", p_wrist_flex, "left wrist flexion 70 deg, right wrist extension 60 deg"),
     ("wrist_twist", p_wrist_twist, "hand rotated 80 deg about the forearm axis"),
     ("upperarm_roll", p_upperarm_roll, "elbows 90 deg, upper arm rolled 70 deg about its axis (internal rotation)"),
-    ("fist", p_fist, "fist: fingers MCP/PIP/DIP 90/100/70 deg, thumb 01 folded 45 + out 10, 02/03 flex 35/40"),
-    ("fingers_grip", p_grip, "grip: fingers 60/80/50 deg, thumb 30/20/20/25"),
-    ("fingers_half", p_half, "transition: fingers 42/48/30 deg, thumb 14/8/12/18"),
-    ("fingers_spread", p_spread, "fingers spread 14 deg (pinky 22), MCP extension 6 deg, thumb radial abduction 18 deg"),
+    ("fist", p_fist, "full fist (anatomical): index 90/88/55, middle 90/100/70, ring 90/92/60, pinky 90/100/70, thumb over index / middle"),
+    ("fingers_grip", p_grip, "grip (anatomical): fingers 60/80/50 deg"),
+    ("fingers_half", p_half, "transition (anatomical): fingers 45/50/30 deg"),
+    ("fingers_spread", p_spread, "spread: MCP -5, abduction index +12 / middle +2 / ring -10 / pinky -22, thumb radial abduction"),
 ]
 
 

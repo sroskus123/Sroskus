@@ -15,6 +15,7 @@ import { WorldQuery } from './worldQuery.js';
 import { TargetDummies } from './targetDummies.js';
 import { buildMatchRules } from './gameRules.js';
 import { createRng } from '../util/rng.js';
+import { botKit, validateOpticLoadout, ATTACHMENTS } from '../weapons/optics.js';
 
 export const PLAYER_ID = 'player';
 
@@ -45,7 +46,7 @@ export class MatchSession {
    * @param {boolean} [o.withPlayer]
    * @param {object} [o.rulesPatch] JSON merge patch over rules.json (tests only)
    * @param {object} [o.aiConfig]   extra config handed to the AI system
-   * @param {object} [o.loadout]    { optic }
+   * @param {object} [o.loadout]    { optic, spare } (optic ids from src/data/attachments.json; 'irons' = no optic)
    */
   constructor(o) {
     this.level = o.level;
@@ -57,7 +58,8 @@ export class MatchSession {
     this.teamsData = o.teams;
     this.weaponsData = o.weaponsData;
     this.withPlayer = o.withPlayer !== false;
-    this.loadout = { optic: (o.loadout && o.loadout.optic) || 'collimator' };
+    const lo = validateOpticLoadout({ ...ATTACHMENTS.loadoutDefault, ...(o.loadout || {}) });
+    this.loadout = lo.ok ? { optic: lo.optic, spare: lo.spare } : { ...ATTACHMENTS.loadoutDefault };
     this.rules = buildMatchRules(this.mode === 'match' ? this.level : null, o.rulesPatch || null);
     this.teamCount = this.rules.teamCount;
 
@@ -123,6 +125,18 @@ export class MatchSession {
       }
     }
     this.botCounts = [0, 1, 2].slice(0, this.teamCount).map((t) => this.combatants.byTeam(t).filter((c) => !c.isPlayer).length);
+
+    // optic kits: the player's from the loadout screen, bots' by role (attachments.json bots)
+    if (this.player) this.player.setOpticKit(this.loadout, 'loadout');
+    for (let t = 0; t < this.teamCount; t++) {
+      this.combatants.byTeam(t).filter((c) => !c.isPlayer).forEach((c, i) => {
+        const k = botKit(i);
+        c.opticRole = k.role;
+        c.setOpticKit({ optic: k.optic, spare: k.spare }, 'loadout');
+      });
+    }
+    // armory crates at the team spawns (level data match.armories; also usable in practice)
+    this.armories = ((lm && lm.armories) || []).map((a) => ({ ...a, center: a.center.slice() }));
 
     // AI (stub until the AI module replaces src/ai/index.js with the same interface)
     this.ai = o.createAISystem({
@@ -250,6 +264,7 @@ export class MatchSession {
     }
     if (res.result === 'applied' || res.result === 'killed') {
       this.stats.damageEvents++;
+      victim.markDamaged();
       this.events.emit('combatant:damaged', {
         victimId: victim.id,
         attackerId: shooter.id,
@@ -364,6 +379,38 @@ export class MatchSession {
       this._zoneKey = key;
       if (!initial) this.events.emit('zone:control_changed', { zoneId: r.zoneId, controller: z.controller >= 0 ? z.controller : null, status: z.status });
     }
+  }
+
+  // ------------------------------------------------------------------ armory crates
+
+  /**
+   * The armory crate a combatant can use now (alive, own team if the rules say so, feet within
+   * attachments.armory.interactRadiusM of the crate centre horizontally and within 1.5 m vertically), or null.
+   */
+  armoryFor(c) {
+    if (!c || !c.alive) return null;
+    const A = ATTACHMENTS.armory;
+    let best = null;
+    let bestD = Infinity;
+    for (const a of this.armories) {
+      if (A.teamOnly && a.team !== c.team) continue;
+      const dx = c.position.x - a.center[0];
+      const dz = c.position.z - a.center[2];
+      const d = Math.hypot(dx, dz);
+      if (d <= A.interactRadiusM && Math.abs(c.position.y - a.center[1]) <= 1.5 && d < bestD) {
+        best = a;
+        bestD = d;
+      }
+    }
+    return best;
+  }
+
+  /** Changes a combatant's optic kit at an armory crate. Returns { ok, reason }. */
+  useArmory(c, kit) {
+    if (!c) return { ok: false, reason: 'unknown_id' };
+    if (!c.alive) return { ok: false, reason: 'dead' };
+    if (!this.armoryFor(c)) return { ok: false, reason: 'not_at_armory' };
+    return c.setOpticKit(kit, 'armory');
   }
 
   // ------------------------------------------------------------------ queries for HUD / tests

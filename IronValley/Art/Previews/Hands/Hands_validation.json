@@ -1,0 +1,75 @@
+{
+ "generated_by": "hands_gloves.py (ivhands 1.0.0, ivchar 1.2.0, ivlib 1.0.0)",
+ "blender": "4.5.14 LTS",
+ "build": {
+  "glove_l": {
+   "region": {
+    "body_vertices": 1709,
+    "faces": 1698
+   },
+   "refined_faces": 158,
+   "skin_outside_subdiv_mm": {
+    "max": 2.142,
+    "min": -2.698
+   },
+   "vertices": 8963,
+   "triangles": 17884,
+   "shell_offset_mm": {
+    "min": 1.15,
+    "max": 4.703,
+    "median": 1.524
+   }
+  },
+  "uv": {
+   "seam_edges": 854,
+   "texel_density_px_per_cm_mean": 55.1,
+   "texel_density_p05_p95": [
+    52.5,
+    57.7
+   ],
+   "uv_coverage": 0.487,
+   "flipped_uv_triangles": 2,
+   "sign_majority": 17882
+  },
+  "glove_r": {
+   "mirrored_from": "SK_Glove_L",
+   "vertices": 8963
+  },
+  "gloved_body": {
+   "faces_removed": 3356,
+   "vertices": 10042,
+   "faces": 10022
+  },
+  "build_seconds": 11.1
+ },
+ "textures": {
+  "texels": 2041286,
+  "coverage": 0.4867,
+  "ao_bake_distance_m": 0.008,
+  "zone_texel_share": {
+   "fabric": 0.3375,
+   "leather": 0.251,
+   "patch": 0.0502,
+   "cap": 0.0642,
+   "tpr": 0.0553,
+   "cuff": 0.2419,
+   "strap": 0.0663
+  },
+  "height_range_mm": [
+   -1.397,
+   1.407
+  ],
+  "seconds": 103.2,
+  "files": {
+   "Normal": "Art/Textures/Characters/Gloves/T_Glove_Normal.png",
+   "Normal_DX": "Art/Textures/Characters/Gloves/T_Glove_Normal_DX.png",
+   "Coyote_BaseColor": "Art/Textures/Characters/Gloves/T_Glove_Coyote_BaseColor.png",
+   "Coyote_ORM": "Art/Textures/Characters/Gloves/T_Glove_Coyote_ORM.png",
+   "Black_BaseColor": "Art/Textures/Characters/Gloves/T_Glove_Black_BaseColor.png",
+   "Black_ORM": "Art/Textures/Characters/Gloves/T_Glove_Black_ORM.png"
+  }
+ },
+ "seconds_this_run": 187.2,
+ "time": "2026-09-27 04:52:06",
+ "pose_fit_seconds": 187.1
+}

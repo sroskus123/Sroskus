@@ -65,6 +65,14 @@ cca 29 GB volného disku, **bez GPU** (`/dev/dri` chybí, `nvidia-smi` chybí). 
   (`Web/tests/e2e/09_full_round.test.mjs`), telemetrie `window.__IV.telemetry*`. Naměřené hodnoty: `Docs/AI.md` oddíl 11. Poslední úplný běh 2026-09-27:
   **unit 388/388, e2e 73/73 PASS**.
 
+- **Optiky ve webu (2026-09-27):** příčiny blikání a rozmazání změřeny a opraveny (světlo záblesku osvětlovalo kryt optiky,
+  záblesk přes sklo, tečka jako HDR geometrie → bílá, hranatá a s paralaxou, zamlžující sklo, adaptivní rozlišení na 60 Hz
+  jen klesalo); pět optik na liště IV-7 (vestavěná optika skrytá, mířidla sklopená −90°), 1× kolimovaná síťka (SDF,
+  min. velikost, bez zoomu), 2× / 3× obraz v obraze, 6× překryv, citlivost podle zvětšení; výbava s náhradní optikou,
+  zbrojní bedny na spawnech obou map, výměna z batohu (B, 3 s), boti podle role s LOD1. Webové varianty assetů
+  `Tools/web_assets/build_web_assets.py` (puška 16,6 → 7,0 MiB, optiky 19,3 → 8,8 MiB). Podrobně a čísla:
+  `Art/Reference/OPTICS_spec.md` oddíl 11. Poslední běh: **unit 412/412, e2e 82/82 PASS** (SwiftShader). Výkon na GPU NOT TESTED.
+
 ## Náhled pro uživatele
 
 - Soukromý Artifact: https://claude.ai/artifact/5h5KbXu4z4j3Q2SWxGNZgi
@@ -89,6 +97,7 @@ Běží WF `iv-feel-feedback` (pohyb/kamera, recoil, zvuk) a `iv-optics-art` (mo
 - Viditelný recoil, záblesk, nábojnice; zvuky (jen ověřené licence CC0/PD/CC-BY, jinak syntéza označená jako prozatímní), ne zbytečně hlasité.
 - Optika: blikání při výstřelu a rozmazání (sklo s transmisí), tečka plave s pohybem, zbytečná železná mířidla →
   čisté holo/kolimátor, 2×, 3×, 6×; výběr ve výbavě, zbrojní bedna na spawnu, náhradní optika v batohu (výroba/crafting ne).
+  **Hotovo ve webu 2026-09-27** (viz „Hotovo“); do náhledu Artifact zatím nepublikováno.
 - Nohy pod sebou nevidět → vyřeší plné tělo v první osobě po dokončení postav a animací.
 
 ## Přerušení limitem využití (2026-09-26 ~22:00 → obnoveno 2026-09-27 00:20 UTC)

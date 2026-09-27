@@ -26,6 +26,9 @@ export class Player {
     this.settings = settings;
     this.events = events;
     this.mouse = mouse || { baseRadiansPerPixel: 0.0022, invertY: false };
+    // look speed factor while aiming (magnification / ADS sensitivity setting), provided by the game; 1 = hip
+    this.lookScaleFn = null;
+    this.lastLookScale = 1;
     this.yaw = 0;
     this.pitch = 0;
     // incremented whenever the look direction is set directly (teleport / respawn / script)
@@ -108,7 +111,9 @@ export class Player {
   applyLookInput() {
     const { dx, dy } = this.input.consumeLook();
     if (dx === 0 && dy === 0) return;
-    const k = this.mouse.baseRadiansPerPixel * this.settings.get('mouseSensitivity');
+    const scale = this.lookScaleFn ? this.lookScaleFn() : 1;
+    this.lastLookScale = Number.isFinite(scale) && scale > 0 ? scale : 1;
+    const k = this.mouse.baseRadiansPerPixel * this.settings.get('mouseSensitivity') * this.lastLookScale;
     this.yaw -= dx * k;
     this.pitch -= (this.mouse.invertY ? -dy : dy) * k;
     this.pitch = clamp(this.pitch, -PITCH_LIMIT, PITCH_LIMIT);
@@ -138,12 +143,13 @@ export class Player {
       reload: inp.wasPressed('reload'),
       switchTo: inp.wasPressed('weapon1') ? 0 : inp.wasPressed('weapon2') ? 1 : null,
       interact: inp.wasPressed('interact'),
+      swapOptic: inp.wasPressed('swapOptic'),
     };
   }
 
   /** Idle command that keeps the current look (dead, menus). */
   idleCommand() {
-    return { moveX: 0, moveZ: 0, yaw: this.yaw, pitch: this.pitch, sprint: false, walk: false, crouch: false, jump: false, ads: false, fire: false, reload: false, switchTo: null, interact: false };
+    return { moveX: 0, moveZ: 0, yaw: this.yaw, pitch: this.pitch, sprint: false, walk: false, crouch: false, jump: false, ads: false, fire: false, reload: false, switchTo: null, interact: false, swapOptic: false };
   }
 
   /** Makes the previous-tick snapshots of the visual (bob / dip) state equal to the current one. */
