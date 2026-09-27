@@ -4,6 +4,7 @@
 
 import { keyLabel } from '../player/input.js';
 import { REBINDABLE } from '../player/bindingsStore.js';
+import audioConfig from '../data/audio.json' with { type: 'json' };
 
 const el = (tag, cls, text) => {
   const e = document.createElement(tag);
@@ -352,6 +353,10 @@ export class Menus {
     keys.append(el('h2', '', 'Klávesy'), list);
     cols.append(keys, goal);
     out.push(cols);
+    // sound credits (CC BY attribution; CC0 authors credited too) — src/data/audio.json, Shared/audio/SOURCES.md
+    const credits = el('section', 'iv-goal iv-credits');
+    credits.append(el('h2', '', 'Zvuky — autoři a licence'), ...(audioConfig.credits || []).map((t) => el('p', 'iv-hint', t)));
+    out.push(credits);
     const btns = el('div', 'iv-menu-buttons');
     btns.append(button('Zpět', '', () => this.show(this.parent || 'title'), 'back'));
     out.push(btns);

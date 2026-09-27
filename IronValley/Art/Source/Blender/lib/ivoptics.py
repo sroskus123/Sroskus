@@ -343,12 +343,18 @@ def reticle_preview(meta, out_path, bg="sky", size=1024, title=None, scale_units
     return out_path
 
 
-def eyebox_overlay(reticle_meta, radius_units, out_path, edge_soft_units=None, vignette_start=0.80,
-                   vignette_strength=0.88, spread_px=16.0):
-    """Full-screen scope overlay: the reticle (same angular scale as the reticle texture) inside a
-    circular eyebox of `radius_units` (the field stop as seen at the design eye relief).  Inside:
-    reticle + a soft dark vignette towards the field stop (pupil / field-stop shadow); outside the
-    circle: fully transparent.  Straight alpha RGBA; RGB = black except illuminated reticle."""
+def eyebox_overlay(reticle_meta, radius_units, out_path, edge_soft_frac=0.006, vignette_start=0.86,
+                   vignette_strength=0.55, rim_dark=0.18):
+    """Full-screen scope ADS overlay (straight-alpha RGBA, same size and angular scale as the
+    reticle texture, so px_per_unit is identical and the texture centre is the point of aim).
+
+    Inside the eyebox (the field stop as seen at the design eye relief, radius `radius_units`):
+    fully transparent except for the reticle and a soft darkening towards the field stop
+    (vignette from `vignette_start` of the radius, smoothstep^1.5 to `vignette_strength`, plus a
+    slight overall `rim_dark` fall-off that real eyepieces show).  The field stop itself is a
+    crisp, antialiased edge (width edge_soft_frac x radius).  Outside the eyebox: opaque black
+    (the eyepiece housing / tube shadow).  RGB is black everywhere except the illuminated
+    reticle features (their colour); etched features are black ink."""
     from PIL import Image
     r = reticle_meta["_render"]
     N = reticle_meta["size_px"][0]
@@ -357,29 +363,36 @@ def eyebox_overlay(reticle_meta, radius_units, out_path, edge_soft_units=None, v
     assert radius_units < F / 2, "eyebox must fit inside the texture"
     xs = (np.arange(N) + 0.5) / ppu - F / 2
     X, Y = np.meshgrid(xs, -xs)
-    R = np.hypot(X, Y)
-    soft = edge_soft_units if edge_soft_units is not None else 0.012 * radius_units
-    # field-stop edge: crisp but antialiased over `soft`
-    inside = np.clip((radius_units - R) / max(soft, 1.0 / ppu) + 0.5, 0.0, 1.0)
-    u = np.clip((R / radius_units - vignette_start) / (1.0 - vignette_start), 0.0, 1.0)
-    vig = vignette_strength * (u * u * (3 - 2 * u)) ** 1.5              # smooth darkening
+    R = np.hypot(X, Y) / radius_units                       # 1 = field stop
+    soft = max(edge_soft_frac, 1.0 / (radius_units * ppu))
+    inside = np.clip((1.0 - R) / soft + 0.5, 0.0, 1.0)       # 1 inside, 0 outside (antialiased)
+    u = np.clip((R - vignette_start) / (1.0 - vignette_start), 0.0, 1.0)
+    vig = vignette_strength * (u * u * (3 - 2 * u)) ** 1.5 + rim_dark * np.clip(R, 0, 1) ** 4
+    vig = np.clip(vig, 0.0, 1.0)
     a_ret = r["alpha"]
     t = r["t"]
-    # layer order (top to bottom): reticle, vignette
-    a_v = vig
-    alpha_in = a_ret + a_v * (1.0 - a_ret)
+    # layers (top to bottom): reticle, vignette (black), outside-mask (black, opaque)
+    a_in = a_ret + vig * (1.0 - a_ret)
+    alpha = a_in * inside + (1.0 - inside)
     col_lin = srgb_to_linear(np.array(reticle_meta["colour_srgb"]) / 255.0)
-    rgb_lin = col_lin[None, None, :] * (t * a_ret / np.maximum(alpha_in, 1e-6))[..., None]
-    alpha = alpha_in * inside
-    # colour inside the transparent zone: keep black (vignette) / lit colour near lit features
-    rgb = linear_to_srgb(rgb_lin)
-    out = np.dstack([rgb, alpha])
+    # premultiplied colour: only the illuminated reticle has colour, the rest is black
+    pre = col_lin[None, None, :] * (t * a_ret * inside)[..., None]
+    rgb_lin = pre / np.maximum(alpha, 1e-6)[..., None]
+    # colour-bleed: fully transparent texels inside the eyebox take the reticle colour field so
+    # that mip levels / bilinear filtering never pull black into the illuminated strokes
+    bleed = col_lin[None, None, :] * t[..., None]
+    rgb_lin = np.where((alpha < 1e-4)[..., None], bleed, rgb_lin)
+    out = np.dstack([linear_to_srgb(rgb_lin), alpha])
     Image.fromarray(np.clip(np.round(out * 255), 0, 255).astype(np.uint8), "RGBA").save(
         out_path, optimize=False, compress_level=9)
+    c = N // 2
     return {"path": out_path, "size_px": [N, N], "px_per_unit": ppu, "units": reticle_meta["units"],
-            "eyebox_radius_units": radius_units, "eyebox_radius_px": radius_units * ppu,
-            "field_stop_edge_softness_units": soft, "vignette_start_fraction": vignette_start,
-            "vignette_max_opacity": vignette_strength}
+            "field_units": F, "eyebox_radius_units": radius_units, "eyebox_radius_px": radius_units * ppu,
+            "eyebox_radius_fraction_of_size": radius_units * ppu / N,
+            "field_stop_edge_width_fraction": soft, "vignette_start_fraction": vignette_start,
+            "vignette_max_opacity": vignette_strength, "rim_darkening": rim_dark,
+            "alpha_at_centre_offset_2units": float(alpha[c, c + int(2 * ppu)]),
+            "alpha_outside": float(alpha[2, 2])}
 
 
 # =============================================================================
@@ -660,23 +673,29 @@ def pane_sheet(name, x, center_yz, w, h, corner_r, facing=-1, seg=6, col=None):
     return _sheet_object(name, verts, faces, uvs, facing, col)
 
 
-def reticle_plane(name, x_plane, center_yz, eye_x, reticle_meta, magnification=1.0, col=None):
-    """Square reticle quad centred on the sight axis at x_plane, facing the eye (-X), sized so that
-    from the eye point (x = eye_x on the axis) it subtends exactly the reticle texture's angular
-    field (times the magnification for magnified optics: the apparent size behind the eyepiece).
-    UV 0..1 with u to the shooter's right (-Y) and v up (texture row 0 = top)."""
+def reticle_plane(name, x_plane, center_yz, eye_x, reticle_meta, magnification=1.0, cover_half=None, col=None):
+    """Reticle quad on the sight axis at x_plane, facing the eye (-X).
+
+    UV scale: seen from the eye point (x = eye_x on the axis) the texture subtends exactly its
+    angular field (x magnification for magnified optics = the apparent size behind the eyepiece).
+    The quad itself is `cover_half` (half size, same units) so that it covers the whole window /
+    ocular aperture: its UVs run beyond 0..1 and the texture is sampled clamp-to-edge (the border
+    texels are transparent).  A runtime collimated reticle shader needs this: with the eye off the
+    axis the dot is drawn where the ray PARALLEL to the axis through the eye meets the plane.
+    u runs to the shooter's right (-Y), v up (texture row 0 = top).  Returns (obj, tex_half)."""
     d = x_plane - eye_x
     assert d > 0
     half_ang = 0.5 * reticle_meta["field_units"] * RAD_PER_UNIT[reticle_meta["units"]] * magnification
-    half = d * math.tan(half_ang)
+    tex_half = d * math.tan(half_ang)
+    half = max(cover_half or tex_half, tex_half)
     cy, cz = center_yz
     verts = [(x_plane, cy + half, cz - half), (x_plane, cy - half, cz - half),
              (x_plane, cy - half, cz + half), (x_plane, cy + half, cz + half)]
-    uvs = [(0.5 - (v[1] - cy) / (2 * half), 0.5 + (v[2] - cz) / (2 * half)) for v in verts]
+    uvs = [(0.5 - (v[1] - cy) / (2 * tex_half), 0.5 + (v[2] - cz) / (2 * tex_half)) for v in verts]
     ob = _sheet_object(name, verts, [(0, 1, 2, 3)], uvs, -1, col)
-    ob["iv_reticle_half_size"] = half
+    ob["iv_reticle_tex_half"] = tex_half
     ob["iv_reticle_eye_distance"] = d
-    return ob, half
+    return ob, tex_half
 
 
 def make_socket(name, loc, rot=(0.0, 0.0, 0.0), size=0.01, col=None):

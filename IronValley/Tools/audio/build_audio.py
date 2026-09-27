@@ -324,23 +324,23 @@ def build_mechanics():
     ar = mono(load('springy/assaultriflereload1_0.wav'))     # airsoft rifle reload (CC0)
     pr = mono(load('springy/gunreload1.wav'))                # airsoft pistol reload (CC0)
 
-    def cut(x, t0, t1, target, hpf=120, fin=0.002, fout=0.04):
+    def cut(x, t0, t1, target, hpf=120, fin=0.002, fout=0.04, trim_db=-20):
         a = hp(seg(x, t0, t1), hpf)
-        a = a[onset(a, -30, pre=0.004):]  # the sound starts at the event (no silent lead-in)
+        a = a[onset(a, trim_db, pre=0.004):]  # the sound starts at the event (no silent lead-in)
         a = fade(a, fin, fout)
         return norm_peak(a, target)
 
     emit('rifle_mag_out', 'rifle_mag_out', cut(ar, 0.12, 0.52, -10), source='springy:assaultriflereload1_0.wav@0.12-0.52s', group='mechanics')
     emit('rifle_mag_in', 'rifle_mag_in', cut(ar, 1.00, 1.24, -10), source='springy:assaultriflereload1_0.wav@1.00-1.24s', group='mechanics')
-    emit('rifle_bolt_release', 'rifle_bolt_release', cut(lfa, 18.026, 18.21, -10, hpf=80), source='lfa:equipment_clicks3.wav@18.026-18.21s', group='mechanics')
+    emit('rifle_bolt_release', 'rifle_bolt_release', cut(lfa, 18.026, 18.21, -10, hpf=80, trim_db=-12), source='lfa:equipment_clicks3.wav@18.026-18.21s', group='mechanics')
     emit('rifle_charge_pull', 'rifle_charge_pull', cut(lfa, 1.449, 1.707, -11), source='lfa:equipment_clicks3.wav@1.449-1.707s', group='mechanics')
-    emit('rifle_charge_release', 'rifle_charge_release', cut(lfa, 0.854, 1.094, -10, hpf=80), source='lfa:equipment_clicks3.wav@0.854-1.094s', group='mechanics')
+    emit('rifle_charge_release', 'rifle_charge_release', cut(lfa, 0.854, 1.094, -10, hpf=80, trim_db=-12), source='lfa:equipment_clicks3.wav@0.854-1.094s', group='mechanics')
     emit('pistol_mag_out', 'pistol_mag_out', cut(pr, 0.08, 0.32, -11), source='springy:gunreload1.wav@0.08-0.32s', group='mechanics')
     emit('pistol_mag_in', 'pistol_mag_in', cut(pr, 0.64, 0.82, -11, hpf=200), source='springy:gunreload1.wav@0.64-0.82s', group='mechanics')
     emit('pistol_slide_pull', 'pistol_slide_pull', cut(lfa, 18.807, 19.08, -12), source='lfa:equipment_clicks3.wav@18.807-19.08s', group='mechanics')
-    emit('pistol_slide_release', 'pistol_slide_release', cut(lfa, 16.26, 16.448, -10, hpf=100), source='lfa:equipment_clicks3.wav@16.26-16.448s', group='mechanics')
-    emit('rifle_dry', 'rifle_dry', cut(lfa, 0.186, 0.347, -14, hpf=300), source='lfa:equipment_clicks3.wav@0.186-0.347s', group='mechanics')
-    emit('pistol_dry', 'pistol_dry', cut(lfa, 5.085, 5.176, -14, hpf=300), source='lfa:equipment_clicks3.wav@5.085-5.176s', group='mechanics')
+    emit('pistol_slide_release', 'pistol_slide_release', cut(lfa, 16.292, 16.448, -10, hpf=100, trim_db=-12), source='lfa:equipment_clicks3.wav@16.292-16.448s', group='mechanics')
+    emit('rifle_dry', 'rifle_dry', cut(lfa, 0.186, 0.347, -14, hpf=300, trim_db=-12), source='lfa:equipment_clicks3.wav@0.186-0.347s', group='mechanics')
+    emit('pistol_dry', 'pistol_dry', cut(lfa, 5.085, 5.176, -14, hpf=300, trim_db=-12), source='lfa:equipment_clicks3.wav@5.085-5.176s', group='mechanics')
 
     # weapon switch: cloth / webbing and a latch (Kenney RPG Audio, CC0)
     for i, f in enumerate(['cloth1', 'cloth2', 'cloth3']):

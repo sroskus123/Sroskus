@@ -133,7 +133,7 @@ relace hra volá `ai.dispose()`, pokud existuje (odhlášení z event busu).
 | `combatant:friendly_fire_blocked` | `{ victimId, attackerId, amount }` |
 | `weapon:switched` | `{ id, weaponId, slot }` |
 | `weapon:dry_fire` | `{ id, weaponId }` |
-| `weapon:action` | `{ id, weaponId, type: 'mag_insert' \| 'bolt_release' \| 'chamber_commit' }` |
+| `weapon:action` | `{ id, weaponId, type: 'mag_insert' \| 'bolt_release' \| 'chamber_start' \| 'chamber_commit' }` — okamžiky jádra: zásobník zasunut (commit), závěr / závěr pistole vpřed (commit), natažení (začátek nabíjení), dobití do komory (commit); zvuk a později ruce |
 | `round:pre` | `{ zoneId, preRoundS }` |
 | `weapon:casing_landed` | `{ position, mat, surface, speed, weaponId, shooterId }` — první dopad nábojnice (jen vizuální efekt; pro zvuk cinknutí) |
 
@@ -210,3 +210,14 @@ přeskoku; vše násobí nastavení „Pohyb kamery“ (0 = vypnuto). Dokud zbra
 (žádná změna sklonu): propady a houpání jsou posuny oka a všechna natočení jsou náklon kolem osy pohledu, takže
 střed obrazovky, kříž i mířidla ukazují přesně směr zásahu (GUN-03). Sklon dolů existuje jen během přeskoku.
 Tělo z pohledu první osoby (nohy) přijde s modely postav; kamera sedí v ose kapsle ve výšce `eyeHeight`, takže tělo lze později připojit pod ni.
+
+## Zvuk (`src/audio/audioSystem.js`, 2026-09-27)
+
+Zvuk jen **poslouchá** sběrnici, nic nevydává: `weapon:fired` (blízká / vzdálená nahrávka podle vzdálenosti od
+posluchače, dozvuk, zpoždění šíření d/343 m/s, průlet střely kolem posluchače spočítaný z `muzzle` + `dir` +
+`shot.hitPoint`), `weapon:reload_started` (vyjmutí zásobníku 0,28 / 0,22 s po začátku, zruší ho
+`weapon:reload_interrupted` i smrt), `weapon:action` (viz výše), `weapon:dry_fire`, `weapon:switched`, `weapon:hit`
+(povrch → zásah), `weapon:casing_landed`, `footstep` (`surface`, `loudness`, `kind: 'land'` = dopad), `player:jump`,
+`traverse:start`, `combatant:died` (zastaví kroky / přebíjení / pohyb oběti), `round:reset`, `game:state` (ambience
+jen ve stavu `playing`, jiný stav zastaví vše). Mapování povrch → zvuk a hlasitosti: `src/data/audio.json`.
+Zdroje a licence: `Shared/audio/SOURCES.md`.

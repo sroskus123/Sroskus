@@ -476,7 +476,8 @@ export class AudioSystem {
 
   onHit(p) {
     if (!p.point) return;
-    const surf = p.surface || (p.hit && p.hit.kind === 'combatant' ? 'flesh' : 'concrete');
+    // mapped surface of a world hit (WorldQuery) first, else the event's surface / raw level material
+    const surf = (p.hit && p.hit.surface) || p.surface || (p.hit && p.hit.kind === 'combatant' ? 'flesh' : 'concrete');
     const S = this.cfg.surfaces;
     const key = S.impact[surf] || S.impact.default;
     const pos = vec(p.point, { x: 0, y: 0, z: 0 });
@@ -737,7 +738,8 @@ export class AudioSystem {
     let panner = null;
     if (opts.pos) {
       panner = c.createPanner();
-      panner.panningModel = this.cfg.panningModel;
+      const far = this.cfg.hrtfMaxDistance && dist(opts.pos, this.listener) > this.cfg.hrtfMaxDistance;
+      panner.panningModel = far ? 'equalpower' : this.cfg.panningModel;
       panner.distanceModel = 'inverse';
       panner.refDistance = opts.ref || 1;
       panner.maxDistance = 10000;

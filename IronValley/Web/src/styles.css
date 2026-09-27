@@ -922,3 +922,13 @@ body {
 .iv-menu[data-screen='loadout'] .iv-panel {
   width: min(720px, 100%);
 }
+/* sound credits on the controls screen (src/data/audio.json -> credits) */
+.iv-credits {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--iv-line);
+}
+.iv-credits .iv-hint {
+  margin: 0 0 6px;
+  line-height: 1.4;
+}

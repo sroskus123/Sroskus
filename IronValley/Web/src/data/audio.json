@@ -5,21 +5,93 @@
   "leadInTrimDb": -50,
   "masterChain": {
     "_comment": "compressor + limiter on the master bus; their automatic make-up gain (WebAudio spec) is cancelled by a trim, a soft clipper after them guarantees no clipping",
-    "compressor": { "threshold": -14, "knee": 8, "ratio": 2.5, "attack": 0.004, "release": 0.22 },
-    "limiter": { "threshold": -2, "knee": 0, "ratio": 20, "attack": 0.001, "release": 0.08 },
+    "compressor": {
+      "threshold": -14,
+      "knee": 8,
+      "ratio": 2.5,
+      "attack": 0.004,
+      "release": 0.22
+    },
+    "limiter": {
+      "threshold": -2,
+      "knee": 0,
+      "ratio": 20,
+      "attack": 0.001,
+      "release": 0.08
+    },
     "softClip": true
   },
   "categories": {
-    "weapon": { "gain": 0.8, "maxVoices": 14, "maxPerOwner": 4, "pitchCents": 25, "gainDb": 1.0 },
-    "tail": { "gain": 0.5, "maxVoices": 6, "maxPerOwner": 2, "pitchCents": 20, "gainDb": 1.0 },
-    "mech": { "gain": 0.8, "maxVoices": 8, "maxPerOwner": 3, "pitchCents": 25, "gainDb": 1.5 },
-    "step": { "gain": 0.42, "maxVoices": 10, "maxPerOwner": 2, "pitchCents": 70, "gainDb": 2.0 },
-    "movement": { "gain": 0.6, "maxVoices": 4, "maxPerOwner": 2, "pitchCents": 40, "gainDb": 1.5 },
-    "impact": { "gain": 0.7, "maxVoices": 10, "maxPerOwner": 6, "pitchCents": 90, "gainDb": 2.0 },
-    "nearmiss": { "gain": 0.85, "maxVoices": 4, "maxPerOwner": 4, "pitchCents": 60, "gainDb": 1.5 },
-    "casing": { "gain": 0.6, "maxVoices": 6, "maxPerOwner": 3, "pitchCents": 80, "gainDb": 2.0 },
-    "ambience": { "gain": 0.8, "maxVoices": 4, "maxPerOwner": 4, "pitchCents": 60, "gainDb": 2.0 },
-    "ui": { "gain": 0.5, "maxVoices": 3, "maxPerOwner": 3, "pitchCents": 0, "gainDb": 0 }
+    "weapon": {
+      "gain": 0.8,
+      "maxVoices": 14,
+      "maxPerOwner": 4,
+      "pitchCents": 25,
+      "gainDb": 1.0
+    },
+    "tail": {
+      "gain": 0.5,
+      "maxVoices": 6,
+      "maxPerOwner": 2,
+      "pitchCents": 20,
+      "gainDb": 1.0
+    },
+    "mech": {
+      "gain": 0.8,
+      "maxVoices": 8,
+      "maxPerOwner": 3,
+      "pitchCents": 25,
+      "gainDb": 1.5
+    },
+    "step": {
+      "gain": 0.42,
+      "maxVoices": 10,
+      "maxPerOwner": 2,
+      "pitchCents": 70,
+      "gainDb": 2.0
+    },
+    "movement": {
+      "gain": 0.6,
+      "maxVoices": 4,
+      "maxPerOwner": 2,
+      "pitchCents": 40,
+      "gainDb": 1.5
+    },
+    "impact": {
+      "gain": 0.7,
+      "maxVoices": 10,
+      "maxPerOwner": 6,
+      "pitchCents": 90,
+      "gainDb": 2.0
+    },
+    "nearmiss": {
+      "gain": 0.85,
+      "maxVoices": 4,
+      "maxPerOwner": 4,
+      "pitchCents": 60,
+      "gainDb": 1.5
+    },
+    "casing": {
+      "gain": 0.6,
+      "maxVoices": 6,
+      "maxPerOwner": 3,
+      "pitchCents": 80,
+      "gainDb": 2.0
+    },
+    "ambience": {
+      "gain": 0.8,
+      "maxVoices": 4,
+      "maxPerOwner": 4,
+      "pitchCents": 60,
+      "gainDb": 2.0
+    },
+    "ui": {
+      "gain": 0.5,
+      "maxVoices": 3,
+      "maxPerOwner": 3,
+      "pitchCents": 0,
+      "gainDb": 0
+    }
   },
   "weapons": {
     "iv7_carbine": {
@@ -32,8 +104,16 @@
       "casing": "casing_rifle",
       "nearMiss": "nearmiss_crack",
       "bulletSpeed": 900,
-      "magOut": { "key": "rifle_mag_out", "delay": 0.28 },
-      "actions": { "mag_insert": "rifle_mag_in", "bolt_release": "rifle_bolt_release", "chamber_start": "rifle_charge_pull", "chamber_commit": "rifle_charge_release" }
+      "magOut": {
+        "key": "rifle_mag_out",
+        "delay": 0.28
+      },
+      "actions": {
+        "mag_insert": "rifle_mag_in",
+        "bolt_release": "rifle_bolt_release",
+        "chamber_start": "rifle_charge_pull",
+        "chamber_commit": "rifle_charge_release"
+      }
     },
     "ivp9_pistol": {
       "close": "pistol_close",
@@ -45,16 +125,24 @@
       "casing": "casing_pistol",
       "nearMiss": "nearmiss_whiz",
       "bulletSpeed": 360,
-      "magOut": { "key": "pistol_mag_out", "delay": 0.22 },
-      "actions": { "mag_insert": "pistol_mag_in", "bolt_release": "pistol_slide_release", "chamber_start": "pistol_slide_pull", "chamber_commit": "pistol_slide_release" }
+      "magOut": {
+        "key": "pistol_mag_out",
+        "delay": 0.22
+      },
+      "actions": {
+        "mag_insert": "pistol_mag_in",
+        "bolt_release": "pistol_slide_release",
+        "chamber_start": "pistol_slide_pull",
+        "chamber_commit": "pistol_slide_release"
+      }
     }
   },
   "shots": {
-    "_comment": "other shooters: close take up to closeFullUntil, cross-fade to the distant take until distantOnlyFrom; inverse-distance roll-off from closeRef / distantRef; air absorption low-pass fc = 20 kHz * exp(-d / airAbsorptionMeters) (>= minCutoff); propagation delay d / speedOfSound; tail gain tailRef / d (0.1..1)",
+    "_comment": "other shooters: close take up to closeFullUntil, cross-fade to the distant take until distantOnlyFrom; inverse-distance roll-off from closeRef / distantRef (distantRef 14 m: the distant take, normalised to -6 dBFS, meets the close take (-3 dBFS, ref 10 m) at the same level around 40 m); air absorption low-pass fc = 20 kHz * exp(-d / airAbsorptionMeters) (>= minCutoff); propagation delay d / speedOfSound; tail gain tailRef / d (0.1..1)",
     "closeRef": 10,
     "closeFullUntil": 25,
     "distantOnlyFrom": 60,
-    "distantRef": 60,
+    "distantRef": 14,
     "maxAudible": 900,
     "speedOfSound": 343,
     "airAbsorptionMeters": 250,
@@ -62,20 +150,144 @@
     "tailRef": 20,
     "range": 400
   },
-  "refDistance": { "step": 2.5, "mech": 1.5, "impact": 3, "nearmiss": 1.5, "casing": 1.5, "movement": 2, "bird": 40 },
-  "maxDistance": { "step": 45, "mech": 25, "impact": 120, "casing": 18, "movement": 35 },
-  "occlusion": { "enabled": true, "raycastsPerTick": 12, "cacheSeconds": 0.2, "cutoffHz": 900, "gain": 0.6 },
-  "nearMiss": { "radius": 4, "minGain": 0.25, "endMargin": 0.5 },
-  "surfaces": {
-    "step": { "concrete": "step_concrete", "asphalt": "step_concrete", "plaster": "step_concrete", "tile": "step_concrete", "metal": "step_metal", "wood": "step_wood", "dirt": "step_dirt", "mud": "step_dirt", "sand": "step_dirt", "gravel": "step_gravel", "grass": "step_grass", "default": "step_concrete" },
-    "impact": { "concrete": "impact_concrete", "asphalt": "impact_concrete", "plaster": "impact_concrete", "tile": "impact_concrete", "metal": "impact_metal", "wood": "impact_wood", "target": "impact_wood", "dirt": "impact_dirt", "mud": "impact_dirt", "sand": "impact_dirt", "gravel": "impact_dirt", "grass": "impact_dirt", "glass": "impact_glass", "flesh": "impact_flesh", "default": "impact_concrete" },
-    "impactCutoff": { "plaster": 5000 },
-    "casingGain": { "metal": 1.0, "concrete": 1.0, "asphalt": 1.0, "tile": 1.0, "plaster": 0.9, "wood": 0.8, "gravel": 0.5, "dirt": 0.3, "grass": 0.25, "sand": 0.3, "mud": 0.2, "default": 0.8 },
-    "casingSoftCutoff": 2500
+  "refDistance": {
+    "step": 2.5,
+    "mech": 1.5,
+    "impact": 3,
+    "nearmiss": 1.5,
+    "casing": 1.5,
+    "movement": 2,
+    "bird": 40
   },
-  "footsteps": { "landThump": "land_thump", "landSecondFootDelay": [0.03, 0.06], "landGain": 1.3, "loudnessBase": 0.35 },
-  "movement": { "jump": "jump_gear", "traverse": "traverse_gear" },
-  "switch": { "cloth": "switch_cloth", "drawDelay": 0.12 },
-  "ambience": { "wind": "amb_wind", "windGain": 1.0, "fadeIn": 1.5, "birds": "amb_bird", "birdInterval": [5, 14], "birdDistance": [30, 80], "birdHeight": [4, 14], "birdGain": 0.9 },
-  "hitmarker": { "gain": 0.12, "f0": 1800, "f1": 1400, "duration": 0.05 }
+  "maxDistance": {
+    "step": 45,
+    "mech": 25,
+    "impact": 120,
+    "casing": 18,
+    "movement": 35
+  },
+  "occlusion": {
+    "enabled": true,
+    "raycastsPerTick": 12,
+    "cacheSeconds": 0.2,
+    "cutoffHz": 900,
+    "gain": 0.6
+  },
+  "nearMiss": {
+    "radius": 4,
+    "minGain": 0.25,
+    "endMargin": 0.5
+  },
+  "surfaces": {
+    "step": {
+      "concrete": "step_concrete",
+      "asphalt": "step_concrete",
+      "plaster": "step_concrete",
+      "tile": "step_concrete",
+      "metal": "step_metal",
+      "wood": "step_wood",
+      "dirt": "step_dirt",
+      "mud": "step_dirt",
+      "sand": "step_dirt",
+      "gravel": "step_gravel",
+      "grass": "step_grass",
+      "default": "step_concrete"
+    },
+    "impact": {
+      "concrete": "impact_concrete",
+      "asphalt": "impact_concrete",
+      "plaster": "impact_concrete",
+      "tile": "impact_concrete",
+      "metal": "impact_metal",
+      "wood": "impact_wood",
+      "target": "impact_wood",
+      "dirt": "impact_dirt",
+      "mud": "impact_dirt",
+      "sand": "impact_dirt",
+      "gravel": "impact_dirt",
+      "grass": "impact_dirt",
+      "glass": "impact_glass",
+      "flesh": "impact_flesh",
+      "default": "impact_concrete",
+      "dummy": "impact_wood",
+      "floor": "impact_concrete",
+      "block": "impact_concrete",
+      "stair": "impact_concrete",
+      "ramp": "impact_concrete",
+      "wall": "impact_concrete",
+      "hazard": "impact_metal",
+      "accent": "impact_metal",
+      "dark": "impact_metal"
+    },
+    "impactCutoff": {
+      "plaster": 5000,
+      "wall": 5000
+    },
+    "casingGain": {
+      "metal": 1.0,
+      "concrete": 1.0,
+      "asphalt": 1.0,
+      "tile": 1.0,
+      "plaster": 0.9,
+      "wood": 0.8,
+      "gravel": 0.5,
+      "dirt": 0.3,
+      "grass": 0.25,
+      "sand": 0.3,
+      "mud": 0.2,
+      "default": 0.8
+    },
+    "casingSoftCutoff": 2500,
+    "_comment": "impact keys accept both surface types (WorldQuery / impactEffects: concrete, plaster, metal, wood, dirt, flesh, target ...) and raw level materials (floor, block, stair, ramp -> concrete; wall -> plaster; hazard, accent, dark -> metal), as weapon:hit carries hit.mat"
+  },
+  "footsteps": {
+    "landThump": "land_thump",
+    "landSecondFootDelay": [
+      0.03,
+      0.06
+    ],
+    "landGain": 1.3,
+    "loudnessBase": 0.35
+  },
+  "movement": {
+    "jump": "jump_gear",
+    "traverse": "traverse_gear"
+  },
+  "switch": {
+    "cloth": "switch_cloth",
+    "drawDelay": 0.12
+  },
+  "ambience": {
+    "wind": "amb_wind",
+    "windGain": 1.0,
+    "fadeIn": 1.5,
+    "birds": "amb_bird",
+    "birdInterval": [
+      5,
+      14
+    ],
+    "birdDistance": [
+      30,
+      80
+    ],
+    "birdHeight": [
+      4,
+      14
+    ],
+    "birdGain": 0.9
+  },
+  "hitmarker": {
+    "gain": 0.12,
+    "f0": 1800,
+    "f1": 1400,
+    "duration": 0.05
+  },
+  "credits": [
+    "Výstřely: The Free Firearm Sound Library — Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney (CC0; AR-15 5,56 mm a Walther PPQ 9 mm, blízko i v dálce).",
+    "Mechanika zbraní: LFA „equipment clicks III“ (skutečná závorová puška, CC0), SpringySpringo „Gun reload sounds“ (CC0). Kroky a dopady: Kenney Impact Sounds a RPG Audio (CC0), Fantozzi / qubodup (CC0), Ali_6868 (štěrk, CC0).",
+    "Kroky po kovu: Eelke, „fboots on aluminum ladder 01“ (freesound.org, CC BY 4.0), úprava congusbongus („Footsteps on different surfaces“, OpenGameArt, CC BY 3.0). Pták v dálce: InspectorJ, „Bird Whistling, Robin, Single, 13“ (freesound.org, CC BY 4.0).",
+    "Vítr, průlet střely, nábojnice a část zásahových vrstev: procedurální syntéza (prozatímní). Všechny nahrávky jsou stříhané, filtrované a normalizované. Zdroje a licence: Shared/audio/SOURCES.md."
+  ],
+  "hrtfMaxDistance": 40,
+  "_comment_hrtf": "HRTF panning up to hrtfMaxDistance metres, equal-power beyond (far sounds gain little from HRTF, saves CPU)"
 }

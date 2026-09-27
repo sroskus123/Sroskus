@@ -151,8 +151,10 @@ do `localStorage` (když prohlížeč úložiště nepovolí, platí jen do zav�
 * **Provizorní assety (zřetelně označené v HUD):** vojáci jsou jednoduché figuríny v barvě týmu složené přesně ze
   zásahových zón (co vidíš, to zasáhneš), s uzly pojmenovanými jako kostra Unreal Mannequin (`pelvis`,
   `spine_01..03`, `head`, `hand_r` …) pro pozdější GLB; pistole je model z primitiv s oranžovými prvky, dokud
-  nebude `public/assets/weapons/IVP9_Pistol.glb` (hra ho pak načte a z jeho socketů odvodí míření i ústí); zvuky jsou
-  syntetizované zástupné zvuky (výstřel, cvaknutí, zásah, kroky), ne finální assety. Smrt bota = stabilní
+  nebude `public/assets/weapons/IVP9_Pistol.glb` (hra ho pak načte a z jeho socketů odvodí míření i ústí). Zvuky jsou
+  skutečné nahrávky s ověřenou licencí CC0 / CC BY (výstřely AR-15 5,56 mm a Walther PPQ 9 mm z The Free Firearm
+  Sound Library, mechanika zbraní, kroky po 6 površích, zásahy); vítr, průlet střely, nábojnice a část vrstev zásahů
+  jsou **procedurální syntéza — prozatímní** (seznam a licence `../Shared/audio/SOURCES.md`). Smrt bota = stabilní
   procedurální pád (fyzikální ragdoll přijde později, háček je událost `combatant:died`).
 
 ## Technický přehled
@@ -173,7 +175,7 @@ do `localStorage` (když prohlížeč úložiště nepovolí, platí jen do zav�
 | Zápas | `src/game/session.js`, `combatant.js`, `combatants.js`, `worldQuery.js`, `hitShapes.js`, `gameRules.js`, `levels.js` | relace zápasu bez DOM (běží i v Node testech): jádro `Match`, bojovníci (hráč i boti stejný `applyCommand`), predikát spawnu, poškození, kolo, reset; úrovně podle id ze `src/data/<id>.json` |
 | AI | `src/ai/**` (modul AI) | napojené přes `createAISystem` podle `Docs/GAMEPLAY_CONTRACTS.md` |
 | Postavy / oblast | `src/game/characterView.js`, `combatantViews.js`, `zoneView.js` | provizorní figuríny, interpolace, pád po smrti, záblesky u ústí botů, kruh aktivní oblasti |
-| Zvuk | `src/game/audio.js` | WebAudio, jen jednorázové zvuky spuštěné událostmi, prostorové, hlavní hlasitost |
+| Zvuk | `src/audio/audioSystem.js`, `src/data/audio.json`, `src/data/audio_bank.json` (generuje `../Tools/audio/build_audio.py`), `public/assets/audio/*.mp3` | WebAudio, jen události na sběrnici (výstřel blízko / daleko podle vzdálenosti se zpožděním šíření a dozvukem, přebíjení v okamžicích jádra, cvaknutí naprázdno, výměna zbraně, kroky podle povrchu, dopad, zásahy podle povrchu, průlet střely, nábojnice); HRTF panner s útlumem 1/r, dolní propust bez přímé viditelnosti (omezený počet paprsků za tik), limity hlasů na kategorii a vlastníka, náhodná výška / hlasitost, master: hlasitost (výchozí 70 %) → kompresor → limiter → měkký ořez; vítr a vzdálení ptáci jen při hraní; pauza, menu, smrt a nové kolo zastaví vše. AudioContext vzniká při kliknutí v menu. Počitadla: `window.__IV.getAudio()` |
 | Klávesy | `src/player/bindingsStore.js` | přemapování kláves z dat, uložení v `localStorage` |
 | HUD / menu | `src/game/hud.js`, `menus.js`, `src/styles.css` | české texty, jen skutečné hodnoty; úvod, výbava, pauza, nastavení, ovládání, výsledky |
 | Testovací rozhraní | `src/debug/testApi.js` | `window.__IV` — jen pro testy a ladění, hra na něm nezávisí |
@@ -270,7 +272,9 @@ průhledným sklem. Textury vložené v GLB se dekódují přímo z bajtů (`cre
   nesrážejí (kapsle koliduje jen se statickou geometrií — vyhýbání řeší AI).
 * Fyzikální ragdoll zatím není: po smrti se přehraje stabilní procedurální pád směrem, kde je volno (bez fyziky,
   nemůže „vybuchnout“).
-* Zvuk je ověřený jen technicky (události, hlasitost v `getState().audio`); poslech a prostorový dojem: NOT TESTED.
+* Zvuk je ověřený objektivně (unit testy s falešným AudioContextem, e2e `08_audio` v Chromiu: odemčení kliknutím,
+  dekódování všech 98 souborů, správné buffery pro střelbu / přebíjení / kroky, ticho v pauze a po smrti; úrovně mixu
+  `node tools/audio_mixcheck.mjs`). Poslech, prostorový dojem (HRTF) a výkon HRTF na slabém hardwaru: NOT TESTED.
 * Výkon na skutečném hardwaru **nebyl změřen** (NOT TESTED). Samotná simulace 17 botů v headless Chromiu stojí
   zhruba 75–95 ms na simulovanou sekundu (bez vykreslování); vykreslování v SwiftShaderu (softwarově) trvá
   řádově sekundy na snímek — to není vlastnost hry.

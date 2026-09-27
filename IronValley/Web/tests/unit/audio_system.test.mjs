@@ -321,6 +321,18 @@ test('SND: footsteps by surface, landing layers, impacts by surface, casings, ju
     assert.deepEqual(played(sys, ctx, n), [key], surface);
     ctx.advance(0.2);
   }
+  // weapon:hit carries the raw level material (hit.mat) and, for world hits, the mapped surface (hit.surface)
+  for (const [payload, key] of [
+    [{ surface: 'wall', hit: { kind: 'world', surface: 'plaster' } }, 'impact_concrete'],
+    [{ surface: 'hazard', hit: { kind: 'world' } }, 'impact_metal'],
+    [{ surface: 'dummy', hit: { kind: 'dummy' } }, 'impact_wood'],
+    [{ surface: 'block', hit: { kind: 'world', surface: 'concrete' } }, 'impact_concrete'],
+  ]) {
+    n = ctx.started.length;
+    events.emit('weapon:hit', { shooterId: 'p', victimId: null, point: V(0, 1, -8), normal: V(0, 0, 1), part: null, blocked: false, ...payload });
+    assert.deepEqual(played(sys, ctx, n), [key], payload.surface);
+    ctx.advance(0.2);
+  }
   // hit marker (UI) only for the player's damaging hits on combatants
   const hm0 = sys.getState().stats.hitmarkers;
   events.emit('weapon:hit', { shooterId: 'p', victimId: 'b1', point: V(0, 1, -8), surface: 'flesh', hit: { kind: 'combatant' }, damage: { result: 'applied' } });
