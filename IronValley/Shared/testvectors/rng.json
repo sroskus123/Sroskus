@@ -1,0 +1,423 @@
+{
+ "schema": "ironvalley.testvectors",
+ "version": 1,
+ "suite": "rng",
+ "description": "Deterministicky generator mulberry32 (JS i C++ musi dat bit po bitu stejna cisla). Ocekavane hodnoty vygenerovala nezavisla referencni implementace v Pythonu (ne JS jadro); znovu je prepocitava Shared/testvectors/tools/seed_reference.py. pick(n) = floor(u32*n/2^32), shuffle = Fisher-Yates od konce.",
+ "cases": [
+  {
+   "id": "RNG/mulberry32-seed-0",
+   "kind": "rng",
+   "setup": {
+    "seed": 0
+   },
+   "steps": [
+    {
+     "op": "next",
+     "count": 6,
+     "expect": {
+      "result": [
+       1144304738,
+       1416247,
+       958946056,
+       627933444,
+       2007157716,
+       2340967985
+      ]
+     }
+    },
+    {
+     "op": "pick",
+     "n": 3,
+     "count": 8,
+     "expect": {
+      "result": [
+       1,
+       1,
+       1,
+       1,
+       0,
+       0,
+       2,
+       1
+      ]
+     }
+    },
+    {
+     "op": "pick",
+     "n": 2900001,
+     "count": 4,
+     "expect": {
+      "result": [
+       2088857,
+       1913730,
+       2336990,
+       1815955
+      ]
+     }
+    },
+    {
+     "op": "pick",
+     "n": 4294967295,
+     "count": 2,
+     "expect": {
+      "result": [
+       2446805547,
+       520706109
+      ]
+     }
+    },
+    {
+     "op": "shuffle",
+     "n": 10,
+     "expect": {
+      "result": [
+       3,
+       6,
+       1,
+       8,
+       5,
+       4,
+       0,
+       9,
+       7,
+       2
+      ],
+      "state": 1575801025
+     }
+    }
+   ]
+  },
+  {
+   "id": "RNG/mulberry32-seed-1",
+   "kind": "rng",
+   "setup": {
+    "seed": 1
+   },
+   "steps": [
+    {
+     "op": "next",
+     "count": 6,
+     "expect": {
+      "result": [
+       2693262067,
+       11749833,
+       2265367787,
+       4213581821,
+       4159151403,
+       1207330352
+      ]
+     }
+    },
+    {
+     "op": "pick",
+     "n": 3,
+     "count": 8,
+     "expect": {
+      "result": [
+       1,
+       2,
+       1,
+       2,
+       1,
+       1,
+       0,
+       1
+      ]
+     }
+    },
+    {
+     "op": "pick",
+     "n": 2900001,
+     "count": 4,
+     "expect": {
+      "result": [
+       717819,
+       448030,
+       1418517,
+       195372
+      ]
+     }
+    },
+    {
+     "op": "pick",
+     "n": 4294967295,
+     "count": 2,
+     "expect": {
+      "result": [
+       1694877056,
+       3294703883
+      ]
+     }
+    },
+    {
+     "op": "shuffle",
+     "n": 10,
+     "expect": {
+      "result": [
+       6,
+       4,
+       7,
+       8,
+       5,
+       3,
+       9,
+       0,
+       1,
+       2
+      ],
+      "state": 1575801026
+     }
+    }
+   ]
+  },
+  {
+   "id": "RNG/mulberry32-seed-42",
+   "kind": "rng",
+   "setup": {
+    "seed": 42
+   },
+   "steps": [
+    {
+     "op": "next",
+     "count": 6,
+     "expect": {
+      "result": [
+       2581720956,
+       1925393290,
+       3661312704,
+       2876485805,
+       750819978,
+       2261697747
+      ]
+     }
+    },
+    {
+     "op": "pick",
+     "n": 3,
+     "count": 8,
+     "expect": {
+      "result": [
+       0,
+       1,
+       2,
+       1,
+       0,
+       2,
+       2,
+       0
+      ]
+     }
+    },
+    {
+     "op": "pick",
+     "n": 2900001,
+     "count": 4,
+     "expect": {
+      "result": [
+       572036,
+       1452116,
+       1991175,
+       1770801
+      ]
+     }
+    },
+    {
+     "op": "pick",
+     "n": 4294967295,
+     "count": 2,
+     "expect": {
+      "result": [
+       16505352,
+       2021992965
+      ]
+     }
+    },
+    {
+     "op": "shuffle",
+     "n": 10,
+     "expect": {
+      "result": [
+       3,
+       5,
+       2,
+       7,
+       6,
+       1,
+       9,
+       4,
+       0,
+       8
+      ],
+      "state": 1575801067
+     }
+    }
+   ]
+  },
+  {
+   "id": "RNG/mulberry32-seed-4294967295",
+   "kind": "rng",
+   "setup": {
+    "seed": 4294967295
+   },
+   "steps": [
+    {
+     "op": "next",
+     "count": 6,
+     "expect": {
+      "result": [
+       3850105811,
+       813802916,
+       3073704848,
+       4054706436,
+       3630262831,
+       2315588663
+      ]
+     }
+    },
+    {
+     "op": "pick",
+     "n": 3,
+     "count": 8,
+     "expect": {
+      "result": [
+       2,
+       1,
+       0,
+       2,
+       2,
+       0,
+       1,
+       2
+      ]
+     }
+    },
+    {
+     "op": "pick",
+     "n": 2900001,
+     "count": 4,
+     "expect": {
+      "result": [
+       1380377,
+       2194464,
+       2656179,
+       296023
+      ]
+     }
+    },
+    {
+     "op": "pick",
+     "n": 4294967295,
+     "count": 2,
+     "expect": {
+      "result": [
+       616800794,
+       1684359881
+      ]
+     }
+    },
+    {
+     "op": "shuffle",
+     "n": 10,
+     "expect": {
+      "result": [
+       1,
+       3,
+       4,
+       2,
+       7,
+       0,
+       5,
+       6,
+       8,
+       9
+      ],
+      "state": 1575801024
+     }
+    }
+   ]
+  },
+  {
+   "id": "RNG/mulberry32-seed-123456789",
+   "kind": "rng",
+   "setup": {
+    "seed": 123456789
+   },
+   "steps": [
+    {
+     "op": "next",
+     "count": 6,
+     "expect": {
+      "result": [
+       1107202814,
+       4169434471,
+       3372958138,
+       885470128,
+       1301683845,
+       3208624240
+      ]
+     }
+    },
+    {
+     "op": "pick",
+     "n": 3,
+     "count": 8,
+     "expect": {
+      "result": [
+       2,
+       0,
+       0,
+       0,
+       1,
+       1,
+       1,
+       0
+      ]
+     }
+    },
+    {
+     "op": "pick",
+     "n": 2900001,
+     "count": 4,
+     "expect": {
+      "result": [
+       1434384,
+       2371928,
+       1726769,
+       1218864
+      ]
+     }
+    },
+    {
+     "op": "pick",
+     "n": 4294967295,
+     "count": 2,
+     "expect": {
+      "result": [
+       3365420357,
+       3599491443
+      ]
+     }
+    },
+    {
+     "op": "shuffle",
+     "n": 10,
+     "expect": {
+      "result": [
+       9,
+       7,
+       4,
+       1,
+       8,
+       6,
+       2,
+       5,
+       3,
+       0
+      ],
+      "state": 1699257814
+     }
+    }
+   ]
+  }
+ ]
+}

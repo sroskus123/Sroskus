@@ -1,0 +1,71 @@
+{
+ "load": {
+  "ms": 1058.300000000745,
+  "load": {
+   "id": "kalne_hamry",
+   "fetchMs": 132.39999999850988,
+   "collisionMs": 484.59999999962747,
+   "renderMs": 213.69999999925494,
+   "totalMs": 1058.199999999255,
+   "triangles": 460964,
+   "view": {
+    "meshes": 208,
+    "instanced": 3,
+    "instances": 3300,
+    "triangles": 673948,
+    "litVertices": 327845
+   }
+  }
+ },
+ "views": {
+  "square": {
+   "calls": 202,
+   "triangles": 642448,
+   "ms": 9.900000000372529,
+   "textures": 50,
+   "geometries": 139
+  },
+  "road": {
+   "calls": 242,
+   "triangles": 624999,
+   "ms": 2.700000001117587,
+   "textures": 57,
+   "geometries": 186
+  },
+  "meadow": {
+   "calls": 177,
+   "triangles": 523431,
+   "ms": 4.400000000372529,
+   "textures": 58,
+   "geometries": 201
+  },
+  "forest": {
+   "calls": 113,
+   "triangles": 494152,
+   "ms": 1.599999999627471,
+   "textures": 58,
+   "geometries": 203
+  },
+  "overview": {
+   "calls": 250,
+   "triangles": 773254,
+   "ms": 3.699999999254942,
+   "textures": 59,
+   "geometries": 231
+  },
+  "asphalt": {
+   "calls": 222,
+   "triangles": 587726,
+   "ms": 1.799999998882413,
+   "textures": 59,
+   "geometries": 231
+  },
+  "grass": {
+   "calls": 159,
+   "triangles": 482945,
+   "ms": 2.099999999627471,
+   "textures": 59,
+   "geometries": 231
+  }
+ }
+}

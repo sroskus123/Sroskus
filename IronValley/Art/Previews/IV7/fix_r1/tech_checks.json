@@ -1,0 +1,202 @@
+{
+ "uv_stretch_share_ratio_gt_1.5": {
+  "UpperReceiver": 0.0088,
+  "LowerReceiver": 0.0008,
+  "Handguard": 0.2165,
+  "HandguardScrews": 0.0057,
+  "Barrel": 0.0001,
+  "BarrelNut": 0.0005,
+  "MuzzleDevice": 0.0046,
+  "GasBlock": 0.0004,
+  "GasTube": 0.0,
+  "BufferTube": 0.0427,
+  "EndPlate": 0.0,
+  "CastleNut": 0.0,
+  "PistolGrip": 0.0018,
+  "Stock": 0.0008,
+  "ButtPad": 0.0017,
+  "ChargingHandle": 0.0019,
+  "BoltCarrier": 0.1137,
+  "DustCover": 0.0085,
+  "DustCoverRod": 0.0,
+  "ForwardAssist": 0.0251,
+  "Pins": 0.0,
+  "MagRelease": 0.015,
+  "BoltCatch": 0.0022,
+  "Selector": 0.0788,
+  "Trigger": 0.0007,
+  "RearSightBase": 0.0022,
+  "RearSightBolt": 0.1117,
+  "RearSightLeaf": 0.001,
+  "FrontSightBase": 0.0016,
+  "FrontSightBolt": 0.1118,
+  "FrontSightLeaf": 0.001,
+  "Optic": 0.0742,
+  "OpticBolt": 0.0,
+  "OpticLensRear": 0.0076,
+  "OpticLensFront": 0.0068,
+  "OpticReticle": 0.2566,
+  "Magazine": 0.0001,
+  "MagRounds": 0.0253
+ },
+ "blend_data": {
+  "materials": [
+   "M_IV7_Body",
+   "M_IV7_Furniture",
+   "M_IV7_Glass",
+   "M_IV7_Reticle",
+   "M_IV7_ReticleMask"
+  ],
+  "node_groups": [
+   "glTF Material Output"
+  ],
+  "images": [
+   "T_IV7_Body_BaseColor.png (FILE)",
+   "T_IV7_Body_Normal.png (FILE)",
+   "T_IV7_Body_ORM.png (FILE)",
+   "T_IV7_Furniture_BaseColor.png (FILE)",
+   "T_IV7_Furniture_Normal.png (FILE)",
+   "T_IV7_Furniture_ORM.png (FILE)"
+  ],
+  "orphan_materials": [],
+  "orphan_meshes": [],
+  "generated_images": []
+ },
+ "SM_IV7_Magazine": {
+  "vertex_groups": 0,
+  "verts_with_deform_weights": 0,
+  "has_custom_normals": true
+ },
+ "razor_edges_gt_70deg": {
+  "UpperReceiver": {
+   "convex_cm": 33.9,
+   "concave_cm": 30.0
+  },
+  "LowerReceiver": {
+   "convex_cm": 24.7,
+   "concave_cm": 70.3
+  },
+  "Handguard": {
+   "convex_cm": 3.9,
+   "concave_cm": 0.0
+  },
+  "Optic": {
+   "convex_cm": 42.7,
+   "concave_cm": 67.5
+  },
+  "MuzzleDevice": {
+   "convex_cm": 16.2,
+   "concave_cm": 4.0
+  },
+  "RearSightBase": {
+   "convex_cm": 6.3,
+   "concave_cm": 6.5
+  },
+  "FrontSightBase": {
+   "convex_cm": 4.9,
+   "concave_cm": 8.0
+  },
+  "BoltCarrier": {
+   "convex_cm": 0.0,
+   "concave_cm": 2.9
+  },
+  "DustCover": {
+   "convex_cm": 0.0,
+   "concave_cm": 0.0
+  },
+  "ChargingHandle": {
+   "convex_cm": 1.4,
+   "concave_cm": 8.5
+  },
+  "RearSightLeaf": {
+   "convex_cm": 2.0,
+   "concave_cm": 2.9
+  },
+  "FrontSightLeaf": {
+   "convex_cm": 1.1,
+   "concave_cm": 1.8
+  }
+ },
+ "fbx_texture_refs": {
+  "SK_IV7_Carbine.fbx": {
+   "mentions_Normal_DX": 14,
+   "mentions_OpenGL_Normal": 0,
+   "absolute_home_paths": 0,
+   "bytes": 6532748
+  },
+  "SK_IV7_Carbine_LOD1.fbx": {
+   "mentions_Normal_DX": 14,
+   "mentions_OpenGL_Normal": 0,
+   "absolute_home_paths": 0,
+   "bytes": 3794956
+  },
+  "SK_IV7_Carbine_LOD2.fbx": {
+   "mentions_Normal_DX": 14,
+   "mentions_OpenGL_Normal": 0,
+   "absolute_home_paths": 0,
+   "bytes": 2088396
+  },
+  "SM_IV7_Magazine.fbx": {
+   "mentions_Normal_DX": 7,
+   "mentions_OpenGL_Normal": 0,
+   "absolute_home_paths": 0,
+   "bytes": 360236
+  }
+ },
+ "glb": {
+  "extensionsUsed": [
+   "KHR_materials_emissive_strength",
+   "KHR_materials_specular",
+   "KHR_materials_ior"
+  ],
+  "materials": {
+   "M_IV7_Body": {
+    "alphaMode": null,
+    "doubleSided": true,
+    "extensions": []
+   },
+   "M_IV7_Furniture": {
+    "alphaMode": null,
+    "doubleSided": true,
+    "extensions": []
+   },
+   "M_IV7_Glass": {
+    "alphaMode": "BLEND",
+    "doubleSided": true,
+    "extensions": [
+     "KHR_materials_ior",
+     "KHR_materials_specular"
+    ]
+   },
+   "M_IV7_Reticle": {
+    "alphaMode": null,
+    "doubleSided": true,
+    "extensions": [
+     "KHR_materials_emissive_strength"
+    ]
+   },
+   "M_IV7_ReticleMask": {
+    "alphaMode": null,
+    "doubleSided": true,
+    "extensions": []
+   }
+  },
+  "nodes_named_Optic*": [
+   "Optic",
+   "OpticBolt",
+   "OpticLensFront",
+   "OpticLensRear",
+   "OpticReticle"
+  ],
+  "sockets_and_sight_bones": [
+   "front_sight",
+   "rear_sight",
+   "socket_ads",
+   "socket_eject",
+   "socket_firing_hand",
+   "socket_mag",
+   "socket_muzzle",
+   "socket_support_hand"
+  ]
+ }
+}

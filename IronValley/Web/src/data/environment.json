@@ -1,0 +1,53 @@
+{
+  "_comment": "Stale denni nastaveni. Smer slunce je jediny zdroj pravdy pro oblohu (Sky) i smerove svetlo.",
+  "sun": {
+    "elevationDeg": 38,
+    "azimuthDeg": 222,
+    "color": "#fff1dc",
+    "intensity": 5.0,
+    "shadowMapSize": 2048,
+    "shadowExtent": 28,
+    "shadowRadius": 1.5,
+    "_shadowComment": "shadowBiasMeters: posun hloubky ve stinove mape v metrech (near/far se kazdy snimek prizpusobi rozsahu vysek sceny). radius 1.5 texelu = polostin ~8 cm (realne slunce 0.53 st.).",
+    "shadowBiasMeters": 0.0045,
+    "shadowNormalBias": 0.025
+  },
+  "sky": {
+    "turbidity": 3.2,
+    "rayleigh": 1.15,
+    "mieCoefficient": 0.004,
+    "mieDirectionalG": 0.78,
+    "cloudCoverage": 0.4,
+    "cloudDensity": 0.8,
+    "cloudScale": 0.0007,
+    "cloudElevation": 0.55,
+    "cloudSpeed": 0.0
+  },
+  "clouds": {
+    "_comment": "Vrstva mraku (clouds.js): cloudScale = jednotky sumu na metr, vyska vrstvy v m, pohlcovani slunecniho svetla.",
+    "cloudDetail": 1.0,
+    "cloudLayerHeight": 1800,
+    "cloudSunAbsorption": 2.2
+  },
+  "hemisphere": {
+    "skyColor": "#bcd4ee",
+    "groundColor": "#6f6a5e",
+    "intensity": 0.08
+  },
+  "environmentIntensity": 0.3,
+  "_environmentComment": "Osvetleni z prostredi (IBL): environmentSkySaturation snizuje prehnanou sytost oblohy Sky.js jen pro ambientni svetlo (viditelna obloha se nemeni); environmentGround = oslunena zem pod horizontem pro odrazene svetlo (barva = albedo zeme).",
+  "environmentSkySaturation": 0.35,
+  "_bakedLightingComment": "Zapecene neprime svetlo urovne (viditelnost oblohy + jeden odraz slunce na vrchol): rays = paprsku na vrchol, ambientFloor = minimum ambientu v uzavrenem prostoru (zastupuje neprocitane dalsi odrazy, bez adaptace oka).",
+  "bakedLighting": { "enabled": true, "rays": 32, "ambientFloor": 0.2 },
+  "_eyeAdaptationComment": "Adaptace oka: v uzavrenem prostoru (malo viditelne oblohy z oka) se expozice zvysi az na maxBoost; zesvetleni pomaleji (brightenRate), ztmaveni pri vychodu ven rychleji (darkenRate), 1/s.",
+  "eyeAdaptation": { "maxBoost": 2.0, "brightenRate": 1.2, "darkenRate": 3.0, "enclosedSky": [0.05, 0.45] },
+  "environmentGround": { "color": "#75766e", "offsetY": -1.65, "radius": 3000 },
+  "exposure": 0.55,
+  "fog": {
+    "color": "#c3cfd9",
+    "density": 0.0045,
+    "heightFalloff": 0.12,
+    "heightDensity": 0.0035,
+    "baseHeight": 0.0
+  }
+}

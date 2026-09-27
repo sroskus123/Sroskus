@@ -1,0 +1,261 @@
+{
+ "_comment": "AI arena (graybox) pro testy AI-01..04. Stejne schema jako test_range.json (solids, signs, banners, dummies, markers, match) + nav a aiTest. Souradnice v metrech, Y nahoru, sever = -Z, yaw 0 = pohled na sever (-Z), kladny yaw = otoceni doleva (stupne). Solidy s \"nav\": false koliduji, ale navmesh o nich nevi (test zablokovane cesty). \"cover\": low/high je jen popis, body krytu se generuji z geometrie pri peceni navmeshe (tools/bake_navmesh.mjs).",
+ "id": "ai_arena",
+ "displayName": "AI aréna",
+ "size": [71, 71],
+ "solids": [
+  { "type": "box", "id": "ground", "min": [-36, -0.5, -36], "max": [36, 0, 36], "mat": "floor" },
+  { "type": "box", "id": "boundary_n", "min": [-36, 0, -36], "max": [36, 3, -35.5], "mat": "wall" },
+  { "type": "box", "id": "boundary_s", "min": [-36, 0, 35.5], "max": [36, 3, 36], "mat": "wall" },
+  { "type": "box", "id": "boundary_w", "min": [-36, 0, -35.5], "max": [-35.5, 3, 35.5], "mat": "wall" },
+  { "type": "box", "id": "boundary_e", "min": [35.5, 0, -35.5], "max": [36, 3, 35.5], "mat": "wall" },
+  { "type": "box", "id": "c_pillar", "min": [-0.6, 0, -0.6], "max": [0.6, 2.2, 0.6], "mat": "dark", "cover": "high" },
+  { "type": "box", "id": "c_low_n", "min": [-1.5, 0, -4.4], "max": [1.5, 1, -3.8], "mat": "block", "cover": "low" },
+  { "type": "box", "id": "c_low_se", "min": [3.4, 0, 1], "max": [4, 1, 4], "mat": "block", "cover": "low" },
+  { "type": "box", "id": "c_low_sw", "min": [-4, 0, 1], "max": [-3.4, 1, 4], "mat": "block", "cover": "low" },
+  { "type": "box", "id": "h_nw", "min": [-9.5, 0, -6.2], "max": [-7.5, 2.4, -5.6], "mat": "dark", "cover": "high" },
+  { "type": "box", "id": "h_ne", "min": [7.5, 0, -6.2], "max": [9.5, 2.4, -5.6], "mat": "dark", "cover": "high" },
+  { "type": "box", "id": "h_s", "min": [-1, 0, 9], "max": [1, 2.4, 9.6], "mat": "dark", "cover": "high" },
+  { "type": "box", "id": "l_w", "min": [-10.3, 0, 1], "max": [-9.7, 1, 4], "mat": "block", "cover": "low" },
+  { "type": "box", "id": "l_e", "min": [9.7, 0, 1], "max": [10.3, 1, 4], "mat": "block", "cover": "low" },
+  { "type": "box", "id": "wl_w1", "min": [-35.5, 0, 16.85], "max": [-22, 3, 17.15], "mat": "wall" },
+  { "type": "box", "id": "wl_w2", "min": [-18, 0, 16.85], "max": [-5, 3, 17.15], "mat": "wall" },
+  { "type": "box", "id": "wl_e1", "min": [5, 0, 16.85], "max": [11.85, 3, 17.15], "mat": "wall" },
+  { "type": "box", "id": "alley_w", "min": [11.85, 0, 12], "max": [12.1, 3, 22], "mat": "wall" },
+  { "type": "box", "id": "alley_e", "min": [13.6, 0, 12], "max": [13.85, 3, 22], "mat": "wall" },
+  { "type": "box", "id": "wl_e2", "min": [13.85, 0, 16.85], "max": [35.5, 3, 17.15], "mat": "wall" },
+  {
+   "type": "wall",
+   "id": "house_s",
+   "axis": "x",
+   "from": -5,
+   "to": 5,
+   "center": 20.875,
+   "thickness": 0.25,
+   "height": 5.8,
+   "mat": "wall",
+   "openings": [
+    { "from": -3.8, "to": -2.6, "bottom": 1, "top": 2 },
+    { "from": -2.2, "to": -1.2, "bottom": 4, "top": 5 },
+    { "from": -0.6, "to": 0.6, "bottom": 0, "top": 2.1 },
+    { "from": 1.2, "to": 2.2, "bottom": 4, "top": 5 },
+    { "from": 2.4, "to": 3.2, "bottom": 1, "top": 2 }
+   ]
+  },
+  {
+   "type": "wall",
+   "id": "house_n",
+   "axis": "x",
+   "from": -5,
+   "to": 5,
+   "center": 13.125,
+   "thickness": 0.25,
+   "height": 5.8,
+   "mat": "wall",
+   "openings": [
+    { "from": -3.8, "to": -2.6, "bottom": 1, "top": 2 },
+    { "from": -2.2, "to": -1.2, "bottom": 4, "top": 5 },
+    { "from": -0.6, "to": 0.6, "bottom": 0, "top": 2.1 },
+    { "from": 1.2, "to": 2.2, "bottom": 4, "top": 5 },
+    { "from": 2.6, "to": 3.8, "bottom": 1, "top": 2 }
+   ]
+  },
+  {
+   "type": "wall",
+   "id": "house_w",
+   "axis": "z",
+   "from": 13.25,
+   "to": 20.75,
+   "center": -4.875,
+   "thickness": 0.25,
+   "height": 5.8,
+   "mat": "wall",
+   "openings": [
+    { "from": 14.2, "to": 15.2, "bottom": 1, "top": 2 },
+    { "from": 15.6, "to": 16.4, "bottom": 4, "top": 5 },
+    { "from": 18.2, "to": 19, "bottom": 4, "top": 5 },
+    { "from": 19.2, "to": 20.2, "bottom": 1, "top": 2 }
+   ]
+  },
+  {
+   "type": "wall",
+   "id": "house_e",
+   "axis": "z",
+   "from": 13.25,
+   "to": 20.75,
+   "center": 4.875,
+   "thickness": 0.25,
+   "height": 5.8,
+   "mat": "wall",
+   "openings": [
+    { "from": 13.6, "to": 14.4, "bottom": 1, "top": 2 },
+    { "from": 14.9, "to": 15.9, "bottom": 4, "top": 5 },
+    { "from": 18.2, "to": 19.2, "bottom": 4, "top": 5 }
+   ]
+  },
+  {
+   "type": "stairs",
+   "id": "house_stair",
+   "x": [3.45, 4.75],
+   "zStart": 20.5,
+   "dir": -1,
+   "riser": 0.17647100000000002,
+   "tread": 0.28,
+   "risers": 17,
+   "landingDepth": 1.2,
+   "mat": "stair"
+  },
+  { "type": "box", "id": "house_slab_a", "min": [-4.75, 2.8, 13.25], "max": [3.45, 3, 20.75], "mat": "floor" },
+  { "type": "box", "id": "house_slab_b", "min": [3.45, 2.8, 13.25], "max": [4.75, 3, 14.82], "mat": "floor" },
+  { "type": "box", "id": "house_rail", "min": [3.35, 3, 16.42], "max": [3.45, 4, 20.75], "mat": "accent" },
+  { "type": "box", "id": "house_roof", "min": [-5, 5.8, 13], "max": [5, 6, 21], "mat": "dark" },
+  { "type": "box", "id": "house_table", "min": [-3.5, 0, 15.6], "max": [-1.5, 0.9, 16.5], "mat": "block", "cover": "low" },
+  { "type": "box", "id": "house_up_crate", "min": [-3.6, 3, 18.4], "max": [-2.2, 4, 19.4], "mat": "block", "cover": "low" },
+  { "type": "box", "id": "s_low_1", "min": [-12, 0, 24], "max": [-10, 1, 24.6], "mat": "block", "cover": "low" },
+  { "type": "box", "id": "s_low_2", "min": [9, 0, 24.5], "max": [11, 1, 25.1], "mat": "block", "cover": "low" },
+  { "type": "box", "id": "s_high_w", "min": [-24.5, 0, 21], "max": [-22.5, 2.4, 22], "mat": "dark", "cover": "high" },
+  { "type": "box", "id": "s_low_e", "min": [16, 0, 21], "max": [18, 1, 21.6], "mat": "block", "cover": "low" },
+  { "type": "box", "id": "m_low_w", "min": [-21, 0, 11], "max": [-19, 1, 11.6], "mat": "block", "cover": "low" },
+  { "type": "box", "id": "m_high_w", "min": [-15, 0, 6], "max": [-13.5, 2.4, 8.5], "mat": "dark", "cover": "high" },
+  { "type": "box", "id": "m_low_e", "min": [16, 0, 8], "max": [18, 1, 8.6], "mat": "block", "cover": "low" },
+  { "type": "box", "id": "m_high_e", "min": [21, 0, 3], "max": [22.5, 2.4, 5.5], "mat": "dark", "cover": "high" },
+  { "type": "box", "id": "b_cont_1", "min": [-18, 0, -11.5], "max": [-14, 2.6, -9.5], "mat": "dark", "cover": "high" },
+  { "type": "box", "id": "b_cont_2", "min": [-24, 0, -4], "max": [-22, 2.6, 0], "mat": "dark", "cover": "high" },
+  { "type": "box", "id": "b_low_1", "min": [-13, 0, -4], "max": [-11.5, 1, -1], "mat": "block", "cover": "low" },
+  { "type": "box", "id": "c_lane_1", "min": [13, 0, -9], "max": [15, 1, -8.4], "mat": "block", "cover": "low" },
+  { "type": "box", "id": "c_lane_2", "min": [17.5, 0, -5], "max": [18.1, 1, -2], "mat": "block", "cover": "low" },
+  { "type": "box", "id": "n_low_wall", "min": [-3, 0, -12.3], "max": [3, 1.1, -11.7], "mat": "block", "cover": "low" },
+  { "type": "box", "id": "yard_wall_w", "min": [-12, 0, -24.15], "max": [-1, 3, -23.85], "mat": "wall" },
+  { "type": "box", "id": "yard_wall_m", "min": [1, 0, -24.15], "max": [6, 3, -23.85], "mat": "wall" },
+  { "type": "box", "id": "yard_wall_e", "min": [8, 0, -24.15], "max": [12, 3, -23.85], "mat": "wall" },
+  {
+   "type": "box",
+   "id": "yard_barricade",
+   "min": [-1, 0, -24.15],
+   "max": [1, 2, -23.85],
+   "mat": "hazard",
+   "nav": false,
+   "_comment": "kolizni, ale zamerne vynechany z navmeshe (test zablokovane cesty). Zarovnany s licem zdi (z -24.15..-23.85): nesmi vycnivat do pasu podel zdi, ktery navmesh povazuje za pruchozi - jinak boti v zapase uviznou v rohu mezi zatarasem a zdi (integrace, namereno az 18 s)."
+  },
+  { "type": "box", "id": "sp_a_back", "min": [-5.8, 0, 31.5], "max": [5.8, 2.6, 31.8], "mat": "wall", "spawnShelter": true },
+  { "type": "box", "id": "sp_a_w", "min": [-5.8, 0, 24.5], "max": [-5.5, 2.6, 31.8], "mat": "wall", "spawnShelter": true },
+  { "type": "box", "id": "sp_a_e", "min": [5.5, 0, 24.5], "max": [5.8, 2.6, 31.8], "mat": "wall", "spawnShelter": true },
+  { "type": "box", "id": "sp_a_front", "min": [-5.8, 0, 24.5], "max": [1.8, 2.6, 24.8], "mat": "wall", "spawnShelter": true },
+  { "type": "box", "id": "sp_a_baffle", "min": [1.2, 0, 21], "max": [8, 2.6, 21.3], "mat": "wall", "spawnShelter": true },
+  { "type": "box", "id": "sp_b_back", "min": [-31.3, 0, -19.8], "max": [-31, 2.6, -8.2], "mat": "wall", "spawnShelter": true },
+  { "type": "box", "id": "sp_b_n", "min": [-31.3, 0, -20.1], "max": [-23, 2.6, -19.8], "mat": "wall", "spawnShelter": true },
+  { "type": "box", "id": "sp_b_s", "min": [-31.3, 0, -8.2], "max": [-23, 2.6, -7.9], "mat": "wall", "spawnShelter": true },
+  { "type": "box", "id": "sp_b_front", "min": [-23.3, 0, -19.8], "max": [-23, 2.6, -12], "mat": "wall", "spawnShelter": true },
+  { "type": "box", "id": "sp_b_baffle", "min": [-20.7, 0, -13.4], "max": [-20.4, 2.6, -6.2], "mat": "wall", "spawnShelter": true },
+  { "type": "box", "id": "sp_c_back", "min": [31, 0, -19.8], "max": [31.3, 2.6, -8.2], "mat": "wall", "spawnShelter": true },
+  { "type": "box", "id": "sp_c_n", "min": [23, 0, -20.1], "max": [31.3, 2.6, -19.8], "mat": "wall", "spawnShelter": true },
+  { "type": "box", "id": "sp_c_s", "min": [23, 0, -8.2], "max": [31.3, 2.6, -7.9], "mat": "wall", "spawnShelter": true },
+  { "type": "box", "id": "sp_c_front", "min": [23, 0, -19.8], "max": [23.3, 2.6, -12], "mat": "wall", "spawnShelter": true },
+  { "type": "box", "id": "sp_c_baffle", "min": [20.4, 0, -13.4], "max": [20.7, 2.6, -6.2], "mat": "wall", "spawnShelter": true }
+ ],
+ "signs": [
+  { "text": "STŘED", "sub": "kontrolní oblast · r 6 m", "pos": [6.8, 0, -1.5] },
+  { "text": "DŮM", "sub": "dveře 1,2 m · schody · okna", "pos": [-6.4, 0, 22.5] },
+  { "text": "ULIČKA", "sub": "šířka 1,5 m", "pos": [15.2, 0, 23.5] },
+  { "text": "PRŮCHOD", "sub": "otevřený · 4 m", "pos": [-16.6, 0, 19] },
+  { "text": "ZÁTARAS K1", "sub": "není v navmeshi · test", "pos": [-2.6, 0, -21.5] },
+  { "text": "PRŮCHOD K2", "sub": "volný · 2 m", "pos": [9.6, 0, -21.5] }
+ ],
+ "banners": [{ "text": "AI ARÉNA", "sub": "IRON VALLEY · testovací mapa", "center": [0, 2.2, -35.48], "size": [8, 1.8] }],
+ "dummies": [],
+ "match": {
+  "_comment": "Zapasova data (schema herni integrace): teamSpawns = 8 bodu na tym v krytech se zalomenym vychodem (poradi tymu = rules.json teams.list), zones = tri kandidati kontrolni oblasti (valec: stred paty, polomer, vyska). Hlavni oblast pro AI testy je arena_center (testy ji vynuti pres rulesPatch zone.locations).",
+  "practiceSpawn": "spawn",
+  "primaryZone": "arena_center",
+  "teamSpawns": [
+   [
+    { "pos": [-3.75, 0, 27], "yaw": -7.9 },
+    { "pos": [-1.25, 0, 27], "yaw": -2.7 },
+    { "pos": [1.25, 0, 27], "yaw": 2.7 },
+    { "pos": [3.75, 0, 27], "yaw": 7.9 },
+    { "pos": [-3.75, 0, 29.5], "yaw": -7.2 },
+    { "pos": [-1.25, 0, 29.5], "yaw": -2.4 },
+    { "pos": [1.25, 0, 29.5], "yaw": 2.4 },
+    { "pos": [3.75, 0, 29.5], "yaw": 7.2 }
+   ],
+   [
+    { "pos": [-28.75, 0, -17.75], "yaw": -121.7 },
+    { "pos": [-26.25, 0, -17.75], "yaw": -124.1 },
+    { "pos": [-28.75, 0, -15.25], "yaw": -117.9 },
+    { "pos": [-26.25, 0, -15.25], "yaw": -120.2 },
+    { "pos": [-28.75, 0, -12.75], "yaw": -113.9 },
+    { "pos": [-26.25, 0, -12.75], "yaw": -115.9 },
+    { "pos": [-28.75, 0, -10.25], "yaw": -109.6 },
+    { "pos": [-26.25, 0, -10.25], "yaw": -111.3 }
+   ],
+   [
+    { "pos": [26.25, 0, -17.75], "yaw": 124.1 },
+    { "pos": [28.75, 0, -17.75], "yaw": 121.7 },
+    { "pos": [26.25, 0, -15.25], "yaw": 120.2 },
+    { "pos": [28.75, 0, -15.25], "yaw": 117.9 },
+    { "pos": [26.25, 0, -12.75], "yaw": 115.9 },
+    { "pos": [28.75, 0, -12.75], "yaw": 113.9 },
+    { "pos": [26.25, 0, -10.25], "yaw": 111.3 },
+    { "pos": [28.75, 0, -10.25], "yaw": 109.6 }
+   ]
+  ],
+  "zones": [
+   { "id": "arena_center", "name": "Střed", "center": [0, 0, 0], "radius": 6, "height": 2.5 },
+   {
+    "id": "arena_house",
+    "name": "Dům",
+    "center": [0, 0, 17],
+    "radius": 3.6,
+    "height": 2.5,
+    "note": "jen prizemi domu; blize tymu Alfa (testovaci kandidat)"
+   },
+   {
+    "id": "arena_yard",
+    "name": "Severní dvůr",
+    "center": [0, 0, -30],
+    "radius": 5,
+    "height": 2.5,
+    "note": "za zdi s pruchody K1/K2; blize tymum Bravo a Charlie (testovaci kandidat)"
+   }
+  ],
+    "armories": [{"id": "armory_a", "team": 0, "center": [4.9, 0, 31.19], "size": [1.0, 0.62, 0.62]}, {"id": "armory_b", "team": 1, "center": [-30.69, 0, -19.3], "size": [0.62, 0.62, 1.0]}, {"id": "armory_c", "team": 2, "center": [30.69, 0, -19.3], "size": [0.62, 0.62, 1.0]}]
+  },
+ "nav": { "file": "assets/nav/ai_arena.json", "coverExcludeSolids": ["boundary_n", "boundary_s", "boundary_w", "boundary_e"] },
+ "markers": { "spawn": { "pos": [0, 0, 26], "yaw": 0 }, "overview": { "pos": [0, 0, 30], "yaw": 0, "pitch": -8 } },
+ "aiTest": {
+  "_comment": "Pozice pro AI testy (testy je ctou odsud).",
+  "vision": {
+   "bot": [-28, 0, -30],
+   "botYawDeg": -90,
+   "targets": [[-18, 0, -30], [-8, 0, -30], [2, 0, -30], [12, 0, -30], [22, 0, -30]],
+   "_comment": "volny pruh za zdi dvora (z = -30), cile 10..50 m"
+  },
+  "wall": { "bot": [-10, 0, 14], "botYawDeg": 180, "target": [-10, 0, 20], "wallId": "wl_w2" },
+  "gunshot": { "bot": [-10, 0, 14], "botYawDeg": 0, "shooter": [-10, 0, 20] },
+  "loseSight": { "bot": [-16, 0, 0], "botYawDeg": 0, "target": [-16, 0, -7.5], "hideAt": [-17, 0, -16], "moveTo": [-17.5, 0, -21], "cover": "b_cont_1" },
+  "blocked": { "start": [0, 0, -19], "goal": [0, 0, -30], "barricade": "yard_barricade", "altGap": [7, 0, -24] },
+  "upstairs": [[-2.5, 3, 15.5], [0, 3, 19.8], [2.5, 3, 14]],
+  "crossing": {
+   "_comment": "start -> cil; trasy vedou dvermi domu, po schodech, ulickou, otevrenym pruchodem a pres stred",
+   "routes": [
+    { "name": "dum_dvere", "from": [0, 0, 27], "to": [0, 0, 6] },
+    { "name": "dum_dvere_2", "from": [-2, 0, 27], "to": [-3, 0, 6] },
+    { "name": "dum_dvere_3", "from": [2, 0, 27], "to": [3, 0, 6] },
+    { "name": "schody_1", "from": [-4, 0, 29], "to": [-2.5, 3, 15.5] },
+    { "name": "schody_2", "from": [4, 0, 29], "to": [0, 3, 19.8] },
+    { "name": "schody_3", "from": [0, 0, 8], "to": [2.5, 3, 14] },
+    { "name": "ulicka_1", "from": [12.9, 0, 28], "to": [12.9, 0, 6] },
+    { "name": "ulicka_2", "from": [11, 0, 30], "to": [14, 0, 5] },
+    { "name": "ulicka_3", "from": [12.9, 0, 5], "to": [12.9, 0, 30] },
+    { "name": "pruchod_1", "from": [-20, 0, 28], "to": [-20, 0, 6] },
+    { "name": "pruchod_2", "from": [-20, 0, 6], "to": [-20, 0, 29] },
+    { "name": "stred_1", "from": [-24.249, 0, -14], "to": [24.249, 0, -14] },
+    { "name": "stred_2", "from": [24.249, 0, -14], "to": [-24.249, 0, -14] },
+    { "name": "stred_3", "from": [-24, 0, -23], "to": [24, 0, 10] },
+    { "name": "k2_1", "from": [4, 0, -19], "to": [4, 0, -31] },
+    { "name": "k2_2", "from": [-6, 0, -31], "to": [-6, 0, -19] },
+    { "name": "sever", "from": [-30, 0, -30], "to": [30, 0, -30] }
+   ]
+  }
+ }
+}

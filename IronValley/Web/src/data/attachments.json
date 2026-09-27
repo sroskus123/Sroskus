@@ -1,0 +1,69 @@
+{
+  "_comment": "Optiky IV-7: volba ve vybave, zbrojni bedna na spawnu, nahradni optika v batohu (vymena v poli, bez vyroby). Opticka data (zvetseni, oko, sitka, ADS cas, montaz) jsou v Shared/config/optics.json; zde jsou jen herni pravidla a zobrazeni. Id 'irons' = zadna optika (sklopna mechanicka miridla vyklopena). 'collimator' je stare id pro IVR1 (zpetna kompatibilita).",
+  "version": 1,
+  "rifle": "iv7_carbine",
+  "choices": [
+    { "id": "IVH1", "name": "Holografický zaměřovač 1×", "short": "Holo 1×", "hint": "blízko · 0–150 m" },
+    { "id": "IVR1", "name": "Kolimátor 1×", "short": "Kolimátor 1×", "hint": "blízko · 0–150 m" },
+    { "id": "IVP2", "name": "Hranolový 2×", "short": "Hranol 2×", "hint": "střední · 15–400 m" },
+    { "id": "IVS3", "name": "Puškohled 3×", "short": "Puškohled 3×", "hint": "střední · 25–450 m" },
+    { "id": "IVS6", "name": "Puškohled 6×", "short": "Puškohled 6×", "hint": "daleko · 75–600 m" },
+    { "id": "irons", "name": "Mechanická mířidla", "short": "Mechanická mířidla", "hint": "bez optiky" }
+  ],
+  "aliases": { "collimator": "IVR1" },
+  "noSpare": { "id": "none", "name": "Žádná", "short": "žádná" },
+  "loadoutDefault": { "optic": "IVR1", "spare": "IVS3" },
+  "view": {
+    "_comment": "Zobrazeni v miredni. mode: collimated (1x, sitka z nekonecna podel osy mireni), pip (druha kamera do okularu), fullscreen (6x: prekryv pres celou obrazovku + prizoomovana kamera), irons. worldFovMultiplier = FOV hlavni kamery v miredni (1x optiky bez zoomu). adsBob / adsSway = podil houpani / kyvani zbrane v plnem miredni (0 = sitka stoji). flashAds = nasobek zablesku a svetla u usti v miredni.",
+    "irons": { "mode": "irons", "worldFovMultiplier": 0.82 },
+    "IVH1": { "mode": "collimated", "worldFovMultiplier": 1.0 },
+    "IVR1": { "mode": "collimated", "worldFovMultiplier": 1.0 },
+    "IVP2": { "mode": "pip", "worldFovMultiplier": 1.0 },
+    "IVS3": { "mode": "pip", "worldFovMultiplier": 1.0 },
+    "IVS6": { "mode": "fullscreen", "worldFovMultiplier": 1.0, "scopeIn": 0.9, "scopeFade": 0.1 },
+    "adsBob": 0.0,
+    "adsSway": 0.0,
+    "flashAds": { "sprite": 0.0, "viewLight": 0.0, "worldLight": 0.35, "smoke": 0.35 },
+    "reticleBrightness": 6.0,
+    "reticleEtchOpacity": 0.92,
+    "pip": {
+      "_comment": "Render target okularu: ctverec, velikost = prumer disku na obrazovce v pixelech zarizeni x supersample, zaokrouhleno nahoru na nasobek step, v mezich min..max (nikdy mene nez disk = nikdy rozmazane). samples = MSAA.",
+      "supersample": 1.0,
+      "step": 64,
+      "min": 256,
+      "max": 2048,
+      "samples": 4,
+      "vignetteStart": 0.8,
+      "eyeReliefTolerance": 0.025
+    }
+  },
+  "sensitivity": {
+    "_comment": "Citlivost v miredni: zakladni citlivost x adsSensitivity x (je-li adsSensitivityScaling) pomer tan(FOV/2) ukazaneho obrazu vuci FOV u boku (PiP: 1 / zvetseni).",
+    "defaultScaling": true,
+    "defaultMultiplier": 1.0
+  },
+  "swap": {
+    "_comment": "Vymena optiky z batohu (klavesa swapOptic, vychozi B). Trva durationS; behem ni zbran nestrili ani nemiri (zamek jadra 'other'), prerusi ji: znovu klavesa, sprint, vymena zbrane, preskok/vylezeni, smrt, reset kola. Vymena se zapise az na konci. phases = okamziky pro budouci animaci rukou (podil trvani): lower -> detach (stara optika sundana) -> stow -> attach (nova nasazena) -> raise. Po preruseni se zbran zveda interruptRaiseS (stale zamcena).",
+    "durationS": 3.0,
+    "interruptRaiseS": 0.3,
+    "phases": { "lower": 0.0, "detach": 0.18, "stow": 0.42, "attach": 0.62, "raise": 0.85 },
+    "interruptOn": { "swapKey": true, "sprint": true, "switch": true, "traverse": true, "damage": false }
+  },
+  "armory": {
+    "_comment": "Zbrojni bedna na spawnu kazdeho tymu (umisteni v datech urovne: match.armories). Pouzit (E) v dosahu interactRadiusM od stredu bedny, jen vlastni tym, jen zivy; otevre nabidku zmeny optiky a nahradni optiky (zmena ihned).",
+    "interactRadiusM": 1.7,
+    "teamOnly": true,
+    "size": [1.0, 0.62, 0.62]
+  },
+  "bots": {
+    "_comment": "Optika botu podle role; role se prideluji v tymu cyklicky podle poradi bota (pattern).",
+    "roles": {
+      "strelec": { "name": "Střelec", "optic": "IVR1", "spare": "IVS3" },
+      "utocnik": { "name": "Útočník", "optic": "IVH1", "spare": "IVP2" },
+      "podpora": { "name": "Podpora", "optic": "IVP2", "spare": "IVR1" },
+      "zvedy": { "name": "Průzkumník", "optic": "IVS3", "spare": "IVH1" },
+      "odstrelovac": { "name": "Určený střelec", "optic": "IVS6", "spare": "IVR1" }
+    },
+    "pattern": ["strelec", "utocnik", "odstrelovac", "podpora", "zvedy", "strelec"]
+  }
+}

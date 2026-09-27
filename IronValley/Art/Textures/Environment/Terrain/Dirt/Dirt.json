@@ -1,0 +1,21 @@
+{
+ "tile_m": 2.5,
+ "relief_m": 0.03,
+ "family": "dirt (ART_DIRECTION 3.1)",
+ "author": "generated in this project (IRON VALLEY)",
+ "license": "project-owned",
+ "generator": "Tools/environment/terrain_textures.py",
+ "seed": 20260927,
+ "name": "Dirt",
+ "maps": {
+  "baseColor": "T_Dirt_BaseColor.png",
+  "normal": "T_Dirt_Normal.png",
+  "normalDX": "T_Dirt_Normal_DX.png",
+  "orm": "T_Dirt_ORM.png",
+  "height": "T_Dirt_Height.png"
+ },
+ "size_px": 1024,
+ "mean_base_color_srgb": "#67553f",
+ "mean_roughness": 0.899,
+ "conventions": "base colour sRGB without baked light; ORM R=occlusion G=roughness B=metallic (linear); normal OpenGL (+Y up), _DX flips green; height 16-bit 0..1 over relief_m"
+}

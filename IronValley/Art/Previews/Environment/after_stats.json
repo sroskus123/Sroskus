@@ -1,0 +1,170 @@
+{
+ "load": {
+  "ms": 1357.5999999977648,
+  "load": {
+   "id": "kalne_hamry",
+   "fetchMs": 175.90000000223517,
+   "collisionMs": 503.4000000022352,
+   "splatMs": 292.0999999977648,
+   "vegetationMs": 162.40000000223517,
+   "renderMs": 467.5,
+   "totalMs": 1357.5,
+   "triangles": 460964,
+   "view": {
+    "meshes": 212,
+    "instanced": 0,
+    "instances": 0,
+    "triangles": 538538,
+    "litVertices": 334519,
+    "splatMaterials": 2,
+    "vegetation": {
+     "models": 13,
+     "instances": 17602,
+     "trees": 1650,
+     "shrubs": 4194,
+     "backdropTrees": 11758,
+     "meshes": 39,
+     "triangles": {
+      "spruce": [
+       4480,
+       896,
+       6
+      ],
+      "spruce_forest": [
+       3504,
+       564,
+       36
+      ],
+      "pine": [
+       2184,
+       408,
+       6
+      ],
+      "birch": [
+       3706,
+       1148,
+       88
+      ],
+      "birch_young": [
+       1766,
+       532,
+       88
+      ],
+      "slender": [
+       3104,
+       836,
+       88
+      ],
+      "wide": [
+       5724,
+       1240,
+       88
+      ],
+      "round": [
+       4568,
+       1052,
+       88
+      ],
+      "fruit": [
+       1940,
+       540,
+       88
+      ],
+      "shrub_low": [
+       442,
+       144,
+       72
+      ],
+      "shrub_mid": [
+       626,
+       200,
+       72
+      ],
+      "shrub_tall": [
+       874,
+       296,
+       72
+      ],
+      "hedge_wild": [
+       942,
+       408,
+       72
+      ]
+     }
+    },
+    "grassTypes": [
+     "low",
+     "forb",
+     "tall",
+     "chamomile",
+     "yarrow"
+    ]
+   }
+  }
+ },
+ "views": {
+  "square": {
+   "calls": 232,
+   "triangles": 820562,
+   "ms": 12.400000002235174,
+   "textures": 61,
+   "geometries": 166
+  },
+  "road": {
+   "calls": 276,
+   "triangles": 813691,
+   "ms": 4.800000000745058,
+   "textures": 68,
+   "geometries": 222
+  },
+  "meadow": {
+   "calls": 191,
+   "triangles": 866222,
+   "ms": 4,
+   "textures": 68,
+   "geometries": 225
+  },
+  "spawn": {
+   "calls": 256,
+   "triangles": 806960,
+   "ms": 8.300000000745058,
+   "textures": 79,
+   "geometries": 266
+  },
+  "forest": {
+   "calls": 167,
+   "triangles": 985774,
+   "ms": 1.8999999985098839,
+   "textures": 79,
+   "geometries": 273
+  },
+  "overview": {
+   "calls": 271,
+   "triangles": 716597,
+   "ms": 3.800000000745058,
+   "textures": 81,
+   "geometries": 311
+  },
+  "asphalt": {
+   "calls": 248,
+   "triangles": 587212,
+   "ms": 12.700000002980232,
+   "textures": 81,
+   "geometries": 311
+  },
+  "grass": {
+   "calls": 198,
+   "triangles": 726621,
+   "ms": 5.399999998509884,
+   "textures": 81,
+   "geometries": 312
+  },
+  "copse": {
+   "calls": 184,
+   "triangles": 672211,
+   "ms": 1.6000000014901161,
+   "textures": 81,
+   "geometries": 318
+  }
+ }
+}

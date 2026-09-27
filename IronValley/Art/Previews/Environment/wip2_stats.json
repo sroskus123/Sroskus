@@ -1,0 +1,142 @@
+{
+ "load": {
+  "ms": 2147.599999997765,
+  "load": {
+   "id": "kalne_hamry",
+   "fetchMs": 217.79999999701977,
+   "collisionMs": 764,
+   "splatMs": 604.3000000007451,
+   "vegetationMs": 165.39999999850988,
+   "renderMs": 786,
+   "totalMs": 2147.5,
+   "triangles": 460964,
+   "view": {
+    "meshes": 212,
+    "instanced": 0,
+    "instances": 0,
+    "triangles": 538538,
+    "litVertices": 221950,
+    "splatMaterials": 2,
+    "vegetation": {
+     "models": 13,
+     "instances": 15572,
+     "trees": 1650,
+     "shrubs": 2164,
+     "backdropTrees": 11758,
+     "meshes": 39,
+     "triangles": {
+      "spruce": [
+       4480,
+       896,
+       6
+      ],
+      "spruce_b": [
+       3806,
+       736,
+       6
+      ],
+      "pine": [
+       2184,
+       408,
+       6
+      ],
+      "birch": [
+       3706,
+       1148,
+       88
+      ],
+      "birch_young": [
+       1766,
+       532,
+       88
+      ],
+      "slender": [
+       3104,
+       836,
+       88
+      ],
+      "wide": [
+       5724,
+       1240,
+       88
+      ],
+      "round": [
+       4568,
+       1052,
+       88
+      ],
+      "fruit": [
+       1940,
+       540,
+       88
+      ],
+      "shrub_low": [
+       442,
+       144,
+       60
+      ],
+      "shrub_mid": [
+       626,
+       200,
+       60
+      ],
+      "shrub_tall": [
+       874,
+       296,
+       60
+      ],
+      "hedge_wild": [
+       942,
+       408,
+       60
+      ]
+     }
+    },
+    "grassTypes": [
+     "low",
+     "forb",
+     "tall",
+     "chamomile",
+     "yarrow"
+    ]
+   }
+  }
+ },
+ "views": {
+  "square": {
+   "calls": 232,
+   "triangles": 688920,
+   "ms": 5.5,
+   "textures": 61,
+   "geometries": 166
+  },
+  "meadow": {
+   "calls": 211,
+   "triangles": 556658,
+   "ms": 2.699999999254942,
+   "textures": 62,
+   "geometries": 189
+  },
+  "forest": {
+   "calls": 165,
+   "triangles": 805933,
+   "ms": 3.399999998509884,
+   "textures": 62,
+   "geometries": 205
+  },
+  "overview": {
+   "calls": 270,
+   "triangles": 632259,
+   "ms": 12.800000000745058,
+   "textures": 69,
+   "geometries": 250
+  },
+  "grass": {
+   "calls": 200,
+   "triangles": 624450,
+   "ms": 2.7000000029802322,
+   "textures": 69,
+   "geometries": 251
+  }
+ }
+}

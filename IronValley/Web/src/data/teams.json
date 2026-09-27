@@ -1,0 +1,16 @@
+{
+  "_comment": "Vzhled tymu (poradi = tymy v Shared/config/rules.json teams.list). Hrac je vzdy v tymu 0. Jmena botu jsou volacky.",
+  "playerTeam": 0,
+  "playerName": "Ty",
+  "teams": [
+    { "color": "#3d8bfd", "dark": "#1f4f99" },
+    { "color": "#e5533d", "dark": "#8a2a1c" },
+    { "color": "#f2c230", "dark": "#8f6f12" }
+  ],
+  "botNames": [
+    ["Sokol", "Jestřáb", "Rys", "Orel", "Vlk", "Kos"],
+    ["Havran", "Datel", "Kuna", "Bobr", "Jezevec", "Liška"],
+    ["Výr", "Čáp", "Káně", "Sýček", "Tetřev", "Sova"]
+  ],
+  "defaultBots": [5, 6, 6]
+}

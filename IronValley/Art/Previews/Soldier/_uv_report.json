@@ -1,0 +1,31 @@
+{
+ "cloth": {
+  "coverage_without_gloves": 0.3619,
+  "overlap_px": 23,
+  "islands": 315,
+  "px_per_cm": {
+   "SG_CargoPocket_L": 7.81,
+   "SG_CargoPocket_LFlap": 7.81,
+   "SG_Helmet": 8.99,
+   "SG_SleevePocket_L": 7.82,
+   "SG_SleevePocket_LFlap": 7.81,
+   "SG_SleevePocket_R": 7.82,
+   "SG_SleevePocket_RFlap": 7.8,
+   "Soldier_Balaclava": 9.38,
+   "Soldier_FaceSkin": 4.69,
+   "Soldier_Shirt": 7.82,
+   "Soldier_Trousers": 7.82
+  }
+ },
+ "gear": {
+  "coverage": 0.3536,
+  "overlap_px": 358,
+  "islands": 852,
+  "px_per_cm": {}
+ },
+ "team": {
+  "coverage": 0.2314,
+  "overlap_px": 0,
+  "islands": 36
+ }
+}

@@ -1,0 +1,21 @@
+{
+ "tile_m": 1.5,
+ "relief_m": 0.02,
+ "family": "paving (ART_DIRECTION 3.1)",
+ "author": "generated in this project (IRON VALLEY)",
+ "license": "project-owned",
+ "generator": "Tools/environment/terrain_textures.py",
+ "seed": 20260927,
+ "name": "PavingSetts",
+ "maps": {
+  "baseColor": "T_PavingSetts_BaseColor.png",
+  "normal": "T_PavingSetts_Normal.png",
+  "normalDX": "T_PavingSetts_Normal_DX.png",
+  "orm": "T_PavingSetts_ORM.png",
+  "height": "T_PavingSetts_Height.png"
+ },
+ "size_px": 1024,
+ "mean_base_color_srgb": "#7f7871",
+ "mean_roughness": 0.858,
+ "conventions": "base colour sRGB without baked light; ORM R=occlusion G=roughness B=metallic (linear); normal OpenGL (+Y up), _DX flips green; height 16-bit 0..1 over relief_m"
+}

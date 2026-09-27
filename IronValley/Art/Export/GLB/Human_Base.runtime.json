@@ -1,0 +1,75 @@
+{
+  "asset": "SK_Human_Base",
+  "version": "ivchar 1.2.0",
+  "reference_implementation": "Art/Source/Blender/lib/ivchar.py: drive_runtime() = drive_twist_bones() + drive_correctives()",
+  "without_these_rules": "the mesh deforms as plain linear blend skinning (twist bones follow their parents, corrective weights stay 0)",
+  "twist_bones": {
+    "lowerarm_twist_01_<s>": "local rotation about its own Y = 0.5 x twist of hand_<s> relative to lowerarm_<s> about lowerarm Y (swing-twist decomposition)",
+    "upperarm_twist_01_<s>": "local rotation about its own Y = -0.5 x twist of upperarm_<s>'s own local rotation about its Y"
+  },
+  "correctives": {
+    "spec": {
+      "elbow": {
+        "rest": 15.0,
+        "samples": [
+          50.0,
+          80.0,
+          110.0,
+          140.0
+        ]
+      },
+      "knee": {
+        "rest": 6.84,
+        "samples": [
+          50.0,
+          80.0,
+          110.0,
+          140.0
+        ]
+      },
+      "hip": {
+        "rest": 0.0,
+        "samples": [
+          30.0,
+          55.0,
+          80.0,
+          105.0
+        ]
+      }
+    },
+    "shapes": [
+      "CS_elbow_050_l",
+      "CS_elbow_080_l",
+      "CS_elbow_110_l",
+      "CS_elbow_140_l",
+      "CS_elbow_050_r",
+      "CS_elbow_080_r",
+      "CS_elbow_110_r",
+      "CS_elbow_140_r",
+      "CS_knee_050_l",
+      "CS_knee_080_l",
+      "CS_knee_110_l",
+      "CS_knee_140_l",
+      "CS_knee_050_r",
+      "CS_knee_080_r",
+      "CS_knee_110_r",
+      "CS_knee_140_r",
+      "CS_hip_030_l",
+      "CS_hip_055_l",
+      "CS_hip_080_l",
+      "CS_hip_105_l",
+      "CS_hip_030_r",
+      "CS_hip_055_r",
+      "CS_hip_080_r",
+      "CS_hip_105_r"
+    ],
+    "shape_name": "CS_<joint>_<solved angle, 3 digits>_<l|r>",
+    "angles": {
+      "elbow": "angle in degrees between the posed directions (head->tail) of upperarm_<s> and lowerarm_<s> (rest pose = spec rest)",
+      "knee": "angle in degrees between the posed directions of thigh_<s> and calf_<s>",
+      "hip": "hip flexion: signed angle of thigh_<s>'s direction relative to its rest direction, about the pelvis' lateral axis (rest world +X carried by the pelvis), projected on the plane normal to it; thigh forward = positive"
+    },
+    "weights": "piecewise-linear in-betweens over [rest] + samples: between two neighbouring samples the two shapes cross-fade linearly (weights sum 1); rest..first sample: first shape 0->1; beyond the last sample: last shape = 1; at or below rest: all 0",
+    "note": "each shape is a rest-space offset solved so that plain LBS + the shape reproduces Blender's dual-quaternion (Preserve Volume) pose at its angle"
+  }
+}

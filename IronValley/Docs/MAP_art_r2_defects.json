@@ -1,0 +1,139 @@
+{
+  "_comment": "Kritika mapy Kalné Hamry, fáze 1 (terén + vegetace), kolo 2. Snímky: Art/Previews/Environment/r2_*.png (po opravách kola 1; headless Chromium + SwiftShader, 1600 x 900). Srovnání s Docs/navrhy/01-03 a s měřítkem kvality Docs/navrhy/REFERENCE_INGAME.md (snímky 12, 13: mokrá zem, les). Závažnost: P1 = rozbíjí dojem nebo pravidlo, P2 = viditelná vada, P3 = kosmetika. Stav: fixed = opraveno a ověřeno na snímcích after_*, open = zůstává.",
+  "round": 2,
+  "date": "2026-09-27",
+  "screens": [
+    "r2_square.png",
+    "r2_road.png",
+    "r2_meadow.png",
+    "r2_spawn.png",
+    "r2_forest.png",
+    "r2_overview.png",
+    "r2_grass.png",
+    "r2_asphalt.png",
+    "after_copse.png"
+  ],
+  "verified_from_round_1": [
+    "R1-01 (trsy viditelné, jen chyba níže R2-01)",
+    "R1-03",
+    "R1-04",
+    "R1-05 (stíny listí vystřižené podle alfy)",
+    "R1-06",
+    "R1-09",
+    "R1-11 (načtení 1,2 s)"
+  ],
+  "defects": [
+    {
+      "id": "R2-01",
+      "sev": "P1",
+      "area": "tráva",
+      "state": "fixed",
+      "defect": "Po přesunu kamery chybí tráva u nohou (forest, grass): three si pamatuje maximální počet instancí InstancedBufferGeometry z prvních polí, větší pole se pak ořízne.",
+      "fix": "Pevná kapacita bufferů instancí aktualizovaných na místě, reset cache jen při zvětšení."
+    },
+    {
+      "id": "R2-02",
+      "sev": "P2",
+      "area": "tráva",
+      "state": "fixed",
+      "defect": "Tráva působí jako řádky stejných khaki kartiček (meadow, spawn): příliš suchá, stejná výška, stébla uříznutá okrajem karty.",
+      "fix": "Zelenější paleta, suché jen 12-22 % stébel s krátkými špičkami, nepravidelné výšky, stébla drží uvnitř karty, velikost trsů 0,18-0,55 m (víc malých), odstín trsu podle instance."
+    },
+    {
+      "id": "R2-03",
+      "sev": "P2",
+      "area": "tráva",
+      "state": "fixed",
+      "defect": "Trsy bylin (forb) jsou tmavé ostré skvrny jako plevel (road).",
+      "fix": "Světlejší a menší listy, poloviční hustota."
+    },
+    {
+      "id": "R2-04",
+      "sev": "P1",
+      "area": "terén",
+      "state": "fixed",
+      "defect": "Proti měřítku kvality (12, 13) je štěrk příliš světlý, čistý a suchý; hlína a bláto bez kamínků. Po přeháňce má být štěrk dvorů tmavší a mokrý (ART_DIRECTION 2.1: mokrý štěrk -15 %).",
+      "fix": "Štěrk: tmavé bahnité jemné frakce, mokré bahnité plochy, kde kameny zapadají, celkově tmavší; mokrost po přeháňce i pro štěrk (0,55) a hlínu (0,25); víc zapadlých kamínků v hlíně a blátě, kameny v blátě obalené bahnem."
+    },
+    {
+      "id": "R2-05",
+      "sev": "P1",
+      "area": "les",
+      "state": "fixed",
+      "defect": "Les tvoří smrky tvaru solitérů (koruna až k zemi); měřítko kvality (12, 13) a ref. 02/03 mají lesní smrky s holými spodními kmeny tvořící hustou hradbu.",
+      "fix": "Nový model spruce_forest (25 m, holý kmen do 10,5 m se suchými pahýly, úzká koruna nahoře, LOD2 = koruna z horní části siluety nad skutečným kmenem); stromy mimo měkkou hranici jako druh *_les; solitéry v obci a na loukách zůstávají."
+    },
+    {
+      "id": "R2-06",
+      "sev": "P2",
+      "area": "terén",
+      "state": "fixed",
+      "defect": "Kaluže v kulatých koncích silnic na návsi tvoří nepřirozený prstenec (square).",
+      "fix": "Kaluže u obrubníku jen v tělese silnice, ne v koncích; nižší pravděpodobnost."
+    },
+    {
+      "id": "R2-07",
+      "sev": "P2",
+      "area": "terén",
+      "state": "fixed",
+      "defect": "Dlažba návsi proti slunci přepálená do bílé (road).",
+      "fix": "Mokrost dlažby 0,35 (kostky osychají první)."
+    },
+    {
+      "id": "R2-08",
+      "sev": "P3",
+      "area": "tráva",
+      "state": "fixed",
+      "defect": "7 buněk asfaltu (0,5 m) na okraji silnice má v mapě hustoty nenulovou trávu (jiné vzorkování splat tříd).",
+      "fix": "Herní rastr povrchů je pro trávu rozhodující: asfalt, voda a kameny (+1 buňka), hlína a bláto vždy bez trávy (test map_art)."
+    },
+    {
+      "id": "R2-09",
+      "sev": "P2",
+      "area": "světlo",
+      "state": "open",
+      "defect": "Snímky měřítka kvality jsou pod zataženou oblohou, návrhy mapy 01-05 v pozdním létě se sluncem; volba je fáze 4.",
+      "fix": "Materiály nemají zapečené světlo (albedo bez stínů, AO jen v kanálu ORM / jako kavita), průsvit listí se odvozuje od slunce za běhu, takže vydrží obojí; ověřit až s nastavením fáze 4."
+    },
+    {
+      "id": "R2-10",
+      "sev": "P2",
+      "area": "mimo fázi",
+      "state": "open",
+      "defect": "Budovy, rekvizity a vozidla jsou dál bloky s provizorními materiály a na snímcích teď kontrastují s terénem a vegetací.",
+      "fix": "Fáze 2 (budovy) a 3 (rekvizity)."
+    },
+    {
+      "id": "R2-11",
+      "sev": "P3",
+      "area": "keře",
+      "state": "open",
+      "defect": "Zblízka (grass) jsou listy keřů pořád rozeznatelné karty s tvrdými okraji; z výšky mají shluky keřů v LOD2 velké listy.",
+      "fix": "Příští kolo: menší listy v kartách keřů, víc karet s menší velikostí v LOD2."
+    },
+    {
+      "id": "R2-12",
+      "sev": "P3",
+      "area": "tráva",
+      "state": "fixed",
+      "defect": "Přechod mezi instancovanou trávou a texturou terénu (20-30 m) je vidět jako pás, kde trsy klesají do země.",
+      "fix": "Hranice útlumu posunutá o 0-5 m podle trsu (žádný ostrý prstenec)."
+    },
+    {
+      "id": "R2-13",
+      "sev": "P2",
+      "area": "keře",
+      "state": "fixed",
+      "defect": "Z výšky (overview) jsou shluky keřů (VK_*) tmavé ploché kvádry s listovou texturou: vykreslovací jádro bloku sahá do 0,8 výšky a řídké instance keřů ho nezakryjí.",
+      "fix": "Jádro jen do 0,45-0,55 výšky a užší, keře ve shlucích v mřížce 1,1 m (okraj nižší shrub_mid, uvnitř shrub_tall do 0,85-1,15 výšky); kolize bloku beze změny (kh_collision.glb bajtově shodný). Ověřeno snímkem after_copse."
+    },
+    {
+      "id": "R2-14",
+      "sev": "P3",
+      "area": "tráva",
+      "state": "open",
+      "defect": "Na loukách ve 10-30 m (meadow, spawn) čtou se trsy nízké trávy pořád jako jednotlivé výhonky na texturované zemi, ne jako souvislý porost jako v měřítku kvality (13).",
+      "fix": "Širší trsy (poměr 1,35) pomohly jen částečně; příště: víc karet na trs a husté trsy nejen do 20 m, textura GrassGround s delšími stébly, aby přechod k zemi nebyl tak kontrastní."
+    }
+  ]
+}

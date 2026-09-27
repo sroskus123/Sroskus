@@ -1,0 +1,157 @@
+{
+  "schema": "ironvalley.ai",
+  "version": 1,
+  "notes": "Vsechny laditelne hodnoty AI botu (vnimani, pamet, rozhodovani, mireni, palba, pohyb, zaseknuti). Casy v sekundach, vzdalenosti v metrech, uhly ve stupnich. Popis a namerene hodnoty: Docs/AI.md.",
+  "turnRateDegPerSec": 300,
+  "pitchRateDegPerSec": 220,
+  "tick": {
+    "perceptionHz": 10,
+    "decisionHz": 4.5,
+    "decisionJitter": 0.04,
+    "calmTaskMinTime": 2.0
+  },
+  "vision": {
+    "range": 110,
+    "fullDetectionRange": 40,
+    "fovDeg": 130,
+    "centralFovDeg": 70,
+    "peripheralFactor": 0.4,
+    "nearRange": 8,
+    "detectTimeNear": 0.2,
+    "detectTimeFar": 0.9,
+    "detectDecayPerSec": 1.0,
+    "crouchFactor": 0.8,
+    "movingSpeed": 2.5,
+    "movingFactor": 1.25,
+    "minVisibility": 0.15,
+    "bodyPoints": [
+      { "name": "head", "weight": 0.3 },
+      { "name": "chest", "weight": 0.4 },
+      { "name": "pelvis", "weight": 0.3 }
+    ],
+    "glimpseLevel": 0.35,
+    "alertTurnTime": 3.0
+  },
+  "hearing": {
+    "gunshotRange": 90,
+    "footstepRange": 16,
+    "occlusionFactor": 0.55,
+    "errorBase": 1.5,
+    "errorPerMeter": 0.08,
+    "occludedErrorMult": 1.6,
+    "confidenceGunshot": 0.6,
+    "confidenceFootstep": 0.45,
+    "whizRadius": 2.5,
+    "ignoreFriendly": true
+  },
+  "damage": {
+    "directionErrorDeg": 15,
+    "guessDistance": 20,
+    "confidence": 0.55,
+    "underFireTime": 2.5
+  },
+  "memory": {
+    "decayTimeSeen": 16,
+    "decayTimeHeard": 9,
+    "velocityExtrapolation": 0.8,
+    "searchMinConfidence": 0.12,
+    "searchRadius": 4.0,
+    "searchLookTime": 3.0,
+    "searchMaxTime": 16,
+    "searchingDecayFactor": 0.25,
+    "glimpseWatchTime": 1.2,
+    "forgetAfterSearch": true,
+    "searchGoalKeepRadius": 3.0
+  },
+  "aim": {
+    "baseErrorDeg": 0.9,
+    "distanceErrorDegPer10m": 0.12,
+    "targetSpeedErrorDegPerMps": 0.45,
+    "ownMoveErrorDeg": 1.5,
+    "crouchErrorFactor": 0.8,
+    "initialErrorMult": 2.6,
+    "settleTime": 1.1,
+    "noiseCorrelation": 0.35,
+    "aimHeightOffset": 0.0
+  },
+  "combat": {
+    "reactionDelayMin": 0.25,
+    "reactionDelayMax": 0.45,
+    "fireConeDeg": 2.5,
+    "fireConeMinMeters": 0.45,
+    "maxEngageRange": 100,
+    "continueFireAfterLostSight": 0.25,
+    "bursts": [
+      { "maxDist": 12, "shotsMin": 4, "shotsMax": 7, "pauseMin": 0.18, "pauseMax": 0.4 },
+      { "maxDist": 30, "shotsMin": 3, "shotsMax": 5, "pauseMin": 0.3, "pauseMax": 0.6 },
+      { "maxDist": 60, "shotsMin": 2, "shotsMax": 3, "pauseMin": 0.45, "pauseMax": 0.8 },
+      { "maxDist": 1000, "shotsMin": 1, "shotsMax": 2, "pauseMin": 0.6, "pauseMax": 1.0 }
+    ],
+    "reloadBelowFraction": 0.34,
+    "safeReloadNoContactTime": 2.0,
+    "adsRange": 18,
+    "muzzleCheck": true,
+    "muzzleStepOutAfter": 0.6
+  },
+  "cover": {
+    "searchRadius": 14,
+    "minThreatDistance": 5,
+    "threatConeDeg": 75,
+    "maxTimeInCover": 13,
+    "peekTimeMin": 1.4,
+    "peekTimeMax": 2.6,
+    "hideTimeMin": 0.7,
+    "hideTimeMax": 1.5,
+    "teammateSpacing": 2.5
+  },
+  "objective": {
+    "zoneMargin": 0.8,
+    "holdRepositionMin": 9,
+    "holdRepositionMax": 16,
+    "scanIntervalMin": 1.6,
+    "scanIntervalMax": 3.4,
+    "teamSpacing": 3.0,
+    "pressureGrace": 4.0,
+    "pressureRamp": 16.0,
+    "pressureWeight": 0.42,
+    "pressureEnemyHolds": 0.5,
+    "pressureCoverTimeCut": 0.6,
+    "holderSearchLeash": 6.0
+  },
+  "movement": {
+    "arriveRadius": 0.5,
+    "waypointRadius": 0.4,
+    "sprintMinDistance": 10,
+    "separationRadius": 1.4,
+    "separationWeight": 1.6,
+    "avoidLookAhead": 2.2,
+    "avoidRadius": 0.9,
+    "repathInterval": 2.5,
+    "goalMoveRepath": 1.5,
+    "contactRadius": 0.85,
+    "bodyAvoidRadius": 1.5,
+    "bodyAvoidTime": 6.0,
+    "bodyAvoidCost": 6.0
+  },
+  "stuck": {
+    "window": 1.5,
+    "minProgress": 0.3,
+    "blockRadius": 1.1,
+    "blockTtl": 30,
+    "backoffTime": 0.6,
+    "teammateWaitTime": 1.2,
+    "maxRecoveries": 4,
+    "anchorRadius": 0.75,
+    "anchorWindow": 3.0,
+    "recheckWindow": 1.0
+  },
+  "danger": {
+    "duration": 30,
+    "radius": 5,
+    "weight": 1.5,
+    "maxMultiplier": 4
+  },
+  "debug": {
+    "overlay": false
+  }
+}

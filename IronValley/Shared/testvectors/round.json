@@ -1,0 +1,196 @@
+{
+  "schema": "ironvalley.testvectors",
+  "version": 1,
+  "suite": "round",
+  "description": "GAME-01 (konec kola, remiza, vynulovani) a pravidla kola. Vychozi: odpocet 5 s, limit 600 s, cil 100 bodu, 1 bod / 2 s. Indexy oblasti pro semena spocitala nezavisla referencni implementace mulberry32 v Pythonu (0 = zone_dilna, 1 = zone_sklad, 2 = zone_dvur).",
+  "cases": [
+    {
+      "id": "ROUND/initial-state-and-seeded-zone",
+      "kind": "round",
+      "setup": { "seed": 7 },
+      "steps": [
+        { "op": "tick", "dtUs": 0, "participants": [], "expect": { "snapshot": { "state": "pre_round", "roundNumber": 1, "zoneIndex": 0, "zoneId": "zone_dilna", "preRoundRemainingUs": 5000000, "elapsedUs": 0, "remainingUs": 600000000, "winner": -1, "draw": false, "endReason": "none", "status": "empty", "controller": -1, "counts": [0, 0, 0], "progressUs": 0, "scores": [0, 0, 0] } } }
+      ]
+    },
+    {
+      "id": "ROUND/pre-round-does-not-score-and-carries-leftover-time",
+      "kind": "round",
+      "setup": { "seed": 1 },
+      "steps": [
+        { "op": "tick", "dtUs": 4000000, "participants": [["a1", 0, true, true, true]], "expect": { "state": "pre_round", "preRoundRemainingUs": 1000000, "scores": [0, 0, 0], "status": "empty", "elapsedUs": 0, "zoneIndex": 1, "zoneId": "zone_sklad" } },
+        { "op": "tick", "dtUs": 3000000, "expect": { "state": "running", "preRoundRemainingUs": 0, "elapsedUs": 2000000, "scores": [1, 0, 0], "progressUs": 0, "controller": 0 } }
+      ]
+    },
+    {
+      "id": "ROUND/start-skips-pre-round",
+      "kind": "round",
+      "steps": [
+        { "op": "start", "expect": { "result": "ok", "state": "running", "preRoundRemainingUs": 0 } },
+        { "op": "start", "expect": { "result": "rejected", "state": "running" } },
+        { "op": "tick", "dtUs": 2000000, "participants": [["a1", 0, true, true, true]], "expect": { "scores": [1, 0, 0], "elapsedUs": 2000000, "remainingUs": 598000000 } }
+      ]
+    },
+    {
+      "id": "GAME-01/score-target-ends-round-60hz",
+      "kind": "round",
+      "steps": [
+        { "op": "start" },
+        { "op": "run", "durationUs": 250000000, "ticks": { "hz": 60 }, "participants": [["a1", 0, true, true, true], ["b1", 1, true, true, false]], "expect": { "state": "ended", "endReason": "score_target", "winner": 0, "draw": false, "scores": [100, 0, 0], "elapsedUs": 200000000, "remainingUs": 400000000, "progressUs": 0 } }
+      ]
+    },
+    {
+      "id": "GAME-01/score-target-inside-one-huge-tick",
+      "kind": "round",
+      "steps": [
+        { "op": "start" },
+        { "op": "tick", "dtUs": 300000000, "participants": [["a1", 0, true, true, true]], "expect": { "state": "ended", "endReason": "score_target", "winner": 0, "scores": [100, 0, 0], "elapsedUs": 200000000 } }
+      ]
+    },
+    {
+      "id": "GAME-01/score-target-reached-mid-tick-stops-clock-there",
+      "kind": "round",
+      "rules": { "zone": { "pointInterval": 0.7 }, "round": { "scoreTarget": 3 } },
+      "steps": [
+        { "op": "start" },
+        { "op": "tick", "dtUs": 1000000, "participants": [["c1", 2, true, true, true]], "expect": { "state": "running", "scores": [0, 0, 1], "progressUs": 300000 } },
+        { "op": "tick", "dtUs": 5000000, "expect": { "state": "ended", "endReason": "score_target", "winner": 2, "scores": [0, 0, 3], "elapsedUs": 2100000 } }
+      ]
+    },
+    {
+      "id": "GAME-01/time-limit-highest-score-wins",
+      "kind": "round",
+      "steps": [
+        { "op": "start" },
+        { "op": "tick", "dtUs": 20000000, "participants": [["a1", 0, true, true, true]], "expect": { "scores": [10, 0, 0] } },
+        { "op": "tick", "dtUs": 30000000, "participants": [["b1", 1, true, true, true]], "expect": { "scores": [10, 15, 0] } },
+        { "op": "tick", "dtUs": 600000000, "participants": [], "expect": { "state": "ended", "endReason": "time_limit", "winner": 1, "draw": false, "elapsedUs": 600000000, "remainingUs": 0, "scores": [10, 15, 0] } }
+      ]
+    },
+    {
+      "id": "GAME-01/time-limit-equal-top-scores-is-draw",
+      "kind": "round",
+      "steps": [
+        { "op": "start" },
+        { "op": "tick", "dtUs": 20000000, "participants": [["a1", 0, true, true, true]] },
+        { "op": "tick", "dtUs": 20000000, "participants": [["b1", 1, true, true, true]], "expect": { "scores": [10, 10, 0] } },
+        { "op": "tick", "dtUs": 1000000, "participants": [["c1", 2, true, true, true]], "expect": { "scores": [10, 10, 0] } },
+        { "op": "run", "durationUs": 600000000, "ticks": { "hz": 60 }, "participants": [], "expect": { "state": "ended", "endReason": "time_limit", "winner": -1, "draw": true, "elapsedUs": 600000000, "scores": [10, 10, 0] } }
+      ]
+    },
+    {
+      "id": "GAME-01/time-limit-all-zero-is-draw",
+      "kind": "round",
+      "steps": [
+        { "op": "start" },
+        { "op": "tick", "dtUs": 600000000, "participants": [], "expect": { "state": "ended", "endReason": "time_limit", "winner": -1, "draw": true, "scores": [0, 0, 0] } }
+      ]
+    },
+    {
+      "id": "GAME-01/time-limit-clamps-scoring",
+      "kind": "round",
+      "rules": { "round": { "timeLimit": 10.0 } },
+      "steps": [
+        { "op": "start" },
+        { "op": "tick", "dtUs": 9000000, "participants": [["a1", 0, true, true, true]], "expect": { "scores": [4, 0, 0], "progressUs": 1000000 } },
+        { "op": "tick", "dtUs": 15000000, "expect": { "state": "ended", "endReason": "time_limit", "winner": 0, "scores": [5, 0, 0], "elapsedUs": 10000000, "progressUs": 0 } }
+      ]
+    },
+    {
+      "id": "GAME-01/target-reached-exactly-at-time-limit-counts-as-target",
+      "kind": "round",
+      "rules": { "round": { "timeLimit": 10.0, "scoreTarget": 5 } },
+      "steps": [
+        { "op": "start" },
+        { "op": "tick", "dtUs": 10000000, "participants": [["b1", 1, true, true, true]], "expect": { "state": "ended", "endReason": "score_target", "winner": 1, "scores": [0, 5, 0], "elapsedUs": 10000000 } }
+      ]
+    },
+    {
+      "id": "ROUND/ended-round-ignores-ticks",
+      "kind": "round",
+      "steps": [
+        { "op": "start" },
+        { "op": "tick", "dtUs": 600000000, "participants": [] },
+        { "op": "tick", "dtUs": 10000000, "participants": [["a1", 0, true, true, true]], "expect": { "result": "ok", "state": "ended", "scores": [0, 0, 0], "elapsedUs": 600000000, "status": "empty", "draw": true } },
+        { "op": "start", "expect": { "result": "rejected", "state": "ended" } }
+      ]
+    },
+    {
+      "id": "GAME-01/reset-clears-everything-no-leftover-progress",
+      "kind": "round",
+      "setup": { "seed": 3 },
+      "steps": [
+        { "op": "start", "expect": { "zoneIndex": 2, "zoneId": "zone_dvur" } },
+        { "op": "tick", "dtUs": 3900000, "participants": [["a1", 0, true, true, true]], "expect": { "scores": [1, 0, 0], "progressUs": 1900000, "zoneIndex": 2 } },
+        { "op": "reset", "expect": { "result": "ok", "snapshot": { "state": "pre_round", "roundNumber": 2, "zoneIndex": 0, "zoneId": "zone_dilna", "preRoundRemainingUs": 5000000, "elapsedUs": 0, "remainingUs": 600000000, "winner": -1, "draw": false, "endReason": "none", "status": "empty", "controller": -1, "counts": [0, 0, 0], "progressUs": 0, "scores": [0, 0, 0] } } },
+        { "op": "tick", "dtUs": 5000000, "expect": { "state": "running", "scores": [0, 0, 0], "progressUs": 0, "elapsedUs": 0 } },
+        { "op": "tick", "dtUs": 1999999, "expect": { "scores": [0, 0, 0], "progressUs": 1999999 } },
+        { "op": "tick", "dtUs": 1, "expect": { "scores": [1, 0, 0], "progressUs": 0 } },
+        { "op": "reset", "expect": { "roundNumber": 3, "zoneIndex": 1, "zoneId": "zone_sklad", "scores": [0, 0, 0] } }
+      ]
+    },
+    {
+      "id": "GAME-01/reset-after-end-starts-new-round",
+      "kind": "round",
+      "setup": { "seed": 12345 },
+      "steps": [
+        { "op": "start", "expect": { "zoneIndex": 2 } },
+        { "op": "tick", "dtUs": 600000000, "participants": [["a1", 0, true, true, true], ["b1", 1, true, true, true]], "expect": { "state": "ended", "draw": true } },
+        { "op": "reset", "expect": { "state": "pre_round", "roundNumber": 2, "zoneIndex": 0, "winner": -1, "draw": false, "endReason": "none", "remainingUs": 600000000, "preRoundRemainingUs": 5000000 } },
+        { "op": "reset", "expect": { "roundNumber": 3, "zoneIndex": 1 } },
+        { "op": "reset", "expect": { "roundNumber": 4, "zoneIndex": 2 } },
+        { "op": "reset", "expect": { "roundNumber": 5, "zoneIndex": 1 } }
+      ]
+    },
+    {
+      "id": "GAME-01/reset-during-pre-round-restarts-countdown",
+      "kind": "round",
+      "steps": [
+        { "op": "tick", "dtUs": 3000000, "participants": [], "expect": { "preRoundRemainingUs": 2000000 } },
+        { "op": "reset", "expect": { "state": "pre_round", "preRoundRemainingUs": 5000000, "roundNumber": 2 } },
+        { "op": "tick", "dtUs": 4999999, "expect": { "state": "pre_round", "preRoundRemainingUs": 1 } },
+        { "op": "tick", "dtUs": 1, "expect": { "state": "running", "elapsedUs": 0 } }
+      ]
+    },
+    {
+      "id": "ROUND/zone-stays-in-place-for-whole-round",
+      "kind": "round",
+      "setup": { "seed": 4242 },
+      "steps": [
+        { "op": "tick", "dtUs": 0, "participants": [], "expect": { "zoneIndex": 1, "zoneId": "zone_sklad" } },
+        { "op": "start", "expect": { "zoneIndex": 1 } },
+        { "op": "run", "durationUs": 199999999, "ticks": { "hz": 60 }, "participants": [["a1", 0, true, true, true]], "expect": { "zoneIndex": 1, "state": "running", "scores": [99, 0, 0], "progressUs": 1999999, "elapsedUs": 199999999 } },
+        { "op": "run", "durationUs": 1000000, "ticks": { "hz": 60 }, "participants": [["a1", 0, true, true, true]], "expect": { "zoneIndex": 1, "state": "ended", "winner": 0, "scores": [100, 0, 0], "elapsedUs": 200000000 } }
+      ]
+    },
+    {
+      "id": "ROUND/invalid-participants-rejected",
+      "kind": "round",
+      "steps": [
+        { "op": "start" },
+        { "op": "tick", "dtUs": 1000000, "participants": [["a1", 0, true, true, true]], "expect": { "progressUs": 1000000 } },
+        { "op": "tick", "dtUs": 1000000, "participants": [["a1", 5, true, true, true]], "expect": { "result": "invalid_team", "progressUs": 1000000, "elapsedUs": 1000000 } },
+        { "op": "tick", "dtUs": 1000000, "participants": [["x", 0, true, true, true], ["x", 0, true, true, true]], "expect": { "result": "duplicate_id", "elapsedUs": 1000000 } }
+      ]
+    },
+    {
+      "id": "GAME-01/round-independent-of-tick-size",
+      "kind": "round",
+      "setup": { "seed": 21 },
+      "tickModes": [
+        { "hz": 30 },
+        { "hz": 60 },
+        { "hz": 144 },
+        { "dtUs": 700000 },
+        { "dtUs": 100000000 },
+        { "irregular": { "seed": 8, "minUs": 0, "maxUs": 50000 } },
+        { "irregular": { "seed": 31337, "minUs": 500000, "maxUs": 9000000 } }
+      ],
+      "steps": [
+        { "op": "run", "durationUs": 12000000, "ticks": "case", "participants": [["a1", 0, true, true, true]], "expect": { "state": "running", "zoneIndex": 1, "elapsedUs": 7000000, "scores": [3, 0, 0], "progressUs": 1000000 } },
+        { "op": "run", "durationUs": 10000000, "ticks": "case", "participants": [["a1", 0, true, true, true], ["b1", 1, true, true, true]], "expect": { "scores": [3, 0, 0], "progressUs": 0, "status": "contested" } },
+        { "op": "run", "durationUs": 200000000, "ticks": "case", "participants": [["c1", 2, true, true, true]], "expect": { "state": "ended", "endReason": "score_target", "winner": 2, "scores": [3, 0, 100], "elapsedUs": 217000000 } },
+        { "op": "run", "durationUs": 5000000, "ticks": "case", "expect": { "state": "ended", "elapsedUs": 217000000, "scores": [3, 0, 100] } }
+      ]
+    }
+  ]
+}

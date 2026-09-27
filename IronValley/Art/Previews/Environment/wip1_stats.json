@@ -1,0 +1,52 @@
+{
+ "load": {
+  "ms": 1437.1000000014901,
+  "load": {
+   "id": "kalne_hamry",
+   "fetchMs": 239.90000000223517,
+   "collisionMs": 579.8000000007451,
+   "splatMs": 394.3999999985099,
+   "renderMs": 411.5,
+   "totalMs": 1437.1000000014901,
+   "triangles": 460964,
+   "view": {
+    "meshes": 212,
+    "instanced": 0,
+    "instances": 0,
+    "triangles": 538538,
+    "litVertices": 221950,
+    "splatMaterials": 2
+   }
+  }
+ },
+ "views": {
+  "square": {
+   "calls": 196,
+   "triangles": 367180,
+   "ms": 4,
+   "textures": 54,
+   "geometries": 137
+  },
+  "asphalt": {
+   "calls": 217,
+   "triangles": 312471,
+   "ms": 2.699999999254942,
+   "textures": 57,
+   "geometries": 163
+  },
+  "grass": {
+   "calls": 154,
+   "triangles": 207690,
+   "ms": 4.699999999254942,
+   "textures": 57,
+   "geometries": 163
+  },
+  "road": {
+   "calls": 239,
+   "triangles": 349940,
+   "ms": 5.800000000745058,
+   "textures": 63,
+   "geometries": 212
+  }
+ }
+}

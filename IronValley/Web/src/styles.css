@@ -1,0 +1,1255 @@
+:root {
+  --iv-bg: #0f1215;
+  --iv-panel: rgba(18, 22, 26, 0.92);
+  --iv-line: rgba(255, 255, 255, 0.12);
+  --iv-text: #e9e6df;
+  --iv-muted: #a3a9ae;
+  /* yellow from the user's title mockup (Docs/navrhy/06_uvodni_menu_navrh.webp); dark text on it is 7.9:1 */
+  --iv-accent: #d6a23e;
+  --iv-accent-light: #eec168;
+  --iv-bone: #ece6da;
+  --iv-danger: #e05a3a;
+  /* backing plate for small HUD labels: readable over bright sky or lit walls (>= 4.5:1 even on white) */
+  --iv-hud-plate: rgba(10, 12, 14, 0.75);
+  /* HUD scale: readable at 960x540 and 1920x1080 */
+  --iv-fs: clamp(12px, 1.55vh, 17px);
+  --iv-fs-small: clamp(11px, 1.25vh, 14px);
+  --iv-fs-big: clamp(26px, 3.6vh, 40px);
+  --iv-health-h: clamp(40px, 5.6vh, 60px);
+  color-scheme: dark;
+}
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--iv-bg);
+  color: var(--iv-text);
+  font-family: 'DejaVu Sans', 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+  overflow: hidden;
+}
+#iv-root {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--iv-bg);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.iv-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  outline: none;
+  cursor: crosshair;
+}
+.iv-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: none;
+}
+.iv-hud.iv-open {
+  display: block;
+}
+.iv-location {
+  position: absolute;
+  left: 12px;
+  top: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 4px 10px;
+  background: var(--iv-hud-plate);
+  border-radius: 2px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+.iv-location-name {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-size: 15px;
+}
+.iv-location-tag {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--iv-accent-light);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.iv-crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+}
+.iv-crosshair i {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.55);
+}
+.iv-ch-t,
+.iv-ch-b {
+  width: 2px;
+  height: 7px;
+  left: -1px;
+}
+.iv-ch-t {
+  top: -12px;
+}
+.iv-ch-b {
+  top: 5px;
+}
+.iv-ch-l,
+.iv-ch-r {
+  height: 2px;
+  width: 7px;
+  top: -1px;
+}
+.iv-ch-l {
+  left: -12px;
+}
+.iv-ch-r {
+  left: 5px;
+}
+.iv-ch-dot {
+  width: 2px;
+  height: 2px;
+  left: -1px;
+  top: -1px;
+}
+.iv-hitmarker {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  opacity: 0;
+  background:
+    linear-gradient(45deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%),
+    linear-gradient(-45deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%);
+  -webkit-mask: radial-gradient(circle, transparent 5px, #000 5.5px);
+  mask: radial-gradient(circle, transparent 5px, #000 5.5px);
+}
+.iv-hitmarker.iv-show {
+  opacity: 1;
+}
+.iv-hitmarker.iv-kill {
+  filter: drop-shadow(0 0 2px var(--iv-danger)) sepia(1) saturate(6) hue-rotate(-30deg);
+}
+.iv-ammo {
+  position: absolute;
+  right: 20px;
+  bottom: 18px;
+  text-align: right;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.85);
+}
+.iv-weapon-name {
+  font-size: 12px;
+  color: #c3c8cc;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.iv-ammo-line {
+  font-variant-numeric: tabular-nums;
+}
+.iv-ammo-mag {
+  font-size: 34px;
+  font-weight: 700;
+}
+.iv-ammo-mag.iv-low {
+  color: var(--iv-danger);
+}
+.iv-ammo-res {
+  font-size: 16px;
+  color: var(--iv-muted);
+  margin-left: 6px;
+}
+.iv-reload {
+  margin-top: 4px;
+  height: 3px;
+  width: 120px;
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.15);
+  visibility: hidden;
+}
+.iv-reload.iv-show {
+  visibility: visible;
+}
+.iv-reload i {
+  display: block;
+  height: 100%;
+  background: var(--iv-accent);
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+.iv-stance {
+  position: absolute;
+  left: 16px;
+  bottom: calc(24px + var(--iv-health-h));
+  padding: 4px 10px;
+  background: var(--iv-hud-plate);
+  border-left: 3px solid var(--iv-accent);
+  border-radius: 2px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--iv-text);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+.iv-stance:empty {
+  display: none;
+}
+.iv-notice {
+  position: absolute;
+  left: 50%;
+  top: 64%;
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  background: rgba(10, 12, 14, 0.72);
+  border: 1px solid var(--iv-line);
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 150ms linear;
+  max-width: min(560px, calc(100% - 32px));
+  text-align: center;
+}
+.iv-notice.iv-show {
+  opacity: 1;
+}
+.iv-boundary {
+  position: absolute;
+  left: 50%;
+  top: 22%;
+  transform: translateX(-50%);
+  padding: 7px 14px;
+  background: rgba(10, 12, 14, 0.78);
+  border: 1px solid var(--iv-line);
+  font-size: 15px;
+  font-weight: 600;
+  opacity: 0;
+  max-width: min(560px, calc(100% - 32px));
+  text-align: center;
+}
+.iv-boundary.iv-show {
+  opacity: 1;
+}
+.iv-boundary.iv-urgent {
+  color: #ffd2cc;
+  border-color: #c0392b;
+  background: rgba(60, 10, 8, 0.82);
+}
+.iv-out-of-bounds-canvas {
+  filter: saturate(0.35);
+}
+.iv-fps {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  padding: 3px 8px;
+  background: var(--iv-hud-plate);
+  border-radius: 2px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--iv-text);
+  display: none;
+}
+.iv-placeholder-note {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  bottom: 8px;
+  padding: 3px 8px;
+  background: var(--iv-hud-plate);
+  border-radius: 2px;
+  font-size: 12px;
+  color: var(--iv-accent-light);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+.iv-placeholder-note:empty {
+  display: none;
+}
+.iv-menu {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, rgba(10, 12, 14, 0.55), rgba(10, 12, 14, 0.82));
+  overflow: auto;
+  padding: 16px;
+  box-sizing: border-box;
+}
+.iv-menu.iv-open {
+  display: flex;
+}
+.iv-panel {
+  width: min(860px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  background: var(--iv-panel);
+  border: 1px solid var(--iv-line);
+  border-top: 3px solid var(--iv-accent);
+  padding: 20px 24px;
+  box-sizing: border-box;
+}
+.iv-title {
+  margin: 0;
+  font-size: 30px;
+  letter-spacing: 0.12em;
+}
+.iv-subtitle {
+  margin: 4px 0 14px;
+  color: var(--iv-muted);
+  font-size: 14px;
+}
+.iv-status {
+  min-height: 1.2em;
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--iv-accent);
+}
+.iv-btn {
+  font: inherit;
+  color: #14171a;
+  background: var(--iv-text);
+  border: 0;
+  padding: 9px 22px;
+  cursor: pointer;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.iv-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.iv-btn-primary {
+  background: var(--iv-accent);
+  font-size: 16px;
+}
+.iv-btn-small {
+  padding: 5px 12px;
+  font-size: 12px;
+  margin-top: 8px;
+  background: #cfd3d6;
+}
+.iv-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.iv-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  margin-top: 14px;
+}
+.iv-cols h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--iv-muted);
+  margin: 0 0 8px;
+}
+.iv-keys {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 14px;
+  margin: 0;
+  font-size: 13px;
+}
+.iv-keys dt {
+  color: var(--iv-muted);
+}
+.iv-keys dd {
+  margin: 0;
+}
+.iv-hint {
+  font-size: 11px;
+  color: var(--iv-muted);
+  margin: 8px 0 0;
+}
+.iv-row {
+  display: grid;
+  grid-template-columns: 150px 1fr 52px;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.iv-row input[type='checkbox'] {
+  justify-self: start;
+}
+.iv-row-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--iv-muted);
+}
+.iv-foot {
+  margin: 16px 0 0;
+  font-size: 11px;
+  color: var(--iv-muted);
+}
+.iv-touch-note {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 16px;
+  padding: 12px 14px;
+  background: #3a1f12;
+  border: 1px solid var(--iv-accent);
+  font-size: 14px;
+  display: none;
+  z-index: 5;
+}
+.iv-touch-note.iv-show {
+  display: block;
+}
+.iv-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  text-align: center;
+  font-size: 15px;
+}
+@media (max-width: 899px) {
+  .iv-cols {
+    grid-template-columns: 1fr;
+  }
+  .iv-row {
+    grid-template-columns: 1fr 1fr 48px;
+  }
+}
+
+/* ------------------------------------------------------------------ match HUD */
+.iv-top {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  max-width: calc(100% - 520px);
+  min-width: 300px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+}
+.iv-top.iv-show {
+  display: flex;
+}
+.iv-timer {
+  font-size: calc(var(--iv-fs) * 1.25);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 12px;
+  background: var(--iv-hud-plate);
+  border-radius: 2px;
+  white-space: nowrap;
+}
+.iv-timer.iv-urgent {
+  color: var(--iv-danger);
+}
+.iv-scores {
+  display: flex;
+  gap: 6px;
+}
+.iv-team {
+  --team: #888;
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  gap: 2px 8px;
+  padding: 3px 8px 5px;
+  background: var(--iv-hud-plate);
+  border-left: 3px solid var(--team);
+  border-radius: 2px;
+  min-width: clamp(78px, 8vw, 120px);
+}
+.iv-team.iv-own {
+  outline: 1px solid rgba(255, 255, 255, 0.55);
+}
+.iv-team.iv-lead .iv-team-score {
+  color: var(--team);
+}
+.iv-team-name {
+  font-size: var(--iv-fs-small);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--team);
+  white-space: nowrap;
+}
+.iv-team-score {
+  font-size: calc(var(--iv-fs) * 1.2);
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.iv-team-bar,
+.iv-zone-bar {
+  grid-column: 1 / -1;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.15);
+}
+.iv-team-bar i,
+.iv-zone-bar i {
+  display: block;
+  height: 100%;
+  background: var(--team);
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+.iv-zone {
+  --zone: #c8ccd0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 10px 4px;
+  background: var(--iv-hud-plate);
+  border-radius: 2px;
+  border-bottom: 2px solid var(--zone);
+  min-width: 190px;
+}
+.iv-zone-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+  font-size: var(--iv-fs);
+}
+.iv-zone-arrow {
+  display: inline-block;
+  color: var(--zone);
+  font-size: calc(var(--iv-fs) * 0.9);
+}
+.iv-zone-name {
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.iv-zone-dist {
+  color: var(--iv-muted);
+  font-variant-numeric: tabular-nums;
+}
+.iv-zone-state {
+  font-size: var(--iv-fs-small);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.iv-zone-bar {
+  width: 100%;
+}
+.iv-zone-bar i {
+  background: var(--zone);
+}
+.iv-killfeed {
+  position: absolute;
+  right: 12px;
+  top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  max-width: min(360px, 34vw);
+}
+.iv-kf-row {
+  padding: 2px 8px;
+  background: var(--iv-hud-plate);
+  border-radius: 2px;
+  font-size: var(--iv-fs-small);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.iv-kf-weapon {
+  color: var(--iv-muted);
+}
+.iv-health {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  width: clamp(170px, 16vw, 260px);
+  height: var(--iv-health-h);
+  box-sizing: border-box;
+  padding: 4px 10px;
+  background: var(--iv-hud-plate);
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+.iv-health-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.iv-health-label {
+  font-size: var(--iv-fs-small);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--iv-muted);
+}
+.iv-health-num {
+  font-size: calc(var(--iv-fs) * 1.5);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.iv-health-bar {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.15);
+}
+.iv-health-bar i {
+  display: block;
+  height: 100%;
+  background: #7fd18b;
+  transform-origin: left center;
+}
+.iv-health.iv-low .iv-health-bar i {
+  background: var(--iv-danger);
+}
+.iv-health.iv-low .iv-health-num {
+  color: var(--iv-danger);
+}
+.iv-ammo {
+  padding: 4px 10px;
+  background: var(--iv-hud-plate);
+  border-radius: 2px;
+  min-width: clamp(150px, 14vw, 230px);
+}
+.iv-ammo.iv-dim {
+  opacity: 0.35;
+}
+.iv-weapon-name {
+  font-size: var(--iv-fs-small);
+  white-space: nowrap;
+}
+.iv-ammo-mag {
+  font-size: var(--iv-fs-big);
+}
+.iv-ammo-chamber {
+  font-size: var(--iv-fs);
+  font-weight: 700;
+  margin-left: 2px;
+  color: rgba(255, 255, 255, 0.25);
+}
+.iv-ammo-chamber.iv-on {
+  color: var(--iv-accent-light);
+}
+.iv-ammo-res {
+  font-size: var(--iv-fs);
+}
+.iv-fire-mode,
+.iv-reload-text {
+  font-size: var(--iv-fs-small);
+  color: var(--iv-muted);
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+.iv-reload-text {
+  color: var(--iv-accent-light);
+  min-height: 1.1em;
+}
+.iv-reload {
+  width: 100%;
+}
+.iv-allies {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.iv-ally {
+  --team: #3d8bfd;
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px;
+  background: rgba(10, 12, 14, 0.55);
+  border-radius: 2px;
+  font-size: var(--iv-fs-small);
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+.iv-ally-pip {
+  width: 8px;
+  height: 8px;
+  background: var(--team);
+  transform: rotate(45deg);
+}
+.iv-ally-name {
+  color: var(--team);
+  font-weight: 700;
+}
+.iv-ally-dist {
+  color: var(--iv-muted);
+}
+.iv-dmg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(140px, 22vh, 240px);
+  height: clamp(140px, 22vh, 240px);
+  transform: translate(-50%, -50%);
+}
+.iv-dmg-arc {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+.iv-dmg-arc::before {
+  content: '';
+  position: absolute;
+  left: 35%;
+  right: 35%;
+  top: 0;
+  height: 6px;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  background: rgba(226, 58, 38, 0.95);
+  box-shadow: 0 0 8px rgba(226, 58, 38, 0.8);
+}
+.iv-vignette {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 55%, rgba(170, 20, 10, 0.75) 100%);
+}
+.iv-banner {
+  position: absolute;
+  left: 50%;
+  top: 24%;
+  transform: translateX(-50%);
+  padding: 6px 16px;
+  background: rgba(10, 12, 14, 0.8);
+  border-top: 2px solid var(--iv-accent);
+  font-size: calc(var(--iv-fs) * 1.25);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: center;
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 150ms linear;
+}
+.iv-banner.iv-show {
+  opacity: 1;
+}
+.iv-death {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  transform: translate(-50%, -50%);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 22px;
+  background: rgba(40, 8, 6, 0.72);
+  border: 1px solid rgba(226, 58, 38, 0.6);
+  text-align: center;
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
+}
+.iv-death.iv-show {
+  display: flex;
+}
+.iv-death-title {
+  font-size: calc(var(--iv-fs) * 1.6);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.iv-death-killer {
+  font-size: var(--iv-fs);
+}
+.iv-death-count {
+  font-size: var(--iv-fs);
+  color: var(--iv-accent-light);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 1100px) {
+  .iv-top {
+    max-width: calc(100% - 380px);
+  }
+}
+
+/* ------------------------------------------------------------------ menus */
+.iv-menu-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: min(320px, 100%);
+  margin-top: 10px;
+}
+.iv-menu-buttons .iv-btn {
+  text-align: left;
+}
+.iv-title-small {
+  font-size: clamp(22px, 3.2vh, 32px);
+}
+.iv-map-row,
+.iv-optics {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.iv-map-row .iv-btn,
+.iv-optics .iv-btn {
+  margin-top: 0;
+}
+.iv-map-label,
+.iv-optics-label {
+  font-size: 12px;
+  color: var(--iv-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-right: 4px;
+}
+.iv-map-note {
+  flex-basis: 100%;
+  font-size: 12px;
+  color: var(--iv-muted);
+}
+.iv-btn.iv-selected {
+  background: var(--iv-accent-light);
+  box-shadow: inset 0 0 0 2px #14171a;
+}
+.iv-loadout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 6px 0;
+}
+.iv-slot {
+  padding: 10px 12px;
+  border: 1px solid var(--iv-line);
+  background: rgba(255, 255, 255, 0.03);
+}
+.iv-slot h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--iv-muted);
+  margin: 0 0 4px;
+}
+.iv-slot-weapon {
+  font-size: 18px;
+  font-weight: 700;
+}
+.iv-slot-ammo,
+.iv-slot-note {
+  font-size: 12px;
+  color: var(--iv-muted);
+  margin: 2px 0 8px;
+}
+.iv-team-tag {
+  font-weight: 700;
+}
+.iv-keybinds h2,
+.iv-goal h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--iv-muted);
+  margin: 0 0 8px;
+}
+.iv-bind-list {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content minmax(0, 1fr);
+  gap: 5px 10px;
+  align-items: center;
+}
+.iv-bind-row {
+  display: contents;
+}
+@media (max-width: 700px) {
+  .iv-bind-list {
+    grid-template-columns: max-content minmax(0, 1fr);
+  }
+}
+.iv-menu[data-screen='settings'] .iv-cols {
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+}
+.iv-bind-label {
+  font-size: 13px;
+  color: var(--iv-muted);
+}
+.iv-bind-list .iv-btn {
+  margin-top: 0;
+  padding: 5px 8px;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.iv-btn.iv-capturing {
+  background: var(--iv-accent);
+}
+.iv-goal p {
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0 0 8px;
+}
+.iv-result-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 4px 0 10px;
+}
+.iv-result-winner {
+  font-size: 24px;
+  font-weight: 700;
+}
+.iv-result-reason {
+  color: var(--iv-muted);
+  font-size: 13px;
+}
+.iv-result-table {
+  border-collapse: collapse;
+  min-width: min(360px, 100%);
+  font-size: 14px;
+}
+.iv-result-table th,
+.iv-result-table td {
+  text-align: left;
+  padding: 4px 14px 4px 0;
+  border-bottom: 1px solid var(--iv-line);
+  font-variant-numeric: tabular-nums;
+}
+.iv-result-table th {
+  color: var(--iv-muted);
+  font-weight: 400;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.iv-result-team {
+  font-weight: 700;
+}
+@media (max-width: 899px) {
+  .iv-loadout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.iv-menu[data-screen='title'] .iv-panel,
+.iv-menu[data-screen='paused'] .iv-panel,
+.iv-menu[data-screen='quit'] .iv-panel,
+.iv-menu[data-screen='loading'] .iv-panel {
+  width: min(560px, 100%);
+}
+.iv-menu[data-screen='results'] .iv-panel,
+.iv-menu[data-screen='loadout'] .iv-panel,
+.iv-menu[data-screen='armory'] .iv-panel {
+  width: min(760px, 100%);
+}
+/* optics: loadout / armory rows, HUD spare + swap progress + armory prompt */
+.iv-spare {
+  margin-top: 6px;
+}
+.iv-optic-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.iv-optic-line {
+  font-size: var(--iv-fs-small);
+  color: var(--iv-muted);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.iv-swap {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  transform: translateX(-50%);
+  width: min(240px, 40vw);
+  text-align: center;
+  font-size: var(--iv-fs-small);
+  letter-spacing: 0.08em;
+  color: var(--iv-accent-light);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  display: none;
+}
+.iv-swap.iv-show {
+  display: block;
+}
+.iv-swap-bar {
+  margin-top: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.18);
+}
+.iv-swap-bar i {
+  display: block;
+  height: 100%;
+  background: var(--iv-accent);
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+.iv-prompt {
+  position: absolute;
+  left: 50%;
+  top: 70%;
+  transform: translateX(-50%);
+  padding: 5px 12px;
+  background: rgba(10, 12, 14, 0.72);
+  border: 1px solid var(--iv-line);
+  font-size: var(--iv-fs-small);
+  white-space: nowrap;
+  display: none;
+}
+.iv-prompt.iv-show {
+  display: block;
+}
+/* sound credits on the controls screen (src/data/audio.json -> credits) */
+.iv-credits {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--iv-line);
+}
+.iv-credits .iv-hint {
+  margin: 0 0 6px;
+  line-height: 1.4;
+}
+
+/* ---------------------------------------------------------------- title screen (user mockup 06) */
+.iv-menu[data-screen='title'],
+.iv-menu[data-screen='loading'] {
+  isolation: isolate;
+  background: #0b0d0f;
+}
+.iv-title-art {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  display: none;
+  object-fit: cover;
+  object-position: 72% 50%;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+.iv-menu[data-screen='title'] .iv-title-art,
+.iv-menu[data-screen='loading'] .iv-title-art {
+  display: block;
+}
+.iv-title-art.iv-ready {
+  opacity: 1;
+}
+.iv-menu[data-screen='title']::after,
+.iv-menu[data-screen='loading']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(7, 9, 11, 0.94) 0%, rgba(7, 9, 11, 0.84) 22%, rgba(7, 9, 11, 0.35) 44%, rgba(7, 9, 11, 0) 62%),
+    linear-gradient(0deg, rgba(7, 9, 11, 0.55) 0%, rgba(7, 9, 11, 0) 22%);
+}
+.iv-menu[data-screen='title'] {
+  justify-content: flex-start;
+  align-items: stretch;
+  padding: 0;
+}
+.iv-menu[data-screen='title'] .iv-panel {
+  width: min(640px, 100%);
+  max-height: none;
+  overflow: visible;
+  background: none;
+  border: 0;
+  padding: clamp(20px, 7vh, 88px) 16px clamp(20px, 7vh, 88px) clamp(16px, 5.2vw, 96px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.iv-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.iv-logo {
+  margin: 0;
+  width: min(100%, 49vh, 540px);
+  font-family: 'IV Display', 'Barlow Condensed', Impact, 'Arial Narrow', sans-serif;
+  font-weight: 900;
+  line-height: 1;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.55));
+}
+.iv-logo-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 410 / 226;
+  overflow: visible;
+}
+.iv-logo-bar {
+  width: clamp(150px, 15vw, 250px);
+  height: clamp(4px, 0.7vh, 7px);
+  margin: clamp(12px, 2.6vh, 26px) 0 clamp(18px, 4.6vh, 46px) 0.1em;
+  background: var(--iv-accent);
+}
+.iv-title-nav {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2px, 0.8vh, 10px);
+  width: min(350px, 100%);
+}
+.iv-btn.iv-title-item {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: 'IV Menu', 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  font-weight: 600;
+  font-size: clamp(18px, 4vh, 40px);
+  line-height: 1.15;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--iv-bone);
+  background: transparent;
+  padding: 0.3em 0.8em;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+.iv-btn.iv-title-item:hover,
+.iv-btn.iv-title-item:focus-visible {
+  background: rgba(214, 162, 62, 0.16);
+  color: #fff;
+  outline: none;
+  box-shadow: inset 3px 0 0 var(--iv-accent);
+}
+.iv-btn.iv-title-item.iv-btn-primary {
+  background: var(--iv-accent);
+  color: #15171a;
+  text-shadow: none;
+  padding-right: 2.2em;
+}
+.iv-btn.iv-title-item.iv-btn-primary:hover {
+  background: var(--iv-accent-light);
+  box-shadow: none;
+}
+.iv-btn.iv-title-item.iv-btn-primary:focus-visible {
+  box-shadow: none;
+  outline: 2px solid var(--iv-bone);
+  outline-offset: 3px;
+}
+.iv-btn.iv-title-item.iv-btn-primary::after {
+  content: '';
+  position: absolute;
+  right: 0.9em;
+  top: 50%;
+  width: 0.36em;
+  height: 0.36em;
+  border-top: 0.12em solid currentColor;
+  border-right: 0.12em solid currentColor;
+  transform: translate(0, -50%) rotate(45deg);
+}
+.iv-title-maps {
+  margin-top: clamp(14px, 3.4vh, 34px);
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.iv-title-maps .iv-map-label {
+  font-family: 'IV Menu', 'Arial Narrow', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 12px;
+  color: var(--iv-muted);
+}
+.iv-title-maps .iv-btn-small {
+  margin-top: 0;
+  background: rgba(236, 230, 218, 0.12);
+  color: var(--iv-bone);
+  border: 1px solid rgba(236, 230, 218, 0.22);
+}
+.iv-title-maps .iv-btn-small.iv-selected {
+  background: rgba(214, 162, 62, 0.2);
+  border-color: var(--iv-accent);
+  color: #fff;
+}
+.iv-title-links {
+  margin-top: 8px;
+}
+.iv-btn.iv-link {
+  background: none;
+  color: var(--iv-muted);
+  padding: 4px 0;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.iv-btn.iv-link:hover {
+  color: var(--iv-bone);
+}
+.iv-title-foot {
+  margin: 10px 0 0;
+  max-width: 34em;
+  font-size: 11px;
+  line-height: 1.4;
+  color: rgba(163, 169, 174, 0.85);
+}
+.iv-title-place {
+  position: absolute;
+  right: clamp(16px, 3.2vw, 56px);
+  bottom: clamp(14px, 4.4vh, 44px);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: 'IV Menu', 'Arial Narrow', sans-serif;
+  font-weight: 600;
+  font-size: clamp(11px, 1.35vh, 14px);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(236, 230, 218, 0.88);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+.iv-title-place::before {
+  content: '';
+  width: 42px;
+  height: 1px;
+  background: currentColor;
+}
+.iv-credits h2 {
+  margin: 0 0 4px;
+}
+@media (max-width: 720px) {
+  .iv-menu[data-screen='title']::after {
+    background: linear-gradient(90deg, rgba(7, 9, 11, 0.9) 0%, rgba(7, 9, 11, 0.7) 70%, rgba(7, 9, 11, 0.45) 100%);
+  }
+  .iv-title-place {
+    display: none;
+  }
+}
+@media (max-height: 560px) {
+  .iv-title-foot {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .iv-title-art {
+    transition: none;
+  }
+  .iv-btn.iv-title-item {
+    transition: none;
+  }
+}

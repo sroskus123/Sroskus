@@ -1,0 +1,333 @@
+{
+ "asset": {
+  "generator": "Khronos glTF Blender I/O v4.5.51",
+  "version": "2.0"
+ },
+ "extensionsUsed": [
+  "KHR_materials_specular"
+ ],
+ "n_nodes": 59,
+ "n_meshes": 1,
+ "n_skins": 1,
+ "n_materials": 1,
+ "n_animations": 0,
+ "scenes": [
+  {
+   "name": "Scene",
+   "nodes": [
+    58
+   ]
+  }
+ ],
+ "root_nodes": [
+  [
+   58,
+   "Armature",
+   [
+    "SK_Human_Base",
+    "root"
+   ]
+  ]
+ ],
+ "nodes_with_scale": [
+  [
+   "thigh_l",
+   [
+    0.9999997615814209,
+    0.9999997615814209,
+    0.9999986886978149
+   ]
+  ],
+  [
+   "thigh_r",
+   [
+    0.9999997615814209,
+    0.9999997615814209,
+    0.9999986886978149
+   ]
+  ]
+ ],
+ "skin_joint_count": 57,
+ "skin_skeleton": null,
+ "joint_names": [
+  "root",
+  "pelvis",
+  "spine_01",
+  "spine_02",
+  "spine_03",
+  "clavicle_l",
+  "upperarm_l",
+  "upperarm_twist_01_l",
+  "lowerarm_l",
+  "lowerarm_twist_01_l",
+  "hand_l",
+  "index_01_l",
+  "index_02_l",
+  "index_03_l",
+  "middle_01_l",
+  "middle_02_l",
+  "middle_03_l",
+  "pinky_01_l",
+  "pinky_02_l",
+  "pinky_03_l",
+  "ring_01_l",
+  "ring_02_l",
+  "ring_03_l",
+  "thumb_01_l",
+  "thumb_02_l",
+  "thumb_03_l",
+  "clavicle_r",
+  "upperarm_r",
+  "upperarm_twist_01_r",
+  "lowerarm_r",
+  "lowerarm_twist_01_r",
+  "hand_r",
+  "index_01_r",
+  "index_02_r",
+  "index_03_r",
+  "middle_01_r",
+  "middle_02_r",
+  "middle_03_r",
+  "pinky_01_r",
+  "pinky_02_r",
+  "pinky_03_r",
+  "ring_01_r",
+  "ring_02_r",
+  "ring_03_r",
+  "thumb_01_r",
+  "thumb_02_r",
+  "thumb_03_r",
+  "neck_01",
+  "head",
+  "thigh_l",
+  "calf_l",
+  "foot_l",
+  "ball_l",
+  "thigh_r",
+  "calf_r",
+  "foot_r",
+  "ball_r"
+ ],
+ "joint_parents": {
+  "root": "Armature",
+  "pelvis": "root",
+  "spine_01": "pelvis",
+  "spine_02": "spine_01",
+  "spine_03": "spine_02",
+  "clavicle_l": "spine_03",
+  "upperarm_l": "clavicle_l",
+  "upperarm_twist_01_l": "upperarm_l",
+  "lowerarm_l": "upperarm_l",
+  "lowerarm_twist_01_l": "lowerarm_l",
+  "hand_l": "lowerarm_l",
+  "index_01_l": "hand_l",
+  "index_02_l": "index_01_l",
+  "index_03_l": "index_02_l",
+  "middle_01_l": "hand_l",
+  "middle_02_l": "middle_01_l",
+  "middle_03_l": "middle_02_l",
+  "pinky_01_l": "hand_l",
+  "pinky_02_l": "pinky_01_l",
+  "pinky_03_l": "pinky_02_l",
+  "ring_01_l": "hand_l",
+  "ring_02_l": "ring_01_l",
+  "ring_03_l": "ring_02_l",
+  "thumb_01_l": "hand_l",
+  "thumb_02_l": "thumb_01_l",
+  "thumb_03_l": "thumb_02_l",
+  "clavicle_r": "spine_03",
+  "upperarm_r": "clavicle_r",
+  "upperarm_twist_01_r": "upperarm_r",
+  "lowerarm_r": "upperarm_r",
+  "lowerarm_twist_01_r": "lowerarm_r",
+  "hand_r": "lowerarm_r",
+  "index_01_r": "hand_r",
+  "index_02_r": "index_01_r",
+  "index_03_r": "index_02_r",
+  "middle_01_r": "hand_r",
+  "middle_02_r": "middle_01_r",
+  "middle_03_r": "middle_02_r",
+  "pinky_01_r": "hand_r",
+  "pinky_02_r": "pinky_01_r",
+  "pinky_03_r": "pinky_02_r",
+  "ring_01_r": "hand_r",
+  "ring_02_r": "ring_01_r",
+  "ring_03_r": "ring_02_r",
+  "thumb_01_r": "hand_r",
+  "thumb_02_r": "thumb_01_r",
+  "thumb_03_r": "thumb_02_r",
+  "neck_01": "spine_03",
+  "head": "neck_01",
+  "thigh_l": "pelvis",
+  "calf_l": "thigh_l",
+  "foot_l": "calf_l",
+  "ball_l": "foot_l",
+  "thigh_r": "pelvis",
+  "calf_r": "thigh_r",
+  "foot_r": "calf_r",
+  "ball_r": "foot_r"
+ },
+ "mesh_nodes": [
+  [
+   "SK_Human_Base",
+   0,
+   "Armature"
+  ]
+ ],
+ "bind_consistency_max_abs_err (world(joint)@IBM - I)": 5.171098383938144e-07,
+ "joint_pos_yup_m": {
+  "root": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "pelvis": [
+   0.0,
+   0.9623,
+   0.0029
+  ],
+  "upperarm_l": [
+   0.1937,
+   1.4353,
+   0.0176
+  ],
+  "lowerarm_l": [
+   0.3916,
+   1.2129,
+   0.0162
+  ],
+  "hand_l": [
+   0.5582,
+   1.0334,
+   0.0803
+  ],
+  "upperarm_r": [
+   -0.1937,
+   1.4353,
+   0.0176
+  ],
+  "head": [
+   0.0,
+   1.6441,
+   0.0485
+  ],
+  "thigh_l": [
+   0.1133,
+   0.9556,
+   -0.0082
+  ],
+  "calf_l": [
+   0.1574,
+   0.5266,
+   0.0275
+  ],
+  "foot_l": [
+   0.2046,
+   0.0742,
+   0.0145
+  ],
+  "ball_l": [
+   0.2087,
+   0.0087,
+   0.1452
+  ]
+ },
+ "joint_localY_dot_dir_to_first_child_min": -0.0031,
+ "joint_localY_dot_dir_to_first_child_worst": [
+  [
+   "root",
+   -0.0031
+  ],
+  [
+   "spine_03",
+   0.9371
+  ],
+  [
+   "hand_l",
+   0.9891
+  ],
+  [
+   "hand_r",
+   0.9891
+  ],
+  [
+   "pelvis",
+   1.0
+  ],
+  [
+   "spine_01",
+   1.0
+  ]
+ ],
+ "n_primitives": 1,
+ "primitives": [
+  {
+   "attributes": [
+    "JOINTS_0",
+    "NORMAL",
+    "POSITION",
+    "TANGENT",
+    "TEXCOORD_0",
+    "WEIGHTS_0"
+   ],
+   "vertices": 14517,
+   "triangles": 26756,
+   "mode": 4,
+   "material": 0,
+   "normal_len_range": [
+    0.999999915236212,
+    1.000000105264378
+   ],
+   "tangent_w_values": [
+    1.0
+   ],
+   "uv_range": [
+    [
+     0.009208000265061855,
+     0.026144027709960938
+    ],
+    [
+     0.9935150146484375,
+     0.9903929829597473
+    ]
+   ],
+   "unused_verts": 0,
+   "degenerate_tris": 0
+  }
+ ],
+ "weights": {
+  "vertices": 14517,
+  "sum_min": 0.9999998770654202,
+  "sum_max": 1.000000124797225,
+  "unweighted (sum<1e-6)": 0,
+  "nonzero_influence_hist": {
+   "1": 6843,
+   "2": 4752,
+   "3": 1551,
+   "4": 1371
+  },
+  "joint_index_max": 56,
+  "joint_count": 57,
+  "min_nonzero_weight": 0.000145619735121727
+ },
+ "joints_with_weight": 56,
+ "joints_without_weight": [
+  "root"
+ ],
+ "bbox_yup_min": [
+  -0.6573,
+  -0.0,
+  -0.0989
+ ],
+ "bbox_yup_max": [
+  0.6573,
+  1.8,
+  0.2186
+ ],
+ "height_m (Y extent)": 1.8,
+ "most_forward_head_vertex_yup": [
+  0.0,
+  1.6444,
+  0.1737
+ ]
+}

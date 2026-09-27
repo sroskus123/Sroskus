@@ -1,0 +1,9 @@
+baked 307 tiles / 3871 polys in 7.0 s; entrances 75/83 connected
+zone_dilna { alfa: 123.04, bravo: 127.44, charlie: 125.64 } max/min 1.0358 unreachable 0
+zone_sklad { alfa: 124.49, bravo: 121.58, charlie: 122.87 } max/min 1.0239 unreachable 0
+zone_dvur { alfa: 116.21, bravo: 124.86, charlie: 128.48 } max/min 1.1056 unreachable 0
+DISCONNECTED: CK_DM1_D1 (no path from the square); CK_DM1_D3 (no path from the square); CK_DM1_D5 (no path from the square); CK_DM_S1b (no navmesh within 0.6 m); QA_DM_S1a_top (no navmesh within 0.6 m); QA_DM_S1b_bottom (no navmesh within 0.6 m); QA_DM_S1b_top (no path from the square); QA_DM_X1_bottom (no navmesh within 0.6 m)
+
+real	0m7.456s
+user	0m3.624s
+sys	0m0.122s

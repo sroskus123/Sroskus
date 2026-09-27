@@ -1,0 +1,3231 @@
+{
+ "blend": "iv7_carbine.blend",
+ "tex_dir": "/home/user/Sroskus/IronValley/Art/Textures/Weapons/IV7",
+ "sets": {
+  "Body": {
+   "size": 2048,
+   "covered_fraction": 0.4746
+  },
+  "Furniture": {
+   "size": 2048,
+   "covered_fraction": 0.6735
+  }
+ },
+ "families": {
+  "anodised": {
+   "all": {
+    "texels": 1756101,
+    "basecolor_lin_median_rgb": [
+     0.0409,
+     0.0423,
+     0.0482
+    ],
+    "basecolor_lin_mean_rgb": [
+     0.0519,
+     0.0516,
+     0.0564
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0357,
+     0.0424,
+     0.0587
+    ],
+    "rough_p5_p50_p95": [
+     0.275,
+     0.322,
+     0.624
+    ],
+    "rough_mean_std": [
+     0.359,
+     0.1076
+    ],
+    "metal_lt0.1_mid_gt0.9": [
+     0.132,
+     0.0037,
+     0.8643
+    ],
+    "metal_mean": 0.866,
+    "ao_p5_p50_p95": [
+     0.0,
+     0.796,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.78,
+     5.58
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0135,
+    "worn_any_frac_lum_gt_0.10": 0.0161,
+    "grime_dielectric_frac_metal_lt_0.5": 0.1342
+   },
+   "exterior": {
+    "texels": 1202368,
+    "basecolor_lin_median_rgb": [
+     0.0409,
+     0.0409,
+     0.0467
+    ],
+    "basecolor_lin_mean_rgb": [
+     0.0521,
+     0.0521,
+     0.0579
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0357,
+     0.0413,
+     0.0562
+    ],
+    "rough_p5_p50_p95": [
+     0.271,
+     0.318,
+     0.38
+    ],
+    "rough_mean_std": [
+     0.326,
+     0.0578
+    ],
+    "metal_lt0.1_mid_gt0.9": [
+     0.0279,
+     0.0017,
+     0.9704
+    ],
+    "metal_mean": 0.971,
+    "ao_p5_p50_p95": [
+     0.314,
+     0.976,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.79,
+     5.6
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0178,
+    "worn_any_frac_lum_gt_0.10": 0.0212,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0288
+   }
+  },
+  "phosphate": {
+   "all": {
+    "texels": 71193,
+    "basecolor_lin_median_rgb": [
+     0.0452,
+     0.0467,
+     0.0452
+    ],
+    "basecolor_lin_mean_rgb": [
+     0.0564,
+     0.0563,
+     0.0535
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0409,
+     0.0462,
+     0.1173
+    ],
+    "rough_p5_p50_p95": [
+     0.471,
+     0.541,
+     0.604
+    ],
+    "rough_mean_std": [
+     0.542,
+     0.0615
+    ],
+    "metal_lt0.1_mid_gt0.9": [
+     0.4331,
+     0.0087,
+     0.5582
+    ],
+    "metal_mean": 0.562,
+    "ao_p5_p50_p95": [
+     0.0,
+     0.145,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.86,
+     9.62
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0172,
+    "worn_any_frac_lum_gt_0.10": 0.0434,
+    "grime_dielectric_frac_metal_lt_0.5": 0.4376
+   },
+   "exterior": {
+    "texels": 22571,
+    "basecolor_lin_median_rgb": [
+     0.0482,
+     0.0497,
+     0.0467
+    ],
+    "basecolor_lin_mean_rgb": [
+     0.0696,
+     0.0704,
+     0.0683
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0447,
+     0.0492,
+     0.2085
+    ],
+    "rough_p5_p50_p95": [
+     0.302,
+     0.522,
+     0.561
+    ],
+    "rough_mean_std": [
+     0.501,
+     0.0732
+    ],
+    "metal_lt0.1_mid_gt0.9": [
+     0.0313,
+     0.0093,
+     0.9594
+    ],
+    "metal_mean": 0.964,
+    "ao_p5_p50_p95": [
+     0.267,
+     0.894,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.07,
+     13.48
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0485,
+    "worn_any_frac_lum_gt_0.10": 0.124,
+    "grime_dielectric_frac_metal_lt_0.5": 0.036
+   }
+  },
+  "nitrided": {
+   "all": {
+    "texels": 163447,
+    "basecolor_lin_median_rgb": [
+     0.0482,
+     0.0482,
+     0.0513
+    ],
+    "basecolor_lin_mean_rgb": [
+     0.0456,
+     0.0453,
+     0.0483
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0255,
+     0.0484,
+     0.0531
+    ],
+    "rough_p5_p50_p95": [
+     0.341,
+     0.38,
+     0.616
+    ],
+    "rough_mean_std": [
+     0.422,
+     0.0895
+    ],
+    "metal_lt0.1_mid_gt0.9": [
+     0.1559,
+     0.0212,
+     0.8229
+    ],
+    "metal_mean": 0.834,
+    "ao_p5_p50_p95": [
+     0.0,
+     0.953,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.58,
+     3.37
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0012,
+    "worn_any_frac_lum_gt_0.10": 0.0021,
+    "grime_dielectric_frac_metal_lt_0.5": 0.1663
+   },
+   "exterior": {
+    "texels": 64722,
+    "basecolor_lin_median_rgb": [
+     0.0482,
+     0.0482,
+     0.0513
+    ],
+    "basecolor_lin_mean_rgb": [
+     0.0428,
+     0.0426,
+     0.0457
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0214,
+     0.0484,
+     0.0516
+    ],
+    "rough_p5_p50_p95": [
+     0.349,
+     0.396,
+     0.651
+    ],
+    "rough_mean_std": [
+     0.44,
+     0.0986
+    ],
+    "metal_lt0.1_mid_gt0.9": [
+     0.0876,
+     0.04,
+     0.8724
+    ],
+    "metal_mean": 0.893,
+    "ao_p5_p50_p95": [
+     0.251,
+     0.984,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.56,
+     2.99
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0001,
+    "worn_any_frac_lum_gt_0.10": 0.0003,
+    "grime_dielectric_frac_metal_lt_0.5": 0.1069
+   }
+  },
+  "polymer_fde": {
+   "all": {
+    "texels": 1595648,
+    "basecolor_lin_median_rgb": [
+     0.1746,
+     0.1248,
+     0.0723
+    ],
+    "basecolor_lin_mean_rgb": [
+     0.1659,
+     0.1185,
+     0.0683
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0959,
+     0.1316,
+     0.1369
+    ],
+    "rough_p5_p50_p95": [
+     0.635,
+     0.675,
+     0.788
+    ],
+    "rough_mean_std": [
+     0.699,
+     0.0534
+    ],
+    "metal_lt0.1_mid_gt0.9": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "metal_mean": 0.0,
+    "ao_p5_p50_p95": [
+     0.0,
+     0.996,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.23,
+     12.02
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 1.0
+   },
+   "exterior": {
+    "texels": 1156904,
+    "basecolor_lin_median_rgb": [
+     0.1746,
+     0.1248,
+     0.0723
+    ],
+    "basecolor_lin_mean_rgb": [
+     0.1751,
+     0.1251,
+     0.072
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.1262,
+     0.1316,
+     0.1369
+    ],
+    "rough_p5_p50_p95": [
+     0.635,
+     0.667,
+     0.788
+    ],
+    "rough_mean_std": [
+     0.687,
+     0.0517
+    ],
+    "metal_lt0.1_mid_gt0.9": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "metal_mean": 0.0,
+    "ao_p5_p50_p95": [
+     0.608,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.37,
+     12.66
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 1.0
+   }
+  },
+  "rubber": {
+   "all": {
+    "texels": 341469,
+    "basecolor_lin_median_rgb": [
+     0.0176,
+     0.0176,
+     0.0185
+    ],
+    "basecolor_lin_mean_rgb": [
+     0.0226,
+     0.0216,
+     0.0212
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0161,
+     0.0177,
+     0.0313
+    ],
+    "rough_p5_p50_p95": [
+     0.878,
+     0.898,
+     0.914
+    ],
+    "rough_mean_std": [
+     0.896,
+     0.0111
+    ],
+    "metal_lt0.1_mid_gt0.9": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "metal_mean": 0.0,
+    "ao_p5_p50_p95": [
+     0.0,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     7.62,
+     13.92
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 1.0
+   },
+   "exterior": {
+    "texels": 232634,
+    "basecolor_lin_median_rgb": [
+     0.0168,
+     0.0168,
+     0.0185
+    ],
+    "basecolor_lin_mean_rgb": [
+     0.0173,
+     0.0173,
+     0.0182
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0161,
+     0.0169,
+     0.0186
+    ],
+    "rough_p5_p50_p95": [
+     0.882,
+     0.894,
+     0.914
+    ],
+    "rough_mean_std": [
+     0.896,
+     0.0102
+    ],
+    "metal_lt0.1_mid_gt0.9": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "metal_mean": 0.0,
+    "ao_p5_p50_p95": [
+     0.992,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     7.42,
+     13.91
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 1.0
+   }
+  },
+  "polymer_mag": {
+   "all": {
+    "texels": 846727,
+    "basecolor_lin_median_rgb": [
+     0.0666,
+     0.0648,
+     0.0578
+    ],
+    "basecolor_lin_mean_rgb": [
+     0.0666,
+     0.0636,
+     0.0575
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0611,
+     0.0647,
+     0.0669
+    ],
+    "rough_p5_p50_p95": [
+     0.788,
+     0.82,
+     0.91
+    ],
+    "rough_mean_std": [
+     0.842,
+     0.0472
+    ],
+    "metal_lt0.1_mid_gt0.9": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "metal_mean": 0.0,
+    "ao_p5_p50_p95": [
+     0.035,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.37,
+     10.99
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 1.0
+   },
+   "exterior": {
+    "texels": 506175,
+    "basecolor_lin_median_rgb": [
+     0.0666,
+     0.0648,
+     0.0578
+    ],
+    "basecolor_lin_mean_rgb": [
+     0.0672,
+     0.0641,
+     0.058
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0616,
+     0.0647,
+     0.0669
+    ],
+    "rough_p5_p50_p95": [
+     0.788,
+     0.906,
+     0.914
+    ],
+    "rough_mean_std": [
+     0.861,
+     0.0514
+    ],
+    "metal_lt0.1_mid_gt0.9": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "metal_mean": 0.0,
+    "ao_p5_p50_p95": [
+     0.745,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.72,
+     11.81
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 1.0
+   }
+  },
+  "brass": {
+   "all": {
+    "texels": 40943,
+    "basecolor_lin_median_rgb": [
+     0.521,
+     0.3231,
+     0.107
+    ],
+    "basecolor_lin_mean_rgb": [
+     0.5957,
+     0.3593,
+     0.1213
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.3467,
+     0.3469,
+     0.5023
+    ],
+    "rough_p5_p50_p95": [
+     0.278,
+     0.439,
+     0.471
+    ],
+    "rough_mean_std": [
+     0.396,
+     0.0714
+    ],
+    "metal_lt0.1_mid_gt0.9": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "metal_mean": 1.0,
+    "ao_p5_p50_p95": [
+     0.0,
+     0.012,
+     0.98
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.34,
+     0.71
+    ],
+    "worn_bare_frac_lum_gt_0.20": 1.0,
+    "worn_any_frac_lum_gt_0.10": 1.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0
+   }
+  }
+ },
+ "parts": {
+  "UpperReceiver": {
+   "all": {
+    "texels": 274977,
+    "basecolor_lin_median_rgb": [
+     0.0423,
+     0.0437,
+     0.0497
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0397,
+     0.0438,
+     0.0599
+    ],
+    "rough_p5_p50_p95": [
+     0.275,
+     0.318,
+     0.627
+    ],
+    "rough_std": 0.1287,
+    "metal_lt0.1_mid_gt0.9": [
+     0.1941,
+     0.0089,
+     0.797
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.624,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.82,
+     5.65
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0126,
+    "worn_any_frac_lum_gt_0.10": 0.0157,
+    "grime_dielectric_frac_metal_lt_0.5": 0.1998
+   },
+   "exterior": {
+    "texels": 166236,
+    "basecolor_lin_median_rgb": [
+     0.0409,
+     0.0423,
+     0.0482
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0397,
+     0.0424,
+     0.0515
+    ],
+    "rough_p5_p50_p95": [
+     0.275,
+     0.31,
+     0.349
+    ],
+    "rough_std": 0.0437,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0097,
+     0.0014,
+     0.9889
+    ],
+    "ao_p5_p50_p95": [
+     0.333,
+     0.922,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.82,
+     5.16
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0181,
+    "worn_any_frac_lum_gt_0.10": 0.022,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0105
+   },
+   "exterior_face_share": 0.55,
+   "family": "anodised"
+  },
+  "LowerReceiver": {
+   "all": {
+    "texels": 432345,
+    "basecolor_lin_median_rgb": [
+     0.0437,
+     0.0437,
+     0.0497
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0413,
+     0.0442,
+     0.0618
+    ],
+    "rough_p5_p50_p95": [
+     0.278,
+     0.322,
+     0.62
+    ],
+    "rough_std": 0.1044,
+    "metal_lt0.1_mid_gt0.9": [
+     0.1331,
+     0.0033,
+     0.8636
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.702,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.76,
+     4.31
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.022,
+    "worn_any_frac_lum_gt_0.10": 0.0251,
+    "grime_dielectric_frac_metal_lt_0.5": 0.1349
+   },
+   "exterior": {
+    "texels": 235498,
+    "basecolor_lin_median_rgb": [
+     0.0437,
+     0.0437,
+     0.0497
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0413,
+     0.0442,
+     0.2547
+    ],
+    "rough_p5_p50_p95": [
+     0.271,
+     0.314,
+     0.357
+    ],
+    "rough_std": 0.0528,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0337,
+     0.0025,
+     0.9638
+    ],
+    "ao_p5_p50_p95": [
+     0.455,
+     0.98,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.79,
+     5.2
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0364,
+    "worn_any_frac_lum_gt_0.10": 0.0415,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0351
+   },
+   "exterior_face_share": 0.576,
+   "family": "anodised"
+  },
+  "Handguard": {
+   "all": {
+    "texels": 635142,
+    "basecolor_lin_median_rgb": [
+     0.0395,
+     0.0395,
+     0.0467
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0383,
+     0.0401,
+     0.0468
+    ],
+    "rough_p5_p50_p95": [
+     0.298,
+     0.329,
+     0.369
+    ],
+    "rough_std": 0.0456,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0142,
+     0.0015,
+     0.9843
+    ],
+    "ao_p5_p50_p95": [
+     0.243,
+     0.98,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.78,
+     6.16
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0096,
+    "worn_any_frac_lum_gt_0.10": 0.0115,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0151
+   },
+   "exterior": {
+    "texels": 528048,
+    "basecolor_lin_median_rgb": [
+     0.0395,
+     0.0395,
+     0.0467
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0383,
+     0.0401,
+     0.0454
+    ],
+    "rough_p5_p50_p95": [
+     0.294,
+     0.329,
+     0.365
+    ],
+    "rough_std": 0.0311,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0021,
+     0.0008,
+     0.9971
+    ],
+    "ao_p5_p50_p95": [
+     0.349,
+     0.996,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.78,
+     5.82
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0114,
+    "worn_any_frac_lum_gt_0.10": 0.0137,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0025
+   },
+   "exterior_face_share": 0.739,
+   "family": "anodised"
+  },
+  "HandguardScrews": {
+   "all": {
+    "texels": 533,
+    "basecolor_lin_median_rgb": [
+     0.0482,
+     0.0482,
+     0.0437
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0396,
+     0.0479,
+     0.1605
+    ],
+    "rough_p5_p50_p95": [
+     0.365,
+     0.529,
+     0.588
+    ],
+    "rough_std": 0.0743,
+    "metal_lt0.1_mid_gt0.9": [
+     0.5553,
+     0.0488,
+     0.3959
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.125,
+     0.98
+    ],
+    "normal_tilt_deg_mean_p99": [
+     2.15,
+     15.64
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0131,
+    "worn_any_frac_lum_gt_0.10": 0.1426,
+    "grime_dielectric_frac_metal_lt_0.5": 0.5947
+   },
+   "exterior": {
+    "texels": 172,
+    "basecolor_lin_median_rgb": [
+     0.0931,
+     0.0931,
+     0.0908
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0419,
+     0.093,
+     0.1926
+    ],
+    "rough_p5_p50_p95": [
+     0.306,
+     0.455,
+     0.573
+    ],
+    "rough_std": 0.0732,
+    "metal_lt0.1_mid_gt0.9": [
+     0.1628,
+     0.0581,
+     0.7791
+    ],
+    "ao_p5_p50_p95": [
+     0.163,
+     0.561,
+     0.992
+    ],
+    "normal_tilt_deg_mean_p99": [
+     2.14,
+     11.48
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0349,
+    "worn_any_frac_lum_gt_0.10": 0.3837,
+    "grime_dielectric_frac_metal_lt_0.5": 0.2035
+   },
+   "exterior_face_share": 0.395,
+   "family": "phosphate"
+  },
+  "Barrel": {
+   "all": {
+    "texels": 24055,
+    "basecolor_lin_median_rgb": [
+     0.0467,
+     0.0467,
+     0.0497
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0384,
+     0.0469,
+     0.0515
+    ],
+    "rough_p5_p50_p95": [
+     0.337,
+     0.373,
+     0.545
+    ],
+    "rough_std": 0.0913,
+    "metal_lt0.1_mid_gt0.9": [
+     0.3285,
+     0.009,
+     0.6625
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.09,
+     0.243
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.55,
+     2.03
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.3317
+   },
+   "exterior": {
+    "texels": 426,
+    "basecolor_lin_median_rgb": [
+     0.0482,
+     0.0482,
+     0.0513
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0411,
+     0.0484,
+     0.0501
+    ],
+    "rough_p5_p50_p95": [
+     0.333,
+     0.361,
+     0.47
+    ],
+    "rough_std": 0.0359,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "ao_p5_p50_p95": [
+     0.161,
+     0.188,
+     0.216
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.47,
+     1.15
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0
+   },
+   "exterior_face_share": 0.005,
+   "family": "nitrided"
+  },
+  "BarrelNut": {
+   "all": {
+    "texels": 8035,
+    "basecolor_lin_median_rgb": [
+     0.0437,
+     0.0437,
+     0.0423
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0409,
+     0.0436,
+     0.0492
+    ],
+    "rough_p5_p50_p95": [
+     0.494,
+     0.553,
+     0.604
+    ],
+    "rough_std": 0.0428,
+    "metal_lt0.1_mid_gt0.9": [
+     0.45,
+     0.0172,
+     0.5328
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.016,
+     0.306
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.68,
+     6.13
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0032,
+    "grime_dielectric_frac_metal_lt_0.5": 0.4591
+   },
+   "exterior": {
+    "texels": 339,
+    "basecolor_lin_median_rgb": [
+     0.0467,
+     0.0467,
+     0.0452
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0438,
+     0.0466,
+     0.0492
+    ],
+    "rough_p5_p50_p95": [
+     0.494,
+     0.518,
+     0.541
+    ],
+    "rough_std": 0.0164,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0088,
+     0.0059,
+     0.9853
+    ],
+    "ao_p5_p50_p95": [
+     0.02,
+     0.286,
+     0.773
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.62,
+     3.18
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0118
+   },
+   "exterior_face_share": 0.073,
+   "family": "phosphate"
+  },
+  "MuzzleDevice": {
+   "all": {
+    "texels": 53192,
+    "basecolor_lin_median_rgb": [
+     0.0437,
+     0.0423,
+     0.0409
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0205,
+     0.0425,
+     0.0501
+    ],
+    "rough_p5_p50_p95": [
+     0.384,
+     0.475,
+     0.663
+    ],
+    "rough_std": 0.0949,
+    "metal_lt0.1_mid_gt0.9": [
+     0.2384,
+     0.0582,
+     0.7034
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.51,
+     0.996
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.52,
+     2.48
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0002,
+    "grime_dielectric_frac_metal_lt_0.5": 0.2676
+   },
+   "exterior": {
+    "texels": 37482,
+    "basecolor_lin_median_rgb": [
+     0.0409,
+     0.0409,
+     0.0437
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0196,
+     0.0411,
+     0.0501
+    ],
+    "rough_p5_p50_p95": [
+     0.384,
+     0.451,
+     0.671
+    ],
+    "rough_std": 0.1003,
+    "metal_lt0.1_mid_gt0.9": [
+     0.1513,
+     0.0691,
+     0.7797
+    ],
+    "ao_p5_p50_p95": [
+     0.227,
+     0.796,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.51,
+     2.13
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0002,
+    "grime_dielectric_frac_metal_lt_0.5": 0.1846
+   },
+   "exterior_face_share": 0.389,
+   "family": "nitrided"
+  },
+  "GasBlock": {
+   "all": {
+    "texels": 9146,
+    "basecolor_lin_median_rgb": [
+     0.0437,
+     0.0437,
+     0.0409
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0396,
+     0.0433,
+     0.0476
+    ],
+    "rough_p5_p50_p95": [
+     0.494,
+     0.537,
+     0.6
+    ],
+    "rough_std": 0.0431,
+    "metal_lt0.1_mid_gt0.9": [
+     0.463,
+     0.0067,
+     0.5303
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.098,
+     0.282
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.57,
+     2.48
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.4671
+   },
+   "exterior": {
+    "texels": 10,
+    "basecolor_lin_median_rgb": [
+     0.0452,
+     0.0459,
+     0.0437
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0447,
+     0.0456,
+     0.0472
+    ],
+    "rough_p5_p50_p95": [
+     0.496,
+     0.512,
+     0.525
+    ],
+    "rough_std": 0.0118,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "ao_p5_p50_p95": [
+     0.176,
+     0.188,
+     0.279
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.19,
+     5.96
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0
+   },
+   "exterior_face_share": 0.01,
+   "family": "phosphate"
+  },
+  "GasTube": {
+   "all": {
+    "texels": 2316,
+    "basecolor_lin_median_rgb": [
+     0.0452,
+     0.0452,
+     0.0482
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0411,
+     0.0454,
+     0.0499
+    ],
+    "rough_p5_p50_p95": [
+     0.333,
+     0.38,
+     0.537
+    ],
+    "rough_std": 0.0793,
+    "metal_lt0.1_mid_gt0.9": [
+     0.2755,
+     0.0112,
+     0.7133
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.055,
+     0.2
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.35,
+     3.43
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.2802
+   },
+   "exterior_face_share": 0.0,
+   "family": "nitrided"
+  },
+  "BufferTube": {
+   "all": {
+    "texels": 178887,
+    "basecolor_lin_median_rgb": [
+     0.0423,
+     0.0437,
+     0.0497
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.04,
+     0.0439,
+     0.06
+    ],
+    "rough_p5_p50_p95": [
+     0.286,
+     0.329,
+     0.635
+    ],
+    "rough_std": 0.1578,
+    "metal_lt0.1_mid_gt0.9": [
+     0.4502,
+     0.0022,
+     0.5477
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.169,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.68,
+     2.56
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0003,
+    "worn_any_frac_lum_gt_0.10": 0.0003,
+    "grime_dielectric_frac_metal_lt_0.5": 0.4513
+   },
+   "exterior": {
+    "texels": 77476,
+    "basecolor_lin_median_rgb": [
+     0.0409,
+     0.0423,
+     0.0482
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0397,
+     0.0424,
+     0.0583
+    ],
+    "rough_p5_p50_p95": [
+     0.282,
+     0.31,
+     0.627
+    ],
+    "rough_std": 0.1423,
+    "metal_lt0.1_mid_gt0.9": [
+     0.2722,
+     0.0016,
+     0.7262
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.973,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.66,
+     1.93
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0007,
+    "worn_any_frac_lum_gt_0.10": 0.0008,
+    "grime_dielectric_frac_metal_lt_0.5": 0.2729
+   },
+   "exterior_face_share": 0.164,
+   "family": "anodised"
+  },
+  "EndPlate": {
+   "all": {
+    "texels": 9812,
+    "basecolor_lin_median_rgb": [
+     0.0467,
+     0.0482,
+     0.0452
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0409,
+     0.0476,
+     0.119
+    ],
+    "rough_p5_p50_p95": [
+     0.42,
+     0.533,
+     0.604
+    ],
+    "rough_std": 0.0692,
+    "metal_lt0.1_mid_gt0.9": [
+     0.4236,
+     0.0118,
+     0.5646
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.427,
+     0.98
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.79,
+     9.09
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.03,
+    "worn_any_frac_lum_gt_0.10": 0.057,
+    "grime_dielectric_frac_metal_lt_0.5": 0.4301
+   },
+   "exterior": {
+    "texels": 5589,
+    "basecolor_lin_median_rgb": [
+     0.0467,
+     0.0482,
+     0.0467
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0447,
+     0.0477,
+     0.2122
+    ],
+    "rough_p5_p50_p95": [
+     0.282,
+     0.522,
+     0.569
+    ],
+    "rough_std": 0.0717,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0385,
+     0.0107,
+     0.9508
+    ],
+    "ao_p5_p50_p95": [
+     0.212,
+     0.749,
+     0.988
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.77,
+     9.1
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0526,
+    "worn_any_frac_lum_gt_0.10": 0.0993,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0447
+   },
+   "exterior_face_share": 0.536,
+   "family": "phosphate"
+  },
+  "CastleNut": {
+   "all": {
+    "texels": 13464,
+    "basecolor_lin_median_rgb": [
+     0.0467,
+     0.0482,
+     0.0452
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0409,
+     0.0477,
+     0.1878
+    ],
+    "rough_p5_p50_p95": [
+     0.314,
+     0.522,
+     0.6
+    ],
+    "rough_std": 0.0832,
+    "metal_lt0.1_mid_gt0.9": [
+     0.475,
+     0.0081,
+     0.5169
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.373,
+     0.996
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.88,
+     8.9
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0416,
+    "worn_any_frac_lum_gt_0.10": 0.1256,
+    "grime_dielectric_frac_metal_lt_0.5": 0.4786
+   },
+   "exterior": {
+    "texels": 7180,
+    "basecolor_lin_median_rgb": [
+     0.0467,
+     0.0482,
+     0.0467
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0447,
+     0.0477,
+     0.227
+    ],
+    "rough_p5_p50_p95": [
+     0.259,
+     0.506,
+     0.541
+    ],
+    "rough_std": 0.0856,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0198,
+     0.0135,
+     0.9667
+    ],
+    "ao_p5_p50_p95": [
+     0.322,
+     0.886,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.93,
+     9.38
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.078,
+    "worn_any_frac_lum_gt_0.10": 0.2352,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0256
+   },
+   "exterior_face_share": 0.666,
+   "family": "phosphate"
+  },
+  "ChargingHandle": {
+   "all": {
+    "texels": 48895,
+    "basecolor_lin_median_rgb": [
+     0.0409,
+     0.0423,
+     0.0482
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.041,
+     0.0424,
+     0.0583
+    ],
+    "rough_p5_p50_p95": [
+     0.275,
+     0.306,
+     0.412
+    ],
+    "rough_std": 0.0622,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0286,
+     0.004,
+     0.9674
+    ],
+    "ao_p5_p50_p95": [
+     0.431,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.96,
+     7.9
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0245,
+    "worn_any_frac_lum_gt_0.10": 0.0294,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0312
+   },
+   "exterior": {
+    "texels": 16511,
+    "basecolor_lin_median_rgb": [
+     0.0423,
+     0.0423,
+     0.0497
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.041,
+     0.0428,
+     0.5424
+    ],
+    "rough_p5_p50_p95": [
+     0.271,
+     0.306,
+     0.467
+    ],
+    "rough_std": 0.0635,
+    "metal_lt0.1_mid_gt0.9": [
+     0.015,
+     0.0091,
+     0.9759
+    ],
+    "ao_p5_p50_p95": [
+     0.388,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.08,
+     10.8
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0671,
+    "worn_any_frac_lum_gt_0.10": 0.0793,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0208
+   },
+   "exterior_face_share": 0.698,
+   "family": "anodised"
+  },
+  "BoltCarrier": {
+   "all": {
+    "texels": 39356,
+    "basecolor_lin_median_rgb": [
+     0.0497,
+     0.0497,
+     0.0529
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0455,
+     0.0499,
+     0.0532
+    ],
+    "rough_p5_p50_p95": [
+     0.337,
+     0.365,
+     0.4
+    ],
+    "rough_std": 0.0199,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0005,
+     0.0,
+     0.9995
+    ],
+    "ao_p5_p50_p95": [
+     0.925,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.52,
+     3.01
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0005
+   },
+   "exterior": {
+    "texels": 5484,
+    "basecolor_lin_median_rgb": [
+     0.0497,
+     0.0497,
+     0.0545
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0484,
+     0.0501,
+     0.0532
+    ],
+    "rough_p5_p50_p95": [
+     0.353,
+     0.376,
+     0.404
+    ],
+    "rough_std": 0.0163,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "ao_p5_p50_p95": [
+     0.463,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.78,
+     11.87
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0
+   },
+   "exterior_face_share": 0.385,
+   "family": "nitrided"
+  },
+  "DustCover": {
+   "all": {
+    "texels": 37037,
+    "basecolor_lin_median_rgb": [
+     0.0482,
+     0.0482,
+     0.0529
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0425,
+     0.0485,
+     0.0531
+    ],
+    "rough_p5_p50_p95": [
+     0.341,
+     0.365,
+     0.533
+    ],
+    "rough_std": 0.0534,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0989,
+     0.0008,
+     0.9003
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.996,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.67,
+     5.16
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0994
+   },
+   "exterior": {
+    "texels": 17896,
+    "basecolor_lin_median_rgb": [
+     0.0497,
+     0.0497,
+     0.0529
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0469,
+     0.0499,
+     0.0531
+    ],
+    "rough_p5_p50_p95": [
+     0.341,
+     0.365,
+     0.396
+    ],
+    "rough_std": 0.0181,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "ao_p5_p50_p95": [
+     0.71,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.6,
+     3.82
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0
+   },
+   "exterior_face_share": 0.399,
+   "family": "nitrided"
+  },
+  "DustCoverRod": {
+   "all": {
+    "texels": 850,
+    "basecolor_lin_median_rgb": [
+     0.1095,
+     0.107,
+     0.1095
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0426,
+     0.1075,
+     0.2924
+    ],
+    "rough_p5_p50_p95": [
+     0.245,
+     0.373,
+     0.541
+    ],
+    "rough_std": 0.0968,
+    "metal_lt0.1_mid_gt0.9": [
+     0.2553,
+     0.0588,
+     0.6859
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.439,
+     0.929
+    ],
+    "normal_tilt_deg_mean_p99": [
+     2.32,
+     6.1
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.2341,
+    "worn_any_frac_lum_gt_0.10": 0.3894,
+    "grime_dielectric_frac_metal_lt_0.5": 0.28
+   },
+   "exterior": {
+    "texels": 24,
+    "basecolor_lin_median_rgb": [
+     0.1255,
+     0.1255,
+     0.1314
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0501,
+     0.1259,
+     0.2414
+    ],
+    "rough_p5_p50_p95": [
+     0.271,
+     0.325,
+     0.387
+    ],
+    "rough_std": 0.0458,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "ao_p5_p50_p95": [
+     0.522,
+     0.557,
+     0.592
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.49,
+     0.95
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.375,
+    "worn_any_frac_lum_gt_0.10": 0.5,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0
+   },
+   "exterior_face_share": 0.5,
+   "family": "nitrided"
+  },
+  "ForwardAssist": {
+   "all": {
+    "texels": 2412,
+    "basecolor_lin_median_rgb": [
+     0.0452,
+     0.0452,
+     0.0437
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0409,
+     0.0451,
+     0.2346
+    ],
+    "rough_p5_p50_p95": [
+     0.247,
+     0.518,
+     0.6
+    ],
+    "rough_std": 0.0961,
+    "metal_lt0.1_mid_gt0.9": [
+     0.4407,
+     0.0224,
+     0.5369
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.165,
+     0.855
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.0,
+     15.66
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0846,
+    "worn_any_frac_lum_gt_0.10": 0.1343,
+    "grime_dielectric_frac_metal_lt_0.5": 0.4565
+   },
+   "exterior": {
+    "texels": 573,
+    "basecolor_lin_median_rgb": [
+     0.0452,
+     0.0467,
+     0.0437
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0409,
+     0.0461,
+     0.2384
+    ],
+    "rough_p5_p50_p95": [
+     0.239,
+     0.514,
+     0.596
+    ],
+    "rough_std": 0.1063,
+    "metal_lt0.1_mid_gt0.9": [
+     0.281,
+     0.0436,
+     0.6754
+    ],
+    "ao_p5_p50_p95": [
+     0.012,
+     0.592,
+     0.933
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.22,
+     18.52
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.1361,
+    "worn_any_frac_lum_gt_0.10": 0.1693,
+    "grime_dielectric_frac_metal_lt_0.5": 0.3089
+   },
+   "exterior_face_share": 0.354,
+   "family": "phosphate"
+  },
+  "Pins": {
+   "all": {
+    "texels": 9229,
+    "basecolor_lin_median_rgb": [
+     0.0423,
+     0.0409,
+     0.0369
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0396,
+     0.0409,
+     0.0493
+    ],
+    "rough_p5_p50_p95": [
+     0.494,
+     0.592,
+     0.604
+    ],
+    "rough_std": 0.0398,
+    "metal_lt0.1_mid_gt0.9": [
+     0.7602,
+     0.0096,
+     0.2301
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.0,
+     0.98
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.7,
+     2.48
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0012,
+    "worn_any_frac_lum_gt_0.10": 0.0036,
+    "grime_dielectric_frac_metal_lt_0.5": 0.7638
+   },
+   "exterior": {
+    "texels": 1299,
+    "basecolor_lin_median_rgb": [
+     0.0467,
+     0.0467,
+     0.0452
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0433,
+     0.0466,
+     0.0557
+    ],
+    "rough_p5_p50_p95": [
+     0.478,
+     0.518,
+     0.542
+    ],
+    "rough_std": 0.0358,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "ao_p5_p50_p95": [
+     0.486,
+     0.965,
+     0.996
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.65,
+     2.56
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0085,
+    "worn_any_frac_lum_gt_0.10": 0.0254,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0
+   },
+   "exterior_face_share": 0.688,
+   "family": "phosphate"
+  },
+  "MagRelease": {
+   "all": {
+    "texels": 1488,
+    "basecolor_lin_median_rgb": [
+     0.0497,
+     0.0513,
+     0.0482
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0481,
+     0.0507,
+     0.0523
+    ],
+    "rough_p5_p50_p95": [
+     0.522,
+     0.541,
+     0.561
+    ],
+    "rough_std": 0.013,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "ao_p5_p50_p95": [
+     0.965,
+     0.996,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.62,
+     3.37
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0013,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0
+   },
+   "exterior": {
+    "texels": 658,
+    "basecolor_lin_median_rgb": [
+     0.0497,
+     0.0513,
+     0.0482
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0481,
+     0.0507,
+     0.0523
+    ],
+    "rough_p5_p50_p95": [
+     0.522,
+     0.541,
+     0.561
+    ],
+    "rough_std": 0.0119,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "ao_p5_p50_p95": [
+     0.941,
+     0.996,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.74,
+     3.84
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0
+   },
+   "exterior_face_share": 0.625,
+   "family": "phosphate"
+  },
+  "BoltCatch": {
+   "all": {
+    "texels": 4956,
+    "basecolor_lin_median_rgb": [
+     0.0497,
+     0.0513,
+     0.0482
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0476,
+     0.0507,
+     0.1143
+    ],
+    "rough_p5_p50_p95": [
+     0.447,
+     0.537,
+     0.565
+    ],
+    "rough_std": 0.0447,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0006,
+     0.0024,
+     0.997
+    ],
+    "ao_p5_p50_p95": [
+     0.424,
+     0.988,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.22,
+     15.06
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0111,
+    "worn_any_frac_lum_gt_0.10": 0.0541,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0012
+   },
+   "exterior": {
+    "texels": 3259,
+    "basecolor_lin_median_rgb": [
+     0.0497,
+     0.0513,
+     0.0482
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0476,
+     0.0507,
+     0.1534
+    ],
+    "rough_p5_p50_p95": [
+     0.4,
+     0.537,
+     0.565
+    ],
+    "rough_std": 0.0522,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0006,
+     0.0037,
+     0.9957
+    ],
+    "ao_p5_p50_p95": [
+     0.361,
+     0.949,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.29,
+     17.15
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0163,
+    "worn_any_frac_lum_gt_0.10": 0.077,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0015
+   },
+   "exterior_face_share": 0.764,
+   "family": "phosphate"
+  },
+  "Selector": {
+   "all": {
+    "texels": 7620,
+    "basecolor_lin_median_rgb": [
+     0.0497,
+     0.0497,
+     0.0482
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0477,
+     0.0496,
+     0.0523
+    ],
+    "rough_p5_p50_p95": [
+     0.518,
+     0.541,
+     0.561
+    ],
+    "rough_std": 0.0128,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0178,
+     0.0,
+     0.9822
+    ],
+    "ao_p5_p50_p95": [
+     0.655,
+     0.988,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.08,
+     14.86
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0178
+   },
+   "exterior": {
+    "texels": 2892,
+    "basecolor_lin_median_rgb": [
+     0.0497,
+     0.0497,
+     0.0482
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0477,
+     0.0496,
+     0.0524
+    ],
+    "rough_p5_p50_p95": [
+     0.518,
+     0.537,
+     0.557
+    ],
+    "rough_std": 0.0126,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0436,
+     0.0,
+     0.9564
+    ],
+    "ao_p5_p50_p95": [
+     0.588,
+     0.984,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.73,
+     21.19
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0436
+   },
+   "exterior_face_share": 0.675,
+   "family": "phosphate"
+  },
+  "Trigger": {
+   "all": {
+    "texels": 6641,
+    "basecolor_lin_median_rgb": [
+     0.0482,
+     0.0482,
+     0.0529
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0425,
+     0.0485,
+     0.0515
+    ],
+    "rough_p5_p50_p95": [
+     0.345,
+     0.365,
+     0.525
+    ],
+    "rough_std": 0.0424,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0542,
+     0.0069,
+     0.9389
+    ],
+    "ao_p5_p50_p95": [
+     0.204,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.6,
+     4.84
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0005,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0563
+   },
+   "exterior": {
+    "texels": 3410,
+    "basecolor_lin_median_rgb": [
+     0.0497,
+     0.0497,
+     0.0529
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.047,
+     0.0499,
+     0.0515
+    ],
+    "rough_p5_p50_p95": [
+     0.345,
+     0.365,
+     0.384
+    ],
+    "rough_std": 0.0121,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "ao_p5_p50_p95": [
+     0.957,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.56,
+     3.85
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0
+   },
+   "exterior_face_share": 0.393,
+   "family": "nitrided"
+  },
+  "RearSightBase": {
+   "all": {
+    "texels": 26836,
+    "basecolor_lin_median_rgb": [
+     0.0395,
+     0.0409,
+     0.0467
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0383,
+     0.041,
+     0.0618
+    ],
+    "rough_p5_p50_p95": [
+     0.235,
+     0.282,
+     0.624
+    ],
+    "rough_std": 0.1462,
+    "metal_lt0.1_mid_gt0.9": [
+     0.2328,
+     0.006,
+     0.7613
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.576,
+     0.996
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.9,
+     7.07
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0172,
+    "worn_any_frac_lum_gt_0.10": 0.0212,
+    "grime_dielectric_frac_metal_lt_0.5": 0.2356
+   },
+   "exterior": {
+    "texels": 19730,
+    "basecolor_lin_median_rgb": [
+     0.0382,
+     0.0395,
+     0.0452
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0382,
+     0.0397,
+     0.05
+    ],
+    "rough_p5_p50_p95": [
+     0.231,
+     0.278,
+     0.298
+    ],
+    "rough_std": 0.0354,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0044,
+     0.0007,
+     0.9949
+    ],
+    "ao_p5_p50_p95": [
+     0.29,
+     0.722,
+     0.996
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.86,
+     6.56
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0096,
+    "worn_any_frac_lum_gt_0.10": 0.0134,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0049
+   },
+   "exterior_face_share": 0.718,
+   "family": "anodised"
+  },
+  "RearSightBolt": {
+   "all": {
+    "texels": 1427,
+    "basecolor_lin_median_rgb": [
+     0.0423,
+     0.0409,
+     0.0369
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0396,
+     0.0409,
+     0.0462
+    ],
+    "rough_p5_p50_p95": [
+     0.51,
+     0.592,
+     0.603
+    ],
+    "rough_std": 0.0277,
+    "metal_lt0.1_mid_gt0.9": [
+     0.8633,
+     0.0049,
+     0.1317
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.0,
+     0.996
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.28,
+     20.93
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.8655
+   },
+   "exterior": {
+    "texels": 204,
+    "basecolor_lin_median_rgb": [
+     0.0452,
+     0.0467,
+     0.0437
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0412,
+     0.0461,
+     0.0477
+    ],
+    "rough_p5_p50_p95": [
+     0.494,
+     0.518,
+     0.588
+    ],
+    "rough_std": 0.025,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0637,
+     0.0147,
+     0.9216
+    ],
+    "ao_p5_p50_p95": [
+     0.206,
+     0.988,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     2.31,
+     23.93
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0686
+   },
+   "exterior_face_share": 0.562,
+   "family": "phosphate"
+  },
+  "RearSightLeaf": {
+   "all": {
+    "texels": 12812,
+    "basecolor_lin_median_rgb": [
+     0.0437,
+     0.0452,
+     0.0513
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0424,
+     0.0453,
+     0.0976
+    ],
+    "rough_p5_p50_p95": [
+     0.263,
+     0.306,
+     0.498
+    ],
+    "rough_std": 0.0728,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0462,
+     0.0024,
+     0.9514
+    ],
+    "ao_p5_p50_p95": [
+     0.361,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.12,
+     9.65
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0333,
+    "worn_any_frac_lum_gt_0.10": 0.0489,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0485
+   },
+   "exterior": {
+    "texels": 11827,
+    "basecolor_lin_median_rgb": [
+     0.0423,
+     0.0437,
+     0.0497
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0424,
+     0.0439,
+     0.1041
+    ],
+    "rough_p5_p50_p95": [
+     0.263,
+     0.306,
+     0.322
+    ],
+    "rough_std": 0.0219,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0006,
+     0.0001,
+     0.9993
+    ],
+    "ao_p5_p50_p95": [
+     0.6,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.09,
+     9.72
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0354,
+    "worn_any_frac_lum_gt_0.10": 0.051,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0007
+   },
+   "exterior_face_share": 0.842,
+   "family": "anodised"
+  },
+  "FrontSightBase": {
+   "all": {
+    "texels": 24787,
+    "basecolor_lin_median_rgb": [
+     0.0437,
+     0.0437,
+     0.0497
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0424,
+     0.0442,
+     0.1441
+    ],
+    "rough_p5_p50_p95": [
+     0.271,
+     0.322,
+     0.624
+    ],
+    "rough_std": 0.1398,
+    "metal_lt0.1_mid_gt0.9": [
+     0.2731,
+     0.0113,
+     0.7156
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.722,
+     0.984
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.93,
+     8.03
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.041,
+    "worn_any_frac_lum_gt_0.10": 0.0514,
+    "grime_dielectric_frac_metal_lt_0.5": 0.2791
+   },
+   "exterior": {
+    "texels": 17532,
+    "basecolor_lin_median_rgb": [
+     0.0423,
+     0.0437,
+     0.0497
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0424,
+     0.0439,
+     0.0999
+    ],
+    "rough_p5_p50_p95": [
+     0.267,
+     0.314,
+     0.42
+    ],
+    "rough_std": 0.0605,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0227,
+     0.0078,
+     0.9695
+    ],
+    "ao_p5_p50_p95": [
+     0.341,
+     0.835,
+     0.988
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.93,
+     8.62
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0341,
+    "worn_any_frac_lum_gt_0.10": 0.0477,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0269
+   },
+   "exterior_face_share": 0.689,
+   "family": "anodised"
+  },
+  "FrontSightBolt": {
+   "all": {
+    "texels": 1536,
+    "basecolor_lin_median_rgb": [
+     0.0423,
+     0.0409,
+     0.0369
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0399,
+     0.0409,
+     0.0481
+    ],
+    "rough_p5_p50_p95": [
+     0.514,
+     0.596,
+     0.605
+    ],
+    "rough_std": 0.0289,
+    "metal_lt0.1_mid_gt0.9": [
+     0.8496,
+     0.0046,
+     0.1458
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.0,
+     0.922
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.21,
+     11.46
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.8509
+   },
+   "exterior": {
+    "texels": 232,
+    "basecolor_lin_median_rgb": [
+     0.0452,
+     0.0467,
+     0.0452
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0435,
+     0.0462,
+     0.0494
+    ],
+    "rough_p5_p50_p95": [
+     0.494,
+     0.518,
+     0.553
+    ],
+    "rough_std": 0.0212,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0388,
+     0.0043,
+     0.9569
+    ],
+    "ao_p5_p50_p95": [
+     0.251,
+     0.89,
+     0.959
+    ],
+    "normal_tilt_deg_mean_p99": [
+     2.26,
+     23.29
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0431
+   },
+   "exterior_face_share": 0.562,
+   "family": "phosphate"
+  },
+  "FrontSightLeaf": {
+   "all": {
+    "texels": 9575,
+    "basecolor_lin_median_rgb": [
+     0.0452,
+     0.0452,
+     0.0529
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0424,
+     0.0457,
+     0.0631
+    ],
+    "rough_p5_p50_p95": [
+     0.259,
+     0.302,
+     0.612
+    ],
+    "rough_std": 0.0805,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0572,
+     0.0024,
+     0.9404
+    ],
+    "ao_p5_p50_p95": [
+     0.071,
+     0.996,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.23,
+     11.05
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0126,
+    "worn_any_frac_lum_gt_0.10": 0.0181,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0592
+   },
+   "exterior": {
+    "texels": 8641,
+    "basecolor_lin_median_rgb": [
+     0.0437,
+     0.0452,
+     0.0513
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0424,
+     0.0453,
+     0.0515
+    ],
+    "rough_p5_p50_p95": [
+     0.263,
+     0.302,
+     0.322
+    ],
+    "rough_std": 0.0221,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "ao_p5_p50_p95": [
+     0.71,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.21,
+     11.19
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0134,
+    "worn_any_frac_lum_gt_0.10": 0.0177,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0
+   },
+   "exterior_face_share": 0.767,
+   "family": "anodised"
+  },
+  "Optic": {
+   "all": {
+    "texels": 151831,
+    "basecolor_lin_median_rgb": [
+     0.0343,
+     0.0356,
+     0.0409
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0335,
+     0.0357,
+     0.0548
+    ],
+    "rough_p5_p50_p95": [
+     0.267,
+     0.29,
+     0.616
+    ],
+    "rough_std": 0.1041,
+    "metal_lt0.1_mid_gt0.9": [
+     0.1041,
+     0.0037,
+     0.8922
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.839,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.74,
+     4.75
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0088,
+    "worn_any_frac_lum_gt_0.10": 0.0109,
+    "grime_dielectric_frac_metal_lt_0.5": 0.1059
+   },
+   "exterior": {
+    "texels": 121059,
+    "basecolor_lin_median_rgb": [
+     0.0343,
+     0.0356,
+     0.0409
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0335,
+     0.0357,
+     0.0439
+    ],
+    "rough_p5_p50_p95": [
+     0.267,
+     0.29,
+     0.318
+    ],
+    "rough_std": 0.0459,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0091,
+     0.0027,
+     0.9883
+    ],
+    "ao_p5_p50_p95": [
+     0.365,
+     0.918,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.72,
+     3.98
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.011,
+    "worn_any_frac_lum_gt_0.10": 0.0136,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0102
+   },
+   "exterior_face_share": 0.651,
+   "family": "anodised"
+  },
+  "OpticBolt": {
+   "all": {
+    "texels": 1551,
+    "basecolor_lin_median_rgb": [
+     0.0423,
+     0.0409,
+     0.0369
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0409,
+     0.0409,
+     0.2121
+    ],
+    "rough_p5_p50_p95": [
+     0.286,
+     0.596,
+     0.604
+    ],
+    "rough_std": 0.0868,
+    "metal_lt0.1_mid_gt0.9": [
+     0.8994,
+     0.0,
+     0.1006
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.0,
+     0.992
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.12,
+     9.83
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0593,
+    "worn_any_frac_lum_gt_0.10": 0.0696,
+    "grime_dielectric_frac_metal_lt_0.5": 0.8994
+   },
+   "exterior": {
+    "texels": 164,
+    "basecolor_lin_median_rgb": [
+     0.2086,
+     0.2086,
+     0.2086
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0462,
+     0.2086,
+     0.2384
+    ],
+    "rough_p5_p50_p95": [
+     0.239,
+     0.29,
+     0.529
+    ],
+    "rough_std": 0.1201,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0488,
+     0.0,
+     0.9512
+    ],
+    "ao_p5_p50_p95": [
+     0.354,
+     0.992,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.89,
+     19.89
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.561,
+    "worn_any_frac_lum_gt_0.10": 0.6585,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0488
+   },
+   "exterior_face_share": 0.359,
+   "family": "phosphate"
+  },
+  "PistolGrip": {
+   "all": {
+    "texels": 335937,
+    "basecolor_lin_median_rgb": [
+     0.1746,
+     0.1248,
+     0.0723
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0959,
+     0.1316,
+     0.135
+    ],
+    "rough_p5_p50_p95": [
+     0.663,
+     0.784,
+     0.788
+    ],
+    "rough_std": 0.0497,
+    "metal_lt0.1_mid_gt0.9": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     2.63,
+     14.21
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 1.0
+   },
+   "exterior": {
+    "texels": 313643,
+    "basecolor_lin_median_rgb": [
+     0.1746,
+     0.1248,
+     0.0723
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.1263,
+     0.1316,
+     0.135
+    ],
+    "rough_p5_p50_p95": [
+     0.663,
+     0.784,
+     0.788
+    ],
+    "rough_std": 0.0514,
+    "metal_lt0.1_mid_gt0.9": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "ao_p5_p50_p95": [
+     0.89,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     2.76,
+     14.27
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 1.0
+   },
+   "exterior_face_share": 0.936,
+   "family": "polymer_fde"
+  },
+  "Stock": {
+   "all": {
+    "texels": 1259712,
+    "basecolor_lin_median_rgb": [
+     0.1746,
+     0.1248,
+     0.0723
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0959,
+     0.1316,
+     0.1369
+    ],
+    "rough_p5_p50_p95": [
+     0.635,
+     0.671,
+     0.765
+    ],
+    "rough_std": 0.0438,
+    "metal_lt0.1_mid_gt0.9": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.996,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.85,
+     2.13
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 1.0
+   },
+   "exterior": {
+    "texels": 843261,
+    "basecolor_lin_median_rgb": [
+     0.1746,
+     0.1248,
+     0.0723
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.1262,
+     0.1316,
+     0.1369
+    ],
+    "rough_p5_p50_p95": [
+     0.631,
+     0.663,
+     0.69
+    ],
+    "rough_std": 0.0177,
+    "metal_lt0.1_mid_gt0.9": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "ao_p5_p50_p95": [
+     0.584,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.85,
+     2.13
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 1.0
+   },
+   "exterior_face_share": 0.734,
+   "family": "polymer_fde"
+  },
+  "ButtPad": {
+   "all": {
+    "texels": 341469,
+    "basecolor_lin_median_rgb": [
+     0.0176,
+     0.0176,
+     0.0185
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0161,
+     0.0177,
+     0.0313
+    ],
+    "rough_p5_p50_p95": [
+     0.878,
+     0.898,
+     0.914
+    ],
+    "rough_std": 0.0111,
+    "metal_lt0.1_mid_gt0.9": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     7.62,
+     13.92
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 1.0
+   },
+   "exterior": {
+    "texels": 232634,
+    "basecolor_lin_median_rgb": [
+     0.0168,
+     0.0168,
+     0.0185
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0161,
+     0.0169,
+     0.0186
+    ],
+    "rough_p5_p50_p95": [
+     0.882,
+     0.894,
+     0.914
+    ],
+    "rough_std": 0.0102,
+    "metal_lt0.1_mid_gt0.9": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "ao_p5_p50_p95": [
+     0.992,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     7.42,
+     13.91
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 1.0
+   },
+   "exterior_face_share": 0.879,
+   "family": "rubber"
+  },
+  "Magazine": {
+   "all": {
+    "texels": 846728,
+    "basecolor_lin_median_rgb": [
+     0.0666,
+     0.0648,
+     0.0578
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0611,
+     0.0647,
+     0.0669
+    ],
+    "rough_p5_p50_p95": [
+     0.788,
+     0.82,
+     0.91
+    ],
+    "rough_std": 0.0472,
+    "metal_lt0.1_mid_gt0.9": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "ao_p5_p50_p95": [
+     0.035,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.37,
+     10.99
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 1.0
+   },
+   "exterior": {
+    "texels": 506176,
+    "basecolor_lin_median_rgb": [
+     0.0666,
+     0.0648,
+     0.0578
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.0616,
+     0.0647,
+     0.0669
+    ],
+    "rough_p5_p50_p95": [
+     0.788,
+     0.906,
+     0.914
+    ],
+    "rough_std": 0.0514,
+    "metal_lt0.1_mid_gt0.9": [
+     1.0,
+     0.0,
+     0.0
+    ],
+    "ao_p5_p50_p95": [
+     0.745,
+     1.0,
+     1.0
+    ],
+    "normal_tilt_deg_mean_p99": [
+     1.72,
+     11.81
+    ],
+    "worn_bare_frac_lum_gt_0.20": 0.0,
+    "worn_any_frac_lum_gt_0.10": 0.0,
+    "grime_dielectric_frac_metal_lt_0.5": 1.0
+   },
+   "exterior_face_share": 0.746,
+   "family": "polymer_mag"
+  },
+  "MagRounds": {
+   "all": {
+    "texels": 40943,
+    "basecolor_lin_median_rgb": [
+     0.521,
+     0.3231,
+     0.107
+    ],
+    "lum_lin_p5_p50_p95": [
+     0.3467,
+     0.3469,
+     0.5023
+    ],
+    "rough_p5_p50_p95": [
+     0.278,
+     0.439,
+     0.471
+    ],
+    "rough_std": 0.0714,
+    "metal_lt0.1_mid_gt0.9": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "ao_p5_p50_p95": [
+     0.0,
+     0.012,
+     0.98
+    ],
+    "normal_tilt_deg_mean_p99": [
+     0.34,
+     0.71
+    ],
+    "worn_bare_frac_lum_gt_0.20": 1.0,
+    "worn_any_frac_lum_gt_0.10": 1.0,
+    "grime_dielectric_frac_metal_lt_0.5": 0.0
+   },
+   "exterior_face_share": 0.0,
+   "family": "brass"
+  }
+ },
+ "dust_cover_ghost": {
+  "cover_closed_outer_face": {
+   "texels": 12002,
+   "ao_mean": 0.951,
+   "ao_p5": 0.784,
+   "basecolor_lum_lin_mean": 0.0493
+  },
+  "cover_closed_inner_face": {
+   "texels": 12716,
+   "ao_mean": 1.0,
+   "ao_p5": 1.0,
+   "basecolor_lum_lin_mean": 0.0494
+  },
+  "lower_flank_under_port": {
+   "texels": 15946,
+   "ao_mean": 0.69,
+   "ao_p5": 0.376,
+   "basecolor_lum_lin_mean": 0.0442
+  },
+  "lower_flank_control_below": {
+   "texels": 24244,
+   "ao_mean": 0.783,
+   "ao_p5": 0.424,
+   "basecolor_lum_lin_mean": 0.044
+  }
+ }
+}

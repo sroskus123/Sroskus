@@ -1,0 +1,1745 @@
+{
+ "asset": "SK_Soldier",
+ "script": "Art/Source/Blender/characters/soldier.py",
+ "blender": "4.5.14 LTS",
+ "limits": {
+  "penetration_tolerance_mm": 1.0,
+  "lod0_tris_max": 35000,
+  "lod1_tris_target": 12000,
+  "lod2_tris_target": 5000,
+  "fp_arms_tris_max": 15000,
+  "texture_max": 2048
+ },
+ "triangles_lod0": {
+  "total": 28220,
+  "parts": {
+   "Soldier_Shirt": 4976,
+   "Soldier_Glove_L": 3200,
+   "Soldier_Glove_R": 3200,
+   "Soldier_Trousers": 2800,
+   "Soldier_Balaclava": 1996,
+   "Soldier_Boots": 1899,
+   "Soldier_Armbands": 552,
+   "SG_HelmetShell": 544,
+   "SG_Helmet": 480,
+   "SG_Belt": 432,
+   "SG_PC_BackBag": 432,
+   "SG_PC_FrontBag": 432,
+   "SG_Helmet_Band": 404,
+   "SG_PC_Mag_1": 374,
+   "SG_PC_Mag_2": 374,
+   "SG_PC_Mag_3": 374,
+   "SG_PC_Cummerbund_L": 296,
+   "SG_PC_Cummerbund_R": 296,
+   "SG_PC_BackPanel": 288,
+   "SG_PC_Placard": 288,
+   "Soldier_Sole_L": 284,
+   "Soldier_Sole_R": 284,
+   "Soldier_FaceSkin": 259,
+   "SG_Headset_Cup_L": 248,
+   "SG_Headset_Cup_R": 248,
+   "SG_PC_AdminPouch": 216,
+   "SG_KneePad_L": 212,
+   "SG_KneePad_R": 212,
+   "SG_Glasses_Lens": 204,
+   "SG_PC_Strap_L": 176,
+   "SG_PC_Strap_R": 176,
+   "SG_Belt_Buckle": 108,
+   "SG_Belt_Dump": 108,
+   "SG_Belt_PouchRL": 108,
+   "SG_Belt_PouchRR": 108,
+   "SG_Headset_Arm_L": 108,
+   "SG_Headset_Arm_R": 108,
+   "SG_Helmet_Mount": 108,
+   "SG_PC_BackPouch": 108,
+   "SG_PC_GpPouch": 108,
+   "SG_PC_Radio": 108,
+   "SG_PC_RadioPouch": 108,
+   "SG_Helmet_ChinStrap": 104,
+   "SG_Helmet_Rail_L": 104,
+   "SG_Helmet_Rail_R": 104,
+   "SG_Glasses_Frame": 100,
+   "SG_PC_Antenna": 92,
+   "SG_Headset_Mic": 80,
+   "SG_Helmet_Shroud": 56,
+   "SG_Glasses_Arm_L": 52,
+   "SG_Glasses_Arm_R": 52,
+   "SG_PC_Bungee_1": 44,
+   "SG_PC_Bungee_2": 44,
+   "SG_PC_Bungee_3": 44
+  }
+ },
+ "triangles_export": {
+  "SK_Soldier_LOD0": 28220,
+  "SK_Soldier_LOD1": 11320,
+  "SK_Soldier_LOD2": 4648,
+  "FP_Arms": 12491
+ },
+ "textures": {
+  "T_Soldier_Cloth_Alfa_BaseColor.png": [
+   1024,
+   1024
+  ],
+  "T_Soldier_Cloth_Bravo_BaseColor.png": [
+   1024,
+   1024
+  ],
+  "T_Soldier_Cloth_Charlie_BaseColor.png": [
+   1024,
+   1024
+  ],
+  "T_Soldier_Cloth_Normal.png": [
+   2048,
+   2048
+  ],
+  "T_Soldier_Cloth_Normal_DX.png": [
+   2048,
+   2048
+  ],
+  "T_Soldier_Cloth_ORM.png": [
+   2048,
+   2048
+  ],
+  "T_Soldier_FPArms_Alfa_BaseColor.png": [
+   2048,
+   2048
+  ],
+  "T_Soldier_FPArms_Bravo_BaseColor.png": [
+   2048,
+   2048
+  ],
+  "T_Soldier_FPArms_Charlie_BaseColor.png": [
+   2048,
+   2048
+  ],
+  "T_Soldier_FPArms_Normal.png": [
+   2048,
+   2048
+  ],
+  "T_Soldier_FPArms_Normal_DX.png": [
+   2048,
+   2048
+  ],
+  "T_Soldier_FPArms_ORM.png": [
+   2048,
+   2048
+  ],
+  "T_Soldier_Gear_BaseColor.png": [
+   2048,
+   2048
+  ],
+  "T_Soldier_Gear_Normal.png": [
+   2048,
+   2048
+  ],
+  "T_Soldier_Gear_Normal_DX.png": [
+   2048,
+   2048
+  ],
+  "T_Soldier_Gear_ORM.png": [
+   2048,
+   2048
+  ],
+  "T_Soldier_Team_Alfa_BaseColor.png": [
+   256,
+   256
+  ],
+  "T_Soldier_Team_Bravo_BaseColor.png": [
+   256,
+   256
+  ],
+  "T_Soldier_Team_Charlie_BaseColor.png": [
+   256,
+   256
+  ],
+  "T_Soldier_Team_Normal.png": [
+   256,
+   256
+  ],
+  "T_Soldier_Team_Normal_DX.png": [
+   256,
+   256
+  ],
+  "T_Soldier_Team_ORM.png": [
+   256,
+   256
+  ]
+ },
+ "weights": {
+  "SG_Belt": {
+   "vertices": 216,
+   "max_influences": 4,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "fabric",
+   "bones_used": [
+    "pelvis",
+    "spine_01",
+    "thigh_l",
+    "thigh_r"
+   ]
+  },
+  "SG_Belt_Buckle": {
+   "vertices": 56,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "pelvis",
+   "rigid_ok": true
+  },
+  "SG_Belt_Dump": {
+   "vertices": 56,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "pelvis",
+   "rigid_ok": true
+  },
+  "SG_Belt_PouchRL": {
+   "vertices": 56,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "pelvis",
+   "rigid_ok": true
+  },
+  "SG_Belt_PouchRR": {
+   "vertices": 56,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "pelvis",
+   "rigid_ok": true
+  },
+  "SG_Glasses_Arm_L": {
+   "vertices": 28,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "head",
+   "rigid_ok": true
+  },
+  "SG_Glasses_Arm_R": {
+   "vertices": 28,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "head",
+   "rigid_ok": true
+  },
+  "SG_Glasses_Frame": {
+   "vertices": 52,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "head",
+   "rigid_ok": true
+  },
+  "SG_Glasses_Lens": {
+   "vertices": 104,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "head",
+   "rigid_ok": true
+  },
+  "SG_Headset_Arm_L": {
+   "vertices": 56,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "head",
+   "rigid_ok": true
+  },
+  "SG_Headset_Arm_R": {
+   "vertices": 56,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "head",
+   "rigid_ok": true
+  },
+  "SG_Headset_Cup_L": {
+   "vertices": 126,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "head",
+   "rigid_ok": true
+  },
+  "SG_Headset_Cup_R": {
+   "vertices": 126,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "head",
+   "rigid_ok": true
+  },
+  "SG_Headset_Mic": {
+   "vertices": 42,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "head",
+   "rigid_ok": true
+  },
+  "SG_Helmet": {
+   "vertices": 257,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "head",
+   "rigid_ok": true
+  },
+  "SG_Helmet_Band": {
+   "vertices": 204,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "head",
+   "rigid_ok": true
+  },
+  "SG_Helmet_ChinStrap": {
+   "vertices": 54,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "head",
+   "rigid_ok": true
+  },
+  "SG_Helmet_Mount": {
+   "vertices": 56,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "head",
+   "rigid_ok": true
+  },
+  "SG_Helmet_Rail_L": {
+   "vertices": 54,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "head",
+   "rigid_ok": true
+  },
+  "SG_Helmet_Rail_R": {
+   "vertices": 54,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "head",
+   "rigid_ok": true
+  },
+  "SG_Helmet_Shroud": {
+   "vertices": 30,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "head",
+   "rigid_ok": true
+  },
+  "SG_HelmetShell": {
+   "vertices": 289,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "head",
+   "rigid_ok": true
+  },
+  "SG_KneePad_L": {
+   "vertices": 108,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "calf_l",
+   "rigid_ok": true
+  },
+  "SG_KneePad_R": {
+   "vertices": 108,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "calf_r",
+   "rigid_ok": true
+  },
+  "SG_PC_AdminPouch": {
+   "vertices": 110,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "spine_03",
+   "rigid_ok": true
+  },
+  "SG_PC_Antenna": {
+   "vertices": 48,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "spine_03",
+   "rigid_ok": true
+  },
+  "SG_PC_BackBag": {
+   "vertices": 218,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "spine_03",
+   "rigid_ok": true
+  },
+  "SG_PC_BackPanel": {
+   "vertices": 146,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "spine_03",
+   "rigid_ok": true
+  },
+  "SG_PC_BackPouch": {
+   "vertices": 56,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "spine_03",
+   "rigid_ok": true
+  },
+  "SG_PC_Bungee_1": {
+   "vertices": 24,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "spine_03",
+   "rigid_ok": true
+  },
+  "SG_PC_Bungee_2": {
+   "vertices": 24,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "spine_03",
+   "rigid_ok": true
+  },
+  "SG_PC_Bungee_3": {
+   "vertices": 24,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "spine_03",
+   "rigid_ok": true
+  },
+  "SG_PC_Cummerbund_L": {
+   "vertices": 150,
+   "max_influences": 4,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "fabric",
+   "bones_used": [
+    "pelvis",
+    "spine_01",
+    "spine_02",
+    "spine_03",
+    "upperarm_l",
+    "upperarm_twist_01_l"
+   ]
+  },
+  "SG_PC_Cummerbund_R": {
+   "vertices": 150,
+   "max_influences": 4,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "fabric",
+   "bones_used": [
+    "pelvis",
+    "spine_01",
+    "spine_02",
+    "spine_03",
+    "upperarm_r",
+    "upperarm_twist_01_r"
+   ]
+  },
+  "SG_PC_FrontBag": {
+   "vertices": 218,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "spine_03",
+   "rigid_ok": true
+  },
+  "SG_PC_GpPouch": {
+   "vertices": 56,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "spine_03",
+   "rigid_ok": true
+  },
+  "SG_PC_Mag_1": {
+   "vertices": 193,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "spine_03",
+   "rigid_ok": true
+  },
+  "SG_PC_Mag_2": {
+   "vertices": 193,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "spine_03",
+   "rigid_ok": true
+  },
+  "SG_PC_Mag_3": {
+   "vertices": 193,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "spine_03",
+   "rigid_ok": true
+  },
+  "SG_PC_Placard": {
+   "vertices": 146,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "spine_03",
+   "rigid_ok": true
+  },
+  "SG_PC_Radio": {
+   "vertices": 56,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "spine_03",
+   "rigid_ok": true
+  },
+  "SG_PC_RadioPouch": {
+   "vertices": 56,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "rigid",
+   "rigid_bone": "spine_03",
+   "rigid_ok": true
+  },
+  "SG_PC_Strap_L": {
+   "vertices": 90,
+   "max_influences": 4,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "fabric",
+   "bones_used": [
+    "clavicle_l",
+    "head",
+    "neck_01",
+    "spine_03",
+    "upperarm_twist_01_l"
+   ]
+  },
+  "SG_PC_Strap_R": {
+   "vertices": 90,
+   "max_influences": 4,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "fabric",
+   "bones_used": [
+    "clavicle_r",
+    "head",
+    "neck_01",
+    "spine_03",
+    "upperarm_twist_01_r"
+   ]
+  },
+  "Soldier_Armbands": {
+   "vertices": 320,
+   "max_influences": 3,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "skin"
+  },
+  "Soldier_Balaclava": {
+   "vertices": 1145,
+   "max_influences": 4,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "skin"
+  },
+  "Soldier_Boots": {
+   "vertices": 939,
+   "max_influences": 3,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "skin"
+  },
+  "Soldier_FaceSkin": {
+   "vertices": 159,
+   "max_influences": 1,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "skin"
+  },
+  "Soldier_Glove_L": {
+   "vertices": 1616,
+   "max_influences": 4,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "skin"
+  },
+  "Soldier_Glove_R": {
+   "vertices": 1616,
+   "max_influences": 4,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "skin"
+  },
+  "Soldier_Shirt": {
+   "vertices": 2557,
+   "max_influences": 4,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "skin"
+  },
+  "Soldier_Sole_L": {
+   "vertices": 144,
+   "max_influences": 2,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "skin"
+  },
+  "Soldier_Sole_R": {
+   "vertices": 144,
+   "max_influences": 2,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "skin"
+  },
+  "Soldier_Trousers": {
+   "vertices": 1445,
+   "max_influences": 4,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "sum_max": 1.0,
+   "bind": "skin"
+  }
+ },
+ "export_meshes": {
+  "SK_Soldier_LOD0": {
+   "tris": 28220,
+   "vertices": 14598,
+   "max_influences": 4,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "materials": [
+    "M_Soldier_GearFabric_Alfa",
+    "M_Soldier_GearHard",
+    "M_Soldier_Cloth_Alfa",
+    "M_Soldier_Team_Alfa"
+   ],
+   "shape_keys": 24,
+   "bones_with_weight": [
+    "ball_l",
+    "ball_r",
+    "calf_l",
+    "calf_r",
+    "clavicle_l",
+    "clavicle_r",
+    "foot_l",
+    "foot_r",
+    "hand_l",
+    "hand_r",
+    "head",
+    "index_01_l",
+    "index_01_r",
+    "index_02_l",
+    "index_02_r",
+    "index_03_l",
+    "index_03_r",
+    "lowerarm_l",
+    "lowerarm_r",
+    "lowerarm_twist_01_l",
+    "lowerarm_twist_01_r",
+    "middle_01_l",
+    "middle_01_r",
+    "middle_02_l",
+    "middle_02_r",
+    "middle_03_l",
+    "middle_03_r",
+    "neck_01",
+    "pelvis",
+    "pinky_01_l",
+    "pinky_01_r",
+    "pinky_02_l",
+    "pinky_02_r",
+    "pinky_03_l",
+    "pinky_03_r",
+    "ring_01_l",
+    "ring_01_r",
+    "ring_02_l",
+    "ring_02_r",
+    "ring_03_l",
+    "ring_03_r",
+    "spine_01",
+    "spine_02",
+    "spine_03",
+    "thigh_l",
+    "thigh_r",
+    "thumb_01_l",
+    "thumb_01_r",
+    "thumb_02_l",
+    "thumb_02_r",
+    "thumb_03_l",
+    "thumb_03_r",
+    "upperarm_l",
+    "upperarm_r",
+    "upperarm_twist_01_l",
+    "upperarm_twist_01_r"
+   ]
+  },
+  "SK_Soldier_LOD1": {
+   "tris": 11320,
+   "vertices": 6086,
+   "max_influences": 4,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "materials": [
+    "M_Soldier_GearFabric_Alfa",
+    "M_Soldier_GearHard",
+    "M_Soldier_Cloth_Alfa",
+    "M_Soldier_Team_Alfa"
+   ],
+   "shape_keys": 0,
+   "bones_with_weight": [
+    "ball_l",
+    "ball_r",
+    "calf_l",
+    "calf_r",
+    "clavicle_l",
+    "clavicle_r",
+    "foot_l",
+    "foot_r",
+    "hand_l",
+    "hand_r",
+    "head",
+    "index_01_l",
+    "index_01_r",
+    "index_02_l",
+    "index_02_r",
+    "index_03_l",
+    "index_03_r",
+    "lowerarm_l",
+    "lowerarm_r",
+    "lowerarm_twist_01_l",
+    "lowerarm_twist_01_r",
+    "middle_01_l",
+    "middle_01_r",
+    "middle_02_l",
+    "middle_02_r",
+    "middle_03_l",
+    "middle_03_r",
+    "neck_01",
+    "pelvis",
+    "pinky_01_l",
+    "pinky_01_r",
+    "pinky_02_l",
+    "pinky_02_r",
+    "pinky_03_l",
+    "pinky_03_r",
+    "ring_01_l",
+    "ring_01_r",
+    "ring_02_l",
+    "ring_02_r",
+    "ring_03_l",
+    "ring_03_r",
+    "spine_01",
+    "spine_02",
+    "spine_03",
+    "thigh_l",
+    "thigh_r",
+    "thumb_01_l",
+    "thumb_01_r",
+    "thumb_02_l",
+    "thumb_02_r",
+    "thumb_03_l",
+    "thumb_03_r",
+    "upperarm_l",
+    "upperarm_r",
+    "upperarm_twist_01_l",
+    "upperarm_twist_01_r"
+   ]
+  },
+  "SK_Soldier_LOD2": {
+   "tris": 4648,
+   "vertices": 2615,
+   "max_influences": 4,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "materials": [
+    "M_Soldier_GearFabric_Alfa",
+    "M_Soldier_GearHard",
+    "M_Soldier_Cloth_Alfa",
+    "M_Soldier_Team_Alfa"
+   ],
+   "shape_keys": 0,
+   "bones_with_weight": [
+    "ball_l",
+    "ball_r",
+    "calf_l",
+    "calf_r",
+    "clavicle_l",
+    "clavicle_r",
+    "foot_l",
+    "foot_r",
+    "hand_l",
+    "hand_r",
+    "head",
+    "index_01_l",
+    "index_01_r",
+    "index_02_l",
+    "index_02_r",
+    "index_03_l",
+    "index_03_r",
+    "lowerarm_l",
+    "lowerarm_r",
+    "lowerarm_twist_01_l",
+    "lowerarm_twist_01_r",
+    "middle_01_l",
+    "middle_01_r",
+    "middle_02_l",
+    "middle_02_r",
+    "middle_03_l",
+    "middle_03_r",
+    "neck_01",
+    "pelvis",
+    "pinky_01_l",
+    "pinky_01_r",
+    "pinky_02_l",
+    "pinky_02_r",
+    "pinky_03_l",
+    "pinky_03_r",
+    "ring_01_l",
+    "ring_01_r",
+    "ring_02_l",
+    "ring_02_r",
+    "ring_03_l",
+    "ring_03_r",
+    "spine_01",
+    "spine_02",
+    "spine_03",
+    "thigh_l",
+    "thigh_r",
+    "thumb_01_l",
+    "thumb_01_r",
+    "thumb_02_l",
+    "thumb_02_r",
+    "thumb_03_l",
+    "thumb_03_r",
+    "upperarm_l",
+    "upperarm_r",
+    "upperarm_twist_01_l",
+    "upperarm_twist_01_r"
+   ]
+  },
+  "FP_Arms": {
+   "tris": 12491,
+   "vertices": 6350,
+   "max_influences": 4,
+   "unweighted": 0,
+   "sum_min": 1.0,
+   "materials": [
+    "M_FPArms_Sleeve_Alfa",
+    "M_Soldier_Team_Alfa",
+    "M_FPArms_Glove"
+   ],
+   "shape_keys": 8,
+   "bones_with_weight": [
+    "clavicle_l",
+    "clavicle_r",
+    "hand_l",
+    "hand_r",
+    "index_01_l",
+    "index_01_r",
+    "index_02_l",
+    "index_02_r",
+    "index_03_l",
+    "index_03_r",
+    "lowerarm_l",
+    "lowerarm_r",
+    "lowerarm_twist_01_l",
+    "lowerarm_twist_01_r",
+    "middle_01_l",
+    "middle_01_r",
+    "middle_02_l",
+    "middle_02_r",
+    "middle_03_l",
+    "middle_03_r",
+    "pinky_01_l",
+    "pinky_01_r",
+    "pinky_02_l",
+    "pinky_02_r",
+    "pinky_03_l",
+    "pinky_03_r",
+    "ring_01_l",
+    "ring_01_r",
+    "ring_02_l",
+    "ring_02_r",
+    "ring_03_l",
+    "ring_03_r",
+    "spine_03",
+    "thumb_01_l",
+    "thumb_01_r",
+    "thumb_02_l",
+    "thumb_02_r",
+    "thumb_03_l",
+    "thumb_03_r",
+    "upperarm_l",
+    "upperarm_r",
+    "upperarm_twist_01_l",
+    "upperarm_twist_01_r"
+   ]
+  }
+ },
+ "budgets": {
+  "lod0_tris": 28220,
+  "lod0_ok": true,
+  "lod1_tris": 11320,
+  "lod2_tris": 4648,
+  "fp_arms_tris": 12491,
+  "fp_ok": true,
+  "max_texture_px": 2048,
+  "textures_ok": true
+ },
+ "gear_attachment_gap_mm": {
+  "SG_Belt": 0.16,
+  "SG_Belt_Buckle": 3.01,
+  "SG_Belt_Dump": 4.12,
+  "SG_Belt_PouchRL": 6.8,
+  "SG_Belt_PouchRR": 6.93,
+  "SG_Glasses_Arm_L": 0.45,
+  "SG_Glasses_Arm_R": 1.1,
+  "SG_Glasses_Frame": 0.0,
+  "SG_Glasses_Lens": 0.0,
+  "SG_Headset_Arm_L": 0.17,
+  "SG_Headset_Arm_R": 0.17,
+  "SG_Headset_Cup_L": 0.67,
+  "SG_Headset_Cup_R": 1.7,
+  "SG_Headset_Mic": 4.88,
+  "SG_Helmet": 0.0,
+  "SG_Helmet_Band": 1.39,
+  "SG_Helmet_ChinStrap": 1.33,
+  "SG_Helmet_Mount": 3.0,
+  "SG_Helmet_Rail_L": 0.01,
+  "SG_Helmet_Rail_R": 0.0,
+  "SG_Helmet_Shroud": 0.99,
+  "SG_HelmetShell": 0.0,
+  "SG_KneePad_L": 4.17,
+  "SG_KneePad_R": 4.17,
+  "SG_PC_AdminPouch": 11.35,
+  "SG_PC_Antenna": 0.0,
+  "SG_PC_BackBag": 0.21,
+  "SG_PC_BackPanel": 0.51,
+  "SG_PC_BackPouch": 5.9,
+  "SG_PC_Bungee_1": 0.24,
+  "SG_PC_Bungee_2": 0.24,
+  "SG_PC_Bungee_3": 0.24,
+  "SG_PC_Cummerbund_L": 0.25,
+  "SG_PC_Cummerbund_R": 0.23,
+  "SG_PC_FrontBag": 6.54,
+  "SG_PC_GpPouch": 4.89,
+  "SG_PC_Mag_1": 0.49,
+  "SG_PC_Mag_2": 0.41,
+  "SG_PC_Mag_3": 0.49,
+  "SG_PC_Placard": 2.06,
+  "SG_PC_Radio": 1.31,
+  "SG_PC_RadioPouch": 0.13,
+  "SG_PC_Strap_L": 0.7,
+  "SG_PC_Strap_R": 0.12
+ },
+ "poses": {
+  "rest": {
+   "gear_in_body": {},
+   "body_in_gear": {},
+   "garment_in_gear": {},
+   "layers": {
+    "shirt_tail_inside_trousers": {
+     "tested": 77,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "balaclava_inside_collar": {
+     "tested": 143,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "boot_shaft_inside_trousers": {
+     "tested": 134,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "glove_cuff_L_inside_sleeve": {
+     "tested": 72,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "glove_cuff_R_inside_sleeve": {
+     "tested": 72,
+     "poke": 0,
+     "max_mm": 0.0
+    }
+   },
+   "description": "A-pose (bind pose)",
+   "summary": {
+    "worst_gear_body_garment_mm": 0.0,
+    "worst_layer_poke_mm": 0.0,
+    "worst_rifle_mm": 0.0,
+    "findings": []
+   }
+  },
+  "arms_raised": {
+   "gear_in_body": {},
+   "body_in_gear": {},
+   "garment_in_gear": {},
+   "layers": {
+    "shirt_tail_inside_trousers": {
+     "tested": 77,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "balaclava_inside_collar": {
+     "tested": 143,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "boot_shaft_inside_trousers": {
+     "tested": 134,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "glove_cuff_L_inside_sleeve": {
+     "tested": 72,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "glove_cuff_R_inside_sleeve": {
+     "tested": 72,
+     "poke": 0,
+     "max_mm": 0.0
+    }
+   },
+   "description": "clavicle 22 deg + shoulder abduction 105 deg",
+   "summary": {
+    "worst_gear_body_garment_mm": 0.0,
+    "worst_layer_poke_mm": 0.0,
+    "worst_rifle_mm": 0.0,
+    "findings": []
+   }
+  },
+  "squat_deep": {
+   "gear_in_body": {
+    "SG_Belt": {
+     "count": 21,
+     "max_mm": 10.97
+    }
+   },
+   "body_in_gear": {},
+   "garment_in_gear": {
+    "Soldier_Trousers in SG_Belt": {
+     "count": 3,
+     "max_mm": 1.84
+    },
+    "Soldier_Trousers in SG_Belt_Dump": {
+     "count": 1,
+     "max_mm": 2.91
+    },
+    "Soldier_Trousers in SG_KneePad_L": {
+     "count": 7,
+     "max_mm": 5.63
+    },
+    "Soldier_Trousers in SG_KneePad_R": {
+     "count": 7,
+     "max_mm": 5.34
+    }
+   },
+   "layers": {
+    "shirt_tail_inside_trousers": {
+     "tested": 77,
+     "poke": 7,
+     "max_mm": 4.49
+    },
+    "balaclava_inside_collar": {
+     "tested": 143,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "boot_shaft_inside_trousers": {
+     "tested": 134,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "glove_cuff_L_inside_sleeve": {
+     "tested": 72,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "glove_cuff_R_inside_sleeve": {
+     "tested": 72,
+     "poke": 0,
+     "max_mm": 0.0
+    }
+   },
+   "description": "hip 100 / knee 130 / ankle 30 deg, trunk forward, arms forward",
+   "summary": {
+    "worst_gear_body_garment_mm": 10.97,
+    "worst_layer_poke_mm": 4.49,
+    "worst_rifle_mm": 0.0,
+    "findings": [
+     "gear_in_body:SG_Belt:21@10.97mm",
+     "garment_in_gear:Soldier_Trousers in SG_Belt:3@1.84mm",
+     "garment_in_gear:Soldier_Trousers in SG_Belt_Dump:1@2.91mm",
+     "garment_in_gear:Soldier_Trousers in SG_KneePad_L:7@5.63mm",
+     "garment_in_gear:Soldier_Trousers in SG_KneePad_R:7@5.34mm"
+    ]
+   }
+  },
+  "sprint": {
+   "gear_in_body": {},
+   "body_in_gear": {},
+   "garment_in_gear": {
+    "Soldier_Trousers in SG_Belt": {
+     "count": 2,
+     "max_mm": 2.59
+    },
+    "Soldier_Trousers in SG_Belt_PouchRL": {
+     "count": 1,
+     "max_mm": 1.13
+    },
+    "Soldier_Trousers in SG_Belt_PouchRR": {
+     "count": 1,
+     "max_mm": 1.68
+    },
+    "Soldier_Trousers in SG_KneePad_L": {
+     "count": 7,
+     "max_mm": 5.98
+    }
+   },
+   "layers": {
+    "shirt_tail_inside_trousers": {
+     "tested": 77,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "balaclava_inside_collar": {
+     "tested": 143,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "boot_shaft_inside_trousers": {
+     "tested": 134,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "glove_cuff_L_inside_sleeve": {
+     "tested": 72,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "glove_cuff_R_inside_sleeve": {
+     "tested": 72,
+     "poke": 0,
+     "max_mm": 0.0
+    }
+   },
+   "description": "sprint stride: hip 65 / knee 95 (front), hip -22 / knee 35 (rear), arms swinging",
+   "summary": {
+    "worst_gear_body_garment_mm": 5.98,
+    "worst_layer_poke_mm": 0.0,
+    "worst_rifle_mm": 0.0,
+    "findings": [
+     "garment_in_gear:Soldier_Trousers in SG_Belt:2@2.59mm",
+     "garment_in_gear:Soldier_Trousers in SG_Belt_PouchRL:1@1.13mm",
+     "garment_in_gear:Soldier_Trousers in SG_Belt_PouchRR:1@1.68mm",
+     "garment_in_gear:Soldier_Trousers in SG_KneePad_L:7@5.98mm"
+    ]
+   }
+  },
+  "aim_ads": {
+   "gear_in_body": {},
+   "body_in_gear": {},
+   "garment_in_gear": {},
+   "layers": {
+    "shirt_tail_inside_trousers": {
+     "tested": 77,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "balaclava_inside_collar": {
+     "tested": 143,
+     "poke": 1,
+     "max_mm": 16.23
+    },
+    "boot_shaft_inside_trousers": {
+     "tested": 134,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "glove_cuff_L_inside_sleeve": {
+     "tested": 72,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "glove_cuff_R_inside_sleeve": {
+     "tested": 72,
+     "poke": 0,
+     "max_mm": 0.0
+    }
+   },
+   "rifle": {
+    "rifle_in_body": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Shirt_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Trousers_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Balaclava_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Boots_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Glove_L_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Glove_R_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Armbands_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Sole_L_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Sole_R_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    }
+   },
+   "description": "aiming down the sights, IV-7 (IK to the grip sockets)",
+   "stance": {
+    "mode": "ads",
+    "pitch_deg": 0.0,
+    "params_deg": {
+     "spine_twist": 31.07,
+     "spine_lean": 0.43,
+     "clav_r_elev": 19.95,
+     "clav_r_prot": 14.98,
+     "clav_l_prot": 21.74,
+     "neck_flex": 33.38,
+     "neck_lat": -24.87,
+     "head_roll": 19.89
+    },
+    "butt_raised_on_shoulder_mm": 23.5,
+    "support_hand_slide_back_mm": 75.0,
+    "eye_relief_from_butt_m": 0.058,
+    "eye_to_optic_axis_mm": 72.9,
+    "clearance": {
+     "stock_forward_mm": 36.0,
+     "stock_depth_mm": 1.49,
+     "head_tilt_factor": 0.8,
+     "rifle_out_from_head_mm": 0.0,
+     "head_depth_mm": 0.0
+    },
+    "ik": {
+     "r": {
+      "reach_error_m": 0.0,
+      "elbow_deg": 103.45,
+      "wrist_rel_deg": 90.87
+     },
+     "l": {
+      "reach_error_m": 0.0,
+      "elbow_deg": 29.9,
+      "wrist_rel_deg": 104.82
+     }
+    },
+    "eye": [
+     -0.0955,
+     -0.1541,
+     1.6438
+    ]
+   },
+   "summary": {
+    "worst_gear_body_garment_mm": 0.0,
+    "worst_layer_poke_mm": 16.23,
+    "worst_rifle_mm": 0.0,
+    "findings": []
+   }
+  },
+  "aim_ads_up35": {
+   "gear_in_body": {},
+   "body_in_gear": {},
+   "garment_in_gear": {},
+   "layers": {
+    "shirt_tail_inside_trousers": {
+     "tested": 77,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "balaclava_inside_collar": {
+     "tested": 143,
+     "poke": 1,
+     "max_mm": 16.73
+    },
+    "boot_shaft_inside_trousers": {
+     "tested": 134,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "glove_cuff_L_inside_sleeve": {
+     "tested": 72,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "glove_cuff_R_inside_sleeve": {
+     "tested": 72,
+     "poke": 0,
+     "max_mm": 0.0
+    }
+   },
+   "rifle": {
+    "rifle_in_body": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Shirt_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Trousers_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Balaclava_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Boots_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Glove_L_in_rifle": {
+     "count": 9,
+     "max_mm": 1.63
+    },
+    "Soldier_Glove_R_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Armbands_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Sole_L_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Sole_R_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    }
+   },
+   "description": "aiming 35 deg up",
+   "stance": {
+    "mode": "ads",
+    "pitch_deg": 35.0,
+    "params_deg": {
+     "spine_twist": 32.0,
+     "spine_lean": 0.04,
+     "clav_r_elev": 20.0,
+     "clav_r_prot": 14.99,
+     "clav_l_prot": 22.0,
+     "neck_flex": 37.97,
+     "neck_lat": -24.99,
+     "head_roll": 19.99
+    },
+    "butt_raised_on_shoulder_mm": 15.3,
+    "support_hand_slide_back_mm": 75.0,
+    "eye_relief_from_butt_m": 0.071,
+    "eye_to_optic_axis_mm": 77.1,
+    "clearance": {
+     "stock_forward_mm": 6.0,
+     "stock_depth_mm": 1.09,
+     "head_tilt_factor": 0.0,
+     "rifle_out_from_head_mm": 28.0,
+     "head_depth_mm": 0.39
+    },
+    "ik": {
+     "r": {
+      "reach_error_m": 0.0,
+      "elbow_deg": 109.45,
+      "wrist_rel_deg": 92.24
+     },
+     "l": {
+      "reach_error_m": 0.01198,
+      "elbow_deg": 5.02,
+      "wrist_rel_deg": 96.13
+     }
+    },
+    "eye": [
+     -0.0351,
+     0.0287,
+     1.6985
+    ]
+   },
+   "summary": {
+    "worst_gear_body_garment_mm": 0.0,
+    "worst_layer_poke_mm": 16.73,
+    "worst_rifle_mm": 0.0,
+    "findings": []
+   }
+  },
+  "aim_ads_down35": {
+   "gear_in_body": {},
+   "body_in_gear": {},
+   "garment_in_gear": {},
+   "layers": {
+    "shirt_tail_inside_trousers": {
+     "tested": 77,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "balaclava_inside_collar": {
+     "tested": 143,
+     "poke": 1,
+     "max_mm": 12.12
+    },
+    "boot_shaft_inside_trousers": {
+     "tested": 134,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "glove_cuff_L_inside_sleeve": {
+     "tested": 72,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "glove_cuff_R_inside_sleeve": {
+     "tested": 72,
+     "poke": 0,
+     "max_mm": 0.0
+    }
+   },
+   "rifle": {
+    "rifle_in_body": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Shirt_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Trousers_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Balaclava_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Boots_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Glove_L_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Glove_R_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Armbands_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Sole_L_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Sole_R_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    }
+   },
+   "description": "aiming 35 deg down",
+   "stance": {
+    "mode": "ads",
+    "pitch_deg": -35.0,
+    "params_deg": {
+     "spine_twist": 28.38,
+     "spine_lean": 1.86,
+     "clav_r_elev": 19.53,
+     "clav_r_prot": 14.99,
+     "clav_l_prot": 21.22,
+     "neck_flex": 25.38,
+     "neck_lat": -24.87,
+     "head_roll": 19.87
+    },
+    "butt_raised_on_shoulder_mm": 26.1,
+    "support_hand_slide_back_mm": 75.0,
+    "eye_relief_from_butt_m": 0.041,
+    "eye_to_optic_axis_mm": 73.3,
+    "clearance": {
+     "stock_forward_mm": 22.0,
+     "stock_depth_mm": 1.07,
+     "head_tilt_factor": 0.8,
+     "rifle_out_from_head_mm": 0.0,
+     "head_depth_mm": 0.0
+    },
+    "ik": {
+     "r": {
+      "reach_error_m": 0.0,
+      "elbow_deg": 109.76,
+      "wrist_rel_deg": 96.36
+     },
+     "l": {
+      "reach_error_m": 0.0,
+      "elbow_deg": 44.3,
+      "wrist_rel_deg": 114.85
+     }
+    },
+    "eye": [
+     -0.1212,
+     -0.3127,
+     1.5342
+    ]
+   },
+   "summary": {
+    "worst_gear_body_garment_mm": 0.0,
+    "worst_layer_poke_mm": 12.12,
+    "worst_rifle_mm": 0.0,
+    "findings": []
+   }
+  },
+  "hip_ready": {
+   "gear_in_body": {},
+   "body_in_gear": {},
+   "garment_in_gear": {},
+   "layers": {
+    "shirt_tail_inside_trousers": {
+     "tested": 77,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "balaclava_inside_collar": {
+     "tested": 143,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "boot_shaft_inside_trousers": {
+     "tested": 134,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "glove_cuff_L_inside_sleeve": {
+     "tested": 72,
+     "poke": 0,
+     "max_mm": 0.0
+    },
+    "glove_cuff_R_inside_sleeve": {
+     "tested": 72,
+     "poke": 0,
+     "max_mm": 0.0
+    }
+   },
+   "rifle": {
+    "rifle_in_body": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Shirt_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Trousers_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Balaclava_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Boots_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Glove_L_in_rifle": {
+     "count": 4,
+     "max_mm": 1.6
+    },
+    "Soldier_Glove_R_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Armbands_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Sole_L_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    },
+    "Soldier_Sole_R_in_rifle": {
+     "count": 0,
+     "max_mm": 0.0
+    }
+   },
+   "description": "rifle shouldered, head up (hip / ready)",
+   "stance": {
+    "mode": "hip",
+    "pitch_deg": 0.0,
+    "params_deg": {
+     "spine_twist": 18.0,
+     "spine_lean": 3.0,
+     "clav_r_elev": 12.0,
+     "clav_r_prot": 6.0,
+     "clav_l_prot": 22.0,
+     "neck_flex": 14.0,
+     "neck_lat": 0.0,
+     "head_roll": 0.0
+    },
+    "support_hand_slide_back_mm": 75.0,
+    "clearance": {
+     "stock_forward_mm": 0.0,
+     "stock_depth_mm": 0.0,
+     "rifle_out_from_head_mm": 0.0,
+     "head_depth_mm": 0.0
+    },
+    "ik": {
+     "r": {
+      "reach_error_m": 0.0,
+      "elbow_deg": 103.88,
+      "wrist_rel_deg": 91.63
+     },
+     "l": {
+      "reach_error_m": 0.00426,
+      "elbow_deg": 5.1,
+      "wrist_rel_deg": 97.19
+     }
+    },
+    "eye": [
+     -0.0344,
+     -0.1737,
+     1.6694
+    ]
+   },
+   "summary": {
+    "worst_gear_body_garment_mm": 0.0,
+    "worst_layer_poke_mm": 0.0,
+    "worst_rifle_mm": 0.0,
+    "findings": []
+   }
+  }
+ },
+ "seconds": 580.0
+}

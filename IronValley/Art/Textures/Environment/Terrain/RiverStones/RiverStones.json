@@ -1,0 +1,21 @@
+{
+ "tile_m": 2.5,
+ "relief_m": 0.08,
+ "family": "stone (ART_DIRECTION 3.1)",
+ "author": "generated in this project (IRON VALLEY)",
+ "license": "project-owned",
+ "generator": "Tools/environment/terrain_textures.py",
+ "seed": 20260927,
+ "name": "RiverStones",
+ "maps": {
+  "baseColor": "T_RiverStones_BaseColor.png",
+  "normal": "T_RiverStones_Normal.png",
+  "normalDX": "T_RiverStones_Normal_DX.png",
+  "orm": "T_RiverStones_ORM.png",
+  "height": "T_RiverStones_Height.png"
+ },
+ "size_px": 1024,
+ "mean_base_color_srgb": "#6e6b60",
+ "mean_roughness": 0.815,
+ "conventions": "base colour sRGB without baked light; ORM R=occlusion G=roughness B=metallic (linear); normal OpenGL (+Y up), _DX flips green; height 16-bit 0..1 over relief_m"
+}

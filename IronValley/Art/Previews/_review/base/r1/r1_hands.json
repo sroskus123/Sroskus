@@ -1,0 +1,240 @@
+{
+ "palm_thickness_l (t along wrist->middleMCP, total cm, palmar cm, dorsal cm)": [
+  [
+   0.35,
+   4.26,
+   2.48,
+   1.78
+  ],
+  [
+   0.5,
+   3.64,
+   2.12,
+   1.52
+  ],
+  [
+   0.65,
+   3.12,
+   1.93,
+   1.19
+  ],
+  [
+   0.8,
+   3.17,
+   2.3,
+   0.86
+  ],
+  [
+   0.95,
+   3.31,
+   2.7,
+   0.6
+  ]
+ ],
+ "finger_joint_palmar_dorsal_cm_and_dorsal_fraction_l": {
+  "index_01": [
+   1.81,
+   0.47,
+   0.21
+  ],
+  "index_02": [
+   1.79,
+   0.51,
+   0.22
+  ],
+  "index_03": [
+   1.47,
+   0.48,
+   0.25
+  ],
+  "middle_01": [
+   2.68,
+   0.44,
+   0.14
+  ],
+  "middle_02": [
+   1.75,
+   0.46,
+   0.21
+  ],
+  "middle_03": [
+   1.46,
+   0.43,
+   0.23
+  ],
+  "ring_01": [
+   2.35,
+   0.41,
+   0.15
+  ],
+  "ring_02": [
+   1.59,
+   0.44,
+   0.22
+  ],
+  "ring_03": [
+   1.35,
+   0.31,
+   0.19
+  ],
+  "pinky_01": [
+   1.6,
+   0.45,
+   0.22
+  ],
+  "pinky_02": [
+   1.28,
+   0.51,
+   0.29
+  ],
+  "pinky_03": [
+   1.09,
+   0.5,
+   0.32
+  ]
+ },
+ "along_d_from_wrist_cm_l": {
+  "MCP": {
+   "index": 11.71,
+   "middle": 11.64,
+   "ring": 10.97,
+   "pinky": 9.87
+  },
+  "web_between_fingers(max distal extent of the gap)": {
+   "index-middle": 12.36,
+   "middle-ring": 13.75,
+   "ring-pinky": 13.72
+  }
+ },
+ "palm_thickness_r (t along wrist->middleMCP, total cm, palmar cm, dorsal cm)": [
+  [
+   0.35,
+   4.26,
+   2.48,
+   1.78
+  ],
+  [
+   0.5,
+   3.64,
+   2.12,
+   1.52
+  ],
+  [
+   0.65,
+   3.12,
+   1.93,
+   1.19
+  ],
+  [
+   0.8,
+   3.17,
+   2.3,
+   0.86
+  ],
+  [
+   0.95,
+   3.31,
+   2.7,
+   0.6
+  ]
+ ],
+ "finger_joint_palmar_dorsal_cm_and_dorsal_fraction_r": {
+  "index_01": [
+   1.81,
+   0.47,
+   0.21
+  ],
+  "index_02": [
+   1.79,
+   0.51,
+   0.22
+  ],
+  "index_03": [
+   1.47,
+   0.48,
+   0.25
+  ],
+  "middle_01": [
+   2.68,
+   0.44,
+   0.14
+  ],
+  "middle_02": [
+   1.75,
+   0.46,
+   0.21
+  ],
+  "middle_03": [
+   1.46,
+   0.43,
+   0.23
+  ],
+  "ring_01": [
+   2.35,
+   0.41,
+   0.15
+  ],
+  "ring_02": [
+   1.59,
+   0.44,
+   0.22
+  ],
+  "ring_03": [
+   1.35,
+   0.31,
+   0.19
+  ],
+  "pinky_01": [
+   1.6,
+   0.45,
+   0.22
+  ],
+  "pinky_02": [
+   1.28,
+   0.51,
+   0.29
+  ],
+  "pinky_03": [
+   1.09,
+   0.5,
+   0.32
+  ]
+ },
+ "along_d_from_wrist_cm_r": {
+  "MCP": {
+   "index": 11.71,
+   "middle": 11.64,
+   "ring": 10.97,
+   "pinky": 9.87
+  },
+  "web_between_fingers(max distal extent of the gap)": {
+   "index-middle": 12.36,
+   "middle-ring": 13.75,
+   "ring-pinky": 13.72
+  }
+ },
+ "curl_grip60_80_50_l": {
+  "finger_x_dorsal_face_pairs": 0,
+  "finger_x_palm_face_pairs": 130,
+  "finger_verts_beyond_dorsal_surface": 0,
+  "max_beyond_mm": 0.0
+ },
+ "curl_builder80_90_45_l": {
+  "finger_x_dorsal_face_pairs": 0,
+  "finger_x_palm_face_pairs": 240,
+  "finger_verts_beyond_dorsal_surface": 0,
+  "max_beyond_mm": 0.0
+ },
+ "curl_fist90_100_70_l": {
+  "finger_x_dorsal_face_pairs": 113,
+  "finger_x_palm_face_pairs": 211,
+  "finger_verts_beyond_dorsal_surface": 90,
+  "max_beyond_mm": 8.62
+ },
+ "curl_fist90_110_80_l": {
+  "finger_x_dorsal_face_pairs": 128,
+  "finger_x_palm_face_pairs": 233,
+  "finger_verts_beyond_dorsal_surface": 112,
+  "max_beyond_mm": 9.75
+ }
+}

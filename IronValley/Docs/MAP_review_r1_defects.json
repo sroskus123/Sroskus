@@ -1,0 +1,179 @@
+{
+ "asset": "Map Kalné Hamry design",
+ "review_round": 1,
+ "date": "2026-09-26",
+ "note": "Independent critic round 1. The fix round that followed was interrupted by a usage limit; data may already contain partial fixes. Verify each item against the current files.",
+ "pass": false,
+ "defects": [
+  {
+   "id": "P1-EDGE",
+   "severity": "P1",
+   "title": "The map edge exists only as prose: 92 % of the hard boundary has no physical barrier in the data",
+   "evidence": "boundary.treatment describes a 2 m deer fence on the spurs with 'POZOR! MINY' signs every 25 m, a pasture fence with barbed wire, an old stone field wall and a hunting-ground sign. None of these exists as data. fences_walls_hedges (26 entries) contains only chain_link_2m, concrete_low_wall, hedge_*, hedgerow_mixed and timber_picket_1m, all of them in the village. Props and fences contain 0 sign objects. Only meta.round_fiction and boundary.treatment mention 'deer'. Sampling the hard_polygon every 2 m: 956 of 1036 m have no fence, prop, building, vegetation block or retaining wall within 3 m. On the NW, E and S spurs the only things there are forest trunks (median nearest trunk 2.7-2.9 m), so the invisible 6 m capsule wall would stand in open forest. At the quarry there are 28 m of hard line between the gravel heap P_B_9 and conveyor P_B_10 with nothing nearby. Each roadblock is one 6 m concrete_barrier_row (plus P_A_10 on road A), and the hard line runs 6 m behind it. This breaks the rule 'hard: ... always at or behind a visible barrier ..., never in open ground' and ENV-03 / brief §3.3 (edge built into the environment). The checker's BND test only checks that the treatment text is non-empty (check_layout.py ~l.1648). Script: critic_r1_checks.py check_boundary, boundary.py.",
+   "fix": "Add the barriers as generator data: deer-fence, pasture-fence and field-wall polylines that follow the hard polygon on every spur (type, height, posts, blocks_*); sign props with text ids every 25 m; roadblocks that close the whole gap (barrier rows, razor wire, the quarry gate). Add a checker test that every hard-polygon sample has a physical barrier or terrain steeper than 45° within 1-2 m."
+  },
+  {
+   "id": "P1-DOCK-TERRAIN",
+   "severity": "P1",
+   "title": "Warehouse dock stair SK_X1 is buried and the dock ramp SK_X3 cuts through the terrain",
+   "evidence": "SK_X1 (dock west end, stair from yard 1.30 up to the dock at 2.40): the bake terrain 0.3 m in front of the first riser is 1.79, not 1.30 (+0.49 m). The terrain rises up to +0.69 m above the treads. QA_SK_X1_bottom (32.75, 1.55, 1.30) lies 0.49 m under the ground. SK_X3 (1:6 vehicle ramp, local x 12.25-18.85): the terrain relative to the ramp plane ranges from -1.07 m (floating at the top, yard side) to +1.34 m (buried at the foot, building side). Cause: PAD_SKLAD (z 2.35, blend 3 m) and PAD_SKLAD_YARD (1.30) leave the 3 m dock strip (world x 31.25-34.25) as a cross-fall blend, and north of y 31.25 the hill rises to 2.5-2.9. Neither element has a terrain stamp. As a side effect the blend at the dock's west end can be walked up from the yard onto the dock (terrain 2.18-2.33 next to the 2.40 dock), which contradicts loading_dock 'access via SK_X1/SK_X2/SK_X3 only' and the one-way drop design. No check compares exterior stairs or ramps with the terrain: L03 covers doors only, and the Walk raster overwrites terrain with the stair/ramp plane. Scripts: critic_r1_checks.py check_ext_access_terrain, extstairs.py.",
+   "fix": "Add stamps for both dock ends: a flat 1.30 apron in front of SK_X1 and a ramp stamp that matches the SK_X3 plane, with a side wall or embankment against the hill. Alternatively move or reshape them. Add a checker test: terrain within 0.02 m of every exterior stair foot, landing and ramp surface, and never above a tread."
+  },
+  {
+   "id": "P1-SEC-CONTACT",
+   "severity": "P1",
+   "title": "Six closed buildings float or are buried up to 1 m on cross-slopes; no pads or plinth spec",
+   "evidence": "Terrain minus base z sampled over each footprint (7x7): S_DOMEK_3 -0.63..+1.04 m (its boarded ground-floor windows would be underground on the high side), S_KULNA_C -0.59..+0.82, S_DOMEK_1 -0.50..+0.55, S_HOSPODA -0.51..+0.46 (next to spawn ALFA_R2), S_KOLNA_STROJE -0.31..+0.42, S_STODOLA -0.28..+0.35. Secondary buildings have one base z and no foundation or plinth fields, and the terrain has no pad stamps for them (the stamps list has pads only for the square, the three main buildings and the bridge). The checker's L04 samples only the footprint centre (|dz| <= 0.15, check_layout.py ~l.1200), so it passes. This breaks brief §3 ('Modely nesmějí létat nad zemí ani se náhodně protínat') and §3.3 (resolve how buildings meet the ground).",
+   "fix": "Give each secondary building a pad stamp (flat at base z with a blend) or an explicit stepped plinth (plinth_bottom_z, height per side) that the generator must build. Extend L04 to test footprint corners and edges."
+  },
+  {
+   "id": "P1-CUT-FACE",
+   "severity": "P1",
+   "title": "Unsupported 5 m earth cliff (up to 69°) around the warehouse rear yard, inside the playable area",
+   "evidence": "The rear yard pad is cut into the slope (foundation note: 'sit on one pad cut into the slope'), but no retaining wall is defined (retaining_walls = RW_DILNA and RW_DUM only). Bake heights at y=28: x=56 2.35, x=57 3.57, x=58 6.01, x=59 7.52, which is 2.44 m per 1 m (68°). Along the north edge y 31->34 at x=48: 2.35 -> 5.52. In total 54 m² steeper than 45° (max 69°) around (54.4, 29.7), plus 6 m² at 52° around (57.6, 9.4). HEDGE_SKLAD_REAR (x=57) is planted halfway up this cliff, and path P_E_RING reaches 39° at (61.2, 23). This breaks brief §3.3 ('plynulé svahy ... věrohodné přechody') and ENV-03 ('ostré zlomy terénu'). The checker has no slope test outside lanes, paths and roads. Scripts: critic_r1_checks.py check_cut_faces, steep.py.",
+   "fix": "Add a retaining wall along the rear-yard cut, with vertical_steps faces as for RW_DILNA, or regrade to at most 1:1.5 with a wider blend and move the hedge and path. Add a checker test that walkable-area terrain steeper than 45° is covered by a declared wall, channel or vertical step."
+  },
+  {
+   "id": "P1-GUTTERS",
+   "severity": "P1",
+   "title": "Gutters sit 0.24-0.45 m above the roof drip edge on the workshop and the house",
+   "evidence": "For every gable or hip roof, eave_z is the wall-line height (the ridge heights confirm this: house 6.1 + 4.75·tan40 = 10.086; hall 4.6 + 5·tan30 = 7.487). The roof surface at the overhang edge is therefore eave_z - overhang·tan(pitch), but the gutters are hard-coded at eave_z - 0.05 (ivbuildings.py l.838 and the dílna equivalents). Results: RF_HALA gutter 4.55 vs drip edge 4.31 (+0.24); RF_PRISTAVEK 6.10 vs 5.80 (+0.30); RF_DUM, all four sides, 6.05 vs 5.60 (+0.45). Downpipe top_z inherits the same wrong heights. The warehouse is fine (+0.003). A generator following the data will make gutters float above the tiles on both hero buildings. The brief §3.2 and the review list name gutters and roof overhang explicitly. No checker test covers this.",
+   "fix": "Set gutter z = eave_z - overhang_eave·tan(pitch) - 0.06…0.10 (bracket under the drip) and set downpipe top_z to match. Add a checker test that each gutter sits just below the roof plane at its xy."
+  },
+  {
+   "id": "P1-AI-COVER",
+   "severity": "P1",
+   "title": "AI cover data: no cover points inside buildings, 14 of 31 window firing positions unusable, stair-watch point missing",
+   "evidence": "(a) All 562 object cover points are outside the main buildings: 0 inside any footprint. Yet building interiors make up 208 of 429 m² of zone_dilna, 190 of 481 m² of zone_sklad and 104 of 494 m² of zone_dvur. MAP_DESIGN §5 and §9 name the tractor, lathes, profile rack and pallet racks as the zones' main CQB cover, and hold_points are taken from cover points inside the polygon, so defending bots never use interior furniture cover. (b) Window points placed 0.6 m inside each window: 14 of 31 are invalid. CP0571 (DL_W13) floats at z 4.30 over the DL_S1 stair void (slab opening DL_SO1). Four have the shot blocked by tall furniture: CP0565/DL_F13 2.0 m, CP0573/DL_F15 1.4 m, CP0582/DM_F3 2.0 m, CP0590/DM_F10 2.1 m. Nine overlap furniture with the 0.35 m capsule: CP0563 compressor, CP0564 workbench, CP0569 sofa, CP0575 desk, CP0576 sofa, CP0579 kitchen units and table, CP0580 bed, CP0585 double bed, CP0588 double bed. In the two designed hold rooms 6 of 14 window points are unusable (office: CP0569, CP0571, CP0573; house L1: CP0585, CP0588, CP0590). (c) ai_navigation.hold_room_state sends one bot to a 'stair-watch cover point (top of the flight)', but no such point exists. The checker's A01 only counts points and checks policy fields. Scripts: critic_r1_checks.py check_cover, cover.py.",
+   "fix": "Generate object cover points for every building level on a capsule raster that includes furniture, stairs and slab voids. Validate window points: capsule-free, on a floor, sill-height shot line clear. Move the furniture or drop the point where needed. Add stair-watch points for DL_S1, DL_ES1, DM_S1b and DM_S2. Add a reachability test to A01."
+  },
+  {
+   "id": "P2-FALLBACK-SPAWN-LOS",
+   "severity": "P2",
+   "title": "Fallback spawn rows can see the zones at 58-85 m",
+   "evidence": "Checked with the checker's own LOS class over all rows, not just active ones: ALFA_R2 sees zone_dilna (41 rays, nearest 66 m) and zone_dvur (27 rays, 58 m). CHARLIE_R1 sees zone_dvur (15 rays, 64 m) and zone_sklad (8 rays, 85 m). My independent solid-building LOS agrees for three of the four pairs. spawn_selection.hard_rule says 'if the active row fails, use the team's other row, then any row of the team', and the LOS -10 score is defined only for the active row. MAP_DESIGN §8 claims 'Spawny nic nevidí a nikdo nevidí je'. V01 tests only the active rows.",
+   "fix": "Add screens for the fallback rows or forbid fallback rows that can see the active zone. Apply the LOS and risk score to fallback candidates. Extend V01 to every row a team can spawn on for each zone."
+  },
+  {
+   "id": "P2-SPAWN-RULE-CONFLICT",
+   "severity": "P2",
+   "title": "Two different respawn selection algorithms in the data",
+   "evidence": "spawn_areas[].selection_rule: 'pick the free point with the largest distance to any visible enemy (>= 25 m)'. ai_navigation.spawn_selection.respawn_score: '-10 LOS, -5 per enemy within 45 m, +1 per friendly within 30 m, seed tie-break', applied only to the active row. The two rules can pick different points, and neither defines scoring for fallback rows.",
+   "fix": "Keep one normative rule, reference it from the other place, and define how fallback rows are scored."
+  },
+  {
+   "id": "P2-DVUR-DOC",
+   "severity": "P2",
+   "title": "The Dvůr zone does not include the rear yard, although the data and docs say it does",
+   "evidence": "zone_dvur.desc and the MAP_DESIGN §5 table list 'dvůr za domem' as counted, but the polygon reaches only 1.25 m behind the house's rear wall: the local minimum is y -6.0 against the wall at -4.75, so only the D1 landing strip is included. MAP_DESIGN §5 and ART 4.3 say 'balkon se schody do zahrady', but DM_S2 lands in the rear yard (the garden is the front terrace). The S_KOLNA_STROJE note says '5 m behind spawn C back row'; the actual distance to CHARLIE_R2 is 29 m.",
+   "fix": "Either extend the polygon into the rear yard (and re-run balance and LOS) or correct the desc, docs and AI notes. Fix the balcony and machinery-shed wording."
+  },
+  {
+   "id": "P2-ZBAND-STAIR",
+   "severity": "P2",
+   "title": "The zone z-band margin invariant is false on the house U-stair",
+   "evidence": "zone_dvur band is 1.90-5.54. DM_S1b steps at 5.377, 5.565 and 5.752 lie within 0.30 m of z_max; step 6 is only 0.025 m above it. MAP_DESIGN and zone.inclusion_test claim every walkable surface in the polygon is at least 0.30 m inside or outside the band. Z01 never sees interior stairs because the Walk raster blocks them (check_layout.py ~l.1290).",
+   "fix": "Document stairs as an allowed transition or shift z_max (for example to 5.24). Make Z01 sample interior stair and landing surfaces."
+  },
+  {
+   "id": "P2-WINDOW-FURNITURE",
+   "severity": "P2",
+   "title": "Tall furniture stands in front of windows",
+   "evidence": "DM_F3 wall_unit_cabinet (2.0 m) covers 100 % of DM0_WW1 (sill 0.85). DM_F10 wardrobe (2.1 m) covers 58 % of DM1_WW1. DL_F13 tool_shelving (2.0 m) covers 58 % of DL_W7. DL_F15 filing cabinets (1.4 m) cover 67 % of the office's internal firing window DL_WI2 (sill 0.95). B07 checks furniture only against door zones. Visible on the plans plan_dum_L0.png, plan_dum_L1.png and plan_dilna_L0.png / L1.png.",
+   "fix": "Move this furniture to solid wall sections. Add a checker test that furniture taller than the sill does not sit within 0.7 m of a window."
+  },
+  {
+   "id": "P2-DOOR-SWING-STAIRS",
+   "severity": "P2",
+   "title": "Doors swing over stair approaches and arrival landings",
+   "evidence": "DL_D4 swings into the 1.20 m DL_S1 approach bay: it sweeps 0.76 m² of the 1.0 m approach, the leaf rests inside the bay, and the leaf tip is 0.05 m from the first riser (visible on plan_dilna_L0.png). DM0_D1, the main entrance, opens outward over the whole 1.2 m DM_X1 landing: it sweeps 0.59 m² of the arrival zone and comes within 0.05 m of the top nosing. DL_D9 sweeps 0.37 m² of the DL_ES1 platform arrival. B06 checks only the rest pose, not the swing arc or stair zones.",
+   "fix": "Re-hinge or swap the swing (DL_D4 into the hall, DM0_D1 inward) or deepen the landings. Add swing-sector versus stair approach and arrival checks."
+  },
+  {
+   "id": "P2-PIERS",
+   "severity": "P2",
+   "title": "Door jambs 0.05-0.08 m from the face of an abutting wall",
+   "evidence": "DL_D9: 0.05 m of wall to the inner face of DL_A1_E. DM0_D3: 0.07 m to DM0_Pc and 0.08 m to DM0_Pd (a 1.25 m opening in a 1.40 m corridor). DM1_D1: 0.07 m to DM1_Pc. B04 claims 'piers >= 0.10' but measures only to the end of the wall box, not to perpendicular walls.",
+   "fix": "Shift or narrow the openings to leave at least 0.10-0.15 m of masonry. Make B04 measure to abutting wall faces."
+  },
+  {
+   "id": "P2-SKLAD-OFFICE",
+   "severity": "P2",
+   "title": "Warehouse office declares a 3.0 m ceiling but has none",
+   "evidence": "SK_R_KANCELAR has ceiling_height 3.0 and 3.0 m block partitions SK_P1 and SK_P2, but B_SKLAD has no slabs, so the office is an open-topped box inside the 6 m hall. B11 trusts the declared ceiling_height.",
+   "fix": "Add a ceiling slab over the office (non-walkable top) or declare it open-topped. Have B11 derive ceilings from geometry."
+  },
+  {
+   "id": "P2-BRIDGE-UNDERPASS",
+   "severity": "P2",
+   "title": "Crouch-only passages under all three bridges; deck thickness missing from the schema",
+   "evidence": "The brook is walkable everywhere ('brodit se dá všude'), but the distance from the bed to the deck TOP is at most 2.27 m under BR_MAIN, 1.64 m under BR_FOOT_A and 1.83 m under BR_FOOT_B, before subtracting the deck thickness, which the bridge schema does not have. This creates sub-2.10 m, crouch-only passages that the design forbids ('žádné průlezy jen v dřepu') and that the Recast bake (walkableHeight 1.80) will cut: players can hide or pass where bots cannot. B14 checks only stairs.",
+   "fix": "Add deck_thickness and block the channel under each deck (grating, rip-rap or abutments), or raise the decks to give at least 2.10 m. Extend the headroom check to bridges and the channel."
+  },
+  {
+   "id": "P2-CONSTRUCTION-DATA",
+   "severity": "P2",
+   "title": "Construction details are not machine-readable or contradict the art direction",
+   "evidence": "Window frame setback (0.12 m) and sill overhang (0.04 m) appear only in ART_DIRECTION §4, not in buildings.json. ART says 120 mm sandwich panels; the data has 0.25 m walls. ART says 0.5 m eave overhang; the data has 0.6 (house) and 0.3 (warehouse). Gable vent DL_V1 (z 5.2-5.8) sits above DL_H_W's 4.6 m wall box, so it has no construction_boxes and cannot be cut under the no-boolean rule (B08 skips it). DL_CH1 is a stove flue but there is no stove. S_KOLNA_STROJE is described as 'open front' and sits 88.8 of 90 m² inside the soft boundary, but it has no open-side or collision spec: it gets full-footprint collision, i.e. an invisible wall at the open front. The distant-hills backdrop is prose only (no profile or seed).",
+   "fix": "Add reveal_depth and sill_overhang (per wall or global) to buildings.json. Reconcile the ART numbers. Add construction boxes for gables or a gable-opening schema. Add a stove or drop the flue. Give open-fronted sheds an open_side and a collision proxy. Give the backdrop a generative spec (profile, seed, crest curve)."
+  },
+  {
+   "id": "P2-ACCESS-CLUTTER",
+   "severity": "P2",
+   "title": "Objects clutter the zone accesses",
+   "evidence": "Canopy post RF_RAMPA support (0.0, 10.6) stands 0.07 m beyond the top nosing, on the axis of the 2.0 m dock stair SK_X2 (the Sklad zone's main stair). Bench P_DL_12 sits 0.45 m beyond the DL_X2 step and spans the whole DL_D7 door (x 6.9-8.7 vs door 7.18-8.43), leaving only a 0.8 m strip along the facade.",
+   "fix": "Move the canopy post off the stair axis (for example to x ±1.2) and move the bench clear of the door's 1.2 m approach."
+  },
+  {
+   "id": "P2-STEEP-PATHS",
+   "severity": "P2",
+   "title": "Footpaths and the field-access ramp are too steep to be believable",
+   "evidence": "Maximum slope over 1 m on the bake: P_E_RING 39°, gravel P_DUM_S 36°, P_BANK_TERRACE 33° (RW_DILNA calls it a 1:3 ramp, i.e. 18°), gravel P_DUM_W 29°, P_BANK_A 28°. RAMP_SKLAD_E is a 22° (40 %) 'field access ramp' for vehicles. Bravo's deep flank crosses a 42.5° bank at (60.5, 22).",
+   "fix": "Regrade the path corridors (at most 15-20°) or add steps, and make the field ramp 12-15 %. R02 should use realistic limits per surface."
+  },
+  {
+   "id": "P2-DITCH-COVER",
+   "severity": "P2",
+   "title": "The ditch concealment claim is physically false",
+   "evidence": "MAP_DESIGN §7 and the ditches' gameplay text say a crouching player is covered in DITCH_A and DITCH_C, but they are 0.80-0.85 m deep and the crouch capsule is 1.20 m, so 0.35-0.40 m (head and shoulders) sticks out above the bank.",
+   "fix": "Deepen the ditches to at least 1.25 m (keeping banks walkable) or drop the claim."
+  },
+  {
+   "id": "P2-REAL-TOPONYMS",
+   "severity": "P2",
+   "title": "Real place names used in signs and text",
+   "evidence": "'Štěrkovna Horní Hamry' and 'Dolní Hamry 2 km' (layout.json boundary.player_text_cs, MAP_DESIGN §4/§11, ART §7). Horní Hamry and Dolní Hamry are real local parts of Hamry nad Sázavou (https://hamryns.cz/o-obci/historie-obce/). The brief requires fictional names only.",
+   "fix": "Rename them, for example 'Štěrkovna Kalný Vrch' and 'Nové Kalno 2 km'."
+  },
+  {
+   "id": "P2-ZONE-LINE-PROPS",
+   "severity": "P2",
+   "title": "Zone outlines cut through props",
+   "evidence": "Props straddling the painted outline: P_DL_3 flatbed trailer (82 % inside), P_DL_4 skip (71 %), P_DL_8 water wheel ruin (26 %), P_DM_1 greenhouse (50 %), P_SK_1 semi trailer (3 %).",
+   "fix": "Nudge the polygon vertices or the props so the outline runs clear of them."
+  },
+  {
+   "id": "P2-CHECKER-BLIND-SPOTS",
+   "severity": "P2",
+   "title": "check_layout.py (the D10 acceptance gate) misses all the P1s above",
+   "evidence": "The checker passes (73 PASS, 0 FAIL) although: L04 samples only building centres; BND checks only text; A01 does not test reachability or shot lines; there is no gutter/roof test; nothing compares exterior stairs or ramps with the terrain; there is no slope test outside lanes. Other gaps: B12's room-area test is skipped for any building with stairs (`not any(s for s in bd['stairs'])`, i.e. the workshop and the house; I re-verified the areas independently and they match); B09 skips headroom on exterior stairs; B06 checks the rest pose only; Z01 never sees interior stairs; V01 tests active rows only.",
+   "fix": "Add the tests listed in each P1/P2 fix. Remove the `not any(stairs)` skip from B12. Keep critic_r1_checks.py as an extra gate."
+  }
+ ],
+ "verified_ok": [
+  "check_layout.py runs clean: 73 PASS, 0 FAIL, 1 WARN (DM_R1_KOUPELNA dead end), 68 s; log in critic_r1/check_out.txt",
+  "Three distinct main building types (dílna, menší sklad, obytný dům); all three have fully walkable interiors and every room is reachable (door/stair graph checked independently)",
+  "Room polygons match the wall-enclosed regions on every level (independent 2.5 cm raster; this includes the workshop and house, where B12 skips the area test); under-stair voids are closed",
+  "Door clear sizes recomputed: all ≥ 1.10 × 2.25 m (brief ≥ 0.90 × 2.05); roller doors 3.90 m wide",
+  "Every stair recomputed: risers 0.175-0.1875 m, treads 0.27-0.28 m, 2R+T 0.63-0.647 m, width ≥ 1.1 m; headroom above interior flights ≥ 2.75 m including slab edges; exterior flights clear of canopy, eaves and balcony by ≥ 2.10 m",
+  "Wall thicknesses realistic: 0.45 m brick outside, 0.30 m spine, 0.15 m partitions, 0.10 m stud under-stair walls, 0.25 m cladding on HEA240 steel columns placed inside the wall line",
+  "No window lands on an internal-wall junction; the high warehouse windows overlap doors only in plan, with ≥ 1.9 m vertical separation",
+  "Spawn points: steepest 5.1° (plane fit on the bake), nearest object ≥ 1.07 m; active rows have 0 visible rays to their zone and there are 0 rays between any pair of enemy rows (independent LOS with solid buildings on the PNG terrain)",
+  "Main building pads sit at the declared ground level on all sides (-0.17 / -0.05 / -0.54 m); workshop and house exterior stairs meet the terrain exactly; retaining-wall stairs rise exactly the terrain step (2.00 / 2.10 m)",
+  "Three zone candidates of 429 / 481 / 494 m²; upper floors and balcony excluded by z; the workshop and warehouse polygon edges follow the partition and rack aisle as documented",
+  "The firewood under DL_ES1 is a wedge following the soffit, so it does not intrude into the stair",
+  "Exterior door swings are clear of world props, fences and trees (except the bench at DL_D7)",
+  "Tree split (85 inside / 417 within 25 m / 1124 impostor) matches the budget; sun 222°/38° fits 10 Sept 15:05 at about 50°N",
+  "The warehouse's sandwich-roof gutters and the dock canopy gutter sit correctly relative to their roof edges"
+ ]
+}

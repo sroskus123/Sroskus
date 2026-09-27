@@ -1,0 +1,964 @@
+{
+  "tool": "Tools/web_assets/build_web_assets.py",
+  "generatedAt": "2026-09-27T07:19:11Z",
+  "sources": [
+    {
+      "path": "Shared/config/optics.json",
+      "bytes": 28002,
+      "sha256": "ec55a94c2b396441a9f40d07cb9958bc8cd3411420ef5fe45d397839f4ab385b"
+    },
+    {
+      "path": "Art/Export/GLB/IV7_Carbine.glb",
+      "bytes": 18363568,
+      "sha256": "b709667d915cbddb3291817b8aaf8c015259c607c6f0624719d2dd55be1f94fd"
+    },
+    {
+      "path": "Art/Export/GLB/IVH1_Holo.glb",
+      "bytes": 4441368,
+      "sha256": "17d084abf60aca10523443baac916b68b6fedeab49a7d6683939b9c90077f116"
+    },
+    {
+      "path": "Art/Export/GLB/IVH1_Holo_LOD1.glb",
+      "bytes": 694920,
+      "sha256": "48171baccc42431a750f133aa519e195e05c07ca83c839e4a20e2724e3f88773"
+    },
+    {
+      "path": "Art/Textures/Optics/IVH1/T_IVH1_Reticle.png",
+      "bytes": 105784,
+      "sha256": "efab9fb0bba9bf794a2253d358823c3e3ea292c3832c4eb0fd8f34e1df226434"
+    },
+    {
+      "path": "Art/Textures/Optics/IVH1/T_IVH1_Reticle_Emissive.png",
+      "bytes": 74021,
+      "sha256": "756b7d1520c9de6b69e7de3063a4729533ab626760880cdd924ed7d8d14744ff"
+    },
+    {
+      "path": "Art/Export/GLB/IVR1_RedDot.glb",
+      "bytes": 2159920,
+      "sha256": "0f79803830325b0cb40e7b5da3f01908ef2657e585622fb13d0b48e04910ae90"
+    },
+    {
+      "path": "Art/Export/GLB/IVR1_RedDot_LOD1.glb",
+      "bytes": 482524,
+      "sha256": "3abf11826a256e7018b6d8e97c1f779543887d9bf6d516869de1814921e367d0"
+    },
+    {
+      "path": "Art/Textures/Optics/IVR1/T_IVR1_Reticle.png",
+      "bytes": 23160,
+      "sha256": "bcd872db6ba690b186e4ba9170c62caf46ae1ad62aeaa2531bb0c648bca84b78"
+    },
+    {
+      "path": "Art/Textures/Optics/IVR1/T_IVR1_Reticle_Emissive.png",
+      "bytes": 14715,
+      "sha256": "ae63ebd25a48d6b3baf79b94a5f1fd51db253356e7ecd620bd53e8f5671bd254"
+    },
+    {
+      "path": "Art/Export/GLB/IVP2_Prism.glb",
+      "bytes": 2636428,
+      "sha256": "2a502d8cd49039bacdc897cb5855affef60ec304d41d605265dab4724276e2d7"
+    },
+    {
+      "path": "Art/Export/GLB/IVP2_Prism_LOD1.glb",
+      "bytes": 704844,
+      "sha256": "6d677a0c5ed9c2b05465403e6b1c9f395832157ca0ee88313bb525308975a75b"
+    },
+    {
+      "path": "Art/Textures/Optics/IVP2/T_IVP2_Reticle.png",
+      "bytes": 28569,
+      "sha256": "2d14157d84a02ff827d2065c5f00b389989bcbf048d056a93902e2fa875935f8"
+    },
+    {
+      "path": "Art/Textures/Optics/IVP2/T_IVP2_Reticle_Emissive.png",
+      "bytes": 15933,
+      "sha256": "47362b409a4a23c3f352256098cd6e10a62cc7a38ec63c4e17d4c54aac1d417b"
+    },
+    {
+      "path": "Art/Export/GLB/IVS3_Scope.glb",
+      "bytes": 3095296,
+      "sha256": "8c8e14d6e03e5131dbec7984a4ec9659812946869051fbdc6a5a5e3474bfc5fc"
+    },
+    {
+      "path": "Art/Export/GLB/IVS3_Scope_LOD1.glb",
+      "bytes": 860700,
+      "sha256": "885cb5d282ad85305882ca95e9cc4e4ea98d10eae5924817c1d3ba443334e0be"
+    },
+    {
+      "path": "Art/Textures/Optics/IVS3/T_IVS3_Reticle.png",
+      "bytes": 78683,
+      "sha256": "340f8c3ad4a3454972e69bba931b986b4bb282a88323c100cf599fdee9cbb9fd"
+    },
+    {
+      "path": "Art/Textures/Optics/IVS3/T_IVS3_Reticle_Emissive.png",
+      "bytes": 49362,
+      "sha256": "6095b613bf166b61c21f819ba137d9f77933638d5d459a27d1867f7a50ebe9e5"
+    },
+    {
+      "path": "Art/Export/GLB/IVS6_Scope.glb",
+      "bytes": 6884192,
+      "sha256": "bb0e4c4afc241d69efc263a9c740103ccb6ce703222b592a53dd28b2cae4b77b"
+    },
+    {
+      "path": "Art/Export/GLB/IVS6_Scope_LOD1.glb",
+      "bytes": 1441528,
+      "sha256": "6d70779b3c4d8a8081046672e103b12ff0ac370a0786340ae413a18bee93aa17"
+    },
+    {
+      "path": "Art/Textures/Optics/IVS6/T_IVS6_Reticle.png",
+      "bytes": 84305,
+      "sha256": "b659cc82743cf94164b18b2858fdbc236543a2ff5e948aa8dfe5caf51b001305"
+    },
+    {
+      "path": "Art/Textures/Optics/IVS6/T_IVS6_Reticle_Emissive.png",
+      "bytes": 49184,
+      "sha256": "6d27083edadff61c4b57b02024266b3487f452b5a7bcad4c869666f97f6a56f8"
+    },
+    {
+      "path": "Art/Textures/Optics/IVS6/T_IVS6_ADS_Overlay.png",
+      "bytes": 655784,
+      "sha256": "458fa65d5c81b4552a16d183a3d1d1186338153583bb74184ef25f3a020147e5"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "Web/public/assets/weapons/IV7_Carbine.glb",
+      "bytes": 6429900,
+      "base64Bytes": 8573200
+    },
+    {
+      "path": "Web/public/assets/optics/IVH1_Holo.glb",
+      "bytes": 875764,
+      "base64Bytes": 1167688
+    },
+    {
+      "path": "Web/public/assets/optics/IVH1_Holo_LOD1.glb",
+      "bytes": 379528,
+      "base64Bytes": 506040
+    },
+    {
+      "path": "Web/public/assets/optics/IVH1_reticle_sdf.png",
+      "bytes": 38186,
+      "base64Bytes": 50916
+    },
+    {
+      "path": "Web/public/assets/optics/IVP2_Prism.glb",
+      "bytes": 1480064,
+      "base64Bytes": 1973420
+    },
+    {
+      "path": "Web/public/assets/optics/IVP2_Prism_LOD1.glb",
+      "bytes": 573800,
+      "base64Bytes": 765068
+    },
+    {
+      "path": "Web/public/assets/optics/IVP2_reticle_sdf.png",
+      "bytes": 14861,
+      "base64Bytes": 19816
+    },
+    {
+      "path": "Web/public/assets/optics/IVR1_RedDot.glb",
+      "bytes": 1052860,
+      "base64Bytes": 1403816
+    },
+    {
+      "path": "Web/public/assets/optics/IVR1_RedDot_LOD1.glb",
+      "bytes": 362228,
+      "base64Bytes": 482972
+    },
+    {
+      "path": "Web/public/assets/optics/IVR1_reticle_sdf.png",
+      "bytes": 12151,
+      "base64Bytes": 16204
+    },
+    {
+      "path": "Web/public/assets/optics/IVS3_Scope.glb",
+      "bytes": 1777244,
+      "base64Bytes": 2369660
+    },
+    {
+      "path": "Web/public/assets/optics/IVS3_Scope_LOD1.glb",
+      "bytes": 717752,
+      "base64Bytes": 957004
+    },
+    {
+      "path": "Web/public/assets/optics/IVS3_reticle_sdf.png",
+      "bytes": 13576,
+      "base64Bytes": 18104
+    },
+    {
+      "path": "Web/public/assets/optics/IVS6_Scope.glb",
+      "bytes": 1976768,
+      "base64Bytes": 2635692
+    },
+    {
+      "path": "Web/public/assets/optics/IVS6_Scope_LOD1.glb",
+      "bytes": 1023916,
+      "base64Bytes": 1365224
+    },
+    {
+      "path": "Web/public/assets/optics/IVS6_ads_overlay.webp",
+      "bytes": 228992,
+      "base64Bytes": 305324
+    },
+    {
+      "path": "Web/public/assets/optics/IVS6_reticle_sdf.png",
+      "bytes": 16025,
+      "base64Bytes": 21368
+    }
+  ],
+  "glb": [
+    {
+      "source": "Art/Export/GLB/IV7_Carbine.glb",
+      "output": "Web/public/assets/weapons/IV7_Carbine.glb",
+      "bytes": 6429900,
+      "sourceBytes": 18363568,
+      "textures": [
+        {
+          "image": "T_IV7_Body_Normal",
+          "role": "normal",
+          "format": "jpeg444-q92",
+          "from": [
+            2048,
+            2048
+          ],
+          "size": [
+            2048,
+            2048
+          ],
+          "bytes": 446076
+        },
+        {
+          "image": "T_IV7_Body_ORM",
+          "role": "orm",
+          "format": "jpeg444-q92",
+          "from": [
+            2048,
+            2048
+          ],
+          "size": [
+            2048,
+            2048
+          ],
+          "bytes": 1239105
+        },
+        {
+          "image": "T_IV7_Body_BaseColor",
+          "role": "base",
+          "format": "webp-q90",
+          "from": [
+            2048,
+            2048
+          ],
+          "size": [
+            2048,
+            2048
+          ],
+          "bytes": 183540
+        },
+        {
+          "image": "T_IV7_Furniture_Normal",
+          "role": "normal",
+          "format": "jpeg444-q92",
+          "from": [
+            2048,
+            2048
+          ],
+          "size": [
+            2048,
+            2048
+          ],
+          "bytes": 547423
+        },
+        {
+          "image": "T_IV7_Furniture_ORM",
+          "role": "orm",
+          "format": "jpeg444-q92",
+          "from": [
+            2048,
+            2048
+          ],
+          "size": [
+            2048,
+            2048
+          ],
+          "bytes": 426260
+        },
+        {
+          "image": "T_IV7_Furniture_BaseColor",
+          "role": "base",
+          "format": "webp-q90",
+          "from": [
+            2048,
+            2048
+          ],
+          "size": [
+            2048,
+            2048
+          ],
+          "bytes": 47756
+        }
+      ],
+      "weightsConverted": 39,
+      "transmissionStripped": 0
+    },
+    {
+      "source": "Art/Export/GLB/IVH1_Holo.glb",
+      "output": "Web/public/assets/optics/IVH1_Holo.glb",
+      "bytes": 875764,
+      "sourceBytes": 4441368,
+      "textures": [
+        {
+          "image": "T_IVH1_Reticle_Emissive",
+          "role": "reticle",
+          "format": "webp-lossless",
+          "from": [
+            2048,
+            2048
+          ],
+          "size": [
+            2048,
+            2048
+          ],
+          "bytes": 20464
+        },
+        {
+          "image": "T_IVH1_Reticle",
+          "role": "reticle",
+          "format": "webp-lossless",
+          "from": [
+            2048,
+            2048
+          ],
+          "size": [
+            2048,
+            2048
+          ],
+          "bytes": 20758
+        },
+        {
+          "image": "T_IVH1_Body_Normal",
+          "role": "normal",
+          "format": "jpeg444-q92",
+          "from": [
+            2048,
+            2048
+          ],
+          "size": [
+            1024,
+            1024
+          ],
+          "bytes": 55747
+        },
+        {
+          "image": "T_IVH1_Body_ORM",
+          "role": "orm",
+          "format": "jpeg444-q92",
+          "from": [
+            2048,
+            2048
+          ],
+          "size": [
+            1024,
+            1024
+          ],
+          "bytes": 252252
+        },
+        {
+          "image": "T_IVH1_Body_BaseColor",
+          "role": "base",
+          "format": "webp-q90",
+          "from": [
+            2048,
+            2048
+          ],
+          "size": [
+            1024,
+            1024
+          ],
+          "bytes": 25388
+        }
+      ],
+      "weightsConverted": 0,
+      "transmissionStripped": 0
+    },
+    {
+      "source": "Art/Export/GLB/IVH1_Holo_LOD1.glb",
+      "output": "Web/public/assets/optics/IVH1_Holo_LOD1.glb",
+      "bytes": 379528,
+      "sourceBytes": 694920,
+      "textures": [
+        {
+          "image": "T_IVH1_Body_Normal_LOD1",
+          "role": "normal",
+          "format": "jpeg444-q92",
+          "from": [
+            512,
+            512
+          ],
+          "size": [
+            512,
+            512
+          ],
+          "bytes": 13632
+        },
+        {
+          "image": "T_IVH1_Body_ORM_LOD1",
+          "role": "orm",
+          "format": "jpeg444-q92",
+          "from": [
+            512,
+            512
+          ],
+          "size": [
+            512,
+            512
+          ],
+          "bytes": 96169
+        },
+        {
+          "image": "T_IVH1_Body_BaseColor_LOD1",
+          "role": "base",
+          "format": "webp-q90",
+          "from": [
+            512,
+            512
+          ],
+          "size": [
+            512,
+            512
+          ],
+          "bytes": 11978
+        }
+      ],
+      "weightsConverted": 0,
+      "transmissionStripped": 0
+    },
+    {
+      "source": "Art/Export/GLB/IVR1_RedDot.glb",
+      "output": "Web/public/assets/optics/IVR1_RedDot.glb",
+      "bytes": 1052860,
+      "sourceBytes": 2159920,
+      "textures": [
+        {
+          "image": "T_IVR1_Reticle_Emissive",
+          "role": "reticle",
+          "format": "webp-lossless",
+          "from": [
+            2048,
+            2048
+          ],
+          "size": [
+            2048,
+            2048
+          ],
+          "bytes": 2052
+        },
+        {
+          "image": "T_IVR1_Reticle",
+          "role": "reticle",
+          "format": "webp-lossless",
+          "from": [
+            2048,
+            2048
+          ],
+          "size": [
+            2048,
+            2048
+          ],
+          "bytes": 2056
+        },
+        {
+          "image": "T_IVR1_Body_Normal",
+          "role": "normal",
+          "format": "jpeg444-q92",
+          "from": [
+            1024,
+            1024
+          ],
+          "size": [
+            1024,
+            1024
+          ],
+          "bytes": 74952
+        },
+        {
+          "image": "T_IVR1_Body_ORM",
+          "role": "orm",
+          "format": "jpeg444-q92",
+          "from": [
+            1024,
+            1024
+          ],
+          "size": [
+            1024,
+            1024
+          ],
+          "bytes": 275449
+        },
+        {
+          "image": "T_IVR1_Body_BaseColor",
+          "role": "base",
+          "format": "webp-q90",
+          "from": [
+            1024,
+            1024
+          ],
+          "size": [
+            1024,
+            1024
+          ],
+          "bytes": 25888
+        }
+      ],
+      "weightsConverted": 0,
+      "transmissionStripped": 0
+    },
+    {
+      "source": "Art/Export/GLB/IVR1_RedDot_LOD1.glb",
+      "output": "Web/public/assets/optics/IVR1_RedDot_LOD1.glb",
+      "bytes": 362228,
+      "sourceBytes": 482524,
+      "textures": [
+        {
+          "image": "T_IVR1_Body_Normal_LOD1",
+          "role": "normal",
+          "format": "jpeg444-q92",
+          "from": [
+            256,
+            256
+          ],
+          "size": [
+            256,
+            256
+          ],
+          "bytes": 6186
+        },
+        {
+          "image": "T_IVR1_Body_ORM_LOD1",
+          "role": "orm",
+          "format": "jpeg444-q92",
+          "from": [
+            256,
+            256
+          ],
+          "size": [
+            256,
+            256
+          ],
+          "bytes": 38427
+        },
+        {
+          "image": "T_IVR1_Body_BaseColor_LOD1",
+          "role": "base",
+          "format": "webp-q90",
+          "from": [
+            256,
+            256
+          ],
+          "size": [
+            256,
+            256
+          ],
+          "bytes": 5594
+        }
+      ],
+      "weightsConverted": 0,
+      "transmissionStripped": 0
+    },
+    {
+      "source": "Art/Export/GLB/IVP2_Prism.glb",
+      "output": "Web/public/assets/optics/IVP2_Prism.glb",
+      "bytes": 1480064,
+      "sourceBytes": 2636428,
+      "textures": [
+        {
+          "image": "T_IVP2_Reticle_Emissive",
+          "role": "reticle",
+          "format": "webp-lossless",
+          "from": [
+            2048,
+            2048
+          ],
+          "size": [
+            2048,
+            2048
+          ],
+          "bytes": 2214
+        },
+        {
+          "image": "T_IVP2_Reticle",
+          "role": "reticle",
+          "format": "webp-lossless",
+          "from": [
+            2048,
+            2048
+          ],
+          "size": [
+            2048,
+            2048
+          ],
+          "bytes": 3614
+        },
+        {
+          "image": "T_IVP2_Body_Normal",
+          "role": "normal",
+          "format": "jpeg444-q92",
+          "from": [
+            1024,
+            1024
+          ],
+          "size": [
+            1024,
+            1024
+          ],
+          "bytes": 115145
+        },
+        {
+          "image": "T_IVP2_Body_ORM",
+          "role": "orm",
+          "format": "jpeg444-q92",
+          "from": [
+            1024,
+            1024
+          ],
+          "size": [
+            1024,
+            1024
+          ],
+          "bytes": 371268
+        },
+        {
+          "image": "T_IVP2_Body_BaseColor",
+          "role": "base",
+          "format": "webp-q90",
+          "from": [
+            1024,
+            1024
+          ],
+          "size": [
+            1024,
+            1024
+          ],
+          "bytes": 31048
+        }
+      ],
+      "weightsConverted": 0,
+      "transmissionStripped": 0
+    },
+    {
+      "source": "Art/Export/GLB/IVP2_Prism_LOD1.glb",
+      "output": "Web/public/assets/optics/IVP2_Prism_LOD1.glb",
+      "bytes": 573800,
+      "sourceBytes": 704844,
+      "textures": [
+        {
+          "image": "T_IVP2_Body_Normal_LOD1",
+          "role": "normal",
+          "format": "jpeg444-q92",
+          "from": [
+            256,
+            256
+          ],
+          "size": [
+            256,
+            256
+          ],
+          "bytes": 9643
+        },
+        {
+          "image": "T_IVP2_Body_ORM_LOD1",
+          "role": "orm",
+          "format": "jpeg444-q92",
+          "from": [
+            256,
+            256
+          ],
+          "size": [
+            256,
+            256
+          ],
+          "bytes": 50051
+        },
+        {
+          "image": "T_IVP2_Body_BaseColor_LOD1",
+          "role": "base",
+          "format": "webp-q90",
+          "from": [
+            256,
+            256
+          ],
+          "size": [
+            256,
+            256
+          ],
+          "bytes": 6554
+        }
+      ],
+      "weightsConverted": 0,
+      "transmissionStripped": 0
+    },
+    {
+      "source": "Art/Export/GLB/IVS3_Scope.glb",
+      "output": "Web/public/assets/optics/IVS3_Scope.glb",
+      "bytes": 1777244,
+      "sourceBytes": 3095296,
+      "textures": [
+        {
+          "image": "T_IVS3_Reticle_Emissive",
+          "role": "reticle",
+          "format": "webp-lossless",
+          "from": [
+            4096,
+            4096
+          ],
+          "size": [
+            4096,
+            4096
+          ],
+          "bytes": 2804
+        },
+        {
+          "image": "T_IVS3_Reticle",
+          "role": "reticle",
+          "format": "webp-lossless",
+          "from": [
+            4096,
+            4096
+          ],
+          "size": [
+            4096,
+            4096
+          ],
+          "bytes": 6148
+        },
+        {
+          "image": "T_IVS3_Body_Normal",
+          "role": "normal",
+          "format": "jpeg444-q92",
+          "from": [
+            1024,
+            1024
+          ],
+          "size": [
+            1024,
+            1024
+          ],
+          "bytes": 95134
+        },
+        {
+          "image": "T_IVS3_Body_ORM",
+          "role": "orm",
+          "format": "jpeg444-q92",
+          "from": [
+            1024,
+            1024
+          ],
+          "size": [
+            1024,
+            1024
+          ],
+          "bytes": 411640
+        },
+        {
+          "image": "T_IVS3_Body_BaseColor",
+          "role": "base",
+          "format": "webp-q90",
+          "from": [
+            1024,
+            1024
+          ],
+          "size": [
+            1024,
+            1024
+          ],
+          "bytes": 40118
+        }
+      ],
+      "weightsConverted": 0,
+      "transmissionStripped": 0
+    },
+    {
+      "source": "Art/Export/GLB/IVS3_Scope_LOD1.glb",
+      "output": "Web/public/assets/optics/IVS3_Scope_LOD1.glb",
+      "bytes": 717752,
+      "sourceBytes": 860700,
+      "textures": [
+        {
+          "image": "T_IVS3_Body_Normal_LOD1",
+          "role": "normal",
+          "format": "jpeg444-q92",
+          "from": [
+            256,
+            256
+          ],
+          "size": [
+            256,
+            256
+          ],
+          "bytes": 8225
+        },
+        {
+          "image": "T_IVS3_Body_ORM_LOD1",
+          "role": "orm",
+          "format": "jpeg444-q92",
+          "from": [
+            256,
+            256
+          ],
+          "size": [
+            256,
+            256
+          ],
+          "bytes": 57046
+        },
+        {
+          "image": "T_IVS3_Body_BaseColor_LOD1",
+          "role": "base",
+          "format": "webp-q90",
+          "from": [
+            256,
+            256
+          ],
+          "size": [
+            256,
+            256
+          ],
+          "bytes": 8436
+        }
+      ],
+      "weightsConverted": 0,
+      "transmissionStripped": 0
+    },
+    {
+      "source": "Art/Export/GLB/IVS6_Scope.glb",
+      "output": "Web/public/assets/optics/IVS6_Scope.glb",
+      "bytes": 1976768,
+      "sourceBytes": 6884192,
+      "textures": [
+        {
+          "image": "T_IVS6_Reticle_Emissive",
+          "role": "reticle",
+          "format": "webp-lossless",
+          "from": [
+            4096,
+            4096
+          ],
+          "size": [
+            4096,
+            4096
+          ],
+          "bytes": 2764
+        },
+        {
+          "image": "T_IVS6_Reticle",
+          "role": "reticle",
+          "format": "webp-lossless",
+          "from": [
+            4096,
+            4096
+          ],
+          "size": [
+            4096,
+            4096
+          ],
+          "bytes": 7836
+        },
+        {
+          "image": "T_IVS6_Body_Normal",
+          "role": "normal",
+          "format": "jpeg444-q92",
+          "from": [
+            2048,
+            2048
+          ],
+          "size": [
+            1024,
+            1024
+          ],
+          "bytes": 72629
+        },
+        {
+          "image": "T_IVS6_Body_ORM",
+          "role": "orm",
+          "format": "jpeg444-q92",
+          "from": [
+            2048,
+            2048
+          ],
+          "size": [
+            1024,
+            1024
+          ],
+          "bytes": 380668
+        },
+        {
+          "image": "T_IVS6_Body_BaseColor",
+          "role": "base",
+          "format": "webp-q90",
+          "from": [
+            2048,
+            2048
+          ],
+          "size": [
+            1024,
+            1024
+          ],
+          "bytes": 43342
+        }
+      ],
+      "weightsConverted": 0,
+      "transmissionStripped": 0
+    },
+    {
+      "source": "Art/Export/GLB/IVS6_Scope_LOD1.glb",
+      "output": "Web/public/assets/optics/IVS6_Scope_LOD1.glb",
+      "bytes": 1023916,
+      "sourceBytes": 1441528,
+      "textures": [
+        {
+          "image": "T_IVS6_Body_Normal_LOD1",
+          "role": "normal",
+          "format": "jpeg444-q92",
+          "from": [
+            512,
+            512
+          ],
+          "size": [
+            512,
+            512
+          ],
+          "bytes": 18121
+        },
+        {
+          "image": "T_IVS6_Body_ORM_LOD1",
+          "role": "orm",
+          "format": "jpeg444-q92",
+          "from": [
+            512,
+            512
+          ],
+          "size": [
+            512,
+            512
+          ],
+          "bytes": 145189
+        },
+        {
+          "image": "T_IVS6_Body_BaseColor_LOD1",
+          "role": "base",
+          "format": "webp-q90",
+          "from": [
+            512,
+            512
+          ],
+          "size": [
+            512,
+            512
+          ],
+          "bytes": 20072
+        }
+      ],
+      "weightsConverted": 0,
+      "transmissionStripped": 0
+    }
+  ]
+}
