@@ -1091,9 +1091,9 @@ def shoelace(poly):
     return abs(a) / 2
 
 
-Z1_POLY = zone_poly(DILNA, [[-12.5, -6.5], [4.05, -6.5], [4.05, -2.0], [13.0, -2.0], [13.0, 9.5], [10.0, 11.2], [4.0, 12.3],
-                           [-5.5, 12.0], [-11.0, 11.0], [-13.0, 9.0], [-13.0, -6.5]])
-Z2_POLY = zone_poly(SKLAD, [[-13.0, 0.0], [13.0, 0.0], [13.0, 18.5], [-13.0, 18.5]])
+Z1_POLY = zone_poly(DILNA, [[-14.0, -5.4], [12.6, -5.4], [12.6, 9.6], [10.0, 11.2], [4.0, 12.3], [-5.5, 12.0], [-12.0, 11.0],
+                           [-14.0, 9.0]])
+Z2_POLY = zone_poly(SKLAD, [[-13.0, -0.3], [15.6, -0.3], [15.6, 16.6], [-13.0, 16.6]])
 Z3_POLY = zone_poly(DUM, [[-10.5, -6.0], [10.5, -6.0], [10.5, 17.5], [-10.5, 17.5]])
 
 
@@ -1103,15 +1103,18 @@ def centroid(poly):
 
 
 zones = [
-    {"id": "zone_dilna", "name": "Dílna", "desc": "workshop hall ground floor + yard between the hall and the brook",
+    {"id": "zone_dilna", "name": "Dílna", "desc": "the whole single-storey workshop (hall, annex rooms, lean-to) + the yard between "
+                                                   "the hall and the brook",
      "polygon": Z1_POLY, "center": [r2(v) for v in DLw((0.0, 6.0))], "z_min": r2(DILNA["floor"] - 0.60), "z_max": r2(DILNA["floor"] + 2.50),
      "hud_marker": [r2(v) for v in DLw((0.0, 6.0))] + [r2(DILNA["floor"] + 3.0)],
-     "excluded": "annex upper floor (L1) and the mill-race terrace; the bridge deck"},
-    {"id": "zone_sklad", "name": "Sklad", "desc": "loading dock, front aisle and first rack row of the warehouse + dock apron of the yard",
+     "excluded": "the mill-race terrace behind RW_DILNA; the rear pad beyond 0.4 m behind the hall; the bridge deck"},
+    {"id": "zone_sklad", "name": "Sklad", "desc": "loading dock with its stairs and ramp, front aisle, office and first rack row of the "
+                                                   "warehouse + the dock apron of the yard",
      "polygon": Z2_POLY, "center": [r2(v) for v in SKw((0.0, 8.5))], "z_min": r2(Z_SKLAD_YARD - 0.50), "z_max": r2(SKLAD["floor"] + 2.60),
      "hud_marker": [r2(v) for v in SKw((0.0, 8.5))] + [r2(SKLAD["floor"] + 3.5)],
-     "excluded": "rear aisle, rear yard"},
-    {"id": "zone_dvur", "name": "Dvůr", "desc": "house terrace garden, ground floor of the house and the rear yard",
+     "excluded": "rear aisle and second rack row, rear yard, gable aprons beyond 0.5 m"},
+    {"id": "zone_dvur", "name": "Dvůr", "desc": "walled terrace garden, ground floor of the house incl. its one-storey wing, and the "
+                                                "1.25 m entrance strip behind the house (landing DM_X1) -- the rear yard itself is outside",
      "polygon": Z3_POLY, "center": [r2(v) for v in DMw((0.0, 8.5))], "z_min": r2(Z_TERRACE_DUM - 0.50), "z_max": r2(DUM["floor"] + 2.60),
      "hud_marker": [r2(v) for v in DMw((0.0, 8.5))] + [r2(DUM["floor"] + 3.5)],
      "excluded": "the square below the retaining wall, the upper floor of the house"},
@@ -1126,9 +1129,11 @@ for zn in zones:
                                 "colours of Web/src/data/teams.json and stay reserved for ownership",
                     "hud": "zone outline + zone name and distance in metres; tinted with the controlling team's colour (teams.json), "
                            "white when contested, neutral grey when empty (as Web/src/game/zoneView.js)"}
-zones[0]["excluded"] = ("annex stair bay/corridor strip and the whole upper floor (office z +4.30 world, 0.50 above z_max); the "
-                        "external steel stair; the mill-race terrace; the brook bed and banks beyond the yard low walls")
-zones[2]["excluded"] = "the square below the retaining wall; the upper floor and the balcony of the house (z 5.94, 0.40 above z_max)"
+zones[0]["excluded"] = ("the mill-race terrace behind RW_DILNA (z 3.13, outside the polygon); the brook bed and banks beyond the "
+                        "yard bank walls; the rear pad beyond 0.4 m behind the hall")
+zones[2]["excluded"] = ("the square below the retaining wall; the upper floor and the balcony of the house (z 5.94, 0.40 above "
+                        "z_max); the rear yard beyond local y -6.0; stair flights are continuous transitions through z_max (the "
+                        "0.30 m margin rule applies to floors and landings)")
 
 # =================================================================================================
 # 8.  Spawn spines (the per-zone spawn rows are solved in ivlayout_post from real path distances)
@@ -1483,6 +1488,7 @@ DRAINAGE = {
 
 def main():
     import ivpost as POST   # trees, surfaces, lanes, cover points, analysis-derived data
+    terrain_finishing()
     spawn_screens()
     finalize_heights()
     layout = {
@@ -1547,24 +1553,38 @@ def main():
                    "gameplay": "walkable (speed x0.75, splash footsteps); banks 1:1.5 walkable except masonry abutments at BR_MAIN"}],
         "roads": [
             {"id": "ROAD_A", "surface": "asphalt", "polyline": with_z(RA_XY, RA_Z), "width": 6.0, "shoulders": {"width": 0.75, "surface": "gravel"},
-             "markings": "none (village road), worn edges, patched cracks", "leads_to": "lower valley (WSW), boundary roadblock behind spawn alfa"},
+             "markings": "worn white dashed centre line and solid edge lines (ref. 03), patched cracks, granite kerbs + concrete-slab "
+                         "sidewalk on the brook side near the square, cast-iron gullies and manhole covers",
+             "wet": "after a shower: puddles in ruts and at the kerbs (ART_DIRECTION 3.1)",
+             "leads_to": "lower valley (WSW), boundary roadblock behind spawn alfa"},
             {"id": "ROAD_B", "surface": "asphalt", "polyline": with_z(RB_XY, RB_Z), "width": 6.0, "shoulders": {"width": 0.75, "surface": "gravel"},
-             "markings": "none", "leads_to": "gravel works (N), boundary roadblock behind spawn bravo"},
+             "markings": "worn white dashed centre line and edge lines (ref. 01/03)", "wet": "puddles at the kerbs",
+             "leads_to": "gravel works (N), boundary roadblock behind spawn bravo"},
         ],
         "tracks": [
             {"id": "TRACK_C", "surface": "dirt_track_gravel_centre", "polyline": with_z(TC_XY, TC_Z), "width": 3.6,
              "detail": "two wheel ruts (dirt/mud, 0.5 wide, 0.08 deep) + grassy centre strip", "leads_to": "farm (SE), roadblock behind spawn charlie"},
             {"id": "DRIVE_DUM", "surface": "concrete_slabs", "polyline": DRIVE, "width": 3.2, "role": "driveway up to the house terrace"},
-            {"id": "RAMP_SKLAD_E", "surface": "gravel", "polyline": RAMP_SKLAD_E, "width": 5.0,
-             "role": "field access ramp: warehouse rear yard <-> E ring path (the only link through the 4 m cut bank)"},
+            {"id": "TRACK_E_RING", "surface": "dirt_track_gravel_centre",
+             "polyline": next(st["polyline"] for st in stamps if st["id"] == "GRADE_TRACK_E_RING"), "width": 2.8,
+             "detail": "two wheel ruts + grassy centre strip; a row of Norway spruces and the field hedgerow along its east side (ref. 01)",
+             "role": "E ring/flank: arm B <-> arm C behind the warehouse", "graded": GRADED.get("TRACK_E_RING")},
+            {"id": "TRACK_SKLAD_REAR", "surface": "gravel",
+             "polyline": next(st["polyline"] for st in stamps if st["id"] == "GRADE_TRACK_SKLAD_REAR"), "width": 3.0,
+             "role": "E ring -> warehouse rear yard at grade (south-east corner of the platform); replaces the 22 deg field ramp",
+             "graded": GRADED.get("TRACK_SKLAD_REAR")},
         ],
-        "paths": [{"id": k, **v} for k, v in PATHS.items()],
+        "paths": [{"id": k, **v, "graded": GRADED.get(k)} for k, v in PATHS.items()],
         "ditches": [
-            {"id": "DITCH_C", "polyline": with_z(DITCH_C_XY, DITCH_C_Z), "bed_width": 0.5, "depth": 0.85, "bank_slope_h_per_v": 1.2,
-             "surface": "mud_grass", "culverts": ["under DRIVE_DUM (concrete pipe 0.6)", "inlet grate at the square (to the brook)"],
-             "gameplay": "crouch lane: 0.85 m deep, a crouched player (1.20) is covered from the track"},
+            {"id": "DITCH_C", "polyline": with_z(DITCH_C_XY, DITCH_C_Z), "bed_width": 0.6, "depth": DITCH_C_DEPTH,
+             "bank_slope_h_per_v": 1.2, "surface": "stone_pitched_bed_grass_banks", "water": {"depth": 0.05, "note": "trickle: "
+             "footstep/splash surface only, no speed change"},
+             "culverts": ["under DRIVE_DUM (concrete pipe 0.6)", "inlet grate at the square (to the brook)"],
+             "reference": "01 (SE part: stone-lined stream beside the dirt road)",
+             "gameplay": "crouch lane: 1.25 m deep (review P2-DITCH-COVER), a crouched player (1.20 m) is covered from the track"},
             {"id": "DITCH_A", "polyline": with_z(DITCH_A_XY, DITCH_A_Z), "bed_width": 0.5, "depth": 0.80, "bank_slope_h_per_v": 1.2,
-             "surface": "mud_grass", "gameplay": "crouch lane along the S side of road A"},
+             "surface": "mud_grass", "gameplay": "roadside drainage only: 0.80 m deep, a crouched player's head and shoulders show "
+                                                  "above the bank (no cover claim)"},
             {"id": "MILLRACE", "polyline": with_z(MILL_XY, MILL_Z), "bed_width": 0.9, "depth": 0.6, "surface": "stone_lined_dry",
              "gameplay": "dry, stone-lined mill race along the path P_MILLRACE: 0.6 m, not a crouch lane (too narrow), visual + footstep surface"},
         ],
