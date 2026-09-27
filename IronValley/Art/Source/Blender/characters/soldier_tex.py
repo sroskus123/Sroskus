@@ -56,14 +56,14 @@ def fold_wave(x, sharp=1.6):
 
 CAMO = {
     # base, c1 (mid dark), c2 (darkest), c3 (light), torso jersey, gear tint
-    "Alfa": dict(base="#5b603a", c1="#403c28", c2="#2a2e20", c3="#7f7d4f", torso="#4e533b", gear="#535842",
+    "Alfa": dict(base="#4d5337", c1="#3a3627", c2="#23271c", c3="#6a6a49", torso="#474c37", gear="#4b503c",
                  name="woodland-olive"),
-    "Bravo": dict(base="#b09a72", c1="#8b7250", c2="#6a5439", c3="#cdbe98", torso="#a48f6a", gear="#8e7657",
+    "Bravo": dict(base="#a28d69", c1="#7f684a", c2="#5e4b35", c3="#bcae8a", torso="#978462", gear="#86704f",
                   name="coyote / tan"),
-    "Charlie": dict(base="#7a7f74", c1="#5a6055", c2="#41463f", c3="#a8aba0", torso="#727669", gear="#6c6e67",
+    "Charlie": dict(base="#737870", c1="#555b52", c2="#3d423b", c3="#9c9f96", torso="#6c7067", gear="#666862",
                     name="grey-green"),
 }
-NEUTRAL = dict(balaclava="#2c2d27", gaiter="#5d5a4c", skin="#9a7058", boot="#6a4f33", boot_toe="#3d2f22",
+NEUTRAL = dict(balaclava="#2c2d27", gaiter="#57544a", skin="#8d6650", boot="#5a4430", boot_toe="#33291f",
                sole="#1d1d1d", lace="#2e2a24")
 GEAR_WHITE = 0.62          # linear value of the neutral gear fabric (tint = colour / GEAR_WHITE)
 
@@ -73,9 +73,9 @@ def camo_layers(P, seed=3):
     Returns weights (m, 4) for base, c1, c2, c3 summing to 1."""
     w = wave_noise(P, 0.30, 2, seed + 11, 6)[:, None] * 0.035
     Q = P + w * np.array([1.0, -0.7, 0.4])[None, :]
-    n1 = wave_noise(Q, 0.19, 3, seed + 1, 7)
-    n2 = wave_noise(Q + 1.7, 0.13, 3, seed + 2, 7)
-    n3 = wave_noise(Q - 2.3, 0.16, 3, seed + 3, 7)
+    n1 = wave_noise(Q, 0.13, 3, seed + 1, 7)
+    n2 = wave_noise(Q + 1.7, 0.09, 3, seed + 2, 7)
+    n3 = wave_noise(Q - 2.3, 0.11, 3, seed + 3, 7)
     e = 0.018
     a1 = sm(0.12 - e, 0.12 + e, n1)
     a2 = sm(0.30 - e, 0.30 + e, n2) * sm(-0.1, 0.1, n1)          # darkest blobs inside / next to c1
@@ -262,7 +262,7 @@ def cloth_maps(td, objnames, fr, shirt_cfg, trouser_cfg, seed=5):
             ref = -np.array([0, 1.0, 0]) - ax * (-ax[1])
             ref /= np.linalg.norm(ref)
             mm = S_ & (sgx == sg)
-            inner[mm] = 0.5 + 0.5 * (np.where(t_lo[mm] > 0, rv_lo[mm], rv_up[mm]) @ ref)
+            inner[mm] = 0.5 + 0.5 * (np.where((t_lo[mm] > 0)[:, None], rv_lo[mm], rv_up[mm]) @ ref)
         el = np.where(t_lo > 0, t_lo * 0.253, (t_up - 1.0) * 0.298)       # metres from the elbow (+ distal)
         warp = wave_noise(P, 0.05, 2, seed + 7, 6) * 0.35
         ring = fold_wave(el / 0.028 + warp) * sm(0.13, 0.03, np.abs(el)) * (0.35 + 0.65 * inner)
@@ -361,10 +361,10 @@ def cloth_maps(td, objnames, fr, shirt_cfg, trouser_cfg, seed=5):
         gaiter[B_] = sm(0.3, 0.7, td["iv_gaiter"][B_])
         rib = np.abs(np.sin(np.arctan2(P[:, 0], -(P[:, 1] + 0.05)) * 170)).astype(np.float32)
         h[B_] += ((rib[B_] - 0.5) * 0.00008) * (1 - gaiter[B_])
-        h[B_] += (weave[B_] * 0.00004 + wave_noise(P[B_], 0.035, 2, seed + 12, 6) * 0.0008 * gaiter[B_])
+        h[B_] += (weave[B_] * 0.00004 + wave_noise(P[B_], 0.05, 2, seed + 12, 6) * 0.0004 * gaiter[B_])
         # gaiter: horizontal soft folds under the nose + a rolled top edge
         gf = fold_wave(P[:, 2] / 0.018 + wave_noise(P, 0.04, 2, seed + 13, 6) * 0.4)
-        h[B_] += (gf[B_] * 0.0012 * gaiter[B_])
+        h[B_] += (gf[B_] * 0.0005 * gaiter[B_])
         edge = np.clip(1 - np.abs(td["iv_gaiter"] - 0.5) / 0.25, 0, 1)
         h[B_] += (edge[B_] * 0.0010)
         rough[B_] = 0.93

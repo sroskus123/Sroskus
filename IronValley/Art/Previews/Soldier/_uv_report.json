@@ -12,9 +12,9 @@
   }
  },
  "gear": {
-  "coverage": 0.4237,
-  "overlap_px": 25,
-  "islands": 653,
+  "coverage": 0.417,
+  "overlap_px": 134,
+  "islands": 626,
   "px_per_cm": {}
  },
  "team": {

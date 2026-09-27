@@ -382,6 +382,8 @@ def add_lip(ob, loop, inward_dir_fn, edge=0.003, depth=0.015, lining_dir_fn=None
     bm.from_mesh(me)
     bm.verts.ensure_lookup_table()
     dl = bm.verts.layers.deform.verify()
+    lip = bm.faces.layers.int.get("iv_lip") or bm.faces.layers.int.new("iv_lip")
+    bm.verts.ensure_lookup_table()
     sk = list(bm.verts.layers.shape.values()) if bm.verts.layers.shape else []
     outer = [bm.verts[i] for i in loop]
     r1, r2 = [], []
@@ -408,6 +410,7 @@ def add_lip(ob, loop, inward_dir_fn, edge=0.003, depth=0.015, lining_dir_fn=None
         nf.append(bm.faces.new((r1[i], r1[j], r2[j], r2[i])))
     for f in nf:
         f.smooth = True
+        f[lip] = 1
     bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
     nv0 = len(co)
     bm.to_mesh(me)
@@ -628,6 +631,18 @@ def signed_to_surface(A_co, B_co, B_tris, maxd=0.03):
 # =============================================================================
 # 6. Atlas texel synthesis (several objects sharing one UV atlas)
 # =============================================================================
+
+def tri_face_attr(me, name):
+    """Per loop-triangle value of an INT face attribute (0 where missing)."""
+    me.calc_loop_triangles()
+    pi = np.empty(len(me.loop_triangles), np.int64)
+    me.loop_triangles.foreach_get("polygon_index", pi)
+    if name not in me.attributes:
+        return np.zeros(len(pi), np.int32)
+    a = np.empty(len(me.polygons), np.int32)
+    me.attributes[name].data.foreach_get("value", a)
+    return a[pi]
+
 
 def loop_tris(me):
     me.calc_loop_triangles()

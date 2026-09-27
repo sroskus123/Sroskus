@@ -268,6 +268,22 @@ def enforce_inside(inner, outer, mask_fn, margin):
     return {"moved": int(bad.sum()), "tested": int(len(idx)), "worst_before_mm": round(float(sd[ok].max()) * 1000, 2) if ok.any() else None}
 
 
+def enforce_outside(outer, inner, mask_fn, margin):
+    """Move `outer` garment vertices (mask) that are not at least `margin` outside the `inner`
+    closed surface outwards along its normal."""
+    co = S.co_of(outer)
+    idx = np.nonzero(mask_fn(co))[0]
+    ic, it = S.co_of(inner), S.tris_of(inner.data)
+    bv = S.bvh(ic, it)
+    loc, nor, fi, d = S.nearest_on(bv, co[idx], 0.05)
+    ok = fi >= 0
+    sd = np.where(((co[idx] - loc) * nor).sum(1) >= 0, d, -d)
+    bad = ok & (sd < margin)
+    co[idx[bad]] = loc[bad] + nor[bad] * margin
+    S.set_co(outer, co)
+    return {"moved": int(bad.sum()), "tested": int(len(idx)), "worst_before_mm": round(float(sd[ok].min()) * 1000, 2) if ok.any() else None}
+
+
 def eye_window(co):
     c = np.array(BALACLAVA["eye_c"])
     e = ((co[:, 0] - c[0]) / BALACLAVA["eye_a"]) ** 2 + ((co[:, 2] - c[2]) / BALACLAVA["eye_b"]) ** 2
@@ -346,13 +362,13 @@ import soldier_gear as G     # noqa: E402
 
 CARRIER = dict(front_w=0.268, front_h=0.340, front_top=1.458, back_w=0.268, back_h=0.355, back_top=1.488,
                bag_t=0.034, R=0.46, cut=0.040, cut_depth=0.075, tilt_front=2.0, tilt_back=3.0, clear=0.004,
-               cb_z=(1.135, 1.300), cb_clear=0.0015, cb_thick=0.009,
+               cb_z=(1.135, 1.285), cb_clear=0.0025, cb_thick=0.009,
                strap_x=0.100, strap_w=0.062, strap_clear=0.002, strap_thick=0.011)
 HELMET = dict(c=(0.0, -0.051, 1.700), ax=0.1175, ay_f=0.1400, ay_b=0.1335, az=0.1330, p=2.3, shell=0.009,
               rim=((0, 1.738), (35, 1.733), (62, 1.716), (90, 1.711), (118, 1.712), (145, 1.692), (180, 1.680)))
 BOOT = dict(top_z=0.205, off=0.0058, sole_z=0.030, sole_margin=0.006)
-BELT = dict(z=(0.998, 1.046), clear=0.0015, thick=0.010)
-KNEE = dict(clear=0.003, thick=0.013, z=(-0.075, 0.065), az=65.0)
+BELT = dict(z=(0.998, 1.046), clear=0.0040, thick=0.010)
+KNEE = dict(clear=0.004, thick=0.013, z=(-0.085, 0.060), az=65.0)
 
 
 def rim_z(az):
@@ -576,7 +592,7 @@ def build_carrier(arm, shirt, B):
         Nn = G.smooth_grid(Nn, 2)
         Nn /= np.linalg.norm(Nn, axis=-1, keepdims=True)
         V, F = G.slab_from_grid(Pp, Nn, P["strap_clear"], P["strap_thick"])
-        B.add(f"PC_Strap_{s.upper()}", V, F, ("fabric", "Soldier_Shirt", ["spine_03", f"clavicle_{s}", "neck_01"]),
+        B.add(f"PC_Strap_{s.upper()}", V, F, ("fabric", "Soldier_Shirt", ["spine_03", f"clavicle_{s}", "neck_01", f"upperarm_{s}"]),
               zone="carrier", rigid_ends=("spine_03", 0.05, "u"), grid=(len(phis), 3))
     # --- placard (triple magazine pouch) on the lower front bag + three IV-7 magazines
     o, ex, ey, ez = fr_f
@@ -706,7 +722,7 @@ def build_magazines(rifle_rig, rifle_parts, B, placard_top, placard_front_y, bac
 
 def build_belt(arm, trousers, B):
     bv, tco = garment_bvh(trousers)
-    az = np.radians(np.linspace(0, 360, 28, endpoint=False))
+    az = np.radians(np.linspace(0, 360, 36, endpoint=False))
     cen = np.array([0.0, -0.030])
     O = np.zeros((len(az), 3, 3)); D = np.zeros_like(O)
     for i, a in enumerate(az):
@@ -714,6 +730,7 @@ def build_belt(arm, trousers, B):
         # belt top 6 mm under the waistband top (the waist line is lower at the front)
         yw = cen[1] + dxy[1] * 0.12
         ztop = TROUSERS["waist_z0"] + TROUSERS["waist_tilt"] * yw - 0.006
+        ztop -= 0.008
         for j, z in enumerate(np.linspace(ztop - (BELT["z"][1] - BELT["z"][0]), ztop, 3)):
             O[i, j] = [cen[0] + dxy[0] * 0.45, cen[1] + dxy[1] * 0.45, z]
             D[i, j] = [-dxy[0], -dxy[1], 0]
@@ -723,7 +740,7 @@ def build_belt(arm, trousers, B):
     Nn[..., 2] *= 0.3
     Nn /= np.linalg.norm(Nn, axis=-1, keepdims=True)
     V, F = G.slab_from_grid(Pp, Nn, BELT["clear"], BELT["thick"], closed_u=True, round_edge=0.25)
-    B.add("Belt", V, F, ("fabric", "Soldier_Trousers", ["pelvis", "spine_01"]), zone="belt")
+    B.add("Belt", V, F, ("fabric", "Soldier_Trousers", ["pelvis", "spine_01", "thigh_l", "thigh_r"]), zone="belt")
     ring_out = Pp + Nn * (BELT["clear"] + BELT["thick"])
     front = ring_out[0, 1]
     # buckle
@@ -743,9 +760,24 @@ def build_belt(arm, trousers, B):
         # hang: top at the belt top, back face on the belt
         c = p + n * (size[1] / 2 - 0.001) + np.array([0, 0, ring_out[i, 2, 2] + 0.004 - size[2] / 2 - p[2]])
         Vp = Vp @ R.T + c
+        Vp = push_clear(Vp, bv, n, 0.004)
         B.add(name, Vp, Fp, ("rigid", "pelvis"), zone="pouch")
         pouch.append(name)
     return {"pouches": pouch}
+
+
+def push_clear(V, bv, direction, clear, iters=12):
+    """Translate a rigid part along `direction` until all its vertices are at least `clear` in front
+    of the garment surface (bv)."""
+    d = np.asarray(direction, float) / np.linalg.norm(direction)
+    V = np.array(V, float)
+    for _ in range(iters):
+        sd = S.signed_bvh(bv, V, maxd=0.2)
+        m = np.nanmin(sd)
+        if m >= clear - 1e-4:
+            break
+        V = V + d * (clear - m + 2e-4)
+    return V
 
 
 def build_knee_pads(arm, trousers, B):
@@ -776,10 +808,11 @@ def build_knee_pads(arm, trousers, B):
         vj = np.linspace(-1, 1, len(hs))[None, :]
         T = KNEE["thick"] * (1.0 - 0.45 * np.maximum(np.abs(ui) ** 3, np.abs(vj) ** 3))
         V, F = G.slab_from_grid(Pp, Nn, KNEE["clear"], T, round_edge=0.4)
+        V = push_clear(V, bv, fwd, 0.004)
         B.add(f"KneePad_{s.upper()}", V, F, ("rigid", f"calf_{s}"), zone="kneepad")
         # strap below the pad around the back of the leg
         azb = np.radians(np.linspace(58, 302, 13))
-        hb = np.array([-0.062, -0.050, -0.038])
+        hb = np.array([-0.102, -0.091, -0.080])
         O = np.zeros((len(azb), len(hb), 3)); D = np.zeros_like(O)
         for i, a in enumerate(azb):
             dirv = fwd * math.cos(a) + side * math.sin(a)
@@ -1153,6 +1186,7 @@ def stage_build(a=None):
     gloves = build_gloves(arm, col)
     boots, soles = build_boots(arm, body, bf, col, body_bvh)
     rep["boots_tris"] = len(S.tris_of(boots.data)) + sum(len(S.tris_of(s.data)) for s in soles)
+    rep["trousers_outside_boots"] = enforce_outside(trousers, boots, lambda c: c[:, 2] < 0.27, 0.004)
     gcol = ivlib.collection("Soldier_Gear")
     B = G.Built()
     rep["carrier"], front_bag, back_bag = build_carrier(arm, shirt, B)
@@ -1292,12 +1326,509 @@ def stage_uv(a=None):
     return rep
 
 
+# =============================================================================
+# stage: textures + materials
+# =============================================================================
+
+import soldier_tex as T      # noqa: E402
+
+CLOTH_RES, CLOTH_BC_RES, GEAR_RES, TEAM_RES = 2048, 1024, 2048, 256
+
+
+def tex_path(name):
+    return os.path.join(TEX_DIR, name)
+
+
+def paste_glove(path, glove_png, rect_px, mode):
+    from PIL import Image
+    im = Image.open(path).convert("RGB")
+    g = Image.open(glove_png).convert("RGB").resize((rect_px[2], rect_px[2]), Image.LANCZOS if mode != "N" else Image.BOX)
+    if mode == "N":
+        a = np.asarray(g).astype(np.float32) / 127.5 - 1.0
+        a /= np.maximum(np.linalg.norm(a, axis=2, keepdims=True), 1e-6)
+        g = Image.fromarray(np.clip((a + 1.0) * 127.5 + 0.5, 0, 255).astype(np.uint8), "RGB")
+    im.paste(g, (rect_px[0], rect_px[1]))
+    im.save(path)
+
+
+def glove_rect(res):
+    u0, v0, sz = GLOVE_UV_RECT
+    n = int(round(sz * res))
+    return (int(round(u0 * res)), res - int(round(v0 * res)) - n, n)
+
+
+def ao_texels(objs, td, res, dist):
+    arr = S.bake_ao_multi(objs, res, dist, samples=24)
+    img = ivlib.dilate(arr, 4)
+    return img.reshape(-1, 4)[td["px"], 0]
+
+
+def gear_tint(team):
+    return tuple(float(x) for x in np.clip(T.srgb(T.CAMO[team]["gear"]) / T.GEAR_WHITE, 0, 1))
+
+
+def make_materials(texs):
+    mats = {}
+    for team in TEAMS:
+        mats[("cloth", team)] = ivlib.export_material(f"M_Soldier_Cloth_{team}", texs[f"cloth_bc_{team}"], texs["cloth_orm"], texs["cloth_n"])
+        m = ivlib.export_material(f"M_Soldier_GearFabric_{team}", texs["gear_bc"], texs["gear_orm"], texs["gear_n"])
+        nt = m.node_tree
+        bsdf = next(n for n in nt.nodes if n.type == 'BSDF_PRINCIPLED')
+        tb = nt.nodes["T_BaseColor"]
+        mix = nt.nodes.new('ShaderNodeMix')
+        mix.data_type = 'RGBA'
+        mix.blend_type = 'MULTIPLY'
+        mix.inputs['Factor'].default_value = 1.0
+        mix.inputs[7].default_value = (*gear_tint(team), 1.0)
+        nt.links.new(tb.outputs['Color'], mix.inputs[6])
+        nt.links.new(mix.outputs[2], bsdf.inputs['Base Color'])
+        m["iv_team_tint"] = list(gear_tint(team))
+        mats[("gearfab", team)] = m
+        mats[("team", team)] = ivlib.export_material(f"M_Soldier_Team_{team}", texs[f"team_bc_{team}"], texs["team_orm"], texs["team_n"])
+    mats[("gearhard", None)] = ivlib.export_material("M_Soldier_GearHard", texs["gear_bc"], texs["gear_orm"], texs["gear_n"])
+    return mats
+
+
+def material_key(ob):
+    at = ob.get("iv_atlas", "gear")
+    if at == "cloth":
+        return "cloth"
+    if at == "team":
+        return "team"
+    return "gearfab" if ob.get("iv_zone") in T.FABRIC_ZONES else "gearhard"
+
+
+def apply_team(team):
+    for ob in bpy.data.objects:
+        if ob.type != 'MESH' or ob.name == BODY or "iv_atlas" not in ob:
+            continue
+        k = material_key(ob)
+        m = bpy.data.materials.get("M_Soldier_GearHard" if k == "gearhard" else
+                                   {"cloth": f"M_Soldier_Cloth_{team}", "gearfab": f"M_Soldier_GearFabric_{team}",
+                                    "team": f"M_Soldier_Team_{team}"}[k])
+        ob.data.materials.clear()
+        ob.data.materials.append(m)
+
+
+def stage_textures(a=None):
+    t0 = time.time()
+    bpy.ops.wm.open_mainfile(filepath=BLEND)
+    arm = bpy.data.objects[ARM]
+    C.reset_pose(arm)
+    cloth, gloves, team, gear = atlas_members()
+    fr = T.Frames(arm)
+    os.makedirs(TEX_DIR, exist_ok=True)
+    rep = {}
+    texs = {}
+    # ---------------- clothing atlas
+    td = S.atlas_texels(cloth, CLOTH_RES, attrs=("iv_gaiter",))
+    cm = T.cloth_maps(td, [o.name for o in cloth], fr, SHIRT, TROUSERS)
+    ao = ao_texels(cloth, td, CLOTH_RES, 0.02)
+    nrm = HN.height_to_normal(td, cm["h"], CLOTH_RES)
+    texs["cloth_n"] = S.texels_write(nrm * 0.5 + 0.5, td, tex_path("T_Soldier_Cloth_Normal.png"), fill=(0.5, 0.5, 1.0))
+    orm = np.stack([np.clip(ao * cm["cav"], 0, 1), cm["rough"], np.zeros(len(ao))], 1)
+    texs["cloth_orm"] = S.texels_write(orm, td, tex_path("T_Soldier_Cloth_ORM.png"), fill=(1.0, 0.85, 0.0))
+    gr = glove_rect(CLOTH_RES)
+    paste_glove(texs["cloth_n"], os.path.join(GLOVE_TEX, "T_Glove_Normal.png"), gr, "N")
+    paste_glove(texs["cloth_orm"], os.path.join(GLOVE_TEX, "T_Glove_Black_ORM.png"), gr, "L")
+    texs["cloth_n_dx"] = ivlib.normal_gl_to_dx(texs["cloth_n"], tex_path("T_Soldier_Cloth_Normal_DX.png"))
+    for tm in TEAMS:
+        bc = T.cloth_base(cm, tm)
+        p = S.texels_write(bc, td, tex_path(f"T_Soldier_Cloth_{tm}_BaseColor.png"), fill=(0.2, 0.2, 0.2), srgb=True,
+                           size=CLOTH_BC_RES)
+        paste_glove(p, os.path.join(GLOVE_TEX, "T_Glove_Black_BaseColor.png"), glove_rect(CLOTH_BC_RES), "L")
+        texs[f"cloth_bc_{tm}"] = p
+    rep["cloth"] = {"texels": int(len(td["px"])), "coverage": round(len(td["px"]) / CLOTH_RES ** 2, 4),
+                    "height_mm": [round(float(cm["h"].min()) * 1000, 2), round(float(cm["h"].max()) * 1000, 2)]}
+    # ---------------- gear atlas
+    for o in gear:
+        cv = S.vertex_convexity(o)
+        at = o.data.attributes.get("iv_conv") or o.data.attributes.new("iv_conv", 'FLOAT', 'POINT')
+        at.data.foreach_set("value", cv.astype(np.float32))
+    td = S.atlas_texels(gear, GEAR_RES, attrs=("iv_conv",))
+    gm = T.gear_maps(td, gear, fr, td["iv_conv"])
+    ao = ao_texels(gear, td, GEAR_RES, 0.02)
+    nrm = HN.height_to_normal(td, gm["h"], GEAR_RES)
+    texs["gear_n"] = S.texels_write(nrm * 0.5 + 0.5, td, tex_path("T_Soldier_Gear_Normal.png"), fill=(0.5, 0.5, 1.0))
+    texs["gear_n_dx"] = ivlib.normal_gl_to_dx(texs["gear_n"], tex_path("T_Soldier_Gear_Normal_DX.png"))
+    orm = np.stack([np.clip(ao * gm["cav"], 0, 1), gm["rough"], gm["metal"]], 1)
+    texs["gear_orm"] = S.texels_write(orm, td, tex_path("T_Soldier_Gear_ORM.png"), fill=(1.0, 0.8, 0.0))
+    texs["gear_bc"] = S.texels_write(gm["base"], td, tex_path("T_Soldier_Gear_BaseColor.png"), fill=(0.3, 0.3, 0.3), srgb=True)
+    rep["gear"] = {"texels": int(len(td["px"])), "coverage": round(len(td["px"]) / GEAR_RES ** 2, 4),
+                   "fabric_texel_share": round(float(gm["fab"].mean()), 3)}
+    # ---------------- team atlas
+    td = S.atlas_texels(team, TEAM_RES)
+    for k, (tm, cfg) in enumerate(TEAMS.items()):
+        tmp = T.team_maps(td, team, fr, cfg, cfg["symbol"])
+        texs[f"team_bc_{tm}"] = S.texels_write(tmp["base"], td, tex_path(f"T_Soldier_Team_{tm}_BaseColor.png"), fill=(0.3, 0.3, 0.3), srgb=True, dilate_px=8)
+        if k == 0:
+            nrm = HN.height_to_normal(td, tmp["h"], TEAM_RES)
+            texs["team_n"] = S.texels_write(nrm * 0.5 + 0.5, td, tex_path("T_Soldier_Team_Normal.png"), fill=(0.5, 0.5, 1.0), dilate_px=8)
+            texs["team_n_dx"] = ivlib.normal_gl_to_dx(texs["team_n"], tex_path("T_Soldier_Team_Normal_DX.png"))
+            orm = np.stack([np.ones(len(tmp["rough"])), tmp["rough"], tmp["metal"]], 1)
+            texs["team_orm"] = S.texels_write(orm, td, tex_path("T_Soldier_Team_ORM.png"), fill=(1.0, 0.8, 0.0), dilate_px=8)
+    # ---------------- materials
+    for m in list(bpy.data.materials):
+        if m.users == 0 or m.name.startswith("PV") or m.name.startswith("M_Soldier"):
+            try:
+                bpy.data.materials.remove(m)
+            except Exception:
+                pass
+    make_materials(texs)
+    apply_team("Alfa")
+    rep["textures"] = {k: rel(v) for k, v in texs.items()}
+    rep["seconds"] = round(time.time() - t0, 1)
+    log("textures", json.dumps(rep))
+    json.dump(rep, open(os.path.join(PREV, "_tex_report.json"), "w"), indent=1)
+    bpy.ops.wm.save_as_mainfile(filepath=BLEND, compress=True)
+    return rep
+
+
+# =============================================================================
+# poses / rifle
+# =============================================================================
+
+import soldier_pose as SP    # noqa: E402
+
+
+def load_rifle(col_name="IV7_Parts"):
+    rig, parts = HN.append_weapon(RIFLE_BLEND, col_name=col_name, rig_name="SK_IV7")
+    bpy.context.view_layer.update()
+    return rig, parts
+
+
+def load_lib():
+    return json.load(open(POSES_JSON))
+
+
+def soldier_meshes(include_fp=False):
+    out = []
+    for o in bpy.data.objects:
+        if o.type != 'MESH' or o.name == BODY or "iv_atlas" not in o:
+            continue
+        if o.name.startswith("FP_") and not include_fp:
+            continue
+        if o.name.startswith("LOD"):
+            continue
+        out.append(o)
+    return out
+
+
+def drive_all(arm):
+    """Engine runtime rules on every soldier mesh with corrective shapes (+ the body proxy)."""
+    C.drive_twist_bones(arm)
+    spec = bpy.data.objects[BODY].get("iv_correctives")
+    for o in soldier_meshes() + [bpy.data.objects[BODY]]:
+        if o.data.shape_keys is not None:
+            if spec and "iv_correctives" not in o:
+                o["iv_correctives"] = spec
+            C.drive_correctives(arm, o)
+
+
+def dev_stance(a):
+    bpy.ops.wm.open_mainfile(filepath=BLEND)
+    arm = bpy.data.objects[ARM]
+    rig, parts = load_rifle()
+    lib = load_lib()
+    ivlib.clear_lights_cameras()
+    sc = bpy.context.scene
+    ivlib.setup_cycles(sc, samples=12, threads=4)
+    sc.view_settings.view_transform = 'AgX'
+    C.neutral_lighting((0, -0.2, 1.3), 1.2, key=0.9, world_strength=0.6)
+    bpy.data.objects[BODY].hide_render = True
+    for mode, pitch in (("ads", 0.0), ("hip", 0.0), ("ads", 35.0), ("ads", -35.0)):
+        C.reset_pose(arm)
+        rep = rifle_pose(arm, rig, lib, mode, pitch, parts)
+        drive_all(arm)
+        log("stance", mode, pitch, json.dumps(rep))
+        cam = ivlib.camera("st", (1.1, -1.5, 1.6), (0.0, -0.3, 1.35), lens=40, up=(0, 0, 1))
+        ivlib.render(os.path.join(PREV, f"_dev_stance_{mode}_{int(pitch)}.png"), cam, res=(800, 600), samples=12)
+        e, fwd, up = SP.fp_camera(arm, rig, mode, pitch)
+        cam = ivlib.camera("fp", tuple(e), tuple(e + fwd), fov_deg=80, up=tuple(up), clip_start=0.03)
+        hid = [o for o in soldier_meshes() if o.name in ("Soldier_Balaclava", "SG_Helmet", "SG_HelmetShell", "SG_Helmet_Band", "SG_Glasses_Lens", "SG_Glasses_Frame")
+               or o.name.startswith("SG_Headset") or o.name.startswith("SG_Glasses") or o.name.startswith("SG_Helmet")]
+        for o in hid:
+            o.hide_render = True
+        ivlib.render(os.path.join(PREV, f"_dev_fp_{mode}_{int(pitch)}.png"), cam, res=(800, 450), samples=12)
+        for o in hid:
+            o.hide_render = False
+
+
+# =============================================================================
+# stage: validate
+# =============================================================================
+
+POSES = [
+    ("rest", None, "A-pose (bind pose)"),
+    ("arms_raised", SP.p_arms_raised, "clavicle 22 deg + shoulder abduction 105 deg"),
+    ("squat_deep", SP.p_squat_deep, "hip 100 / knee 130 / ankle 30 deg, trunk forward, arms forward"),
+    ("sprint", SP.p_sprint, "sprint stride: hip 65 / knee 95 (front), hip -22 / knee 35 (rear), arms swinging"),
+    ("aim_ads", ("ads", 0.0), "aiming down the sights, IV-7 (IK to the grip sockets)"),
+    ("aim_ads_up35", ("ads", 35.0), "aiming 35 deg up"),
+    ("aim_ads_down35", ("ads", -35.0), "aiming 35 deg down"),
+    ("hip_ready", ("hip", 0.0), "rifle shouldered, head up (hip / ready)"),
+]
+GARMENTS = ["Soldier_Shirt", "Soldier_Trousers", "Soldier_Balaclava", "Soldier_Boots", "Soldier_Glove_L", "Soldier_Glove_R",
+            "Soldier_Armbands", "Soldier_Sole_L", "Soldier_Sole_R"]
+TOL_MM = 1.0
+
+
+class PoseMeshes:
+    """Evaluated (posed) world arrays of the meshes, with cached BVHs."""
+
+    def __init__(self, objs):
+        self.co, self.tris, self._bvh = {}, {}, {}
+        for o in objs:
+            self.co[o.name] = S.eval_co(o)
+            self.tris[o.name] = S.tris_of(o.data)
+
+    def merged(self, name, parts):
+        cos, trs, off = [], [], 0
+        for n in parts:
+            cos.append(self.co[n]); trs.append(self.tris[n] + off); off += len(self.co[n])
+        self.co[name] = np.concatenate(cos); self.tris[name] = np.concatenate(trs)
+
+    def bvh(self, n):
+        if n not in self._bvh:
+            self._bvh[n] = S.bvh(self.co[n], self.tris[n])
+        return self._bvh[n]
+
+
+def penetr(pm, a, b, tol=TOL_MM / 1000.0, mask=None):
+    A = pm.co[a] if mask is None else pm.co[a][mask]
+    B = pm.co[b]
+    if not len(A):
+        return {"count": 0, "max_mm": 0.0}
+    bmin, bmax = B.min(0) - 0.03, B.max(0) + 0.03
+    cand = np.nonzero(((A >= bmin) & (A <= bmax)).all(1))[0]
+    if not len(cand):
+        return {"count": 0, "max_mm": 0.0}
+    bv = pm.bvh(b)
+    loc, nor, fi, d = S.nearest_on(bv, A[cand], 1.0)
+    sgn = ((A[cand] - loc) * nor).sum(1)
+    sus = cand[(sgn < 0) & (d > tol)]
+    dd = d[(sgn < 0) & (d > tol)]
+    if not len(sus):
+        return {"count": 0, "max_mm": 0.0}
+    ins = S.closed_inside(bv, A[sus])
+    return {"count": int(ins.sum()), "max_mm": round(float(dd[ins].max()) * 1000, 2) if ins.any() else 0.0}
+
+
+def layer_poke(pm, inner, outer, mask, tol=TOL_MM / 1000.0):
+    """Inner-layer vertices (mask) in FRONT of the outer garment's outer shell (poke-through).
+    The outer garment's rolled edges / linings (faces tagged iv_lip) are not part of the shell."""
+    A = pm.co[inner][mask]
+    if not len(A):
+        return {"tested": 0, "poke": 0, "max_mm": 0.0}
+    key = outer + "#shell"
+    if key not in pm.co:
+        lip = S.tri_face_attr(bpy.data.objects[outer].data, "iv_lip")
+        pm.co[key] = pm.co[outer]
+        pm.tris[key] = pm.tris[outer][lip == 0]
+    loc, nor, fi, d = S.nearest_on(pm.bvh(key), A, 0.03)
+    ok = fi >= 0
+    sd = np.where(((A - loc) * nor).sum(1) >= 0, d, -d)
+    bad = ok & (sd > tol)
+    return {"tested": int(ok.sum()), "poke": int(bad.sum()), "max_mm": round(float(sd[bad].max()) * 1000, 2) if bad.any() else 0.0}
+
+
+def gear_objects():
+    return [o for o in soldier_meshes() if o.name.startswith("SG_")]
+
+
+def weights_report(arm):
+    names = S.bone_names(arm)
+    out = {}
+    for o in soldier_meshes():
+        W = S.read_W(o, names)
+        nz = (W > 1e-6).sum(1)
+        sums = W.sum(1)
+        b = json.loads(o.get("iv_bind", '["skin"]'))
+        r = {"vertices": len(W), "max_influences": int(nz.max()), "unweighted": int((nz == 0).sum()),
+             "sum_min": round(float(sums.min()), 5), "sum_max": round(float(sums.max()), 5), "bind": b[0]}
+        if b[0] == "rigid":
+            j = names.index(b[1])
+            r["rigid_bone"] = b[1]
+            r["rigid_ok"] = bool((nz == 1).all() and np.allclose(W[:, j], 1.0, atol=1e-5))
+        elif b[0] == "fabric":
+            r["bones_used"] = sorted({names[k] for k in np.nonzero(W.max(0) > 1e-4)[0]})
+        out[o.name] = r
+    return out
+
+
+RIFLE_OBSTACLES = ["SK_Human_Base", "Soldier_Balaclava", "SG_Headset_Cup_L", "SG_Headset_Cup_R", "SG_Headset_Mic",
+                   "SG_Glasses_Lens", "SG_Glasses_Frame", "SG_Helmet", "SG_HelmetShell", "SG_Helmet_Rail_R",
+                   "SG_PC_Strap_R", "SG_PC_Strap_L", "SG_PC_FrontBag", "SG_PC_AdminPouch", "SG_Helmet_ChinStrap"]
+_COLLIDER = {}
+
+
+def rifle_pose(arm, rig, lib, mode, pitch, parts=None):
+    """rifle_stance with the clearance pass against the head gear / body / carrier."""
+    if parts is not None and "rc" not in _COLLIDER:
+        rig.matrix_world = Matrix.Identity(4)
+        bpy.context.view_layer.update()
+        _COLLIDER["rc"] = SP.RifleCollider(rig, parts)
+    obs = [bpy.data.objects[n] for n in RIFLE_OBSTACLES if n in bpy.data.objects]
+    bpy.data.objects[BODY].hide_viewport = False
+    return SP.rifle_stance(arm, rig, lib, mode, pitch, collider=_COLLIDER.get("rc"), obstacles=obs)
+
+
+def pose_by(arm, rig, lib, spec, parts=None):
+    C.reset_pose(arm)
+    if rig is not None:
+        rig.matrix_world = Matrix.Identity(4)
+    if spec is None:
+        pass
+    elif callable(spec):
+        spec(arm)
+    else:
+        return rifle_pose(arm, rig, lib, spec[0], spec[1], parts)
+    return None
+
+
+def intersection_suite(arm, rig_parts, rifle_on):
+    objs = soldier_meshes() + [bpy.data.objects[BODY]] + (rig_parts if rifle_on else [])
+    pm = PoseMeshes(objs)
+    gear = [o.name for o in gear_objects() if o.name not in ("SG_Helmet", "SG_HelmetShell")]
+    pm.merged("SG_Helmet+Shell", ["SG_Helmet", "SG_HelmetShell"])
+    gear.append("SG_Helmet+Shell")
+    r = {"gear_in_body": {}, "body_in_gear": {}, "garment_in_gear": {}}
+    for g in gear:
+        a = penetr(pm, g, BODY)
+        if a["count"]:
+            r["gear_in_body"][g] = a
+        b = penetr(pm, BODY, g)
+        if b["count"]:
+            r["body_in_gear"][g] = b
+        for gm in GARMENTS:
+            c = penetr(pm, gm, g)
+            if c["count"]:
+                r["garment_in_gear"][f"{gm} in {g}"] = c
+    # layer order at the overlaps
+    co0 = {n: S.co_of(bpy.data.objects[n]) for n in ("Soldier_Shirt", "Soldier_Balaclava", "Soldier_Boots", "Soldier_Glove_L", "Soldier_Glove_R")}
+    w = TROUSERS["waist_z0"] + TROUSERS["waist_tilt"] * co0["Soldier_Shirt"][:, 1]
+    r["layers"] = {
+        "shirt_tail_inside_trousers": layer_poke(pm, "Soldier_Shirt", "Soldier_Trousers", co0["Soldier_Shirt"][:, 2] < w - 0.008),
+        "balaclava_inside_collar": layer_poke(pm, "Soldier_Balaclava", "Soldier_Shirt",
+                                              (co0["Soldier_Balaclava"][:, 2] < SHIRT["collar_z0"] + SHIRT["collar_tilt"] * (co0["Soldier_Balaclava"][:, 1] + 0.05) + SHIRT["collar_h"] - 0.008)
+                                              & (co0["Soldier_Balaclava"][:, 1] > -0.105)),
+        "boot_shaft_inside_trousers": layer_poke(pm, "Soldier_Boots", "Soldier_Trousers", co0["Soldier_Boots"][:, 2] > TROUSERS["hem_z"] + 0.012),
+    }
+    for s in ("L", "R"):
+        g = co0[f"Soldier_Glove_{s}"]
+        u = forearm_u(arm, g)
+        r["layers"][f"glove_cuff_{s}_inside_sleeve"] = layer_poke(pm, f"Soldier_Glove_{s}", "Soldier_Shirt",
+                                                                 u < -(SHIRT["cuff_from_wrist"] + 0.006))
+    if rifle_on:
+        rp = [o.name for o in rig_parts]
+        pm.merged("IV7", rp)
+        rr = {"rifle_in_body": penetr(pm, "IV7", BODY)}
+        for g in gear:
+            x = penetr(pm, "IV7", g)
+            if x["count"]:
+                rr[f"rifle_in_{g}"] = x
+        for gm in GARMENTS:
+            worst = {"count": 0, "max_mm": 0.0}
+            for part in rp:
+                x = penetr(pm, gm, part)
+                worst["count"] += x["count"]
+                worst["max_mm"] = max(worst["max_mm"], x["max_mm"])
+            rr[f"{gm}_in_rifle"] = worst
+        for g in gear:
+            worst = {"count": 0, "max_mm": 0.0}
+            for part in rp:
+                x = penetr(pm, g, part)
+                worst["count"] += x["count"]
+                worst["max_mm"] = max(worst["max_mm"], x["max_mm"])
+            if worst["count"]:
+                rr[f"{g}_in_rifle"] = worst
+        r["rifle"] = rr
+    return r
+
+
+def summarize_pose(r, rifle_on):
+    worst = 0.0
+    bad = []
+    for sec in ("gear_in_body", "body_in_gear", "garment_in_gear"):
+        for k, v in r[sec].items():
+            worst = max(worst, v["max_mm"])
+            bad.append(f"{sec}:{k}:{v['count']}@{v['max_mm']}mm")
+    lay = max(v["max_mm"] for v in r["layers"].values())
+    riflew = 0.0
+    if rifle_on:
+        for k, v in r["rifle"].items():
+            if k.startswith("Soldier_Glove"):
+                continue
+            riflew = max(riflew, v["max_mm"])
+    return {"worst_gear_body_garment_mm": worst, "worst_layer_poke_mm": lay, "worst_rifle_mm": riflew, "findings": bad[:40]}
+
+
+def stage_validate(a=None):
+    t0 = time.time()
+    bpy.ops.wm.open_mainfile(filepath=BLEND)
+    arm = bpy.data.objects[ARM]
+    bpy.data.objects[BODY].hide_viewport = False        # the closed body proxy must be evaluated
+    rig, parts = load_rifle()
+    lib = load_lib()
+    rep = {"asset": "SK_Soldier", "script": rel(__file__), "blender": bpy.app.version_string,
+           "limits": {"penetration_tolerance_mm": TOL_MM, "lod0_tris_max": 35000, "lod1_tris_target": 12000,
+                      "lod2_tris_target": 5000, "fp_arms_tris_max": 15000, "texture_max": 2048}}
+    # triangles
+    tri = {o.name: len(S.tris_of(o.data)) for o in soldier_meshes()}
+    rep["triangles_lod0"] = {"total": int(sum(tri.values())), "parts": dict(sorted(tri.items(), key=lambda kv: -kv[1]))}
+    lods = {}
+    for n in ("SK_Soldier_LOD0", "SK_Soldier_LOD1", "SK_Soldier_LOD2", "FP_Arms"):
+        if n in bpy.data.objects:
+            lods[n] = len(S.tris_of(bpy.data.objects[n].data))
+    rep["triangles_export"] = lods
+    # textures
+    from PIL import Image
+    texs = {}
+    for f in sorted(os.listdir(TEX_DIR)) if os.path.isdir(TEX_DIR) else []:
+        if f.endswith(".png"):
+            texs[f] = list(Image.open(os.path.join(TEX_DIR, f)).size)
+    rep["textures"] = texs
+    rep["weights"] = weights_report(arm)
+    # poses
+    rep["poses"] = {}
+    rigp = [o for o in parts]
+    for name, spec, desc in POSES:
+        rifle_on = isinstance(spec, tuple)
+        for o in rigp:
+            o.hide_viewport = not rifle_on
+        info = pose_by(arm, rig if rifle_on else None, lib, spec, rigp)
+        drive_all(arm)
+        bpy.context.view_layer.update()
+        r = intersection_suite(arm, rigp, rifle_on)
+        r["description"] = desc
+        if info:
+            r["stance"] = info
+        r["summary"] = summarize_pose(r, rifle_on)
+        rep["poses"][name] = r
+        log("pose", name, json.dumps(r["summary"])[:600])
+    C.reset_pose(arm)
+    rep["seconds"] = round(time.time() - t0, 1)
+    json.dump(rep, open(REPORT, "w"), indent=1)
+    log("validation written", rel(REPORT))
+    return rep
+
+
 STAGE_FUNCS_BUILD = stage_build
 
 
-def quick_preview(tag="garments"):
-    """Clay preview of whatever is in the scene (dev aid)."""
+def quick_preview(tag="garments", textured=False, team=None):
+    """Clay (or textured) preview of whatever is in the scene (dev aid)."""
     arm = bpy.data.objects[ARM]
+    if textured:
+        if team:
+            apply_team(team)
+        ivlib.clear_lights_cameras()
+        sc = bpy.context.scene
+        ivlib.setup_cycles(sc, samples=16, threads=4)
+        sc.view_settings.view_transform = 'AgX'
+        C.neutral_lighting((0, 0, 0.95), 1.9, key=0.9, world_strength=0.6)
+        bpy.data.objects[BODY].hide_render = True
+        return _preview_shots(tag)
     ivlib.clear_lights_cameras()
     sc = bpy.context.scene
     ivlib.setup_cycles(sc, samples=12, threads=4)
@@ -1325,6 +1856,10 @@ def quick_preview(tag="garments"):
             if k in o.name:
                 o.data.materials.clear()
                 o.data.materials.append(C.clay_material("PV_" + k, c, 0.7))
+    return _preview_shots(tag)
+
+
+def _preview_shots(tag):
     os.makedirs(PREV, exist_ok=True)
     out = []
     for name, loc in (("front", (0.0, -3.0, 1.0)), ("side", (3.0, -0.2, 1.0)), ("back", (0.0, 3.0, 1.0))):
@@ -1369,6 +1904,11 @@ def main():
         elif st == "dev_preview":
             bpy.ops.wm.open_mainfile(filepath=BLEND)
             quick_preview(a.only or "pv")
+        elif st == "dev_stance":
+            dev_stance(a)
+        elif st.startswith("dev_tex"):
+            bpy.ops.wm.open_mainfile(filepath=BLEND)
+            quick_preview("tex_" + (a.only or "Alfa"), textured=True, team=a.only or "Alfa")
         elif st == "dev_garments":
             build_garments()
             quick_preview("garments")
@@ -1377,7 +1917,7 @@ def main():
             STAGE_FUNCS[st](a)
 
 
-STAGE_FUNCS = {"build": stage_build, "uv": stage_uv}
+STAGE_FUNCS = {"build": stage_build, "uv": stage_uv, "textures": stage_textures, "validate": stage_validate}
 
 if __name__ == "__main__":
     main()

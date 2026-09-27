@@ -1,0 +1,34 @@
+{
+ "cloth": {
+  "texels": 1782705,
+  "coverage": 0.425,
+  "height_mm": [
+   -2.31,
+   3.89
+  ]
+ },
+ "gear": {
+  "texels": 1777164,
+  "coverage": 0.4237,
+  "fabric_texel_share": 0.657
+ },
+ "textures": {
+  "cloth_n": "Art/Textures/Characters/Soldier/T_Soldier_Cloth_Normal.png",
+  "cloth_orm": "Art/Textures/Characters/Soldier/T_Soldier_Cloth_ORM.png",
+  "cloth_n_dx": "Art/Textures/Characters/Soldier/T_Soldier_Cloth_Normal_DX.png",
+  "cloth_bc_Alfa": "Art/Textures/Characters/Soldier/T_Soldier_Cloth_Alfa_BaseColor.png",
+  "cloth_bc_Bravo": "Art/Textures/Characters/Soldier/T_Soldier_Cloth_Bravo_BaseColor.png",
+  "cloth_bc_Charlie": "Art/Textures/Characters/Soldier/T_Soldier_Cloth_Charlie_BaseColor.png",
+  "gear_n": "Art/Textures/Characters/Soldier/T_Soldier_Gear_Normal.png",
+  "gear_n_dx": "Art/Textures/Characters/Soldier/T_Soldier_Gear_Normal_DX.png",
+  "gear_orm": "Art/Textures/Characters/Soldier/T_Soldier_Gear_ORM.png",
+  "gear_bc": "Art/Textures/Characters/Soldier/T_Soldier_Gear_BaseColor.png",
+  "team_bc_Alfa": "Art/Textures/Characters/Soldier/T_Soldier_Team_Alfa_BaseColor.png",
+  "team_n": "Art/Textures/Characters/Soldier/T_Soldier_Team_Normal.png",
+  "team_n_dx": "Art/Textures/Characters/Soldier/T_Soldier_Team_Normal_DX.png",
+  "team_orm": "Art/Textures/Characters/Soldier/T_Soldier_Team_ORM.png",
+  "team_bc_Bravo": "Art/Textures/Characters/Soldier/T_Soldier_Team_Bravo_BaseColor.png",
+  "team_bc_Charlie": "Art/Textures/Characters/Soldier/T_Soldier_Team_Charlie_BaseColor.png"
+ },
+ "seconds": 216.8
+}

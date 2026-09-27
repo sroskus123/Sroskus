@@ -38,9 +38,13 @@ def surface_grid(bv, origins, dirs, back=0.25):
         for j in range(nv):
             o = origins[i, j] - dirs[i, j] * back
             loc, nor = ray_hit(bv, o, dirs[i, j], max(back * 2.5, 1.0))
+            if loc is not None and np.dot(nor, dirs[i, j]) > 0:
+                # hit the inside of the far wall (the ray passed over an edge of the garment):
+                # treat as a miss
+                loc = None
             if loc is None:
                 # missed (edge of the garment): nearest surface point to the ray's closest approach
-                r = bv.find_nearest(Vector(tuple(map(float, origins[i, j] + dirs[i, j] * 0.3))), 1.0)
+                r = bv.find_nearest(Vector(tuple(map(float, origins[i, j]))), 2.0)
                 loc, nor = np.array(r[0]), np.array(r[1])
             if np.dot(nor, dirs[i, j]) > 0:
                 nor = -nor
