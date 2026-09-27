@@ -476,6 +476,12 @@ def fit_thumb(model, k, pose, H, coll, direction, parts=None, starts=None, bound
     return best[2]
 
 
+# trigger discipline: the straight index lies along the receiver side ABOVE the trigger guard,
+# rising ~17 deg from its MCP (which sits at the guard's height) -- world direction (weapon axes
+# coincide with world axes for the IV-7 at rest and for the proxy pistol)
+STRAIGHT_INDEX_DIR = np.array([1.0, 0.0, 0.30])
+
+
 def fit_index(model, k, pose, H, coll, mode, trigger_point=None, trigger_part="Trigger", along_parts=None):
     """mode 'straight': index along the frame (trigger discipline); 'trigger': pad on the trigger."""
     s = model.s
@@ -484,7 +490,8 @@ def fit_index(model, k, pose, H, coll, mode, trigger_point=None, trigger_part="T
         return HN.fit_digit(model, k, pose, H, coll, "index", ["mcp", "abd", "pip", "dip"],
                             [(-10, 60), (-25, 20), (0, 20), (0, 15)], masks[("index", 1)],
                             contact=masks[("index", 2)], contact_gap=0.0008, contact_parts=along_parts,
-                            direction=(np.array([1.0, 0, 0]), f"index_01_{s}", f"index_03_{s}"), w_dir=40.0)
+                            direction=(STRAIGHT_INDEX_DIR / np.linalg.norm(STRAIGHT_INDEX_DIR), f"index_01_{s}", f"index_03_{s}"),
+                            w_dir=40.0)
     # trigger: the distal phalanx pad resting on the trigger (contact <= 0.6 mm), finger clear of
     # the trigger guard / receiver.  Coarse grid (pad-to-trigger distance, no penetration) + Powell.
     import itertools
@@ -702,17 +709,14 @@ def fit_pistol_2h(models, pistol_parts):
     up = np.array([math.sin(r), 0.0, math.cos(r)])
     fw = np.array([math.cos(r), 0.0, -math.sin(r)])
     Y = np.array([0, 1.0, 0])
-    tp = np.array([P["trigger_x"] + 0.0035, 0.0, P["trigger_z"] + 0.004])
-
     top = up * P["grip_top"]
-    web_t = top - fw * (0.5 * P["grip_depth"] + 0.001) + np.array([0, 0, 0.002])
-    # middle MCP on the grip's right side just under the trigger guard (guard bottom 3.0 cm below
-    # the grip top), so the middle finger wraps the front strap below the guard
+    # same anatomy as the rifle grip: middle MCP joint on the grip's right side about a proximal
+    # phalanx behind the front strap, one finger radius under the trigger guard (guard bottom 3.0 cm
+    # below the grip top)
     gb = top[2] - 0.030
-    mcps = [np.array([0.012, -0.028, gb - 0.008]), np.array([0.008, -0.028, gb - 0.013]),
-            np.array([0.016, -0.027, gb - 0.004]), np.array([0.010, -0.029, gb - 0.018])]
-    Hr_, pose_r, rr = pistol_grip_search(mr, coll, web_t, mcps, np.array([1.0, 0, -0.1]), ["PX_Grip"],
-                                         trigger_point="PX_Trigger", mcp_bone="middle")
+    zc = gb - 0.010
+    mcp_ref = up * (zc / up[2]) - fw * 0.025 - Y * 0.037
+    Hr_, pose_r, rr = pistol_grip_frame_search(mr, coll, up, fw, Y, mcp_ref, ["PX_Grip"], trigger_point="PX_Trigger")
     rr["thumb"] = fit_thumb(mr, 0, pose_r, Hr_, coll, np.array([1.0, 0, -0.15]), parts=["PX_Frame", "PX_Slide", "PX_Grip"])
     # left hand: the posed right glove joins the collider
     rco = mr.skin(0, mr.pose(pose_r, Hr_))
