@@ -278,7 +278,7 @@ test('artifact.html has no document skeleton and boots when wrapped by a host pa
   }
 });
 
-test('artifact.html under a strict host CSP (no blob:, no inline script): boots, weapon textures load, 0 errors', async () => {
+test('artifact.html under a strict host CSP (no blob:, no inline script, no data: fonts): boots, weapon textures, title fonts and picture load, 0 errors', async () => {
   const html = await readFile(path.join(DIST, 'artifact.html'), 'utf8');
   const csp = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'";
   const server = await startServer({ root: DIST });
@@ -297,6 +297,9 @@ test('artifact.html under a strict host CSP (no blob:, no inline script): boots,
       `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${csp}"><base href="${server.url}"></head><body>${html}</body></html>`,
     );
     await page.waitForFunction(() => window.__IV_BOOT && window.__IV_BOOT.status !== 'loading', null, { timeout: 90_000 });
+    // title fonts (FontFace from bytes) and picture (ImageBitmap -> canvas) must not need font-src / img-src
+    await page.waitForFunction(() => document.querySelector('.iv-title-art.iv-ready'), null, { timeout: 30_000 });
+    await page.waitForFunction(() => [...document.fonts].filter((f) => f.status === 'loaded' && /IV (Display|Menu)/.test(f.family)).length >= 2, null, { timeout: 30_000 });
     const r = await page.evaluate(() => ({ boot: window.__IV_BOOT, asset: window.__IV.getState().weaponAsset }));
     assert.equal(r.boot.status, 'ready', JSON.stringify(r.boot));
     assert.deepEqual(errors, [], `console errors under CSP: ${errors.slice(0, 3).join(' | ')}`);

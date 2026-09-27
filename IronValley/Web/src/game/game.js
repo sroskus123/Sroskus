@@ -345,7 +345,8 @@ export class Game {
     } catch (err) {
       this.menus.setStatus(`Mapu nelze načíst: ${err.message}`);
     }
-    if (this.state === 'start') this.menus.show('title');
+    // refresh the title (selected map, place name) but do not pull the player out of a sub-screen they opened meanwhile
+    if (this.state === 'start' && this.menus.screen === 'title') this.menus.show('title');
   }
 
   // ------------------------------------------------------------------ session

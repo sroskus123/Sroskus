@@ -4,8 +4,10 @@
   --iv-line: rgba(255, 255, 255, 0.12);
   --iv-text: #e9e6df;
   --iv-muted: #a3a9ae;
-  --iv-accent: #e39a35;
-  --iv-accent-light: #f2b560;
+  /* yellow from the user's title mockup (Docs/navrhy/06_uvodni_menu_navrh.webp); dark text on it is 7.9:1 */
+  --iv-accent: #d6a23e;
+  --iv-accent-light: #eec168;
+  --iv-bone: #ece6da;
   --iv-danger: #e05a3a;
   /* backing plate for small HUD labels: readable over bright sky or lit walls (>= 4.5:1 even on white) */
   --iv-hud-plate: rgba(10, 12, 14, 0.75);
@@ -1020,4 +1022,234 @@ body {
 .iv-credits .iv-hint {
   margin: 0 0 6px;
   line-height: 1.4;
+}
+
+/* ---------------------------------------------------------------- title screen (user mockup 06) */
+.iv-menu[data-screen='title'],
+.iv-menu[data-screen='loading'] {
+  isolation: isolate;
+  background: #0b0d0f;
+}
+.iv-title-art {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  display: none;
+  object-fit: cover;
+  object-position: 72% 50%;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+.iv-menu[data-screen='title'] .iv-title-art,
+.iv-menu[data-screen='loading'] .iv-title-art {
+  display: block;
+}
+.iv-title-art.iv-ready {
+  opacity: 1;
+}
+.iv-menu[data-screen='title']::after,
+.iv-menu[data-screen='loading']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(7, 9, 11, 0.94) 0%, rgba(7, 9, 11, 0.84) 22%, rgba(7, 9, 11, 0.35) 44%, rgba(7, 9, 11, 0) 62%),
+    linear-gradient(0deg, rgba(7, 9, 11, 0.55) 0%, rgba(7, 9, 11, 0) 22%);
+}
+.iv-menu[data-screen='title'] {
+  justify-content: flex-start;
+  align-items: stretch;
+  padding: 0;
+}
+.iv-menu[data-screen='title'] .iv-panel {
+  width: min(640px, 100%);
+  max-height: none;
+  overflow: visible;
+  background: none;
+  border: 0;
+  padding: clamp(20px, 7vh, 88px) 16px clamp(20px, 7vh, 88px) clamp(16px, 5.2vw, 96px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.iv-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.iv-logo {
+  margin: 0;
+  width: min(100%, 49vh, 540px);
+  font-family: 'IV Display', 'Barlow Condensed', Impact, 'Arial Narrow', sans-serif;
+  font-weight: 900;
+  line-height: 1;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.55));
+}
+.iv-logo-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 410 / 226;
+  overflow: visible;
+}
+.iv-logo-bar {
+  width: clamp(150px, 15vw, 250px);
+  height: clamp(4px, 0.7vh, 7px);
+  margin: clamp(12px, 2.6vh, 26px) 0 clamp(18px, 4.6vh, 46px) 0.1em;
+  background: var(--iv-accent);
+}
+.iv-title-nav {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2px, 0.8vh, 10px);
+  width: min(350px, 100%);
+}
+.iv-btn.iv-title-item {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: 'IV Menu', 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  font-weight: 600;
+  font-size: clamp(18px, 4vh, 40px);
+  line-height: 1.15;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--iv-bone);
+  background: transparent;
+  padding: 0.3em 0.8em;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+.iv-btn.iv-title-item:hover,
+.iv-btn.iv-title-item:focus-visible {
+  background: rgba(214, 162, 62, 0.16);
+  color: #fff;
+  outline: none;
+  box-shadow: inset 3px 0 0 var(--iv-accent);
+}
+.iv-btn.iv-title-item.iv-btn-primary {
+  background: var(--iv-accent);
+  color: #15171a;
+  text-shadow: none;
+  padding-right: 2.2em;
+}
+.iv-btn.iv-title-item.iv-btn-primary:hover {
+  background: var(--iv-accent-light);
+  box-shadow: none;
+}
+.iv-btn.iv-title-item.iv-btn-primary:focus-visible {
+  box-shadow: none;
+  outline: 2px solid var(--iv-bone);
+  outline-offset: 3px;
+}
+.iv-btn.iv-title-item.iv-btn-primary::after {
+  content: '';
+  position: absolute;
+  right: 0.9em;
+  top: 50%;
+  width: 0.36em;
+  height: 0.36em;
+  border-top: 0.12em solid currentColor;
+  border-right: 0.12em solid currentColor;
+  transform: translate(0, -50%) rotate(45deg);
+}
+.iv-title-maps {
+  margin-top: clamp(14px, 3.4vh, 34px);
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.iv-title-maps .iv-map-label {
+  font-family: 'IV Menu', 'Arial Narrow', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 12px;
+  color: var(--iv-muted);
+}
+.iv-title-maps .iv-btn-small {
+  margin-top: 0;
+  background: rgba(236, 230, 218, 0.12);
+  color: var(--iv-bone);
+  border: 1px solid rgba(236, 230, 218, 0.22);
+}
+.iv-title-maps .iv-btn-small.iv-selected {
+  background: rgba(214, 162, 62, 0.2);
+  border-color: var(--iv-accent);
+  color: #fff;
+}
+.iv-title-links {
+  margin-top: 8px;
+}
+.iv-btn.iv-link {
+  background: none;
+  color: var(--iv-muted);
+  padding: 4px 0;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.iv-btn.iv-link:hover {
+  color: var(--iv-bone);
+}
+.iv-title-foot {
+  margin: 10px 0 0;
+  max-width: 34em;
+  font-size: 11px;
+  line-height: 1.4;
+  color: rgba(163, 169, 174, 0.85);
+}
+.iv-title-place {
+  position: absolute;
+  right: clamp(16px, 3.2vw, 56px);
+  bottom: clamp(14px, 4.4vh, 44px);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: 'IV Menu', 'Arial Narrow', sans-serif;
+  font-weight: 600;
+  font-size: clamp(11px, 1.35vh, 14px);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(236, 230, 218, 0.88);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+.iv-title-place::before {
+  content: '';
+  width: 42px;
+  height: 1px;
+  background: currentColor;
+}
+.iv-credits h2 {
+  margin: 0 0 4px;
+}
+@media (max-width: 720px) {
+  .iv-menu[data-screen='title']::after {
+    background: linear-gradient(90deg, rgba(7, 9, 11, 0.9) 0%, rgba(7, 9, 11, 0.7) 70%, rgba(7, 9, 11, 0.45) 100%);
+  }
+  .iv-title-place {
+    display: none;
+  }
+}
+@media (max-height: 560px) {
+  .iv-title-foot {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .iv-title-art {
+    transition: none;
+  }
+  .iv-btn.iv-title-item {
+    transition: none;
+  }
 }

@@ -9,7 +9,7 @@ Tento soubor čti jako první při každém pokračování práce.
 | Engine | Unreal Engine 5 — **není k dispozici** (viz tabulka níže) |
 | Blender | 4.5.14 LTS jako Python modul `bpy` (PyPI), bez GUI |
 | Higgsfield | nepřipojen |
-| Datum | 2026-09-26 |
+| Datum | 2026-09-27 |
 
 ## Prostředí, ve kterém se pracuje
 
@@ -84,6 +84,17 @@ cca 29 GB volného disku, **bez GPU** (`/dev/dri` chybí, `nvidia-smi` chybí). 
   Načtení ~1,0–1,2 s, 221 draw callů / 0,65 M trojúhelníků na návsi (se stíny), tik 17 botů 2,3–3,1 ms. Kola se 17 boty
   na všech třech zónách končí vítězem, zaseknutí < 4 s, 0 teleportů. Podrobnosti: `Web/README.md` („Mapa Kalné Hamry“),
   `Docs/AI.md` oddíl 14, testy `tests/unit/kalne_hamry.test.mjs`, `tests/e2e/11_kalne_hamry.test.mjs`.
+
+- **Úvodní menu podle návrhu uživatele (2026-09-27, `Docs/navrhy/06_uvodni_menu_navrh.webp`):** logo IRON VALLEY
+  (inline SVG, Barlow Condensed Black, opotřebení filtrem feTurbulence), žlutý pruh, položky HRÁT / VÝCVIK / NASTAVENÍ /
+  AUTOŘI / UKONČIT (šipky ↑↓, Home/End, Enter), výběr mapy a odkaz Ovládání pod nimi, popisek „— Kalné Hamry“ vpravo
+  dole, nová obrazovka Autoři (hra, knihovny, data, písma, zvuky s licencemi). Pozadí = obrázek z návrhu bez zapečeného
+  textu (`Tools/web_assets/clean_title_art.py`). Písma se registrují přes FontFace z bajtů a obrázek se kreslí do canvasu
+  z ImageBitmap, takže je CSP hostitele nemůže zablokovat (test s přísnou CSP bez `data:` písem prochází). Akcent celé
+  hry sjednocen na žlutou z návrhu (#d6a23e). Pomalý zoom pozadí jsem zkusil a zrušil: v softwarovém vykreslování
+  zdržoval hlavní vlákno (20 dotazů 3,5–5 s místo 0,05 s).
+  Testy: **unit 421/421 PASS**; plný běh **e2e 85/86**. Jediný pád (SND-01, hra po kliknutí na Výcvik 30 s nereagovala)
+  nastal při zátěži ~8 z paralelně běžícího Blenderu (voják). Samostatný opakovaný běh `08_audio`: **3/3 PASS**.
 
 ## Náhled pro uživatele
 

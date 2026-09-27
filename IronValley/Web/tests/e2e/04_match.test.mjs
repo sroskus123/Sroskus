@@ -57,14 +57,58 @@ async function freshMatch(opts = {}) {
   }, opts);
 }
 
-test('UI-01: title menu, settings (sensitivity, FOV, volume, key rebinding), controls; Esc goes back; cursor never trapped', async () => {
+test('UI-01: title menu, settings (sensitivity, FOV, volume, key rebinding), controls, credits; Esc goes back; cursor never trapped', async () => {
   assert.equal(await menuScreen(), 'title');
   const title = await ev(() => window.__IV.getMenu());
+  // layout of the user's mockup (Docs/navrhy/06_uvodni_menu_navrh.webp): five items, then the "Ovládání" link
   assert.deepEqual(
     title.buttons.filter((b) => !b.action.startsWith('map-')).map((b) => b.text),
-    ['Začít', 'Trénink (bez botů)', 'Nastavení', 'Ovládání', 'Ukončit'],
+    ['Hrát', 'Výcvik', 'Nastavení', 'Autoři', 'Ukončit', 'Ovládání'],
   );
+  assert.deepEqual(title.buttons.filter((b) => b.primary).map((b) => b.action), ['start'], 'exactly one primary item: Hrát');
+  // title picture drawn into its canvas and both fonts registered from bytes (CSP-safe, src/game/uiAssets.js)
+  await page.waitForFunction(() => document.querySelector('.iv-title-art.iv-ready'), null, { timeout: 20_000 });
+  const look = await ev(async () => {
+    await document.fonts.ready;
+    const loaded = (family) => [...document.fonts].some((f) => f.family.replace(/["']/g, '') === family && f.status === 'loaded');
+    const art = document.querySelector('.iv-title-art');
+    const r = art.getBoundingClientRect();
+    return {
+      art: { w: art.width, h: art.height, cssW: r.width, cssH: r.height, display: getComputedStyle(art).display },
+      display: loaded('IV Display'),
+      menuFont: loaded('IV Menu'),
+      logoFont: getComputedStyle(document.querySelector('.iv-logo')).fontFamily,
+      itemFont: getComputedStyle(document.querySelector('.iv-title-item')).fontFamily,
+      logoText: document.querySelector('.iv-logo').getAttribute('aria-label'),
+      place: document.querySelector('.iv-title-place')?.textContent,
+    };
+  });
+  assert.ok(look.art.w > 1000 && look.art.display === 'block' && look.art.cssW > 0 && look.art.cssH > 0, `title picture ${JSON.stringify(look.art)}`);
+  assert.ok(look.display && look.menuFont, `fonts loaded: ${JSON.stringify(look)}`);
+  assert.match(look.logoFont, /IV Display/);
+  assert.match(look.itemFont, /IV Menu/);
+  assert.equal(look.logoText, 'Iron Valley');
+  assert.ok(look.place, 'place name bottom right');
+  // keyboard: arrows move between the items and wrap
+  await page.focus('button[data-action="start"]');
+  const focused = () => ev(() => document.activeElement?.dataset.action || null);
+  await page.keyboard.press('ArrowDown');
+  assert.equal(await focused(), 'practice');
+  await page.keyboard.press('ArrowUp');
+  await page.keyboard.press('ArrowUp');
+  assert.equal(await focused(), 'quit', 'ArrowUp from the first item wraps to the last');
+  await page.keyboard.press('Home');
+  assert.equal(await focused(), 'start');
   await screenshot(page, 'menu_title.png');
+  await page.click('button[data-action="credits"]');
+  assert.equal(await menuScreen(), 'credits');
+  const cred = await ev(() => document.querySelector('.iv-menu').textContent);
+  assert.match(cred, /three\.js/);
+  assert.match(cred, /MakeHuman/);
+  assert.match(cred, /Open Font License/);
+  assert.match(cred, /Zvuky — autoři a licence/);
+  await page.keyboard.press('Escape');
+  assert.equal(await menuScreen(), 'title', 'Esc returns from credits');
   await page.click('button[data-action="settings"]');
   assert.equal(await menuScreen(), 'settings');
   const set = async (key, value) =>

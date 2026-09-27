@@ -6,6 +6,7 @@ import { keyLabel } from '../player/input.js';
 import { REBINDABLE } from '../player/bindingsStore.js';
 import audioConfig from '../data/audio.json' with { type: 'json' };
 import { ATTACHMENTS, IRONS, opticChoices, opticName } from '../weapons/optics.js';
+import { loadTitleArt, loadUiFonts } from './uiAssets.js';
 
 const el = (tag, cls, text) => {
   const e = document.createElement(tag);
@@ -25,6 +26,48 @@ function button(text, cls, onClick, name) {
   return b;
 }
 
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function svg(tag, attrs = {}, text) {
+  const e = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v));
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+/**
+ * IRON VALLEY logo as inline SVG: two lines stretched to the mockup's proportions (textLength), worn paint made by
+ * a turbulence filter that erodes the letters. Inline markup fetches nothing, so no CSP directive applies; if a
+ * browser ignores the filter the logo is simply clean.
+ */
+function logoSvg() {
+  const s = svg('svg', { viewBox: '0 0 410 226', class: 'iv-logo-svg', 'aria-hidden': 'true', focusable: 'false' });
+  const defs = svg('defs');
+  const grad = svg('linearGradient', { id: 'iv-logo-fill', x1: 0, y1: 0, x2: 0, y2: 1 });
+  grad.append(svg('stop', { offset: 0, 'stop-color': '#f3eee5' }), svg('stop', { offset: 1, 'stop-color': '#d6cebf' }));
+  const f = svg('filter', { id: 'iv-logo-wear', x: 0, y: 0, width: 1, height: 1, 'color-interpolation-filters': 'sRGB' });
+  f.append(
+    // fine chips
+    svg('feTurbulence', { type: 'fractalNoise', baseFrequency: 0.8, numOctaves: 2, seed: 11, result: 'fine' }),
+    svg('feColorMatrix', { in: 'fine', type: 'matrix', values: '0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  16 0 0 0 -11.3', result: 'chips' }),
+    // larger worn patches
+    svg('feTurbulence', { type: 'fractalNoise', baseFrequency: 0.045, numOctaves: 3, seed: 5, result: 'coarse' }),
+    svg('feColorMatrix', { in: 'coarse', type: 'matrix', values: '0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  30 0 0 0 -23.4', result: 'patches' }),
+    svg('feComposite', { in: 'chips', in2: 'patches', operator: 'arithmetic', k1: 0, k2: 1, k3: 1, k4: 0, result: 'wear' }),
+    svg('feComposite', { in: 'SourceGraphic', in2: 'wear', operator: 'out' }),
+  );
+  defs.append(grad, f);
+  const g = svg('g', { fill: 'url(#iv-logo-fill)', filter: 'url(#iv-logo-wear)' });
+  g.append(
+    svg('text', { x: 1, y: 100, 'font-size': 140, 'letter-spacing': -7, textLength: 280, lengthAdjust: 'spacingAndGlyphs' }, 'IRON'),
+    svg('text', { x: 1, y: 222, 'font-size': 140, 'letter-spacing': -7, textLength: 404, lengthAdjust: 'spacingAndGlyphs' }, 'VALLEY'),
+  );
+  s.append(defs, g);
+  return s;
+}
+
+// screens opened from the title or pause menu that return to where they were opened from
+const SUB_SCREENS = new Set(['settings', 'controls', 'quit', 'credits']);
+
 const CONTROL_ROWS = ['moveForward', 'moveBackward', 'moveLeft', 'moveRight', 'fire', 'aim', 'reload', 'sprint', 'walk', 'crouch', 'jump', 'interact', 'swapOptic', 'weapon1', 'weapon2', 'menu'];
 
 export class Menus {
@@ -41,8 +84,20 @@ export class Menus {
     this.menu.setAttribute('role', 'dialog');
     this.menu.setAttribute('aria-modal', 'true');
     this.panel = el('div', 'iv-panel');
-    this.menu.append(this.panel);
+    // title / loading background (CSS shows it only on those screens); drawn from an ImageBitmap, no image URL
+    this.art = el('canvas', 'iv-title-art');
+    this.art.setAttribute('aria-hidden', 'true');
+    this.art.width = this.art.height = 1;
+    this.menu.append(this.art, this.panel);
     root.append(this.menu);
+    loadUiFonts();
+    loadTitleArt().then((bitmap) => {
+      if (!bitmap) return;
+      this.art.width = bitmap.width;
+      this.art.height = bitmap.height;
+      this.art.getContext('2d').drawImage(bitmap, 0, 0);
+      this.art.classList.add('iv-ready');
+    });
     // every click in a menu is a user gesture (audio unlock etc.)
     this.panel.addEventListener('click', () => o.actions.gesture && o.actions.gesture(), true);
     this.screen = null;
@@ -80,7 +135,7 @@ export class Menus {
       this.show('settings');
       return true;
     }
-    if ((this.screen === 'settings' || this.screen === 'controls' || this.screen === 'quit') && this.parent) {
+    if (SUB_SCREENS.has(this.screen) && this.parent) {
       this.show(this.parent);
       return true;
     }
@@ -97,8 +152,8 @@ export class Menus {
 
   show(screen, data = null) {
     this._stopCapture();
-    if (screen === 'settings' || screen === 'controls' || screen === 'quit') {
-      if (this.screen && this.screen !== 'settings' && this.screen !== 'controls' && this.screen !== 'quit') this.parent = this.screen;
+    if (SUB_SCREENS.has(screen)) {
+      if (this.screen && !SUB_SCREENS.has(this.screen)) this.parent = this.screen;
     }
     if (data && screen === 'results') this.results = data;
     if (screen === 'armory') this.armoryData = data || (this.o.actions.armoryState ? this.o.actions.armoryState() : null);
@@ -115,6 +170,7 @@ export class Menus {
       controls: () => this._controls(),
       results: () => this._results(),
       quit: () => this._quit(),
+      credits: () => this._credits(),
       armory: () => this._armory(),
     }[screen];
     this.panel.replaceChildren(...build());
@@ -137,11 +193,25 @@ export class Menus {
   }
 
   _title() {
-    const out = [el('h1', 'iv-title', 'IRON VALLEY'), el('p', 'iv-subtitle', 'Tři týmy · jedna oblast · 10 minut')];
+    // Layout follows the user's mockup (Docs/navrhy/06_uvodni_menu_navrh.webp): logo, accent bar, five items,
+    // place name bottom right. Labels stay in sentence case in the DOM; CSS sets them in capitals.
+    const logo = el('h1', 'iv-logo');
+    logo.setAttribute('aria-label', 'Iron Valley');
+    logo.append(logoSvg());
+    const nav = el('nav', 'iv-title-nav');
+    nav.setAttribute('aria-label', 'Hlavní nabídka');
+    nav.append(
+      button('Hrát', 'iv-btn-primary iv-title-item', () => this._act('start'), 'start'),
+      button('Výcvik', 'iv-title-item', () => this._act('practice'), 'practice'),
+      button('Nastavení', 'iv-title-item', () => this.show('settings'), 'settings'),
+      button('Autoři', 'iv-title-item', () => this.show('credits'), 'credits'),
+      button('Ukončit', 'iv-title-item', () => this._act('quit'), 'quit'),
+    );
+    nav.addEventListener('keydown', (e) => this._navKeys(e, nav));
     const levels = this.o.levels();
-    const row = el('div', 'iv-map-row');
-    row.append(el('span', 'iv-map-label', 'Mapa'));
     const current = this.o.currentLevel();
+    const row = el('div', 'iv-map-row iv-title-maps');
+    row.append(el('span', 'iv-map-label', 'Mapa'));
     for (const l of levels) {
       const b = button(l.name, `iv-btn-small iv-map${l.id === current ? ' iv-selected' : ''}`, () => this._act('selectLevel', l.id), `map-${l.id}`);
       b.disabled = !l.hasMatch;
@@ -149,18 +219,69 @@ export class Menus {
       else if (l.tag) b.title = `${l.name} — ${l.tag}`;
       row.append(b);
     }
-    const cur = levels.find((l) => l.id === current);
-    if (cur && cur.tag) row.append(el('span', 'iv-map-note', `${cur.name} — ${cur.tag}`));
-    const btns = el('div', 'iv-menu-buttons');
-    btns.append(
-      button('Začít', 'iv-btn-primary', () => this._act('start'), 'start'),
-      button('Trénink (bez botů)', '', () => this._act('practice'), 'practice'),
-      button('Nastavení', '', () => this.show('settings'), 'settings'),
-      button('Ovládání', '', () => this.show('controls'), 'controls'),
-      button('Ukončit', '', () => this._act('quit'), 'quit'),
+    const links = el('div', 'iv-title-links');
+    links.append(button('Ovládání', 'iv-link', () => this.show('controls'), 'controls'));
+    const hero = el('div', 'iv-hero');
+    hero.append(
+      logo,
+      el('div', 'iv-logo-bar'),
+      nav,
+      row,
+      links,
+      this._statusEl(),
+      el('p', 'iv-title-foot', 'Prohlížečová verze (three.js, WebGL2), ne verze v Unreal Engine. Postavy a pistole jsou zatím provizorní.'),
     );
-    out.push(row, btns, this._statusEl());
-    out.push(el('p', 'iv-foot', 'Prohlížečová verze (three.js, WebGL2), ne verze v Unreal Engine. Postavy, pistole a zvuky jsou provizorní.'));
+    // caption of the picture (it shows Kalné Hamry), not the selected map
+    const place = el('p', 'iv-title-place', 'Kalné Hamry');
+    place.setAttribute('aria-hidden', 'true');
+    requestAnimationFrame(() => {
+      const first = nav.querySelector('button');
+      if (first && this.screen === 'title' && !document.activeElement?.closest?.('.iv-title-nav')) first.focus({ preventScroll: true });
+    });
+    return [hero, place];
+  }
+
+  /** Arrow keys / Home / End move focus between the title items; Enter and Space use the native button. */
+  _navKeys(e, nav) {
+    const items = [...nav.querySelectorAll('button:not([disabled])')];
+    const i = items.indexOf(document.activeElement);
+    let next = -1;
+    if (e.key === 'ArrowDown') next = (i + 1) % items.length;
+    else if (e.key === 'ArrowUp') next = (i - 1 + items.length) % items.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = items.length - 1;
+    if (next >= 0) {
+      e.preventDefault();
+      items[next].focus();
+    }
+  }
+
+  _credits() {
+    const out = [el('h1', 'iv-title iv-title-small', 'Autoři')];
+    const section = (title, lines) => {
+      const s = el('section', 'iv-goal iv-credits');
+      s.append(el('h2', '', title), ...lines.map((t) => el('p', 'iv-hint', t)));
+      return s;
+    };
+    out.push(
+      section('Hra', [
+        'IRON VALLEY — prototyp realistické vojenské FPS pro tři týmy.',
+        'Zadání, výtvarný směr, úvodní obrázek a reference Kalných Hamrů: autor projektu.',
+        'Kód, modely, mapa, zvukový mix a testy: Claude (Anthropic) podle zadání autora projektu.',
+      ]),
+      section('Knihovny', [
+        'three.js, three-mesh-bvh, cannon-es, three-pathfinding (MIT). Navigace se peče nástrojem recast-navigation (MIT) jen při sestavení hry.',
+      ]),
+      section('Data a písma', [
+        'Základní model těla a kostra: MakeHuman / MPFB2 (CC0 1.0), převzato z balíčku anny (NAVER, Apache-2.0).',
+        'Písmo Barlow Condensed (The Barlow Project Authors): SIL Open Font License 1.1.',
+      ]),
+      // CC BY attribution (CC0 authors credited too) — src/data/audio.json, Shared/audio/SOURCES.md
+      section('Zvuky — autoři a licence', audioConfig.credits || []),
+    );
+    const btns = el('div', 'iv-menu-buttons');
+    btns.append(button('Zpět', '', () => this.show(this.parent || 'title'), 'back'));
+    out.push(btns);
     return out;
   }
 
@@ -412,10 +533,6 @@ export class Menus {
     keys.append(el('h2', '', 'Klávesy'), list);
     cols.append(keys, goal);
     out.push(cols);
-    // sound credits (CC BY attribution; CC0 authors credited too) — src/data/audio.json, Shared/audio/SOURCES.md
-    const credits = el('section', 'iv-goal iv-credits');
-    credits.append(el('h2', '', 'Zvuky — autoři a licence'), ...(audioConfig.credits || []).map((t) => el('p', 'iv-hint', t)));
-    out.push(credits);
     const btns = el('div', 'iv-menu-buttons');
     btns.append(button('Zpět', '', () => this.show(this.parent || 'title'), 'back'));
     out.push(btns);

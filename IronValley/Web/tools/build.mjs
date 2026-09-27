@@ -6,8 +6,8 @@
 //                       that wrap the page in their own skeleton (claude.ai Artifact)
 // Both reference game.js and assets with relative URLs.
 // It also writes dist-artifact/, a self-contained copy for the claude.ai Artifact host, which
-// refuses binary model files: every .glb (and every image under assets/, e.g. the optic reticle SDFs and the
-// 6x overlay) becomes <name>.b64.txt (base64 text) and the bundle there is built with that asset list
+// refuses binary model files: every .glb (and every image and font under assets/, e.g. the optic reticle SDFs, the
+// 6x overlay and the title-menu fonts) becomes <name>.b64.txt (base64 text) and the bundle there is built with that asset list
 // (src/engine/assets.js decodes it). Publish dist-artifact/iron-valley.html together with every other file in
 // dist-artifact/. The web variants of the Blender exports (WebP / JPEG textures) are made by
 // ../Tools/web_assets/build_web_assets.py (npm run assets:web); a stale manifest is reported here.
@@ -137,7 +137,7 @@ ${body}
   // Artifact-host variant: .glb -> .glb.b64.txt, bundle built with the renamed asset list.
   await rm(distArtifact, { recursive: true, force: true });
   await mkdir(distArtifact, { recursive: true });
-  const b64 = (a) => /\.(glb|png|webp|jpe?g)$/i.test(a);
+  const b64 = (a) => /\.(glb|png|webp|jpe?g|woff2)$/i.test(a);
   const artifactAssets = assets.map((a) => (b64(a) ? a + '.b64.txt' : a));
   await build(bundleOptions(path.join(distArtifact, 'game.js'), artifactAssets));
   const artifactJs = await readFile(path.join(distArtifact, 'game.js'), 'utf8');
