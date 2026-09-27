@@ -27,31 +27,31 @@
    3
   ]
  },
- "spruce_b": {
-  "height": 22.401,
-  "crownRadius": 3.923,
-  "trunkRadius": 0.32,
+ "spruce_forest": {
+  "height": 25.394,
+  "crownRadius": 3.38,
+  "trunkRadius": 0.3,
   "conifer": true,
   "lods": [
    {
-    "node": "spruce_b_LOD0",
-    "triangles": 3806,
-    "vertices": 4585
+    "node": "spruce_forest_LOD0",
+    "triangles": 3504,
+    "vertices": 4105
    },
    {
-    "node": "spruce_b_LOD1",
-    "triangles": 736,
-    "vertices": 1366
+    "node": "spruce_forest_LOD1",
+    "triangles": 564,
+    "vertices": 1022
    },
    {
-    "node": "spruce_b_LOD2",
-    "triangles": 6,
-    "vertices": 12
+    "node": "spruce_forest_LOD2",
+    "triangles": 36,
+    "vertices": 36
    }
   ],
   "cards": [
-   619,
-   164,
+   486,
+   121,
    3
   ]
  },
@@ -269,14 +269,14 @@
    },
    {
     "node": "shrub_low_LOD2",
-    "triangles": 60,
-    "vertices": 70
+    "triangles": 72,
+    "vertices": 94
    }
   ],
   "cards": [
    41,
    18,
-   5
+   8
   ]
  },
  "shrub_mid": {
@@ -297,14 +297,14 @@
    },
    {
     "node": "shrub_mid_LOD2",
-    "triangles": 60,
-    "vertices": 70
+    "triangles": 72,
+    "vertices": 94
    }
   ],
   "cards": [
    73,
    26,
-   5
+   8
   ]
  },
  "shrub_tall": {
@@ -325,14 +325,14 @@
    },
    {
     "node": "shrub_tall_LOD2",
-    "triangles": 60,
-    "vertices": 70
+    "triangles": 72,
+    "vertices": 94
    }
   ],
   "cards": [
    137,
    44,
-   5
+   8
   ]
  },
  "hedge_wild": {
@@ -353,14 +353,14 @@
    },
    {
     "node": "hedge_wild_LOD2",
-    "triangles": 60,
-    "vertices": 70
+    "triangles": 72,
+    "vertices": 94
    }
   ],
   "cards": [
    171,
    72,
-   5
+   8
   ]
  }
 }

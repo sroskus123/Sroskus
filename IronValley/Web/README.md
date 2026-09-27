@@ -300,10 +300,10 @@ node tools/match_report.mjs --level kalne_hamry --bots 5,6,6 --full --zone zone_
 
 | Soubor | Obsah | Velikost (base64) |
 | --- | --- | --- |
-| `public/assets/levels/kalne_hamry/kh_terrain.glb` | terén 0,5 m (vykreslení i kolize, 25 dlaždic 64 m), váhy 10 vrstev terénu 0,25 m (3 PNG RGBA: vrstvy + kaluže), makro tón 1 m (JPEG, stín korun, suchá / vlhká místa, ojeté pruhy), hustota trávy 0,5 m (PNG: nízké trsy, vysoká tráva, květiny), rastr povrchů 0,5 m pro kroky a zásahy, okolní terén 2 m a prstenec vzdálených kopců | 9,3 MiB (12,5) |
-| `public/assets/levels/kalne_hamry/kh_world.glb` | budovy (zdi s tloušťkou a skladebnými kvádry, otvory, ostění, parapety, rámy, sklo, dveřní křídla v klidové poloze, podlahy, stropy, schody, zábradlí, střechy s přesahy, žlaby, svody, komíny, sokly), vedlejší budovy jako zavřené objemy, rekvizity jako bloky správné velikosti, ploty (pletivo průhledné), zdi, opěrné zdi, mosty, potok, vodorovné značení (pásy s opotřebovanou barvou), sloupy vedení, hraniční bariéry s cedulemi, tmavá jádra keřových pásů; tabulky instancí 1650 stromů a ~3900 keřů | 5,8 MiB (7,7) |
-| `public/assets/environment/terrain/` | 10 vrstev terénu (tráva, luční hrabanka, lesní hrabanka, hlína, bláto, štěrk, asfalt, beton, žulové kostky, kameny potoka) jako pásy JPEG 512 px/vrstva (albedo; normála + výška; roughness + AO) + `terrain_layers.json` (dlaždice v m) | 2,4 MiB (3,2) |
-| `public/assets/environment/vegetation.glb` | 13 modelů (smrk ×2, borovice, bříza vzrostlá / mladá, štíhlý / široký vícekmenný / kulatý listnáč, ovocný strom, 3 keře, divoký živý plot) × LOD0/1/2, atlas listových karet (WebP s alfou) + normály, atlas trávy a květin, pole kůry (5 vrstev), povrch stříhaného plotu | 2,9 MiB (3,9) |
+| `public/assets/levels/kalne_hamry/kh_terrain.glb` | terén 0,5 m (vykreslení i kolize, 25 dlaždic 64 m), váhy 10 vrstev terénu 0,25 m (3 PNG RGBA: vrstvy + kaluže), makro tón 1 m (JPEG, stín korun, suchá / vlhká místa, ojeté pruhy), hustota trávy 0,5 m (PNG: nízké trsy, vysoká tráva, květiny), rastr povrchů 0,5 m pro kroky a zásahy, okolní terén 2 m a prstenec vzdálených kopců | 9,1 MiB (12,2) |
+| `public/assets/levels/kalne_hamry/kh_world.glb` | budovy (zdi s tloušťkou a skladebnými kvádry, otvory, ostění, parapety, rámy, sklo, dveřní křídla v klidové poloze, podlahy, stropy, schody, zábradlí, střechy s přesahy, žlaby, svody, komíny, sokly), vedlejší budovy jako zavřené objemy, rekvizity jako bloky správné velikosti, ploty (pletivo průhledné), zdi, opěrné zdi, mosty, potok, vodorovné značení (pásy s opotřebovanou barvou), sloupy vedení, hraniční bariéry s cedulemi, tmavá jádra keřových pásů; tabulky instancí 1650 stromů a ~4200 keřů | 5,8 MiB (7,7) |
+| `public/assets/environment/terrain/` | 10 vrstev terénu (tráva, luční hrabanka, lesní hrabanka, hlína, bláto, štěrk, asfalt, beton, žulové kostky, kameny potoka) jako pásy JPEG 512 px/vrstva (albedo; normála + výška; roughness + AO) + `terrain_layers.json` (dlaždice v m) | 2,1 MiB (2,8) |
+| `public/assets/environment/vegetation.glb` | 13 modelů (smrk ×2, borovice, bříza vzrostlá / mladá, štíhlý / široký vícekmenný / kulatý listnáč, ovocný strom, 3 keře, divoký živý plot) × LOD0/1/2, atlas listových karet (WebP s alfou) + normály, atlas trávy a květin, pole kůry (5 vrstev), povrch stříhaného plotu | 2,7 MiB (3,6) |
 | `public/assets/levels/kalne_hamry/kh_collision.glb` | kolize ve třídách `main` (vše), `move` (jen kapsle: sklo, pletivo, zábradlí, tvrdá hranice), `movevis` (kapsle + výhled: živé ploty, keře, měkký nábytek, dřevěné bedny) | 0,4 MiB (0,5) |
 | `src/data/kalne_hamry.json` | spawny 3 × 16 (řady podle zóny + záložní řady), 3 polygonové zóny s pásmem výšky, 6 zbrojních beden (u každé řady), hranice (varování, odpočet 10 s, „Minové pole“), 900 návrhových krycích bodů, 183 testovacích bodů (markery `QA_*`), přepis mlhy D9 | 0,4 MiB |
 | `public/assets/nav/kalne_hamry.json` | navmesh (Recast cs 0,05 / r 0,35 m, dlaždice 12,8 m svařené na hranách), kryty z geometrie + návrhové, dosažitelnost spawn → zóna pro všechny týmy a zóny; načítá se za běhu, ne z balíku | 6,6 MB |
@@ -319,7 +319,9 @@ Kritika vzhledu: `Docs/MAP_art_r1_defects.json`, `Docs/MAP_art_r2_defects.json`.
 
 Světlo: slunce + obloha + mraky z `environment.json`, měkké stíny kolem hráče (rozsah 40 m), mlha D9 a **viditelnost oblohy
 + jeden odraz slunce zapečené na vrcholy při generování** (interiéry tmavší než venku), takže se při načtení nic nepeče.
-Načtení mapy v Chromiu ~1,0–1,2 s (místní server: stažení 0,2 s, BVH kolize 0,5 s, GLTF 0,2 s).
+Načtení mapy v Chromiu se SwiftShaderem ~1,4–1,9 s podle zátěže stroje (místní server: stažení 0,2 s, BVH kolize 0,5 s,
+zbytek dekódování vrstev terénu a textur vegetace, které běží souběžně s BVH, 0,3 s, stavba vegetace a trávy 0,2 s;
+před výtvarným průchodem 1,06 s).
 
 Testy: `tests/unit/kalne_hamry.test.mjs` (data, čerstvost výstupů vůči zdrojům, kolizní třídy, povrchy, spawny, bedny,
 zóny, hranice, navmesh, 60 s 17 botů v Node) a `tests/e2e/11_kalne_hamry.test.mjs` (načtení bez chyb, bezpečný spawn,

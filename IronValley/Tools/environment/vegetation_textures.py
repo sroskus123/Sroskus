@@ -645,7 +645,7 @@ def foliage_atlas():
         "lime": lambda w, h: leaf_cluster(w, h, rng(15), LIME, w * 0.12, 0.9, 160, tip=1.6, serrate=0.08, heart=0.35),
         "maple": lambda w, h: leaf_cluster(w, h, rng(16), MAPLE, w * 0.12, 0.95, 150, tip=1.1, serrate=0.1),
         "aspen": lambda w, h: leaf_cluster(w, h, rng(17), ASPEN, w * 0.095, 0.95, 200, tip=0.9, serrate=0.1),
-        "hazel": lambda w, h: leaf_cluster(w, h, rng(18), HAZEL, w * 0.13, 0.9, 140, tip=1.1, serrate=0.18, heart=0.2),
+        "hazel": lambda w, h: leaf_cluster(w, h, rng(18), HAZEL, w * 0.095, 0.9, 230, tip=1.1, serrate=0.18, heart=0.2),
         "fruit": lambda w, h: leaf_cluster(w, h, rng(19), FRUIT, w * 0.1, 0.55, 180, tip=1.6, serrate=0.1, fruit="#b04a2a"),
         "pine_sil": lambda w, h: conifer_silhouette(w, h, rng(20), PINE, pine=True),
         "clump_green": lambda w, h: clump(w, h, rng(21), LIME + MAPLE, w * 0.07, 0.85, 1700),

@@ -131,7 +131,7 @@ export function applyTerrainSplat(material, ts, { wet = 1.0 } = {}) {
   };
   material.userData.terrainSplat = { uniforms, layers: layers.map((l) => l.name) };
   // after-shower wetness per hard layer (asphalt drains slowest, setts fastest; ART_DIRECTION 1 / 3.1)
-  const hardWet = [['Asphalt', 1.0], ['Concrete', 0.7], ['PavingSetts', 0.35]].filter(([n]) => idx[n] !== undefined);
+  const hardWet = [['Asphalt', 1.0], ['Concrete', 0.7], ['Gravel', 0.55], ['PavingSetts', 0.35], ['Dirt', 0.25]].filter(([n]) => idx[n] !== undefined);
   const porous = ['Dirt', 'Mud', 'Gravel', 'RiverStones'].map((n) => idx[n]);
   material.onBeforeCompile = (shader, renderer) => {
     if (prev) prev(shader, renderer);
@@ -229,13 +229,14 @@ float ivPud = 0.0;
 	float hardAll = ${hardWet.map(([n]) => `w[${idx[n]}]`).join(' + ')};
 	float porW = ${porous.map((i) => `w[${i}]`).join(' + ')};
 	float level = puddleCh * 0.8;
-	float pud = smoothstep( 0.0, 0.05, level - h ) * step( 0.02, puddleCh );
+	// the water line follows the layer height softened towards its mean (no speckled edge on setts / gravel)
+	float pud = smoothstep( 0.0, 0.1, level - mix( h, 0.45, 0.35 ) ) * smoothstep( 0.02, 0.12, puddleCh );
 	float damp = clamp( ivWetGlobal * hardW + puddleCh * 0.9 * porW, 0.0, 1.0 );
 	float wetD = max( damp, pud );
 	alb *= mix( 1.0, 0.72 + 0.1 * hardAll, wetD );
 	alb = mix( alb, alb * vec3( 0.55, 0.57, 0.6 ), pud );
 	float rough = rao.r;
-	float wetRough = ( w[${idx.Asphalt}] * 0.34 + w[${idx.Concrete}] * 0.42 + w[${idx.PavingSetts}] * 0.45 ) / max( hardAll, 1e-3 );
+	float wetRough = ( w[${idx.Asphalt}] * 0.34 + w[${idx.Concrete}] * 0.42 + w[${idx.PavingSetts}] * 0.45 + w[${idx.Gravel}] * 0.6 + w[${idx.Dirt}] * 0.62 ) / max( hardAll, 1e-3 );
 	rough = mix( rough, mix( 0.45, wetRough, step( 0.05, hardAll ) ), damp );
 	rough = mix( rough, 0.04, pud );
 	vec2 nt = ( nh.rg * 2.0 - 1.0 ) * ( 1.0 - pud * 0.92 );
@@ -256,7 +257,7 @@ float ivPud = 0.0;
       .replace('#include <normal_fragment_maps>', 'normal = normalize( ( viewMatrix * vec4( ivN, 0.0 ) ).xyz );')
       .replace(
         '#include <aomap_fragment>',
-        '#include <aomap_fragment>\nreflectedLight.indirectDiffuse *= ivDetailAO;\nreflectedLight.indirectSpecular *= mix( 1.0, ivDetailAO, 0.6 ) * mix( 1.0, 3.2, ivPud );',
+        '#include <aomap_fragment>\nreflectedLight.indirectDiffuse *= ivDetailAO;\nreflectedLight.indirectSpecular *= mix( 1.0, ivDetailAO, 0.6 ) * mix( 1.0, 1.9, ivPud );',
       );
   };
   const prevKey = material.customProgramCacheKey ? material.customProgramCacheKey() : '';

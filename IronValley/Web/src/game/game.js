@@ -281,6 +281,23 @@ export class Game {
         registerNavData(level.id, JSON.parse(new TextDecoder('utf-8').decode(navBytes)));
       }
     }
+    const maxAniso = this.renderer.renderer.capabilities.getMaxAnisotropy();
+    // map art (terrain splat layers, vegetation textures, render GLBs): the image decodes (createImageBitmap runs off
+    // the main thread) and the layer fetches start now and overlap the synchronous collision / BVH build below
+    let artPending = null;
+    let vegGlb = null;
+    let vegPath = null;
+    if (geo) {
+      const env = level.geometry.environment || null;
+      vegPath = env && env.vegetation && geo.bytes.has(env.vegetation) ? env.vegetation : null;
+      vegGlb = vegPath ? parseGlb(geo.bytes.get(vegPath)) : null;
+      artPending = Promise.all([
+        Promise.all(level.geometry.render.map((p) => parseGLTF(geo.bytes.get(p), p))),
+        loadTerrainSplat(geo.terGlb, fetchAssetBytes, { maxAnisotropy: Math.min(8, maxAniso) }),
+        vegPath ? parseGLTF(geo.bytes.get(vegPath), vegPath) : null,
+        vegGlb ? loadVegetationTextures(vegGlb, Math.min(8, maxAniso)) : null,
+      ]);
+    }
     if (this.levelView) {
       this.scene.remove(this.levelView.group);
       this.levelView.group.traverse((o) => {
@@ -291,7 +308,6 @@ export class Game {
     this.level = level;
     this.data.level = level;
     this.levelSolids = buildLevelSolids(level);
-    const maxAniso = this.renderer.renderer.capabilities.getMaxAnisotropy();
     const timing = { fetchMs: geo ? geo.fetchMs : 0 };
     if (geo) {
       const tc = performance.now();
@@ -300,15 +316,8 @@ export class Game {
       this.world.surfaceRaster = surfaceRasterFromGlb(geo.terGlb);
       timing.collisionMs = performance.now() - tc;
       const tr = performance.now();
-      const env = level.geometry.environment || null;
-      const vegPath = env && env.vegetation && geo.bytes.has(env.vegetation) ? env.vegetation : null;
-      const vegGlb = vegPath ? parseGlb(geo.bytes.get(vegPath)) : null;
-      const [gltfs, terrainSplat, vegGltf, vegTex] = await Promise.all([
-        Promise.all(level.geometry.render.map((p) => parseGLTF(geo.bytes.get(p), p))),
-        loadTerrainSplat(geo.terGlb, fetchAssetBytes, { maxAnisotropy: Math.min(8, maxAniso) }),
-        vegPath ? parseGLTF(geo.bytes.get(vegPath), vegPath) : null,
-        vegGlb ? loadVegetationTextures(vegGlb, Math.min(8, maxAniso)) : null,
-      ]);
+      // splatMs = the part of the map-art loading that did not overlap the collision build
+      const [gltfs, terrainSplat, vegGltf, vegTex] = await artPending;
       timing.splatMs = performance.now() - tr;
       this.levelView = buildGeoLevelView(level, gltfs, {
         maxAnisotropy: Math.min(8, maxAniso),

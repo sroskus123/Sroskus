@@ -1,18 +1,22 @@
 {
  "cloth": {
-  "texels": 1847768,
-  "coverage": 0.4405,
+  "texels": 1483634,
+  "coverage": 0.3537,
   "height_mm": [
-   -2.31,
-   3.89
-  ]
+   -1.61,
+   2.01
+  ],
+  "hi_normal_texels": 806478
  },
  "gear": {
-  "texels": 1790821,
-  "coverage": 0.427,
-  "fabric_texel_share": 0.642
+  "texels": 1469534,
+  "coverage": 0.3504,
+  "fabric_texel_share": 0.584
  },
  "textures": {
+  "glove_bc": "Art/Textures/Characters/Soldier/T_Soldier_Glove_BaseColor.png",
+  "glove_orm": "Art/Textures/Characters/Soldier/T_Soldier_Glove_ORM.png",
+  "glove_n": "Art/Textures/Characters/Gloves/T_Glove_Normal.png",
   "cloth_n": "Art/Textures/Characters/Soldier/T_Soldier_Cloth_Normal.png",
   "cloth_orm": "Art/Textures/Characters/Soldier/T_Soldier_Cloth_ORM.png",
   "cloth_n_dx": "Art/Textures/Characters/Soldier/T_Soldier_Cloth_Normal_DX.png",
@@ -30,5 +34,5 @@
   "team_bc_Bravo": "Art/Textures/Characters/Soldier/T_Soldier_Team_Bravo_BaseColor.png",
   "team_bc_Charlie": "Art/Textures/Characters/Soldier/T_Soldier_Team_Charlie_BaseColor.png"
  },
- "seconds": 258.7
+ "seconds": 433.0
 }

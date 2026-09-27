@@ -33,7 +33,7 @@ const RADIUS = 40;
 
 // clump types: atlas rects (variants side by side), card aspect, number of crossed quads, density per m2 at map 1.0
 export const GRASS_TYPES = [
-  { name: 'low', rects: ['low', 'low_dry'], quads: 3, aspect: 1.0, channel: 0, perM2: 5.0, h: [0.18, 0.55], hPow: 1.6, dryShare: 0.22, radius: 30, fade: [20, 30] },
+  { name: 'low', rects: ['low', 'low_dry'], quads: 3, aspect: 1.35, channel: 0, perM2: 5.0, h: [0.18, 0.55], hPow: 1.6, dryShare: 0.22, radius: 30, fade: [20, 30] },
   { name: 'forb', rects: ['forb', 'forb'], quads: 2, aspect: 1.0, channel: 0, perM2: 0.3, h: [0.25, 0.45], notFlower: true, radius: 34, fade: [24, 34] },
   { name: 'tall', rects: ['tall_a', 'tall_b'], quads: 2, aspect: 0.6, channel: 1, perM2: 0.6, h: [0.75, 1.05], radius: 40, fade: [28, 40] },
   { name: 'chamomile', rects: ['chamomile', 'chamomile'], quads: 2, aspect: 1.0, channel: 2, perM2: 0.35, h: [0.4, 0.58], radius: 36, fade: [26, 36] },
@@ -172,7 +172,8 @@ varying vec2 vIvXZ;`,
 {
 	vec3 camW = cameraPosition;
 	float d = distance( ivPos.xz, camW.xz );
-	float f = 1.0 - smoothstep( ivFade.x, ivFade.y, d );
+	float jit = fract( ivScl.w * 13.13 ) * 5.0;   // per-clump offset: no visible ring where the grass sinks in
+	float f = 1.0 - smoothstep( ivFade.x - jit, ivFade.y - jit * 0.6, d );
 	vec3 p = position;
 	p.y *= ivScl.x * f;
 	p.xz *= ivScl.y * ( 0.6 + 0.4 * f );
@@ -345,14 +346,26 @@ export function buildGrass({ terrainSplat, terGlb, vegGlb, textures, uniforms })
         data.set(a, o);
         o += a.length;
       }
-      const posArr = new Float32Array(Math.max(total, 1) * 4);
-      const sclArr = new Float32Array(Math.max(total, 1) * 4);
+      // fixed-capacity instance buffers updated in place (three caches the maximum instance count of an
+      // InstancedBufferGeometry from its first attribute arrays: replacing them with larger ones would truncate)
+      if (!t.posAttr || t.posAttr.count < total) {
+        const cap = Math.ceil(Math.max(total, 64) * 1.3);
+        t.posAttr = new InstancedBufferAttribute(new Float32Array(cap * 4), 4);
+        t.sclAttr = new InstancedBufferAttribute(new Float32Array(cap * 4), 4);
+        t.posAttr.setUsage(35048); // DynamicDrawUsage
+        t.sclAttr.setUsage(35048);
+        t.geo.setAttribute('ivPos', t.posAttr);
+        t.geo.setAttribute('ivScl', t.sclAttr);
+        delete t.geo._maxInstanceCount;
+      }
+      const posArr = t.posAttr.array;
+      const sclArr = t.sclAttr.array;
       for (let i = 0; i < total; i++) {
         posArr.set(data.subarray(i * 8, i * 8 + 4), i * 4);
         sclArr.set(data.subarray(i * 8 + 4, i * 8 + 8), i * 4);
       }
-      t.geo.setAttribute('ivPos', new InstancedBufferAttribute(posArr, 4));
-      t.geo.setAttribute('ivScl', new InstancedBufferAttribute(sclArr, 4));
+      t.posAttr.needsUpdate = true;
+      t.sclAttr.needsUpdate = true;
       t.geo.instanceCount = total;
       t.mesh.visible = total > 0;
       state.counts[ti] = total;

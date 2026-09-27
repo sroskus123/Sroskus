@@ -15,7 +15,7 @@
   "height": "T_Dirt_Height.png"
  },
  "size_px": 1024,
- "mean_base_color_srgb": "#67543d",
- "mean_roughness": 0.903,
+ "mean_base_color_srgb": "#67553f",
+ "mean_roughness": 0.899,
  "conventions": "base colour sRGB without baked light; ORM R=occlusion G=roughness B=metallic (linear); normal OpenGL (+Y up), _DX flips green; height 16-bit 0..1 over relief_m"
 }

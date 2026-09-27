@@ -55,7 +55,8 @@ def rng(k):
 # model name: (builder, LOD2 clump / silhouette rect, is conifer)
 MODELS = {
     "spruce": (lambda r: V.spruce("spruce", r, H=22.0, R=3.4, cb=1.2), "spruce_sil", True),
-    "spruce_b": (lambda r: V.spruce("spruce_b", r, H=22.0, R=3.1, cb=4.5), "spruce_sil", True),
+    # forest-grown Norway spruce (ref. 02 / 03 and the in-game quality refs): bare lower trunk, narrow crown up top
+    "spruce_forest": (lambda r: V.spruce("spruce_forest", r, H=25.0, R=2.7, cb=10.5, trunk_r=0.3, dead_stubs=True), "spruce_sil", True),
     "pine": (lambda r: V.pine("pine", r, H=20.0, R=3.6, cb=11.0), "pine_sil", True),
     "birch": (lambda r: V.broadleaf("birch", r, 16.0, 3.5, 4.0, 0.22, "birch", limbs=12, elev=(55, 72), sub=7, pendulous=0.75, bark="birch",
                                     card_size=0.85, density=1.7, autumn=0.05), "clump_birch", False),
@@ -73,12 +74,12 @@ MODELS = {
 }
 # layout species / kinds -> models (variants chosen per instance by its seed)
 SPECIES_MODELS = {
-    "smrk": ["spruce", "spruce_b"], "borovice": ["pine"], "briza": ["birch"], "briza_mlada": ["birch_young"],
+    "smrk": ["spruce"], "smrk_les": ["spruce_forest", "spruce_forest", "spruce"], "borovice": ["pine"], "briza": ["birch"], "briza_mlada": ["birch_young"],
     "olse": ["slender"], "jasan": ["slender", "round"], "vrba": ["wide"], "lipa": ["wide", "round"], "lipa_stara": ["wide"],
     "habr": ["wide", "round"], "orech": ["wide"], "javor": ["round"], "buk": ["round", "slender"], "dub": ["round", "wide"],
     "jablon": ["fruit"], "hruska": ["fruit"], "svestka": ["fruit"],
     "shrub_low": ["shrub_low"], "shrub_mid": ["shrub_mid"], "shrub_tall": ["shrub_tall"], "hedge_wild": ["hedge_wild"],
-    "far_conifer": ["spruce"], "far_broadleaf": ["round"],
+    "far_conifer": ["spruce_forest"], "far_broadleaf": ["round"],
 }
 # LOD switch distances (m, from layout.json trees.species[*].lods / performance_budget_browser.trees)
 LOD_DIST = {"lod1": 35.0, "lod2": 90.0, "shrub_lod1": 25.0, "shrub_lod2": 60.0, "hysteresis": 4.0}
@@ -97,7 +98,7 @@ def build_all(meta):
         m0 = fn(r)
         m1 = V.lod1(m0, rng(i * 17 + 1), keep=0.3 if not name.startswith(("shrub", "hedge")) else 0.4, scale=1.6)
         m2 = V.lod2(m0, rng(i * 17 + 2), far_rect, silhouette_rect=far_rect if conifer else None,
-                    n_clumps=12 if not name.startswith(("shrub", "hedge")) else 5)
+                    n_clumps=12 if not name.startswith(("shrub", "hedge")) else 8)
         lods = []
         for k, m in enumerate((m0, m1, m2)):
             sides = ((8, 3, 3, 3) if conifer else (8, 5, 3, 3)) if k == 0 else (5, 3, 3)
@@ -199,7 +200,7 @@ def preview(models, path):
         return m
     leaf = mat_leaf()
     barks = [mat_bark(i) for i in bark_imgs]
-    names = [n for n in models if n not in ("spruce_b",)]
+    names = list(models)
     x = 0.0
     maxh = 0
     for name in names:
@@ -301,17 +302,17 @@ def write_glb(models, meta, paths):
                             "conifer": md["conifer"], "lods": lod_meshes, "cards": md["cards"]}
     imgs = {
         "foliage": g.add_image(webp_rgba(os.path.join(TEX, "T_Foliage_Atlas_BaseColor.png"), (1024, 1024)), "image/webp"),
-        "foliageNormal": g.add_image(jpeg(os.path.join(TEX, "T_Foliage_Atlas_Normal.png"), (1024, 1024), 84), "image/jpeg"),
+        "foliageNormal": g.add_image(jpeg(os.path.join(TEX, "T_Foliage_Atlas_Normal.png"), (768, 768), 82), "image/jpeg"),
         "grass": g.add_image(webp_rgba(os.path.join(TEX, "T_Grass_Atlas_BaseColor.png"), (1024, 768), 80), "image/webp"),
         "hedge": g.add_image(jpeg(os.path.join(TEX, "T_Hedge_BaseColor.png"), (512, 512), 86), "image/jpeg"),
-        "hedgeNormal": g.add_image(jpeg(os.path.join(TEX, "T_Hedge_Normal.png"), (512, 512), 86), "image/jpeg"),
+        "hedgeNormal": g.add_image(jpeg(os.path.join(TEX, "T_Hedge_Normal.png"), (512, 512), 80), "image/jpeg"),
     }
     # bark array strips (256 px per layer)
     names = ["Spruce", "Pine", "Birch", "BirchBase", "Broadleaf"]
     bc = np.concatenate([np.asarray(Image.open(os.path.join(TEX, f"T_Bark_{n}_BaseColor.png")).convert("RGB").resize((256, 256), Image.LANCZOS)) for n in names], 0)
     bn = np.concatenate([np.asarray(Image.open(os.path.join(TEX, f"T_Bark_{n}_Normal.png")).convert("RGB").resize((256, 256), Image.LANCZOS).filter(ImageFilter.GaussianBlur(0.7))) for n in names], 0)
     imgs["bark"] = g.add_image(jpeg(bc, None, 86), "image/jpeg")
-    imgs["barkNormal"] = g.add_image(jpeg(bn, None, 80), "image/jpeg")
+    imgs["barkNormal"] = g.add_image(jpeg(bn, None, 72), "image/jpeg")
     fr = meta["foliage"]["rects"]
     gr = meta["grass"]["rects"]
     g.extras = {"iv": {

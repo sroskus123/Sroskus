@@ -320,8 +320,9 @@ def dirt(n):
     cv.h -= 0.1 * crack
     cv.rgb *= (1 - 0.35 * crack[..., None])
     stones = ["#6c675d", "#7a7468", "#5b564e", "#827a6c", "#6a5e4e", "#57524a"]
-    pebbles(cv, r, int(7000 * (n / 1024) ** 2), 0.0015, 0.006, px, stones, 0.4)
-    pebbles(cv, r, int(320 * (n / 1024) ** 2), 0.008, 0.022, px, stones, 0.6)
+    pebbles(cv, r, int(9000 * (n / 1024) ** 2), 0.0015, 0.006, px, stones, 0.4)
+    pebbles(cv, r, int(900 * (n / 1024) ** 2), 0.006, 0.02, px, stones + ["#8a8478", "#7c776d"], 0.6)
+    pebbles(cv, r, int(60 * (n / 1024) ** 2), 0.02, 0.045, px, stones, 0.8)
     # straw / grass bits
     for _ in range(int(900 * (n / 1024) ** 2)):
         cx, cy = r.random(2) * n
@@ -368,8 +369,9 @@ def mud(n):
     col *= (1 - 0.25 * wet[..., None]) * (1 + 0.06 * rip[..., None])
     cv.rgb = col.astype(F32)
     cv.rough = (0.5 - 0.12 * to01(fine) - 0.35 * wet).astype(F32)
-    stones = ["#6f6d63", "#7a7468", "#5c5850"]
-    pebbles(cv, r, int(700 * (n / 1024) ** 2), 0.002, 0.01, px, stones, 0.3, rough=0.6)
+    stones = ["#4f4b43", "#57524a", "#48443d", "#5a554c"]   # mud-coated
+    pebbles(cv, r, int(2400 * (n / 1024) ** 2), 0.002, 0.012, px, stones, 0.35, rough=0.5, bury_depth=0.7)
+    pebbles(cv, r, int(120 * (n / 1024) ** 2), 0.015, 0.04, px, stones, 0.5, rough=0.45, bury_depth=0.8)
     for _ in range(int(500 * (n / 1024) ** 2)):
         cx, cy = r.random(2) * n
         L = (0.02 + 0.06 * r.random()) / px
@@ -436,9 +438,19 @@ def gravel(n):
     stone_layer(cv, n, int(1300 * (n / 1024) ** 2), SEED + 64, cols, 0.5, 2.2, 0.45, cover=0.8)
     # dust in the lows, darker fines film
     low = smoothstep(0.45, 0.2, cv.h)
-    cv.rgb = cv.rgb * (1 - 0.55 * low[..., None]) + hexc("#4a453c") * 0.55 * low[..., None]
-    dust = smoothstep(0.2, 1.5, fbm(n, SEED + 65, lo=2, hi=10))
-    cv.rgb = cv.rgb * (1 - 0.2 * dust[..., None]) + hexc("#8a8272") * 0.2 * dust[..., None]
+    cv.rgb = cv.rgb * (1 - 0.65 * low[..., None]) + hexc("#3a352d") * 0.65 * low[..., None]
+    cv.rough = cv.rough * (1 - 0.3 * low) + 0.7 * 0.3 * low
+    # muddy patches: fines and water fill between the stones, only the stone tops stick out
+    mudp = smoothstep(0.55, 1.4, fbm(n, SEED + 66, lo=2, hi=14))
+    mud_level = 0.42 + 0.1 * fbm(n, SEED + 67, lo=20, hi=200)
+    sub = mudp * smoothstep(mud_level + 0.08, mud_level - 0.05, cv.h)
+    cv.rgb = cv.rgb * (1 - sub[..., None]) + (hexc("#453c30") * (0.9 + 0.2 * fbm(n, SEED + 68, lo=60, hi=400)[..., None])) * sub[..., None]
+    cv.h = np.maximum(cv.h, mud_level * mudp + cv.h * (1 - mudp))
+    cv.rough = cv.rough * (1 - sub) + 0.45 * sub
+    # stones darker and dirtier overall (road-side greywacke, not washed decorative gravel)
+    cv.rgb *= 0.86
+    dust = smoothstep(0.4, 1.6, fbm(n, SEED + 65, lo=2, hi=10))
+    cv.rgb = cv.rgb * (1 - 0.15 * dust[..., None]) + hexc("#7c7466") * 0.15 * dust[..., None]
     cv.h = np.clip(cv.h, 0, 1)
     cv.h = cv.h / max(float(cv.h.max()), 1e-3) * 1.0
     return finish("Gravel", cv, tile, 0.045, "gravel (ART_DIRECTION 3.1)", ao_strength=1.3, ao_radii=(0.003, 0.01, 0.03))

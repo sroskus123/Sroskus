@@ -68,19 +68,27 @@ test('grass density: none on asphalt / water / brook stones, practically none on
   };
   const counts = {};
   const hits = {};
+  const yardViolations = [];
   for (let j = 0; j < raster.height; j += 1) {
     for (let i = 0; i < raster.width; i += 1) {
       const surf = raster.surfaces[raster.data[j * raster.width + i]];
       const cx = rasterX(raster, i);
       const cz = rasterZ(raster, j);
       counts[surf] = (counts[surf] || 0) + 1;
-      if (at(cx, cz, 0) > 0 || at(cx, cz, 1) > 0) hits[surf] = (hits[surf] || 0) + 1;
+      const low = at(cx, cz, 0);
+      const tall = at(cx, cz, 1);
+      if (low > 0 || tall > 0) hits[surf] = (hits[surf] || 0) + 1;
+      // yards / shoulders: at most the thin strip value along walls and fence plinths, never tall grass
+      if (['gravel', 'concrete', 'paving'].includes(surf) && (tall > 0 || low > 0.36 * 255)) yardViolations.push([cx, cz, low, tall]);
     }
   }
   for (const s of ['asphalt', 'water', 'stone']) assert.equal(hits[s] || 0, 0, `grass on ${s}: ${hits[s]} of ${counts[s]} cells`);
-  for (const s of ['dirt', 'gravel', 'concrete', 'paving', 'mud']) {
+  for (const s of ['dirt', 'mud']) assert.equal(hits[s] || 0, 0, `grass on ${s} (tracks, paths, ditches): ${hits[s]} of ${counts[s]} cells`);
+  assert.deepEqual(yardViolations.slice(0, 5), [], `grass on yards / shoulders beyond the wall strips: ${yardViolations.length} cells`);
+  for (const s of ['gravel', 'concrete', 'paving']) {
     const frac = (hits[s] || 0) / Math.max(counts[s] || 1, 1);
-    assert.ok(frac < 0.05, `grass on ${s}: ${(frac * 100).toFixed(1)} % of cells (only along walls / plinths allowed)`);
+    // the small fenced yards have long 0.7 m wall strips (the rule itself is the value check above)
+    assert.ok(frac < 0.2, `grass strips on ${s}: ${(frac * 100).toFixed(1)} % of cells`);
   }
   assert.ok((hits.grass || 0) / counts.grass > 0.6, `meadows have grass (${hits.grass} / ${counts.grass})`);
   // tall grass: never inside a capture zone (visual only, but no unfair hiding place)
@@ -113,7 +121,7 @@ test('vegetation: every tree species / shrub kind of the level has a model with 
   assert.ok(w.shrubs.count > 1000, `shrubs ${w.shrubs.count}`);
   const kinds = [...w.trees.kindNames, ...w.shrubs.kindNames];
   for (const k of kinds) {
-    const list = iv.speciesModels[k];
+    const list = iv.speciesModels[k] || iv.speciesModels[k.replace(/_les$/, '')];
     assert.ok(list && list.length, `species ${k} mapped`);
     for (const m of list) assert.ok(iv.models[m], `model ${m} of ${k}`);
   }

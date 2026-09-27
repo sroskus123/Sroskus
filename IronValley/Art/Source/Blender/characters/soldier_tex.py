@@ -452,7 +452,7 @@ HARD = {
     "hard": ("#1e1f1d", 0.62, 0.0), "mag": ("#2b2b2a", 0.74, 0.0), "rail": ("#18191a", 0.74, 0.0),
     "shroud": ("#141516", 0.42, 1.0), "headset": ("#2e3129", 0.58, 0.0), "lens": ("#0c0d10", 0.05, 0.0),
     "frame": ("#161616", 0.48, 0.0), "kneepad": ("#1e1e1c", 0.70, 0.0), "strap": ("#1b1b1a", 0.88, 0.0),
-    "helmet": ("#1f201d", 0.80, 0.0),
+    "helmet": ("#1f201d", 0.80, 0.0), "holster": ("#262723", 0.50, 0.0),
 }
 FABRIC_ZONES = ("carrier", "pouch", "belt")
 
@@ -518,7 +518,10 @@ def gear_maps(td, objs, fr, conv, seed=9):
         v = v * (1 + 0.10 * loopp)
         h += loopp * (wave_noise(P, 0.0009, 2, seed + 7, 6) * 0.00008 + 0.0003)
         base[F_] = (GEAR_WHITE * v[F_])[:, None]
-        rough[F_] = 0.86 + 0.05 * wn[F_] - 0.04 * tape[F_] + 0.08 * loopp[F_]
+        rough[F_] = 0.74 + 0.05 * wn[F_] - 0.05 * tape[F_] + 0.18 * loopp[F_]
+        # coarse cordura basket weave (reads as nylon at close range, unlike the cotton ripstop)
+        bw = (np.sin(P[:, 0] * 2 * np.pi / 0.0021) * np.sin((P[:, 2] + P[:, 1]) * 2 * np.pi / 0.0021)).astype(np.float32)
+        h[F_] += bw[F_] * 0.00004
         h[F_] += (weave[F_] - 0.25) * 0.00003
     # ---- hard parts
     for z, (hx, r, mt) in HARD.items():
@@ -617,6 +620,20 @@ def gear_maps(td, objs, fr, conv, seed=9):
         h[bottom] += lug[bottom] * 0.0025
         sidez = so & (np.abs(N[:, 2]) < 0.6)
         h[sidez] += (np.abs(np.sin(P[sidez, 2] * 2 * np.pi / 0.006)) * 0.0004)
+    # dust: settles on upward faces and the lower kit (belt, holster, boots), stronger in noise patches
+    dn = wave_noise(P, 0.05, 3, seed + 70, 6) * 0.5 + 0.5
+    up = np.clip(N[:, 2], 0, 1)
+    low = sm(1.10, 0.20, P[:, 2])
+    dust = np.clip(0.25 * up + 0.35 * low * (1 - bt.astype(np.float32) * 0.0), 0, 1) * (0.4 + 0.8 * dn)
+    lens_like = np.isin(zones, ("lens", "shroud"))
+    dust[lens_like] *= 0.2
+    dcol = srgb("#8e846d")[None, :]
+    fabv = fab[:, None]
+    # gear fabric is tinted by the material factor, so dust is authored relative to GEAR_WHITE there
+    dust_c = np.where(fabv, dcol / 0.62 * GEAR_WHITE * 0.92, dcol)
+    dw = (dust * 0.30)[:, None]
+    base = base * (1 - dw) + dust_c * dw
+    rough = np.clip(rough + 0.08 * dust, 0.03, 1.0)
     # generic wear: lighter scuffs on convex edges of hard parts and fabric
     edge = np.clip(conv * 2.5, 0, 1)
     wear = edge * (0.5 + 0.5 * wave_noise(P, 0.01, 2, seed + 60, 6)) * ~bt * ~fab
@@ -676,3 +693,331 @@ def team_maps(td, objs, fr, team, symbol):
         h += sym * 0.0002
         rough = np.where(sym > 0.5, 0.6, rough)
     return dict(base=np.clip(base, 0, 1), rough=rough, metal=np.zeros(m, np.float32), h=h, cav=np.ones(m, np.float32))
+
+
+# =============================================================================
+# v2 clothing: camo laid out per sewing panel (UV space), seams from the UV island borders,
+# ripstop on the grain, reinforcement panels, dust / mud / wear
+# =============================================================================
+
+def tri_uv_islands(me, uv="UVMap"):
+    """UV island index per loop triangle (triangles sharing an edge with identical UVs)."""
+    me.calc_loop_triangles()
+    nt = len(me.loop_triangles)
+    lt = np.empty(nt * 3, np.int64)
+    me.loop_triangles.foreach_get("loops", lt)
+    lt = lt.reshape(-1, 3)
+    vt = np.empty(nt * 3, np.int64)
+    me.loop_triangles.foreach_get("vertices", vt)
+    vt = vt.reshape(-1, 3)
+    U = np.empty(len(me.loops) * 2)
+    me.uv_layers[uv].data.foreach_get("uv", U)
+    U = np.round(U.reshape(-1, 2) * 1e6).astype(np.int64)
+    parent = np.arange(nt)
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+    edges = {}
+    for t in range(nt):
+        for k in range(3):
+            a, b = vt[t, k], vt[t, (k + 1) % 3]
+            ua, ub = tuple(U[lt[t, k]]), tuple(U[lt[t, (k + 1) % 3]])
+            key = (a, b) if a < b else (b, a)
+            uvk = (ua, ub) if a < b else (ub, ua)
+            if key in edges:
+                t2, uv2 = edges[key]
+                if uv2 == uvk:
+                    ra, rb = find(t), find(t2)
+                    if ra != rb:
+                        parent[ra] = rb
+            else:
+                edges[key] = (t, uvk)
+    roots = np.array([find(i) for i in range(nt)])
+    _, isl = np.unique(roots, return_inverse=True)
+    return isl
+
+
+def island_boundaries(td, objs):
+    """Per texel: island label, distance (px) to the nearest island border texel and that texel's
+    coordinates (for stitch dashes along the seam)."""
+    from scipy import ndimage
+    res = td["res"]
+    lab = np.full(res * res, -1, np.int64)
+    off = 0
+    for oi, o in enumerate(objs):
+        m = td["oid"] == oi
+        if not m.any():
+            continue
+        isl = tri_uv_islands(o.data)
+        lab[td["px"][m]] = off + isl[td["ti"][m]]
+        off += int(isl.max()) + 1
+    L = lab.reshape(res, res)
+    b = np.zeros((res, res), bool)
+    for ax in (0, 1):
+        for sh in (1, -1):
+            b |= (L != np.roll(L, sh, axis=ax)) & (L >= 0)
+    dist, ind = ndimage.distance_transform_edt(~b, return_indices=True)
+    px = td["px"]
+    return dict(lab=lab[px], d_px=dist.reshape(-1)[px].astype(np.float32),
+                bx=ind[1].reshape(-1)[px].astype(np.float32), by=ind[0].reshape(-1)[px].astype(np.float32))
+
+
+def hash01(k, seed=0):
+    k = (np.asarray(k, np.int64) * 374761393 + seed * 668265263) & 0xFFFFFFFF
+    k = ((k ^ (k >> 13)) * 1274126177) & 0xFFFFFFFF
+    return ((k & 0xFFFF) / 65535.0).astype(np.float32)
+
+
+def camo2d(Q, seed=3):
+    """Woodland-style print in fabric space (metres, 2D): three soft-edged layers over the base."""
+    P3 = np.column_stack([Q[:, 0], Q[:, 1], np.zeros(len(Q))])
+    w = np.column_stack([wave_noise(P3, 0.30, 2, seed + 11, 6), wave_noise(P3 + 3.1, 0.30, 2, seed + 12, 6), np.zeros(len(Q))]) * 0.040
+    R = P3 + w
+    n1 = wave_noise(R, 0.14, 3, seed + 1, 7)
+    n2 = wave_noise(R + 1.7, 0.095, 3, seed + 2, 7)
+    n3 = wave_noise(R - 2.3, 0.115, 3, seed + 3, 7)
+    e = 0.016
+    a1 = sm(0.12 - e, 0.12 + e, n1)
+    a2 = sm(0.30 - e, 0.30 + e, n2) * sm(-0.1, 0.1, n1)
+    a3 = sm(0.22 - e, 0.22 + e, n3) * (1 - a1)
+    wb = np.clip(1 - a1 - a3, 0, 1)
+    W = np.stack([wb, a1 * (1 - a2), a1 * a2, a3], 1)
+    return W / np.maximum(W.sum(1, keepdims=True), 1e-6)
+
+
+def cloth_maps2(td, objs, fr, panel_names, shirt_cfg, trouser_cfg, seed=5):
+    P, N = td["P"].astype(np.float64), td["N"]
+    m = len(P)
+    res = td["res"]
+    tex = np.linalg.norm(td["dPdu"], axis=1).astype(np.float32)
+    oid = td["oid"]
+    names = np.array([o.name for o in objs])[oid]
+    is_shirt = np.isin(names, ["Soldier_Shirt", "FP_Sleeves"])
+    is_tr = names == "Soldier_Trousers"
+    is_pk = np.char.find(names.astype(str), "Pocket") >= 0
+    is_bala = names == "Soldier_Balaclava"
+    is_skin = names == "Soldier_FaceSkin"
+    is_helm = names == "SG_Helmet"
+    fabric = is_shirt | is_tr | is_pk | is_helm
+    sewn = is_shirt | is_tr | is_pk
+    # ---- fabric-space coordinates: atlas pixels x the object's texel size (panel layout = cut fabric)
+    xpx = (td["px"] % res).astype(np.float64)
+    ypx = (td["px"] // res).astype(np.float64)
+    Q = np.zeros((m, 2))
+    for k in range(len(objs)):
+        sel = oid == k
+        if sel.any():
+            ts = float(np.median(tex[sel]))
+            Q[sel, 0] = xpx[sel] * ts + 3.7 * k
+            Q[sel, 1] = ypx[sel] * ts - 1.9 * k
+    camoW = camo2d(Q, seed)
+    # ---- panels (face attribute) + UV islands
+    panel = np.full(m, "", dtype=object)
+    for k, o in enumerate(objs):
+        sel = oid == k
+        if sel.any() and "iv_panel" in o.data.attributes:
+            fa = S_tri_face_attr(o.data, "iv_panel")
+            panel[sel] = np.array([panel_names.get(int(v), "") for v in fa[td["ti"][sel]]], dtype=object)
+    ib = island_boundaries(td, objs)
+    d = ib["d_px"] * tex
+    along = (ib["bx"] + 1.618 * ib["by"]) * tex
+    isl_tint = 1.0 + 0.035 * (hash01(ib["lab"], seed + 3) - 0.5) * 2.0          # dye lot per panel
+    # ---- height detail (metres)
+    h = np.zeros(m, np.float32)
+    cav = np.ones(m, np.float32)
+    g = 0.0062
+    rip = np.maximum(line((Q[:, 0] % g) - g / 2, 0.00022, tex), line((Q[:, 1] % g) - g / 2, 0.00022, tex))
+    P3q = np.column_stack([Q, np.zeros(m)])
+    weave = wave_noise(P3q, 0.0015, 2, seed + 1, 6)
+    wr = wave_noise(P, 0.06, 3, seed + 2, 6)
+    groove = line(d, 0.0008, tex) * sewn
+    ridge = sm(0.0014, 0.0028, d) * sm(0.0080, 0.0062, d) * sewn
+    st = (stitches(d - 0.0032, along, 0.00028, 0.0030, tex) + stitches(d - 0.0058, along, 0.00028, 0.0030, tex)) * sewn
+    h += -groove * 0.00050 + ridge * 0.00032 + st * 0.00008
+    h += fabric * (rip * 0.00005 + weave * 0.000018) + (fabric | is_bala) * wr * 0.00045
+    cav *= 1 - 0.35 * groove
+    reinf = np.isin(panel.astype(str), [p for p in set(panel_names.values()) if any(k in p for k in ("knee", "elbow", "cuff", "waistband"))]).astype(np.float32)
+    h += reinf * 0.00012
+    # ---- details: zip at the shirt centre front, belt loops, fly
+    zipz = is_shirt & (np.abs(P[:, 0]) < 0.0055) & (P[:, 1] < -0.04) & (P[:, 2] > 1.15)
+    teeth = zipz & (np.abs(((P[:, 2] / 0.0032) % 1.0) - 0.5) < 0.30)
+    h += zipz * 0.00025 + teeth * 0.00015
+    wz = trouser_cfg["waist_z0"] + trouser_cfg["waist_tilt"] * P[:, 1]
+    az = np.arctan2(P[:, 0], -(P[:, 1] + 0.03))
+    loops_ = is_tr & (P[:, 2] > wz - 0.040) & (np.abs(((az * 0.17 / 0.09) % 1.0) - 0.5) < 0.07)
+    h += loops_ * 0.0012
+    fly = is_tr & (P[:, 1] < -0.02) & (P[:, 2] < wz - 0.040) & (P[:, 2] > wz - 0.20)
+    dfly = np.abs(np.abs(P[:, 0] - 0.004) - 0.024)
+    h -= line(dfly, 0.0005, tex) * fly * 0.0003
+    # ---- dirt and wear masks (0..1)
+    dn = wave_noise(P, 0.05, 3, seed + 20, 6) * 0.5 + 0.5
+    dn2 = wave_noise(P, 0.012, 2, seed + 21, 6) * 0.5 + 0.5
+    knee = np.zeros(m, np.float32)
+    elbow = np.zeros(m, np.float32)
+    for s, sg in (("l", 1), ("r", -1)):
+        kn = fr.b[f"calf_{s}"][0]
+        dk = np.linalg.norm(P - (kn + np.array([0, -0.06, 0.0])), axis=1)
+        knee = np.maximum(knee, sm(0.13, 0.03, dk) * (P[:, 0] * sg > 0))
+        el = fr.b[f"lowerarm_{s}"][0]
+        de = np.linalg.norm(P - (el + np.array([0, 0.035, -0.01])), axis=1)
+        elbow = np.maximum(elbow, sm(0.09, 0.02, de) * (P[:, 0] * sg > 0))
+    low = sm(0.46, 0.15, P[:, 2]) * (is_tr | is_pk)
+    seat = is_tr * sm(0.78, 0.86, P[:, 2]) * sm(1.0, 0.92, P[:, 2]) * np.clip(N[:, 1] * 2.0, 0, 1)
+    up = np.clip(N[:, 2], 0, 1)
+    dust = np.clip(knee * is_tr * 0.85 + elbow * is_shirt * 0.55 + low * 0.75 + seat * 0.35 + up * fabric * 0.18
+                   + reinf * 0.12, 0, 1) * (0.45 + 0.75 * dn)
+    mud = is_tr * sm(0.30, 0.16, P[:, 2]) * sm(0.35, 0.65, dn2 * 0.6 + dn * 0.6)
+    wear = np.clip(ridge * 0.7 + sm(0.0025, 0.0, d) * sewn * 0.6 + reinf * 0.3 + knee * is_tr * 0.4 + elbow * is_shirt * 0.3,
+                   0, 1) * (0.5 + 0.5 * dn2)
+    rough = np.full(m, 0.86, np.float32) + 0.03 * wave_noise(P, 0.09, 2, seed + 41, 5)
+    rough += 0.07 * dust - 0.04 * wear
+    rough = np.where(mud > 0.5, 0.93, rough)
+    # ---- balaclava knit / gaiter, helmet cover gores, skin (as v1)
+    gaiter = np.zeros(m, np.float32)
+    if is_bala.any():
+        B_ = is_bala
+        gaiter[B_] = sm(0.3, 0.7, td["iv_gaiter"][B_])
+        rib = np.abs(np.sin(np.arctan2(P[:, 0], -(P[:, 1] + 0.05)) * 170)).astype(np.float32)
+        h[B_] += ((rib[B_] - 0.5) * 0.00008) * (1 - gaiter[B_])
+        gf = fold_wave(P[:, 2] / 0.018 + wave_noise(P, 0.04, 2, seed + 13, 6) * 0.4)
+        h[B_] += (gf[B_] * 0.0003 * gaiter[B_])
+        edge = np.clip(1 - np.abs(td["iv_gaiter"] - 0.5) / 0.25, 0, 1)
+        h[B_] += (edge[B_] * 0.0010)
+        rough[B_] = 0.93
+    if is_helm.any():
+        H_ = is_helm
+        c = np.array([0.0, -0.051, 1.700])
+        dd = P - c
+        azh = np.arctan2(dd[:, 0], -dd[:, 1])
+        rxy = np.linalg.norm(dd[:, :2], axis=1)
+        gore = np.abs(((azh / (np.pi / 2)) + 0.5) % 1.0 - 0.5) * (np.pi / 2) * rxy
+        gl = line(gore, 0.0008, tex) * sm(1.70, 1.74, P[:, 2]) * sm(1.83, 1.81, P[:, 2]) * H_
+        h -= gl * 0.0004
+        cav *= 1 - 0.3 * gl
+        h[H_] += wave_noise(P[H_], 0.045, 3, seed + 21, 7) * 0.0010
+    if is_skin.any():
+        rough[is_skin] = 0.55
+    return dict(P=P, camoW=camoW, h=h, cav=cav, rough=np.clip(rough, 0.3, 1.0), groove=groove, ridge=ridge, st=st,
+                reinf=reinf, zipz=zipz, teeth=teeth, loops=loops_, dust=dust, mud=mud, wear=wear, tint=isl_tint,
+                gaiter=gaiter, is_bala=is_bala, is_skin=is_skin, is_helm=is_helm, fabric=fabric,
+                macro=wave_noise(P, 0.25, 2, seed + 50, 5))
+
+
+def S_tri_face_attr(me, name):
+    import ivsoldier
+    return ivsoldier.tri_face_attr(me, name)
+
+
+def cloth_base2(cm, team):
+    c = CAMO[team]
+    base = camo_color(cm["camoW"], team)
+    base = base * cm["tint"][:, None] * (1 + 0.03 * cm["macro"][:, None])
+    base *= (1 - 0.07 * cm["reinf"])[:, None]
+    base *= (1 - 0.22 * cm["groove"])[:, None]
+    thr = srgb(c["c1"])[None, :] * 1.15
+    base = base * (1 - cm["st"][:, None] * 0.55) + thr * cm["st"][:, None] * 0.55
+    # fading on seam ridges / worn areas: lighter and less saturated
+    lum = base.mean(1, keepdims=True)
+    faded = (base * 0.55 + lum * 0.45) * 1.28
+    wv = (cm["wear"] * 0.55)[:, None]
+    base = base * (1 - wv) + faded * wv
+    zip_ = srgb("#1c1c1a")[None, :]
+    zm = cm["zipz"][:, None] * 0.85
+    base = base * (1 - zm) + zip_ * zm
+    # dust (light, desaturated) and dried mud (dark)
+    dust = srgb("#8e846d")[None, :]
+    dw = (cm["dust"] * 0.42)[:, None]
+    base = base * (1 - dw) + dust * dw
+    mud = srgb("#3a3025")[None, :]
+    mw = (cm["mud"] * 0.55)[:, None]
+    base = base * (1 - mw) + mud * mw
+    b = cm["is_bala"]
+    if b.any():
+        bal = srgb(NEUTRAL["balaclava"])[None, :] * (1 + 0.05 * cm["macro"][b, None])
+        gai = srgb(NEUTRAL["gaiter"])[None, :] * (1 + 0.06 * cm["macro"][b, None])
+        Pb = cm["P"][b]
+        u = np.arctan2(Pb[:, 0], -(Pb[:, 1] + 0.05)) * 0.085
+        v = Pb[:, 2]
+        cell = 0.011
+        chk = ((np.floor(u / cell) + np.floor(v / cell)) % 2).astype(np.float32)
+        ln = np.maximum(np.abs(((u / cell) % 1) - 0.5), np.abs(((v / cell) % 1) - 0.5))
+        lines = np.clip((ln - 0.40) / 0.08, 0, 1)
+        sand = srgb("#7d765f")[None, :]
+        gai = gai * (1 - 0.35 * chk[:, None]) + sand * (0.35 * chk[:, None])
+        gai = gai * (1 - 0.30 * lines[:, None])
+        g = cm["gaiter"][b, None]
+        base[b] = bal * (1 - g) + gai * g
+    k = cm["is_skin"]
+    if k.any():
+        base[k] = srgb(NEUTRAL["skin"])[None, :] * (1 + 0.05 * cm["macro"][k, None])
+    return np.clip(base, 0, 1)
+
+
+def tangent_frames(td):
+    N, a, b = td["N"], td["dPdu"], td["dPdv"]
+    T = a - N * (a * N).sum(1)[:, None]
+    T /= np.maximum(np.linalg.norm(T, axis=1)[:, None], 1e-12)
+    sgn = np.sign((np.cross(N, T) * b).sum(1))
+    sgn[sgn == 0] = 1
+    B = np.cross(N, T) * sgn[:, None]
+    return T, B, N
+
+
+def hi_normal_ts(td, objs, hi_map):
+    """Tangent-space normal per texel taken from the high-resolution garment (the big folds the
+    game mesh lost to decimation), same tangent convention as ivhands.height_to_normal."""
+    import ivsoldier as IS
+    m = len(td["P"])
+    out = np.zeros((m, 3), np.float32)
+    out[:, 2] = 1.0
+    T, B, N = tangent_frames(td)
+    for k, o in enumerate(objs):
+        hi = hi_map.get(o.name)
+        if hi is None:
+            continue
+        sel = np.nonzero(td["oid"] == k)[0]
+        if not len(sel):
+            continue
+        hco = IS.co_of(hi)
+        htr = IS.tris_of(hi.data)
+        hn = IS.vnormals(hco, htr)
+        bv = IS.bvh(hco, htr)
+        loc, nor, fi, dist = IS.nearest_on(bv, td["P"][sel].astype(np.float64), 0.03)
+        ok = fi >= 0
+        t = htr[np.maximum(fi, 0)]
+        bc = IS.barycentric(loc, hco[t[:, 0]], hco[t[:, 1]], hco[t[:, 2]])
+        n = hn[t[:, 0]] * bc[:, 0:1] + hn[t[:, 1]] * bc[:, 1:2] + hn[t[:, 2]] * bc[:, 2:3]
+        n /= np.maximum(np.linalg.norm(n, axis=1)[:, None], 1e-9)
+        ts = np.stack([(n * T[sel]).sum(1), (n * B[sel]).sum(1), (n * N[sel]).sum(1)], 1)
+        ts[ts[:, 2] < 0.2, 2] = 0.2
+        ts /= np.linalg.norm(ts, axis=1)[:, None]
+        out[sel[ok]] = ts[ok]
+    return out
+
+
+def blend_normals(n1, n2):
+    """Partial-derivative blend of two tangent-space normals."""
+    z1 = np.maximum(n1[:, 2], 0.05)
+    z2 = np.maximum(n2[:, 2], 0.05)
+    n = np.stack([n1[:, 0] / z1 + n2[:, 0] / z2, n1[:, 1] / z1 + n2[:, 1] / z2, np.ones(len(n1))], 1)
+    return (n / np.linalg.norm(n, axis=1)[:, None]).astype(np.float32)
+
+
+def glove_dust(td, fr, seed=17):
+    """Dust / wear mask on the glove texels (fingertips, palm heel, knuckles, cuff edge)."""
+    P, N = td["P"].astype(np.float64), td["N"]
+    m = len(P)
+    a = np.zeros(m, np.float32)
+    for s, sg in (("l", 1), ("r", -1)):
+        sel = np.sign(P[:, 0]) == sg
+        for f in ("index", "middle", "ring", "pinky", "thumb"):
+            tip = fr.b[f"{f}_03_{s}"][1]
+            a = np.maximum(a, sm(0.030, 0.006, np.linalg.norm(P - tip, axis=1)) * sel)
+        hand = fr.b[f"hand_{s}"][0]
+        mid = fr.b[f"middle_01_{s}"][0]
+        a = np.maximum(a, 0.55 * sm(0.07, 0.02, np.linalg.norm(P - (0.5 * (hand + mid)), axis=1)) * sel)
+    n = wave_noise(P, 0.012, 3, seed, 6) * 0.5 + 0.5
+    return np.clip(a * (0.35 + 0.8 * n), 0, 1)

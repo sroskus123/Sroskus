@@ -369,7 +369,7 @@ def ring_fold(u, u0, u1, wavelength, phase=0.0):
     return env * np.cos(2 * np.pi * u / wavelength + phase)
 
 
-def add_lip(ob, loop, inward_dir_fn, edge=0.003, depth=0.015, lining_dir_fn=None):
+def add_lip(ob, loop, inward_dir_fn, edge=0.003, depth=0.015, lining_dir_fn=None, copy_uv=True):
     """Rolled edge at an open garment boundary: ring 1 = boundary moved `edge` inwards (thickness),
     ring 2 = `depth` further inside along lining_dir_fn (default: -inward direction turned along
     the surface).  New vertices copy the weights and shape-key deltas of their boundary vertex.
@@ -403,11 +403,29 @@ def add_lip(ob, loop, inward_dir_fn, edge=0.003, depth=0.015, lining_dir_fn=None
             ring.append(nv)
     bm.verts.ensure_lookup_table()
     n = len(loop)
+    uvl = bm.loops.layers.uv.active if copy_uv else None
+    edge_uv = {}
+    if uvl is not None:
+        # UV of each boundary edge's endpoints, taken from the one face on that edge
+        for i in range(n):
+            j = (i + 1) % n
+            e = bm.edges.get((outer[i], outer[j]))
+            if e is None or not e.link_faces:
+                continue
+            f0 = e.link_faces[0]
+            uvs = {l.vert: tuple(l[uvl].uv) for l in f0.loops}
+            edge_uv[i] = (uvs.get(outer[i]), uvs.get(outer[j]))
     nf = []
     for i in range(n):
         j = (i + 1) % n
-        nf.append(bm.faces.new((outer[i], outer[j], r1[j], r1[i])))
-        nf.append(bm.faces.new((r1[i], r1[j], r2[j], r2[i])))
+        fa = bm.faces.new((outer[i], outer[j], r1[j], r1[i]))
+        fb = bm.faces.new((r1[i], r1[j], r2[j], r2[i]))
+        nf += [fa, fb]
+        if uvl is not None and i in edge_uv and None not in edge_uv[i]:
+            ui, uj = edge_uv[i]
+            for f in (fa, fb):
+                for l, u in zip(f.loops, (ui, uj, uj, ui)):
+                    l[uvl].uv = u
     for f in nf:
         f.smooth = True
         f[lip] = 1

@@ -385,7 +385,8 @@ export function buildVegetation({ vegGltf, vegGlb, worldGlb, textures, uniforms,
     for (let i = 0; i < tab.count; i++) {
       const o = i * 8;
       const kind = tab.kindNames[kinds[i]];
-      const list = iv.speciesModels[kind] || ['round'];
+      // forest-grown kinds ("smrk_les") fall back to the species' open-grown models when no forest model exists
+      const list = iv.speciesModels[kind] || iv.speciesModels[kind.replace(/_les$/, '')] || ['round'];
       const seed = rows[o + 7];
       const mname = list[Math.min(list.length - 1, Math.floor(seed * list.length))];
       const m = models[mname];

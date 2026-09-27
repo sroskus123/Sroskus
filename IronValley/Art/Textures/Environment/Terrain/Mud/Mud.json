@@ -15,7 +15,7 @@
   "height": "T_Mud_Height.png"
  },
  "size_px": 1024,
- "mean_base_color_srgb": "#473b2d",
- "mean_roughness": 0.372,
+ "mean_base_color_srgb": "#473b2e",
+ "mean_roughness": 0.374,
  "conventions": "base colour sRGB without baked light; ORM R=occlusion G=roughness B=metallic (linear); normal OpenGL (+Y up), _DX flips green; height 16-bit 0..1 over relief_m"
 }

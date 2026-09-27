@@ -15,7 +15,7 @@
   "height": "T_Gravel_Height.png"
  },
  "size_px": 1024,
- "mean_base_color_srgb": "#8b867b",
- "mean_roughness": 0.93,
+ "mean_base_color_srgb": "#7f7a70",
+ "mean_roughness": 0.893,
  "conventions": "base colour sRGB without baked light; ORM R=occlusion G=roughness B=metallic (linear); normal OpenGL (+Y up), _DX flips green; height 16-bit 0..1 over relief_m"
 }

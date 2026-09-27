@@ -26,8 +26,8 @@
    "vegetation": "assets/environment/vegetation.glb"
   },
   "files": {
-   "kh_terrain.glb": "dd38f07533534097",
-   "kh_world.glb": "8e1ff33fd0187f52",
+   "kh_terrain.glb": "c12d0ca7c1ba1ba0",
+   "kh_world.glb": "12f951b1cb27d8f3",
    "kh_collision.glb": "e741bb3475cdec93"
   },
   "navClip": [
@@ -193,7 +193,7 @@
    "world": {
     "meshes": 185,
     "tris": 64358,
-    "verts": 114729
+    "verts": 114731
    },
    "collisionTris": 27154,
    "trees": 1650

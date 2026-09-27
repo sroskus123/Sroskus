@@ -33,7 +33,7 @@
    "name": "Dirt",
    "tile_m": 2.5,
    "relief_m": 0.03,
-   "mean_base_color_srgb": "#67543d",
+   "mean_base_color_srgb": "#67553f",
    "use": "compacted field-track / path soil with pebbles"
   },
   {
@@ -41,7 +41,7 @@
    "name": "Mud",
    "tile_m": 3.0,
    "relief_m": 0.05,
-   "mean_base_color_srgb": "#473b2d",
+   "mean_base_color_srgb": "#473b2e",
    "use": "wet mud (ditches, brook banks, charlie spawn), puddles in the lows"
   },
   {
@@ -49,7 +49,7 @@
    "name": "Gravel",
    "tile_m": 2.0,
    "relief_m": 0.045,
-   "mean_base_color_srgb": "#8b867b",
+   "mean_base_color_srgb": "#7f7a70",
    "use": "crushed greywacke (yards, road shoulders, paths)"
   },
   {
@@ -88,18 +88,18 @@
  "files": {
   "albedo": {
    "path": "assets/environment/terrain/terrain_albedo.jpg",
-   "bytes": 730850,
-   "sha": "6543a403ac3a6839"
+   "bytes": 743987,
+   "sha": "34cb7268e25b6486"
   },
   "nh": {
    "path": "assets/environment/terrain/terrain_nh.jpg",
-   "bytes": 1111636,
-   "sha": "2c71dd9bb90c006e"
+   "bytes": 1120994,
+   "sha": "bbdb96ee94db9da5"
   },
   "rao": {
    "path": "assets/environment/terrain/terrain_rao.jpg",
-   "bytes": 318179,
-   "sha": "e6e7abf61958267d"
+   "bytes": 321229,
+   "sha": "f6afb921f090eb2d"
   }
  }
 }

@@ -42,6 +42,8 @@ export const VIEWS = {
   // eye-level views for detail (1.7 m): asphalt close-up and grass close-up
   asphalt: { cam: { pos: [2.6, 1.7, -24.0], target: [5.0, 0.0, -30.0], fovDeg: 75, ground: true } },
   grass: { cam: { pos: [34.0, 1.7, -40.0], target: [39.0, 0.0, -46.0], fovDeg: 75, ground: true } },
+  // the shrub copse VK_9 east of the warehouse yard from above (render-only core + shrub instances, R3 check)
+  copse: { cam: { pos: [40.0, 14.0, 26.0], target: [46.0, 2.0, 12.0], fovDeg: 60, ground: true } },
 };
 
 async function main() {

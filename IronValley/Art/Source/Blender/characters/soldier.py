@@ -37,6 +37,7 @@ import ivlib                            # noqa: E402
 import ivchar as C                      # noqa: E402
 import ivhands as HN                    # noqa: E402
 import ivsoldier as S                   # noqa: E402
+import soldier_cloth as SC              # noqa: E402
 
 IV = C.IV_ROOT
 SRC_BLEND = os.path.join(HERE, "hands_gloves.blend")
@@ -174,9 +175,8 @@ def offset_garment(ob, body_bvh, d, fixed=None, iters=10, alpha=0.45, clear_frac
 # stage: build -- garments
 # =============================================================================
 
-def build_shirt(arm, body, bf, col, body_bvh):
+def shirt_faces(arm, body, bf):
     co, dom = bf["co"], bf["dom"]
-    u_fore = forearm_u(arm, co)
     y = co[:, 1]
     collar = SHIRT["collar_z0"] + SHIRT["collar_tilt"] * (y + 0.05)
     bones = {"spine_01", "spine_02", "spine_03", "clavicle_l", "clavicle_r", "neck_01", "pelvis"}
@@ -185,7 +185,6 @@ def build_shirt(arm, body, bf, col, body_bvh):
                                               & (co[:, 1] > -0.07))          # nape: the collar reaches up the back of the neck
     ok &= co[:, 2] >= SHIRT["bottom_z"] - 0.02
     ok &= ~(np.isin(dom, ["neck_01", "head"]) & (co[:, 2] > collar + SHIRT["collar_h"] + 0.02))
-    fore = np.isin(dom, [f"lowerarm_{s}" for s in "lr"] + [f"lowerarm_twist_01_{s}" for s in "lr"])
 
     def centre_ok(c):
         if c[2] < SHIRT["bottom_z"]:
@@ -197,29 +196,209 @@ def build_shirt(arm, body, bf, col, body_bvh):
         if c[2] > cz:
             return False
         return True
-    keep = face_keep(body.data, ok, centre_ok)
-    ob, src = S.copy_faces(body, keep, "Soldier_Shirt", col)
-    c0 = co[src]
-    t_up = limb_param(arm, c0, "upperarm_{s}")
-    uf = u_fore[src]
-    dm = dom[src]
-    isarm = np.isin(dm, list(arm_b))
-    d = np.full(len(src), SHIRT["off_torso"])
-    up = np.isin(dm, [f"upperarm_{s}" for s in "lr"] + [f"upperarm_twist_01_{s}" for s in "lr"])
-    d[up] = SHIRT["off_shoulder"] + (SHIRT["off_upper"] - SHIRT["off_shoulder"]) * np.clip(t_up[up] / 0.35, 0, 1)
-    fa = np.isin(dm, [f"lowerarm_{s}" for s in "lr"] + [f"lowerarm_twist_01_{s}" for s in "lr"])
-    ramp = np.clip((uf[fa] + 0.12) / (0.12 - SHIRT["cuff_from_wrist"]), 0, 1)      # 0 at 12 cm, 1 at the cuff
-    d[fa] = SHIRT["off_fore"] + (SHIRT["off_cuff"] - SHIRT["off_fore"]) * ramp
-    cl = np.isin(dm, ["clavicle_l", "clavicle_r"])
-    d[cl] = SHIRT["off_shoulder"]
-    nk = dm == "neck_01"
-    d[nk] = SHIRT["off_collar"]
-    offset_garment(ob, body_bvh, d)
+    return face_keep(body.data, ok, centre_ok)
+
+
+def snap_sleeve_ends(G, arm):
+    """Sleeve-end boundary vertices moved along the forearm axis onto the cut plane (the face
+    selection is jagged)."""
+    b = G.boundary()
+    u = forearm_u(arm, G.V)
+    ends = b & (np.abs(G.V[:, 0]) > 0.30)
+    for s, sg in (("l", 1), ("r", -1)):
+        wj, ax = HN.forearm_axis(arm, s)
+        m = ends & (G.V[:, 0] * sg > 0)
+        G.V[m] += ((-SHIRT["cuff_from_wrist"] - u[m])[:, None]) * ax[None, :]
+    return int(ends.sum())
+
+
+GARMENT_TRIS = {"Soldier_Shirt": 10500, "Soldier_Trousers": 7500}
+PANEL_IDS = {}
+
+
+def _pid(name):
+    return PANEL_IDS.setdefault(name, len(PANEL_IDS))
+
+
+def shirt_panels(G):
+    """Sewing panels of the combat shirt (per face): front L / R (zip at the centre), back + yoke,
+    collar, sleeves with an underside seam, elbow patches, cuffs.  Returns (labels, extra_cut,
+    grain per face)."""
+    F = G.F
+    Fc = SC.face_values(F, G.V)
+    Fs = SC.face_values(F, G.src)
+    msl = SC.face_values(F, G.attrs["m_sleeve"])
+    sel_ = SC.face_values(F, G.attrs["sl_s_el"])
+    dend = SC.face_values(F, G.attrs["sl_dend"])
+    post = SC.face_values(F, G.attrs["sl_post"])
+    ph = np.array([np.arctan2(np.sin(G.attrs["sl_phi"][f]).mean(), np.cos(G.attrs["sl_phi"][f]).mean()) for f in F])
+    T = SC.face_values(F, G.attrs["sl_T"])
+    neck = SHIRT["collar_z0"] + SHIRT["collar_tilt"] * (Fs[:, 1] + 0.05) - 0.004
+    lab = np.zeros(len(F), np.int64)
+    grain = np.tile(np.array([0.0, 0.0, 1.0]), (len(F), 1))
+    for i in range(len(F)):
+        x, y, z = Fc[i]
+        sd = "l" if x > 0 else "r"
+        if msl[i] > 0.5:
+            if dend[i] < SC.SLEEVE["cuff_band"]:
+                nm = f"cuff_{sd}"
+            elif abs(sel_[i] + 0.005) < 0.070 and post[i] < math.radians(62):
+                nm = f"elbow_{sd}"
+            else:
+                nm = f"sleeve_{sd}"
+            grain[i] = T[i]
+        elif Fs[i, 2] > neck[i] and abs(x) < 0.12:
+            nm = "collar"
+        elif Fs[i, 1] < 0.0:
+            nm = f"front_{sd}"
+        else:
+            nm = "yoke" if z > 1.435 else "back"
+        lab[i] = _pid("shirt_" + nm)
+    names_ = {v: k for k, v in PANEL_IDS.items()}
+
+    def extra(a, b):
+        na, nb_ = names_[lab[a]], names_[lab[b]]
+        if na != nb_:
+            return False
+        if na.startswith(("shirt_sleeve", "shirt_cuff")):
+            # underside seam at phi = 0 (the hanging side)
+            return (np.sign(ph[a]) != np.sign(ph[b])) and abs(ph[a]) < 1.2 and abs(ph[b]) < 1.2
+        if na == "shirt_collar":
+            return (np.sign(Fc[a, 0]) != np.sign(Fc[b, 0])) and Fc[a, 1] < 0
+        return False
+    return lab, extra, grain
+
+
+def trouser_panels(G):
+    """Panels of the combat trousers: waistband, front / back per leg (outseam, inseam, centre
+    seams), knee patches."""
+    F = G.F
+    Fc = SC.face_values(F, G.V)
+    Fs = SC.face_values(F, G.src)
+    ml = SC.face_values(F, G.attrs["m_leg"])
+    skn = SC.face_values(F, G.attrs["lg_s_kn"])
+    psi = np.degrees(np.array([np.arctan2(G.attrs["lg_sin"][f].mean(), G.attrs["lg_cos"][f].mean()) for f in F])) % 360.0
+    waist = TROUSERS["waist_z0"] + TROUSERS["waist_tilt"] * Fs[:, 1]
+    lab = np.zeros(len(F), np.int64)
+    for i in range(len(F)):
+        x, y, z = Fc[i]
+        sd = "l" if x > 0 else "r"
+        if Fs[i, 2] - waist[i] > -0.036:
+            nm = "waistband"
+        elif ml[i] > 0.5:
+            fr = psi[i] >= 270.0 or psi[i] < 90.0
+            ang = min(psi[i], 360.0 - psi[i])
+            if abs(skn[i] + 0.012) < 0.085 and ang < 58.0:
+                nm = f"knee_{sd}"
+            else:
+                nm = f"{'front' if fr else 'back'}_{sd}"
+        else:
+            nm = f"{'front' if Fs[i, 1] < 0.0 else 'back'}_{sd}"
+        lab[i] = _pid("trousers_" + nm)
+    names_ = {v: k for k, v in PANEL_IDS.items()}
+
+    def extra(a, b):
+        if lab[a] != lab[b]:
+            return False
+        if names_[lab[a]] == "trousers_waistband":
+            return (np.sign(Fc[a, 0]) != np.sign(Fc[b, 0])) and Fc[a, 1] < 0
+        return False
+    grain = np.tile(np.array([0.0, 0.0, 1.0]), (len(F), 1))
+    return lab, extra, grain
+
+
+def finalize_garment(G, name, col, arm, labels, extra, grain, target_tris, info):
+    """Panels -> straightened seams -> hi-res object (kept hidden as the normal-map source and the
+    first-person source) -> UV unwrap per panel, grain-oriented islands -> game-resolution copy
+    (collapse decimation keeps the UV seams), weights and corrective shapes re-transferred."""
+    seams, ef = SC.panel_seam_edges(G.F, labels, extra)
+    G.V = SC.smooth_seams(G.V, G.F, seams, ef, S.bvh(G.V, G.tris()))
+    hi = G.to_object("_HI_" + name, col, arm, keys=True)
+    hi.data.attributes.new("iv_panel", 'INT', 'FACE').data.foreach_set("value", labels.astype(np.int32))
+    n_seam = SC.unwrap_panels(hi, seams)
+    isl = SC.islands_from_seams(G.F, seams, ef)
+    SC.orient_islands(hi, isl, grain)
+    lo = hi.copy()
+    lo.data = hi.data.copy()
+    lo.name = name
+    lo.data.name = name
+    col.objects.link(lo)
+    if lo.data.shape_keys is not None:
+        lo.shape_key_clear()
+    for m_ in list(lo.modifiers):
+        lo.modifiers.remove(m_)
+    tris = SC.decimate_uv_safe(lo, target_tris)
+    hv, ht = G.V, G.tris()
+    W = S.transfer_weights(hv, ht, G.W, S.co_of(lo))
+    S.write_W(lo, W, G.names, arm)
+    SC.transfer_keys_from_arrays(lo, hv, ht, G.keys)
+    hi.hide_viewport = True
+    hi.hide_render = True
+    pn = json.dumps({str(v): k for k, v in PANEL_IDS.items()})
+    lo["iv_panels"] = pn
+    hi["iv_panels"] = pn
+    info[name] = {"hi_tris": int(len(ht)), "game_tris": int(tris), "panels": int(len(np.unique(labels))),
+                  "islands": int(isl.max() + 1), "seam_edges": n_seam}
+    return lo
+
+
+def build_shirt(arm, body, bf, col, body_bvh, glove_pts):
+    keep = shirt_faces(arm, body, bf)
+    names = bf["names"]
+    G = SC.Garment.from_body(body, keep, names)
+    G.subdivide()
+    G.subdivide()
+    info = {"snapped_cuff_vertices": snap_sleeve_ends(G, arm)}
+    co = G.V
+    dom = G.dom()
+    TP = SC.TORSO
+    d = np.full(len(co), TP["default"])
+    front = co[:, 1] < -0.06
+    backm = co[:, 1] > 0.03
+    d[front] = TP["chest"]
+    d[backm] = TP["back"]
+    sidem = (np.abs(co[:, 0]) > 0.11) & ~front & ~backm
+    d[sidem] = TP["side"]
+    d[np.isin(dom, ["clavicle_l", "clavicle_r"])] = TP["shoulder"]
+    d[np.isin(dom, ["neck_01", "head"])] = TP["collar"]
+    waist = TROUSERS["waist_z0"] + TROUSERS["waist_tilt"] * co[:, 1]
+    zrel = co[:, 2] - waist
+    d = d + TP["blouse"] * SC.bump(zrel, TP["blouse_c"], TP["blouse_w"])
+    d[zrel < -0.004] = TP["tail"]
+    V_t, d, L = SC.torso_offset(G, d, body_bvh)
+    # trunk: convex sections hanging from the chest / shoulder blades (does not follow the muscles)
+    wsp = G.wsum(["spine_01", "spine_02", "spine_03", "pelvis"])
+    mt = SC.smoothstep(0.55, 0.90, wsp) * (1.0 - SC.smoothstep(1.40, 1.48, co[:, 2]))
+    bmask = np.isin(bf["dom"], ["spine_01", "spine_02", "spine_03", "pelvis"]) & (bf["co"][:, 2] > 0.95) & (bf["co"][:, 2] < 1.52)
+
+    def ease_torso(V, psi):
+        a = np.abs(((psi + 180.0) % 360.0) - 180.0)
+        e = np.interp(a, [0, 90, 180], [TP["front"], TP["sides"], TP["backe"]])
+        w = TROUSERS["waist_z0"] + TROUSERS["waist_tilt"] * V[:, 1]
+        zr = V[:, 2] - w
+        e = e + TP["blouse"] * SC.bump(zr, TP["blouse_c"], TP["blouse_w"])
+        return np.where(zr < -0.004, TP["tail"], e)
+    Vh = SC.trunk_design(G, bf["co"], bmask, (0.0, -0.01, 1.52), (0.0, -0.01, 0.95), ease_torso, TP["k_down"], TP["k_up"], mt)
+    V_t = V_t * (1 - mt[:, None]) + Vh * mt[:, None]
+    send = {}
+    for s in ("l", "r"):
+        ax = SC.arm_axis(arm, s)
+        send[s] = ax.L[2] - SHIRT["cuff_from_wrist"]
+    Vt, m, h = SC.sleeve_design(G, arm, bf["co"], bf["W"], names, glove_pts, send, info)
+    G.attrs["m_sleeve"] = m.copy()
+    # waist gathers above the waistband (the shirt bloused over the trousers)
+    th = np.arctan2(co[:, 0], -co[:, 1])
+    env = SC.bump(zrel, TP["blouse_c"] - 0.004, TP["blouse_w"] * 0.8) * (1 - m)
+    h += TP["gather_amp"] * env * SC.buckle(TP["gather_n"] * th, zrel * 40.0, 5, wander=1.8, fade=0.8)
+    G.V = SC.finish(G, V_t, Vt, m, h, body_bvh, L)
+    labels, extra, grain = shirt_panels(G)
+    ob = finalize_garment(G, "Soldier_Shirt", col, arm, labels, extra, grain, GARMENT_TRIS["Soldier_Shirt"], info)
     ob["iv_src"] = "body"
-    return ob, src
+    ob["iv_info"] = json.dumps(info)
+    return ob, G
 
 
-def build_trousers(arm, body, bf, col, body_bvh):
+def trousers_faces(arm, body, bf):
     co, dom = bf["co"], bf["dom"]
     waist = TROUSERS["waist_z0"] + TROUSERS["waist_tilt"] * co[:, 1]
     legs = {f"{b}_{s}" for b in ("thigh", "calf") for s in "lr"}
@@ -229,27 +408,54 @@ def build_trousers(arm, body, bf, col, body_bvh):
 
     def centre_ok(c):
         return (c[2] <= TROUSERS["waist_z0"] + TROUSERS["waist_tilt"] * c[1]) and c[2] >= TROUSERS["hem_z"]
-    keep = face_keep(body.data, ok, centre_ok)
-    ob, src = S.copy_faces(body, keep, "Soldier_Trousers", col)
-    c0 = co[src]
-    dm = dom[src]
-    t_th = limb_param(arm, c0, "thigh_{s}")
-    t_cf = limb_param(arm, c0, "calf_{s}")
-    d = np.full(len(src), TROUSERS["off_seat"])
-    wz = TROUSERS["waist_z0"] + TROUSERS["waist_tilt"] * c0[:, 1]
-    band = c0[:, 2] > wz - 0.05
-    d[band] = TROUSERS["off_waist"]
-    th = np.isin(dm, ["thigh_l", "thigh_r"])
-    d[th] = TROUSERS["off_seat"] + (TROUSERS["off_thigh"] - TROUSERS["off_seat"]) * np.clip(t_th[th] / 0.25, 0, 1)
-    # the knee: slightly closer, calf loose, hem wide (worn over the boot shaft)
-    cf = np.isin(dm, ["calf_l", "calf_r"])
-    kn = cf & (t_cf < 0.18)
-    d[kn] = TROUSERS["off_knee"]
-    lw = cf & (t_cf >= 0.18)
-    d[lw] = TROUSERS["off_calf"] + (TROUSERS["off_hem"] - TROUSERS["off_calf"]) * np.clip((t_cf[lw] - 0.6) / 0.35, 0, 1)
-    d[th & (t_th > 0.85)] = TROUSERS["off_knee"] + 0.002
-    offset_garment(ob, body_bvh, d, iters=14)
-    return ob, src
+    return face_keep(body.data, ok, centre_ok)
+
+
+def build_trousers(arm, body, bf, col, body_bvh):
+    keep = trousers_faces(arm, body, bf)
+    names = bf["names"]
+    G = SC.Garment.from_body(body, keep, names)
+    G.subdivide()
+    G.subdivide()
+    # clean edges: waistband top on the waist line, hems on the hem height
+    b = G.boundary()
+    waist = TROUSERS["waist_z0"] + TROUSERS["waist_tilt"] * G.V[:, 1]
+    top = b & (G.V[:, 2] > 0.8)
+    G.V[top, 2] = waist[top]
+    hem = b & (G.V[:, 2] < 0.4)
+    G.V[hem, 2] = TROUSERS["hem_z"]
+    co = G.V
+    PP = SC.PELVIS
+    d = np.full(len(co), PP["front"])
+    d[co[:, 1] > -0.01] = PP["seat"]
+    zrel = co[:, 2] - waist
+    d[zrel > -0.045] = PP["waist"]
+    cr = (np.abs(co[:, 0]) < 0.06) & (co[:, 2] < 0.90)
+    d[cr] = PP["crotch"]
+    d[co[:, 2] < 0.85] = np.maximum(d[co[:, 2] < 0.85], 0.016)
+    V_t, d, L = SC.torso_offset(G, d, body_bvh)
+    # pelvis: convex sections (smooth seat and crotch, no gluteal fold / groin detail)
+    wp = G.wsum(["pelvis", "spine_01", "spine_02"])
+    mt = SC.smoothstep(0.45, 0.85, wp) * SC.smoothstep(0.86, 0.93, co[:, 2])
+    bmask = np.isin(bf["dom"], ["pelvis", "spine_01", "spine_02"]) & (bf["co"][:, 2] > 0.84) & (bf["co"][:, 2] < 1.12)
+
+    def ease_pelvis(V, psi):
+        a = np.abs(((psi + 180.0) % 360.0) - 180.0)
+        e = np.interp(a, [0, 90, 180], [PP["front"], PP["sides"], PP["back"]])
+        w = TROUSERS["waist_z0"] + TROUSERS["waist_tilt"] * V[:, 1]
+        k = SC.smoothstep(-0.060, -0.035, V[:, 2] - w)
+        return e * (1 - k) + PP["waist"] * k
+    Vh = SC.trunk_design(G, bf["co"], bmask, (0.0, 0.0, 1.12), (0.0, 0.0, 0.76), ease_pelvis, PP["k_down"], PP["k_up"], mt)
+    V_t = V_t * (1 - mt[:, None]) + Vh * mt[:, None]
+    info = {}
+    Vt, m, h = SC.leg_design(G, arm, bf["co"], bf["W"], names, info)
+    G.attrs["m_leg"] = m.copy()
+    crotch = (np.abs(co[:, 0]) < 0.10) & (co[:, 2] > 0.76) & (co[:, 2] < 0.96)
+    G.V = SC.finish(G, V_t, Vt, m, h, body_bvh, L, local_relax=crotch)
+    labels, extra, grain = trouser_panels(G)
+    ob = finalize_garment(G, "Soldier_Trousers", col, arm, labels, extra, grain, GARMENT_TRIS["Soldier_Trousers"], info)
+    ob["iv_info"] = json.dumps(info)
+    return ob, G
 
 
 def enforce_inside(inner, outer, mask_fn, margin):
@@ -334,22 +540,33 @@ def build_balaclava(arm, body, bf, col, body_bvh):
 def build_garments():
     t0 = time.time()
     arm, body = open_src()
+    names = S.bone_names(arm)
+    rep = {}
+    # athletic build: thicker arms / rounder shoulders on the body proxy and the glove cuffs
+    rep["girth_before"] = SC.arm_girths(arm, S.co_of(body), S.tris_of(body.data))
+    rep["warp_max_mm"] = round(SC.warp_object(body, arm, names) * 1000, 1)
+    for s_ in ("l", "r"):
+        SC.warp_object(bpy.data.objects[GLOVES[s_]], arm, names)
+    rep["girth_body"] = SC.arm_girths(arm, S.co_of(body), S.tris_of(body.data))
     col = ivlib.collection("Soldier_Clothing")
     bf = S.body_fields(arm, body)
     body_bvh = S.bvh(bf["co"], bf["tris"])
-    rep = {}
-    shirt, ssrc = build_shirt(arm, body, bf, col, body_bvh)
-    trousers, tsrc = build_trousers(arm, body, bf, col, body_bvh)
+    glove_pts = {s_: S.co_of(bpy.data.objects[GLOVES[s_]]) for s_ in ("l", "r")}
+    shirt, gs = build_shirt(arm, body, bf, col, body_bvh, glove_pts)
+    trousers, gt = build_trousers(arm, body, bf, col, body_bvh)
     bala, bsrc, skin, ksrc = build_balaclava(arm, body, bf, col, body_bvh)
     rep["shirt_inside_trousers"] = enforce_inside(shirt, trousers, lambda c: c[:, 2] < TROUSERS["waist_z0"] + TROUSERS["waist_tilt"] * c[:, 1] - 0.004, 0.008)
     for ob in (shirt, trousers):
         rep[ob.name] = {"shape_keys": prune_shape_keys(ob)}
     for ob in (shirt, trousers, bala, skin):
         ob.parent = arm
-        m = ob.modifiers.new("Armature", 'ARMATURE')
-        m.object = arm
+        if not any(m.type == 'ARMATURE' for m in ob.modifiers):
+            m = ob.modifiers.new("Armature", 'ARMATURE')
+            m.object = arm
         rep.setdefault(ob.name, {})
         rep[ob.name].update(vertices=len(ob.data.vertices), tris=len(S.tris_of(ob.data)))
+    rep["shirt_info"] = json.loads(shirt["iv_info"])
+    rep["girth_sleeve"] = SC.arm_girths(arm, S.co_of(shirt), S.tris_of(shirt.data), W=S.read_W(shirt, names), names=names)
     rep["seconds"] = round(time.time() - t0, 1)
     log(json.dumps(rep))
     return arm, body, col, rep
@@ -360,16 +577,17 @@ def build_garments():
 # =============================================================================
 
 import soldier_gear as G     # noqa: E402
+import soldier_kit as SK     # noqa: E402
 
-CARRIER = dict(front_w=0.268, front_h=0.330, front_top=1.468, back_w=0.268, back_h=0.355, back_top=1.488,
-               bag_t=0.034, R=0.46, cut=0.040, cut_depth=0.075, tilt_front=2.0, tilt_back=3.0, clear=0.0065,
-               cb_z=(1.160, 1.285), cb_clear=0.0070, cb_thick=0.009,
-               strap_x=0.114, strap_w=0.060, strap_clear=0.0060, strap_thick=0.011)
+CARRIER = dict(front_w=0.272, front_h=0.330, front_top=1.468, back_w=0.272, back_h=0.355, back_top=1.488,
+               bag_t=0.040, R=0.46, cut=0.040, cut_depth=0.075, tilt_front=2.0, tilt_back=3.0, clear=0.0060,
+               cb_z=(1.148, 1.292), cb_clear=0.0060, cb_thick=0.016,
+               strap_x=0.114, strap_w=0.068, strap_clear=0.0055, strap_thick=0.018)
 HELMET = dict(c=(0.0, -0.051, 1.700), ax=0.1175, ay_f=0.1400, ay_b=0.1335, az=0.1330, p=2.3, shell=0.009,
               rim=((0, 1.738), (35, 1.733), (62, 1.716), (90, 1.711), (118, 1.712), (145, 1.692), (180, 1.680)))
 BOOT = dict(top_z=0.205, off=0.0058, sole_z=0.030, sole_margin=0.006)
-BELT = dict(z=(0.998, 1.046), clear=0.0050, thick=0.010)
-KNEE = dict(clear=0.005, thick=0.013, z=(-0.095, 0.035), az=65.0)
+BELT = dict(z=(0.996, 1.048), clear=0.0040, thick=0.015)
+KNEE = dict(clear=0.005, thick=0.018, z=(-0.100, 0.050), az=62.0)
 
 
 def rim_z(az):
@@ -574,7 +792,8 @@ def build_carrier(arm, shirt, B):
         Pp, Nn = G.surface_grid(bv, O, D, back=0.0)
         Nn = G.smooth_grid(Nn, 2)
         Nn /= np.linalg.norm(Nn, axis=-1, keepdims=True)
-        V, F, Wl = G.slab_from_grid(Pp, Nn, P["cb_clear"], P["cb_thick"], return_walls=True)
+        tt = SK.pillow(len(az), len(zc), P["cb_thick"], P["cb_thick"] * 0.6, pu=10, pv=3)
+        V, F, Wl = G.slab_from_grid(Pp, Nn, P["cb_clear"], tt, round_edge=0.3, return_walls=True)
         B.add(f"PC_Cummerbund_{s.upper()}", V, F, ("fabric", "Soldier_Shirt", None), flat=Wl,
               zone="carrier", rigid_ends=("spine_03", 0.025, "u"), grid=(len(az), len(zc)))
     # --- shoulder straps
@@ -592,48 +811,21 @@ def build_carrier(arm, shirt, B):
         Pp = G.smooth_grid(Pp, 1)
         Nn = G.smooth_grid(Nn, 2)
         Nn /= np.linalg.norm(Nn, axis=-1, keepdims=True)
-        V, F, Wl = G.slab_from_grid(Pp, Nn, P["strap_clear"], P["strap_thick"], return_walls=True)
+        tt = SK.pillow(len(phis), 3, P["strap_thick"], P["strap_thick"] * 0.55, pu=8, pv=2)
+        V, F, Wl = G.slab_from_grid(Pp, Nn, P["strap_clear"], tt, round_edge=0.35, return_walls=True)
         B.add(f"PC_Strap_{s.upper()}", V, F, ("fabric", "Soldier_Shirt", None), flat=Wl,
               zone="carrier", rigid_ends=("spine_03", 0.015, "u"), grid=(len(phis), 3))
-    # --- placard (triple magazine pouch) on the lower front bag + three IV-7 magazines
+    # admin panel (loop field) on the upper front bag, above the magazine pouches
     o, ex, ey, ez = fr_f
     ymin = Vf[:, 1].min()
-    pw, ph_, pd = 0.236, 0.130, 0.068
-    Vp, Fp = G.bent_box(pw, ph_, pd, P["R"] + 0.04, bevel=0.010, nx=5, nz=3)
-    zb = P["front_top"] - P["front_h"] + 0.012
-    Mp = G.frame_matrix(np.array([0.0, 0, zb + ph_ / 2]), ex, ey, ez)
-    Vp = G.xf(Vp, Mp)
-    # rest it on the bag's outer face (0.5 mm overlap)
-    Vp[:, 1] += (ymin + 0.0005) - Vp[:, 1].max() + (Vp[:, 1].max() - Vp[:, 1].max())
-    front_face_y = ymin
-    shift = front_face_y + 0.001 - Vp[:, 1].max()
-    Vp[:, 1] += shift
-    Vp = snap_to(Vp, Vf, Ff, ey)
-    B.add("PC_Placard", Vp, Fp, ("rigid", "spine_03"), zone="pouch")
-    info["placard_front_y"] = float(Vp[:, 1].min())
-    info["placard_top_z"] = float(Vp[:, 2].max())
-    # admin pouch (upper front, flat)
-    Va, Fa = G.bent_box(0.150, 0.095, 0.026, P["R"], bevel=0.008, nx=4, nz=2)
-    Ma = G.frame_matrix(np.array([0.018, 0, P["front_top"] - 0.075]), ex, ey, ez)
+    Va, Fa = G.bent_box(0.170, 0.082, 0.013, P["R"], bevel=0.005, nx=4, nz=2)
+    Ma = G.frame_matrix(np.array([0.0, 0, P["front_top"] - 0.062]), ex, ey, ez)
     Va = G.xf(Va, Ma)
-    Va[:, 1] += (ymin + 0.001) - Va[:, 1].max() + 0.0
-    # the bag's outer face is tilted / curved: slide the pouch onto it
+    Va[:, 1] += (ymin + 0.001) - Va[:, 1].max()
     Va = snap_to(Va, Vf, Ff, ey)
     B.add("PC_AdminPouch", Va, Fa, ("rigid", "spine_03"), zone="pouch")
-    # --- back: zip-on panel + horizontal pouch; radio pouch (left rear) + GP pouch (right rear)
-    ob_, bx, by, bz = fr_b
-    ymax = Vb[:, 1].max()
-    Vz, Fz = G.bent_box(0.230, 0.285, 0.040, P["R"], bevel=0.009, nx=5, nz=4)
-    Mz = G.frame_matrix(np.array([0.0, 0, P["back_top"] - 0.035 - 0.285 / 2]), bx, by, bz)
-    Vz = G.xf(Vz, Mz)
-    Vz[:, 1] += (ymax - 0.001) - Vz[:, 1].min()
-    Vz = snap_to(Vz, Vb, Fb, by)
-    B.add("PC_BackPanel", Vz, Fz, ("rigid", "spine_03"), zone="pouch")
-    Vh, Fh = G.rbox(0.200, 0.050, 0.085, 0.012)
-    Vh = Vh + np.array([0.0, Vz[:, 1].max() + 0.025 - 0.004, P["back_top"] - 0.035 - 0.285 + 0.055])
-    Vh = snap_to(Vh, Vz, Fz, by)
-    B.add("PC_BackPouch", Vh, Fh, ("rigid", "spine_03"), zone="pouch")
-    info["back_panel_outer_y"] = float(Vz[:, 1].max())
+    info["front_frame"] = fr_f
+    info["back_frame"] = fr_b
     return info, (Vf, Ff), (Vb, Fb)
 
 
@@ -673,60 +865,6 @@ def build_side_pouches(arm, shirt, B, back_bag):
     return out
 
 
-def build_magazines(rifle_rig, rifle_parts, B, placard_top, placard_front_y, back_y):
-    """Three IV-7 magazines standing in the placard (tops above it).  Mesh: the IV-7 LOD2
-    magazine + rounds, cut 1.5 cm below the placard top (the hidden part is removed)."""
-    mag = next(o for o in rifle_parts if o.name.startswith("Magazine_LOD2"))
-    rnd = next(o for o in rifle_parts if o.name.startswith("MagRounds_LOD2"))
-    parts = []
-    for o in (mag, rnd):
-        co = S.co_of(o)
-        M = np.array(o.matrix_world)
-        co = co @ M[:3, :3].T + M[:3, 3]
-        parts.append((co, [list(p.vertices) for p in o.data.polygons]))
-    V, F = G.merge_parts(parts)
-    # rifle frame -> world: X_r -> -Y (bullets forward), Y_r -> +X, Z_r -> +Z
-    R = np.array([[0, 1, 0], [-1, 0, 0], [0, 0, 1.0]])
-    V = V @ R.T
-    top = V[:, 2].max()
-    cx = 0.5 * (V[:, 0].min() + V[:, 0].max())
-    # centre each magazine in a cell of the placard
-    out = []
-    for i, x in enumerate((-0.068, 0.0, 0.068)):
-        W = V + np.array([x - cx, 0, placard_top + 0.040 - top])
-        # depth: rear face 1.2 cm in front of the bag
-        W[:, 1] += (back_y - 0.013) - W[:, 1].max()
-        # cut away everything more than 1.5 cm below the placard top
-        bm = bmesh.new()
-        for p in W:
-            bm.verts.new(tuple(map(float, p)))
-        bm.verts.ensure_lookup_table()
-        for f in F:
-            try:
-                bm.faces.new([bm.verts[k] for k in f])
-            except ValueError:
-                pass
-        cut = placard_top - 0.015
-        geom = list(bm.verts) + list(bm.edges) + list(bm.faces)
-        res = bmesh.ops.bisect_plane(bm, geom=geom, plane_co=(0, 0, cut), plane_no=(0, 0, 1), clear_inner=True)
-        edges = [e for e in res["geom_cut"] if isinstance(e, bmesh.types.BMEdge)]
-        if edges:
-            bmesh.ops.holes_fill(bm, edges=edges, sides=0)
-        bmesh.ops.triangulate(bm, faces=list(bm.faces))
-        bmesh.ops.dissolve_limit(bm, angle_limit=math.radians(8), verts=list(bm.verts), edges=list(bm.edges))
-        bmesh.ops.triangulate(bm, faces=list(bm.faces))
-        Vm = np.array([v.co[:] for v in bm.verts])
-        Fm = [[v.index for v in f.verts] for f in bm.faces]
-        bm.free()
-        B.add(f"PC_Mag_{i + 1}", Vm, Fm, ("rigid", "spine_03"), zone="mag")
-        # bungee retention cord over the top (thin rounded bar)
-        Vb_, Fb_ = G.rbox(0.004, 0.058, 0.004, 0.0018, 1)
-        Vb_ = Vb_ + np.array([x, 0.5 * (W[:, 1].min() + W[:, 1].max()), W[:, 2].max() + 0.0022])
-        B.add(f"PC_Bungee_{i + 1}", Vb_, Fb_, ("rigid", "spine_03"), zone="hard")
-        out.append({"x": x, "top_z": float(W[:, 2].max())})
-    return out
-
-
 def build_belt(arm, trousers, B):
     bv, tco = garment_bvh(trousers)
     az = np.radians(np.linspace(0, 360, 36, endpoint=False))
@@ -752,8 +890,8 @@ def build_belt(arm, trousers, B):
     ring_out = Pp + Nn * (BELT["clear"] + BELT["thick"])
     front = ring_out[0, 1]
     # buckle
-    Vk, Fk = G.rbox(0.058, 0.014, 0.040, 0.004)
-    Vk = Vk + front + np.array([0, -0.006, 0])
+    Vk, Fk = G.rbox(0.066, 0.016, 0.046, 0.005)
+    Vk = Vk + front + np.array([0, -0.007, 0])
     B.add("Belt_Buckle", Vk, Fk, ("rigid", "pelvis"), zone="hard")
     # pouches: two utility pouches on the rear hips, a dump pouch on the left hip
     pouch = []
@@ -1072,29 +1210,6 @@ def build_glasses(bala, skin, B):
         B.add(f"Glasses_Arm_{s.upper()}", V, F, ("rigid", "head"), zone="frame")
 
 
-def build_armbands(arm, shirt, col):
-    """Team armbands: the sleeve faces between 42 and 66 % down each upper arm, raised 2.2 mm with a
-    rolled edge, weighted exactly like the sleeve under them."""
-    co = S.co_of(shirt)
-    names = S.bone_names(arm)
-    W = S.read_W(shirt, names)
-    t = limb_param(arm, co, "upperarm_{s}")
-    dom = np.array(names)[W.argmax(1)]
-    up = np.isin(dom, [f"upperarm_{s}" for s in "lr"] + [f"upperarm_twist_01_{s}" for s in "lr"])
-    ok = up & (t > 0.36) & (t < 0.74)
-    keep = face_keep(shirt.data, ok, lambda c: 0.42 < limb_param(arm, c[None], "upperarm_{s}")[0] < 0.66)
-    ob, src = S.copy_faces(shirt, keep, "Soldier_Armbands", col)
-    if ob.data.shape_keys is not None:
-        ob.shape_key_clear()
-    c = S.co_of(ob)
-    N = S.vnormals(c, S.tris_of(ob.data))
-    S.set_co(ob, c + N * 0.0022)
-    # rolled edges (thickness) at both boundary rings of each band
-    for loop in S.boundary_loops(ob.data):
-        add_lip_normal(ob, loop, edge=0.0022, depth=0.003)
-    return ob
-
-
 def add_lip_normal(ob, loop, edge, depth, lining=None):
     """add_lip with the inward direction = minus the vertex normal at the boundary; the lining
     continues along `lining(p)` (default: also inwards)."""
@@ -1298,21 +1413,29 @@ def stage_build(a=None):
     rep["side_pouches"] = build_side_pouches(arm, shirt, B, back_bag)
     rig, rparts = HN.append_weapon(RIFLE_BLEND, col_name="IV7_LOD2", rig_name="SK_IV7")
     bpy.context.view_layer.update()
-    rep["magazines"] = build_magazines(rig, rparts, B, rep["carrier"]["placard_top_z"], None,
-                                       rep["carrier"]["front_outer_y"])
+    fr_f = rep["carrier"].pop("front_frame")
+    fr_b = rep["carrier"].pop("back_frame")
+    rep["magazines"], rep["carrier"]["pouch_front_y"] = SK.mag_pouches(
+        B, front_bag[0], front_bag[1], fr_f, CARRIER["front_top"] - CARRIER["front_h"], rparts, snap_to)
+    rep["pack"] = SK.assault_pack(B, back_bag[0], back_bag[1], fr_b, CARRIER["back_top"] - 0.010, snap_to)
     wcol = bpy.data.collections["IV7_LOD2"]
     for o in list(wcol.objects):
         bpy.data.objects.remove(o)
     bpy.data.collections.remove(wcol)
     rep["belt"] = build_belt(arm, trousers, B)
+    SK.thigh_holster(B, arm, trousers, BELT["z"][0], snap_to, rep)
     rep["knee"] = build_knee_pads(arm, trousers, B)
+    SK.garment_kit(B, arm, shirt, trousers, rep)
+    SK.glove_kit(B, arm, gloves, rep)
     rep["helmet"] = build_helmet(arm, bala, skin, B)
     build_glasses(bala, skin, B)
-    garments = {"Soldier_Shirt": shirt, "Soldier_Trousers": trousers}
+    garments = {"Soldier_Shirt": shirt, "Soldier_Trousers": trousers,
+                "Soldier_Glove_L": gloves["l"], "Soldier_Glove_R": gloves["r"]}
     gear = build_gear_objects(arm, B, gcol, garments)
-    arms_ = build_armbands(arm, shirt, col)
-    arms_.parent = arm
-    arms_.modifiers.new("Armature", 'ARMATURE').object = arm
+    # glove kit parts sample the glove texture where they sit (projected UVs, glove UV space)
+    for nm, ob_ in gear.items():
+        if B.parts.get(nm, {}).get("atlas") == "glove":
+            SK.project_uv(ob_, gloves["l" if nm.endswith("_L") else "r"])
     # hidden balaclava under the helmet / cups, then game resolution for head pieces
     rep["balaclava_hidden_faces"] = hide_under_helmet(bala, arm, [B.parts["Headset_Cup_L"]["V"], B.parts["Headset_Cup_R"]["V"]])
     rep["balaclava_tris"] = decimate_to(bala, 1500, names, (bf["co"], bf["tris"], bf["W"]), arm)
@@ -1342,59 +1465,73 @@ def stage_build(a=None):
 # =============================================================================
 
 GLOVE_UV_RECT = (0.75, 0.0, 0.25)          # (u0, v0, size): the glove UV square inside the clothing atlas
-CLOTH_DENSITY = {"Soldier_Shirt": 1.0, "Soldier_Trousers": 1.0, "Soldier_Balaclava": 1.3,
-                 "Soldier_FaceSkin": 0.6, "SG_Helmet": 1.25}
+CLOTH_DENSITY = {"Soldier_Shirt": 1.0, "Soldier_Trousers": 1.0, "Soldier_Balaclava": 1.2,
+                 "Soldier_FaceSkin": 0.6, "SG_Helmet": 1.15}
 
 
 def atlas_members():
     obs = [o for o in bpy.data.objects if o.type == 'MESH' and o.name != BODY
-           and not o.name.startswith(("_SRC_", "FP_", "SK_Soldier", "_L1_", "_L2_", "IVC_", "IV_Grass", "_rc_"))]
-    cloth = [bpy.data.objects[n] for n in CLOTH_DENSITY if n in bpy.data.objects]
-    gloves = [o for o in obs if o.name.startswith("Soldier_Glove_")]
-    team = [o for o in obs if o.name in ("Soldier_Armbands", "SG_Helmet_Band")]
+           and not o.name.startswith(("_SRC_", "_HI_", "FP_", "SK_Soldier", "_L1_", "_L2_", "IVC_", "IV_Grass", "_rc_"))]
+    gloves = [o for o in obs if o.name.startswith("Soldier_Glove_") or o.get("iv_atlas") == "glove" or o.get("iv_glove")]
+    cloth = [o for o in obs if (o.name in CLOTH_DENSITY or o.get("iv_atlas") == "cloth") and o not in gloves]
+    team = [o for o in obs if o.get("iv_atlas") == "team" or o.name == "SG_Helmet_Band"]
     gear = [o for o in obs if o not in cloth and o not in gloves and o not in team]
     return cloth, gloves, team, gear
 
 
+PANEL_UV = ("Soldier_Shirt", "Soldier_Trousers")      # unwrapped per sewing panel in the build stage
+
+
 def uv_cloth(cloth, gloves, report):
-    for o in cloth:
+    others = [o for o in cloth if o.name not in PANEL_UV]
+    for o in others:
         me = o.data
         while len(me.uv_layers):
             me.uv_layers.remove(me.uv_layers[0])
         me.uv_layers.new(name="UVMap")
-    ivlib.select(cloth, cloth[0])
+    ivlib.select(others, others[0])
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_all(action='SELECT')
     bpy.ops.uv.smart_project(angle_limit=math.radians(62), island_margin=0.003, area_weight=0.0,
                              correct_aspect=True, scale_to_bounds=False)
+    bpy.ops.object.mode_set(mode='OBJECT')
+    # one texel density over all clothing islands (the panels keep their grain orientation)
+    ivlib.select(cloth, cloth[0])
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
     bpy.ops.uv.select_all(action='SELECT')
     bpy.ops.uv.average_islands_scale()
     bpy.ops.object.mode_set(mode='OBJECT')
     for o in cloth:
         ivlib.uv_scale_islands(o, lambda ob, info: CLOTH_DENSITY.get(ob.name, 1.0))
+    # glove group (gloves + glove kit, glove texture space [0,1]) -> the glove square, pinned
     u0, v0, sz = GLOVE_UV_RECT
     for g in gloves:
-        uv = S.uv_array(g.data)
-        g.data.uv_layers["UVMap"].data.foreach_set("uv", (np.column_stack([u0 + uv[:, 0] * sz, v0 + uv[:, 1] * sz])).ravel())
+        me = g.data
+        uv = S.uv_array(me)
+        gl = me.uv_layers.get("GloveUV") or me.uv_layers.new(name="GloveUV")
+        gl.data.foreach_set("uv", uv.ravel())
+        me.uv_layers.active = me.uv_layers["UVMap"]
+        me.uv_layers["UVMap"].data.foreach_set("uv", (np.column_stack([u0 + uv[:, 0] * sz, v0 + uv[:, 1] * sz])).ravel())
     allo = cloth + gloves
     ivlib.select(allo, cloth[0])
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_all(action='SELECT')
     for g in gloves:
         bm = bmesh.from_edit_mesh(g.data)
-        ul = bm.loops.layers.uv.active
+        ul = bm.loops.layers.uv["UVMap"]
         for f in bm.faces:
             for l in f.loops:
                 l[ul].pin_uv = True
         bmesh.update_edit_mesh(g.data)
     bpy.ops.uv.select_all(action='SELECT')
-    bpy.ops.uv.pack_islands(rotate=True, rotate_method='ANY', margin=0.004, margin_method='FRACTION',
+    bpy.ops.uv.pack_islands(rotate=True, rotate_method='CARDINAL', margin=0.003, margin_method='FRACTION',
                             shape_method='CONCAVE', scale=True, pin=True, pin_method='LOCKED')
     bpy.ops.object.mode_set(mode='OBJECT')
     r = ivlib.uv_island_raster(cloth, 2048)
     report["cloth"] = {"coverage_without_gloves": round(r["coverage"], 4), "overlap_px": int(r["overlap_px"]),
                        "islands": len(r["islands"]),
-                       "px_per_cm": {o.name: round(ivlib.texel_density(o, 2048), 2) for o in cloth}}
+                       "px_per_cm": {o.name: round(ivlib.texel_density(o, 2048), 2) for o in cloth if o.name in CLOTH_DENSITY or "Pocket" in o.name}}
 
 
 def uv_gear(gear, team, report):
@@ -1427,6 +1564,8 @@ def stage_uv(a=None):
     uv_gear(gear, team, rep)
     for o in cloth + gloves:
         o["iv_atlas"] = "cloth"
+    for o in gloves:
+        o["iv_glove"] = 1
     for o in gear:
         o["iv_atlas"] = "gear"
     for o in team:
@@ -1443,7 +1582,7 @@ def stage_uv(a=None):
 
 import soldier_tex as T      # noqa: E402
 
-CLOTH_RES, CLOTH_BC_RES, GEAR_RES, TEAM_RES = 2048, 1024, 2048, 256
+CLOTH_RES, CLOTH_BC_RES, GEAR_RES, TEAM_RES = 2048, 2048, 2048, 256
 
 
 def tex_path(name):
@@ -1563,6 +1702,52 @@ def apply_team(team):
         ob.data.materials.append(m)
 
 
+def glove_group_mask(objs, res, grow=3, uv="UVMap"):
+    """Atlas pixels (PIL row order) covered by the UV islands of the glove group."""
+    from scipy import ndimage
+    m = np.zeros(res * res, bool)
+    for o in objs:
+        me = o.data
+        ti, px, ba = HN.raster_uv_bary(S.uv_array(me, uv)[S.loop_tris(me)], res)
+        m[px] = True
+    m = ndimage.binary_dilation(m.reshape(res, res), iterations=grow)
+    return np.flipud(m)
+
+
+GLOVE_SRC = ("T_Glove_Coyote_BaseColor.png", "T_Glove_Coyote_ORM.png", "T_Glove_Normal.png")
+
+
+def soldier_glove_textures(fr):
+    """Soldier gloves: the coyote tactical glove textures of hands_gloves.py (leather palm, stretch
+    textile back, TPR knuckle guard, hook-and-loop wrist strap) plus dust on the fingertips / palm
+    heel.  Written as T_Soldier_Glove_BaseColor / _ORM (2048); the normal map is the glove's own."""
+    from PIL import Image
+    src = bpy.data.objects["_SRC_" + GLOVES["l"]]
+    td = S.atlas_texels([src], 2048)
+    a = T.glove_dust(td, fr)
+    img = np.zeros((2048, 2048, 4), np.float32)
+    flat = img.reshape(-1, 4)
+    flat[td["px"], 0] = a
+    flat[td["px"], 3] = 1.0
+    img = ivlib.dilate(img, 8)
+    A = np.flipud(img[..., 0])[..., None]            # PIL row order
+    bc = np.asarray(Image.open(os.path.join(GLOVE_TEX, GLOVE_SRC[0])).convert("RGB")).astype(np.float32) / 255.0
+    lin = np.where(bc <= 0.04045, bc / 12.92, ((bc + 0.055) / 1.055) ** 2.4)
+    # coyote -> olive-grey (the team-neutral glove colour of the soldier kit; reads as a glove, not skin)
+    lum = (lin * np.array([0.2126, 0.7152, 0.0722])).sum(-1, keepdims=True)
+    lin = lin * 0.22 + lum * np.array([0.93, 0.97, 0.72]) * 0.78 * 0.92
+    dust = T.srgb("#8e846d")[None, None, :]
+    lin = lin * (1 - 0.45 * A) + dust * 0.45 * A
+    out = np.where(lin <= 0.0031308, lin * 12.92, 1.055 * np.power(np.clip(lin, 0, 1), 1 / 2.4) - 0.055)
+    pbc = tex_path("T_Soldier_Glove_BaseColor.png")
+    Image.fromarray(np.clip(out * 255 + 0.5, 0, 255).astype(np.uint8), "RGB").save(pbc)
+    orm = np.asarray(Image.open(os.path.join(GLOVE_TEX, GLOVE_SRC[1])).convert("RGB")).astype(np.float32) / 255.0
+    orm[..., 1] = np.clip(orm[..., 1] + 0.10 * A[..., 0], 0, 1)
+    porm = tex_path("T_Soldier_Glove_ORM.png")
+    Image.fromarray(np.clip(orm * 255 + 0.5, 0, 255).astype(np.uint8), "RGB").save(porm)
+    return pbc, porm, os.path.join(GLOVE_TEX, GLOVE_SRC[2])
+
+
 def stage_textures(a=None):
     t0 = time.time()
     bpy.ops.wm.open_mainfile(filepath=BLEND)
@@ -1573,28 +1758,38 @@ def stage_textures(a=None):
     os.makedirs(TEX_DIR, exist_ok=True)
     rep = {}
     texs = {}
+    # ---------------- gloves (FP material + the glove square of the clothing atlas)
+    g_bc, g_orm, g_n = soldier_glove_textures(fr)
+    texs["glove_bc"], texs["glove_orm"], texs["glove_n"] = g_bc, g_orm, g_n
     # ---------------- clothing atlas
     td = S.atlas_texels(cloth, CLOTH_RES, attrs=("iv_gaiter",))
-    cm = T.cloth_maps(td, [o.name for o in cloth], fr, SHIRT, TROUSERS)
+    panel_names = {}
+    for n in PANEL_UV:
+        panel_names.update({int(k): v for k, v in json.loads(bpy.data.objects[n].get("iv_panels", "{}")).items()})
+    cm = T.cloth_maps2(td, cloth, fr, panel_names, SHIRT, TROUSERS)
     ao = ao_texels(cloth, td, CLOTH_RES, 0.02)
-    nrm = HN.height_to_normal(td, cm["h"], CLOTH_RES)
+    nd = HN.height_to_normal(td, cm["h"], CLOTH_RES)
+    hi = {n: bpy.data.objects["_HI_" + n] for n in PANEL_UV if "_HI_" + n in bpy.data.objects}
+    nh = T.hi_normal_ts(td, cloth, hi)
+    nrm = T.blend_normals(nh, nd)
     texs["cloth_n"] = S.texels_write(nrm * 0.5 + 0.5, td, tex_path("T_Soldier_Cloth_Normal.png"), fill=(0.5, 0.5, 1.0))
     orm = np.stack([np.clip(ao * cm["cav"], 0, 1), cm["rough"], np.zeros(len(ao))], 1)
     texs["cloth_orm"] = S.texels_write(orm, td, tex_path("T_Soldier_Cloth_ORM.png"), fill=(1.0, 0.85, 0.0))
     gr = glove_rect(CLOTH_RES)
-    gm_hi = glove_mask(gloves[0], CLOTH_RES)
-    gm_lo = glove_mask(gloves[0], CLOTH_BC_RES, grow=2)
-    paste_glove(texs["cloth_n"], os.path.join(GLOVE_TEX, "T_Glove_Normal.png"), gr, "N", gm_hi)
-    paste_glove(texs["cloth_orm"], os.path.join(GLOVE_TEX, "T_Glove_Black_ORM.png"), gr, "L", gm_hi)
+    gm_hi = glove_group_mask(gloves, CLOTH_RES)
+    gm_lo = glove_group_mask(gloves, CLOTH_BC_RES, grow=2)
+    paste_glove(texs["cloth_n"], g_n, gr, "N", gm_hi)
+    paste_glove(texs["cloth_orm"], g_orm, gr, "L", gm_hi)
     texs["cloth_n_dx"] = ivlib.normal_gl_to_dx(texs["cloth_n"], tex_path("T_Soldier_Cloth_Normal_DX.png"))
     for tm in TEAMS:
-        bc = T.cloth_base(cm, tm)
+        bc = T.cloth_base2(cm, tm)
         p = S.texels_write(bc, td, tex_path(f"T_Soldier_Cloth_{tm}_BaseColor.png"), fill=(0.2, 0.2, 0.2), srgb=True,
                            size=CLOTH_BC_RES)
-        paste_glove(p, os.path.join(GLOVE_TEX, "T_Glove_Black_BaseColor.png"), glove_rect(CLOTH_BC_RES), "L", gm_lo)
+        paste_glove(p, g_bc, glove_rect(CLOTH_BC_RES), "L", gm_lo)
         texs[f"cloth_bc_{tm}"] = p
     rep["cloth"] = {"texels": int(len(td["px"])), "coverage": round(len(td["px"]) / CLOTH_RES ** 2, 4),
-                    "height_mm": [round(float(cm["h"].min()) * 1000, 2), round(float(cm["h"].max()) * 1000, 2)]}
+                    "height_mm": [round(float(cm["h"].min()) * 1000, 2), round(float(cm["h"].max()) * 1000, 2)],
+                    "hi_normal_texels": int((np.abs(nh[:, 2] - 1.0) > 1e-4).sum())}
     # ---------------- gear atlas
     for o in gear:
         cv = S.vertex_convexity(o)
@@ -1624,7 +1819,7 @@ def stage_textures(a=None):
             texs["team_orm"] = S.texels_write(orm, td, tex_path("T_Soldier_Team_ORM.png"), fill=(1.0, 0.8, 0.0), dilate_px=8)
     # ---------------- materials
     for m in list(bpy.data.materials):
-        if (m.users == 0 and not m.use_fake_user) or m.name.startswith("PV"):
+        if (m.users == 0 and not m.use_fake_user) or m.name.startswith(("PV", "DV_", "UVG")):
             try:
                 bpy.data.materials.remove(m)
             except Exception:
@@ -2048,8 +2243,9 @@ LOD_RATIO = {
     "tiny": (0.6, None), "team": (0.5, 0.25),
 }
 TINY = ("SG_PC_Bungee", "SG_Glasses_Arm", "SG_Headset_Mic", "SG_Headset_Arm", "SG_Helmet_Mount", "SG_PC_Antenna",
-        "SG_Helmet_ChinStrap")
-FP_GLOVE_TRIS = 5200
+        "SG_Helmet_ChinStrap", "SG_PC_PullTab", "SG_Glove_Pad", "SG_Glove_StrapTab", "SG_PC_PackStrap", "SG_PC_PackHandle",
+        "SG_Holster_Slide")
+FP_GLOVE_TRIS = 3800
 FP_CUT_T = 0.32          # FP sleeves keep the upper arm from 32 % of its length (from the shoulder) down
 
 
@@ -2089,6 +2285,9 @@ def decimated_copy(ob, ratio, name, col, names, arm):
         o.shape_key_clear()
     for m in list(o.modifiers):
         o.modifiers.remove(m)
+    for l in list(o.data.uv_layers):
+        if l.name != "UVMap":
+            o.data.uv_layers.remove(l)
     n = len(S.tris_of(o.data))
     target = max(12, int(n * ratio))
     if target < n:
@@ -2114,6 +2313,10 @@ def decimated_copy(ob, ratio, name, col, names, arm):
 def join_export(objs, name, col):
     cps = [copy_obj(o, name + "_" + o.name, col) for o in objs]
     for c in cps:
+        for l in list(c.data.uv_layers):
+            if l.name != "UVMap":
+                c.data.uv_layers.remove(l)
+    for c in cps:
         c.parent = bpy.data.objects[ARM]
         c.hide_viewport = False
         c.hide_render = False
@@ -2127,13 +2330,18 @@ def join_export(objs, name, col):
     return ob
 
 
+FP_SLEEVE_TRIS = 4600
+
+
 def build_fp_arms(arm, col, names):
-    """FP_Arms: the sleeves (shirt faces from FP_CUT_T of the upper arm down to the cuff, with
-    the cuff lining), the armbands inside that range, a closing cap at the cut, and the gloves at a
-    first-person resolution.  Same 57-bone skeleton; only arm bones carry weight."""
-    shirt = bpy.data.objects["Soldier_Shirt"]
-    co = S.co_of(shirt)
-    W = S.read_W(shirt, names)
+    """FP_Arms: the sleeves cut from the HIGH-resolution shirt (panels / UVs, big folds) from
+    FP_CUT_T of the upper arm down to the cuff, decimated for first person, with the rolled cuff
+    edge and a closing cap at the cut (inner sleeve, never meant to be seen); the team armbands; the
+    gloves from the full-resolution gloves; the glove kit (knuckle guard, finger pads, wrist strap).
+    Same 57-bone skeleton; only arm bones carry weight."""
+    hi = bpy.data.objects["_HI_Soldier_Shirt"]
+    co = S.co_of(hi)
+    W = S.read_W(hi, names)
     dom = np.array(names)[W.argmax(1)]
     t_up = limb_param(arm, co, "upperarm_{s}")
     armb = np.isin(dom, ARM_BONES) | (np.abs(co[:, 0]) > 0.30)
@@ -2141,9 +2349,25 @@ def build_fp_arms(arm, col, names):
 
     def centre_ok(c):
         return abs(c[0]) > 0.15 and limb_param(arm, c[None], "upperarm_{s}")[0] > FP_CUT_T
-    keep = face_keep(shirt.data, ok, centre_ok)
-    lip = S.tri_face_attr(shirt.data, "iv_lip")
-    sl, src = S.copy_faces(shirt, keep, "FP_Sleeves", col)
+    keep = face_keep(hi.data, ok, centre_ok)
+    sl, src = S.copy_faces(hi, keep, "FP_Sleeves", col)
+    hv, ht, hW = co, S.tris_of(hi.data), W
+    if sl.data.shape_keys is not None:
+        sl.shape_key_clear()
+    SC.decimate_uv_safe(sl, FP_SLEEVE_TRIS)
+    S.write_W(sl, S.transfer_weights(hv, ht, hW, S.co_of(sl)), names, arm)
+    made = transfer_shape_keys(hi, sl)
+    if sl.data.shape_keys is not None:
+        for k in list(sl.data.shape_keys.key_blocks[1:]):
+            if not k.name.startswith("CS_elbow"):
+                sl.shape_key_remove(k)
+    # rolled cuff edge (the cuff end is in view all the time)
+    co2 = S.co_of(sl)
+    cuffs = [lp for lp in S.boundary_loops(sl.data) if np.abs(co2[lp, 0]).mean() > 0.40]
+    for lp in cuffs:
+        s_ = "l" if co2[lp, 0].mean() > 0 else "r"
+        wj, ax = HN.forearm_axis(arm, s_)
+        add_lip_normal(sl, lp, edge=0.0034, depth=0.018, lining=lambda p, _ax=ax: -_ax)
     # cap the cut end (inner sleeve, never meant to be seen) with a fan, tagged as lip
     co2 = S.co_of(sl)
     loops = [lp for lp in S.boundary_loops(sl.data) if np.abs(co2[lp, 0]).mean() < 0.40]
@@ -2152,6 +2376,7 @@ def build_fp_arms(arm, col, names):
     bm.verts.ensure_lookup_table()
     liplay = bm.faces.layers.int.get("iv_lip") or bm.faces.layers.int.new("iv_lip")
     dl = bm.verts.layers.deform.verify()
+    uvl = bm.loops.layers.uv.active
     capped = 0
     ring_refs = [[bm.verts[i] for i in lp] for lp in loops]
     for lp, refs in zip(loops, ring_refs):
@@ -2159,24 +2384,24 @@ def build_fp_arms(arm, col, names):
         cv = bm.verts.new(tuple(map(float, c)))
         for kk, w in refs[0][dl].items():
             cv[dl][kk] = w
+        uv0 = None
+        for l in refs[0].link_loops:
+            uv0 = tuple(l[uvl].uv)
+            break
         for i in range(len(refs)):
             f = bm.faces.new((refs[i], refs[(i + 1) % len(refs)], cv))
             f[liplay] = 1
+            if uv0 is not None:
+                for l in f.loops:
+                    l[uvl].uv = uv0
             capped += 1
     bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
     bm.to_mesh(sl.data)
     bm.free()
     sl.data.update()
-    # keep only elbow correctives
-    if sl.data.shape_keys is not None:
-        for k in list(sl.data.shape_keys.key_blocks[1:]):
-            if not k.name.startswith("CS_elbow"):
-                sl.shape_key_remove(k)
-    ab = bpy.data.objects["Soldier_Armbands"]
-    ca = S.co_of(ab)
-    ta = limb_param(arm, ca, "upperarm_{s}")
-    abk = face_keep(ab.data, ta > FP_CUT_T + 0.02)
-    fab, _ = S.copy_faces(ab, abk, "FP_Armbands", col)
+    # armbands (whole bands; they sit below the cut)
+    abs_ = [copy_obj(bpy.data.objects[f"SG_Armband_{s_}"], f"_fpab_{s_}", col) for s_ in ("L", "R")]
+    fab = S.join_objects(abs_, "FP_Armbands")
     gl = []
     for s_ in ("L", "R"):
         g = bpy.data.objects["_SRC_" + GLOVES[s_.lower()]]
@@ -2195,15 +2420,27 @@ def build_fp_arms(arm, col, names):
         Wg = S.transfer_weights(S.co_of(g), S.tris_of(g.data), S.read_W(g, names), S.co_of(o))
         S.write_W(o, Wg, names, arm)
         gl.append(o)
-    for o in (sl, fab):
+        # glove kit copies in glove texture space
+        kit = [ob for ob in bpy.data.objects if ob.name.startswith("SG_Glove_") and ob.name.endswith("_" + s_)]
+        for kb in kit:
+            kc = copy_obj(kb, "FP_" + kb.name[3:], col)
+            me = kc.data
+            if "GloveUV" in me.uv_layers:
+                uvg = S.uv_array(me, "GloveUV")
+                me.uv_layers["UVMap"].data.foreach_set("uv", uvg.ravel())
+                me.uv_layers.remove(me.uv_layers["GloveUV"])
+            kc["iv_atlas"] = "fpglove"
+            gl.append(kc)
+    for o in [sl, fab] + gl:
         o.parent = arm
         if not any(m.type == 'ARMATURE' for m in o.modifiers):
             o.modifiers.new("Armature", 'ARMATURE').object = arm
     sl["iv_atlas"] = "fp"
+    sl["iv_panels"] = hi.get("iv_panels", "{}")
     fab["iv_atlas"] = "team"
     for g in gl:
         g["iv_atlas"] = "fpglove"
-    return sl, fab, gl, {"cap_faces": capped, "cut_loops": len(loops)}
+    return sl, fab, gl, {"cap_faces": capped, "cut_loops": len(loops), "cuff_lips": len(cuffs), "elbow_keys": [k for k in made if k.startswith("CS_elbow")]}
 
 
 def stage_lods(a=None):
@@ -2257,37 +2494,47 @@ def stage_fp_tex(a=None):
     arm = bpy.data.objects[ARM]
     C.reset_pose(arm)
     sl = bpy.data.objects["FP_Sleeves"]
-    gl = [bpy.data.objects["FP_Glove_L"], bpy.data.objects["FP_Glove_R"]]
+    gl = [o for o in bpy.data.objects if o.get("iv_atlas") == "fpglove" and o.name.startswith("FP_")]
     fab = bpy.data.objects["FP_Armbands"]
     rep = {}
-    st = {}
-    ivlib.uv_unwrap([sl], angle=62.0, island_margin=0.003, pack_margin=0.004, tex_size=FP_RES, report=st)
-    rep["uv"] = {k: st[k] for k in ("coverage", "overlap_px", "islands") if k in st}
+    # the sleeve panels keep their grain-oriented islands: one density, packed on 90 deg steps
+    ivlib.select([sl], sl)
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.uv.select_all(action='SELECT')
+    bpy.ops.uv.average_islands_scale()
+    bpy.ops.uv.pack_islands(rotate=True, rotate_method='CARDINAL', margin=0.003, margin_method='FRACTION',
+                            shape_method='CONCAVE', scale=True)
+    bpy.ops.object.mode_set(mode='OBJECT')
+    r = ivlib.uv_island_raster([sl], FP_RES)
+    rep["uv"] = {"coverage": round(r["coverage"], 4), "overlap_px": int(r["overlap_px"]), "islands": len(r["islands"])}
     rep["px_per_cm_sleeves"] = round(ivlib.texel_density(sl, FP_RES), 2)
     rep["px_per_cm_gloves"] = round(ivlib.texel_density(gl[0], 2048), 2)
     fr = T.Frames(arm)
     td = S.atlas_texels([sl], FP_RES)
-    cm = T.cloth_maps(td, ["Soldier_Shirt"], fr, SHIRT, TROUSERS)
-    for g in gl:
-        g.hide_render = False
+    panel_names = {int(k): v for k, v in json.loads(sl.get("iv_panels", "{}")).items()}
+    cm = T.cloth_maps2(td, [sl], fr, panel_names, SHIRT, TROUSERS)
+    # the FP sleeve is a "Soldier_Shirt" for the material logic
     ao = ao_texels([sl], td, FP_RES, 0.015)
-    nrm = HN.height_to_normal(td, cm["h"], FP_RES)
+    nd = HN.height_to_normal(td, cm["h"], FP_RES)
+    nh = T.hi_normal_ts(td, [sl], {"FP_Sleeves": bpy.data.objects["_HI_Soldier_Shirt"]})
+    nrm = T.blend_normals(nh, nd)
     texs = {}
     texs["n"] = S.texels_write(nrm * 0.5 + 0.5, td, tex_path("T_Soldier_FPArms_Normal.png"), fill=(0.5, 0.5, 1.0))
     texs["n_dx"] = ivlib.normal_gl_to_dx(texs["n"], tex_path("T_Soldier_FPArms_Normal_DX.png"))
     orm = np.stack([np.clip(ao * cm["cav"], 0, 1), cm["rough"], np.zeros(len(ao))], 1)
     texs["orm"] = S.texels_write(orm, td, tex_path("T_Soldier_FPArms_ORM.png"), fill=(1.0, 0.85, 0.0))
     for tm in TEAMS:
-        texs[f"bc_{tm}"] = S.texels_write(T.cloth_base(cm, tm), td, tex_path(f"T_Soldier_FPArms_{tm}_BaseColor.png"),
+        texs[f"bc_{tm}"] = S.texels_write(T.cloth_base2(cm, tm), td, tex_path(f"T_Soldier_FPArms_{tm}_BaseColor.png"),
                                           fill=(0.2, 0.2, 0.2), srgb=True)
         export_material_reuse(f"M_FPArms_Sleeve_{tm}", texs[f"bc_{tm}"], texs["orm"], texs["n"]).use_fake_user = True
-    mg = export_material_reuse("M_FPArms_Glove", os.path.join(GLOVE_TEX, "T_Glove_Black_BaseColor.png"),
-                               os.path.join(GLOVE_TEX, "T_Glove_Black_ORM.png"), os.path.join(GLOVE_TEX, "T_Glove_Normal.png"))
+    mg = export_material_reuse("M_FPArms_Glove", tex_path("T_Soldier_Glove_BaseColor.png"), tex_path("T_Soldier_Glove_ORM.png"),
+                               os.path.join(GLOVE_TEX, "T_Glove_Normal.png"))
+    mg.use_fake_user = True
     for g in gl:
         g.data.materials.clear()
         g.data.materials.append(mg)
     apply_fp_team("Alfa")
-    # joined export mesh
     for n in ("FP_Arms",):
         if n in bpy.data.objects:
             bpy.data.objects.remove(bpy.data.objects[n])
@@ -2295,6 +2542,7 @@ def stage_fp_tex(a=None):
     fp.hide_render = True
     fp["iv_export"] = 1
     rep["fp_arms_tris"] = len(S.tris_of(fp.data))
+    rep["fp_parts"] = {o.name: len(S.tris_of(o.data)) for o in [sl, fab] + gl}
     rep["textures"] = {k: rel(v) for k, v in texs.items()}
     rep["seconds"] = round(time.time() - t0, 1)
     log("fp_tex", json.dumps(rep))
@@ -2616,7 +2864,8 @@ def render_fp(made, rig, parts, lib):
     outdoor(ground_color=(0.20, 0.21, 0.16))
     arm = bpy.data.objects[ARM]
     apply_fp_team("Alfa")
-    fp = [bpy.data.objects[n] for n in ("FP_Sleeves", "FP_Armbands", "FP_Glove_L", "FP_Glove_R")]
+    fp = [bpy.data.objects[n] for n in ("FP_Sleeves", "FP_Armbands")] + \
+        [o for o in bpy.data.objects if o.name.startswith("FP_") and o.get("iv_atlas") == "fpglove"]
     res = {}
     for mode, pitch in (("hip", 0.0), ("hip", 35.0), ("hip", -35.0), ("ads", 0.0), ("ads", 35.0), ("ads", -35.0)):
         C.reset_pose(arm)

@@ -65,7 +65,7 @@ class Card:
     """a textured quad: origin (attachment), x axis (image +u), y axis (image up), size (m), anchor (u, v of the
     origin in the rect, v downwards), atlas rect name."""
 
-    def __init__(self, origin, xaxis, yaxis, w, h, rect, anchor=(0.5, 0.97), tint=(1, 1, 1), flex=0.5, phase=0.0, cross=False):
+    def __init__(self, origin, xaxis, yaxis, w, h, rect, anchor=(0.5, 0.97), tint=(1, 1, 1), flex=0.5, phase=0.0, cross=False, vcrop=(0.0, 1.0)):
         self.o = np.asarray(origin, float)
         x = np.asarray(xaxis, float)
         y = np.asarray(yaxis, float)
@@ -79,6 +79,7 @@ class Card:
         self.flex = flex
         self.phase = phase
         self.cross = cross
+        self.vcrop = vcrop
 
     def corners(self):
         au, av = self.anchor
@@ -154,12 +155,25 @@ def ellipsoid_limit(c, rx, rz, p0, d, maxlen):
 
 
 # ================================================================================================ species
-def spruce(name, r, H=22.0, R=3.4, cb=1.2, trunk_r=0.32, card_rects=("spruce_a", "spruce_a")):
+def spruce(name, r, H=22.0, R=3.4, cb=1.2, trunk_r=0.32, card_rects=("spruce_a", "spruce_a"), dead_stubs=False):
     """Norway spruce (R11): straight trunk, whorls every ~0.5 m, conical crown to near the ground, lower limbs
     droop and turn up at the tips, hanging branchlet curtains (sprays + tassels on the cards)."""
     m = Model(name, H, R, (0, 0, cb + (H - cb) * 0.35), trunk_r, "conifer")
     tr = grow((0, 0, -0.1), (0, 0, 1), H, 24, r, wander=0.015)
     m.branches.append(Branch(tr, taper(len(tr), trunk_r, 0.02, 0.9), 0, BARK["spruce"], r.random(), 0.0, 0.25))
+    m.bare_trunk = cb if dead_stubs else 0.0
+    if dead_stubs:
+        # forest-grown spruce: the lower trunk is bare, with short dead branch stubs (no needles)
+        zz = 1.8
+        while zz < cb - 0.3:
+            p_tr = tr[min(len(tr) - 1, int(zz / H * (len(tr) - 1)))]
+            for k in range(int(r.integers(2, 4))):
+                az = r.random() * 2 * math.pi
+                d = unit(np.array([math.cos(az), math.sin(az), -0.25 - 0.3 * r.random()]))
+                L = 0.3 + 0.8 * r.random() * (zz / cb)
+                pts = grow(p_tr, d, L, 2, r, wander=0.1)
+                m.branches.append(Branch(pts, taper(len(pts), 0.025, 0.006), 2, BARK["spruce"], r.random(), 0.05, 0.1))
+            zz += 0.45 + 0.35 * r.random()
     z = cb
     whorl = 0
     while z < H - 0.4:
@@ -384,6 +398,7 @@ def shrub(name, r, H, W, card, stems=7, density=1.0, card_size=0.6):
 def lod1(m, r, keep=0.33, scale=1.6):
     """limbs only; a third of the cards, 1.6x larger, each crossed with a second quad."""
     out = Model(m.name + "_LOD1", m.height, m.crown_radius, m.crown_center, m.trunk_radius, m.kind)
+    out.bare_trunk = getattr(m, "bare_trunk", 0.0)
     out.branches = []
     for b in m.branches:
         if b.level == 0:
@@ -409,9 +424,21 @@ def lod2(m, r, clump_rect, silhouette_rect=None, n_clumps=12):
     out = Model(m.name + "_LOD2", m.height, m.crown_radius, m.crown_center, m.trunk_radius, m.kind)
     tr = m.branches[0]
     if silhouette_rect:
-        # whole-tree silhouettes (the card contains the trunk too)
         H = m.height
         W = m.crown_radius * 2.3
+        bare = getattr(m, "bare_trunk", 0.0)
+        if bare > 0:
+            # forest-grown: trunk as a thin tube up to the crown, the silhouette's upper 70 % as the crown
+            idx = np.linspace(0, len(tr.pts) - 1, 4).astype(int)
+            out.branches = [Branch(tr.pts[idx], tr.r[idx], 0, tr.bark, tr.phase, 0.0, 0.3)]
+            z0 = bare * 0.92
+            for k in range(3):
+                az = k * math.pi / 3
+                xa = np.array([math.cos(az), math.sin(az), 0.0])
+                out.cards.append(Card((0, 0, z0), xa, (0, 0, 1), W * 0.95, (H - z0) * 1.02, silhouette_rect, anchor=(0.5, 1.0), flex=0.35,
+                                      phase=0.3, vcrop=(0.0, 0.72)))
+            return out
+        # whole-tree silhouettes (the card contains the trunk too)
         for k in range(3):
             az = k * math.pi / 3
             xa = np.array([math.cos(az), math.sin(az), 0.0])
@@ -432,7 +459,7 @@ def lod2(m, r, clump_rect, silhouette_rect=None, n_clumps=12):
         p = c + dirv * np.array([R, R, rz * 0.9]) * (0.55 + 0.25 * r.random())
         up = unit(dirv * 0.6 + np.array([0, 0, 0.8]))
         xa = unit(np.cross(up, rotate(np.array([1.0, 0, 0]), up, r.random() * 6.28)))
-        sz = R * (0.85 + 0.35 * r.random())
+        sz = R * (0.85 + 0.35 * r.random()) * (0.75 if m.kind == "shrub" else 1.0)
         out.cards.append(Card(p, xa, up, sz, sz, clump_rect, anchor=(0.5, 0.5), tint=(0.9 + 0.2 * r.random(),) * 3, flex=0.6, phase=r.random(), cross=True))
     return out
 
@@ -505,7 +532,8 @@ def card_mesh(ma, cd, rects, atlas_size, crown_c, crown_r, sph=0.65, ao=1.0):
     x, y, w, h = rects[cd.rect]
     W, Hh = atlas_size
     u0, u1 = x / W, (x + w) / W
-    v0, v1 = y / Hh, (y + h) / Hh           # glTF uv: v = 0 at the top of the image
+    c0, c1 = getattr(cd, "vcrop", (0.0, 1.0))
+    v0, v1 = (y + h * c0) / Hh, (y + h * c1) / Hh   # glTF uv: v = 0 at the top of the image
     quads = [(cd.x, cd.y)]
     if cd.cross:
         quads.append((unit(np.cross(cd.y, cd.x)), cd.y))

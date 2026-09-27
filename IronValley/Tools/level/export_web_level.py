@@ -1901,7 +1901,7 @@ def build_fence(sc, f, terr):
             jitter = 0.15 * math.sin(p[0] * 1.7 + p[1] * 0.9)
             if typ == "hedgerow_mixed":
                 sc.seg_wall(p, q, wd, za - 0.3, zb - 0.3, za + h + jitter, zb + h + jitter, mat=False, cls="movevis", surface="grass", render=False)
-                sc.seg_wall(p, q, wd - 0.6, za - 0.3, zb - 0.3, za + h * 0.8 + jitter, zb + h * 0.8 + jitter, mat="veg_core", collide=False)
+                sc.seg_wall(p, q, wd - 0.7, za - 0.3, zb - 0.3, za + h * 0.55 + jitter, zb + h * 0.55 + jitter, mat="veg_core", collide=False)
             else:
                 sc.seg_wall(p, q, wd, za - 0.3, zb - 0.3, za + h + jitter, zb + h + jitter, mat=key, cls="movevis", surface="grass")
         return
@@ -1963,7 +1963,7 @@ def build_vegetation_block(sc, vb, terr):
         for (p, q, za, zb) in ground_pieces(terr, vb["polyline"], 3.0):
             j = 0.35 * math.sin(p[0] * 0.8 + p[1] * 1.3)
             sc.seg_wall(p, q, wd, za - 0.4, zb - 0.4, za + h + j, zb + h + j, mat=False, cls="movevis", surface="grass", render=False)
-            sc.seg_wall(p, q, max(0.4, wd - 0.7), za - 0.4, zb - 0.4, za + h * 0.8 + j, zb + h * 0.8 + j, mat="veg_core", collide=False)
+            sc.seg_wall(p, q, max(0.4, wd - 0.9), za - 0.4, zb - 0.4, za + h * 0.5 + j, zb + h * 0.5 + j, mat="veg_core", collide=False)
     else:
         P = Polygon(vb["polygon"])
         zc = terr.z1(P.centroid.x, P.centroid.y)
@@ -1972,7 +1972,7 @@ def build_vegetation_block(sc, vb, terr):
         sc.prism(pts, zmin - 0.5, zc + h, mat=False, cls="movevis", surface="grass", render=False)
         inner = P.buffer(-0.5, join_style=2)
         if not inner.is_empty and inner.geom_type == "Polygon":
-            sc.prism([tuple(c) for c in list(inner.exterior.coords)[:-1]], zmin - 0.5, zc + h * 0.8, mat="veg_core", collide=False)
+            sc.prism([tuple(c) for c in list(inner.exterior.coords)[:-1]], zmin - 0.5, zc + h * 0.45, mat="veg_core", collide=False)
 
 
 # ================================================================================================
@@ -2652,10 +2652,22 @@ def splat_maps(L, terr):
     # yards: a little grass along walls and fence plinths only
     yardg = np.isin(clsg, [SURF_ID["gravel"], SURF_ID["concrete"], SURF_ID["paving"]]) & ~block
     edge = yardg & (dwall_g < 0.7)
-    low_d = np.where(edge, np.maximum(low_d, 0.35), low_d)
+    low_d = np.where(edge, np.maximum(low_d, 0.35), low_d)   # (corridors are cleared again in main)
     grass_rgb = np.clip(np.round(np.stack([low_d, tall, flw], -1) * 15) * 17, 0, 255).astype(np.uint8)
     log(f"splat: layers {names}; puddles {float((W[..., 10] > 0.5).mean() * 100):.2f} %; grass cells {int((low_d > 0.05).sum())}")
-    return {"weights": w8, "macro": macro, "grass": grass_rgb, "names": names, "n": n, "res": SPLAT_RES, "cls": cls}
+    # yards: grass allowed only in strips along walls / fence plinths -- never in a road / path / track corridor
+    # (+0.3 m, layout ground_cover rules), even where a fence runs along it
+    corridor = np.zeros((gd, gd), bool)
+    for r in L["roads"]:
+        sh = r.get("shoulders", 0.75)
+        sh = sh.get("width", 0.75) if isinstance(sh, dict) else float(sh)
+        corridor |= polyline_dist(r["polyline"], Xg, Yg)[0] < r["width"] / 2 + sh + 0.3
+    for pth in L["paths"]:
+        corridor |= polyline_dist(pth["xy"], Xg, Yg)[0] < pth["width"] / 2 + 0.3
+    for t in L["tracks"]:
+        corridor |= polyline_dist(t["polyline"], Xg, Yg)[0] < t["width"] / 2 + 0.3
+    wall_edge = (dwall_g < 0.7) & ~corridor
+    return {"weights": w8, "macro": macro, "grass": grass_rgb, "names": names, "n": n, "res": SPLAT_RES, "cls": cls, "wall_edge": wall_edge}
 
 
 def smoothstep_np(e0, e1, x):
@@ -2666,6 +2678,8 @@ def smoothstep_np(e0, e1, x):
 # ---- vegetation instances (render only; tree trunk collision stays in build_trees)
 TREE_SPECIES_ORDER = ["smrk", "borovice", "briza", "briza_mlada", "lipa", "lipa_stara", "javor", "jasan", "dub", "buk", "habr",
                       "olse", "vrba", "jablon", "hruska", "svestka", "orech"]
+# forest-grown variants (outside the soft boundary + 2 m): the models may differ (bare lower trunk, closed canopy)
+TREE_KINDS = TREE_SPECIES_ORDER + [s + "_les" for s in TREE_SPECIES_ORDER]
 SHRUB_KINDS = ["shrub_low", "shrub_mid", "shrub_tall", "hedge_wild"]
 
 
@@ -2680,11 +2694,12 @@ def tree_instances(L, terr):
         s = sp[t["species"]]
         k = t.get("scale", 1.0)
         x, y = t["pos"][0], t["pos"][1]
-        crown_k = 1.0 if soft.contains(Point(x, y)) else 1.3
+        forest = not soft.contains(Point(x, y))
+        crown_k = 1.3 if forest else 1.0
         z = terr.z1(x, y) - 0.1
         seed = (int(hashlib.md5(t["id"].encode()).hexdigest()[:8], 16) % 100000) / 100000.0
         rows.append((x, z, -y, math.radians(t.get("yaw_deg", 0.0)), s["height"] * k, s["crown_radius"] * k * crown_k, s["trunk_radius"] * k, seed))
-        kinds.append(TREE_SPECIES_ORDER.index(t["species"]))
+        kinds.append(TREE_KINDS.index(t["species"] + ("_les" if forest else "")))
     return np.array(rows, np.float32), np.array(kinds, np.uint8)
 
 
@@ -2729,11 +2744,13 @@ def shrub_instances(L, terr, cls_raster):
         else:
             P = Polygon(vb["polygon"])
             x0, y0, x1, y1 = P.bounds
-            for gx in np.arange(x0 + 0.7, x1, 1.5):
-                for gy in np.arange(y0 + 0.7, y1, 1.5):
-                    px_, py_ = gx + (r.random() - 0.5) * 0.8, gy + (r.random() - 0.5) * 0.8
-                    if P.buffer(-0.3).contains(Point(px_, py_)):
-                        add(px_, py_, r.random() * 6.283, h * (0.75 + 0.3 * r.random()), 2.2 + r.random(), "shrub_tall")
+            for gx in np.arange(x0 + 0.5, x1, 1.1):
+                for gy in np.arange(y0 + 0.5, y1, 1.1):
+                    px_, py_ = gx + (r.random() - 0.5) * 0.7, gy + (r.random() - 0.5) * 0.7
+                    if P.buffer(-0.2).contains(Point(px_, py_)):
+                        edge = P.exterior.distance(Point(px_, py_)) < 1.2
+                        add(px_, py_, r.random() * 6.283, h * ((0.6 if edge else 0.85) + 0.3 * r.random()), 2.0 + r.random(),
+                            "shrub_mid" if edge and r.random() < 0.5 else "shrub_tall")
     for f in L["fences_walls_hedges"]:
         if f["type"] == "hedgerow_mixed":
             for (x, y, dx, dy) in _along(f["polyline"], 1.0, r):
@@ -2893,8 +2910,14 @@ def main():
     strict = np.isin(surf, [SURF_ID[k] for k in ("asphalt", "water", "stone")])
     strict = ndimage.binary_dilation(strict, iterations=1) | np.isin(surf, [SURF_ID["dirt"], SURF_ID["mud"]])
     rows = gj0 - 1 - np.arange(ny_s)                          # surf row j (south -> north) -> grass row (north -> south)
+    # gravel / concrete / setts (roads' shoulders, paths, yards): bare except the strips along walls
+    edge_sub = splat["wall_edge"][rows[:, None], gi0 + np.arange(nx_s)[None, :]]
+    strict |= np.isin(surf, [SURF_ID["gravel"], SURF_ID["concrete"], SURF_ID["paving"]]) & ~edge_sub
     gsub = splat["grass"][rows[:, None], gi0 + np.arange(nx_s)[None, :]]
     gsub[strict] = 0
+    yard = np.isin(surf, [SURF_ID["gravel"], SURF_ID["concrete"], SURF_ID["paving"]])
+    gsub[yard, 1:] = 0                                      # wall strips on yards: low clumps only
+    gsub[yard, 0] = np.minimum(gsub[yard, 0], 85)
     splat["grass"][rows[:, None], gi0 + np.arange(nx_s)[None, :]] = gsub
     log(f"grass: {int(strict.sum())} gameplay cells forced bare")
 
@@ -3083,7 +3106,7 @@ def main():
     gw.extras = {"iv": {"level": LEVEL_ID, "levelHash": level_hash, "trees": ntrees, "vegetation": {
         "_comment": "instance tables (three.js frame): float32 rows [x, y, z, yaw rad, height m, crown / width m, trunk radius m, seed 0..1] + u8 kind index; models: assets/environment/vegetation.glb",
         "models": "assets/environment/vegetation.glb",
-        "trees": {"rows": gw.raw_accessor(veg_trees, "SCALAR", FLOAT), "kinds": gw.raw_accessor(veg_tree_kinds, "SCALAR", UBYTE), "count": int(len(veg_trees)), "kindNames": TREE_SPECIES_ORDER},
+        "trees": {"rows": gw.raw_accessor(veg_trees, "SCALAR", FLOAT), "kinds": gw.raw_accessor(veg_tree_kinds, "SCALAR", UBYTE), "count": int(len(veg_trees)), "kindNames": TREE_KINDS},
         "shrubs": {"rows": gw.raw_accessor(veg_shrubs, "SCALAR", FLOAT), "kinds": gw.raw_accessor(veg_shrub_kinds, "SCALAR", UBYTE), "count": int(len(veg_shrubs)), "kindNames": SHRUB_KINDS}}}}
     w_path = os.path.join(OUT_ASSETS, "kh_world.glb")
     w_size = gw.write(w_path, wnodes)
