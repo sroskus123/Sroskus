@@ -302,11 +302,12 @@ export class CombatantManager {
       weaponId: info ? info.weaponId : null,
       part: info ? info.part : null,
       forced: info ? !!info.forced : true,
+      cause: info ? info.cause || null : null,
       position: c.position.toArray(),
     };
     this.deathLog.push(rec);
     if (this.deathLog.length > 500) this.deathLog.shift();
-    ctx.events.emit('combatant:died', { victimId: c.id, attackerId, position: c.position.clone(), weaponId: rec.weaponId, part: rec.part, team: c.team });
+    ctx.events.emit('combatant:died', { victimId: c.id, attackerId, position: c.position.clone(), weaponId: rec.weaponId, part: rec.part, team: c.team, cause: rec.cause });
   }
 
   /** Steps every combatant that was not driven this tick (AI stub, dead bots, AI disabled) with an idle command. */

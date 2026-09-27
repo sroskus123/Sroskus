@@ -16,6 +16,7 @@ import { TargetDummies } from './targetDummies.js';
 import { buildMatchRules } from './gameRules.js';
 import { createRng } from '../util/rng.js';
 import { pointInZone } from './zoneShape.js';
+import { BoundarySystem } from './boundary.js';
 import { botKit, validateOpticLoadout, ATTACHMENTS } from '../weapons/optics.js';
 
 export const PLAYER_ID = 'player';
@@ -156,6 +157,8 @@ export class MatchSession {
     this._zoneKey = '';
     this.roundEndedAt = null;
     this.started = false;
+    // map boundary (generated maps): warning band, countdown outside the soft line, death "Minové pole"
+    this.boundary = this.level.boundary && Array.isArray(this.level.boundary.soft) ? new BoundarySystem(this.level.boundary) : null;
   }
 
   get player() {
@@ -228,6 +231,7 @@ export class MatchSession {
     this.perf.aiMs = now() - tAi;
     this.combatants.stepUndriven(dt);
     this.combatants.processCoreEvents(this.pendingKills);
+    if (this.boundary) this.boundary.update(dt, this.combatants.all(), (c) => this.killByCause(c.id, (this.boundary.text && this.boundary.text.death) || 'Minové pole'));
     this.dummies.tick(dt);
     // kill feed ageing
     for (const k of this.killFeed) k.age += dt;
@@ -281,8 +285,9 @@ export class MatchSession {
     return { ...res, victimId: victim.id, killed: res.result === 'killed' };
   }
 
-  _pushKillFeed(attacker, victim, weaponId, headshot) {
+  _pushKillFeed(attacker, victim, weaponId, headshot, cause = null) {
     this.killFeed.push({
+      cause,
       attackerId: attacker ? attacker.id : null,
       attackerName: attacker ? attacker.name : null,
       attackerTeam: attacker ? attacker.team : -1,
@@ -294,6 +299,19 @@ export class MatchSession {
       age: 0,
     });
     while (this.killFeed.length > this.combat.hud.killFeedMax) this.killFeed.shift();
+  }
+
+  /** Death without a killer (map boundary "Minové pole"): no kill credit, no score change, normal respawn. */
+  killByCause(id, cause) {
+    const c = this.combatants.get(id);
+    if (!c) return 'unknown_id';
+    const r = this.match.kill(id);
+    if (r === 'killed') {
+      this.pendingKills.set(id, { attackerId: null, fromDir: null, weaponId: null, part: null, forced: false, cause });
+      this.combatants.processCoreEvents(this.pendingKills);
+      this._pushKillFeed(null, c, null, false, cause);
+    }
+    return r;
   }
 
   /** Test only: kill a combatant through the core (Match.kill). */
@@ -350,6 +368,7 @@ export class MatchSession {
     this.roundEndedAt = null;
     this._roundState = null;
     this._zoneKey = '';
+    if (this.boundary) this.boundary.reset();
     this.events.emit('round:reset', { zoneId: this.match.round.zoneId });
     if (skipPreRound && this.mode === 'match') this.match.start();
     this._advanceMatch(0);

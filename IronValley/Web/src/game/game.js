@@ -690,7 +690,7 @@ export class Game {
       if (isPlayer(p.victimId)) {
         const s = this.session;
         const k = p.attackerId ? s.combatants.get(p.attackerId) : null;
-        this.deathCam = { t: 0, killerId: p.attackerId, killerName: k ? k.name : null, killerTeam: k ? k.team : -1, weapon: p.weaponId ? weaponsData[p.weaponId].shortName : null, forced: !p.attackerId, from: this.camera.position.clone() };
+        this.deathCam = { t: 0, killerId: p.attackerId, killerName: k ? k.name : null, killerTeam: k ? k.team : -1, weapon: p.weaponId ? weaponsData[p.weaponId].shortName : null, forced: !p.attackerId && !p.cause, cause: p.cause || null, from: this.camera.position.clone() };
         for (const w of this.playerCombatant.weapons) w.state.releaseInputs();
       }
       log('died', { victim: p.victimId, attacker: p.attackerId });
@@ -959,6 +959,7 @@ export class Game {
         killerColor: dc.killerTeam >= 0 ? teamsData.teams[dc.killerTeam].color : null,
         weapon: dc.weapon || null,
         forced: !!dc.forced,
+        cause: dc.cause || null,
         respawnIn: part.respawnInUs / 1e6,
         waiting: part.state === 'respawning',
       };
@@ -991,6 +992,7 @@ export class Game {
       death,
       allies: this._allyMarkers(pc),
       optic: opticHud,
+      boundary: s.boundary ? s.boundary.info(pc.id) : null,
     });
 
     // audio listener on the camera

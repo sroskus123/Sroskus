@@ -120,6 +120,8 @@ export class Hud {
     this.allies = el('div', 'iv-allies');
     this.allyEls = new Map();
     this.notice = el('div', 'iv-notice', '');
+    // map boundary (generated maps): warning band text / countdown outside the soft line
+    this.boundary = el('div', 'iv-boundary', '');
     this.banner = el('div', 'iv-banner', '');
     this.death = el('div', 'iv-death');
     this.deathTitle = el('div', 'iv-death-title', 'Padl jsi');
@@ -142,6 +144,7 @@ export class Hud {
       this.stance,
       this.ammoBox,
       this.notice,
+      this.boundary,
       this.swap,
       this.prompt,
       this.banner,
@@ -310,6 +313,11 @@ export class Hud {
       this.healthFill.style.transform = `scaleX(${f.toFixed(3)})`;
       this.healthBox.classList.toggle('iv-low', f <= 0.3);
     }
+    const bnd = s.boundary && s.alive !== false ? s.boundary : null;
+    setText(this.boundary, bnd ? bnd.text : '');
+    this.boundary.classList.toggle('iv-show', !!(bnd && bnd.text));
+    this.boundary.classList.toggle('iv-urgent', !!(bnd && bnd.status === 'outside'));
+    this.hud.classList.toggle('iv-out-of-bounds', !!(bnd && bnd.status === 'outside'));
     this._updateRound(s.round, s.zoneVec, s.ownTeam);
     this._updateKillFeed(s.killFeed || []);
     this._updateAllies(s.allies || []);
@@ -324,7 +332,7 @@ export class Hud {
         if (d.killerColor) k.style.color = d.killerColor;
         this.deathKiller.append(k);
         if (d.weapon) this.deathKiller.append(el('span', '', ` (${d.weapon})`));
-      } else setText(this.deathKiller, d.forced ? 'Vyřazen testem' : '');
+      } else setText(this.deathKiller, d.cause ? d.cause : d.forced ? 'Vyřazen testem' : '');
       setText(this.deathCount, d.waiting ? 'Čekám na bezpečné místo…' : `Návrat za ${Math.max(0, Math.ceil(d.respawnIn - 1e-6))} s`);
     }
     this.fps.style.display = s.showFps ? 'block' : 'none';
@@ -382,7 +390,7 @@ export class Hud {
         const a = el('b', 'iv-kf-name', k.attackerName);
         a.style.color = color(k.attackerTeam);
         row.append(a, el('span', 'iv-kf-weapon', ` ${k.weapon || '✕'}${k.headshot ? ' ◎' : ''} `));
-      } else row.append(el('span', 'iv-kf-weapon', '✕ '));
+      } else row.append(el('span', 'iv-kf-weapon', k.cause ? `${k.cause} ✕ ` : '✕ '));
       const v = el('b', 'iv-kf-name', k.victimName);
       v.style.color = color(k.victimTeam);
       row.append(v);
@@ -451,6 +459,7 @@ export class Hud {
       stance: this.stance.textContent,
       banner: this.banner.classList.contains('iv-show') ? this.banner.textContent : '',
       notice: this.notice.classList.contains('iv-show') ? this.notice.textContent : '',
+      boundary: this.boundary.classList.contains('iv-show') ? this.boundary.textContent : '',
       damageArcs: this.dmgArcs.filter((a) => a.t > 0).length,
       hitmarker: this.hitmarker.classList.contains('iv-show'),
     };
