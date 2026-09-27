@@ -160,6 +160,20 @@ def make_gloved_body(arm, body, col):
 # textures
 # =============================================================================
 
+def glove_material(pal):
+    """M_Glove_<pal> (Coyote / Black): the stored material, or rebuilt from the texture files
+    (an unused material does not survive an orphan purge, e.g. the poses stage's prop cleanup).
+    Kept with a fake user."""
+    name = f"M_Glove_{pal}"
+    m = bpy.data.materials.get(name)
+    if m is None:
+        m = ivlib.export_material(name, os.path.join(TEX_DIR, f"{TEX_PREFIX}{pal}_BaseColor.png"),
+                                  os.path.join(TEX_DIR, f"{TEX_PREFIX}{pal}_ORM.png"),
+                                  os.path.join(TEX_DIR, f"{TEX_PREFIX}Normal.png"))
+    m.use_fake_user = True
+    return m
+
+
 def textures():
     bpy.ops.wm.open_mainfile(filepath=BLEND)
     arm = bpy.data.objects[ARM]
@@ -169,6 +183,7 @@ def textures():
     mats = {}
     for pal in ("Coyote", "Black"):
         mats[pal] = ivlib.export_material(f"M_Glove_{pal}", paths[f"{pal}_BaseColor"], paths[f"{pal}_ORM"], paths["Normal"])
+        mats[pal].use_fake_user = True
     for s in ("l", "r"):
         g = bpy.data.objects[GL[s]]
         g.data.materials.clear()
@@ -1456,12 +1471,12 @@ def set_variant(variant, arm):
         g.hide_render = variant == "bare"
         if variant != "bare":
             g.data.materials.clear()
-            g.data.materials.append(bpy.data.materials[f"M_Glove_{variant.capitalize()}"])
+            g.data.materials.append(glove_material(variant.capitalize()))
 
 
-def hand_views(arm, s, dist=0.40):
+def hand_views(arm, s, dist=0.46):
     c, d, r, n = C.palm_frame(arm, s)
-    tc = c + d * 0.035
+    tc = c + d * 0.055          # frames the whole hand (open fingertips included) and the wrist
     return {"palm": (tc + n * dist, tc, -d), "back": (tc - n * dist, tc, -d),
             "side": (tc + r * dist + n * 0.06, tc, n)}
 
@@ -1835,7 +1850,7 @@ def _export_glb(path, objects, material):
     for o in objs:
         if o.type == 'MESH' and o.name.startswith("SK_Glove"):
             o.data.materials.clear()
-            o.data.materials.append(bpy.data.materials[material])
+            o.data.materials.append(glove_material(material.replace("M_Glove_", "")))
     ivlib.select(objs, objs[0])
     opts = dict(ivlib.GLB_OPTS)
     opts.update(export_animations=True, export_animation_mode='ACTIONS', export_frame_range=False,
