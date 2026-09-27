@@ -1083,21 +1083,21 @@
       "abd": -3.424902695035951
      },
      "middle": {
-      "mcp": -1.0784259012055646,
-      "pip": 37.32915319480121,
-      "dip": 0.9880616693711053,
+      "mcp": 0.0,
+      "pip": 98.9140625,
+      "dip": 3.0,
       "abd": 0.0
      },
      "ring": {
-      "mcp": 18.405444405113624,
-      "pip": 66.96349582778005,
-      "dip": 41.68462034935055,
+      "mcp": 19.975414579652462,
+      "pip": 62.840635230385246,
+      "dip": 53.01860772350326,
       "abd": 0.0
      },
      "pinky": {
-      "mcp": 16.327848683071924,
-      "pip": 34.688544035373205,
-      "dip": 36.36685837841923,
+      "mcp": 16.366286523144648,
+      "pip": 34.713644581716395,
+      "dip": 36.28332261096132,
       "abd": 0.0
      },
      "thumb": {
@@ -1162,46 +1162,46 @@
     "index_penalty": 3.34,
     "fingers_touching_other_parts": 0,
     "score": -4.27,
-    "snugness_after_wrap_mm": 6.64,
+    "snugness_after_wrap_mm": 1.08,
     "wrap": {
      "middle": {
       "angles": {
-       "mcp": -1.08,
-       "pip": 37.33,
-       "dip": 0.99
+       "mcp": 0.0,
+       "pip": 98.91,
+       "dip": 3.0
       },
       "segment_gap_mm": [
-       0.17,
-       24.23,
-       11.22
+       0.05,
+       3.95,
+       0.6
       ],
-      "min_signed_mm": 0.17
+      "min_signed_mm": 0.05
      },
      "ring": {
       "angles": {
-       "mcp": 18.41,
-       "pip": 66.96,
-       "dip": 41.68
+       "mcp": 19.98,
+       "pip": 62.84,
+       "dip": 53.02
       },
       "segment_gap_mm": [
-       1.01,
-       0.78,
-       0.84
+       0.8,
+       0.8,
+       0.8
       ],
-      "min_signed_mm": 0.78
+      "min_signed_mm": 0.8
      },
      "pinky": {
       "angles": {
-       "mcp": 16.33,
-       "pip": 34.69,
-       "dip": 36.37
+       "mcp": 16.37,
+       "pip": 34.71,
+       "dip": 36.28
       },
       "segment_gap_mm": [
-       1.47,
-       0.23,
-       1.04
+       1.44,
+       0.2,
+       1.02
       ],
-      "min_signed_mm": 0.23
+      "min_signed_mm": 0.2
      }
     },
     "index": {
@@ -1230,9 +1230,9 @@
       "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 21.23,
-      "index_penalty": 10.72,
+      "index_penalty": 10.73,
       "fingers_touching_other_parts": 0,
-      "score": -31.95
+      "score": -31.96
      },
      {
       "yaw_deg": -10.0,
@@ -1242,9 +1242,9 @@
       "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 21.41,
-      "index_penalty": 10.94,
+      "index_penalty": 10.76,
       "fingers_touching_other_parts": 0,
-      "score": -32.35
+      "score": -32.17
      },
      {
       "yaw_deg": -10.0,
@@ -1256,7 +1256,7 @@
       "snugness_mm": 21.51,
       "index_penalty": 10.8,
       "fingers_touching_other_parts": 0,
-      "score": -32.31
+      "score": -32.32
      },
      {
       "yaw_deg": -10.0,
@@ -1290,9 +1290,9 @@
       "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 20.26,
-      "index_penalty": 10.42,
+      "index_penalty": 10.44,
       "fingers_touching_other_parts": 0,
-      "score": -30.68
+      "score": -30.7
      },
      {
       "yaw_deg": -10.0,
@@ -1302,9 +1302,9 @@
       "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 10.89,
-      "index_penalty": 8.14,
+      "index_penalty": 8.09,
       "fingers_touching_other_parts": 0,
-      "score": -19.03
+      "score": -18.98
      },
      {
       "yaw_deg": -10.0,
@@ -1314,9 +1314,9 @@
       "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 14.7,
-      "index_penalty": 9.72,
+      "index_penalty": 9.62,
       "fingers_touching_other_parts": 0,
-      "score": -24.42
+      "score": -24.31
      },
      {
       "yaw_deg": -10.0,
@@ -1350,9 +1350,9 @@
       "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 21.4,
-      "index_penalty": 10.85,
+      "index_penalty": 10.84,
       "fingers_touching_other_parts": 0,
-      "score": -32.25
+      "score": -32.24
      },
      {
       "yaw_deg": -10.0,
@@ -1362,9 +1362,9 @@
       "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 21.57,
-      "index_penalty": 11.09,
+      "index_penalty": 10.91,
       "fingers_touching_other_parts": 0,
-      "score": -32.66
+      "score": -32.48
      },
      {
       "yaw_deg": -10.0,
@@ -1374,9 +1374,9 @@
       "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 21.48,
-      "index_penalty": 13.24,
+      "index_penalty": 12.65,
       "fingers_touching_other_parts": 0,
-      "score": -34.72
+      "score": -34.14
      },
      {
       "yaw_deg": -10.0,
@@ -1386,9 +1386,9 @@
       "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 21.46,
-      "index_penalty": 11.33,
+      "index_penalty": 11.32,
       "fingers_touching_other_parts": 0,
-      "score": -32.79
+      "score": -32.78
      },
      {
       "yaw_deg": -10.0,
@@ -1398,9 +1398,9 @@
       "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 21.38,
-      "index_penalty": 11.03,
+      "index_penalty": 11.01,
       "fingers_touching_other_parts": 0,
-      "score": -32.41
+      "score": -32.39
      },
      {
       "yaw_deg": -10.0,
@@ -1410,9 +1410,9 @@
       "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 20.05,
-      "index_penalty": 12.2,
+      "index_penalty": 12.1,
       "fingers_touching_other_parts": 0,
-      "score": -32.25
+      "score": -32.15
      },
      {
       "yaw_deg": -10.0,
@@ -1422,9 +1422,9 @@
       "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 20.38,
-      "index_penalty": 12.58,
+      "index_penalty": 12.44,
       "fingers_touching_other_parts": 0,
-      "score": -32.96
+      "score": -32.83
      },
      {
       "yaw_deg": -10.0,
@@ -1446,9 +1446,9 @@
       "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 21.72,
-      "index_penalty": 14.56,
+      "index_penalty": 13.84,
       "fingers_touching_other_parts": 0,
-      "score": -37.58
+      "score": -36.86
      },
      {
       "yaw_deg": -10.0,
@@ -1482,9 +1482,9 @@
       "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 21.56,
-      "index_penalty": 12.93,
+      "index_penalty": 12.73,
       "fingers_touching_other_parts": 0,
-      "score": -35.79
+      "score": -35.58
      },
      {
       "yaw_deg": -10.0,
@@ -1494,9 +1494,9 @@
       "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 21.53,
-      "index_penalty": 12.8,
+      "index_penalty": 12.74,
       "fingers_touching_other_parts": 0,
-      "score": -35.62
+      "score": -35.57
      },
      {
       "yaw_deg": -10.0,
@@ -1542,7 +1542,7 @@
       "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 20.99,
-      "index_penalty": 12.95,
+      "index_penalty": 12.94,
       "fingers_touching_other_parts": 0,
       "score": -35.23
      },
@@ -1578,9 +1578,9 @@
       "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 6.38,
-      "index_penalty": 5.61,
+      "index_penalty": 5.47,
       "fingers_touching_other_parts": 0,
-      "score": -11.99
+      "score": -11.85
      },
      {
       "yaw_deg": 0.0,
@@ -1602,9 +1602,9 @@
       "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 4.24,
-      "index_penalty": 8.28,
+      "index_penalty": 5.79,
       "fingers_touching_other_parts": 0,
-      "score": -12.52
+      "score": -10.03
      },
      {
       "yaw_deg": 0.0,
@@ -1614,9 +1614,9 @@
       "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 4.74,
-      "index_penalty": 5.29,
+      "index_penalty": 5.14,
       "fingers_touching_other_parts": 0,
-      "score": -10.03
+      "score": -9.89
      },
      {
       "yaw_deg": 0.0,
@@ -1638,9 +1638,9 @@
       "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 1.92,
-      "index_penalty": 4.72,
+      "index_penalty": 4.4,
       "fingers_touching_other_parts": 0,
-      "score": -6.64
+      "score": -6.33
      },
      {
       "yaw_deg": 0.0,
@@ -1650,9 +1650,9 @@
       "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 2.78,
-      "index_penalty": 4.42,
+      "index_penalty": 4.4,
       "fingers_touching_other_parts": 0,
-      "score": -7.2
+      "score": -7.18
      },
      {
       "yaw_deg": 0.0,
@@ -1662,9 +1662,9 @@
       "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 5.72,
-      "index_penalty": 6.65,
+      "index_penalty": 6.33,
       "fingers_touching_other_parts": 0,
-      "score": -12.38
+      "score": -12.06
      },
      {
       "yaw_deg": 0.0,
@@ -1674,9 +1674,9 @@
       "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 6.04,
-      "index_penalty": 6.76,
+      "index_penalty": 6.58,
       "fingers_touching_other_parts": 0,
-      "score": -12.79
+      "score": -12.62
      },
      {
       "yaw_deg": 0.0,
@@ -1698,9 +1698,9 @@
       "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 5.51,
-      "index_penalty": 6.66,
+      "index_penalty": 6.63,
       "fingers_touching_other_parts": 0,
-      "score": -12.17
+      "score": -12.14
      },
      {
       "yaw_deg": 0.0,
@@ -1722,9 +1722,9 @@
       "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 5.7,
-      "index_penalty": 7.28,
+      "index_penalty": 6.88,
       "fingers_touching_other_parts": 0,
-      "score": -12.98
+      "score": -12.58
      },
      {
       "yaw_deg": 0.0,
@@ -1734,9 +1734,9 @@
       "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 4.17,
-      "index_penalty": 6.26,
+      "index_penalty": 6.39,
       "fingers_touching_other_parts": 0,
-      "score": -10.43
+      "score": -10.56
      },
      {
       "yaw_deg": 0.0,
@@ -1746,9 +1746,9 @@
       "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 5.08,
-      "index_penalty": 7.56,
+      "index_penalty": 7.64,
       "fingers_touching_other_parts": 0,
-      "score": -12.64
+      "score": -12.72
      },
      {
       "yaw_deg": 0.0,
@@ -1782,9 +1782,9 @@
       "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 7.37,
-      "index_penalty": 7.23,
+      "index_penalty": 6.97,
       "fingers_touching_other_parts": 0,
-      "score": -15.9
+      "score": -15.65
      },
      {
       "yaw_deg": 0.0,
@@ -1794,9 +1794,9 @@
       "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 7.5,
-      "index_penalty": 7.31,
+      "index_penalty": 7.18,
       "fingers_touching_other_parts": 0,
-      "score": -16.11
+      "score": -15.98
      },
      {
       "yaw_deg": 0.0,
@@ -1830,9 +1830,9 @@
       "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 6.42,
-      "index_penalty": 7.21,
+      "index_penalty": 6.94,
       "fingers_touching_other_parts": 0,
-      "score": -14.93
+      "score": -14.66
      },
      {
       "yaw_deg": 0.0,
@@ -1842,9 +1842,9 @@
       "penetration_mm": 0.0,
       "height_mm": -6.0,
       "snugness_mm": 4.88,
-      "index_penalty": 6.55,
+      "index_penalty": 6.47,
       "fingers_touching_other_parts": 0,
-      "score": -12.73
+      "score": -12.65
      },
      {
       "yaw_deg": 0.0,
@@ -1854,9 +1854,9 @@
       "penetration_mm": 0.0,
       "height_mm": 0.0,
       "snugness_mm": 5.41,
-      "index_penalty": 6.58,
+      "index_penalty": 6.33,
       "fingers_touching_other_parts": 0,
-      "score": -13.28
+      "score": -13.03
      },
      {
       "yaw_deg": 0.0,
@@ -1866,9 +1866,9 @@
       "penetration_mm": 0.0,
       "height_mm": 6.0,
       "snugness_mm": 5.68,
-      "index_penalty": 6.04,
+      "index_penalty": 6.01,
       "fingers_touching_other_parts": 0,
-      "score": -13.02
+      "score": -12.98
      },
      {
       "yaw_deg": 10.0,
@@ -1902,9 +1902,9 @@
       "penetration_mm": 9.6,
       "height_mm": 6.0,
       "snugness_mm": 2.6,
-      "index_penalty": 15.48,
+      "index_penalty": 15.7,
       "fingers_touching_other_parts": 0,
-      "score": -61.09
+      "score": -61.31
      },
      {
       "yaw_deg": 10.0,
@@ -1914,9 +1914,9 @@
       "penetration_mm": 13.95,
       "height_mm": -6.0,
       "snugness_mm": 5.06,
-      "index_penalty": 15.3,
+      "index_penalty": 15.32,
       "fingers_touching_other_parts": 0,
-      "score": -85.13
+      "score": -85.15
      },
      {
       "yaw_deg": 10.0,
@@ -1926,9 +1926,9 @@
       "penetration_mm": 12.37,
       "height_mm": 0.0,
       "snugness_mm": 4.97,
-      "index_penalty": 16.42,
+      "index_penalty": 16.39,
       "fingers_touching_other_parts": 0,
-      "score": -78.21
+      "score": -78.19
      },
      {
       "yaw_deg": 10.0,
@@ -1938,9 +1938,9 @@
       "penetration_mm": 11.21,
       "height_mm": 6.0,
       "snugness_mm": 4.87,
-      "index_penalty": 15.75,
+      "index_penalty": 16.01,
       "fingers_touching_other_parts": 0,
-      "score": -71.65
+      "score": -71.9
      },
      {
       "yaw_deg": 10.0,
@@ -1962,9 +1962,9 @@
       "penetration_mm": 15.7,
       "height_mm": 0.0,
       "snugness_mm": 2.49,
-      "index_penalty": 0.25,
+      "index_penalty": 4.9,
       "fingers_touching_other_parts": 0,
-      "score": -76.26
+      "score": -80.91
      },
      {
       "yaw_deg": 10.0,
