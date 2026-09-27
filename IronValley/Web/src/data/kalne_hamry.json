@@ -21,9 +21,13 @@
    "assets/levels/kalne_hamry/kh_world.glb"
   ],
   "collision": "assets/levels/kalne_hamry/kh_collision.glb",
+  "environment": {
+   "terrainLayers": "assets/environment/terrain/terrain_layers.json",
+   "vegetation": "assets/environment/vegetation.glb"
+  },
   "files": {
-   "kh_terrain.glb": "d79ef7dea1584c18",
-   "kh_world.glb": "f4b36ed4994eefd6",
+   "kh_terrain.glb": "1ca7a3d7cbcc2aed",
+   "kh_world.glb": "8e1ff33fd0187f52",
    "kh_collision.glb": "e741bb3475cdec93"
   },
   "navClip": [
@@ -187,9 +191,9 @@
     "tiles": 25
    },
    "world": {
-    "meshes": 181,
-    "tris": 61020,
-    "verts": 108057
+    "meshes": 185,
+    "tris": 64358,
+    "verts": 114729
    },
    "collisionTris": 27154,
    "trees": 1650

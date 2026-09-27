@@ -325,6 +325,44 @@ export function installTestApi(game, target = window) {
       game.drawEnabled = !!on;
       return game.drawEnabled;
     },
+    /**
+     * Map art (terrain splat, trees, shrubs, grass): layer names bound to the terrain material, vegetation stats,
+     * the current LOD bucket counts and grass counts. `instances: true` adds the grass scatter positions.
+     */
+    getVegetation: ({ instances = false } = {}) => {
+      const v = game.vegetation;
+      const splat = [];
+      if (game.levelView) {
+        game.levelView.group.traverse((o) => {
+          const ts = o.isMesh && o.material && o.material.userData && o.material.userData.terrainSplat;
+          if (ts && !splat.some((x) => x.mesh === o.name)) {
+            const u = ts.uniforms;
+            splat.push({ mesh: o.name, layers: ts.layers.slice(), depth: [u.ivLayAlb.value.image.depth, u.ivLayNH.value.image.depth, u.ivLayRAO.value.image.depth], weights: [u.ivW0.value, u.ivW1.value, u.ivW2.value].every((t) => t && t.image), macro: !!(u.ivMacro.value && u.ivMacro.value.image) });
+          }
+        });
+      }
+      if (!v) return { splat, veg: null, grass: null };
+      const veg = v.veg
+        ? { stats: v.veg.stats, counts: v.veg.state.counts.slice(), visible: v.veg.state.visible, meshes: v.veg.group.children.filter((m) => m.visible && m.count > 0).map((m) => ({ name: m.name, lod: m.userData.lod, count: m.count, castShadow: m.castShadow })) }
+        : null;
+      const grass = v.grass ? { types: v.grass.types, counts: v.grass.state.counts.slice(), cells: v.grass.state.cells, triangles: v.grass.state.triangles, instances: instances ? v.grass.debugInstances() : undefined } : null;
+      return { splat, veg, grass };
+    },
+    /** Forces the vegetation LOD / grass update for the current camera (tests; the game does it while rendering). */
+    updateVegetation: () => {
+      const v = game.vegetation;
+      if (!v) return false;
+      game.camera.updateMatrixWorld();
+      if (v.veg) v.veg.update(game.camera, true);
+      if (v.grass) v.grass.update(game.camera, true);
+      return true;
+    },
+    /** Review screenshots only: free camera { pos, target, fovDeg } (null = back to the player's eye). */
+    setCameraOverride: (o) => {
+      game.cameraOverride = o ? { pos: o.pos.slice(), target: o.target.slice(), fovDeg: o.fovDeg || null } : null;
+      game._drawDirty = true;
+      return game.cameraOverride;
+    },
     renderNow: () => {
       game._drawDirty = true;
       game.render(game.loop.alpha, 0);

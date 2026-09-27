@@ -1,0 +1,19 @@
+{
+  "_comment": "Kritika mapy Kalné Hamry, fáze 1 (terén + vegetace), kolo 1. Snímky: Art/Previews/Environment/wip2_*.png (headless Chromium + SwiftShader, 1600 x 900). Srovnání s Docs/navrhy/01-03. Závažnost: P1 = rozbíjí dojem nebo pravidlo, P2 = viditelná vada, P3 = kosmetika.",
+  "round": 1,
+  "date": "2026-09-27",
+  "screens": ["wip2_square.png", "wip2_meadow.png", "wip2_forest.png", "wip2_overview.png", "wip2_grass.png", "wip1_asphalt.png", "wip1_road.png"],
+  "defects": [
+    {"id": "R1-01", "sev": "P1", "area": "tráva", "defect": "Instancovaná tráva je příliš řídká a drobná: jednotlivé tmavé trsy na holé textuře místo souvislé louky (ref. 02: hustý podrost u potoka).", "fix": "Hustota nízkých trsů 2,2 -> 6/m², trsy 0,3-0,55 m, hustší karty v atlasu (220 stébel), dosah nízké trávy 30 m (fade 20-30 m) kvůli rozpočtu."},
+    {"id": "R1-02", "sev": "P2", "area": "tráva", "defect": "Trsy jsou tmavší než zem pod nimi (ztmavení paty 0,5 + nepřímé světlo) -> působí jako plevel, ne jako tráva.", "fix": "Pata jen 0,7, barva karet přizpůsobená makro tónu terénu, sky vis s podlahou 0,35."},
+    {"id": "R1-03", "sev": "P1", "area": "stromy", "defect": "Listí ve stínu je skoro černé (koruna u kamery v meadow, smrk ve forest); v referencích je stinné listí tmavě zelené.", "fix": "Nepřímé světlo listí násobit mix(0,55; 1; AO) místo AO, wrap osvětlení a průsvit i ve stínu."},
+    {"id": "R1-04", "sev": "P2", "area": "stromy", "defect": "Šedobílý závoj na jehličí smrků proti obloze (lesklý odraz oblohy na tenkých kartách při šikmém pohledu).", "fix": "Listí: roughness 0,85, přímý odlesk x0,35, nepřímý x0,3."},
+    {"id": "R1-05", "sev": "P2", "area": "stromy", "defect": "Závěsy smrkových větví na dálku průsvitné (tenké jehlice, alfa v nižších mipech mizí).", "fix": "Silnější jehlice v kartě spruce_limb, zesílení alfy v mipech 0,28 -> 0,45."},
+    {"id": "R1-06", "sev": "P2", "area": "terén", "defect": "Kaluže na betonovém dvoře skladu a na dlažbě návsi jsou velké tmavé skvrny (z výšky i zblízka); dlažba navíc celá mokrá a na slunci přepálená do bílé (road view).", "fix": "Kaluže na dvorech jen v nejnižších místech a menší; mokrost podle vrstvy: asfalt 1,0, beton 0,75, dlažba 0,5; mokrá roughness asfaltu 0,34, betonu 0,42, dlažby 0,45."},
+    {"id": "R1-07", "sev": "P2", "area": "les", "defect": "Les z výšky působí jako oddělené stromy nad světlou hnědou hrabankou; mezery mezi korunami, podrost chybí (ref. 01 má souvislý les).", "fix": "Lesní stromy mimo hrací plochu s korunou až 1,35x, makro tón terénu tmavší pod korunami (zapečený stín korun), podrost keřů i uvnitř lesního pásu."},
+    {"id": "R1-08", "sev": "P3", "area": "keře", "defect": "Listy keřů a živých plotů zblízka jako ploché nálepky, příliš syté žlutozelené.", "fix": "Méně sytá paleta lísky/javoru, tmavší vnitřní listy."},
+    {"id": "R1-09", "sev": "P3", "area": "náhledy", "defect": "Pohled 'meadow' stojí uvnitř koruny stromu (nečitelný); chybí pohled z výchozího spawnu hry (co uživatel viděl na svém snímku).", "fix": "Nový bod meadow na louce u silnice B a pohled 'spawn' = marker spawn hry."},
+    {"id": "R1-10", "sev": "P3", "area": "keře", "defect": "Horní plocha stříhaného živého plotu ukazuje z výšky obří listy (měřítko textury).", "fix": "Textura plotu s dlaždicí 1 m podle skutečného UV (UV plotu je v metrech / 1,5)."},
+    {"id": "R1-11", "sev": "P2", "area": "výkon", "defect": "Načtení 2,1 s (dříve 1,1 s) - blízko limitu 2,5 s; nejvíc stojí dekódování a vyčtení pásů textur terénu (0,6 s).", "fix": "Méně vyčítání přes canvas, paralelní dekódování; změřit znovu samostatně (stroj je vytížený jiným agentem)."}
+  ]
+}

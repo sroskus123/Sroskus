@@ -77,8 +77,8 @@ TROUSERS = dict(
     hem_z=0.152,                       # hem over the boot shaft
     off_waist=0.0065, off_seat=0.0095, off_thigh=0.0150, off_knee=0.0120, off_calf=0.0150, off_hem=0.0185,
 )
-BALACLAVA = dict(off=0.0026, below_collar=0.045, gaiter_off=0.0125, gaiter_top=1.657,
-                 eye_c=(0.0, -0.128, 1.6875), eye_a=0.058, eye_b=0.019)   # eye window ellipse (x half, z half)
+BALACLAVA = dict(off=0.0026, below_collar=0.045, gaiter_off=0.0190, gaiter_top=1.657,
+                 eye_c=(0.0, -0.128, 1.6865), eye_a=0.055, eye_b=0.0155)   # eye window ellipse (x half, z half)
 TEAMS = {
     # Web/src/data/teams.json colours; camo colourways per team (linear sRGB -> converted at write)
     "Alfa": dict(color="#3d8bfd", dark="#1f4f99", symbol="circle"),
@@ -181,9 +181,10 @@ def build_shirt(arm, body, bf, col, body_bvh):
     collar = SHIRT["collar_z0"] + SHIRT["collar_tilt"] * (y + 0.05)
     bones = {"spine_01", "spine_02", "spine_03", "clavicle_l", "clavicle_r", "neck_01", "pelvis"}
     arm_b = {f"{b}_{s}" for b in ("upperarm", "upperarm_twist_01", "lowerarm", "lowerarm_twist_01") for s in "lr"}
-    ok = np.isin(dom, list(bones | arm_b))
+    ok = np.isin(dom, list(bones | arm_b)) | ((dom == "head") & (co[:, 2] < collar + SHIRT["collar_h"] + 0.02)
+                                              & (co[:, 1] > -0.07))          # nape: the collar reaches up the back of the neck
     ok &= co[:, 2] >= SHIRT["bottom_z"] - 0.02
-    ok &= ~(np.isin(dom, ["neck_01"]) & (co[:, 2] > collar + SHIRT["collar_h"] + 0.02))
+    ok &= ~(np.isin(dom, ["neck_01", "head"]) & (co[:, 2] > collar + SHIRT["collar_h"] + 0.02))
     fore = np.isin(dom, [f"lowerarm_{s}" for s in "lr"] + [f"lowerarm_twist_01_{s}" for s in "lr"])
 
     def centre_ok(c):
@@ -323,7 +324,7 @@ def build_balaclava(arm, body, bf, col, body_bvh):
     g = front * up * low
     d = BALACLAVA["off"] + (BALACLAVA["gaiter_off"] - BALACLAVA["off"]) * g
     ob["iv_gaiter"] = 1
-    offset_garment(ob, body_bvh, d, iters=70, alpha=0.5, clear_frac=0.55)
+    offset_garment(ob, body_bvh, d, iters=120, alpha=0.5, clear_frac=0.35)
     # store the gaiter mask for the textures (per vertex attribute)
     at = ob.data.attributes.new("iv_gaiter", 'FLOAT', 'POINT')
     at.data.foreach_set("value", g.astype(np.float32))
@@ -363,7 +364,7 @@ import soldier_gear as G     # noqa: E402
 CARRIER = dict(front_w=0.268, front_h=0.330, front_top=1.468, back_w=0.268, back_h=0.355, back_top=1.488,
                bag_t=0.034, R=0.46, cut=0.040, cut_depth=0.075, tilt_front=2.0, tilt_back=3.0, clear=0.0065,
                cb_z=(1.160, 1.285), cb_clear=0.0070, cb_thick=0.009,
-               strap_x=0.100, strap_w=0.062, strap_clear=0.0060, strap_thick=0.011)
+               strap_x=0.114, strap_w=0.060, strap_clear=0.0060, strap_thick=0.011)
 HELMET = dict(c=(0.0, -0.051, 1.700), ax=0.1175, ay_f=0.1400, ay_b=0.1335, az=0.1330, p=2.3, shell=0.009,
               rim=((0, 1.738), (35, 1.733), (62, 1.716), (90, 1.711), (118, 1.712), (145, 1.692), (180, 1.680)))
 BOOT = dict(top_z=0.205, off=0.0058, sole_z=0.030, sole_margin=0.006)
@@ -573,8 +574,8 @@ def build_carrier(arm, shirt, B):
         Pp, Nn = G.surface_grid(bv, O, D, back=0.0)
         Nn = G.smooth_grid(Nn, 2)
         Nn /= np.linalg.norm(Nn, axis=-1, keepdims=True)
-        V, F = G.slab_from_grid(Pp, Nn, P["cb_clear"], P["cb_thick"])
-        B.add(f"PC_Cummerbund_{s.upper()}", V, F, ("fabric", "Soldier_Shirt", None),
+        V, F, Wl = G.slab_from_grid(Pp, Nn, P["cb_clear"], P["cb_thick"], return_walls=True)
+        B.add(f"PC_Cummerbund_{s.upper()}", V, F, ("fabric", "Soldier_Shirt", None), flat=Wl,
               zone="carrier", rigid_ends=("spine_03", 0.025, "u"), grid=(len(az), len(zc)))
     # --- shoulder straps
     for s, sg in (("l", 1), ("r", -1)):
@@ -591,8 +592,8 @@ def build_carrier(arm, shirt, B):
         Pp = G.smooth_grid(Pp, 1)
         Nn = G.smooth_grid(Nn, 2)
         Nn /= np.linalg.norm(Nn, axis=-1, keepdims=True)
-        V, F = G.slab_from_grid(Pp, Nn, P["strap_clear"], P["strap_thick"])
-        B.add(f"PC_Strap_{s.upper()}", V, F, ("fabric", "Soldier_Shirt", None),
+        V, F, Wl = G.slab_from_grid(Pp, Nn, P["strap_clear"], P["strap_thick"], return_walls=True)
+        B.add(f"PC_Strap_{s.upper()}", V, F, ("fabric", "Soldier_Shirt", None), flat=Wl,
               zone="carrier", rigid_ends=("spine_03", 0.015, "u"), grid=(len(phis), 3))
     # --- placard (triple magazine pouch) on the lower front bag + three IV-7 magazines
     o, ex, ey, ez = fr_f
@@ -740,8 +741,8 @@ def build_belt(arm, trousers, B):
     Nn = G.smooth_grid(Nn, 2, closed_u=True)
     Nn[..., 2] *= 0.3
     Nn /= np.linalg.norm(Nn, axis=-1, keepdims=True)
-    V, F = G.slab_from_grid(Pp, Nn, BELT["clear"], BELT["thick"], closed_u=True, round_edge=0.25)
-    B.add("Belt", V, F, ("fabric", "Soldier_Trousers", ["pelvis", "spine_01", "thigh_l", "thigh_r"]), zone="belt")
+    V, F, Wl = G.slab_from_grid(Pp, Nn, BELT["clear"], BELT["thick"], closed_u=True, round_edge=0.25, return_walls=True)
+    B.add("Belt", V, F, flat=Wl, bind= ("fabric", "Soldier_Trousers", ["pelvis", "spine_01", "thigh_l", "thigh_r"]), zone="belt")
     ring_out = Pp + Nn * (BELT["clear"] + BELT["thick"])
     front = ring_out[0, 1]
     # buckle
@@ -783,8 +784,11 @@ def push_clear(V, bv, direction, clear, iters=16, F=None, garment_co=None):
             g = garment_co[((garment_co >= lo) & (garment_co <= hi)).all(1)]
             if len(g):
                 sg = S.signed_bvh(pb, g, maxd=0.05)
-                inside = np.nan_to_num(-sg, nan=0.0)
-                need = max(need, float(inside.max()) + clear * 0.5)
+                cand = np.nonzero(np.nan_to_num(sg, nan=1.0) < 0)[0]
+                if len(cand):
+                    ins = S.closed_inside(pb, g[cand])        # ray parity: really inside the part
+                    if ins.any():
+                        need = max(need, float((-sg[cand][ins]).max()) + clear * 0.5)
         if need <= 1e-4:
             break
         V = V + d * (need + 2e-4)
@@ -874,14 +878,17 @@ def build_helmet(arm, bala, skin, B):
         shell_strip(sg * 50, sg * 128, 0.004, 0.030, 9, 3, -0.001, 0.0075, f"Helmet_Rail_{s.upper()}", "rail")
     shell_strip(-15, 15, 0.006, 0.044, 5, 3, -0.001, 0.0055, "Helmet_Shroud", "shroud")
     # team band (elastic band round the cover, above the rails and the shroud)
-    azs = np.linspace(0, 360, 32, endpoint=False)
-    Pp = np.zeros((32, 2, 3)); Nn = np.zeros_like(Pp)
+    azs = np.linspace(17, 343, 34)           # the ends tuck under the NVG shroud (+-15 deg)
+    zb = (1.752, 1.769, 1.786)
+    Pp = np.zeros((len(azs), 3, 3)); Nn = np.zeros_like(Pp)
     for i, a in enumerate(azs):
-        for j, z in enumerate((1.776, 1.812)):
+        for j, z in enumerate(zb):
             p, n = on_shell(a, z)
             Pp[i, j], Nn[i, j] = p, n
-    V_, F_ = G.slab_from_grid(Pp, Nn, 0.0016, 0.0028, closed_u=True, round_edge=0.2)
-    B.add("Helmet_Band", V_, F_, ("rigid", "head"), zone="team", atlas="team")
+    Nn = G.smooth_grid(Nn, 1)
+    Nn /= np.linalg.norm(Nn, axis=-1, keepdims=True)
+    V_, F_, W_ = G.slab_from_grid(Pp, Nn, 0.0014, 0.0024, closed_u=False, round_edge=0.15, return_walls=True)
+    B.add("Helmet_Band", V_, F_, ("rigid", "head"), zone="team", atlas="team", flat=W_)
     # NVG mount knob on the shroud
     p, n = on_shell(0, rim_at(0) + 0.026, 0.004)
     Vk, Fk = G.rbox(0.026, 0.016, 0.022, 0.004)
@@ -1087,6 +1094,10 @@ def build_gear_objects(arm, B, col, garments):
     objs = {}
     for name, p in B.parts.items():
         ob = S.make_mesh("SG_" + name, p["V"], p["F"], col)
+        if p.get("flat"):
+            sm_ = np.ones(len(ob.data.polygons), bool)
+            sm_[np.asarray(p["flat"], int)] = False
+            ob.data.polygons.foreach_set("use_smooth", sm_)
         n = len(p["V"])
         kind = p["bind"][0]
         if kind == "rigid":
@@ -1193,6 +1204,10 @@ def garment_lips(arm, shirt, trousers, bala):
     co = S.co_of(shirt)
     loops = S.boundary_loops(shirt.data)
     collar = max(loops, key=lambda lp: co[lp, 2].mean())
+    # clean collar edge: the boundary ring snapped to the design neck line (face selection is jagged)
+    zt = SHIRT["collar_z0"] + SHIRT["collar_tilt"] * (co[collar, 1] + 0.05) + SHIRT["collar_h"]
+    co[collar, 2] += np.clip(zt - co[collar, 2], -0.012, 0.012)
+    S.set_co(shirt, co)
     add_lip_normal(shirt, collar, edge=0.0035, depth=0.015, lining=lambda p: np.array([0, 0, -1.0]))
     rep["shirt_lips"] = {"cuffs": len(cuffs), "collar": len(collar)}
     co = S.co_of(trousers)
@@ -1380,7 +1395,21 @@ def tex_path(name):
     return os.path.join(TEX_DIR, name)
 
 
-def paste_glove(path, glove_png, rect_px, mode):
+def glove_mask(glove, res, grow=3):
+    """Atlas pixels (PIL row order) covered by the glove UV islands, grown by `grow` px: only these
+    receive the glove texture (other clothing islands may be packed into the gaps of the glove
+    square)."""
+    me = glove.data
+    ti, px, ba = HN.raster_uv_bary(S.uv_array(me)[S.loop_tris(me)], res)
+    m = np.zeros(res * res, bool)
+    m[px] = True
+    m = m.reshape(res, res)
+    from scipy import ndimage
+    m = ndimage.binary_dilation(m, iterations=grow)
+    return np.flipud(m)
+
+
+def paste_glove(path, glove_png, rect_px, mode, mask=None):
     from PIL import Image
     im = Image.open(path).convert("RGB")
     g = Image.open(glove_png).convert("RGB").resize((rect_px[2], rect_px[2]), Image.LANCZOS if mode != "N" else Image.BOX)
@@ -1388,8 +1417,15 @@ def paste_glove(path, glove_png, rect_px, mode):
         a = np.asarray(g).astype(np.float32) / 127.5 - 1.0
         a /= np.maximum(np.linalg.norm(a, axis=2, keepdims=True), 1e-6)
         g = Image.fromarray(np.clip((a + 1.0) * 127.5 + 0.5, 0, 255).astype(np.uint8), "RGB")
-    im.paste(g, (rect_px[0], rect_px[1]))
-    im.save(path)
+    full = Image.new("RGB", im.size)
+    full.paste(g, (rect_px[0], rect_px[1]))
+    A = np.asarray(im).copy()
+    Gp = np.asarray(full)
+    if mask is None:
+        mask = np.zeros(A.shape[:2], bool)
+        mask[rect_px[1]:rect_px[1] + rect_px[2], rect_px[0]:rect_px[0] + rect_px[2]] = True
+    A[mask] = Gp[mask]
+    Image.fromarray(A, "RGB").save(path)
 
 
 def glove_rect(res):
@@ -1408,12 +1444,29 @@ def gear_tint(team):
     return tuple(float(x) for x in np.clip(T.srgb(T.CAMO[team]["gear"]) / T.GEAR_WHITE, 0, 1))
 
 
+def export_material_reuse(name, bc, orm, n):
+    """ivlib.export_material, but an existing material of that name is kept (its images reloaded)
+    so the joined export meshes keep their slots when the textures are regenerated."""
+    m = bpy.data.materials.get(name)
+    if m is not None and m.use_nodes and "T_BaseColor" in m.node_tree.nodes:
+        for nd in m.node_tree.nodes:
+            if nd.type == 'TEX_IMAGE' and nd.image:
+                nd.image.reload()
+        return m
+    return ivlib.export_material(name, bc, orm, n)
+
+
 def make_materials(texs):
     mats = {}
     for team in TEAMS:
-        mats[("cloth", team)] = ivlib.export_material(f"M_Soldier_Cloth_{team}", texs[f"cloth_bc_{team}"], texs["cloth_orm"], texs["cloth_n"])
-        m = ivlib.export_material(f"M_Soldier_GearFabric_{team}", texs["gear_bc"], texs["gear_orm"], texs["gear_n"])
+        mats[("cloth", team)] = export_material_reuse(f"M_Soldier_Cloth_{team}", texs[f"cloth_bc_{team}"], texs["cloth_orm"], texs["cloth_n"])
+        m = export_material_reuse(f"M_Soldier_GearFabric_{team}", texs["gear_bc"], texs["gear_orm"], texs["gear_n"])
         nt = m.node_tree
+        if "iv_team_tint" in m:
+            mats[("gearfab", team)] = m
+            mats[("team", team)] = export_material_reuse(f"M_Soldier_Team_{team}", texs[f"team_bc_{team}"], texs["team_orm"], texs["team_n"])
+            mats[("cloth", team)] = mats[("cloth", team)]
+            continue
         bsdf = next(n for n in nt.nodes if n.type == 'BSDF_PRINCIPLED')
         tb = nt.nodes["T_BaseColor"]
         mix = nt.nodes.new('ShaderNodeMix')
@@ -1425,8 +1478,10 @@ def make_materials(texs):
         nt.links.new(mix.outputs[2], bsdf.inputs['Base Color'])
         m["iv_team_tint"] = list(gear_tint(team))
         mats[("gearfab", team)] = m
-        mats[("team", team)] = ivlib.export_material(f"M_Soldier_Team_{team}", texs[f"team_bc_{team}"], texs["team_orm"], texs["team_n"])
-    mats[("gearhard", None)] = ivlib.export_material("M_Soldier_GearHard", texs["gear_bc"], texs["gear_orm"], texs["gear_n"])
+        mats[("team", team)] = export_material_reuse(f"M_Soldier_Team_{team}", texs[f"team_bc_{team}"], texs["team_orm"], texs["team_n"])
+    mats[("gearhard", None)] = export_material_reuse("M_Soldier_GearHard", texs["gear_bc"], texs["gear_orm"], texs["gear_n"])
+    for m in mats.values():
+        m.use_fake_user = True          # the variants not assigned in the saved file must survive the save
     return mats
 
 
@@ -1472,14 +1527,16 @@ def stage_textures(a=None):
     orm = np.stack([np.clip(ao * cm["cav"], 0, 1), cm["rough"], np.zeros(len(ao))], 1)
     texs["cloth_orm"] = S.texels_write(orm, td, tex_path("T_Soldier_Cloth_ORM.png"), fill=(1.0, 0.85, 0.0))
     gr = glove_rect(CLOTH_RES)
-    paste_glove(texs["cloth_n"], os.path.join(GLOVE_TEX, "T_Glove_Normal.png"), gr, "N")
-    paste_glove(texs["cloth_orm"], os.path.join(GLOVE_TEX, "T_Glove_Black_ORM.png"), gr, "L")
+    gm_hi = glove_mask(gloves[0], CLOTH_RES)
+    gm_lo = glove_mask(gloves[0], CLOTH_BC_RES, grow=2)
+    paste_glove(texs["cloth_n"], os.path.join(GLOVE_TEX, "T_Glove_Normal.png"), gr, "N", gm_hi)
+    paste_glove(texs["cloth_orm"], os.path.join(GLOVE_TEX, "T_Glove_Black_ORM.png"), gr, "L", gm_hi)
     texs["cloth_n_dx"] = ivlib.normal_gl_to_dx(texs["cloth_n"], tex_path("T_Soldier_Cloth_Normal_DX.png"))
     for tm in TEAMS:
         bc = T.cloth_base(cm, tm)
         p = S.texels_write(bc, td, tex_path(f"T_Soldier_Cloth_{tm}_BaseColor.png"), fill=(0.2, 0.2, 0.2), srgb=True,
                            size=CLOTH_BC_RES)
-        paste_glove(p, os.path.join(GLOVE_TEX, "T_Glove_Black_BaseColor.png"), glove_rect(CLOTH_BC_RES), "L")
+        paste_glove(p, os.path.join(GLOVE_TEX, "T_Glove_Black_BaseColor.png"), glove_rect(CLOTH_BC_RES), "L", gm_lo)
         texs[f"cloth_bc_{tm}"] = p
     rep["cloth"] = {"texels": int(len(td["px"])), "coverage": round(len(td["px"]) / CLOTH_RES ** 2, 4),
                     "height_mm": [round(float(cm["h"].min()) * 1000, 2), round(float(cm["h"].max()) * 1000, 2)]}
@@ -1512,7 +1569,7 @@ def stage_textures(a=None):
             texs["team_orm"] = S.texels_write(orm, td, tex_path("T_Soldier_Team_ORM.png"), fill=(1.0, 0.8, 0.0), dilate_px=8)
     # ---------------- materials
     for m in list(bpy.data.materials):
-        if m.users == 0 or m.name.startswith("PV") or m.name.startswith("M_Soldier"):
+        if (m.users == 0 and not m.use_fake_user) or m.name.startswith("PV"):
             try:
                 bpy.data.materials.remove(m)
             except Exception:
@@ -1538,6 +1595,7 @@ def load_rifle(col_name="IV7_Parts", fold_irons=True):
     """IV-7 LOD0 (appended read-only).  The flip-up iron sights are folded (-90 deg, top towards the
     stock) as in the web game when the optic is used (OPTICS_spec section 11)."""
     rig, parts = HN.append_weapon(RIFLE_BLEND, col_name=col_name, rig_name="SK_IV7")
+    _COLLIDER.clear()             # a collider from a previously opened file refers to removed objects
     if fold_irons:
         for b in ("rear_sight", "front_sight"):
             pb = rig.pose.bones[b]
@@ -1809,6 +1867,31 @@ def rest_inside_masks():
     REST_INSIDE["bala"] = np.nan_to_num(sd, nan=1.0) < -0.0005
 
 
+def gear_gaps():
+    """Bind pose: the smallest distance from each gear piece to any other soldier mesh (a piece that
+    is not touching or nearly touching something would be floating)."""
+    objs = soldier_meshes()
+    cos = {o.name: S.co_of(o) for o in objs}
+    trs = {o.name: S.tris_of(o.data) for o in objs}
+    out = {}
+    for o in objs:
+        if not o.name.startswith("SG_"):
+            continue
+        others = [n for n in cos if n != o.name]
+        C_ = np.concatenate([cos[n] for n in others])
+        off = np.cumsum([0] + [len(cos[n]) for n in others])
+        T_ = np.concatenate([trs[n] + off[k] for k, n in enumerate(others)])
+        lo, hi = cos[o.name].min(0) - 0.05, cos[o.name].max(0) + 0.05
+        keep = ((C_[T_] >= lo) & (C_[T_] <= hi)).all(2).any(1)
+        if not keep.any():
+            out[o.name] = None
+            continue
+        bv = S.bvh(C_, T_[keep])
+        _, _, fi, d = S.nearest_on(bv, cos[o.name], 0.05)
+        out[o.name] = round(float(d.min()) * 1000, 2) if (fi >= 0).any() else None
+    return out
+
+
 def summarize_pose(r, rifle_on):
     worst = 0.0
     bad = []
@@ -1852,8 +1935,29 @@ def stage_validate(a=None):
             texs[f] = list(Image.open(os.path.join(TEX_DIR, f)).size)
     rep["textures"] = texs
     rep["weights"] = weights_report(arm)
+    names = S.bone_names(arm)
+    exp = {}
+    for n in ("SK_Soldier_LOD0", "SK_Soldier_LOD1", "SK_Soldier_LOD2", "FP_Arms"):
+        if n not in bpy.data.objects:
+            continue
+        o = bpy.data.objects[n]
+        W = S.read_W(o, names)
+        nz = (W > 1e-6).sum(1)
+        me = o.data
+        exp[n] = {"tris": len(S.tris_of(me)), "vertices": len(me.vertices), "max_influences": int(nz.max()),
+                  "unweighted": int((nz == 0).sum()), "sum_min": round(float(W.sum(1).min()), 5),
+                  "materials": [m.name for m in me.materials if m],
+                  "shape_keys": len(me.shape_keys.key_blocks) - 1 if me.shape_keys else 0,
+                  "bones_with_weight": sorted({names[k] for k in np.nonzero(W.max(0) > 1e-4)[0]})}
+    rep["export_meshes"] = exp
+    rep["budgets"] = {
+        "lod0_tris": exp.get("SK_Soldier_LOD0", {}).get("tris"), "lod0_ok": exp.get("SK_Soldier_LOD0", {}).get("tris", 1e9) <= 35000,
+        "lod1_tris": exp.get("SK_Soldier_LOD1", {}).get("tris"), "lod2_tris": exp.get("SK_Soldier_LOD2", {}).get("tris"),
+        "fp_arms_tris": exp.get("FP_Arms", {}).get("tris"), "fp_ok": exp.get("FP_Arms", {}).get("tris", 1e9) <= 15000,
+        "max_texture_px": max([max(v) for v in texs.values()] or [0]), "textures_ok": all(max(v) <= 2048 for v in texs.values())}
     C.reset_pose(arm)
     rest_inside_masks()
+    rep["gear_attachment_gap_mm"] = gear_gaps()
     # poses
     rep["poses"] = {}
     rigp = [o for o in parts]
@@ -2121,8 +2225,8 @@ def stage_fp_tex(a=None):
     for tm in TEAMS:
         texs[f"bc_{tm}"] = S.texels_write(T.cloth_base(cm, tm), td, tex_path(f"T_Soldier_FPArms_{tm}_BaseColor.png"),
                                           fill=(0.2, 0.2, 0.2), srgb=True)
-        ivlib.export_material(f"M_FPArms_Sleeve_{tm}", texs[f"bc_{tm}"], texs["orm"], texs["n"])
-    mg = ivlib.export_material("M_FPArms_Glove", os.path.join(GLOVE_TEX, "T_Glove_Black_BaseColor.png"),
+        export_material_reuse(f"M_FPArms_Sleeve_{tm}", texs[f"bc_{tm}"], texs["orm"], texs["n"]).use_fake_user = True
+    mg = export_material_reuse("M_FPArms_Glove", os.path.join(GLOVE_TEX, "T_Glove_Black_BaseColor.png"),
                                os.path.join(GLOVE_TEX, "T_Glove_Black_ORM.png"), os.path.join(GLOVE_TEX, "T_Glove_Normal.png"))
     for g in gl:
         g.data.materials.clear()
@@ -2240,8 +2344,8 @@ def outdoor(ground_color=(0.16, 0.19, 0.09)):
     sc = bpy.context.scene
     ivlib.setup_cycles(sc, samples=RS, threads=4)
     sc.view_settings.view_transform = 'AgX'
-    ivlib.world_sky(sun_elevation=38.0, sun_rotation=222.0 - 180.0, strength=0.30)
-    ivlib.add_sun(elevation=38.0, rotation=222.0 - 180.0, strength=3.2, angle=0.8)
+    ivlib.world_sky(sun_elevation=38.0, sun_rotation=222.0, strength=0.30)
+    ivlib.add_sun(elevation=38.0, rotation=222.0, strength=3.2, angle=0.8)
     g = bpy.data.objects.get("IV_Grass")
     if g is None:
         me = bpy.data.meshes.new("IV_Grass")
@@ -2281,8 +2385,10 @@ def render_teams(made):
         apply_team(team)
         show_only(body_parts())
         views = []
-        for vn, loc in (("front", (0.0, -4.6, 1.05)), ("side", (4.6, -0.25, 1.05)), ("back", (0.0, 4.6, 1.05))):
-            cam = cam_look("ct_" + vn, loc, (0, 0, 0.93), lens=56)
+        for vn, loc in (("front", (0.0, -4.6, 1.0)), ("side", (4.6, -0.25, 1.0)), ("back", (0.0, 4.6, 1.0))):
+            cam = cam_look("ct_" + vn, loc, (0, 0, 0.93), lens=40)
+            cam.data.sensor_fit = 'VERTICAL'
+            cam.data.sensor_height = 24.0
             pth = os.path.join(PREV, f"_tmp_team_{team}_{vn}.png")
             ivlib.render(pth, cam, res=(528, 880), samples=RS)
             views.append(pth)
@@ -2328,10 +2434,12 @@ def render_poses(made, rig, parts, lib):
             o.hide_render = not rifle_on
         paths = []
         views = (("3/4 front", (2.2, -3.3, 1.35)), ("side", (3.9, 0.3, 1.2)), ("3/4 back", (-2.4, 3.1, 1.4)))
-        for vn, loc in views:
+        for vi, (vn, loc) in enumerate(views):
             tz = 0.62 if name == "squat_deep" else 0.95
-            cam = cam_look("cp", loc, (0, -0.1, tz), lens=48)
-            pth = os.path.join(PREV, f"_tmp_pose_{name}_{vn[:4]}.png")
+            cam = cam_look("cp", loc, (0, -0.1, tz), lens=40)
+            cam.data.sensor_fit = 'VERTICAL'
+            cam.data.sensor_height = 24.0
+            pth = os.path.join(PREV, f"_tmp_pose_{name}_{vi}.png")
             ivlib.render(pth, cam, res=(533, 880), samples=RS)
             paths.append(pth)
         out = compose(paths, os.path.join(PREV, f"Soldier_pose_{name}.png"), 3, size=(533, 880), titles=[v[0] for v in views],
@@ -2497,9 +2605,11 @@ def stage_render(a=None):
         if only and nm not in only:
             continue
         fn()
+    import shutil
     for f in os.listdir(PREV):
         if f.startswith("_tmp_"):
-            os.remove(os.path.join(PREV, f))
+            fp_ = os.path.join(PREV, f)
+            shutil.rmtree(fp_) if os.path.isdir(fp_) else os.remove(fp_)
     log("render", len(made), "images", round(time.time() - t0, 1), "s")
     return made
 

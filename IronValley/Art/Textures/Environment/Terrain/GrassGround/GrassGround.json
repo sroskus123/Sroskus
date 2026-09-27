@@ -1,0 +1,22 @@
+{
+ "tile_m": 2.0,
+ "relief_m": 0.035,
+ "family": "grass (ART_DIRECTION 3.1)",
+ "author": "generated in this project (IRON VALLEY)",
+ "license": "project-owned",
+ "generator": "Tools/environment/terrain_textures.py",
+ "seed": 20260927,
+ "blend_note": "blades reach ~0.95",
+ "name": "GrassGround",
+ "maps": {
+  "baseColor": "T_GrassGround_BaseColor.png",
+  "normal": "T_GrassGround_Normal.png",
+  "normalDX": "T_GrassGround_Normal_DX.png",
+  "orm": "T_GrassGround_ORM.png",
+  "height": "T_GrassGround_Height.png"
+ },
+ "size_px": 1024,
+ "mean_base_color_srgb": "#6f733d",
+ "mean_roughness": 0.879,
+ "conventions": "base colour sRGB without baked light; ORM R=occlusion G=roughness B=metallic (linear); normal OpenGL (+Y up), _DX flips green; height 16-bit 0..1 over relief_m"
+}

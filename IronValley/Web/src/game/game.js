@@ -18,7 +18,10 @@ import { AdaptiveResolution } from '../engine/adaptiveResolution.js';
 import { assetStats, fetchAssetBytes, hasAsset, listAssets, loadGLTF, parseGLTF } from '../engine/assets.js';
 import { buildLevelSolids, listLevelBoxes } from '../level/levelGeometry.js';
 import { buildTestRangeView } from '../level/testRangeView.js';
-import { albedoRectFromGlb, collisionSolidsFromGlb, parseGlb, surfaceRasterFromGlb, terrainSolidsFromGlb } from '../level/levelAssets.js';
+import { collisionSolidsFromGlb, parseGlb, surfaceRasterFromGlb, terrainSolidsFromGlb } from '../level/levelAssets.js';
+import { loadTerrainSplat } from '../level/terrainMaterial.js';
+import { applyHedgeMaterials, buildVegetation, createVegetationUniforms, loadVegetationTextures } from '../level/vegetation.js';
+import { buildGrass } from '../level/grass.js';
 import { buildGeoLevelView } from '../level/geoLevelView.js';
 import { probeSkyVisibility } from '../engine/indirectBake.js';
 import { updateBakedSun } from '../engine/bakedLightingMaterial.js';
@@ -80,6 +83,9 @@ export class Game {
     // debug/test switch: run the whole frame update but skip the WebGL draw calls (software
     // rendering in headless tests takes over a second per frame)
     this.drawEnabled = true;
+    // debug/test only: fixed free camera { pos: [x, y, z], target: [x, y, z], fovDeg } for review screenshots
+    // (Web/tools/level_shots.mjs); the game never sets it
+    this.cameraOverride = null;
     this.drawCount = 0;
     this._drawDirty = true;
     this._lastDrawSig = '';
@@ -264,7 +270,8 @@ export class Game {
     let geo = null;
     if (level.geometry) {
       const g = level.geometry;
-      const paths = [...new Set([g.collision, g.terrain, ...g.render])];
+      const envPaths = g.environment && g.environment.vegetation && hasAsset(g.environment.vegetation) ? [g.environment.vegetation] : [];
+      const paths = [...new Set([g.collision, g.terrain, ...g.render, ...envPaths])];
       const bytes = new Map(await Promise.all(paths.map(async (p) => [p, await fetchAssetBytes(p)])));
       const terGlb = parseGlb(bytes.get(g.terrain));
       const colGlb = parseGlb(bytes.get(g.collision));
@@ -293,12 +300,41 @@ export class Game {
       this.world.surfaceRaster = surfaceRasterFromGlb(geo.terGlb);
       timing.collisionMs = performance.now() - tc;
       const tr = performance.now();
-      const gltfs = await Promise.all(level.geometry.render.map((p) => parseGLTF(geo.bytes.get(p), p)));
+      const env = level.geometry.environment || null;
+      const vegPath = env && env.vegetation && geo.bytes.has(env.vegetation) ? env.vegetation : null;
+      const vegGlb = vegPath ? parseGlb(geo.bytes.get(vegPath)) : null;
+      const [gltfs, terrainSplat, vegGltf, vegTex] = await Promise.all([
+        Promise.all(level.geometry.render.map((p) => parseGLTF(geo.bytes.get(p), p))),
+        loadTerrainSplat(geo.terGlb, fetchAssetBytes, { maxAnisotropy: Math.min(8, maxAniso) }),
+        vegPath ? parseGLTF(geo.bytes.get(vegPath), vegPath) : null,
+        vegGlb ? loadVegetationTextures(vegGlb, Math.min(8, maxAniso)) : null,
+      ]);
+      timing.splatMs = performance.now() - tr;
       this.levelView = buildGeoLevelView(level, gltfs, {
         maxAnisotropy: Math.min(8, maxAniso),
         ambientFloor: this.bakedLighting ? this.bakedLighting.ambientFloor : 0.2,
-        albedoRect: albedoRectFromGlb(geo.terGlb),
+        terrainSplat,
       });
+      this.vegetation = null;
+      if (vegGlb && vegGltf && vegTex) {
+        const tv = performance.now();
+        const uniforms = createVegetationUniforms();
+        applyHedgeMaterials(this.levelView.group, vegTex);
+        let backdrop = null;
+        this.levelView.group.traverse((o) => {
+          const k = o.isMesh && o.material && o.material.userData && o.material.userData.iv && o.material.userData.iv.key;
+          if (k === 'backdrop' && !backdrop) backdrop = o;
+        });
+        const worldGlb = level.geometry.render.map((p) => parseGlb(geo.bytes.get(p))).find((gl) => gl.json.asset.extras && gl.json.asset.extras.iv && gl.json.asset.extras.iv.vegetation);
+        const veg = worldGlb ? buildVegetation({ vegGltf, vegGlb, worldGlb, textures: vegTex, uniforms, backdrop }) : null;
+        const grass = terrainSplat ? buildGrass({ terrainSplat, terGlb: geo.terGlb, vegGlb, textures: vegTex, uniforms }) : null;
+        if (veg) this.levelView.group.add(veg.group);
+        if (grass) for (const m of grass.meshes) this.levelView.group.add(m);
+        this.vegetation = { veg, grass, uniforms, time: 0 };
+        this.levelView.stats.vegetation = veg ? veg.stats : null;
+        this.levelView.stats.grassTypes = grass ? grass.types : null;
+        timing.vegetationMs = performance.now() - tv;
+      }
       timing.renderMs = performance.now() - tr;
     } else {
       this.world = new CollisionWorld(this.levelSolids);
@@ -334,6 +370,18 @@ export class Game {
     timing.totalMs = performance.now() - t0;
     this.levelLoadInfo = { id, ...timing, triangles: this.world.triangleCount, view: this.levelView.stats || null };
     return { id, displayName: level.displayName, hasMatch: !!level.match, load: this.levelLoadInfo };
+  }
+
+  /** Vegetation LOD buckets, grass cells and wind / sun uniforms (render side only: no effect on the simulation). */
+  _updateVegetation(frameDt) {
+    const v = this.vegetation;
+    v.time += Math.min(frameDt || 0, 0.1);
+    const u = v.uniforms;
+    u.ivTime.value = v.time;
+    u.ivSunDirView.value.copy(this.env.sunDirection).transformDirection(this.camera.matrixWorldInverse);
+    u.ivSunColor.value.copy(this.env.sun.color).multiplyScalar(this.env.sun.intensity);
+    if (v.veg) v.veg.update(this.camera);
+    if (v.grass) v.grass.update(this.camera);
   }
 
   async selectLevel(id) {
@@ -866,6 +914,12 @@ export class Game {
       this.camera.quaternion.multiply(this.camera.quaternion.clone().setFromAxisAngle(_v, 0.35 * e));
     }
     this.camera.position.copy(eye);
+    const co = this.cameraOverride;
+    if (co) {
+      eye.fromArray(co.pos);
+      this.camera.position.copy(eye);
+      this.camera.lookAt(_v.fromArray(co.target));
+    }
     const ws = w.state;
     const adsEase = smooth(ws.ads);
     // ADS field of view: per optic on the rifle (1x sights: no zoom; 6x: the overlay's documented vertical FOV
@@ -876,11 +930,12 @@ export class Game {
     const fovMult = odef ? odef.worldFovMultiplier : w.def.adsFovMultiplier || 1;
     const hfov = this.settings.get('fovDeg') * (1 + (fovMult - 1) * adsEase);
     const scopedFov = !!(odef && odef.mode === 'fullscreen' && odef.overlay && this.fpOptics && this.fpOptics.id === odef.id && ws.ads >= odef.scopeIn && alive);
-    this.camera.fov = scopedFov ? odef.overlay.vfovDeg : horizontalToVerticalFov(hfov, r.aspect);
+    this.camera.fov = scopedFov ? odef.overlay.vfovDeg : horizontalToVerticalFov(co && co.fovDeg ? co.fovDeg : hfov, r.aspect);
     this.camera.aspect = r.aspect;
     this.camera.updateProjectionMatrix();
     this.camera.updateMatrixWorld();
     this.env.follow(eye, eye);
+    if (this.vegetation && this.drawEnabled) this._updateVegetation(frameDt);
 
     this._sunCheckTimer -= frameDt;
     if (this._sunCheckTimer <= 0 || snapped) {
@@ -915,7 +970,7 @@ export class Game {
       motion: this.settings.get('cameraMotion'),
       sunVisibility: this._sunVis,
     });
-    const showVm = alive && (this.state === 'playing' || this.state === 'paused');
+    const showVm = alive && !co && (this.state === 'playing' || this.state === 'paused');
     if (this.fpOptics) this.fpOptics.update({ worldCamera: this.camera, ads: ws.ads, primary, renderer: r.renderer, vmVisible: showVm });
     this.dummyView.update(alpha);
     this.combatantViews.update(alpha);

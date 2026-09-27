@@ -165,12 +165,6 @@ export function surfaceRasterFromGlb(glb) {
   };
 }
 
-/** Terrain / albedo rectangle of the terrain GLB (level frame x0, y0, x1, y1). */
-export function albedoRectFromGlb(glb) {
-  const iv = glb.json.asset && glb.json.asset.extras && glb.json.asset.extras.iv;
-  return iv && iv.albedoRect ? iv.albedoRect : null;
-}
-
 /**
  * All geometry solids of a level with a `geometry` block, plus its surface raster.
  * @param {object} level level JSON

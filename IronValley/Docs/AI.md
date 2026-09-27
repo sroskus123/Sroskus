@@ -466,4 +466,8 @@ Mapa 350 × 350 m z `Tools/level/export_web_level.py` (rozhodnutí D12). AI beze
   přes náves do boku dvou blízkých týmů (návrhový vzorec), otevřená otázka ladění.
 - **Cena tiku** (17 botů, vypnuté vykreslování): Node 2,6–3,1 ms průměr (p95 5–6,5 ms, p99 13–17 ms), Chromium 2,3 ms
   (p95 4,0 ms); v aréně 1,0–1,5 ms. Profil: A\* 7 %, kapslový kontroler a BVH ~25 %, paprsky 5 %, GC 5 %.
-
+- **Vegetace po výtvarném průchodu (2026-09-27):** stromy, keře a tráva jsou jen vizuální instance (`src/level/vegetation.js`,
+  `src/level/grass.js`); v kolizním světě zůstávají jen kmeny (třída `main`) a objemy keřových pásů / živých plotů (třída
+  `movevis`) beze změny. Výhled AI proto trávu ani listí nevidí — vysoká tráva je řídká, mimo zóny a koridory, aby nebyla
+  úkrytem, který bot nemůže prokouknout (`Docs/GAMEPLAY_CONTRACTS.md`, „Vegetace a tráva: jen vizuální“). Navmesh je po
+  průchodu shodný (liší se jen `cacheKey` a čas bake).

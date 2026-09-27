@@ -1,0 +1,366 @@
+{
+ "spruce": {
+  "height": 22.407,
+  "crownRadius": 4.189,
+  "trunkRadius": 0.32,
+  "conifer": true,
+  "lods": [
+   {
+    "node": "spruce_LOD0",
+    "triangles": 4480,
+    "vertices": 5413
+   },
+   {
+    "node": "spruce_LOD1",
+    "triangles": 896,
+    "vertices": 1686
+   },
+   {
+    "node": "spruce_LOD2",
+    "triangles": 6,
+    "vertices": 12
+   }
+  ],
+  "cards": [
+   737,
+   204,
+   3
+  ]
+ },
+ "spruce_b": {
+  "height": 22.401,
+  "crownRadius": 3.923,
+  "trunkRadius": 0.32,
+  "conifer": true,
+  "lods": [
+   {
+    "node": "spruce_b_LOD0",
+    "triangles": 3806,
+    "vertices": 4585
+   },
+   {
+    "node": "spruce_b_LOD1",
+    "triangles": 736,
+    "vertices": 1366
+   },
+   {
+    "node": "spruce_b_LOD2",
+    "triangles": 6,
+    "vertices": 12
+   }
+  ],
+  "cards": [
+   619,
+   164,
+   3
+  ]
+ },
+ "pine": {
+  "height": 19.752,
+  "crownRadius": 3.359,
+  "trunkRadius": 0.3,
+  "conifer": true,
+  "lods": [
+   {
+    "node": "pine_LOD0",
+    "triangles": 2184,
+    "vertices": 2751
+   },
+   {
+    "node": "pine_LOD1",
+    "triangles": 408,
+    "vertices": 710
+   },
+   {
+    "node": "pine_LOD2",
+    "triangles": 6,
+    "vertices": 12
+   }
+  ],
+  "cards": [
+   262,
+   82,
+   3
+  ]
+ },
+ "birch": {
+  "height": 14.639,
+  "crownRadius": 3.563,
+  "trunkRadius": 0.22,
+  "conifer": false,
+  "lods": [
+   {
+    "node": "birch_LOD0",
+    "triangles": 3706,
+    "vertices": 4799
+   },
+   {
+    "node": "birch_LOD1",
+    "triangles": 1148,
+    "vertices": 2046
+   },
+   {
+    "node": "birch_LOD2",
+    "triangles": 88,
+    "vertices": 126
+   }
+  ],
+  "cards": [
+   743,
+   231,
+   12
+  ]
+ },
+ "birch_young": {
+  "height": 11.688,
+  "crownRadius": 2.405,
+  "trunkRadius": 0.13,
+  "conifer": false,
+  "lods": [
+   {
+    "node": "birch_young_LOD0",
+    "triangles": 1766,
+    "vertices": 2049
+   },
+   {
+    "node": "birch_young_LOD1",
+    "triangles": 532,
+    "vertices": 850
+   },
+   {
+    "node": "birch_young_LOD2",
+    "triangles": 88,
+    "vertices": 126
+   }
+  ],
+  "cards": [
+   241,
+   86,
+   12
+  ]
+ },
+ "slender": {
+  "height": 14.082,
+  "crownRadius": 3.427,
+  "trunkRadius": 0.2,
+  "conifer": false,
+  "lods": [
+   {
+    "node": "slender_LOD0",
+    "triangles": 3104,
+    "vertices": 3835
+   },
+   {
+    "node": "slender_LOD1",
+    "triangles": 836,
+    "vertices": 1434
+   },
+   {
+    "node": "slender_LOD2",
+    "triangles": 88,
+    "vertices": 126
+   }
+  ],
+  "cards": [
+   542,
+   156,
+   12
+  ]
+ },
+ "wide": {
+  "height": 16.602,
+  "crownRadius": 5.755,
+  "trunkRadius": 0.36,
+  "conifer": false,
+  "lods": [
+   {
+    "node": "wide_LOD0",
+    "triangles": 5724,
+    "vertices": 5859
+   },
+   {
+    "node": "wide_LOD1",
+    "triangles": 1240,
+    "vertices": 1874
+   },
+   {
+    "node": "wide_LOD2",
+    "triangles": 88,
+    "vertices": 126
+   }
+  ],
+  "cards": [
+   590,
+   178,
+   12
+  ]
+ },
+ "round": {
+  "height": 18.068,
+  "crownRadius": 5.517,
+  "trunkRadius": 0.34,
+  "conifer": false,
+  "lods": [
+   {
+    "node": "round_LOD0",
+    "triangles": 4568,
+    "vertices": 5371
+   },
+   {
+    "node": "round_LOD1",
+    "triangles": 1052,
+    "vertices": 1842
+   },
+   {
+    "node": "round_LOD2",
+    "triangles": 88,
+    "vertices": 126
+   }
+  ],
+  "cards": [
+   715,
+   204,
+   12
+  ]
+ },
+ "fruit": {
+  "height": 6.931,
+  "crownRadius": 2.999,
+  "trunkRadius": 0.15,
+  "conifer": false,
+  "lods": [
+   {
+    "node": "fruit_LOD0",
+    "triangles": 1940,
+    "vertices": 2335
+   },
+   {
+    "node": "fruit_LOD1",
+    "triangles": 540,
+    "vertices": 866
+   },
+   {
+    "node": "fruit_LOD2",
+    "triangles": 88,
+    "vertices": 126
+   }
+  ],
+  "cards": [
+   290,
+   88,
+   12
+  ]
+ },
+ "shrub_low": {
+  "height": 1.173,
+  "crownRadius": 0.648,
+  "trunkRadius": 0.03,
+  "conifer": false,
+  "lods": [
+   {
+    "node": "shrub_low_LOD0",
+    "triangles": 442,
+    "vertices": 416
+   },
+   {
+    "node": "shrub_low_LOD1",
+    "triangles": 144,
+    "vertices": 216
+   },
+   {
+    "node": "shrub_low_LOD2",
+    "triangles": 60,
+    "vertices": 70
+   }
+  ],
+  "cards": [
+   41,
+   18,
+   5
+  ]
+ },
+ "shrub_mid": {
+  "height": 1.617,
+  "crownRadius": 0.837,
+  "trunkRadius": 0.03,
+  "conifer": false,
+  "lods": [
+   {
+    "node": "shrub_mid_LOD0",
+    "triangles": 626,
+    "vertices": 628
+   },
+   {
+    "node": "shrub_mid_LOD1",
+    "triangles": 200,
+    "vertices": 304
+   },
+   {
+    "node": "shrub_mid_LOD2",
+    "triangles": 60,
+    "vertices": 70
+   }
+  ],
+  "cards": [
+   73,
+   26,
+   5
+  ]
+ },
+ "shrub_tall": {
+  "height": 2.473,
+  "crownRadius": 1.385,
+  "trunkRadius": 0.03,
+  "conifer": false,
+  "lods": [
+   {
+    "node": "shrub_tall_LOD0",
+    "triangles": 874,
+    "vertices": 968
+   },
+   {
+    "node": "shrub_tall_LOD1",
+    "triangles": 296,
+    "vertices": 472
+   },
+   {
+    "node": "shrub_tall_LOD2",
+    "triangles": 60,
+    "vertices": 70
+   }
+  ],
+  "cards": [
+   137,
+   44,
+   5
+  ]
+ },
+ "hedge_wild": {
+  "height": 2.769,
+  "crownRadius": 1.319,
+  "trunkRadius": 0.03,
+  "conifer": false,
+  "lods": [
+   {
+    "node": "hedge_wild_LOD0",
+    "triangles": 942,
+    "vertices": 1104
+   },
+   {
+    "node": "hedge_wild_LOD1",
+    "triangles": 408,
+    "vertices": 696
+   },
+   {
+    "node": "hedge_wild_LOD2",
+    "triangles": 60,
+    "vertices": 70
+   }
+  ],
+  "cards": [
+   171,
+   72,
+   5
+  ]
+ }
+}

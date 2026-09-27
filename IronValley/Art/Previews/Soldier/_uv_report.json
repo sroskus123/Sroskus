@@ -1,25 +1,25 @@
 {
  "cloth": {
-  "coverage_without_gloves": 0.4474,
+  "coverage_without_gloves": 0.4405,
   "overlap_px": 0,
-  "islands": 282,
+  "islands": 292,
   "px_per_cm": {
-   "Soldier_Shirt": 9.48,
-   "Soldier_Trousers": 9.48,
-   "Soldier_Balaclava": 12.32,
-   "Soldier_FaceSkin": 5.69,
-   "SG_Helmet": 11.85
+   "Soldier_Shirt": 9.42,
+   "Soldier_Trousers": 9.42,
+   "Soldier_Balaclava": 12.25,
+   "Soldier_FaceSkin": 5.66,
+   "SG_Helmet": 11.78
   }
  },
  "gear": {
-  "coverage": 0.4235,
-  "overlap_px": 0,
-  "islands": 601,
+  "coverage": 0.427,
+  "overlap_px": 891,
+  "islands": 616,
   "px_per_cm": {}
  },
  "team": {
-  "coverage": 0.2606,
+  "coverage": 0.2342,
   "overlap_px": 0,
-  "islands": 38
+  "islands": 42
  }
 }

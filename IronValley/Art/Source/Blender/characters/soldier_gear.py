@@ -66,7 +66,7 @@ def smooth_grid(A, iters=2, closed_u=False):
     return A
 
 
-def slab_from_grid(P, N, clear, thick, closed_u=False, round_edge=0.35):
+def slab_from_grid(P, N, clear, thick, closed_u=False, round_edge=0.35, return_walls=False):
     """Closed solid on a surface grid: inner sheet at `clear`, outer at clear + thick (thick may
     be an (nu, nv) array).  The outer sheet's two long edges are pulled in by round_edge * thick
     so the band has a rounded (not boxy) edge.  Returns (V, F)."""
@@ -86,19 +86,25 @@ def slab_from_grid(P, N, clear, thick, closed_u=False, round_edge=0.35):
         return (i % nu) * nv + j
 
     F = []
+    walls = []
     iu = range(nu) if closed_u else range(nu - 1)
     for i in iu:
         for j in range(nv - 1):
             F.append([o(i, j), o(i + 1, j), o(i + 1, j + 1), o(i, j + 1)])
             F.append([off + o(i, j + 1), off + o(i + 1, j + 1), off + o(i + 1, j), off + o(i, j)])
         # long side walls (v = 0 and v = nv-1)
+        walls += [len(F), len(F) + 1]
         F.append([off + o(i, 0), off + o(i + 1, 0), o(i + 1, 0), o(i, 0)])
         F.append([o(i, nv - 1), o(i + 1, nv - 1), off + o(i + 1, nv - 1), off + o(i, nv - 1)])
     if not closed_u:
         for i in (0, nu - 1):
             ring = [o(i, j) for j in range(nv)] + [off + o(i, j) for j in range(nv)][::-1]
+            walls.append(len(F))
             F.append(ring if i == nu - 1 else ring[::-1])
-    return V, S.orient_outward(V, F)
+    F = S.orient_outward(V, F)
+    if return_walls:
+        return V, F, walls
+    return V, F
 
 
 def bent_box(w, h, t, R, bevel=0.006, nx=10, nz=6, cut_top=0.0, cut_depth=0.0, taper=0.0):
@@ -265,4 +271,5 @@ class Built:
         self.parts = {}
 
     def add(self, name, V, F, bind, atlas="gear", zone="fabric", **kw):
+        kw.setdefault("flat", None)
         self.parts[name] = dict(V=np.asarray(V, float), F=F, bind=bind, atlas=atlas, zone=zone, **kw)

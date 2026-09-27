@@ -191,6 +191,25 @@ rozhodnutí D12). Stávající úrovně se nemění; každé pole je volitelné.
 - `environment: { fog: { color, density }, shadowExtent, cameraFar }` — přepis mlhy (D9; výšková mlha se škáluje s hustotou)
   a stínů pro danou mapu; ostatní mapy dostanou `environment.json` zpět.
 - `tag` — podtitul mapy v HUD a v nabídce („pracovní verze (provizorní grafika)“).
+- `geometry.environment: { terrainLayers, vegetation }` (2026-09-27, výtvarný průchod mapy fáze 1, rozhodnutí D13) —
+  manifest vrstev terénu (`assets/environment/terrain/terrain_layers.json`) a modely vegetace
+  (`assets/environment/vegetation.glb`). Tabulky instancí stromů a keřů jsou v `kh_world.glb` (`asset.extras.iv.vegetation`),
+  obrázky vah terénu, makro tónu a hustoty trávy v `kh_terrain.glb` (`asset.extras.iv.splat`).
+
+### Vegetace a tráva: jen vizuální (2026-09-27)
+
+- **Tráva, květiny, listí stromů a karty keřů nejsou v kolizním světě.** `CollisionWorld` je nikdy nedostane, takže
+  výhled AI (`WorldQuery.lineOfSight`, filtr `'vision'`), střely (`'bullets'`) ani pohyb kapsle je nevidí. Test:
+  `tests/e2e/12_map_art.test.mjs` (paprsek nad trávou, žádný solid vegetace).
+- **Kolize vegetace se nezměnila:** kmeny stromů uvnitř tvrdé hranice mají dál kvádr třídy `main` (2 × poloměr kmene, do
+  nasazení koruny, min. 1,8 m), keřové pásy, remízky a živé ploty dál objem třídy `movevis` (blokuje pohyb a výhled,
+  střela projde; ART_DIRECTION 6.4, R-09, R-16). Vykreslené keře (instance) stojí uvnitř tohoto objemu; tmavé jádro
+  (`veg_core`) je jen vizuální. `kh_collision.glb` je po výtvarném průchodu bajtově shodný.
+- **Vysoká tráva není férový úkryt:** AI ji nevidí, proto je řídká a ostrůvkovitá, nikdy v zóně (+2 m) ani 3 m od koridorů
+  (`layout.json` → `lanes`), výška 0,75–1,05 m jen v ostrůvcích; nízké trsy ≤ 0,55 m postavu v podřepu nezakryjí.
+  Hustotu drží mapa v `kh_terrain.glb` (test `tests/unit/map_art.test.mjs`).
+- Vykreslování vegetace (LOD, tráva kolem kamery) běží jen při kreslení snímku; simulace, AI tik a testy s vypnutým
+  vykreslováním ji nevolají.
 
 ### Pocit ze zbraně (recoil, 2026-09-26)
 

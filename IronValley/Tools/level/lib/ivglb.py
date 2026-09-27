@@ -22,6 +22,7 @@ ELEMENT_ARRAY_BUFFER = 34963
 FLOAT = 5126
 BYTE = 5120
 UBYTE = 5121
+SHORT = 5122
 USHORT = 5123
 UINT = 5125
 
@@ -201,7 +202,7 @@ class GLB:
 
     def accessor(self, arr, typ, ctype, normalized=False, target=ARRAY_BUFFER, minmax=False):
         arr = np.ascontiguousarray(arr)
-        dt = {FLOAT: np.float32, BYTE: np.int8, UBYTE: np.uint8, USHORT: np.uint16, UINT: np.uint32}[ctype]
+        dt = {FLOAT: np.float32, BYTE: np.int8, UBYTE: np.uint8, SHORT: np.int16, USHORT: np.uint16, UINT: np.uint32}[ctype]
         a = arr.astype(dt, copy=False)
         n = _TYPE_N[typ]
         count = a.size // n
@@ -314,8 +315,9 @@ class GLB:
             gl["materials"] = self.materials
         if self.textures:
             gl["textures"] = self.textures
-            gl["images"] = self.images
             gl["samplers"] = self.samplers
+        if self.images:
+            gl["images"] = self.images
         if self.extensionsUsed:
             gl["extensionsUsed"] = sorted(self.extensionsUsed)
         if self.extras:

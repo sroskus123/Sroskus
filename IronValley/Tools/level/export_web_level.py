@@ -29,11 +29,12 @@ import time
 
 import numpy as np
 from matplotlib.path import Path as MPath
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFile, ImageFont
 from scipy import ndimage
 from shapely.geometry import LineString, Point, Polygon, box as sbox
 from shapely.ops import unary_union
 
+ImageFile.MAXBLOCK = 1 << 25   # optimised JPEG of large images needs one big buffer (PIL "Suspension not allowed")
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 sys.path.insert(0, os.path.join(HERE, "lib"))
@@ -65,7 +66,7 @@ def log(*a):
 # ================================================================================================
 MATS = {
     # terrain
-    "terrain": {"color": "#ffffff", "rough": 0.93, "tex": "albedo", "tile": 1.0},
+    "terrain": {"color": "#8e9a55", "rough": 0.93, "tile": 1.0},   # replaced at run time by the splat material (D13)
     "terrain_outer": {"color": "#ffffff", "rough": 0.95, "tile": 4.0},
     "backdrop": {"color": "#ffffff", "rough": 1.0, "tile": 50.0},
     "water": {"color": "#3f4a3c", "rough": 0.06, "alpha": 0.72, "tile": 4.0},
@@ -129,6 +130,7 @@ MATS = {
     "gravel_heap": {"color": "#9c978c", "rough": 0.98, "tex": "gravel", "tile": 2.0},
     # vegetation
     "hedge": {"color": "#4c6531", "rough": 0.95, "tex": "leaves", "tile": 1.5},
+    "veg_core": {"color": "#2f3b22", "rough": 0.95, "tex": "leaves", "tile": 1.5},
     "shrub": {"color": "#56703a", "rough": 0.95, "tex": "leaves", "tile": 2.0},
     "bark": {"color": "#ffffff", "rough": 0.9, "tex": "bark", "tile": 1.0},
     "crown": {"color": "#ffffff", "rough": 0.92, "tex": "leaves", "tile": 3.0},
@@ -140,6 +142,7 @@ MATS = {
     "sign_road": {"color": "#ffffff", "rough": 0.6, "tex": "sign_road", "tile": 1.0},
     "sign_wall": {"color": "#ffffff", "rough": 0.85, "tex": "sign_wall", "alpha_test": 0.3, "tile": 1.0},
     "lamp_emissive": {"color": "#f3e7c8", "rough": 0.4, "emissive": "#6b5b3b", "tile": 1.0},
+    "road_marking": {"color": "#d9d6cc", "rough": 0.45, "tex": "marking", "alpha_test": 0.5, "tile": 2.0},
 }
 
 SURFACES = ["grass", "asphalt", "gravel", "dirt", "mud", "forest_floor", "concrete", "paving", "wood", "metal", "water",
@@ -418,103 +421,42 @@ def surface_raster(L, X, Y, fields=None):
     return cls
 
 
-def road_markings(L, X, Y, where=None):
-    """white road markings (edge lines, dashed centre line) as a 0..1 mask on points (X, Y) (evaluated only where)."""
-    m = np.zeros(X.shape, np.float32)
-    idx = np.nonzero(where) if where is not None else None
-    Xs = X[idx] if idx is not None else X
-    Ys = Y[idx] if idx is not None else Y
-    ms = np.zeros(Xs.shape, np.float32)
+def build_road_markings(sc, L, terr):
+    """worn white road markings (edge lines 0.12 m at 0.25 m from the edge, centre dashes 3 m / 6 m gap) as thin
+    render-only strips 2 cm above the 0.5 m terrain triangles (they replace the markings painted into the old
+    albedo map). Same layout as the old albedo markings (no markings in the end caps on the square)."""
+    m = sc.mb("road_marking")
     for r in L["roads"]:
-        dd, s = polyline_dist(r["polyline"], Xs, Ys)
+        P = np.array([p[:2] for p in r["polyline"]], float)
+        seg = np.linalg.norm(np.diff(P, axis=0), axis=1)
+        total = float(seg.sum())
         hw = r["width"] / 2
-        total = sum(math.dist(a[:2], b[:2]) for a, b in zip(r["polyline"][:-1], r["polyline"][1:]))
-        # no markings in the end caps (the polylines end in the middle of the square): arc length strictly inside
-        inner = (s > hw + 0.5) & (s < total - hw - 0.5)
-        edge = (np.abs(dd - (hw - 0.25)) < 0.06) & inner
-        centre = (dd < 0.06) & ((s % 9.0) < 3.0) & inner
-        ms = np.maximum(ms, (edge | centre).astype(np.float32))
-    if idx is not None:
-        m[idx] = ms
-        return m
-    return ms
+        s_all = np.arange(0.0, total + 1e-9, 0.5)
+        cum = np.concatenate([[0], np.cumsum(seg)])
+        idx = np.clip(np.searchsorted(cum, s_all, side="right") - 1, 0, len(seg) - 1)
+        t = (s_all - cum[idx]) / np.maximum(seg[idx], 1e-9)
+        C = P[idx] + (P[idx + 1] - P[idx]) * t[:, None]
+        D = (P[idx + 1] - P[idx]) / np.maximum(seg[idx], 1e-9)[:, None]
+        # smooth the direction at the polyline corners
+        D = ndimage.uniform_filter1d(D, 5, axis=0, mode="nearest")
+        D /= np.maximum(np.linalg.norm(D, axis=1, keepdims=True), 1e-9)
+        Nn = np.column_stack([-D[:, 1], D[:, 0]])
+        inner = (s_all > hw + 0.5) & (s_all < total - hw - 0.5)
 
-
-def make_albedo(L, terr, px):
-    """albedo map (sRGB u8) over the fine terrain rectangle, px x px texels, + the class raster used for colours."""
-    x0, y0, x1, y1 = terr.x0, terr.y0, terr.x1, terr.y1
-    # texel centres; row 0 = north (max y) so that v = 0 is the top row (glTF)
-    tx = x0 + (np.arange(px) + 0.5) * (x1 - x0) / px
-    ty = y1 - (np.arange(px) + 0.5) * (y1 - y0) / px
-    TX, TY = np.meshgrid(tx, ty)
-    log(f"albedo: classes at {px}x{px} ({(x1 - x0) / px:.3f} m/texel) from 0.25 m distance fields")
-    # evaluate the feature distance fields on a 0.25 m grid (north row first) and upsample them bilinearly
-    gres = 0.25
-    gx = np.arange(x0, x1 + 1e-9, gres)
-    gy = np.arange(y1, y0 - 1e-9, -gres)
-    GX, GY = np.meshgrid(gx, gy)
-    coarse = surface_fields(L, GX, GY)
-    fy = (y1 - ty) / gres
-    fx = (tx - x0) / gres
-    FX, FY = np.meshgrid(fx, fy)
-    up = [(pr, surf, ndimage.map_coordinates(d.astype(np.float32), [FY, FX], order=1, mode="nearest")) for pr, surf, d in coarse]
-    cls = surface_raster(L, TX, TY, up)
-    col = np.zeros((px, px, 3), np.float64)
-    for s, h in SURF_COL.items():
-        c = np.array(hex_rgb(h))
-        col[cls == SURF_ID[s]] = c
-    n1 = value_noise((px, px), 12, SEED + 1, 5)
-    n2 = value_noise((px, px), 96, SEED + 2, 3)
-    grass = cls == SURF_ID["grass"]
-    # grass: sunny meadow / dry grass on the slopes / wet near the brook
-    dry = np.clip((n1 - 0.52) * 3.0, 0, 1)
-    brook_c = np.full(GX.shape, 1e9)
-    for w in L["water"]:
-        d, _ = polyline_dist(w["polyline"], GX, GY)
-        brook_c = np.minimum(brook_c, d)
-    brook_d = ndimage.map_coordinates(brook_c.astype(np.float32), [FY, FX], order=1, mode="nearest")
-    wet = np.clip(1 - (brook_d - 2) / 7.0, 0, 1)
-    g_sun = np.array(hex_rgb("#8e9a55"))
-    g_dry = np.array(hex_rgb("#a99d68"))
-    g_wet = np.array(hex_rgb("#5f6b3b"))
-    gc = g_sun[None, None] * (1 - dry[..., None]) + g_dry[None, None] * dry[..., None]
-    gc = gc * (1 - wet[..., None]) + g_wet[None, None] * wet[..., None]
-    col[grass] = gc[grass]
-    # lawn in the walled garden
-    gc_ = poly_signed_dist(next(s["polygon"] for s in L["terrain"]["stamps"] if s["id"] == "PAD_DUM_TERRACE"), GX, GY)
-    garden = ndimage.map_coordinates(gc_.astype(np.float32), [FY, FX], order=1, mode="nearest") < 0
-    col[grass & garden] = np.array(hex_rgb("#7a8c47"))
-    # variation
-    var = 0.86 + 0.26 * n1[..., None] + 0.14 * (n2[..., None] - 0.5)
-    col *= var
-    # asphalt: wet darker patches
-    asph = cls == SURF_ID["asphalt"]
-    col[asph] *= (0.9 + 0.2 * n2[asph])[..., None]
-    mk = road_markings(L, TX, TY, asph) * asph
-    col = col * (1 - mk[..., None] * 0.9) + np.array(hex_rgb("#d9d6cc"))[None, None] * mk[..., None] * 0.9
-    # paving setts grid (0.12 m) and concrete slab joints (3 m)
-    pav = cls == SURF_ID["paving"]
-    col[pav] *= (0.86 + 0.28 * value_noise((px, px), 700, SEED + 3, 1)[pav])[..., None]
-    con = cls == SURF_ID["concrete"]
-    j = (np.abs(((TX / 3.0) % 1) - 0.5) > 0.494) | (np.abs(((TY / 3.0) % 1) - 0.5) > 0.494)
-    col[con & j] *= 0.72
-    # tracks: ruts darker
-    dirt = cls == SURF_ID["dirt"]
-    col[dirt] *= (0.85 + 0.3 * n2[dirt])[..., None]
-    img = np.clip(col * 255, 0, 255)
-    # roughness map (glTF metallicRoughness: G = roughness, B = metalness 0): wet asphalt / concrete after a shower
-    # (ART_DIRECTION 3.1: wet asphalt 0.25-0.40, mud 0.35-0.60, grass 0.85-0.95)
-    rough_of = {"asphalt": 0.38, "concrete": 0.62, "paving": 0.55, "water": 0.08, "mud": 0.5, "stone": 0.75, "gravel": 0.92,
-                "dirt": 0.88, "grass": 0.95, "forest_floor": 0.95, "wood": 0.8, "metal": 0.5, "tiles": 0.4}
-    rough = np.full(cls.shape, 0.93)
-    for k, v in rough_of.items():
-        rough[cls == SURF_ID[k]] = v
-    wetn = value_noise((px, px), 40, SEED + 11, 3)
-    rough = np.where(np.isin(cls, [SURF_ID["asphalt"], SURF_ID["concrete"], SURF_ID["paving"]]), rough - 0.22 * np.clip((wetn - 0.55) * 4, 0, 1), rough)
-    mr = np.zeros((px, px, 3))
-    mr[..., 0] = 1.0
-    mr[..., 1] = np.clip(rough, 0.04, 1.0)
-    return img.astype(np.uint8), cls, np.clip(mr * 255, 0, 255).astype(np.uint8)
+        def strip(off, width, keep):
+            a = C + Nn * (off - width / 2)
+            b = C + Nn * (off + width / 2)
+            for k in range(len(s_all) - 1):
+                if not (keep[k] and keep[k + 1]):
+                    continue
+                q = np.array([a[k], a[k + 1], b[k + 1], b[k]])
+                z = terr.z(q[:, 0], q[:, 1]) + 0.02
+                V = np.column_stack([q, z])
+                m.poly(V, n=np.array([0.0, 0.0, 1.0]))
+        dash = (s_all % 9.0) < 3.0
+        strip(hw - 0.25, 0.12, inner)
+        strip(-(hw - 0.25), 0.12, inner)
+        strip(0.0, 0.12, inner & dash)
 
 
 # ================================================================================================
@@ -676,6 +618,15 @@ def tex_rgb(name, n=256):
         b = tile_noise(n, 48, s + 1, 2)
         v = 0.75 + 0.45 * a + (b - 0.5) * 0.35
         return _lum(v, 0), False
+    if name == "marking":
+        # worn road paint: alpha = paint left (cracks and abrasion), colour = slightly dirty white
+        a = tile_noise(n, 6, s, 5)
+        b = tile_noise(n, 40, s + 1, 3)
+        paint = np.clip((a * 0.6 + b * 0.4 - 0.3) * 4.0, 0, 1)
+        rgba = np.zeros((n, n, 4))
+        rgba[..., :3] = (230 - 25 * b[..., None]) * np.ones(3)
+        rgba[..., 3] = np.where(paint > 0.35, 255, 0)
+        return rgba, True
     if name == "bark":
         a = tile_noise(n, 12, s, 3)
         a = np.repeat(a[:1], n, 0) * 0.7 + a * 0.3
@@ -1948,7 +1899,11 @@ def build_fence(sc, f, terr):
         key = "hedge"
         for (p, q, za, zb) in pieces:
             jitter = 0.15 * math.sin(p[0] * 1.7 + p[1] * 0.9)
-            sc.seg_wall(p, q, wd, za - 0.3, zb - 0.3, za + h + jitter, zb + h + jitter, mat=key, cls="movevis", surface="grass")
+            if typ == "hedgerow_mixed":
+                sc.seg_wall(p, q, wd, za - 0.3, zb - 0.3, za + h + jitter, zb + h + jitter, mat=False, cls="movevis", surface="grass", render=False)
+                sc.seg_wall(p, q, wd - 0.6, za - 0.3, zb - 0.3, za + h * 0.8 + jitter, zb + h * 0.8 + jitter, mat="veg_core", collide=False)
+            else:
+                sc.seg_wall(p, q, wd, za - 0.3, zb - 0.3, za + h + jitter, zb + h + jitter, mat=key, cls="movevis", surface="grass")
         return
     if typ in ("garden_wall_rendered_1p8", "concrete_low_wall", "concrete_low_wall_rendered"):
         th = 0.3 if "garden" in typ else 0.25
@@ -2000,18 +1955,24 @@ def build_fence(sc, f, terr):
 
 
 def build_vegetation_block(sc, vb, terr):
+    """collision: the block volume (class movevis, exactly as before); render: a dark leafy core inset 0.35 m and
+    lowered 0.6 m. The visible shrubs are instances (shrub_instances, assets/environment/vegetation.glb)."""
     h = vb["height"]
     if "polyline" in vb:
         wd = vb["width"]
         for (p, q, za, zb) in ground_pieces(terr, vb["polyline"], 3.0):
             j = 0.35 * math.sin(p[0] * 0.8 + p[1] * 1.3)
-            sc.seg_wall(p, q, wd, za - 0.4, zb - 0.4, za + h + j, zb + h + j, mat="shrub", cls="movevis", surface="grass")
+            sc.seg_wall(p, q, wd, za - 0.4, zb - 0.4, za + h + j, zb + h + j, mat=False, cls="movevis", surface="grass", render=False)
+            sc.seg_wall(p, q, max(0.4, wd - 0.7), za - 0.4, zb - 0.4, za + h * 0.8 + j, zb + h * 0.8 + j, mat="veg_core", collide=False)
     else:
         P = Polygon(vb["polygon"])
         zc = terr.z1(P.centroid.x, P.centroid.y)
         pts = [tuple(c) for c in list(P.exterior.coords)[:-1]]
         zmin = min(terr.z1(*p) for p in pts)
-        sc.prism(pts, zmin - 0.5, zc + h, mat="shrub", cls="movevis", surface="grass")
+        sc.prism(pts, zmin - 0.5, zc + h, mat=False, cls="movevis", surface="grass", render=False)
+        inner = P.buffer(-0.5, join_style=2)
+        if not inner.is_empty and inner.geom_type == "Polygon":
+            sc.prism([tuple(c) for c in list(inner.exterior.coords)[:-1]], zmin - 0.5, zc + h * 0.8, mat="veg_core", collide=False)
 
 
 # ================================================================================================
@@ -2236,140 +2197,26 @@ def build_boundary(sc, L, terr):
 
 
 # ================================================================================================
-# trees (EXT_mesh_gpu_instancing), outer terrain, backdrop hills
+# trees (trunk collision; models are instanced at run time), outer terrain, backdrop hills
 # ================================================================================================
-CROWN_COL = {"lipa": "#5e7a36", "lipa_stara": "#587434", "javor": "#5a7a34", "jasan": "#62803c", "dub": "#566f30", "buk": "#5c7a32",
-             "habr": "#5f7d38", "olse": "#4e6a30", "vrba": "#788c4a", "briza": "#74904a", "briza_mlada": "#7a954c",
-             "smrk": "#2f3d26", "borovice": "#3b4a2d", "jablon": "#667f3c", "hruska": "#5f7a38", "svestka": "#5a7236", "orech": "#58733a"}
-BARK_COL = {"briza": "#d8d4c8", "briza_mlada": "#d8d4c8"}
-
-
-def proto_trunk(segs=6):
-    V, I = [], []
-    for k in range(segs):
-        a = 2 * math.pi * k / segs
-        V.append((math.cos(a), math.sin(a), 0.0))
-        V.append((math.cos(a) * 0.8, math.sin(a) * 0.8, 1.0))
-    for k in range(segs):
-        a0, a1 = 2 * k, 2 * k + 1
-        b0, b1 = 2 * ((k + 1) % segs), 2 * ((k + 1) % segs) + 1
-        I += [(a0, b0, b1), (a0, b1, a1)]
-    return np.array(V), np.array(I)
-
-
-def proto_blob(seed=3):
-    """low-poly irregular ellipsoid crown (icosphere subdiv 1, jittered), unit radius."""
-    t = (1 + 5 ** 0.5) / 2
-    V = [(-1, t, 0), (1, t, 0), (-1, -t, 0), (1, -t, 0), (0, -1, t), (0, 1, t), (0, -1, -t), (0, 1, -t), (t, 0, -1), (t, 0, 1), (-t, 0, -1), (-t, 0, 1)]
-    F = [(0, 11, 5), (0, 5, 1), (0, 1, 7), (0, 7, 10), (0, 10, 11), (1, 5, 9), (5, 11, 4), (11, 10, 2), (10, 7, 6), (7, 1, 8),
-         (3, 9, 4), (3, 4, 2), (3, 2, 6), (3, 6, 8), (3, 8, 9), (4, 9, 5), (2, 4, 11), (6, 2, 10), (8, 6, 7), (9, 8, 1)]
-    V = [np.array(v, float) / np.linalg.norm(v) for v in V]
-    mid = {}
-
-    def m(a, b):
-        k = (min(a, b), max(a, b))
-        if k not in mid:
-            p = (V[a] + V[b]) / 2
-            V.append(p / np.linalg.norm(p))
-            mid[k] = len(V) - 1
-        return mid[k]
-    F2 = []
-    for a, b, c in F:
-        ab, bc, ca = m(a, b), m(b, c), m(c, a)
-        F2 += [(a, ab, ca), (b, bc, ab), (c, ca, bc), (ab, bc, ca)]
-    r = rng(seed)
-    V = np.array(V) * (0.85 + 0.3 * r.random((len(V), 1)))
-    # glTF frame: y up; the blob is authored in the level frame (z up) and converted on write
-    return V, np.array(F2)
-
-
-def proto_cone(segs=9, tiers=3):
-    V, I = [], []
-    for t_ in range(tiers):
-        z0 = t_ / tiers * 0.85
-        z1 = z0 + 0.45
-        r0 = 1.0 - t_ * 0.28
-        base = len(V)
-        for k in range(segs):
-            a = 2 * math.pi * (k + 0.5 * t_) / segs
-            V.append((math.cos(a) * r0, math.sin(a) * r0, z0))
-        V.append((0, 0, min(1.0, z1 + 0.15 if t_ == tiers - 1 else z1)))
-        apex = len(V) - 1
-        for k in range(segs):
-            I.append((base + k, base + (k + 1) % segs, apex))
-        V.append((0, 0, z0))
-        c = len(V) - 1
-        for k in range(segs):
-            I.append((base + (k + 1) % segs, base + k, c))
-    return np.array(V, float), np.array(I)
-
-
-def build_trees(glb, mb, L, terr, sc):
+def build_trees(L, terr, sc):
+    """tree trunk collision (class main, 2 x trunk radius box up to the crown base, min. 1.8 m) for the trees inside
+    the hard boundary -- unchanged from the blockout. The visible trees are instances of the Blender-generated
+    models (tree_instances -> kh_world.glb extras, models in assets/environment/vegetation.glb)."""
     sp = L["trees"]["species"]
     hard = terr.hard.buffer(1.0)
-    trunks, blobs, cones = [], [], []
-    r = rng(SEED + 77)
+    n = 0
     for t in L["trees"]["instances"]:
         s = sp[t["species"]]
         k = t.get("scale", 1.0)
         x, y = t["pos"][0], t["pos"][1]
         z = terr.z1(x, y) - 0.1
-        h = s["height"] * k
         cb = s["crown_base"] * k
-        cr = s["crown_radius"] * k
         tr = s["trunk_radius"] * k
-        yaw = t.get("yaw_deg", 0.0)
-        bark = np.array(hex_rgb(BARK_COL.get(t["species"], "#5e5448")))
-        crown = np.array(hex_rgb(CROWN_COL.get(t["species"], "#5e7a36"))) * (0.85 + 0.3 * r.random())
-        if t["species"] in ("briza", "lipa", "briza_mlada") and r.random() < 0.06:
-            crown = crown * 0.6 + np.array(hex_rgb("#b8923a")) * 0.4
-        conifer = s.get("leaf_type") == "conifer"
-        if t["species"] == "smrk":
-            trunks.append(((x, y, z), yaw, (tr, tr, cb + (h - cb) * 0.5), bark))
-            cones.append(((x, y, z + cb), yaw, (cr, cr, h - cb), crown))
-        else:
-            ch = h - cb
-            trunks.append(((x, y, z), yaw, (tr, tr, cb + ch * 0.45), bark))
-            blobs.append(((x, y, z + cb + ch * 0.5), yaw, (cr, cr * (0.9 + 0.2 * r.random()), ch * 0.52), crown))
+        n += 1
         if hard.contains(Point(x, y)):
             sc.obox(x, y, 2 * tr, 2 * tr, 0, z - 0.2, z + max(cb, 1.8), mat=False, cls="main", surface="wood", render=False)
-    nodes = []
-    for name, lst, proto, key in (("tree_trunks", trunks, proto_trunk(), "bark"), ("tree_crowns", blobs, proto_blob(), "crown"),
-                                  ("tree_cones", cones, proto_cone(), "crown")):
-        if not lst:
-            continue
-        V, I = proto
-        # flat-ish normals per vertex from the proto (smooth, outward)
-        N = V - np.array([0, 0, 0.5 if name != "tree_crowns" else 0.0])
-        N = N / np.maximum(np.linalg.norm(N, axis=1, keepdims=True), 1e-9)
-        if name == "tree_trunks":
-            N[:, 2] = 0
-            N = N / np.maximum(np.linalg.norm(N, axis=1, keepdims=True), 1e-9)
-        UV = np.column_stack([np.arctan2(V[:, 1], V[:, 0]) / math.pi, V[:, 2]])
-        attrs = {
-            "POSITION": glb.accessor(to_gltf(V), "VEC3", FLOAT, minmax=True),
-            "NORMAL": glb.accessor(to_gltf(N), "VEC3", FLOAT),
-            "TEXCOORD_0": glb.accessor(UV, "VEC2", FLOAT),
-        }
-        from ivglb import USHORT, ELEMENT_ARRAY_BUFFER
-        prim = {"attributes": attrs, "indices": glb.accessor(I.ravel(), "SCALAR", USHORT, target=ELEMENT_ARRAY_BUFFER), "mode": 4,
-                "material": mb.get(key)}
-        mesh = glb.add_mesh(name, [prim])
-        Tt = np.array([to_gltf(np.array(p[0])) for p in lst])
-        Rq = []
-        for p in lst:
-            a = math.radians(p[1]) / 2
-            Rq.append((0.0, math.sin(a), 0.0, math.cos(a)))
-        S = np.array([(p[2][0], p[2][2], p[2][1]) for p in lst])
-        Cc = np.array([p[3] for p in lst])
-        Cc = srgb_to_linear(Cc)
-        glb.extensionsUsed.add("EXT_mesh_gpu_instancing")
-        ext = {"attributes": {"TRANSLATION": glb.raw_accessor(Tt, "VEC3", FLOAT), "ROTATION": glb.raw_accessor(np.array(Rq), "VEC4", FLOAT),
-                              "SCALE": glb.raw_accessor(S, "VEC3", FLOAT), "_COLOR_0": glb.raw_accessor(Cc, "VEC3", FLOAT)}}
-        nodes.append(glb.add_node({"name": name, "mesh": mesh, "extensions": {"EXT_mesh_gpu_instancing": ext},
-                                   "extras": {"iv": {"kind": "trees", "instances": len(lst)}}}))
-    log(f"trees: {len(trunks)} trunks, {len(blobs)} broadleaf crowns, {len(cones)} conifer crowns")
-    return nodes, len(trunks)
+    return n
 
 
 def outer_terrain(sc, terr):
@@ -2561,6 +2408,390 @@ def pack_light(L4):
 
 
 # ================================================================================================
+# terrain splat control maps + grass density + vegetation instances (map art pass phase 1, decision D13)
+#   - weights of the terrain texture-array layers (Art/Textures/Environment/Terrain/terrain_layers.json) at 0.25 m
+#     over the whole data square, 3 RGBA PNGs (12 channels: 10 layers, puddle / wetness, spare)
+#   - macro tint (1 m, RGB multiplier * 0.5) against visible tiling and for dry / damp / tyre-worn areas
+#   - grass density (0.5 m, RGB = low clumps, tall grass, flowers) for the runtime grass scatter
+#   - tree / shrub instance tables; the models live in assets/environment/vegetation.glb (the backdrop forest is
+#     scattered at run time over the forest part of the backdrop ring, src/level/vegetation.js)
+# ================================================================================================
+SPLAT_RES = 0.25
+SPLAT_HALF = 176.0
+GRASS_RES = 0.5
+TERRAIN_LAYERS_JSON = os.path.join(ROOT, "Art", "Textures", "Environment", "Terrain", "terrain_layers.json")
+SURF_LAYER = {"asphalt": "Asphalt", "gravel": "Gravel", "dirt": "Dirt", "mud": "Mud", "grass": "GrassGround",
+              "forest_floor": "ForestFloor", "concrete": "Concrete", "paving": "PavingSetts", "stone": "RiverStones",
+              "water": "RiverStones", "wood": "Concrete", "metal": "Concrete", "tiles": "Concrete"}
+# boundary wobble of each surface (m): irregular, natural edges instead of the vector outlines
+BOUNDARY_WOBBLE = {"asphalt": 0.05, "gravel": 0.14, "dirt": 0.2, "mud": 0.3, "grass": 0.25, "forest_floor": 1.8,
+                   "concrete": 0.03, "paving": 0.04, "stone": 0.15, "water": 0.04}
+# transition width of each layer (Gaussian sigma in 0.25 m texels; the shader sharpens it by height)
+LAYER_SIGMA = {"Asphalt": 0.55, "Concrete": 0.55, "PavingSetts": 0.55, "Gravel": 0.9, "Dirt": 1.2, "Mud": 1.5,
+               "RiverStones": 1.1, "GrassGround": 1.2, "MeadowLitter": 2.5, "ForestFloor": 3.0}
+DECIDUOUS_LITTER = {"lipa", "lipa_stara", "javor", "jasan", "dub", "buk", "habr", "olse", "vrba", "briza", "briza_mlada",
+                    "jablon", "hruska", "svestka", "orech"}
+
+
+def splat_layer_names():
+    return [l["name"] for l in json.load(open(TERRAIN_LAYERS_JSON))["layers"]]
+
+
+def _grid(res):
+    n = int(round(2 * SPLAT_HALF / res))
+    c = -SPLAT_HALF + (np.arange(n) + 0.5) * res
+    GX, GY = np.meshgrid(c, c[::-1])          # row 0 = north (max y)
+    return n, GX, GY
+
+
+def _wobble(n, res, feature_m, seed):
+    return (value_noise((n, n), max(2, int(2 * SPLAT_HALF / feature_m)), seed, 3) - 0.5) * 2.0
+
+
+def _raster_polylines(n, res, polylines, width=0.0):
+    """boolean raster (row 0 = north) of polylines (level frame), dilated by width/2."""
+    img = Image.new("L", (n, n), 0)
+    d = ImageDraw.Draw(img)
+    to_px = lambda p: ((p[0] + SPLAT_HALF) / res, (SPLAT_HALF - p[1]) / res)  # noqa: E731
+    for pl in polylines:
+        pts = [to_px(p) for p in pl]
+        if len(pts) >= 2:
+            d.line(pts, fill=255, width=max(1, int(round(width / res))))
+    return np.asarray(img) > 0
+
+
+def _raster_polygons(n, res, polys):
+    img = Image.new("L", (n, n), 0)
+    d = ImageDraw.Draw(img)
+    for poly in polys:
+        pts = [((p[0] + SPLAT_HALF) / res, (SPLAT_HALF - p[1]) / res) for p in poly]
+        if len(pts) >= 3:
+            d.polygon(pts, fill=255)
+    return np.asarray(img) > 0
+
+
+def splat_maps(L, terr):
+    """terrain layer weights (n, n, 12) u8, macro tint (m, m, 3) u8, grass density (g, g, 3) u8 and the class raster."""
+    names = splat_layer_names()
+    LI = {nm: i for i, nm in enumerate(names)}
+    n, GX, GY = _grid(SPLAT_RES)
+    log(f"splat: surface fields on {n} x {n} @ {SPLAT_RES} m")
+    fields = surface_fields(L, GX, GY)
+    wob = _wobble(n, SPLAT_RES, 1.4, SEED + 301)
+    wob_big = _wobble(n, SPLAT_RES, 7.0, SEED + 302)
+    best = np.full(GX.shape, -1, np.int16)
+    cls = np.full(GX.shape, SURF_ID["grass"], np.uint8)
+    for pr, surf, d in fields:
+        amp = BOUNDARY_WOBBLE.get(surf, 0.1)
+        dd = d + amp * (wob_big if surf == "forest_floor" else wob)
+        upd = (dd <= 0) & (pr >= best)
+        cls[upd] = SURF_ID[surf]
+        best[upd] = pr
+    # ---- trees: distance to the nearest tree (forest floor only where trees stand), deciduous crowns (leaf litter)
+    from scipy.spatial import cKDTree
+    sp = L["trees"]["species"]
+    tx = np.array([t["pos"][0] for t in L["trees"]["instances"]])
+    ty = np.array([t["pos"][1] for t in L["trees"]["instances"]])
+    tcr = np.array([sp[t["species"]]["crown_radius"] * t.get("scale", 1.0) for t in L["trees"]["instances"]])
+    tdec = np.array([t["species"] in DECIDUOUS_LITTER for t in L["trees"]["instances"]])
+    q = np.column_stack([GX.ravel(), GY.ravel()])
+    dtree, itree = cKDTree(np.column_stack([tx, ty])).query(q, k=1)
+    dtree = dtree.reshape(n, n)
+    itree = itree.reshape(n, n)
+    rel = dtree / np.maximum(tcr[itree], 1.0)
+    under_dec = tdec[itree] & (rel < 1.05)
+    # ---- per-layer masks
+    W = np.zeros((n, n, 12), np.float32)
+    for surf, lay in SURF_LAYER.items():
+        if surf in SURF_ID:
+            W[..., LI[lay]] += (cls == SURF_ID[surf])
+    grass = W[..., LI["GrassGround"]].copy()
+    forest = W[..., LI["ForestFloor"]].copy()
+    n_dry = value_noise((n, n), 60, SEED + 303, 4)
+    # leaf litter under deciduous crowns, dry patches on the meadows, litter along building and wall bases
+    bmask = _raster_polygons(n, SPLAT_RES, [b["footprint_world"] for b in L["buildings"]] +
+                             [s["footprint_world"] for s in L["secondary_buildings"] if s.get("footprint_world")])
+    walls = [f["polyline"] for f in L["fences_walls_hedges"] if f["type"] in ("garden_wall_rendered_1p8", "concrete_low_wall", "concrete_low_wall_rendered", "concrete_wall_chain_link", "chain_link_on_plinth_1p5m")]
+    wmask = _raster_polylines(n, SPLAT_RES, walls, 0.3) | bmask
+    dwall = ndimage.distance_transform_edt(~wmask) * SPLAT_RES
+    litter = np.clip(1.25 - rel, 0, 1) * under_dec * (0.55 + 0.6 * n_dry)
+    litter = np.maximum(litter, np.clip((1.3 - dwall) / 1.0, 0, 1) * (0.4 + 0.5 * n_dry))
+    litter = np.maximum(litter, smoothstep_np(0.62, 0.8, n_dry) * 0.7)
+    garden = poly_signed_dist(next(s["polygon"] for s in L["terrain"]["stamps"] if s["id"] == "PAD_DUM_TERRACE"), GX, GY) < 0
+    litter[garden] *= 0.3
+    litter = np.clip(litter, 0, 0.9) * grass
+    W[..., LI["GrassGround"]] = grass - litter
+    W[..., LI["MeadowLitter"]] += litter
+    # forest floor: needles under conifers, leaf litter under broadleaves, meadow in the gaps between the trees
+    no_tree = np.clip((dtree - 4.0) / 5.0, 0, 1)
+    dec_share = under_dec * (0.6 + 0.4 * n_dry)
+    to_litter = forest * np.clip(np.maximum(no_tree * 0.8, dec_share * 0.7), 0, 1)
+    W[..., LI["ForestFloor"]] = forest - to_litter
+    W[..., LI["MeadowLitter"]] += to_litter
+    # ---- soften by layer, normalise
+    for nm, s in LAYER_SIGMA.items():
+        W[..., LI[nm]] = ndimage.gaussian_filter(W[..., LI[nm]], s, mode="nearest")
+    tot = W[..., :len(names)].sum(-1, keepdims=True)
+    W[..., :len(names)] /= np.maximum(tot, 1e-6)
+    # ---- puddles / wetness (channel 10): ruts and kerbs of the wet asphalt, low spots of yards, tracks, mud
+    wet = np.zeros((n, n), np.float32)
+    nsm = value_noise((n, n), 180, SEED + 304, 3)
+    nbig = value_noise((n, n), 40, SEED + 305, 3)
+    for r in L["roads"]:
+        dd, s_ = polyline_dist(r["polyline"], GX, GY)
+        hw = r["width"] / 2
+        ruts = np.maximum(np.exp(-((dd - 0.75) / 0.35) ** 2), np.exp(-((dd - 2.25) / 0.35) ** 2))
+        kerb = np.clip((dd - (hw - 0.55)) / 0.35, 0, 1) * (dd < hw + 0.05)
+        pud = smoothstep_np(0.5, 0.72, nsm * 0.6 + nbig * 0.55) * np.maximum(ruts * 0.85, kerb)
+        wet = np.maximum(wet, pud * (dd < hw + 0.1))
+    for t in L["tracks"]:
+        if t["id"] in ("TRACK_C", "TRACK_E_RING"):
+            dd, _ = polyline_dist(t["polyline"], GX, GY)
+            ruts = np.exp(-((dd - 0.8) / 0.3) ** 2)
+            wet = np.maximum(wet, ruts * smoothstep_np(0.55, 0.75, nsm * 0.5 + nbig * 0.6))
+    Hg = terr.z(GX.ravel(), GY.ravel()).reshape(n, n)
+    low = np.clip((ndimage.gaussian_filter(Hg, 8.0 / SPLAT_RES * 0.5) - Hg) / 0.06, 0, 1)
+    yard = (W[..., LI["Concrete"]] + W[..., LI["Gravel"]] + W[..., LI["PavingSetts"]]) > 0.5
+    wet = np.maximum(wet, yard * np.clip((low - 0.35) * 1.6, 0, 1) * smoothstep_np(0.6, 0.8, nsm * 0.5 + nbig * 0.6))
+    wet = np.maximum(wet, W[..., LI["Mud"]] * smoothstep_np(0.5, 0.7, nsm * 0.4 + nbig * 0.7))
+    # damp brook banks (darker, glossier, no standing water)
+    dwater = ndimage.distance_transform_edt(cls != SURF_ID["water"]) * SPLAT_RES
+    wet = np.maximum(wet, np.clip(1 - dwater / 2.5, 0, 1) * 0.35)
+    W[..., 10] = ndimage.gaussian_filter(wet, 0.8)
+    # 64 levels are plenty (the shader renormalises and sharpens by height); far smaller PNGs
+    w8 = np.clip(np.round(W * 63) * 4, 0, 255).astype(np.uint8)
+    # ---- macro tint (1 m): large-scale brightness / hue, dry meadow patches, damp banks, worn road lanes
+    m = int(round(2 * SPLAT_HALF / 1.0))
+    ds = n // m
+    Wm = W.reshape(m, ds, m, ds, 12).mean(axis=(1, 3))
+    Gm = GX.reshape(m, ds, m, ds).mean(axis=(1, 3))
+    Gym = GY.reshape(m, ds, m, ds).mean(axis=(1, 3))
+    lowf = value_noise((m, m), 12, SEED + 306, 4)
+    midf = value_noise((m, m), 45, SEED + 307, 3)
+    tint = np.ones((m, m, 3), np.float32)
+    tint *= (0.93 + 0.14 * lowf[..., None]) * (0.96 + 0.08 * midf[..., None])
+    g = Wm[..., LI["GrassGround"]] + Wm[..., LI["MeadowLitter"]]
+    dry = smoothstep_np(0.5, 0.8, value_noise((m, m), 20, SEED + 308, 4)) * g
+    tint = tint * (1 - dry[..., None]) + tint * np.array([1.12, 1.05, 0.82]) * dry[..., None]
+    dwm = dwater.reshape(m, ds, m, ds).min(axis=(1, 3))
+    damp = np.clip(1 - (dwm - 1.5) / 7.0, 0, 1) * g
+    tint = tint * (1 - damp[..., None]) + tint * np.array([0.82, 0.9, 0.8]) * damp[..., None]
+    for r in L["roads"]:
+        dd, _ = polyline_dist(r["polyline"], Gm, Gym)
+        lanes = np.maximum(np.exp(-((dd - 0.75) / 0.5) ** 2), np.exp(-((dd - 2.25) / 0.5) ** 2)) * (dd < r["width"] / 2)
+        tint *= (1 - 0.07 * lanes)[..., None]
+    # shade under the tree crowns (the instanced trees are not part of the light bake): darker, a little browner
+    q1 = np.column_stack([Gm.ravel(), Gym.ravel()])
+    dt1, it1 = cKDTree(np.column_stack([tx, ty])).query(q1, k=3)
+    shade = np.zeros(len(q1))
+    for kk in range(3):
+        rr_ = dt1[:, kk] / np.maximum(tcr[it1[:, kk]] * 0.9, 1.0)
+        shade = 1 - (1 - shade) * (1 - np.clip(1 - rr_ ** 2, 0, 1) * 0.55)
+    shade = shade.reshape(m, m)
+    tint *= (1 - 0.42 * shade)[..., None] * np.array([1.0, 0.97, 0.94])[None, None, :] ** shade[..., None]
+    macro = np.clip(np.round(tint * 0.5 * 255), 0, 255).astype(np.uint8)
+    # ---- grass density (0.5 m): R low clumps + forbs, G tall grass, B flowers
+    gd = int(round(2 * SPLAT_HALF / GRASS_RES))
+    k = n // gd
+    Wg = W.reshape(gd, k, gd, k, 12).mean(axis=(1, 3))
+    Xg = GX.reshape(gd, k, gd, k).mean(axis=(1, 3))
+    Yg = GY.reshape(gd, k, gd, k).mean(axis=(1, 3))
+    clsg = cls[k // 2::k, k // 2::k]
+    meadow = smoothstep_np(0.35, 0.8, Wg[..., LI["GrassGround"]] + 0.5 * Wg[..., LI["MeadowLitter"]] + 0.25 * Wg[..., LI["ForestFloor"]])
+    hard = np.isin(clsg, [SURF_ID[s] for s in ("asphalt", "gravel", "concrete", "paving", "water", "stone", "dirt", "mud")])
+    dhard = ndimage.distance_transform_edt(~hard) * GRASS_RES
+    meadow *= np.clip((dhard - 0.3) / 0.4, 0, 1)
+    # masks: building footprints, props, bridges, retaining walls, zones (for tall grass), lanes (for tall grass)
+    block = _raster_polygons(gd, GRASS_RES, [b["footprint_world"] for b in L["buildings"]] +
+                             [s["footprint_world"] for s in L["secondary_buildings"] if s.get("footprint_world")])
+    prop_polys = []
+    for p in L["props"]:
+        x, y = p["position"][:2]
+        sx, sy = p.get("size", [1, 1, 1])[:2]
+        a = math.radians(p.get("rotation_deg", 0.0))
+        ca, sa = math.cos(a), math.sin(a)
+        hx, hy = sx / 2 + 0.25, sy / 2 + 0.25
+        prop_polys.append([(x + u * ca - v * sa, y + u * sa + v * ca) for u, v in ((-hx, -hy), (hx, -hy), (hx, hy), (-hx, hy))])
+    block |= _raster_polygons(gd, GRASS_RES, prop_polys)
+    block |= _raster_polylines(gd, GRASS_RES, [b["ends"] for b in L["bridges"]], 6.0)
+    block |= _raster_polylines(gd, GRASS_RES, [rw["polyline"] for rw in L["retaining_walls"]], 0.8)
+    block = ndimage.binary_dilation(block, iterations=1)
+    meadow[block] = 0
+    wmask_g = _raster_polylines(gd, GRASS_RES, [f["polyline"] for f in L["fences_walls_hedges"]], 0.3) | block
+    dwall_g = ndimage.distance_transform_edt(~wmask_g) * GRASS_RES
+    zones = _raster_polygons(gd, GRASS_RES, [z["polygon"] for z in L["capture_zones"]])
+    dzone = ndimage.distance_transform_edt(~zones) * GRASS_RES
+    lane_pl = []
+
+    def _collect(o):
+        if isinstance(o, list) and len(o) >= 2 and all(isinstance(p, list) and len(p) >= 2 and all(isinstance(v, (int, float)) for v in p[:2]) for p in o):
+            lane_pl.append([p[:2] for p in o])
+        elif isinstance(o, dict):
+            for v in o.values():
+                _collect(v)
+        elif isinstance(o, list):
+            for v in o:
+                _collect(v)
+    _collect(L["lanes"])
+    dlane = ndimage.distance_transform_edt(~_raster_polylines(gd, GRASS_RES, lane_pl, 0.5)) * GRASS_RES
+    dwater_g = dwater[k // 2::k, k // 2::k]
+    soft_d = poly_signed_dist(L["boundary"]["soft_polygon"], Xg, Yg)
+    verge = np.clip(1 - (np.minimum(dhard, dwall_g) - 0.4) / 2.6, 0, 1)
+    dampg = np.clip(1 - (dwater_g - 1.0) / 7.0, 0, 1)
+    patch = smoothstep_np(0.58, 0.78, value_noise((gd, gd), 90, SEED + 309, 3))
+    low_d = meadow * (0.85 + 0.15 * value_noise((gd, gd), 70, SEED + 310, 3))
+    low_d *= np.where(dzone < 0.5, 0.55, 1.0)           # zone floors: low clumps only, fewer
+    tall = meadow * np.clip(0.12 + 0.6 * patch + 0.5 * verge + 0.6 * dampg, 0, 1)
+    tall *= np.clip((dlane - 3.0) / 1.5, 0, 1) * np.clip((dzone - 2.0) / 1.5, 0, 1)
+    tall *= np.clip((soft_d + 40) / 10, 0, 1)
+    tall = np.where(soft_d > 0, meadow * 0.35 * (soft_d < 14), tall)   # forest edge band outside the soft line
+    flw = meadow * smoothstep_np(0.55, 0.75, value_noise((gd, gd), 55, SEED + 311, 3)) * (1 - verge * 0.6) * (dzone > 1.0) * (soft_d < 0)
+    flw *= 1.0 - np.clip(Wg[..., LI["MeadowLitter"]] * 1.5, 0, 1) * 0.7
+    # yards: a little grass along walls and fence plinths only
+    yardg = np.isin(clsg, [SURF_ID["gravel"], SURF_ID["concrete"], SURF_ID["paving"]]) & ~block
+    edge = yardg & (dwall_g < 0.7)
+    low_d = np.where(edge, np.maximum(low_d, 0.35), low_d)
+    grass_rgb = np.clip(np.round(np.stack([low_d, tall, flw], -1) * 15) * 17, 0, 255).astype(np.uint8)
+    log(f"splat: layers {names}; puddles {float((W[..., 10] > 0.5).mean() * 100):.2f} %; grass cells {int((low_d > 0.05).sum())}")
+    return {"weights": w8, "macro": macro, "grass": grass_rgb, "names": names, "n": n, "res": SPLAT_RES, "cls": cls}
+
+
+def smoothstep_np(e0, e1, x):
+    t = np.clip((x - e0) / (e1 - e0), 0, 1)
+    return t * t * (3 - 2 * t)
+
+
+# ---- vegetation instances (render only; tree trunk collision stays in build_trees)
+TREE_SPECIES_ORDER = ["smrk", "borovice", "briza", "briza_mlada", "lipa", "lipa_stara", "javor", "jasan", "dub", "buk", "habr",
+                      "olse", "vrba", "jablon", "hruska", "svestka", "orech"]
+SHRUB_KINDS = ["shrub_low", "shrub_mid", "shrub_tall", "hedge_wild"]
+
+
+def tree_instances(L, terr):
+    """render rows of the trees; forest trees outside the soft boundary get up to 1.3x crown radius so the canopy
+    closes (visual only; the layout data and the trunk collision stay as they are)."""
+    sp = L["trees"]["species"]
+    soft = Polygon(L["boundary"]["soft_polygon"]).buffer(2.0)
+    rows = []
+    kinds = []
+    for t in L["trees"]["instances"]:
+        s = sp[t["species"]]
+        k = t.get("scale", 1.0)
+        x, y = t["pos"][0], t["pos"][1]
+        crown_k = 1.0 if soft.contains(Point(x, y)) else 1.3
+        z = terr.z1(x, y) - 0.1
+        seed = (int(hashlib.md5(t["id"].encode()).hexdigest()[:8], 16) % 100000) / 100000.0
+        rows.append((x, z, -y, math.radians(t.get("yaw_deg", 0.0)), s["height"] * k, s["crown_radius"] * k * crown_k, s["trunk_radius"] * k, seed))
+        kinds.append(TREE_SPECIES_ORDER.index(t["species"]))
+    return np.array(rows, np.float32), np.array(kinds, np.uint8)
+
+
+def _along(pl, step, r, jitter=0.3):
+    """points every ~step m along a polyline with jitter; yields (x, y, dir_x, dir_y)."""
+    out = []
+    for a, b in zip(pl[:-1], pl[1:]):
+        a = np.array(a[:2], float)
+        b = np.array(b[:2], float)
+        L_ = np.linalg.norm(b - a)
+        if L_ < 1e-6:
+            continue
+        d = (b - a) / L_
+        m = max(1, int(round(L_ / step)))
+        for i in range(m):
+            t = (i + 0.5 + (r.random() - 0.5) * jitter) / m
+            p = a + (b - a) * t
+            out.append((p[0], p[1], d[0], d[1]))
+    return out
+
+
+def shrub_instances(L, terr, cls_raster):
+    """shrubs of the vegetation blocks and wild hedgerows (inside their collision cores) + the forest-edge
+    understory outside the soft boundary (visual only there: the soft boundary countdown applies)."""
+    r = rng(SEED + 401)
+    rows, kinds = [], []
+
+    def add(x, y, yaw, h, w, kind):
+        z = terr.z1(x, y) - 0.05
+        rows.append((x, z, -y, yaw, h, w, 0.0, r.random()))
+        kinds.append(SHRUB_KINDS.index(kind))
+    for vb in L["vegetation_blocks"]:
+        h = vb["height"]
+        if "polyline" in vb:
+            wd = vb["width"]
+            for (x, y, dx, dy) in _along(vb["polyline"], 1.15, r):
+                nx, ny = -dy, dx
+                for off in ((-0.26, 0.26) if wd < 2.6 else (-0.3, 0.0, 0.3)):
+                    o = off * wd + (r.random() - 0.5) * 0.3
+                    kind = "shrub_tall" if h >= 2.6 else "shrub_mid"
+                    add(x + nx * o, y + ny * o, r.random() * 6.283, h * (0.8 + 0.25 * r.random()), wd * (0.75 + 0.3 * r.random()), kind)
+        else:
+            P = Polygon(vb["polygon"])
+            x0, y0, x1, y1 = P.bounds
+            for gx in np.arange(x0 + 0.7, x1, 1.5):
+                for gy in np.arange(y0 + 0.7, y1, 1.5):
+                    px_, py_ = gx + (r.random() - 0.5) * 0.8, gy + (r.random() - 0.5) * 0.8
+                    if P.buffer(-0.3).contains(Point(px_, py_)):
+                        add(px_, py_, r.random() * 6.283, h * (0.75 + 0.3 * r.random()), 2.2 + r.random(), "shrub_tall")
+    for f in L["fences_walls_hedges"]:
+        if f["type"] == "hedgerow_mixed":
+            for (x, y, dx, dy) in _along(f["polyline"], 1.0, r):
+                nx, ny = -dy, dx
+                o = (r.random() - 0.5) * 0.5
+                add(x + nx * o, y + ny * o, r.random() * 6.283, f["height"] * (0.85 + 0.25 * r.random()), 1.7 + 0.5 * r.random(), "hedge_wild")
+    # forest-edge understory: 2-14 m outside the soft line, off roads / tracks / fields, clear of the barrier line
+    soft = Polygon(L["boundary"]["soft_polygon"])
+    hard = Polygon(L["boundary"]["hard_polygon"])
+    band = soft.buffer(14.0).difference(soft.buffer(2.0))
+    deep = soft.buffer(60.0).difference(soft.buffer(14.0))
+    bx0, by0, bx1, by1 = soft.buffer(60.0).bounds
+    fields = [Polygon(f["polygon"]) for f in L.get("fields", [])]
+    n = cls_raster.shape[0]
+    cand = poisson_points_xy(bx0, by0, bx1, by1, 2.6, r)
+    hard_ring = hard.exterior
+    for (px_, py_) in cand:
+        pt = Point(px_, py_)
+        in_band = band.contains(pt)
+        if not in_band:
+            # deeper forest: every ~3rd candidate, only inside the data square
+            if not (max(abs(px_), abs(py_)) < 174.0 and r.random() < 0.3 and deep.contains(pt)):
+                continue
+        if abs(hard_ring.distance(pt) - 0.5) < 1.6:
+            continue
+        i = int((SPLAT_HALF - py_) / SPLAT_RES)
+        j = int((px_ + SPLAT_HALF) / SPLAT_RES)
+        if 0 <= i < n and 0 <= j < n:
+            c = cls_raster[max(0, i - 8):i + 9, max(0, j - 8):j + 9]
+            if np.isin(c, [SURF_ID[s] for s in ("asphalt", "gravel", "dirt", "concrete", "paving", "water")]).any():
+                continue
+        if any(fp.buffer(1.0).contains(pt) for fp in fields):
+            continue
+        if not in_band and np.isin(cls_raster[max(0, i - 8):i + 9, max(0, j - 8):j + 9], [SURF_ID["grass"]]).mean() > 0.9 and r.random() < 0.7:
+            continue   # open meadow outside: keep it mostly clear
+        inside_hard = hard.contains(pt)
+        u = r.random()
+        if inside_hard:
+            kind, h = "shrub_low", 0.6 + 0.3 * r.random()       # <= 0.8 m inside the physical boundary
+        elif u < 0.45:
+            kind, h = "shrub_tall", 1.8 + 1.2 * r.random()
+        elif u < 0.85:
+            kind, h = "shrub_mid", 1.1 + 0.6 * r.random()
+        else:
+            kind, h = "shrub_low", 0.6 + 0.4 * r.random()
+        add(px_, py_, r.random() * 6.283, h, h * (0.9 + 0.5 * r.random()), kind)
+    return np.array(rows, np.float32), np.array(kinds, np.uint8)
+
+
+def poisson_points_xy(x0, y0, x1, y1, rmin, r):
+    """jittered-grid blue noise over a rectangle (deterministic)."""
+    cell = rmin
+    xs = np.arange(x0, x1, cell)
+    ys = np.arange(y0, y1, cell)
+    X, Y = np.meshgrid(xs, ys)
+    P = np.column_stack([X.ravel(), Y.ravel()]) + r.random((X.size, 2)) * cell * 0.85
+    return P
+
+
+# ================================================================================================
 # assembly
 # ================================================================================================
 def three_xyz(p):
@@ -2577,7 +2808,7 @@ def wrap180(a):
 
 
 NO_BAKE = {"glass", "water", "chainlink", "mesh_deer", "lamp_emissive", "backdrop", "terrain_outer"}
-NO_OCCLUDE = {"glass", "water", "chainlink", "mesh_deer", "backdrop", "terrain_outer", "lamp_emissive"}
+NO_OCCLUDE = {"glass", "water", "chainlink", "mesh_deer", "backdrop", "terrain_outer", "lamp_emissive", "road_marking"}
 
 
 def chunk_split(arrs, size=120.0):
@@ -2621,6 +2852,7 @@ def build_all(args):
     build_water(sc, L)
     build_poles(sc, L, terr)
     build_boundary(sc, L, terr)
+    build_road_markings(sc, L, terr)
     outer_terrain(sc, terr)
     backdrop(sc, L, terr)
     log(f"content built: {sc.stats}; render materials {len(sc.render)}, collision sets {len(sc.col)}")
@@ -2631,18 +2863,22 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--no-bake", action="store_true", help="skip the light bake (sky visibility 1, no bounce)")
     ap.add_argument("--rays", type=int, default=16)
-    ap.add_argument("--albedo", type=int, default=2048)
     args = ap.parse_args()
     os.makedirs(OUT_ASSETS, exist_ok=True)
     L, B, level_hash, terr, sc = build_all(args)
 
-    # ---- world GLB (trees need the collision scene for trunks, so build them first)
+    # ---- world GLB (tree trunk collision goes into the collision scene, so before the collision GLB)
     gw = GLB()
     mbw = MaterialBank(gw)
-    tree_nodes, ntrees = build_trees(gw, mbw, L, terr, sc)
+    ntrees = build_trees(L, terr, sc)
 
-    # ---- albedo map + surface raster
-    albedo, _, rough_map = make_albedo(L, terr, args.albedo)
+    # ---- terrain splat control maps, grass density, vegetation instances
+    splat = splat_maps(L, terr)
+    veg_trees, veg_tree_kinds = tree_instances(L, terr)
+    veg_shrubs, veg_shrub_kinds = shrub_instances(L, terr, splat["cls"])
+    log(f"vegetation: {len(veg_trees)} trees, {len(veg_shrubs)} shrubs (the backdrop forest is scattered at run time)")
+
+    # ---- surface raster (gameplay: footsteps / impacts)
     SX = terr.X[:-1, :-1] + RES / 2
     SY = terr.Y[:-1, :-1] + RES / 2
     surf = surface_raster(L, SX, SY)          # rows = south -> north (j), cols = west -> east (i)
@@ -2724,12 +2960,7 @@ def main():
     # ---- terrain GLB: fine tiles (render + collision) + outer ring + backdrop
     gt = GLB()
     mbt = MaterialBank(gt)
-    mat_ter = mbt.get("terrain", extra_tex=albedo)
-    # roughness map on the terrain material (G channel)
-    t_r = mbt.texture("terrain_rough", rough_map, True, jpeg=True)
-    gt.materials[mat_ter]["pbrMetallicRoughness"]["metallicRoughnessTexture"] = {"index": t_r}
-    gt.materials[mat_ter]["pbrMetallicRoughness"]["roughnessFactor"] = 1.0
-    gt.materials[mat_ter]["pbrMetallicRoughness"]["metallicFactor"] = 0.0
+    mat_ter = mbt.get("terrain")
     tnodes = []
     # fine tiles with quantised normals (smooth across tiles)
     gy, gx = np.gradient(H, RES)
@@ -2783,8 +3014,20 @@ def main():
         mi = gt.mesh_from_buf(mbuf, mbt.get(key))
         tnodes.append(gt.add_node({"name": key, "mesh": mi, "extras": {"iv": {"kind": key}}}))
     surf_acc = gt.raw_accessor(np.flipud(surf).ravel(), "SCALAR", UBYTE)
+    # splat control images (PNG / JPEG in the binary chunk, not referenced by any glTF texture: the game decodes them)
+    w8 = splat["weights"]
+    wimg = [gt.add_image(png_bytes(w8[..., 4 * k:4 * k + 4], "RGBA"), "image/png") for k in range(3)]
+    mimg = gt.add_image(jpg_bytes(splat["macro"], 92), "image/jpeg")
+    gimg = gt.add_image(png_bytes(splat["grass"], "RGB"), "image/png")
+    names = splat["names"]
+    channels = {nm: [i // 4, i % 4] for i, nm in enumerate(names)}
+    channels["_puddle"] = [2, 2]
     gt.extras = {"iv": {"level": LEVEL_ID, "levelHash": level_hash,
-                        "albedoRect": [terr.x0, terr.y0, terr.x1, terr.y1],
+                        "splat": {"rect": [-SPLAT_HALF, -SPLAT_HALF, SPLAT_HALF, SPLAT_HALF], "res": SPLAT_RES, "size": int(splat["n"]),
+                                  "weightImages": wimg, "layers": names, "channels": channels, "rowOrder": "north_to_south",
+                                  "macroImage": mimg, "macroRes": 1.0, "macroEncoding": "rgb multiplier * 0.5",
+                                  "grassImage": gimg, "grassRes": GRASS_RES, "grassChannels": ["low", "tall", "flowers"],
+                                  "layerManifest": "assets/environment/terrain/terrain_layers.json"},
                         "surfaceRaster": {"accessor": surf_acc, "width": int(surf.shape[1]), "height": int(surf.shape[0]),
                                           "x0": terr.x0, "y0": terr.y0, "res": RES, "rowOrder": "north_to_south",
                                           "surfaces": SURFACES},
@@ -2808,7 +3051,7 @@ def main():
         world_arrays[key] = (P, N, UV, Cc, I)
 
     # ---- world GLB: render meshes by material x chunk + trees
-    wnodes = list(tree_nodes)
+    wnodes = []
     wstats = {"meshes": 0, "tris": 0, "verts": 0}
     for key in sorted(world_arrays):
         P, N, UV, Cc, I = world_arrays[key]
@@ -2823,7 +3066,11 @@ def main():
             wstats["meshes"] += 1
             wstats["tris"] += len(tri)
             wstats["verts"] += len(used)
-    gw.extras = {"iv": {"level": LEVEL_ID, "levelHash": level_hash, "trees": ntrees}}
+    gw.extras = {"iv": {"level": LEVEL_ID, "levelHash": level_hash, "trees": ntrees, "vegetation": {
+        "_comment": "instance tables (three.js frame): float32 rows [x, y, z, yaw rad, height m, crown / width m, trunk radius m, seed 0..1] + u8 kind index; models: assets/environment/vegetation.glb",
+        "models": "assets/environment/vegetation.glb",
+        "trees": {"rows": gw.raw_accessor(veg_trees, "SCALAR", FLOAT), "kinds": gw.raw_accessor(veg_tree_kinds, "SCALAR", UBYTE), "count": int(len(veg_trees)), "kindNames": TREE_SPECIES_ORDER},
+        "shrubs": {"rows": gw.raw_accessor(veg_shrubs, "SCALAR", FLOAT), "kinds": gw.raw_accessor(veg_shrub_kinds, "SCALAR", UBYTE), "count": int(len(veg_shrubs)), "kindNames": SHRUB_KINDS}}}}
     w_path = os.path.join(OUT_ASSETS, "kh_world.glb")
     w_size = gw.write(w_path, wnodes)
     log(f"wrote {w_path} ({w_size / 1048576:.2f} MiB): {wstats}")
@@ -2959,6 +3206,7 @@ def level_json(L, terr, level_hash, files, stats):
             "terrain": f"{ASSET_DIR_REL}/kh_terrain.glb",
             "render": [f"{ASSET_DIR_REL}/kh_terrain.glb", f"{ASSET_DIR_REL}/kh_world.glb"],
             "collision": f"{ASSET_DIR_REL}/kh_collision.glb",
+            "environment": {"terrainLayers": "assets/environment/terrain/terrain_layers.json", "vegetation": "assets/environment/vegetation.glb"},
             "files": {os.path.basename(k): file_sha(v) for k, v in files.items()},
             "navClip": [three_xz(p) for p in list(nav_clip.exterior.coords)[:-1]],
             "stats": stats,

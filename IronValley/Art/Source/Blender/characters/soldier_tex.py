@@ -179,7 +179,7 @@ def cloth_maps(td, objnames, fr, shirt_cfg, trouser_cfg, seed=5):
         torso = S_ & ~sleeve
         # collar (camo) above the neck line
         neck = shirt_cfg["collar_z0"] + shirt_cfg["collar_tilt"] * (P[:, 1] + 0.05)
-        collar = S_ & (P[:, 2] > neck - 0.004) & (np.abs(P[:, 0]) < 0.11)
+        collar = S_ & (P[:, 2] > neck - 0.004) & (np.abs(P[:, 0]) < 0.13)
         solid[torso & ~collar] = 1.0
         # seams: raglan, collar, side seams of the torso, sleeve inseam (underside of the arm)
         d_rag = np.where(S_ & (P[:, 2] > 1.10), rag, 1.0)
@@ -364,7 +364,7 @@ def cloth_maps(td, objnames, fr, shirt_cfg, trouser_cfg, seed=5):
         h[B_] += (weave[B_] * 0.00004 + wave_noise(P[B_], 0.05, 2, seed + 12, 6) * 0.0004 * gaiter[B_])
         # gaiter: horizontal soft folds under the nose + a rolled top edge
         gf = fold_wave(P[:, 2] / 0.018 + wave_noise(P, 0.04, 2, seed + 13, 6) * 0.4)
-        h[B_] += (gf[B_] * 0.0005 * gaiter[B_])
+        h[B_] += (gf[B_] * 0.0003 * gaiter[B_])
         edge = np.clip(1 - np.abs(td["iv_gaiter"] - 0.5) / 0.25, 0, 1)
         h[B_] += (edge[B_] * 0.0010)
         rough[B_] = 0.93
@@ -394,7 +394,7 @@ def cloth_maps(td, objnames, fr, shirt_cfg, trouser_cfg, seed=5):
     rough = rough + 0.03 * wave_noise(P, 0.09, 2, seed + 41, 5)
     cav *= (1 - 0.30 * seam_dark)
     camoW = camo_layers(P, seed)
-    return dict(camoW=camoW, solid=solid, reinf=reinf, seam=seam_dark, thread=thread, loop=loop_patch,
+    return dict(P=P, camoW=camoW, solid=solid, reinf=reinf, seam=seam_dark, thread=thread, loop=loop_patch,
                 gaiter=gaiter, is_bala=is_bala, is_skin=is_skin, is_helm=is_helm, h=h, rough=np.clip(rough, 0.3, 1.0),
                 cav=cav, macro=wave_noise(P, 0.25, 2, seed + 50, 5), grime=grime(P, N))
 
@@ -424,6 +424,17 @@ def cloth_base(cm, team):
     if b.any():
         bal = srgb(NEUTRAL["balaclava"])[None, :] * (1 + 0.05 * cm["macro"][b, None])
         gai = srgb(NEUTRAL["gaiter"])[None, :] * (1 + 0.06 * cm["macro"][b, None])
+        # neck gaiter / shemagh: low-contrast woven check (sand / olive drab) with darker lines
+        Pb = cm["P"][b]
+        u = np.arctan2(Pb[:, 0], -(Pb[:, 1] + 0.05)) * 0.085
+        v = Pb[:, 2]
+        cell = 0.011
+        chk = ((np.floor(u / cell) + np.floor(v / cell)) % 2).astype(np.float32)
+        ln = np.maximum(np.abs(((u / cell) % 1) - 0.5), np.abs(((v / cell) % 1) - 0.5))
+        lines = np.clip((ln - 0.40) / 0.08, 0, 1)
+        sand = srgb("#7d765f")[None, :]
+        gai = gai * (1 - 0.35 * chk[:, None]) + sand * (0.35 * chk[:, None])
+        gai = gai * (1 - 0.30 * lines[:, None])
         g = cm["gaiter"][b, None]
         base[b] = bal * (1 - g) + gai * g
     k = cm["is_skin"]
@@ -438,7 +449,7 @@ def cloth_base(cm, team):
 
 HARD = {
     # zone: (colour hex, roughness, metallic)
-    "hard": ("#1e1f1d", 0.62, 0.0), "mag": ("#2b2b2a", 0.74, 0.0), "rail": ("#1c1d1c", 0.55, 0.0),
+    "hard": ("#1e1f1d", 0.62, 0.0), "mag": ("#2b2b2a", 0.74, 0.0), "rail": ("#18191a", 0.74, 0.0),
     "shroud": ("#141516", 0.42, 1.0), "headset": ("#2e3129", 0.58, 0.0), "lens": ("#0c0d10", 0.05, 0.0),
     "frame": ("#161616", 0.48, 0.0), "kneepad": ("#1e1e1c", 0.70, 0.0), "strap": ("#1b1b1a", 0.88, 0.0),
     "helmet": ("#1f201d", 0.80, 0.0),
@@ -525,7 +536,7 @@ def gear_maps(td, objs, fr, conv, seed=9):
         c = np.array([0.0, -0.051])
         azr = np.arctan2(P[:, 0] - c[0], -(P[:, 1] - c[1])) * 0.12
         slot = sm(0.35, 0.30, np.abs(((azr / 0.012) % 1.0) - 0.5)) * rl
-        h -= slot * 0.0012
+        h -= slot * 0.0007
         cav *= (1 - 0.4 * slot)
     # magazines: ribs on the flanks, brass cartridges at the top
     mg = zones == "mag"

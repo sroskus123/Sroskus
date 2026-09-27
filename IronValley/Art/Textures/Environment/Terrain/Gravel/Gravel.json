@@ -1,0 +1,21 @@
+{
+ "tile_m": 2.0,
+ "relief_m": 0.045,
+ "family": "gravel (ART_DIRECTION 3.1)",
+ "author": "generated in this project (IRON VALLEY)",
+ "license": "project-owned",
+ "generator": "Tools/environment/terrain_textures.py",
+ "seed": 20260927,
+ "name": "Gravel",
+ "maps": {
+  "baseColor": "T_Gravel_BaseColor.png",
+  "normal": "T_Gravel_Normal.png",
+  "normalDX": "T_Gravel_Normal_DX.png",
+  "orm": "T_Gravel_ORM.png",
+  "height": "T_Gravel_Height.png"
+ },
+ "size_px": 1024,
+ "mean_base_color_srgb": "#8b867b",
+ "mean_roughness": 0.93,
+ "conventions": "base colour sRGB without baked light; ORM R=occlusion G=roughness B=metallic (linear); normal OpenGL (+Y up), _DX flips green; height 16-bit 0..1 over relief_m"
+}
