@@ -1,6 +1,7 @@
 # IRON VALLEY — stav projektu
 
-Tento soubor čti jako první při každém pokračování práce.
+Tento soubor čti jako první při každém pokračování práce. **Předání jinému chatu (2026-09-27 večer): začni souborem
+`HANDOFF.md`** (souhrn všeho, reference, otevřené otázky, další kroky).
 
 | Položka | Hodnota |
 | --- | --- |
@@ -150,9 +151,10 @@ Zastaveni agenti: úprava mapy podle referencí uživatele (checker 82 PASS / 5 
 (uprostřed renderů a exportu). Oba obnoveni se zachovaným kontextem. Hotovo předtím a commitnuto: oprava pušky IV-7
 (745251e, specifikace doplněna baef131), optiky ve hře (5089134), náhled v4.
 
-## Pozastaveno uživatelem (2026-09-27 ~17:00 UTC)
+## Pozastaveno uživatelem a předáno (2026-09-27 ~17:00 a ~21:00 UTC)
 
-Uživatel požádal o zastavení veškeré práce a o verzi k vyzkoušení (náhled v6). Pokračovat až na jeho pokyn.
+Uživatel požádal o zastavení veškeré práce a o verzi k vyzkoušení (náhled v6). Pak krátce pokračovat, a nakonec o zastavení,
+sepsání poznámek a nahrání všeho na GitHub k předání jinému chatu (`HANDOFF.md`). Agenti jsou zastavení.
 - **Terén a vegetace (fáze 1 grafiky mapy):** zastaveno během 2. kola kritiky (`Docs/MAP_art_r1_defects.json`,
   `Docs/MAP_art_r2_defects.json`). Hotovo: splat materiál terénu (`Web/src/level/terrainMaterial.js`, generované sady
   `Tools/environment/terrain_textures.py`), tráva (`grass.js`), stromy a keře z Blenderu (`Art/Source/Blender/environment/
