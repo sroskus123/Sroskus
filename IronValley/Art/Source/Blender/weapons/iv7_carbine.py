@@ -224,7 +224,7 @@ def build_materials():
     # (sharper, structured highlights), orange-peel + tool-path micro normal that survives the
     # 8-bit map, chipped edge wear on exposed / handled edges only and light dust in cavities.
     # Separate instances -> slight lot-to-lot differences.
-    sat = dict(style="worn_satin", micro=0.5)
+    sat = dict(style="worn_satin", micro=0.32)
     MAT["anod_upper"] = L.mat_anodized("IV7_Anod_Upper", mb, base=(0.040, 0.041, 0.047), rough=0.30, seed=1,
                                        machining=0.15, **sat)
     MAT["anod_lower"] = L.mat_anodized("IV7_Anod_Lower", mb, base=(0.042, 0.042, 0.048), rough=0.31, seed=2,
@@ -243,7 +243,9 @@ def build_materials():
     MAT["steel_muzzle"] = L.mat_steel("IV7_Steel_Muzzle", mb, seed=7, rough=0.4,
                                       soot={"axis": 'X', "start": x_soot0, "end": x_soot1})
     MAT["steel"] = L.mat_steel("IV7_Steel_Nitride", mb, seed=8, grain=0.3)
-    MAT["phos"] = L.mat_phosphate("IV7_Steel_Phosphate", mb, seed=9)
+    # phosphate (parkerized) small parts: darker and a little less rough than the shared preset, so
+    # pins and controls read as dark grey steel, not light grey putty (MAT-4)
+    MAT["phos"] = L.mat_phosphate("IV7_Steel_Phosphate", mb, seed=9, base=(0.046, 0.047, 0.045), rough=0.52)
     MAT["engrave"] = L.mat_paint("IV7_Engrave_Fill", mb, (0.30, 0.30, 0.31), rough=0.5, seed=10)
     MAT["paint_w"] = L.mat_paint("IV7_Paint_White", mb, (0.72, 0.72, 0.70), seed=11)
     MAT["paint_r"] = L.mat_paint("IV7_Paint_Red", mb, (0.50, 0.035, 0.025), seed=12)
@@ -1326,6 +1328,15 @@ def uv_scale_policy(obj, info):
         return 1.6                                       # markings: extra resolution for legibility
     f = HIDDEN_PARTS.get(base, 1.0)
     a_cm2 = info["area3d"] * 1e4
+    if base == "LowerReceiver" and a_cm2 < 0.3:
+        # glyph counters (the "6", "e"-like holes of the roll marks) and the gaps of the pictograms
+        # are small anodised islands inside the markings: they get the markings' density too
+        # (shrunk as "tiny" islands they owned no texel and took the paint colour of a neighbour)
+        cb = info["center"] * 100.0 + Vector(HOLD)
+        in_roll = -7.1 < cb.x < -0.8 and -7.9 < cb.z < -2.6
+        in_icons = -14.6 < cb.x < -10.2 and -5.0 < cb.z < -2.8
+        if cb.y > 1.2 and (in_roll or in_icons):
+            return 1.6
     if a_cm2 < 0.01:
         f *= 0.45
     elif a_cm2 < 0.06:
@@ -1387,10 +1398,11 @@ def bake_stage():
     res = {}
     res["Body"] = L.bake_texture_set("Body", set_objects("Body"), MAT["masks_body"], TEX_DIR, "T_IV7_",
                                      size=TEX_SIZE, mask_samples=samp_mask, final_samples=samp_final,
-                                     margin=8 if QUICK else 16, isolate=iso)
+                                     margin=8 if QUICK else 16, isolate=iso, normal_dither=True)
     res["Furniture"] = L.bake_texture_set("Furniture", set_objects("Furniture"), MAT["masks_furn"], TEX_DIR,
                                           "T_IV7_", size=TEX_SIZE, mask_samples=samp_mask,
-                                          final_samples=samp_final, margin=8 if QUICK else 16, isolate=iso)
+                                          final_samples=samp_final, margin=8 if QUICK else 16, isolate=iso,
+                                          normal_dither=True)
     # swap procedural materials for export materials that reference the baked images only
     for tset, paths in res.items():
         em = L.export_material(f"M_IV7_{tset}", paths["BaseColor"], paths["ORM"], paths["Normal"])

@@ -1336,8 +1336,10 @@ def mat_anodized(name, masks, base=(0.042, 0.042, 0.046), rough=0.34, wear=1.0,
     # metallic: binary per material; only heavy grime in crevices turns dielectric (narrow step)
     grime = nb.remap(dirt, 0.42, 0.5)
     metal = nb.inv(grime)
+    # worn_satin: a finer orange-peel (~1.5 mm) than the legacy 2.4 mm, so studio reflections stay
+    # straight (the coarse peel read as crumpled paper in close-ups)
     nrm = _micro_normal(nb, co, w, nb.mul(worn, -0.35), strength=micro, milling=0.0,
-                        scuff=nb.mul(contact, 1.0), machining=machining)
+                        scuff=nb.mul(contact, 1.0), machining=machining, peel_scale=650.0 if satin else 420.0)
     nb.set(bsdf.inputs['Base Color'], col)
     nb.set(bsdf.inputs['Roughness'], r)
     nb.set(bsdf.inputs['Metallic'], metal)
@@ -1393,9 +1395,9 @@ def mat_steel(name, masks, base=(0.048, 0.048, 0.052), rough=0.36, metal=1.0, we
     return m
 
 
-def mat_phosphate(name, masks, seed=0):
+def mat_phosphate(name, masks, seed=0, base=(0.060, 0.061, 0.057), rough=0.6):
     """Manganese-phosphate (parkerized) small parts: dark, grainy, rougher metal (metallic 1)."""
-    return mat_steel(name, masks, base=(0.060, 0.061, 0.057), rough=0.6, metal=1.0,
+    return mat_steel(name, masks, base=base, rough=rough, metal=1.0,
                      wear=0.9, grain=0.9, seed=seed, bright=(0.24, 0.24, 0.24))
 
 
@@ -2452,7 +2454,7 @@ def _restore_bsdf(mats):
 
 def bake_texture_set(set_name, objs, masks_group, tex_dir, prefix, size=2048,
                      mask_samples=24, final_samples=4, margin=16, isolate=None,
-                     intermediate_dir=None):
+                     intermediate_dir=None, normal_dither=False):
     """Two-stage bake of one texture set shared by `objs` (one UV map, packed together).
 
     Stage 1: bake the procedural mask group (R edge, G cavity, B AO) with many samples.
@@ -2515,7 +2517,10 @@ def bake_texture_set(set_name, objs, masks_group, tex_dir, prefix, size=2048,
     bc = chans["Base Color"].copy()
     bc[..., :3] = linear_to_srgb(bc[..., :3])
     out["BaseColor"] = save_png(bc, os.path.join(tex_dir, base + "_BaseColor.png"))
-    out["Normal"] = save_png(n_arr, os.path.join(tex_dir, base + "_Normal.png"))
+    # normal_dither: +-0.5 LSB deterministic dither before 8-bit quantisation, so shallow micro
+    # slopes survive as an unbanded average instead of snapping to the flat value
+    out["Normal"] = save_png(n_arr, os.path.join(tex_dir, base + "_Normal.png"),
+                             dither_seed=(7 if normal_dither else None))
     out["Normal_DX"] = normal_gl_to_dx(out["Normal"], os.path.join(tex_dir, base + "_Normal_DX.png"))
     orm = np.zeros_like(bc)
     orm[..., 0] = np.clip(mask_arr[..., 2], 0, 1)
