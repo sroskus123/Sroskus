@@ -438,7 +438,7 @@ def pistol_grip_frame_search(model, coll, ga, fwd, side, mcp_ref, grip_parts, tr
     wr = {f: HN.wrap_finger(model, k, pose, H, coll, f, lim=FIST_LIMITS[f]) for f in fingers}
     return H, pose, dict({"placement": "palm on the grip side, knuckle row along the grip axis, middle MCP under the "
                                        "trigger guard; yaw / tilt / forward offset / height searched"}, **cand,
-                         snugness_mm=round(HN.snugness(model, k, pose, H, coll, list(fingers)) * 1000, 2),
+                         snugness_after_wrap_mm=round(HN.snugness(model, k, pose, H, coll, list(fingers)) * 1000, 2),
                          wrap=wr, index=ir, candidates=tried)
 
 
