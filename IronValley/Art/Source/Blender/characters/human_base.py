@@ -689,7 +689,7 @@ def p_wrist_twist(arm):
 # Hand test poses in ANATOMICAL angles (ivchar.pose_hand_anat; 0 = straight finger).  The full
 # fist is the pose library's tuned fist (hands_gloves.py), thumb over the index / middle.
 _T = lambda a, b, c, d, e: {"cmc_flex": a, "cmc_abd": b, "cmc_rot": c, "mcp": d, "ip": e}   # noqa: E731
-FIST = dict(ANAT_FIST_TESTS[1][1], thumb=_T(35, 5, 15, 30, 45))
+FIST = dict(ANAT_FIST_TESTS[1][1], thumb=_T(40, 30, 0, 40, 20))
 GRIP = dict({f: _F(60, 80, 50) for f in C.FINGERS4}, thumb=_T(20, 20, 10, 20, 25))
 HALF = dict({f: _F(45, 50, 30) for f in C.FINGERS4}, thumb=_T(10, 8, 8, 12, 20))
 SPREAD = dict(index=_F(-5, 0, 0, 12), middle=_F(-5, 0, 0, 2), ring=_F(-5, 0, 0, -10), pinky=_F(-5, 0, 0, -22),

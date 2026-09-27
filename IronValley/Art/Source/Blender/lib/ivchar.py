@@ -2066,7 +2066,7 @@ def hand_pose_quats(pose, s, rest):
       cmc_flex : thumb_01 about its X relative to rest, + = across the palm (flexion / adduction)
       cmc_abd  : thumb_01 about its Z relative to rest, + = out in front of the palm (palmar abduction)
       cmc_rot  : thumb_01 about its own long axis relative to rest, + = pronation (pad turns towards the fingers)
-    Finger _01: q = Rz(abd) Rx(mcp - rest); thumb_01: q = Rx(cmc_flex) Rz(cmc_abd) Ry(cmc_rot)."""
+    Finger _01: q = Rx(mcp - rest) Rz(abd); thumb_01: q = Rx(cmc_flex) Rz(cmc_abd) Ry(cmc_rot)."""
     zs = 1.0 if s == "l" else -1.0
     rad = math.radians
     q = {}
@@ -2075,9 +2075,12 @@ def hand_pose_quats(pose, s, rest):
         if fp is None:
             continue
         n1, n2, n3 = (f"{f}_0{i}_{s}" for i in (1, 2, 3))
+        # joint coordinate system (ISB style): flexion about the metacarpal-fixed X, abduction about
+        # the floating axis (the phalanx's own Z after abduction-first composition), so a flexed
+        # finger still deviates SIDEWAYS instead of twisting about its long axis
         q1 = Quaternion((0, 0, 1), rad(fp.get("abd", 0.0) * zs))
         if "mcp" in fp:
-            q1 = q1 @ Quaternion((1, 0, 0), rad(fp["mcp"] - rest[n1]))
+            q1 = Quaternion((1, 0, 0), rad(fp["mcp"] - rest[n1])) @ q1
         q[n1] = q1
         if "pip" in fp:
             q[n2] = Quaternion((1, 0, 0), rad(fp["pip"] - rest[n2]))
@@ -2126,7 +2129,7 @@ def measured_hand_angles(arm, s, rest=None):
                     e["mcp" if i == 2 else "ip"] = round(math.degrees(twist_angle(q, 0)) + rest[n], 3)
                 continue
             if i == 1:
-                eu = q.to_matrix().to_euler('XZY')           # R = Rz Rx
+                eu = q.to_matrix().to_euler('ZXY')           # R = Rx Rz
                 e["mcp"] = round(math.degrees(eu.x) + rest[n], 3)
                 e["abd"] = round(math.degrees(eu.z) * zs, 3)
             else:
@@ -2177,10 +2180,13 @@ def hand_contact_metrics(co, co_rest, tris, dom, s, fold_rest_dist=0.012, search
         if not ins:
             continue
         buried_n += 1
-        best = None
+        best, nearest_of = None, {}
         for loc, fn, fi, dist in bvh.find_nearest_range(pv, search):
             if fi is None:
                 continue
+            rb = treg[fi]
+            if dist < nearest_of.get(rb, (1e9,))[0]:
+                nearest_of[rb] = (dist, (pv - loc).dot(fn))
             if float(np.min(np.linalg.norm(co_rest[tris[fi]] - co_rest[v], axis=1))) < fold_rest_dist:
                 continue
             if best is None or dist < best[0]:
@@ -2190,10 +2196,24 @@ def hand_contact_metrics(co, co_rest, tris, dom, s, fold_rest_dist=0.012, search
             continue
         A = reg[v]
         seg = names_dom[v].split("_")[1] if A in FINGERS else ""
-        key = f"{A}{'_' + seg if seg else ''}->{treg[best[1]]}"
-        pairs.setdefault(key, []).append(best[0])
+        a_key = f"{A}{'_' + seg if seg else ''}"
+        B = treg[best[1]]
+        depth = best[0]
+        if contact_category(a_key, B) != "crease":
+            # contact between two different parts: the penetration depth is the distance to the
+            # nearest point of B's WHOLE surface (the fold exclusion only serves skin folding onto
+            # its own crease; applied here it would skip B's near side, e.g. the web between two
+            # fingers, and report B's far side instead) -- and v must lie on the INNER side of
+            # that surface; otherwise v is buried in a fold of its own crease, not inside B
+            dB, sB = nearest_of.get(B, (depth, -1.0))
+            if sB > 0.0:
+                folds.append(int(v))
+                continue
+            depth = min(depth, dB)
+        key = f"{a_key}->{B}"
+        pairs.setdefault(key, []).append(depth)
         if per_vertex is not None:
-            per_vertex[int(v)] = (key, best[0])
+            per_vertex[int(v)] = (key, depth)
     pen = {k: {"n": len(v), "max_mm": round(max(v) * 1000, 2),
                "p95_mm": round(float(np.percentile(v, 95)) * 1000, 2)} for k, v in sorted(pairs.items())}
     return dict({"buried_vertices": int(buried_n), "fold_vertices": len(folds)},

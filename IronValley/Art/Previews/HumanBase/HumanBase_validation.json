@@ -1,7 +1,7 @@
 {
   "generated_by": "human_base.py (ivchar 1.2.0, ivlib 1.0.0)",
   "blender": "4.5.14 LTS",
-  "time": "2026-09-27 05:07:04",
+  "time": "2026-09-27 05:21:49",
   "design_inputs": {
     "stature_m": 1.8,
     "age_years": 28.0,
@@ -674,6 +674,40 @@
       "max_bone_tilt_from_flexion_plane_deg": 1.847
     }
   },
+  "hand_rest_angles_deg": {
+    "l": {
+      "index_01_l": 13.067,
+      "index_02_l": 10.606,
+      "index_03_l": 3.933,
+      "middle_01_l": 14.183,
+      "middle_02_l": 7.586,
+      "middle_03_l": 2.046,
+      "ring_01_l": 10.825,
+      "ring_02_l": 10.212,
+      "ring_03_l": 1.103,
+      "pinky_01_l": 13.194,
+      "pinky_02_l": 13.711,
+      "pinky_03_l": -4.81,
+      "thumb_02_l": 3.065,
+      "thumb_03_l": 8.351
+    },
+    "r": {
+      "index_01_r": 13.067,
+      "index_02_r": 10.606,
+      "index_03_r": 3.933,
+      "middle_01_r": 14.183,
+      "middle_02_r": 7.586,
+      "middle_03_r": 2.046,
+      "ring_01_r": 10.825,
+      "ring_02_r": 10.212,
+      "ring_03_r": 1.103,
+      "pinky_01_r": 13.194,
+      "pinky_02_r": 13.711,
+      "pinky_03_r": -4.81,
+      "thumb_02_r": 3.065,
+      "thumb_03_r": 8.351
+    }
+  },
   "finger_weights": {
     "l": {
       "vertices_rebuilt": 1533,
@@ -792,81 +826,6 @@
       "ball_l": 0.744,
       "foot_r": 0.744,
       "ball_r": 0.744
-    }
-  },
-  "weights": {
-    "max_influences_before": 7,
-    "vertices_over_limit_before": 1151,
-    "rows_without_weight": 0,
-    "source_bones": 53,
-    "source_lr_asymmetry": {
-      "max_abs_diff": 0.2587,
-      "vertices_over_0.01": 645
-    },
-    "symmetrized": true,
-    "twist_ramps": {
-      "lowerarm": [
-        0.3,
-        0.7,
-        true
-      ],
-      "upperarm": [
-        0.2,
-        0.55,
-        false
-      ]
-    },
-    "after_symmetrize_and_limit_lr_asymmetry": {
-      "max_abs_diff": 0.0,
-      "vertices_over_0.01": 0
-    },
-    "limit_change_L1_mean": 0.000415,
-    "limit_change_L1_max": 0.11221
-  },
-  "rest_pose": {
-    "l": {
-      "modelled_elbow_flexion_deg": 45.91,
-      "upperarm_below_horizontal_deg": 48.33,
-      "rest_elbow_flexion_deg": 15.0
-    },
-    "r": {
-      "modelled_elbow_flexion_deg": 45.91,
-      "upperarm_below_horizontal_deg": 48.33,
-      "rest_elbow_flexion_deg": 15.0
-    }
-  },
-  "hand_rest_angles_deg": {
-    "l": {
-      "index_01_l": 13.1,
-      "index_02_l": 10.606,
-      "index_03_l": 3.934,
-      "middle_01_l": 14.301,
-      "middle_02_l": 7.586,
-      "middle_03_l": 2.048,
-      "ring_01_l": 10.768,
-      "ring_02_l": 10.214,
-      "ring_03_l": 1.103,
-      "pinky_01_l": 13.195,
-      "pinky_02_l": 13.709,
-      "pinky_03_l": -4.814,
-      "thumb_02_l": 3.111,
-      "thumb_03_l": 8.362
-    },
-    "r": {
-      "index_01_r": 13.1,
-      "index_02_r": 10.606,
-      "index_03_r": 3.934,
-      "middle_01_r": 14.301,
-      "middle_02_r": 7.586,
-      "middle_03_r": 2.048,
-      "ring_01_r": 10.768,
-      "ring_02_r": 10.214,
-      "ring_03_r": 1.103,
-      "pinky_01_r": 13.195,
-      "pinky_02_r": 13.709,
-      "pinky_03_r": -4.814,
-      "thumb_02_r": 3.111,
-      "thumb_03_r": 8.362
     }
   },
   "correctives": {
@@ -1092,6 +1051,47 @@
         "max_rest_offset_m": 0.07919,
         "max_posed_correction_m": 0.04837
       }
+    }
+  },
+  "weights": {
+    "max_influences_before": 7,
+    "vertices_over_limit_before": 1151,
+    "rows_without_weight": 0,
+    "source_bones": 53,
+    "source_lr_asymmetry": {
+      "max_abs_diff": 0.2587,
+      "vertices_over_0.01": 645
+    },
+    "symmetrized": true,
+    "twist_ramps": {
+      "lowerarm": [
+        0.3,
+        0.7,
+        true
+      ],
+      "upperarm": [
+        0.2,
+        0.55,
+        false
+      ]
+    },
+    "after_symmetrize_and_limit_lr_asymmetry": {
+      "max_abs_diff": 0.0,
+      "vertices_over_0.01": 0
+    },
+    "limit_change_L1_mean": 0.000415,
+    "limit_change_L1_max": 0.11221
+  },
+  "rest_pose": {
+    "l": {
+      "modelled_elbow_flexion_deg": 45.91,
+      "upperarm_below_horizontal_deg": 48.33,
+      "rest_elbow_flexion_deg": 15.0
+    },
+    "r": {
+      "modelled_elbow_flexion_deg": 45.91,
+      "upperarm_below_horizontal_deg": 48.33,
+      "rest_elbow_flexion_deg": 15.0
     }
   },
   "rest_bbox_m": {
@@ -1366,44 +1366,44 @@
           0.9601
         ],
         "tail_m": [
-          0.625,
-          -0.1604,
-          0.925
+          0.6251,
+          -0.1603,
+          0.9249
         ],
         "length_m": 0.0433,
-        "roll_deg": -91.377,
+        "roll_deg": -91.45,
         "deform": true
       },
       "index_02_l": {
         "parent": "index_01_l",
         "head_m": [
-          0.625,
-          -0.1604,
-          0.925
+          0.6251,
+          -0.1603,
+          0.9249
         ],
         "tail_m": [
-          0.6301,
-          -0.172,
-          0.9001
+          0.6303,
+          -0.1718,
+          0.9
         ],
         "length_m": 0.0279,
-        "roll_deg": -75.505,
+        "roll_deg": -75.791,
         "deform": true
       },
       "index_03_l": {
         "parent": "index_02_l",
         "head_m": [
-          0.6301,
-          -0.172,
-          0.9001
+          0.6303,
+          -0.1718,
+          0.9
         ],
         "tail_m": [
-          0.6334,
-          -0.1815,
-          0.8768
+          0.6335,
+          -0.1814,
+          0.8767
         ],
         "length_m": 0.0254,
-        "roll_deg": -70.706,
+        "roll_deg": -70.455,
         "deform": true
       },
       "middle_01_l": {
@@ -1414,44 +1414,44 @@
           0.9572
         ],
         "tail_m": [
-          0.6369,
-          -0.1279,
-          0.91
+          0.637,
+          -0.1274,
+          0.9099
         ],
         "length_m": 0.0528,
-        "roll_deg": -100.583,
+        "roll_deg": -100.757,
         "deform": true
       },
       "middle_02_l": {
         "parent": "middle_01_l",
         "head_m": [
-          0.6369,
-          -0.1279,
-          0.91
+          0.637,
+          -0.1274,
+          0.9099
         ],
         "tail_m": [
-          0.6451,
-          -0.1352,
-          0.8792
+          0.6454,
+          -0.1341,
+          0.879
         ],
         "length_m": 0.0327,
-        "roll_deg": -91.204,
+        "roll_deg": -91.487,
         "deform": true
       },
       "middle_03_l": {
         "parent": "middle_02_l",
         "head_m": [
-          0.6451,
-          -0.1352,
-          0.8792
+          0.6454,
+          -0.1341,
+          0.879
         ],
         "tail_m": [
-          0.651,
-          -0.1397,
-          0.8546
+          0.6511,
+          -0.1392,
+          0.8545
         ],
         "length_m": 0.0257,
-        "roll_deg": -89.49,
+        "roll_deg": -89.046,
         "deform": true
       },
       "pinky_01_l": {
@@ -1462,44 +1462,44 @@
           0.9561
         ],
         "tail_m": [
-          0.627,
-          -0.0706,
-          0.9207
+          0.6271,
+          -0.0712,
+          0.9206
         ],
         "length_m": 0.0389,
-        "roll_deg": -116.509,
+        "roll_deg": -116.553,
         "deform": true
       },
       "pinky_02_l": {
         "parent": "pinky_01_l",
         "head_m": [
-          0.627,
-          -0.0706,
-          0.9207
+          0.6271,
+          -0.0712,
+          0.9206
         ],
         "tail_m": [
           0.6305,
-          -0.0691,
+          -0.07,
           0.9013
         ],
         "length_m": 0.0197,
-        "roll_deg": -103.741,
+        "roll_deg": -103.775,
         "deform": true
       },
       "pinky_03_l": {
         "parent": "pinky_02_l",
         "head_m": [
           0.6305,
-          -0.0691,
+          -0.07,
           0.9013
         ],
         "tail_m": [
           0.635,
-          -0.0685,
+          -0.0688,
           0.8843
         ],
         "length_m": 0.0176,
-        "roll_deg": -108.371,
+        "roll_deg": -108.277,
         "deform": true
       },
       "ring_01_l": {
@@ -1510,19 +1510,19 @@
           0.9562
         ],
         "tail_m": [
-          0.638,
-          -0.0975,
+          0.6379,
+          -0.0978,
           0.9131
         ],
         "length_m": 0.0482,
-        "roll_deg": -108.068,
+        "roll_deg": -108.013,
         "deform": true
       },
       "ring_02_l": {
         "parent": "ring_01_l",
         "head_m": [
-          0.638,
-          -0.0975,
+          0.6379,
+          -0.0978,
           0.9131
         ],
         "tail_m": [
@@ -1531,7 +1531,7 @@
           0.8846
         ],
         "length_m": 0.0297,
-        "roll_deg": -97.202,
+        "roll_deg": -97.316,
         "deform": true
       },
       "ring_03_l": {
@@ -1547,7 +1547,7 @@
           0.8601
         ],
         "length_m": 0.0254,
-        "roll_deg": -96.217,
+        "roll_deg": -96.179,
         "deform": true
       },
       "thumb_01_l": {
@@ -1574,28 +1574,28 @@
           0.9873
         ],
         "tail_m": [
-          0.5599,
+          0.5586,
           -0.1734,
           0.9596
         ],
         "length_m": 0.0401,
-        "roll_deg": -0.408,
+        "roll_deg": 4.185,
         "deform": true
       },
       "thumb_03_l": {
         "parent": "thumb_02_l",
         "head_m": [
-          0.5599,
+          0.5586,
           -0.1734,
           0.9596
         ],
         "tail_m": [
-          0.5577,
+          0.5573,
           -0.1928,
           0.9346
         ],
         "length_m": 0.0317,
-        "roll_deg": 7.126,
+        "roll_deg": 3.876,
         "deform": true
       },
       "clavicle_r": {
@@ -1702,44 +1702,44 @@
           0.9601
         ],
         "tail_m": [
-          -0.625,
-          -0.1604,
-          0.925
+          -0.6251,
+          -0.1603,
+          0.9249
         ],
         "length_m": 0.0433,
-        "roll_deg": 91.377,
+        "roll_deg": 91.45,
         "deform": true
       },
       "index_02_r": {
         "parent": "index_01_r",
         "head_m": [
-          -0.625,
-          -0.1604,
-          0.925
+          -0.6251,
+          -0.1603,
+          0.9249
         ],
         "tail_m": [
-          -0.6301,
-          -0.172,
-          0.9001
+          -0.6303,
+          -0.1718,
+          0.9
         ],
         "length_m": 0.0279,
-        "roll_deg": 75.505,
+        "roll_deg": 75.791,
         "deform": true
       },
       "index_03_r": {
         "parent": "index_02_r",
         "head_m": [
-          -0.6301,
-          -0.172,
-          0.9001
+          -0.6303,
+          -0.1718,
+          0.9
         ],
         "tail_m": [
-          -0.6334,
-          -0.1815,
-          0.8768
+          -0.6335,
+          -0.1814,
+          0.8767
         ],
         "length_m": 0.0254,
-        "roll_deg": 70.706,
+        "roll_deg": 70.455,
         "deform": true
       },
       "middle_01_r": {
@@ -1750,44 +1750,44 @@
           0.9572
         ],
         "tail_m": [
-          -0.6369,
-          -0.1279,
-          0.91
+          -0.637,
+          -0.1274,
+          0.9099
         ],
         "length_m": 0.0528,
-        "roll_deg": 100.583,
+        "roll_deg": 100.757,
         "deform": true
       },
       "middle_02_r": {
         "parent": "middle_01_r",
         "head_m": [
-          -0.6369,
-          -0.1279,
-          0.91
+          -0.637,
+          -0.1274,
+          0.9099
         ],
         "tail_m": [
-          -0.6451,
-          -0.1352,
-          0.8792
+          -0.6454,
+          -0.1341,
+          0.879
         ],
         "length_m": 0.0327,
-        "roll_deg": 91.204,
+        "roll_deg": 91.487,
         "deform": true
       },
       "middle_03_r": {
         "parent": "middle_02_r",
         "head_m": [
-          -0.6451,
-          -0.1352,
-          0.8792
+          -0.6454,
+          -0.1341,
+          0.879
         ],
         "tail_m": [
-          -0.651,
-          -0.1397,
-          0.8546
+          -0.6511,
+          -0.1392,
+          0.8545
         ],
         "length_m": 0.0257,
-        "roll_deg": 89.49,
+        "roll_deg": 89.046,
         "deform": true
       },
       "pinky_01_r": {
@@ -1798,44 +1798,44 @@
           0.9561
         ],
         "tail_m": [
-          -0.627,
-          -0.0706,
-          0.9207
+          -0.6271,
+          -0.0712,
+          0.9206
         ],
         "length_m": 0.0389,
-        "roll_deg": 116.509,
+        "roll_deg": 116.553,
         "deform": true
       },
       "pinky_02_r": {
         "parent": "pinky_01_r",
         "head_m": [
-          -0.627,
-          -0.0706,
-          0.9207
+          -0.6271,
+          -0.0712,
+          0.9206
         ],
         "tail_m": [
           -0.6305,
-          -0.0691,
+          -0.07,
           0.9013
         ],
         "length_m": 0.0197,
-        "roll_deg": 103.741,
+        "roll_deg": 103.775,
         "deform": true
       },
       "pinky_03_r": {
         "parent": "pinky_02_r",
         "head_m": [
           -0.6305,
-          -0.0691,
+          -0.07,
           0.9013
         ],
         "tail_m": [
           -0.635,
-          -0.0685,
+          -0.0688,
           0.8843
         ],
         "length_m": 0.0176,
-        "roll_deg": 108.371,
+        "roll_deg": 108.277,
         "deform": true
       },
       "ring_01_r": {
@@ -1846,19 +1846,19 @@
           0.9562
         ],
         "tail_m": [
-          -0.638,
-          -0.0975,
+          -0.6379,
+          -0.0978,
           0.9131
         ],
         "length_m": 0.0482,
-        "roll_deg": 108.068,
+        "roll_deg": 108.013,
         "deform": true
       },
       "ring_02_r": {
         "parent": "ring_01_r",
         "head_m": [
-          -0.638,
-          -0.0975,
+          -0.6379,
+          -0.0978,
           0.9131
         ],
         "tail_m": [
@@ -1867,7 +1867,7 @@
           0.8846
         ],
         "length_m": 0.0297,
-        "roll_deg": 97.202,
+        "roll_deg": 97.316,
         "deform": true
       },
       "ring_03_r": {
@@ -1883,7 +1883,7 @@
           0.8601
         ],
         "length_m": 0.0254,
-        "roll_deg": 96.217,
+        "roll_deg": 96.179,
         "deform": true
       },
       "thumb_01_r": {
@@ -1910,28 +1910,28 @@
           0.9873
         ],
         "tail_m": [
-          -0.5599,
+          -0.5586,
           -0.1734,
           0.9596
         ],
         "length_m": 0.0401,
-        "roll_deg": 0.408,
+        "roll_deg": -4.185,
         "deform": true
       },
       "thumb_03_r": {
         "parent": "thumb_02_r",
         "head_m": [
-          -0.5599,
+          -0.5586,
           -0.1734,
           0.9596
         ],
         "tail_m": [
-          -0.5577,
+          -0.5573,
           -0.1928,
           0.9346
         ],
         "length_m": 0.0317,
-        "roll_deg": -7.126,
+        "roll_deg": -3.876,
         "deform": true
       },
       "neck_01": {
@@ -2104,10 +2104,10 @@
     "vertices_over_limit": 0,
     "influence_histogram": {
       "0": 0,
-      "1": 6153,
-      "2": 4526,
-      "3": 1107,
-      "4": 1594
+      "1": 6145,
+      "2": 4538,
+      "3": 1097,
+      "4": 1600
     },
     "weight_sum_min": 0.999999,
     "weight_sum_max": 1.0,
@@ -2176,11 +2176,11 @@
       },
       "index_02_l.head": {
         "inside": true,
-        "dist_to_surface_m": 0.0087
+        "dist_to_surface_m": 0.0088
       },
       "index_03_l.head": {
         "inside": true,
-        "dist_to_surface_m": 0.0074
+        "dist_to_surface_m": 0.0075
       },
       "index_03_l.tail": {
         "inside": false,
@@ -2196,11 +2196,11 @@
       },
       "middle_03_l.head": {
         "inside": true,
-        "dist_to_surface_m": 0.0074
+        "dist_to_surface_m": 0.007
       },
       "middle_03_l.tail": {
         "inside": false,
-        "dist_to_surface_m": 0.0016
+        "dist_to_surface_m": 0.0017
       },
       "pinky_01_l.head": {
         "inside": true,
@@ -2208,11 +2208,11 @@
       },
       "pinky_02_l.head": {
         "inside": true,
-        "dist_to_surface_m": 0.0064
+        "dist_to_surface_m": 0.006
       },
       "pinky_03_l.head": {
         "inside": true,
-        "dist_to_surface_m": 0.0059
+        "dist_to_surface_m": 0.0058
       },
       "pinky_03_l.tail": {
         "inside": true,
@@ -2244,7 +2244,7 @@
       },
       "thumb_03_l.head": {
         "inside": true,
-        "dist_to_surface_m": 0.0073
+        "dist_to_surface_m": 0.0078
       },
       "thumb_03_l.tail": {
         "inside": true,
@@ -2288,11 +2288,11 @@
       },
       "index_02_r.head": {
         "inside": true,
-        "dist_to_surface_m": 0.0087
+        "dist_to_surface_m": 0.0088
       },
       "index_03_r.head": {
         "inside": true,
-        "dist_to_surface_m": 0.0074
+        "dist_to_surface_m": 0.0075
       },
       "index_03_r.tail": {
         "inside": false,
@@ -2308,11 +2308,11 @@
       },
       "middle_03_r.head": {
         "inside": true,
-        "dist_to_surface_m": 0.0074
+        "dist_to_surface_m": 0.007
       },
       "middle_03_r.tail": {
         "inside": false,
-        "dist_to_surface_m": 0.0016
+        "dist_to_surface_m": 0.0017
       },
       "pinky_01_r.head": {
         "inside": true,
@@ -2320,11 +2320,11 @@
       },
       "pinky_02_r.head": {
         "inside": true,
-        "dist_to_surface_m": 0.0064
+        "dist_to_surface_m": 0.006
       },
       "pinky_03_r.head": {
         "inside": true,
-        "dist_to_surface_m": 0.0059
+        "dist_to_surface_m": 0.0058
       },
       "pinky_03_r.tail": {
         "inside": true,
@@ -2356,7 +2356,7 @@
       },
       "thumb_03_r.head": {
         "inside": true,
-        "dist_to_surface_m": 0.0073
+        "dist_to_surface_m": 0.0078
       },
       "thumb_03_r.tail": {
         "inside": true,
@@ -2546,17 +2546,17 @@
       "dorsal_mm": 13.74,
       "dorsal_frac": 0.445,
       "side_mm": [
-        36.19,
-        11.71
+        34.37,
+        11.73
       ]
     },
     "thumb_03_l": {
-      "palmar_mm": 11.08,
-      "dorsal_mm": 8.1,
-      "dorsal_frac": 0.422,
+      "palmar_mm": 10.8,
+      "dorsal_mm": 8.69,
+      "dorsal_frac": 0.446,
       "side_mm": [
-        11.2,
-        10.76
+        12.46,
+        9.46
       ]
     },
     "index_01_l": {
@@ -2565,21 +2565,21 @@
       "dorsal_frac": 0.354
     },
     "index_02_l": {
-      "palmar_mm": 10.76,
-      "dorsal_mm": 8.77,
-      "dorsal_frac": 0.449,
+      "palmar_mm": 10.74,
+      "dorsal_mm": 8.78,
+      "dorsal_frac": 0.45,
       "side_mm": [
-        10.97,
-        11.02
+        10.88,
+        11.1
       ]
     },
     "index_03_l": {
       "palmar_mm": 9.54,
-      "dorsal_mm": 7.63,
-      "dorsal_frac": 0.444,
+      "dorsal_mm": 7.69,
+      "dorsal_frac": 0.446,
       "side_mm": [
-        9.67,
-        9.65
+        9.36,
+        9.95
       ]
     },
     "middle_01_l": {
@@ -2588,21 +2588,21 @@
       "dorsal_frac": 0.349
     },
     "middle_02_l": {
-      "palmar_mm": 10.75,
-      "dorsal_mm": 9.44,
-      "dorsal_frac": 0.468,
+      "palmar_mm": 10.72,
+      "dorsal_mm": 9.24,
+      "dorsal_frac": 0.463,
       "side_mm": [
-        10.82,
-        10.79
+        10.24,
+        11.4
       ]
     },
     "middle_03_l": {
-      "palmar_mm": 9.24,
-      "dorsal_mm": 7.67,
-      "dorsal_frac": 0.453,
+      "palmar_mm": 9.16,
+      "dorsal_mm": 7.51,
+      "dorsal_frac": 0.451,
       "side_mm": [
-        9.12,
-        9.01
+        7.95,
+        10.18
       ]
     },
     "ring_01_l": {
@@ -2611,21 +2611,21 @@
       "dorsal_frac": 0.348
     },
     "ring_02_l": {
-      "palmar_mm": 10.23,
-      "dorsal_mm": 8.08,
-      "dorsal_frac": 0.441,
+      "palmar_mm": 10.09,
+      "dorsal_mm": 8.04,
+      "dorsal_frac": 0.443,
       "side_mm": [
-        9.93,
-        9.84
+        10.24,
+        9.54
       ]
     },
     "ring_03_l": {
-      "palmar_mm": 8.51,
-      "dorsal_mm": 6.84,
+      "palmar_mm": 8.52,
+      "dorsal_mm": 6.86,
       "dorsal_frac": 0.446,
       "side_mm": [
-        8.82,
-        8.84
+        8.76,
+        8.91
       ]
     },
     "pinky_01_l": {
@@ -2634,21 +2634,21 @@
       "dorsal_frac": 0.354
     },
     "pinky_02_l": {
-      "palmar_mm": 8.59,
-      "dorsal_mm": 7.07,
-      "dorsal_frac": 0.452,
+      "palmar_mm": 8.49,
+      "dorsal_mm": 6.84,
+      "dorsal_frac": 0.446,
       "side_mm": [
-        7.82,
-        7.77
+        8.49,
+        7.09
       ]
     },
     "pinky_03_l": {
-      "palmar_mm": 7.42,
-      "dorsal_mm": 6.18,
+      "palmar_mm": 7.25,
+      "dorsal_mm": 6.04,
       "dorsal_frac": 0.454,
       "side_mm": [
-        7.24,
-        7.27
+        8.12,
+        6.38
       ]
     },
     "thumb_02_r": {
@@ -2656,17 +2656,17 @@
       "dorsal_mm": 13.74,
       "dorsal_frac": 0.445,
       "side_mm": [
-        11.71,
-        36.19
+        11.73,
+        34.37
       ]
     },
     "thumb_03_r": {
-      "palmar_mm": 11.08,
-      "dorsal_mm": 8.1,
-      "dorsal_frac": 0.422,
+      "palmar_mm": 10.8,
+      "dorsal_mm": 8.69,
+      "dorsal_frac": 0.446,
       "side_mm": [
-        10.76,
-        11.2
+        9.46,
+        12.46
       ]
     },
     "index_01_r": {
@@ -2675,21 +2675,21 @@
       "dorsal_frac": 0.354
     },
     "index_02_r": {
-      "palmar_mm": 10.76,
-      "dorsal_mm": 8.77,
-      "dorsal_frac": 0.449,
+      "palmar_mm": 10.74,
+      "dorsal_mm": 8.78,
+      "dorsal_frac": 0.45,
       "side_mm": [
-        11.02,
-        10.97
+        11.1,
+        10.88
       ]
     },
     "index_03_r": {
       "palmar_mm": 9.54,
-      "dorsal_mm": 7.63,
-      "dorsal_frac": 0.444,
+      "dorsal_mm": 7.69,
+      "dorsal_frac": 0.446,
       "side_mm": [
-        9.65,
-        9.67
+        9.95,
+        9.36
       ]
     },
     "middle_01_r": {
@@ -2698,21 +2698,21 @@
       "dorsal_frac": 0.349
     },
     "middle_02_r": {
-      "palmar_mm": 10.75,
-      "dorsal_mm": 9.44,
-      "dorsal_frac": 0.468,
+      "palmar_mm": 10.72,
+      "dorsal_mm": 9.24,
+      "dorsal_frac": 0.463,
       "side_mm": [
-        10.79,
-        10.82
+        11.4,
+        10.24
       ]
     },
     "middle_03_r": {
-      "palmar_mm": 9.24,
-      "dorsal_mm": 7.67,
-      "dorsal_frac": 0.453,
+      "palmar_mm": 9.16,
+      "dorsal_mm": 7.51,
+      "dorsal_frac": 0.451,
       "side_mm": [
-        9.01,
-        9.12
+        10.18,
+        7.95
       ]
     },
     "ring_01_r": {
@@ -2721,21 +2721,21 @@
       "dorsal_frac": 0.348
     },
     "ring_02_r": {
-      "palmar_mm": 10.23,
-      "dorsal_mm": 8.08,
-      "dorsal_frac": 0.441,
+      "palmar_mm": 10.09,
+      "dorsal_mm": 8.04,
+      "dorsal_frac": 0.443,
       "side_mm": [
-        9.84,
-        9.93
+        9.54,
+        10.24
       ]
     },
     "ring_03_r": {
-      "palmar_mm": 8.51,
-      "dorsal_mm": 6.84,
+      "palmar_mm": 8.52,
+      "dorsal_mm": 6.86,
       "dorsal_frac": 0.446,
       "side_mm": [
-        8.84,
-        8.82
+        8.91,
+        8.76
       ]
     },
     "pinky_01_r": {
@@ -2744,21 +2744,21 @@
       "dorsal_frac": 0.354
     },
     "pinky_02_r": {
-      "palmar_mm": 8.59,
-      "dorsal_mm": 7.07,
-      "dorsal_frac": 0.452,
+      "palmar_mm": 8.49,
+      "dorsal_mm": 6.84,
+      "dorsal_frac": 0.446,
       "side_mm": [
-        7.77,
-        7.82
+        7.09,
+        8.49
       ]
     },
     "pinky_03_r": {
-      "palmar_mm": 7.42,
-      "dorsal_mm": 6.18,
+      "palmar_mm": 7.25,
+      "dorsal_mm": 6.04,
       "dorsal_frac": 0.454,
       "side_mm": [
-        7.27,
-        7.24
+        6.38,
+        8.12
       ]
     }
   },
@@ -2837,11 +2837,11 @@
       ],
       "hinge": "anatomical",
       "finger_x_dorsal_pairs": 0,
-      "finger_x_palm_pairs": 174,
-      "tip_x_palm_pairs": 169,
+      "finger_x_palm_pairs": 176,
+      "tip_x_palm_pairs": 171,
       "verts_beyond_dorsal": 0,
       "max_beyond_dorsal_m": 0.0,
-      "tip_gap_to_palm_m": 1e-05
+      "tip_gap_to_palm_m": 3e-05
     },
     "l_anatomical_fist_90_110_80": {
       "curl_mcp_pip_dip_deg": [
@@ -2855,7 +2855,7 @@
       "tip_x_palm_pairs": 175,
       "verts_beyond_dorsal": 0,
       "max_beyond_dorsal_m": 0.0,
-      "tip_gap_to_palm_m": 4e-05
+      "tip_gap_to_palm_m": 3e-05
     },
     "l_anatomical_grip_60_80_50": {
       "curl_mcp_pip_dip_deg": [
@@ -2869,7 +2869,7 @@
       "tip_x_palm_pairs": 0,
       "verts_beyond_dorsal": 0,
       "max_beyond_dorsal_m": 0.0,
-      "tip_gap_to_palm_m": 0.00877
+      "tip_gap_to_palm_m": 0.00866
     },
     "l_local_fist_90_100_70": {
       "curl_mcp_pip_dip_deg": [
@@ -2883,7 +2883,7 @@
       "tip_x_palm_pairs": 175,
       "verts_beyond_dorsal": 0,
       "max_beyond_dorsal_m": 0.0,
-      "tip_gap_to_palm_m": 0.0
+      "tip_gap_to_palm_m": 1e-05
     },
     "l_local_fist_90_110_80": {
       "curl_mcp_pip_dip_deg": [
@@ -2893,11 +2893,11 @@
       ],
       "hinge": "local",
       "finger_x_dorsal_pairs": 0,
-      "finger_x_palm_pairs": 179,
-      "tip_x_palm_pairs": 179,
+      "finger_x_palm_pairs": 184,
+      "tip_x_palm_pairs": 184,
       "verts_beyond_dorsal": 0,
       "max_beyond_dorsal_m": 0.0,
-      "tip_gap_to_palm_m": 4e-05
+      "tip_gap_to_palm_m": 1e-05
     },
     "l_local_grip_60_80_50": {
       "curl_mcp_pip_dip_deg": [
@@ -2911,7 +2911,7 @@
       "tip_x_palm_pairs": 0,
       "verts_beyond_dorsal": 0,
       "max_beyond_dorsal_m": 0.0,
-      "tip_gap_to_palm_m": 0.01204
+      "tip_gap_to_palm_m": 0.01198
     },
     "r_anatomical_fist_90_100_70": {
       "curl_mcp_pip_dip_deg": [
@@ -2921,11 +2921,11 @@
       ],
       "hinge": "anatomical",
       "finger_x_dorsal_pairs": 0,
-      "finger_x_palm_pairs": 174,
-      "tip_x_palm_pairs": 169,
+      "finger_x_palm_pairs": 176,
+      "tip_x_palm_pairs": 171,
       "verts_beyond_dorsal": 0,
       "max_beyond_dorsal_m": 0.0,
-      "tip_gap_to_palm_m": 1e-05
+      "tip_gap_to_palm_m": 3e-05
     },
     "r_anatomical_fist_90_110_80": {
       "curl_mcp_pip_dip_deg": [
@@ -2939,7 +2939,7 @@
       "tip_x_palm_pairs": 175,
       "verts_beyond_dorsal": 0,
       "max_beyond_dorsal_m": 0.0,
-      "tip_gap_to_palm_m": 4e-05
+      "tip_gap_to_palm_m": 3e-05
     },
     "r_anatomical_grip_60_80_50": {
       "curl_mcp_pip_dip_deg": [
@@ -2953,7 +2953,7 @@
       "tip_x_palm_pairs": 0,
       "verts_beyond_dorsal": 0,
       "max_beyond_dorsal_m": 0.0,
-      "tip_gap_to_palm_m": 0.00877
+      "tip_gap_to_palm_m": 0.00866
     },
     "r_local_fist_90_100_70": {
       "curl_mcp_pip_dip_deg": [
@@ -2967,7 +2967,7 @@
       "tip_x_palm_pairs": 175,
       "verts_beyond_dorsal": 0,
       "max_beyond_dorsal_m": 0.0,
-      "tip_gap_to_palm_m": 0.0
+      "tip_gap_to_palm_m": 1e-05
     },
     "r_local_fist_90_110_80": {
       "curl_mcp_pip_dip_deg": [
@@ -2977,11 +2977,11 @@
       ],
       "hinge": "local",
       "finger_x_dorsal_pairs": 0,
-      "finger_x_palm_pairs": 179,
-      "tip_x_palm_pairs": 179,
+      "finger_x_palm_pairs": 184,
+      "tip_x_palm_pairs": 184,
       "verts_beyond_dorsal": 0,
       "max_beyond_dorsal_m": 0.0,
-      "tip_gap_to_palm_m": 4e-05
+      "tip_gap_to_palm_m": 1e-05
     },
     "r_local_grip_60_80_50": {
       "curl_mcp_pip_dip_deg": [
@@ -2995,40 +2995,40 @@
       "tip_x_palm_pairs": 0,
       "verts_beyond_dorsal": 0,
       "max_beyond_dorsal_m": 0.0,
-      "tip_gap_to_palm_m": 0.01204
+      "tip_gap_to_palm_m": 0.01198
     }
   },
   "hand_anatomical_fist_tests": {
     "l_fist_90_100_70": {
-      "buried_vertices": 359,
+      "buried_vertices": 341,
       "fold_vertices": 0,
-      "tip_palm_max_mm": 5.48,
-      "finger_finger_max_mm": 9.84,
+      "tip_palm_max_mm": 5.63,
+      "finger_finger_max_mm": 9.94,
       "thumb_max_mm": 0.0,
-      "crease_max_mm": 10.38,
+      "crease_max_mm": 10.43,
       "other_max_mm": 0.0,
       "fingertips_through_back_verts": 0,
       "fingertips_through_back_max_mm": 0.0,
       "pairs": {
         "hand->index": {
           "n": 3,
-          "max_mm": 3.86,
-          "p95_mm": 3.65
+          "max_mm": 3.83,
+          "p95_mm": 3.64
         },
         "hand->middle": {
           "n": 4,
-          "max_mm": 5.77,
-          "p95_mm": 5.62
+          "max_mm": 5.83,
+          "p95_mm": 5.67
         },
         "hand->pinky": {
           "n": 1,
-          "max_mm": 1.14,
-          "p95_mm": 1.14
+          "max_mm": 1.11,
+          "p95_mm": 1.11
         },
         "hand->ring": {
           "n": 4,
-          "max_mm": 4.61,
-          "p95_mm": 4.46
+          "max_mm": 4.68,
+          "p95_mm": 4.53
         },
         "index_01->hand": {
           "n": 5,
@@ -3037,196 +3037,201 @@
         },
         "index_01->index": {
           "n": 8,
-          "max_mm": 9.16,
-          "p95_mm": 8.92
+          "max_mm": 9.17,
+          "p95_mm": 8.95
         },
         "index_01->middle": {
           "n": 8,
-          "max_mm": 5.14,
-          "p95_mm": 5.09
+          "max_mm": 4.91,
+          "p95_mm": 4.91
         },
         "index_02->index": {
-          "n": 13,
-          "max_mm": 8.36,
-          "p95_mm": 8.12
+          "n": 12,
+          "max_mm": 8.4,
+          "p95_mm": 8.18
         },
         "index_02->middle": {
-          "n": 12,
-          "max_mm": 5.8,
-          "p95_mm": 4.39
+          "n": 17,
+          "max_mm": 5.6,
+          "p95_mm": 5.4
         },
         "index_03->hand": {
           "n": 23,
-          "max_mm": 5.48,
-          "p95_mm": 5.36
+          "max_mm": 5.63,
+          "p95_mm": 5.45
         },
         "index_03->index": {
           "n": 3,
-          "max_mm": 8.83,
-          "p95_mm": 8.78
+          "max_mm": 8.8,
+          "p95_mm": 8.76
         },
         "index_03->middle": {
           "n": 1,
-          "max_mm": 6.78,
-          "p95_mm": 6.78
+          "max_mm": 6.88,
+          "p95_mm": 6.88
         },
         "middle_01->hand": {
           "n": 6,
-          "max_mm": 6.53,
-          "p95_mm": 6.31
+          "max_mm": 6.6,
+          "p95_mm": 6.37
         },
         "middle_01->index": {
           "n": 7,
-          "max_mm": 5.93,
-          "p95_mm": 5.58
+          "max_mm": 5.62,
+          "p95_mm": 5.27
         },
         "middle_01->middle": {
-          "n": 6,
-          "max_mm": 10.38,
-          "p95_mm": 9.79
+          "n": 9,
+          "max_mm": 10.43,
+          "p95_mm": 9.77
         },
         "middle_01->ring": {
-          "n": 10,
-          "max_mm": 7.22,
-          "p95_mm": 6.52
+          "n": 7,
+          "max_mm": 7.46,
+          "p95_mm": 7.06
         },
         "middle_02->index": {
-          "n": 5,
-          "max_mm": 6.42,
-          "p95_mm": 6.18
+          "n": 6,
+          "max_mm": 5.58,
+          "p95_mm": 5.41
         },
         "middle_02->middle": {
-          "n": 5,
-          "max_mm": 8.87,
-          "p95_mm": 8.54
+          "n": 4,
+          "max_mm": 7.05,
+          "p95_mm": 6.72
         },
         "middle_02->ring": {
-          "n": 19,
-          "max_mm": 5.33,
-          "p95_mm": 4.01
+          "n": 18,
+          "max_mm": 6.13,
+          "p95_mm": 5.19
         },
         "middle_03->index": {
-          "n": 1,
-          "max_mm": 6.34,
-          "p95_mm": 6.34
+          "n": 2,
+          "max_mm": 5.59,
+          "p95_mm": 5.44
         },
         "middle_03->ring": {
-          "n": 19,
-          "max_mm": 4.31,
-          "p95_mm": 4.01
+          "n": 13,
+          "max_mm": 4.37,
+          "p95_mm": 3.69
         },
         "pinky_01->hand": {
           "n": 3,
-          "max_mm": 3.34,
-          "p95_mm": 3.25
+          "max_mm": 3.31,
+          "p95_mm": 3.24
         },
         "pinky_01->pinky": {
           "n": 8,
-          "max_mm": 7.11,
-          "p95_mm": 6.54
+          "max_mm": 7.01,
+          "p95_mm": 6.47
         },
         "pinky_01->ring": {
           "n": 19,
-          "max_mm": 6.18,
-          "p95_mm": 5.93
+          "max_mm": 6.25,
+          "p95_mm": 5.96
         },
         "pinky_02->pinky": {
-          "n": 6,
-          "max_mm": 6.28,
-          "p95_mm": 6.25
+          "n": 8,
+          "max_mm": 7.11,
+          "p95_mm": 6.81
         },
         "pinky_02->ring": {
-          "n": 36,
-          "max_mm": 7.13,
-          "p95_mm": 5.99
+          "n": 33,
+          "max_mm": 7.32,
+          "p95_mm": 5.67
+        },
+        "pinky_03->pinky": {
+          "n": 1,
+          "max_mm": 5.33,
+          "p95_mm": 5.33
         },
         "pinky_03->ring": {
-          "n": 21,
-          "max_mm": 5.12,
-          "p95_mm": 2.93
+          "n": 15,
+          "max_mm": 2.84,
+          "p95_mm": 2.24
         },
         "ring_01->hand": {
           "n": 5,
-          "max_mm": 6.19,
-          "p95_mm": 5.84
+          "max_mm": 6.14,
+          "p95_mm": 5.81
         },
         "ring_01->middle": {
-          "n": 17,
-          "max_mm": 7.7,
-          "p95_mm": 7.68
+          "n": 16,
+          "max_mm": 8.09,
+          "p95_mm": 7.82
         },
         "ring_01->pinky": {
           "n": 14,
-          "max_mm": 9.84,
-          "p95_mm": 8.55
+          "max_mm": 9.94,
+          "p95_mm": 8.63
         },
         "ring_01->ring": {
           "n": 1,
-          "max_mm": 4.03,
-          "p95_mm": 4.03
+          "max_mm": 4.09,
+          "p95_mm": 4.09
         },
         "ring_02->middle": {
-          "n": 18,
-          "max_mm": 4.29,
-          "p95_mm": 3.7
+          "n": 12,
+          "max_mm": 4.31,
+          "p95_mm": 3.57
         },
         "ring_02->pinky": {
           "n": 19,
-          "max_mm": 5.47,
-          "p95_mm": 4.82
+          "max_mm": 5.84,
+          "p95_mm": 4.59
         },
         "ring_02->ring": {
           "n": 1,
-          "max_mm": 0.1,
-          "p95_mm": 0.1
+          "max_mm": 0.04,
+          "p95_mm": 0.04
         },
         "ring_03->hand": {
           "n": 11,
-          "max_mm": 2.61,
-          "p95_mm": 2.49
+          "max_mm": 2.46,
+          "p95_mm": 2.36
         },
         "ring_03->middle": {
-          "n": 11,
-          "max_mm": 4.47,
-          "p95_mm": 4.35
+          "n": 10,
+          "max_mm": 3.12,
+          "p95_mm": 3.01
         },
         "ring_03->pinky": {
-          "n": 6,
-          "max_mm": 2.62,
-          "p95_mm": 2.61
+          "n": 4,
+          "max_mm": 2.03,
+          "p95_mm": 1.99
         }
       }
     },
     "r_fist_90_100_70": {
-      "buried_vertices": 359,
+      "buried_vertices": 341,
       "fold_vertices": 0,
-      "tip_palm_max_mm": 5.48,
-      "finger_finger_max_mm": 7.86,
+      "tip_palm_max_mm": 5.63,
+      "finger_finger_max_mm": 8.09,
       "thumb_max_mm": 0.0,
-      "crease_max_mm": 10.38,
+      "crease_max_mm": 10.43,
       "other_max_mm": 0.0,
       "fingertips_through_back_verts": 0,
       "fingertips_through_back_max_mm": 0.0,
       "pairs": {
         "hand->index": {
           "n": 3,
-          "max_mm": 3.86,
-          "p95_mm": 3.65
+          "max_mm": 3.83,
+          "p95_mm": 3.64
         },
         "hand->middle": {
           "n": 4,
-          "max_mm": 5.77,
-          "p95_mm": 5.62
+          "max_mm": 5.83,
+          "p95_mm": 5.67
         },
         "hand->pinky": {
           "n": 1,
-          "max_mm": 1.14,
-          "p95_mm": 1.14
+          "max_mm": 1.11,
+          "p95_mm": 1.11
         },
         "hand->ring": {
           "n": 4,
-          "max_mm": 4.61,
-          "p95_mm": 4.46
+          "max_mm": 4.68,
+          "p95_mm": 4.53
         },
         "index_01->hand": {
           "n": 5,
@@ -3235,755 +3240,760 @@
         },
         "index_01->index": {
           "n": 8,
-          "max_mm": 9.16,
-          "p95_mm": 8.92
+          "max_mm": 9.17,
+          "p95_mm": 8.95
         },
         "index_01->middle": {
           "n": 8,
-          "max_mm": 5.14,
-          "p95_mm": 5.09
+          "max_mm": 4.91,
+          "p95_mm": 4.91
         },
         "index_02->index": {
-          "n": 13,
-          "max_mm": 8.36,
-          "p95_mm": 8.12
+          "n": 12,
+          "max_mm": 8.4,
+          "p95_mm": 8.18
         },
         "index_02->middle": {
-          "n": 12,
-          "max_mm": 5.8,
-          "p95_mm": 4.39
+          "n": 17,
+          "max_mm": 5.6,
+          "p95_mm": 5.4
         },
         "index_03->hand": {
           "n": 23,
-          "max_mm": 5.48,
-          "p95_mm": 5.36
+          "max_mm": 5.63,
+          "p95_mm": 5.45
         },
         "index_03->index": {
           "n": 3,
-          "max_mm": 8.83,
-          "p95_mm": 8.78
+          "max_mm": 8.8,
+          "p95_mm": 8.76
         },
         "index_03->middle": {
           "n": 1,
-          "max_mm": 6.78,
-          "p95_mm": 6.78
+          "max_mm": 6.88,
+          "p95_mm": 6.88
         },
         "middle_01->hand": {
           "n": 6,
-          "max_mm": 6.53,
-          "p95_mm": 6.31
+          "max_mm": 6.6,
+          "p95_mm": 6.37
         },
         "middle_01->index": {
           "n": 7,
-          "max_mm": 5.93,
-          "p95_mm": 5.58
+          "max_mm": 5.62,
+          "p95_mm": 5.27
         },
         "middle_01->middle": {
-          "n": 6,
-          "max_mm": 10.38,
-          "p95_mm": 9.79
+          "n": 9,
+          "max_mm": 10.43,
+          "p95_mm": 9.77
         },
         "middle_01->ring": {
-          "n": 10,
-          "max_mm": 7.22,
-          "p95_mm": 6.52
+          "n": 7,
+          "max_mm": 7.46,
+          "p95_mm": 7.06
         },
         "middle_02->index": {
-          "n": 5,
-          "max_mm": 6.42,
-          "p95_mm": 6.18
+          "n": 6,
+          "max_mm": 5.58,
+          "p95_mm": 5.41
         },
         "middle_02->middle": {
-          "n": 5,
-          "max_mm": 8.87,
-          "p95_mm": 8.54
+          "n": 4,
+          "max_mm": 7.05,
+          "p95_mm": 6.72
         },
         "middle_02->ring": {
-          "n": 19,
-          "max_mm": 5.33,
-          "p95_mm": 4.01
+          "n": 18,
+          "max_mm": 6.13,
+          "p95_mm": 5.19
         },
         "middle_03->index": {
-          "n": 1,
-          "max_mm": 6.34,
-          "p95_mm": 6.34
+          "n": 2,
+          "max_mm": 5.59,
+          "p95_mm": 5.44
         },
         "middle_03->ring": {
-          "n": 19,
-          "max_mm": 4.31,
-          "p95_mm": 4.01
+          "n": 13,
+          "max_mm": 4.37,
+          "p95_mm": 3.69
         },
         "pinky_01->hand": {
           "n": 3,
-          "max_mm": 3.34,
-          "p95_mm": 3.25
+          "max_mm": 3.31,
+          "p95_mm": 3.24
         },
         "pinky_01->pinky": {
           "n": 8,
-          "max_mm": 7.11,
-          "p95_mm": 6.54
+          "max_mm": 7.01,
+          "p95_mm": 6.47
         },
         "pinky_01->ring": {
           "n": 19,
-          "max_mm": 6.18,
-          "p95_mm": 5.93
+          "max_mm": 6.25,
+          "p95_mm": 5.96
         },
         "pinky_02->pinky": {
-          "n": 6,
-          "max_mm": 6.28,
-          "p95_mm": 6.25
+          "n": 8,
+          "max_mm": 7.11,
+          "p95_mm": 6.81
         },
         "pinky_02->ring": {
-          "n": 36,
-          "max_mm": 7.13,
-          "p95_mm": 5.99
+          "n": 33,
+          "max_mm": 7.32,
+          "p95_mm": 5.67
+        },
+        "pinky_03->pinky": {
+          "n": 1,
+          "max_mm": 5.33,
+          "p95_mm": 5.33
         },
         "pinky_03->ring": {
-          "n": 21,
-          "max_mm": 5.12,
-          "p95_mm": 2.93
+          "n": 15,
+          "max_mm": 2.84,
+          "p95_mm": 2.24
         },
         "ring_01->hand": {
           "n": 5,
-          "max_mm": 6.19,
-          "p95_mm": 5.84
+          "max_mm": 6.14,
+          "p95_mm": 5.81
         },
         "ring_01->middle": {
-          "n": 17,
-          "max_mm": 7.7,
-          "p95_mm": 7.68
+          "n": 16,
+          "max_mm": 8.09,
+          "p95_mm": 7.82
         },
         "ring_01->pinky": {
           "n": 13,
-          "max_mm": 7.86,
-          "p95_mm": 6.84
+          "max_mm": 7.93,
+          "p95_mm": 6.97
         },
         "ring_01->ring": {
           "n": 2,
-          "max_mm": 9.84,
-          "p95_mm": 9.55
+          "max_mm": 9.94,
+          "p95_mm": 9.65
         },
         "ring_02->middle": {
-          "n": 18,
-          "max_mm": 4.29,
-          "p95_mm": 3.7
+          "n": 12,
+          "max_mm": 4.31,
+          "p95_mm": 3.57
         },
         "ring_02->pinky": {
           "n": 19,
-          "max_mm": 5.47,
-          "p95_mm": 4.82
+          "max_mm": 5.84,
+          "p95_mm": 4.59
         },
         "ring_02->ring": {
           "n": 1,
-          "max_mm": 0.11,
-          "p95_mm": 0.11
+          "max_mm": 0.03,
+          "p95_mm": 0.03
         },
         "ring_03->hand": {
           "n": 11,
-          "max_mm": 2.61,
-          "p95_mm": 2.49
+          "max_mm": 2.46,
+          "p95_mm": 2.36
         },
         "ring_03->middle": {
-          "n": 11,
-          "max_mm": 4.47,
-          "p95_mm": 4.35
+          "n": 10,
+          "max_mm": 3.12,
+          "p95_mm": 3.01
         },
         "ring_03->pinky": {
-          "n": 6,
-          "max_mm": 2.62,
-          "p95_mm": 2.61
+          "n": 4,
+          "max_mm": 2.03,
+          "p95_mm": 1.99
         }
       }
     },
     "l_fist_tuned": {
-      "buried_vertices": 331,
+      "buried_vertices": 318,
       "fold_vertices": 0,
       "tip_palm_max_mm": 0.0,
-      "finger_finger_max_mm": 9.98,
+      "finger_finger_max_mm": 10.08,
       "thumb_max_mm": 0.0,
-      "crease_max_mm": 10.36,
+      "crease_max_mm": 10.41,
       "other_max_mm": 0.0,
       "fingertips_through_back_verts": 0,
       "fingertips_through_back_max_mm": 0.0,
       "pairs": {
         "hand->index": {
           "n": 2,
-          "max_mm": 3.88,
-          "p95_mm": 3.75
+          "max_mm": 3.86,
+          "p95_mm": 3.73
         },
         "hand->middle": {
           "n": 4,
-          "max_mm": 5.86,
-          "p95_mm": 5.7
+          "max_mm": 5.91,
+          "p95_mm": 5.74
         },
         "hand->pinky": {
           "n": 1,
-          "max_mm": 1.1,
-          "p95_mm": 1.1
+          "max_mm": 1.08,
+          "p95_mm": 1.08
         },
         "hand->ring": {
           "n": 4,
-          "max_mm": 4.64,
-          "p95_mm": 4.5
+          "max_mm": 4.71,
+          "p95_mm": 4.56
         },
         "index_01->hand": {
           "n": 5,
-          "max_mm": 7.35,
-          "p95_mm": 7.35
+          "max_mm": 7.38,
+          "p95_mm": 7.37
         },
         "index_01->index": {
           "n": 7,
-          "max_mm": 8.45,
-          "p95_mm": 8.21
+          "max_mm": 8.47,
+          "p95_mm": 8.22
         },
         "index_01->middle": {
-          "n": 8,
-          "max_mm": 4.9,
-          "p95_mm": 4.81
+          "n": 7,
+          "max_mm": 4.67,
+          "p95_mm": 4.57
         },
         "index_02->index": {
           "n": 6,
-          "max_mm": 8.63,
-          "p95_mm": 8.2
+          "max_mm": 8.66,
+          "p95_mm": 8.23
         },
         "index_02->middle": {
-          "n": 21,
-          "max_mm": 8.03,
-          "p95_mm": 5.34
+          "n": 23,
+          "max_mm": 7.64,
+          "p95_mm": 5.17
         },
         "index_03->index": {
           "n": 1,
-          "max_mm": 8.82,
-          "p95_mm": 8.82
+          "max_mm": 8.84,
+          "p95_mm": 8.84
         },
         "index_03->middle": {
-          "n": 21,
-          "max_mm": 8.03,
-          "p95_mm": 2.96
+          "n": 24,
+          "max_mm": 7.63,
+          "p95_mm": 3.88
         },
         "middle_01->hand": {
           "n": 6,
-          "max_mm": 6.56,
-          "p95_mm": 6.34
+          "max_mm": 6.63,
+          "p95_mm": 6.4
         },
         "middle_01->index": {
-          "n": 7,
-          "max_mm": 7.65,
-          "p95_mm": 6.75
+          "n": 10,
+          "max_mm": 7.37,
+          "p95_mm": 7.36
         },
         "middle_01->middle": {
-          "n": 5,
-          "max_mm": 10.36,
-          "p95_mm": 9.59
+          "n": 6,
+          "max_mm": 10.41,
+          "p95_mm": 9.39
         },
         "middle_01->ring": {
-          "n": 10,
-          "max_mm": 7.08,
-          "p95_mm": 6.38
+          "n": 7,
+          "max_mm": 7.31,
+          "p95_mm": 6.9
         },
         "middle_02->index": {
           "n": 18,
-          "max_mm": 7.72,
-          "p95_mm": 7.27
+          "max_mm": 6.73,
+          "p95_mm": 4.43
         },
         "middle_02->middle": {
           "n": 3,
-          "max_mm": 5.57,
-          "p95_mm": 5.17
+          "max_mm": 5.35,
+          "p95_mm": 4.97
         },
         "middle_02->ring": {
-          "n": 19,
-          "max_mm": 5.52,
-          "p95_mm": 5.22
+          "n": 16,
+          "max_mm": 6.5,
+          "p95_mm": 6.12
         },
         "middle_03->index": {
-          "n": 6,
-          "max_mm": 3.78,
-          "p95_mm": 3.34
+          "n": 8,
+          "max_mm": 3.0,
+          "p95_mm": 2.94
         },
         "middle_03->ring": {
-          "n": 16,
-          "max_mm": 5.03,
-          "p95_mm": 3.69
+          "n": 10,
+          "max_mm": 6.01,
+          "p95_mm": 4.68
         },
         "pinky_01->hand": {
           "n": 3,
-          "max_mm": 3.38,
-          "p95_mm": 3.3
+          "max_mm": 3.35,
+          "p95_mm": 3.29
         },
         "pinky_01->pinky": {
           "n": 8,
-          "max_mm": 7.11,
-          "p95_mm": 6.54
+          "max_mm": 7.01,
+          "p95_mm": 6.47
         },
         "pinky_01->ring": {
           "n": 21,
-          "max_mm": 6.43,
-          "p95_mm": 6.19
+          "max_mm": 6.51,
+          "p95_mm": 6.21
         },
         "pinky_02->pinky": {
           "n": 9,
-          "max_mm": 7.6,
-          "p95_mm": 7.43
+          "max_mm": 7.55,
+          "p95_mm": 7.37
         },
         "pinky_02->ring": {
-          "n": 34,
-          "max_mm": 6.85,
-          "p95_mm": 5.77
+          "n": 32,
+          "max_mm": 7.18,
+          "p95_mm": 6.13
         },
         "pinky_03->pinky": {
           "n": 1,
-          "max_mm": 5.35,
-          "p95_mm": 5.35
+          "max_mm": 5.33,
+          "p95_mm": 5.33
         },
         "pinky_03->ring": {
           "n": 4,
-          "max_mm": 1.18,
-          "p95_mm": 1.18
+          "max_mm": 0.73,
+          "p95_mm": 0.68
         },
         "ring_01->hand": {
           "n": 5,
-          "max_mm": 6.19,
-          "p95_mm": 5.86
+          "max_mm": 6.15,
+          "p95_mm": 5.83
         },
         "ring_01->middle": {
-          "n": 18,
-          "max_mm": 7.81,
-          "p95_mm": 7.59
+          "n": 15,
+          "max_mm": 7.94,
+          "p95_mm": 7.81
         },
         "ring_01->pinky": {
-          "n": 16,
-          "max_mm": 9.98,
-          "p95_mm": 8.23
+          "n": 15,
+          "max_mm": 10.08,
+          "p95_mm": 8.34
         },
         "ring_01->ring": {
-          "n": 1,
-          "max_mm": 3.24,
-          "p95_mm": 3.24
+          "n": 2,
+          "max_mm": 5.24,
+          "p95_mm": 5.15
         },
         "ring_02->middle": {
-          "n": 15,
-          "max_mm": 3.39,
-          "p95_mm": 3.33
+          "n": 10,
+          "max_mm": 4.2,
+          "p95_mm": 3.3
         },
         "ring_02->pinky": {
           "n": 17,
-          "max_mm": 5.2,
-          "p95_mm": 4.48
+          "max_mm": 5.55,
+          "p95_mm": 4.32
         },
         "ring_03->middle": {
           "n": 6,
-          "max_mm": 3.09,
-          "p95_mm": 3.02
+          "max_mm": 1.84,
+          "p95_mm": 1.82
         },
         "ring_03->pinky": {
-          "n": 3,
-          "max_mm": 1.33,
-          "p95_mm": 1.23
+          "n": 2,
+          "max_mm": 0.69,
+          "p95_mm": 0.67
         }
       }
     },
     "r_fist_tuned": {
-      "buried_vertices": 331,
+      "buried_vertices": 318,
       "fold_vertices": 0,
       "tip_palm_max_mm": 0.0,
-      "finger_finger_max_mm": 8.03,
+      "finger_finger_max_mm": 7.94,
       "thumb_max_mm": 0.0,
-      "crease_max_mm": 10.36,
+      "crease_max_mm": 10.41,
       "other_max_mm": 0.0,
       "fingertips_through_back_verts": 0,
       "fingertips_through_back_max_mm": 0.0,
       "pairs": {
         "hand->index": {
           "n": 2,
-          "max_mm": 3.88,
-          "p95_mm": 3.75
+          "max_mm": 3.86,
+          "p95_mm": 3.73
         },
         "hand->middle": {
           "n": 4,
-          "max_mm": 5.86,
-          "p95_mm": 5.7
+          "max_mm": 5.91,
+          "p95_mm": 5.74
         },
         "hand->pinky": {
           "n": 1,
-          "max_mm": 1.1,
-          "p95_mm": 1.1
+          "max_mm": 1.08,
+          "p95_mm": 1.08
         },
         "hand->ring": {
           "n": 4,
-          "max_mm": 4.64,
-          "p95_mm": 4.5
+          "max_mm": 4.71,
+          "p95_mm": 4.56
         },
         "index_01->hand": {
           "n": 5,
-          "max_mm": 7.35,
-          "p95_mm": 7.35
+          "max_mm": 7.38,
+          "p95_mm": 7.37
         },
         "index_01->index": {
           "n": 7,
-          "max_mm": 8.45,
-          "p95_mm": 8.21
+          "max_mm": 8.47,
+          "p95_mm": 8.22
         },
         "index_01->middle": {
-          "n": 8,
-          "max_mm": 4.9,
-          "p95_mm": 4.81
+          "n": 7,
+          "max_mm": 4.67,
+          "p95_mm": 4.57
         },
         "index_02->index": {
           "n": 6,
-          "max_mm": 8.63,
-          "p95_mm": 8.2
+          "max_mm": 8.66,
+          "p95_mm": 8.23
         },
         "index_02->middle": {
-          "n": 21,
-          "max_mm": 8.03,
-          "p95_mm": 5.34
+          "n": 23,
+          "max_mm": 7.64,
+          "p95_mm": 5.17
         },
         "index_03->index": {
           "n": 1,
-          "max_mm": 8.82,
-          "p95_mm": 8.82
+          "max_mm": 8.84,
+          "p95_mm": 8.84
         },
         "index_03->middle": {
-          "n": 21,
-          "max_mm": 8.03,
-          "p95_mm": 2.96
+          "n": 24,
+          "max_mm": 7.63,
+          "p95_mm": 3.88
         },
         "middle_01->hand": {
           "n": 6,
-          "max_mm": 6.56,
-          "p95_mm": 6.34
+          "max_mm": 6.63,
+          "p95_mm": 6.4
         },
         "middle_01->index": {
-          "n": 7,
-          "max_mm": 7.65,
-          "p95_mm": 6.75
+          "n": 10,
+          "max_mm": 7.37,
+          "p95_mm": 7.36
         },
         "middle_01->middle": {
-          "n": 5,
-          "max_mm": 10.36,
-          "p95_mm": 9.59
+          "n": 6,
+          "max_mm": 10.41,
+          "p95_mm": 9.39
         },
         "middle_01->ring": {
-          "n": 10,
-          "max_mm": 7.08,
-          "p95_mm": 6.38
+          "n": 7,
+          "max_mm": 7.32,
+          "p95_mm": 6.9
         },
         "middle_02->index": {
           "n": 18,
-          "max_mm": 7.72,
-          "p95_mm": 7.27
+          "max_mm": 6.73,
+          "p95_mm": 4.43
         },
         "middle_02->middle": {
           "n": 3,
-          "max_mm": 5.57,
-          "p95_mm": 5.17
+          "max_mm": 5.35,
+          "p95_mm": 4.97
         },
         "middle_02->ring": {
-          "n": 19,
-          "max_mm": 5.52,
-          "p95_mm": 5.22
+          "n": 16,
+          "max_mm": 6.5,
+          "p95_mm": 6.12
         },
         "middle_03->index": {
-          "n": 6,
-          "max_mm": 3.78,
-          "p95_mm": 3.34
+          "n": 8,
+          "max_mm": 3.0,
+          "p95_mm": 2.94
         },
         "middle_03->ring": {
-          "n": 16,
-          "max_mm": 5.03,
-          "p95_mm": 3.69
+          "n": 10,
+          "max_mm": 6.01,
+          "p95_mm": 4.68
         },
         "pinky_01->hand": {
           "n": 3,
-          "max_mm": 3.38,
-          "p95_mm": 3.3
+          "max_mm": 3.35,
+          "p95_mm": 3.29
         },
         "pinky_01->pinky": {
           "n": 8,
-          "max_mm": 7.11,
-          "p95_mm": 6.54
+          "max_mm": 7.01,
+          "p95_mm": 6.47
         },
         "pinky_01->ring": {
           "n": 21,
-          "max_mm": 6.43,
-          "p95_mm": 6.19
+          "max_mm": 6.51,
+          "p95_mm": 6.21
         },
         "pinky_02->pinky": {
           "n": 9,
-          "max_mm": 7.6,
-          "p95_mm": 7.43
+          "max_mm": 7.55,
+          "p95_mm": 7.37
         },
         "pinky_02->ring": {
-          "n": 34,
-          "max_mm": 6.85,
-          "p95_mm": 5.77
+          "n": 32,
+          "max_mm": 7.18,
+          "p95_mm": 6.13
         },
         "pinky_03->pinky": {
           "n": 1,
-          "max_mm": 5.35,
-          "p95_mm": 5.35
+          "max_mm": 5.33,
+          "p95_mm": 5.33
         },
         "pinky_03->ring": {
           "n": 4,
-          "max_mm": 1.18,
-          "p95_mm": 1.18
+          "max_mm": 0.73,
+          "p95_mm": 0.68
         },
         "ring_01->hand": {
           "n": 5,
-          "max_mm": 6.19,
-          "p95_mm": 5.86
+          "max_mm": 6.15,
+          "p95_mm": 5.83
         },
         "ring_01->middle": {
-          "n": 18,
-          "max_mm": 7.81,
-          "p95_mm": 7.59
+          "n": 15,
+          "max_mm": 7.94,
+          "p95_mm": 7.81
         },
         "ring_01->pinky": {
-          "n": 15,
-          "max_mm": 7.65,
-          "p95_mm": 6.74
+          "n": 14,
+          "max_mm": 7.6,
+          "p95_mm": 6.9
         },
         "ring_01->ring": {
-          "n": 2,
-          "max_mm": 9.98,
-          "p95_mm": 9.64
+          "n": 3,
+          "max_mm": 10.08,
+          "p95_mm": 9.59
         },
         "ring_02->middle": {
-          "n": 15,
-          "max_mm": 3.39,
-          "p95_mm": 3.33
+          "n": 10,
+          "max_mm": 4.2,
+          "p95_mm": 3.3
         },
         "ring_02->pinky": {
           "n": 17,
-          "max_mm": 5.2,
-          "p95_mm": 4.48
+          "max_mm": 5.55,
+          "p95_mm": 4.32
         },
         "ring_03->middle": {
           "n": 6,
-          "max_mm": 3.09,
-          "p95_mm": 3.02
+          "max_mm": 1.84,
+          "p95_mm": 1.82
         },
         "ring_03->pinky": {
-          "n": 3,
-          "max_mm": 1.33,
-          "p95_mm": 1.23
+          "n": 2,
+          "max_mm": 0.69,
+          "p95_mm": 0.67
         }
       }
     },
     "l_grip_60_80_50": {
-      "buried_vertices": 84,
+      "buried_vertices": 82,
       "fold_vertices": 0,
       "tip_palm_max_mm": 0.0,
-      "finger_finger_max_mm": 8.95,
+      "finger_finger_max_mm": 6.12,
       "thumb_max_mm": 0.0,
-      "crease_max_mm": 8.92,
+      "crease_max_mm": 9.33,
       "other_max_mm": 0.0,
       "fingertips_through_back_verts": 0,
       "fingertips_through_back_max_mm": 0.0,
       "pairs": {
         "index_01->index": {
           "n": 10,
-          "max_mm": 8.15,
-          "p95_mm": 7.88
+          "max_mm": 8.17,
+          "p95_mm": 7.89
         },
         "index_01->middle": {
           "n": 1,
-          "max_mm": 5.87,
-          "p95_mm": 5.87
+          "max_mm": 5.78,
+          "p95_mm": 5.78
         },
         "index_02->index": {
           "n": 9,
-          "max_mm": 7.51,
+          "max_mm": 7.53,
           "p95_mm": 7.42
         },
         "index_02->middle": {
           "n": 1,
-          "max_mm": 6.13,
-          "p95_mm": 6.13
+          "max_mm": 6.06,
+          "p95_mm": 6.06
         },
         "middle_01->hand": {
           "n": 1,
-          "max_mm": 6.01,
-          "p95_mm": 6.01
+          "max_mm": 5.96,
+          "p95_mm": 5.96
         },
         "middle_01->middle": {
-          "n": 8,
-          "max_mm": 7.83,
-          "p95_mm": 7.47
+          "n": 9,
+          "max_mm": 7.92,
+          "p95_mm": 7.86
         },
         "middle_01->ring": {
-          "n": 2,
-          "max_mm": 5.77,
-          "p95_mm": 5.76
+          "n": 1,
+          "max_mm": 5.84,
+          "p95_mm": 5.84
         },
         "middle_02->middle": {
-          "n": 5,
-          "max_mm": 8.45,
-          "p95_mm": 8.28
+          "n": 4,
+          "max_mm": 7.76,
+          "p95_mm": 7.75
+        },
+        "middle_02->ring": {
+          "n": 1,
+          "max_mm": 6.12,
+          "p95_mm": 6.12
         },
         "pinky_01->pinky": {
           "n": 8,
-          "max_mm": 8.32,
-          "p95_mm": 8.06
+          "max_mm": 8.25,
+          "p95_mm": 8.01
         },
         "pinky_01->ring": {
           "n": 2,
-          "max_mm": 5.77,
-          "p95_mm": 5.73
+          "max_mm": 5.97,
+          "p95_mm": 5.93
         },
         "pinky_02->pinky": {
           "n": 8,
-          "max_mm": 8.92,
-          "p95_mm": 8.31
+          "max_mm": 8.98,
+          "p95_mm": 8.38
         },
         "pinky_02->ring": {
           "n": 8,
-          "max_mm": 4.56,
-          "p95_mm": 3.31
+          "max_mm": 4.81,
+          "p95_mm": 3.3
         },
         "pinky_03->ring": {
-          "n": 4,
-          "max_mm": 0.29,
-          "p95_mm": 0.28
+          "n": 2,
+          "max_mm": 0.23,
+          "p95_mm": 0.22
         },
         "ring_01->pinky": {
           "n": 3,
-          "max_mm": 4.07,
-          "p95_mm": 4.05
+          "max_mm": 4.21,
+          "p95_mm": 4.18
         },
         "ring_01->ring": {
           "n": 4,
-          "max_mm": 8.47,
-          "p95_mm": 8.32
-        },
-        "ring_02->middle": {
-          "n": 1,
-          "max_mm": 8.95,
-          "p95_mm": 8.95
+          "max_mm": 8.52,
+          "p95_mm": 8.36
         },
         "ring_02->pinky": {
           "n": 6,
-          "max_mm": 4.4,
-          "p95_mm": 3.96
+          "max_mm": 4.57,
+          "p95_mm": 4.13
         },
         "ring_02->ring": {
-          "n": 1,
-          "max_mm": 8.69,
-          "p95_mm": 8.69
+          "n": 2,
+          "max_mm": 9.33,
+          "p95_mm": 9.29
         },
         "ring_03->pinky": {
           "n": 2,
-          "max_mm": 0.5,
-          "p95_mm": 0.48
+          "max_mm": 0.26,
+          "p95_mm": 0.25
         }
       }
     },
     "r_grip_60_80_50": {
-      "buried_vertices": 84,
+      "buried_vertices": 82,
       "fold_vertices": 0,
       "tip_palm_max_mm": 0.0,
-      "finger_finger_max_mm": 8.95,
+      "finger_finger_max_mm": 6.12,
       "thumb_max_mm": 0.0,
-      "crease_max_mm": 8.92,
+      "crease_max_mm": 9.33,
       "other_max_mm": 0.0,
       "fingertips_through_back_verts": 0,
       "fingertips_through_back_max_mm": 0.0,
       "pairs": {
         "index_01->index": {
           "n": 10,
-          "max_mm": 8.15,
-          "p95_mm": 7.88
+          "max_mm": 8.17,
+          "p95_mm": 7.89
         },
         "index_01->middle": {
           "n": 1,
-          "max_mm": 5.87,
-          "p95_mm": 5.87
+          "max_mm": 5.78,
+          "p95_mm": 5.78
         },
         "index_02->index": {
           "n": 9,
-          "max_mm": 7.51,
+          "max_mm": 7.53,
           "p95_mm": 7.42
         },
         "index_02->middle": {
           "n": 1,
-          "max_mm": 6.13,
-          "p95_mm": 6.13
+          "max_mm": 6.06,
+          "p95_mm": 6.06
         },
         "middle_01->hand": {
           "n": 1,
-          "max_mm": 6.01,
-          "p95_mm": 6.01
+          "max_mm": 5.96,
+          "p95_mm": 5.96
         },
         "middle_01->middle": {
-          "n": 8,
-          "max_mm": 7.83,
-          "p95_mm": 7.47
+          "n": 9,
+          "max_mm": 7.92,
+          "p95_mm": 7.86
         },
         "middle_01->ring": {
-          "n": 2,
-          "max_mm": 5.77,
-          "p95_mm": 5.76
+          "n": 1,
+          "max_mm": 5.84,
+          "p95_mm": 5.84
         },
         "middle_02->middle": {
-          "n": 5,
-          "max_mm": 8.45,
-          "p95_mm": 8.28
+          "n": 4,
+          "max_mm": 7.76,
+          "p95_mm": 7.75
+        },
+        "middle_02->ring": {
+          "n": 1,
+          "max_mm": 6.12,
+          "p95_mm": 6.12
         },
         "pinky_01->pinky": {
           "n": 8,
-          "max_mm": 8.32,
-          "p95_mm": 8.06
+          "max_mm": 8.25,
+          "p95_mm": 8.01
         },
         "pinky_01->ring": {
           "n": 2,
-          "max_mm": 5.77,
-          "p95_mm": 5.73
+          "max_mm": 5.97,
+          "p95_mm": 5.93
         },
         "pinky_02->pinky": {
           "n": 8,
-          "max_mm": 8.92,
-          "p95_mm": 8.31
+          "max_mm": 8.98,
+          "p95_mm": 8.38
         },
         "pinky_02->ring": {
           "n": 8,
-          "max_mm": 4.56,
-          "p95_mm": 3.31
+          "max_mm": 4.81,
+          "p95_mm": 3.3
         },
         "pinky_03->ring": {
-          "n": 4,
-          "max_mm": 0.29,
-          "p95_mm": 0.28
+          "n": 2,
+          "max_mm": 0.22,
+          "p95_mm": 0.22
         },
         "ring_01->pinky": {
           "n": 3,
-          "max_mm": 4.07,
-          "p95_mm": 4.05
+          "max_mm": 4.21,
+          "p95_mm": 4.18
         },
         "ring_01->ring": {
           "n": 4,
-          "max_mm": 8.47,
-          "p95_mm": 8.32
-        },
-        "ring_02->middle": {
-          "n": 1,
-          "max_mm": 8.95,
-          "p95_mm": 8.95
+          "max_mm": 8.52,
+          "p95_mm": 8.36
         },
         "ring_02->pinky": {
           "n": 6,
-          "max_mm": 4.4,
-          "p95_mm": 3.96
+          "max_mm": 4.57,
+          "p95_mm": 4.13
         },
         "ring_02->ring": {
-          "n": 1,
-          "max_mm": 8.69,
-          "p95_mm": 8.69
+          "n": 2,
+          "max_mm": 9.33,
+          "p95_mm": 9.29
         },
         "ring_03->pinky": {
           "n": 2,
-          "max_mm": 0.5,
-          "p95_mm": 0.48
+          "max_mm": 0.26,
+          "p95_mm": 0.25
         }
       }
     }
@@ -4005,7 +4015,7 @@
     "fbx_reimport": "PASS",
     "glb_reimport": "PASS"
   },
-  "validation_seconds": 13.6,
+  "validation_seconds": 11.2,
   "deformation_tests": {
     "arms_raised": {
       "tri_area_ratio_min": 0.121,
@@ -4028,7 +4038,7 @@
       "body_volume_ratio": 1.021,
       "ring_ratio_posed_axis": {},
       "joint_clearance_ratio": {},
-      "max_bone_length_change_rel": 3.55e-06,
+      "max_bone_length_change_rel": 2.94e-06,
       "min_z_m": -0.0,
       "joint_angles_deg": {
         "elbow_l": 15.0,
@@ -4065,7 +4075,7 @@
         "lowerarm_r@0.05": 1.002
       },
       "joint_clearance_ratio": {},
-      "max_bone_length_change_rel": 1.32e-06,
+      "max_bone_length_change_rel": 1.39e-06,
       "min_z_m": -0.0,
       "joint_angles_deg": {
         "elbow_l": 5.92,
@@ -4108,7 +4118,7 @@
         "elbow_r": 0.715,
         "wrist_l": 0.889
       },
-      "max_bone_length_change_rel": 1.19e-06,
+      "max_bone_length_change_rel": 1.5e-06,
       "min_z_m": -0.0,
       "joint_angles_deg": {
         "elbow_l": 110.31,
@@ -4150,7 +4160,7 @@
         "elbow_l": 0.703,
         "elbow_r": 0.703
       },
-      "max_bone_length_change_rel": 1.4e-06,
+      "max_bone_length_change_rel": 1.22e-06,
       "min_z_m": -0.0,
       "joint_angles_deg": {
         "elbow_l": 120.0,
@@ -4437,7 +4447,7 @@
         "hip_l": 1.019,
         "hip_r": 0.963
       },
-      "max_bone_length_change_rel": 6.8e-07,
+      "max_bone_length_change_rel": 6.5e-07,
       "min_z_m": -0.0,
       "joint_angles_deg": {
         "elbow_l": 15.0,
@@ -4472,7 +4482,7 @@
         "wrist_l": 0.804,
         "wrist_r": 0.88
       },
-      "max_bone_length_change_rel": 9.9e-07,
+      "max_bone_length_change_rel": 1.84e-06,
       "min_z_m": -0.0,
       "joint_angles_deg": {
         "elbow_l": 15.0,
@@ -4504,7 +4514,7 @@
         "wrist_l": 0.776,
         "wrist_r": 0.76
       },
-      "max_bone_length_change_rel": 1.07e-06,
+      "max_bone_length_change_rel": 1.48e-06,
       "min_z_m": -0.0,
       "joint_angles_deg": {
         "elbow_l": 15.0,
@@ -4566,7 +4576,7 @@
         "elbow_l": 0.859,
         "elbow_r": 0.859
       },
-      "max_bone_length_change_rel": 1.14e-06,
+      "max_bone_length_change_rel": 7e-07,
       "min_z_m": -0.0,
       "joint_angles_deg": {
         "elbow_l": 90.0,
@@ -4592,33 +4602,35 @@
       }
     },
     "fist": {
-      "tri_area_ratio_min": 0.033,
-      "tri_area_ratio_p01": 0.433,
-      "tri_area_ratio_p99": 1.478,
-      "tri_area_ratio_max": 2.216,
+      "tri_area_ratio_min": 0.028,
+      "tri_area_ratio_p01": 0.435,
+      "tri_area_ratio_p99": 1.474,
+      "tri_area_ratio_max": 4.118,
       "tris_below_25pct_area": 86,
-      "tris_below_10pct_area": 24,
-      "edge_len_ratio_min": 0.044,
-      "edge_len_ratio_max": 2.078,
-      "self_intersecting_face_pairs": 1114,
-      "self_intersecting_new_vs_rest": 1106,
+      "tris_below_10pct_area": 18,
+      "edge_len_ratio_min": 0.038,
+      "edge_len_ratio_max": 3.78,
+      "self_intersecting_face_pairs": 848,
+      "self_intersecting_new_vs_rest": 840,
       "description": "full fist (anatomical): index 90/88/55, middle 90/100/70, ring 90/92/60, pinky 90/100/70, thumb over index / middle",
-      "inverted_tris": 182,
+      "inverted_tris": 198,
       "inverted_tris_by_bone": {
-        "hand_l": 19,
-        "hand_r": 19,
+        "hand_l": 22,
+        "hand_r": 22,
         "index_01_l": 16,
         "index_01_r": 16,
         "index_02_l": 1,
         "index_02_r": 1,
         "index_03_l": 4,
         "index_03_r": 4,
-        "middle_01_l": 16,
-        "middle_01_r": 16,
-        "middle_03_l": 6,
-        "middle_03_r": 6,
-        "pinky_01_l": 13,
-        "pinky_01_r": 13,
+        "middle_01_l": 18,
+        "middle_01_r": 18,
+        "middle_02_l": 1,
+        "middle_02_r": 1,
+        "middle_03_l": 7,
+        "middle_03_r": 7,
+        "pinky_01_l": 14,
+        "pinky_01_r": 14,
         "pinky_02_l": 3,
         "pinky_02_r": 3,
         "ring_01_l": 11,
@@ -4628,11 +4640,11 @@
         "thumb_02_l": 1,
         "thumb_02_r": 1
       },
-      "inverted_tris_buried": 148,
-      "body_volume_ratio": 0.9986,
+      "inverted_tris_buried": 184,
+      "body_volume_ratio": 0.9985,
       "ring_ratio_posed_axis": {},
       "joint_clearance_ratio": {},
-      "max_bone_length_change_rel": 8.5e-07,
+      "max_bone_length_change_rel": 1.16e-06,
       "min_z_m": -0.0,
       "joint_angles_deg": {
         "elbow_l": 15.0,
@@ -4644,18 +4656,18 @@
       }
     },
     "fingers_grip": {
-      "tri_area_ratio_min": 0.066,
+      "tri_area_ratio_min": 0.062,
       "tri_area_ratio_p01": 0.454,
       "tri_area_ratio_p99": 1.383,
-      "tri_area_ratio_max": 2.803,
-      "tris_below_25pct_area": 74,
-      "tris_below_10pct_area": 14,
-      "edge_len_ratio_min": 0.074,
-      "edge_len_ratio_max": 2.392,
-      "self_intersecting_face_pairs": 192,
-      "self_intersecting_new_vs_rest": 184,
+      "tri_area_ratio_max": 2.792,
+      "tris_below_25pct_area": 82,
+      "tris_below_10pct_area": 16,
+      "edge_len_ratio_min": 0.072,
+      "edge_len_ratio_max": 2.388,
+      "self_intersecting_face_pairs": 180,
+      "self_intersecting_new_vs_rest": 172,
       "description": "grip (anatomical): fingers 60/80/50 deg",
-      "inverted_tris": 86,
+      "inverted_tris": 92,
       "inverted_tris_by_bone": {
         "hand_l": 1,
         "hand_r": 1,
@@ -4663,22 +4675,22 @@
         "index_01_r": 12,
         "index_02_l": 1,
         "index_02_r": 1,
-        "middle_01_l": 11,
-        "middle_01_r": 11,
-        "pinky_01_l": 9,
-        "pinky_01_r": 9,
-        "pinky_02_l": 1,
-        "pinky_02_r": 1,
+        "middle_01_l": 13,
+        "middle_01_r": 13,
+        "middle_02_l": 1,
+        "middle_02_r": 1,
+        "pinky_01_l": 10,
+        "pinky_01_r": 10,
         "ring_01_l": 7,
         "ring_01_r": 7,
         "ring_02_l": 1,
         "ring_02_r": 1
       },
-      "inverted_tris_buried": 86,
+      "inverted_tris_buried": 92,
       "body_volume_ratio": 0.9992,
       "ring_ratio_posed_axis": {},
       "joint_clearance_ratio": {},
-      "max_bone_length_change_rel": 1.61e-06,
+      "max_bone_length_change_rel": 1.48e-06,
       "min_z_m": -0.0,
       "joint_angles_deg": {
         "elbow_l": 15.0,
@@ -4690,31 +4702,33 @@
       }
     },
     "fingers_half": {
-      "tri_area_ratio_min": 0.033,
-      "tri_area_ratio_p01": 0.592,
+      "tri_area_ratio_min": 0.036,
+      "tri_area_ratio_p01": 0.593,
       "tri_area_ratio_p99": 1.252,
-      "tri_area_ratio_max": 1.656,
-      "tris_below_25pct_area": 32,
-      "tris_below_10pct_area": 8,
-      "edge_len_ratio_min": 0.081,
-      "edge_len_ratio_max": 1.508,
-      "self_intersecting_face_pairs": 26,
-      "self_intersecting_new_vs_rest": 18,
+      "tri_area_ratio_max": 1.651,
+      "tris_below_25pct_area": 30,
+      "tris_below_10pct_area": 4,
+      "edge_len_ratio_min": 0.137,
+      "edge_len_ratio_max": 1.509,
+      "self_intersecting_face_pairs": 24,
+      "self_intersecting_new_vs_rest": 16,
       "description": "transition (anatomical): fingers 45/50/30 deg",
-      "inverted_tris": 28,
+      "inverted_tris": 32,
       "inverted_tris_by_bone": {
         "index_01_l": 6,
         "index_01_r": 6,
+        "middle_01_l": 2,
+        "middle_01_r": 2,
         "pinky_01_l": 6,
         "pinky_01_r": 6,
         "ring_01_l": 2,
         "ring_01_r": 2
       },
-      "inverted_tris_buried": 28,
+      "inverted_tris_buried": 30,
       "body_volume_ratio": 0.9996,
       "ring_ratio_posed_axis": {},
       "joint_clearance_ratio": {},
-      "max_bone_length_change_rel": 1.05e-06,
+      "max_bone_length_change_rel": 9.5e-07,
       "min_z_m": -0.0,
       "joint_angles_deg": {
         "elbow_l": 15.0,
@@ -4728,12 +4742,12 @@
     "fingers_spread": {
       "tri_area_ratio_min": 0.462,
       "tri_area_ratio_p01": 0.897,
-      "tri_area_ratio_p99": 1.248,
-      "tri_area_ratio_max": 2.649,
+      "tri_area_ratio_p99": 1.247,
+      "tri_area_ratio_max": 2.648,
       "tris_below_25pct_area": 0,
       "tris_below_10pct_area": 0,
-      "edge_len_ratio_min": 0.803,
-      "edge_len_ratio_max": 2.695,
+      "edge_len_ratio_min": 0.802,
+      "edge_len_ratio_max": 2.694,
       "self_intersecting_face_pairs": 8,
       "self_intersecting_new_vs_rest": 0,
       "description": "spread: MCP -5, abduction index +12 / middle +2 / ring -10 / pinky -22, thumb radial abduction",
@@ -4746,7 +4760,7 @@
       "body_volume_ratio": 1.0004,
       "ring_ratio_posed_axis": {},
       "joint_clearance_ratio": {},
-      "max_bone_length_change_rel": 1.1e-06,
+      "max_bone_length_change_rel": 8.8e-07,
       "min_z_m": -0.0,
       "joint_angles_deg": {
         "elbow_l": 15.0,
@@ -4788,7 +4802,7 @@
         "elbow_l": 0.982,
         "elbow_r": 0.982
       },
-      "max_bone_length_change_rel": 1.4e-06,
+      "max_bone_length_change_rel": 1.22e-06,
       "min_z_m": -0.0,
       "runtime_drive": {
         "twist": {
@@ -5205,7 +5219,7 @@
         "wrist_l": 0.945,
         "wrist_r": 0.935
       },
-      "max_bone_length_change_rel": 1.07e-06,
+      "max_bone_length_change_rel": 1.48e-06,
       "min_z_m": -0.0,
       "runtime_drive": {
         "twist": {
@@ -5305,7 +5319,7 @@
         "elbow_l": 0.974,
         "elbow_r": 0.974
       },
-      "max_bone_length_change_rel": 1.14e-06,
+      "max_bone_length_change_rel": 7e-07,
       "min_z_m": -0.0,
       "runtime_drive": {
         "twist": {
@@ -5480,6 +5494,133 @@
       }
     }
   },
+  "renders": [
+    "Art/Previews/HumanBase/HumanBase_compare_crouch_knees_110_knee_front_l.png",
+    "Art/Previews/HumanBase/HumanBase_compare_elbows_120_elbow_side_l.png",
+    "Art/Previews/HumanBase/HumanBase_compare_elbows_140_elbow_outer_l.png",
+    "Art/Previews/HumanBase/HumanBase_compare_elbows_140_elbow_side_l.png",
+    "Art/Previews/HumanBase/HumanBase_compare_squat_knees_130_back_hips.png",
+    "Art/Previews/HumanBase/HumanBase_compare_squat_knees_130_knee_front_l.png",
+    "Art/Previews/HumanBase/HumanBase_compare_squat_knees_130_knee_side_l.png",
+    "Art/Previews/HumanBase/HumanBase_compare_wrist_twist_l.png",
+    "Art/Previews/HumanBase/HumanBase_compare_wrist_twist_r.png",
+    "Art/Previews/HumanBase/HumanBase_hand_fist_l_back.png",
+    "Art/Previews/HumanBase/HumanBase_hand_fist_l_palm.png",
+    "Art/Previews/HumanBase/HumanBase_hand_fist_l_side.png",
+    "Art/Previews/HumanBase/HumanBase_hand_fist_r_back.png",
+    "Art/Previews/HumanBase/HumanBase_hand_fist_r_palm.png",
+    "Art/Previews/HumanBase/HumanBase_hand_fist_r_side.png",
+    "Art/Previews/HumanBase/HumanBase_hand_grip_l_back.png",
+    "Art/Previews/HumanBase/HumanBase_hand_grip_l_palm.png",
+    "Art/Previews/HumanBase/HumanBase_hand_grip_l_side.png",
+    "Art/Previews/HumanBase/HumanBase_hand_grip_r_back.png",
+    "Art/Previews/HumanBase/HumanBase_hand_grip_r_palm.png",
+    "Art/Previews/HumanBase/HumanBase_hand_grip_r_side.png",
+    "Art/Previews/HumanBase/HumanBase_hand_half_l_back.png",
+    "Art/Previews/HumanBase/HumanBase_hand_half_l_palm.png",
+    "Art/Previews/HumanBase/HumanBase_hand_half_l_side.png",
+    "Art/Previews/HumanBase/HumanBase_hand_half_r_back.png",
+    "Art/Previews/HumanBase/HumanBase_hand_half_r_palm.png",
+    "Art/Previews/HumanBase/HumanBase_hand_half_r_side.png",
+    "Art/Previews/HumanBase/HumanBase_hand_open_l_back.png",
+    "Art/Previews/HumanBase/HumanBase_hand_open_l_palm.png",
+    "Art/Previews/HumanBase/HumanBase_hand_open_l_side.png",
+    "Art/Previews/HumanBase/HumanBase_hand_open_r_back.png",
+    "Art/Previews/HumanBase/HumanBase_hand_open_r_palm.png",
+    "Art/Previews/HumanBase/HumanBase_hand_open_r_side.png",
+    "Art/Previews/HumanBase/HumanBase_hand_spread_l_back.png",
+    "Art/Previews/HumanBase/HumanBase_hand_spread_l_palm.png",
+    "Art/Previews/HumanBase/HumanBase_hand_spread_l_side.png",
+    "Art/Previews/HumanBase/HumanBase_hand_spread_r_back.png",
+    "Art/Previews/HumanBase/HumanBase_hand_spread_r_palm.png",
+    "Art/Previews/HumanBase/HumanBase_hand_spread_r_side.png",
+    "Art/Previews/HumanBase/HumanBase_hands_contact_sheet.png",
+    "Art/Previews/HumanBase/HumanBase_pose_arms_crossed_front_close.png",
+    "Art/Previews/HumanBase/HumanBase_pose_arms_crossed_full.png",
+    "Art/Previews/HumanBase/HumanBase_pose_arms_forward_full.png",
+    "Art/Previews/HumanBase/HumanBase_pose_arms_forward_shoulder_side.png",
+    "Art/Previews/HumanBase/HumanBase_pose_arms_forward_shoulder_top.png",
+    "Art/Previews/HumanBase/HumanBase_pose_arms_raised_full.png",
+    "Art/Previews/HumanBase/HumanBase_pose_arms_raised_shoulder_back.png",
+    "Art/Previews/HumanBase/HumanBase_pose_arms_raised_shoulder_front.png",
+    "Art/Previews/HumanBase/HumanBase_pose_crouch_knees_110_back_hips.png",
+    "Art/Previews/HumanBase/HumanBase_pose_crouch_knees_110_driven_back_hips.png",
+    "Art/Previews/HumanBase/HumanBase_pose_crouch_knees_110_driven_groin_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_crouch_knees_110_driven_knee_back_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_crouch_knees_110_driven_knee_front_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_crouch_knees_110_driven_knee_side_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_crouch_knees_110_driven_side.png",
+    "Art/Previews/HumanBase/HumanBase_pose_crouch_knees_110_full.png",
+    "Art/Previews/HumanBase/HumanBase_pose_crouch_knees_110_groin_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_crouch_knees_110_knee_back_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_crouch_knees_110_knee_front_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_crouch_knees_110_knee_side_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_crouch_knees_110_side.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_120_driven_elbow_outer_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_120_driven_elbow_side_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_120_driven_elbow_side_r.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_120_driven_elbow_top_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_120_elbow_inner.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_120_elbow_outer.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_120_elbow_outer_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_120_elbow_side_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_120_elbow_side_r.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_120_elbow_top_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_120_full.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_driven_elbow_outer_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_driven_elbow_side_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_driven_elbow_side_r.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_driven_elbow_top_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_elbow_outer_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_elbow_side_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_elbow_side_r.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_elbow_top_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_full.png",
+    "Art/Previews/HumanBase/HumanBase_pose_spine_twist_full.png",
+    "Art/Previews/HumanBase/HumanBase_pose_spine_twist_top.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_120_back_hips.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_120_full.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_120_knee_close.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_120_side.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_back_hips.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_driven_back_hips.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_driven_groin_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_driven_knee_back_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_driven_knee_front_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_driven_knee_side_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_driven_side.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_full.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_groin_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_knee_back_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_knee_front_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_knee_side_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_side.png",
+    "Art/Previews/HumanBase/HumanBase_pose_toes_40_toes_side_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_toes_40_toes_side_r.png",
+    "Art/Previews/HumanBase/HumanBase_pose_toes_40_toes_top_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_toes_40_toes_top_r.png",
+    "Art/Previews/HumanBase/HumanBase_pose_upperarm_roll_driven_shoulder_back.png",
+    "Art/Previews/HumanBase/HumanBase_pose_upperarm_roll_driven_shoulder_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_upperarm_roll_full.png",
+    "Art/Previews/HumanBase/HumanBase_pose_upperarm_roll_shoulder_back.png",
+    "Art/Previews/HumanBase/HumanBase_pose_upperarm_roll_shoulder_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_wrist_flex_full.png",
+    "Art/Previews/HumanBase/HumanBase_pose_wrist_flex_wrist_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_wrist_flex_wrist_r.png",
+    "Art/Previews/HumanBase/HumanBase_pose_wrist_twist_driven_wrist_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_wrist_twist_driven_wrist_r.png",
+    "Art/Previews/HumanBase/HumanBase_pose_wrist_twist_full.png",
+    "Art/Previews/HumanBase/HumanBase_pose_wrist_twist_wrist_l.png",
+    "Art/Previews/HumanBase/HumanBase_pose_wrist_twist_wrist_r.png",
+    "Art/Previews/HumanBase/HumanBase_poses_contact_sheet.png",
+    "Art/Previews/HumanBase/HumanBase_rest_back.png",
+    "Art/Previews/HumanBase/HumanBase_rest_front.png",
+    "Art/Previews/HumanBase/HumanBase_rest_persp.png",
+    "Art/Previews/HumanBase/HumanBase_rest_side.png",
+    "Art/Previews/HumanBase/HumanBase_skeleton_front.png",
+    "Art/Previews/HumanBase/HumanBase_skeleton_hand_l_palm.png",
+    "Art/Previews/HumanBase/HumanBase_skeleton_side.png"
+  ],
   "export": {
     "fbx_export": {
       "ok": true,
@@ -5489,7 +5630,7 @@
     "glb_export": {
       "ok": true,
       "path": "/home/user/Sroskus/IronValley/Art/Export/GLB/Human_Base.glb",
-      "bytes": 2343372
+      "bytes": 2336776
     },
     "fbx_reimport": {
       "ok": true,
@@ -5687,14 +5828,14 @@
           0.9601
         ],
         "index_02_l": [
-          0.625,
-          -0.1604,
-          0.925
+          0.6251,
+          -0.1603,
+          0.9249
         ],
         "index_03_l": [
-          0.6301,
-          -0.172,
-          0.9001
+          0.6303,
+          -0.1718,
+          0.9
         ],
         "middle_01_l": [
           0.6172,
@@ -5702,14 +5843,14 @@
           0.9572
         ],
         "middle_02_l": [
-          0.6369,
-          -0.1279,
-          0.91
+          0.637,
+          -0.1274,
+          0.9099
         ],
         "middle_03_l": [
-          0.6451,
-          -0.1352,
-          0.8792
+          0.6454,
+          -0.1341,
+          0.879
         ],
         "pinky_01_l": [
           0.6114,
@@ -5717,13 +5858,13 @@
           0.9561
         ],
         "pinky_02_l": [
-          0.627,
-          -0.0706,
-          0.9207
+          0.6271,
+          -0.0712,
+          0.9206
         ],
         "pinky_03_l": [
           0.6305,
-          -0.0691,
+          -0.07,
           0.9013
         ],
         "ring_01_l": [
@@ -5732,8 +5873,8 @@
           0.9562
         ],
         "ring_02_l": [
-          0.638,
-          -0.0975,
+          0.6379,
+          -0.0978,
           0.9131
         ],
         "ring_03_l": [
@@ -5752,7 +5893,7 @@
           0.9873
         ],
         "thumb_03_l": [
-          0.5599,
+          0.5586,
           -0.1734,
           0.9596
         ],
@@ -5792,14 +5933,14 @@
           0.9601
         ],
         "index_02_r": [
-          -0.625,
-          -0.1604,
-          0.925
+          -0.6251,
+          -0.1603,
+          0.9249
         ],
         "index_03_r": [
-          -0.6301,
-          -0.172,
-          0.9001
+          -0.6303,
+          -0.1718,
+          0.9
         ],
         "middle_01_r": [
           -0.6172,
@@ -5807,14 +5948,14 @@
           0.9572
         ],
         "middle_02_r": [
-          -0.6369,
-          -0.1279,
-          0.91
+          -0.637,
+          -0.1274,
+          0.9099
         ],
         "middle_03_r": [
-          -0.6451,
-          -0.1352,
-          0.8792
+          -0.6454,
+          -0.1341,
+          0.879
         ],
         "pinky_01_r": [
           -0.6114,
@@ -5822,13 +5963,13 @@
           0.9561
         ],
         "pinky_02_r": [
-          -0.627,
-          -0.0706,
-          0.9207
+          -0.6271,
+          -0.0712,
+          0.9206
         ],
         "pinky_03_r": [
           -0.6305,
-          -0.0691,
+          -0.07,
           0.9013
         ],
         "ring_01_r": [
@@ -5837,8 +5978,8 @@
           0.9562
         ],
         "ring_02_r": [
-          -0.638,
-          -0.0975,
+          -0.6379,
+          -0.0978,
           0.9131
         ],
         "ring_03_r": [
@@ -5857,7 +5998,7 @@
           0.9873
         ],
         "thumb_03_r": [
-          -0.5599,
+          -0.5586,
           -0.1734,
           0.9596
         ],
@@ -6073,7 +6214,7 @@
     "glb_reimport": {
       "ok": true,
       "path": "/home/user/Sroskus/IronValley/Art/Export/GLB/Human_Base.glb",
-      "bytes": 2343372,
+      "bytes": 2336776,
       "armatures": [
         "Armature"
       ],
@@ -6266,14 +6407,14 @@
           0.9601
         ],
         "index_02_l": [
-          0.625,
-          -0.1604,
-          0.925
+          0.6251,
+          -0.1603,
+          0.9249
         ],
         "index_03_l": [
-          0.6301,
-          -0.172,
-          0.9001
+          0.6303,
+          -0.1718,
+          0.9
         ],
         "middle_01_l": [
           0.6172,
@@ -6281,14 +6422,14 @@
           0.9572
         ],
         "middle_02_l": [
-          0.6369,
-          -0.1279,
-          0.91
+          0.637,
+          -0.1274,
+          0.9099
         ],
         "middle_03_l": [
-          0.6451,
-          -0.1352,
-          0.8792
+          0.6454,
+          -0.1341,
+          0.879
         ],
         "pinky_01_l": [
           0.6114,
@@ -6296,13 +6437,13 @@
           0.9561
         ],
         "pinky_02_l": [
-          0.627,
-          -0.0706,
-          0.9207
+          0.6271,
+          -0.0712,
+          0.9206
         ],
         "pinky_03_l": [
           0.6305,
-          -0.0691,
+          -0.07,
           0.9013
         ],
         "ring_01_l": [
@@ -6311,8 +6452,8 @@
           0.9562
         ],
         "ring_02_l": [
-          0.638,
-          -0.0975,
+          0.6379,
+          -0.0978,
           0.9131
         ],
         "ring_03_l": [
@@ -6331,7 +6472,7 @@
           0.9873
         ],
         "thumb_03_l": [
-          0.5599,
+          0.5586,
           -0.1734,
           0.9596
         ],
@@ -6371,14 +6512,14 @@
           0.9601
         ],
         "index_02_r": [
-          -0.625,
-          -0.1604,
-          0.925
+          -0.6251,
+          -0.1603,
+          0.9249
         ],
         "index_03_r": [
-          -0.6301,
-          -0.172,
-          0.9001
+          -0.6303,
+          -0.1718,
+          0.9
         ],
         "middle_01_r": [
           -0.6172,
@@ -6386,14 +6527,14 @@
           0.9572
         ],
         "middle_02_r": [
-          -0.6369,
-          -0.1279,
-          0.91
+          -0.637,
+          -0.1274,
+          0.9099
         ],
         "middle_03_r": [
-          -0.6451,
-          -0.1352,
-          0.8792
+          -0.6454,
+          -0.1341,
+          0.879
         ],
         "pinky_01_r": [
           -0.6114,
@@ -6401,13 +6542,13 @@
           0.9561
         ],
         "pinky_02_r": [
-          -0.627,
-          -0.0706,
-          0.9207
+          -0.6271,
+          -0.0712,
+          0.9206
         ],
         "pinky_03_r": [
           -0.6305,
-          -0.0691,
+          -0.07,
           0.9013
         ],
         "ring_01_r": [
@@ -6416,8 +6557,8 @@
           0.9562
         ],
         "ring_02_r": [
-          -0.638,
-          -0.0975,
+          -0.6379,
+          -0.0978,
           0.9131
         ],
         "ring_03_r": [
@@ -6436,7 +6577,7 @@
           0.9873
         ],
         "thumb_03_r": [
-          -0.5599,
+          -0.5586,
           -0.1734,
           0.9596
         ],
@@ -6660,81 +6801,5 @@
       "SK_Human_Base: vertex count 14517 (split by UV seams/normals on import is expected for glTF)"
     ]
   },
-  "renders": [
-    "Art/Previews/HumanBase/HumanBase_compare_wrist_twist_l.png",
-    "Art/Previews/HumanBase/HumanBase_compare_wrist_twist_r.png",
-    "Art/Previews/HumanBase/HumanBase_hand_fist_l_back.png",
-    "Art/Previews/HumanBase/HumanBase_hand_fist_l_palm.png",
-    "Art/Previews/HumanBase/HumanBase_hand_fist_l_side.png",
-    "Art/Previews/HumanBase/HumanBase_hand_fist_r_back.png",
-    "Art/Previews/HumanBase/HumanBase_hand_fist_r_palm.png",
-    "Art/Previews/HumanBase/HumanBase_hand_fist_r_side.png",
-    "Art/Previews/HumanBase/HumanBase_hand_half_l_back.png",
-    "Art/Previews/HumanBase/HumanBase_hand_half_l_palm.png",
-    "Art/Previews/HumanBase/HumanBase_hand_half_l_side.png",
-    "Art/Previews/HumanBase/HumanBase_hand_half_r_back.png",
-    "Art/Previews/HumanBase/HumanBase_hand_half_r_palm.png",
-    "Art/Previews/HumanBase/HumanBase_hand_half_r_side.png",
-    "Art/Previews/HumanBase/HumanBase_hand_open_l_back.png",
-    "Art/Previews/HumanBase/HumanBase_hand_open_l_palm.png",
-    "Art/Previews/HumanBase/HumanBase_hand_open_l_side.png",
-    "Art/Previews/HumanBase/HumanBase_hand_open_r_back.png",
-    "Art/Previews/HumanBase/HumanBase_hand_open_r_palm.png",
-    "Art/Previews/HumanBase/HumanBase_hand_open_r_side.png",
-    "Art/Previews/HumanBase/HumanBase_hand_spread_l_back.png",
-    "Art/Previews/HumanBase/HumanBase_hand_spread_l_palm.png",
-    "Art/Previews/HumanBase/HumanBase_hand_spread_l_side.png",
-    "Art/Previews/HumanBase/HumanBase_hand_spread_r_back.png",
-    "Art/Previews/HumanBase/HumanBase_hand_spread_r_palm.png",
-    "Art/Previews/HumanBase/HumanBase_hand_spread_r_side.png",
-    "Art/Previews/HumanBase/HumanBase_hands_contact_sheet.png",
-    "Art/Previews/HumanBase/HumanBase_pose_arms_crossed_front_close.png",
-    "Art/Previews/HumanBase/HumanBase_pose_arms_crossed_full.png",
-    "Art/Previews/HumanBase/HumanBase_pose_arms_forward_full.png",
-    "Art/Previews/HumanBase/HumanBase_pose_arms_forward_shoulder_side.png",
-    "Art/Previews/HumanBase/HumanBase_pose_arms_forward_shoulder_top.png",
-    "Art/Previews/HumanBase/HumanBase_pose_arms_raised_full.png",
-    "Art/Previews/HumanBase/HumanBase_pose_arms_raised_shoulder_back.png",
-    "Art/Previews/HumanBase/HumanBase_pose_arms_raised_shoulder_front.png",
-    "Art/Previews/HumanBase/HumanBase_pose_elbows_120_elbow_inner.png",
-    "Art/Previews/HumanBase/HumanBase_pose_elbows_120_elbow_outer.png",
-    "Art/Previews/HumanBase/HumanBase_pose_elbows_120_full.png",
-    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_elbow_outer_l.png",
-    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_elbow_side_l.png",
-    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_elbow_side_r.png",
-    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_elbow_top_l.png",
-    "Art/Previews/HumanBase/HumanBase_pose_elbows_140_full.png",
-    "Art/Previews/HumanBase/HumanBase_pose_spine_twist_full.png",
-    "Art/Previews/HumanBase/HumanBase_pose_spine_twist_top.png",
-    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_120_back_hips.png",
-    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_120_full.png",
-    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_120_knee_close.png",
-    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_120_side.png",
-    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_full.png",
-    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_knee_front_l.png",
-    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_knee_side_l.png",
-    "Art/Previews/HumanBase/HumanBase_pose_squat_knees_130_side.png",
-    "Art/Previews/HumanBase/HumanBase_pose_upperarm_roll_driven_shoulder_back.png",
-    "Art/Previews/HumanBase/HumanBase_pose_upperarm_roll_driven_shoulder_l.png",
-    "Art/Previews/HumanBase/HumanBase_pose_upperarm_roll_full.png",
-    "Art/Previews/HumanBase/HumanBase_pose_upperarm_roll_shoulder_back.png",
-    "Art/Previews/HumanBase/HumanBase_pose_upperarm_roll_shoulder_l.png",
-    "Art/Previews/HumanBase/HumanBase_pose_wrist_flex_full.png",
-    "Art/Previews/HumanBase/HumanBase_pose_wrist_flex_wrist_l.png",
-    "Art/Previews/HumanBase/HumanBase_pose_wrist_flex_wrist_r.png",
-    "Art/Previews/HumanBase/HumanBase_pose_wrist_twist_driven_wrist_l.png",
-    "Art/Previews/HumanBase/HumanBase_pose_wrist_twist_driven_wrist_r.png",
-    "Art/Previews/HumanBase/HumanBase_pose_wrist_twist_full.png",
-    "Art/Previews/HumanBase/HumanBase_pose_wrist_twist_wrist_l.png",
-    "Art/Previews/HumanBase/HumanBase_pose_wrist_twist_wrist_r.png",
-    "Art/Previews/HumanBase/HumanBase_poses_contact_sheet.png",
-    "Art/Previews/HumanBase/HumanBase_rest_back.png",
-    "Art/Previews/HumanBase/HumanBase_rest_front.png",
-    "Art/Previews/HumanBase/HumanBase_rest_persp.png",
-    "Art/Previews/HumanBase/HumanBase_rest_side.png",
-    "Art/Previews/HumanBase/HumanBase_skeleton_front.png",
-    "Art/Previews/HumanBase/HumanBase_skeleton_hand_l_palm.png",
-    "Art/Previews/HumanBase/HumanBase_skeleton_side.png"
-  ],
-  "total_seconds_this_run": 2.7
+  "total_seconds_this_run": 1623.3
 }

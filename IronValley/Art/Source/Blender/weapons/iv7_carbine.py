@@ -14,6 +14,9 @@ Environment switches (optional):
                         (default: all).  build, rig, uv and lod always run (fast); without
                         "bake" the existing PNGs in Art/Textures/Weapons/IV7 are reused.
     IV_RENDERS=a,b,...  subset of render names (see RENDER_NAMES below)
+    IV_OUT_ROOT=dir     write every output (textures, exports, previews, .blend) under dir
+                        instead of the project (iteration builds that must not overwrite the
+                        shared assets; the default writes into the project as documented)
 
 Authoring frame
 ---------------
@@ -37,15 +40,18 @@ import bpy            # noqa: E402
 import bmesh          # noqa: E402
 from mathutils import Vector, Matrix   # noqa: E402
 import ivlib as L     # noqa: E402
+import ivoptics as O  # noqa: E402  (thin coated glass shared with the optics set; no Blender state at import)
 
 # ----------------------------------------------------------------------------- paths
 PROJECT = os.path.normpath(os.path.join(HERE, "..", "..", "..", ".."))       # IronValley/
-ART = os.path.join(PROJECT, "Art")
+_OUT = os.environ.get("IV_OUT_ROOT")
+ART = os.path.join(_OUT, "Art") if _OUT else os.path.join(PROJECT, "Art")
 TEX_DIR = os.path.join(ART, "Textures", "Weapons", "IV7")
 FBX_DIR = os.path.join(ART, "Export", "FBX")
 GLB_DIR = os.path.join(ART, "Export", "GLB")
 PREV_DIR = os.path.join(ART, "Previews", "IV7")
-BLEND = os.path.join(HERE, "iv7_carbine.blend")
+BLEND = os.path.join(_OUT, "iv7_carbine.blend") if _OUT else os.path.join(HERE, "iv7_carbine.blend")
+OPTICS_JSON = os.path.join(PROJECT, "Shared", "config", "optics.json")
 
 QUICK = os.environ.get("IV_QUICK") == "1"
 ALL_STAGES = ["bake", "save", "validate", "export", "reimport", "render"]
@@ -212,14 +218,23 @@ def build_materials():
     mb = L.mask_group("Body", edge_dist=0.0022, cavity_dist=0.006, ao_dist=0.03)
     mf = L.mask_group("Furniture", edge_dist=0.0016, cavity_dist=0.006, ao_dist=0.03)
     MAT["masks_body"], MAT["masks_furn"] = mb, mf
-    # black hard-anodised aluminium (metallic, dark base, satin 0.30-0.38 roughness with breakup);
-    # separate instances -> slight lot-to-lot differences
-    MAT["anod_upper"] = L.mat_anodized("IV7_Anod_Upper", mb, base=(0.040, 0.040, 0.044), rough=0.34, seed=1)
-    MAT["anod_lower"] = L.mat_anodized("IV7_Anod_Lower", mb, base=(0.043, 0.042, 0.046), rough=0.35, seed=2)
-    MAT["anod_hg"] = L.mat_anodized("IV7_Anod_Handguard", mb, base=(0.038, 0.038, 0.042), rough=0.37, seed=3)
-    MAT["anod_opt"] = L.mat_anodized("IV7_Anod_Optic", mb, base=(0.034, 0.034, 0.037), seed=4,
-                                     rough=0.32, scratches=0.4)
-    MAT["anod_misc"] = L.mat_anodized("IV7_Anod_Misc", mb, base=(0.041, 0.041, 0.044), rough=0.35, seed=5)
+    # black hard-anodised aluminium (fix round 1, MAT-1 / MAT-2 / MAT-5): metallic 1 with a cool,
+    # slightly blue dark base, B/R ~1.15 (the specular reflection is faintly coloured, unlike the warm
+    # grey polymer), satin 0.28-0.33 roughness with low-frequency breakup and machining streaks
+    # (sharper, structured highlights), orange-peel + tool-path micro normal that survives the
+    # 8-bit map, chipped edge wear on exposed / handled edges only and light dust in cavities.
+    # Separate instances -> slight lot-to-lot differences.
+    sat = dict(style="worn_satin", micro=0.5)
+    MAT["anod_upper"] = L.mat_anodized("IV7_Anod_Upper", mb, base=(0.040, 0.041, 0.047), rough=0.30, seed=1,
+                                       machining=0.15, **sat)
+    MAT["anod_lower"] = L.mat_anodized("IV7_Anod_Lower", mb, base=(0.042, 0.042, 0.048), rough=0.31, seed=2,
+                                       machining=0.15, **sat)
+    MAT["anod_hg"] = L.mat_anodized("IV7_Anod_Handguard", mb, base=(0.038, 0.039, 0.045), rough=0.32, seed=3,
+                                    machining=0.12, **sat)
+    MAT["anod_opt"] = L.mat_anodized("IV7_Anod_Optic", mb, base=(0.034, 0.035, 0.040), seed=4,
+                                     rough=0.29, scratches=0.4, machining=0.1, **sat)
+    MAT["anod_misc"] = L.mat_anodized("IV7_Anod_Misc", mb, base=(0.041, 0.042, 0.048), rough=0.31, seed=5,
+                                      machining=0.15, **sat)
     x_soot0 = (MUZ_X0 + 2.0 - HOLD.x) * 0.01
     x_soot1 = (MUZ_X1 - HOLD.x) * 0.01
     MAT["steel_barrel"] = L.mat_steel("IV7_Steel_Barrel", mb, seed=6,
@@ -240,15 +255,19 @@ def build_materials():
                                 stipple={"zmax": g0, "zmin": g1, "scale": 400.0, "randomness": 0.5})
     MAT["stock"] = L.mat_polymer("IV7_Polymer_FDE_Stock", mf, base=fde, seed=22)
     mz = (MAG_PIVOT[2] - 6.5 - MAG_PIVOT[2]) * 0.01      # object coords of the magazine (origin at pivot)
-    # magazine polymer: clearly matte and a lighter, slightly warm grey (reads apart from the
-    # dark satin-metal receivers)
-    MAT["mag"] = L.mat_polymer("IV7_Polymer_Mag", mf, base=(0.057, 0.054, 0.050), rough=0.76,
+    # magazine polymer: clearly matte (0.80, diffuse), a lighter, slightly warm grey: reads apart
+    # from the cool, reflective satin-metal receivers in sun and in shade
+    MAT["mag"] = L.mat_polymer("IV7_Polymer_Mag", mf, base=(0.066, 0.063, 0.057), rough=0.80,
                                seed=23, stipple={"zmax": mz, "scale": 380.0, "normal_axis": "Y",
                                                  "randomness": 0.5, "height": 0.8})
     MAT["rubber"] = L.mat_rubber("IV7_Rubber_Pad", mf, seed=24, ribs={"axis": 'Z', "scale": 160.0})
     MAT["brass"] = L.mat_brass("IV7_Brass", mf, seed=25)
     MAT["copper"] = L.mat_copper("IV7_Copper", mf, seed=26)
-    MAT["glass_front"] = L.mat_glass("M_IV7_Glass", tint=(0.95, 0.97, 1.0), thin_film_nm=120.0)
+    # lens glass: thin coated ALPHA glass like the optics set (no transmission, no refraction:
+    # a refraction pass renders a blurred copy of the scene and flickers in first person).  Each
+    # lens is a closed disc (4 surfaces in view), so the per-surface veil is kept low.
+    MAT["glass_front"] = O.mat_glass_thin("M_IV7_Glass", tint=(0.024, 0.030, 0.036), alpha=0.05,
+                                          coat=(0.55, 0.78, 1.0), spec=0.7, rough=0.03)
     MAT["reticle"] = L.mat_emissive("M_IV7_Reticle", (1.0, 0.02, 0.01), 8.0, illuminate=False)
     MAT["reticle_mask"] = L.mat_constant("M_IV7_ReticleMask", (0.01, 0.01, 0.01), rough=0.5)
 
@@ -277,6 +296,8 @@ def part_upper():
     L.union(up, [fa])
     cut = [L.cyl("bore", 1.30, UP_X0 - 0.2, UP_X1 + 0.2, 'X', segs=40),
            L.box("ch_chan", UP_X0 - 0.2, CH_CHAN_X1, -CH_CHAN_HW, CH_CHAN_HW, CH_Z0 - 0.02, CH_Z1 + 0.02),
+           # notch for the charging-handle latch hook (left of the channel, rear 3 mm)
+           L.box("ch_notch", UP_X0 - 0.2, CH_NOTCH[0], CH_CHAN_HW - 0.01, CH_NOTCH[1], CH_Z0 - 0.02, CH_NOTCH[2]),
            L.poly_extrude("port", L.rounded_rect(6.5, 1.9, 0.28, 4, cx=-5.15, cy=0.0), 'Y', -2.6, -0.4),
            L.box("feed", -7.5, -0.9, -1.22, 1.22, -2.1, -1.0),
            L.cyl("fa_bore", 0.52, -14.6, -13.7, 'X', center=FA_C, segs=20)]
@@ -640,27 +661,73 @@ CH_SHAFT_X1 = -2.3                # front end of the shaft (bind pose)
 CH_STROKE = 7.0                   # documented stroke (cm, -X)
 
 
+CH_TOP = CH_Z1 + 0.10             # top of the T-handle wings
+CH_X_FACE = UP_X0 - 0.02          # front face of the wings: 0.2 mm behind the upper's rear face
+# latch lever on the left (+Y) wing, top view (x, y), inside its pocket with a 0.3 mm gap
+CH_LATCH = [(CH_X_FACE - 0.06, 0.66), (CH_X_FACE - 0.06, 1.46), (CH_X_FACE - 0.33, 2.08),
+            (CH_X_FACE - 0.88, 2.26), (CH_X_FACE - 1.43, 2.12), (CH_X_FACE - 1.70, 1.62),
+            (CH_X_FACE - 1.70, 1.12), (CH_X_FACE - 0.82, 0.66)]
+CH_LATCH_PIN = (CH_X_FACE - 0.45, 0.86)       # vertical roll pin the latch pivots on
+CH_HOOK_Y = (0.50, 0.70)                       # hook tooth (|y|) that engages the upper's notch
+CH_HOOK_Z1 = 1.98                              # hook tooth top (bore frame)
+CH_NOTCH = (UP_X0 + 0.30, 0.74, 2.02)          # latch notch in the upper: front x, outer |y|, top z
+
+
+def _offset_convex(pts, d):
+    """Outward offset (mitred) of a convex CCW polygon."""
+    n = len(pts)
+    out = []
+    for i in range(n):
+        p0, p1, p2 = Vector(pts[i - 1]), Vector(pts[i]), Vector(pts[(i + 1) % n])
+        e0 = (p1 - p0).normalized(); e1 = (p2 - p1).normalized()
+        n0 = Vector((e0.y, -e0.x)); n1 = Vector((e1.y, -e1.x))
+        m = (n0 + n1).normalized()
+        out.append(tuple(p1 + m * (d / max(m.dot(n0), 0.2))))
+    return out
+
+
 def part_charging_handle():
-    """T-handle behind the upper plus a long shaft that runs forward in the upper's channel:
-    at the full 7 cm stroke 5.2 cm of shaft is still engaged in the receiver."""
-    x_face = UP_X0 - 0.02                                        # wings stop 0.2 mm behind the upper
+    """AR-type T-handle behind the upper plus a long shaft that runs forward in the upper's
+    channel (at the full 7 cm stroke 5.2 cm of shaft is still engaged in the receiver).  The left
+    wing carries the latch: a lever sitting in a pocket of the wing (0.3 mm gap all round, raised
+    0.6 mm), pivoting on a vertical roll pin, with thumb grooves at its rear and a hook tooth at
+    its front that engages a notch in the upper's rear face when the handle is home."""
+    x_face = CH_X_FACE
     half = [(x_face, 0.52), (x_face, 1.55), (x_face - 0.28, 2.22), (x_face - 0.88, 2.42),
             (x_face - 1.53, 2.26), (x_face - 1.86, 1.6)]
     pts = half + [(x, -y) for (x, y) in reversed(half)]
     pts = L.fillet_polygon(pts, [0, 0.15, 0.3, 0.3, 0.3, 0.2, 0.2, 0.3, 0.3, 0.3, 0.15, 0], 3)
-    ch = L.poly_extrude("ChargingHandle", pts, 'Z', CH_Z0 - 0.04, CH_Z1 + 0.1)
+    # body bottom 0.2 mm above the castle nut's top (OD 3.24 cm) over the whole stroke
+    ch = L.poly_extrude("ChargingHandle", pts, 'Z', CH_Z0 - 0.02, CH_TOP)
     shaft = L.poly_extrude("shaft", L.rounded_rect(CH_SHAFT_X1 - (x_face - 0.1), 0.88, 0.06, 2,
                                                    cx=(CH_SHAFT_X1 + x_face - 0.1) / 2, cy=0.0),
                            'Z', CH_Z0, CH_Z1)
     L.bevel(ch, 0.03, 2, 30)
     L.bevel(shaft, 0.03, 2, 30)
     L.union(ch, [shaft])
+    # latch pocket in the left wing (1.4 mm deep), narrow bevel on its rim
+    latch_r = [0.08, 0.12, 0.2, 0.25, 0.2, 0.15, 0.12, 0.1]
+    pocket = L.poly_extrude("pocket", L.fillet_polygon(_offset_convex(CH_LATCH, 0.03), latch_r, 3), 'Z',
+                            CH_TOP - 0.14, CH_TOP + 0.2)
+    L.boolean_bevelled(ch, [pocket], 0.012, 1)
+    # latch lever (0.2 mm into the pocket floor so it unions cleanly), hook tooth, roll pin
+    latch = L.poly_extrude("latch", L.fillet_polygon(CH_LATCH, latch_r, 3), 'Z', CH_TOP - 0.16, CH_TOP + 0.06)
+    L.bevel(latch, 0.02, 2, 30)
+    hook = L.box("hook", x_face - 0.40, x_face + 0.26, CH_HOOK_Y[0], CH_HOOK_Y[1], CH_Z0 + 0.04, CH_HOOK_Z1)
+    L.bevel(hook, 0.015, 1, 30)
+    pin = L.cyl("latch_pin", 0.07, CH_Z0 - 0.03, CH_TOP + 0.09, 'Z', center=CH_LATCH_PIN, segs=14)
+    L.bevel(pin, 0.01, 1, 30)
+    L.union(ch, [latch, hook, pin])
     cut = []
     for side in (1, -1):
         for k in range(3):
             y = side * (1.15 + 0.35 * k)
-            # closed-end grooves (grooves running out of the wing edge folded bevel geometry)
-            cut.append(L.box("g", x_face - 1.5, x_face - 0.43, y - 0.07, y + 0.07, CH_Z1 + 0.01, CH_Z1 + 0.3))
+            # closed-end grooves (grooves running out of the wing edge folded bevel geometry); on
+            # the left they are the latch's thumb grooves
+            x0 = x_face - 1.5 if side < 0 else x_face - 1.40
+            x1 = x_face - 0.43 if side < 0 else x_face - 0.62
+            cut.append(L.box("g", x0, x1, y - 0.07, y + 0.07, CH_Z1 + 0.01 if side < 0 else CH_TOP - 0.1,
+                             CH_TOP + 0.3))
     L.boolean_bevelled(ch, cut, 0.015, 1)
     return reg(setmat(ch, "anod_misc"), "Body", "charging_handle")
 
@@ -1099,20 +1166,23 @@ def build():
 # ---- handling-contact attribute (drives edge wear / polish in the Body materials) ----------
 # part: (base value, [(lo (x, y, z), hi (x, y, z), add), ...]) in bore-frame cm; None = unbounded
 CONTACT = {
-    "UpperReceiver": (0.30, [((None, None, 2.3), (None, None, None), 0.35),           # rail teeth
-                             ((None, None, None), (-11.0, None, None), 0.2)]),        # rear (charging)
+    # rail teeth: optics / lights are clamped and slid here, but not on every tooth: moderate
+    # contact, the wear patch field decides which teeth show bare metal
+    "UpperReceiver": (0.30, [((None, None, 2.3), (None, None, None), 0.18),           # rail teeth
+                             ((None, None, None), (-11.0, None, None), 0.2),          # rear (charging)
+                             ((None, None, None), (None, -1.2, -0.6), 0.25)]),        # port side / deflector
     "LowerReceiver": (0.35, [((None, None, None), (None, None, -7.6), 0.55),         # magwell flare
                              ((-12.8, None, None), (-7.4, None, -4.8), 0.45),         # trigger guard
                              ((-13.5, 0.9, -4.2), (-7.8, None, -1.9), 0.2),           # selector / catch
                              ((None, None, None), (-16.4, None, -3.4), 0.3),          # rear tang
                              ((-1.2, None, None), (None, None, -5.0), 0.25)]),        # magwell front
-    "Handguard": (0.22, [((10.0, None, None), (27.0, None, -1.0), 0.6),              # support hand
-                         ((None, None, 2.3), (None, None, None), 0.3),                # rail
+    "Handguard": (0.26, [((8.0, None, None), (30.0, None, -1.0), 0.6),               # support hand
+                         ((None, None, 2.3), (None, None, None), 0.15),               # rail
                          ((34.5, None, None), (None, None, None), 0.35)]),            # front edge
     "BufferTube": (0.35, [((None, None, None), (None, None, -0.9), 0.35)]),
     "EndPlate": (0.7, []), "CastleNut": (0.5, []),
-    "ChargingHandle": (0.55, [((None, 0.9, None), (-14.5, None, None), 0.45),
-                              ((None, None, None), (-14.5, -0.9, None), 0.45)]),
+    "ChargingHandle": (0.45, [((None, 0.9, None), (-14.5, None, None), 0.35),        # latch wing
+                              ((None, None, None), (-14.5, -0.9, None), 0.25)]),
     "Optic": (0.28, [((None, None, 8.5), (None, None, None), 0.5),                   # elevation turret
                      ((None, None, None), (None, -1.85, None), 0.5),                  # windage turret
                      ((None, 1.85, None), (None, None, None), 0.45),                  # brightness knob
@@ -1495,6 +1565,368 @@ def measure():
     return d
 
 
+# ============================================================================ pose checks
+# Interference of the posed rig: every documented pose, the charging-handle stroke, the carrier
+# stroke, the sight folds (with the built-in optic and with every optic of Shared/config/optics.json
+# mounted on the rail) and a negative control (the rear leaf folded the WRONG way, +90 deg, must be
+# caught).  Method: posed (evaluated) world meshes, BVH triangle-pair overlap, then penetration
+# depth = distance to the other surface of every vertex that lies inside the other closed mesh
+# (ray parity, two skewed directions).  Contacts of <= PEN_TOL are seating faces (coplanar or
+# 0.0x mm): reported, not failures.
+PEN_TOL_M = 1e-4                  # 0.1 mm
+FOLD_CLEAR_MIN_M = 5e-4           # a folded leaf keeps >= 0.5 mm from any mounted optic and its base
+
+
+def _read_glb(path):
+    import struct
+    b = open(path, "rb").read()
+    magic, ver, length = struct.unpack_from("<III", b, 0)
+    off, js, bin_ = 12, None, None
+    while off < length:
+        clen, ctype = struct.unpack_from("<II", b, off); off += 8
+        chunk = b[off:off + clen]; off += clen
+        if ctype == 0x4E4F534A:
+            js = json.loads(chunk)
+        elif ctype == 0x004E4942:
+            bin_ = chunk
+    return js, bin_
+
+
+def _glb_accessor(js, bin_, i):
+    import numpy as np
+    a = js["accessors"][i]; bv = js["bufferViews"][a["bufferView"]]
+    comp = {5120: "i1", 5121: "u1", 5122: "i2", 5123: "u2", 5125: "u4", 5126: "f4"}[a["componentType"]]
+    n = {"SCALAR": 1, "VEC2": 2, "VEC3": 3, "VEC4": 4}[a["type"]]
+    dt = np.dtype("<" + comp)
+    start = bv.get("byteOffset", 0) + a.get("byteOffset", 0)
+    stride = bv.get("byteStride", 0) or dt.itemsize * n
+    arr = np.ndarray((a["count"], n), dt, buffer=bin_, offset=start, strides=(stride, dt.itemsize))
+    return np.array(arr, np.float64 if comp == "f4" else np.int64)
+
+
+def glb_triangles(path):
+    """All mesh triangles of a GLB in Blender axes (Z up, metres, relative to the glTF scene
+    root): [(node name, verts (n, 3), tris (m, 3))]."""
+    import numpy as np
+    js, bin_ = _read_glb(path)
+
+    def mat(nd):
+        if "matrix" in nd:
+            return np.array(nd["matrix"], np.float64).reshape(4, 4).T
+        t = nd.get("translation", [0, 0, 0]); x, y, z, w = nd.get("rotation", [0, 0, 0, 1])
+        s = nd.get("scale", [1, 1, 1])
+        R = np.array([[1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w)],
+                      [2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w)],
+                      [2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)]])
+        M = np.eye(4); M[:3, :3] = R * np.array(s)[None, :]; M[:3, 3] = t
+        return M
+    C = np.array([[1, 0, 0, 0], [0, 0, -1, 0], [0, 1, 0, 0], [0, 0, 0, 1]], np.float64)   # glTF Y-up -> Z-up
+    out = []
+
+    def walk(ni, parent):
+        nd = js["nodes"][ni]
+        M = parent @ mat(nd)
+        if "mesh" in nd:
+            for prim in js["meshes"][nd["mesh"]]["primitives"]:
+                if prim.get("mode", 4) != 4:
+                    continue
+                v = _glb_accessor(js, bin_, prim["attributes"]["POSITION"])
+                idx = (_glb_accessor(js, bin_, prim["indices"]).reshape(-1, 3) if "indices" in prim
+                       else np.arange(len(v)).reshape(-1, 3))
+                vw = (np.c_[v, np.ones(len(v))] @ (C @ M).T)[:, :3]
+                out.append((nd.get("name", f"node{ni}"), vw, idx))
+        for c in nd.get("children", []):
+            walk(c, M)
+    for ni in js["scenes"][js.get("scene", 0)]["nodes"]:
+        walk(ni, np.eye(4))
+    return out
+
+
+class _Geo:
+    """World-space triangle mesh + BVH of one (posed) object."""
+
+    def __init__(self, name, co, tris):
+        import numpy as np
+        from mathutils.bvhtree import BVHTree
+        self.name = name
+        self.co = np.asarray(co, np.float64)
+        self.tris = np.asarray(tris, np.int64)
+        self.bvh = BVHTree.FromPolygons([tuple(v) for v in self.co], [tuple(t) for t in self.tris],
+                                        all_triangles=True, epsilon=0.0)
+        self.mn = self.co.min(0); self.mx = self.co.max(0)
+
+    @staticmethod
+    def of(obj, dg):
+        import numpy as np
+        try:
+            ev = obj.evaluated_get(dg)
+            me = ev.to_mesh()
+        except (RuntimeError, ReferenceError):      # not evaluated (hidden LOD collection): rest mesh
+            ev, me = None, obj.data
+        co = np.empty(len(me.vertices) * 3); me.vertices.foreach_get("co", co); co = co.reshape(-1, 3)
+        M = np.array(obj.matrix_world); co = co @ M[:3, :3].T + M[:3, 3]
+        me.calc_loop_triangles()
+        tv = np.empty(len(me.loop_triangles) * 3, np.int64); me.loop_triangles.foreach_get("vertices", tv)
+        if ev is not None:
+            ev.to_mesh_clear()
+        return _Geo(obj.name, co, tv.reshape(-1, 3))
+
+
+_RAY_DIRS = [Vector((0.5773, 0.5774, 0.5775)).normalized(), Vector((-0.4121, 0.8033, -0.4299)).normalized()]
+
+
+def _inside(bvh, p):
+    for d in _RAY_DIRS:
+        o = Vector(p); cnt = 0
+        for _ in range(200):
+            hit = bvh.ray_cast(o, d, 2.0)
+            if hit[0] is None:
+                break
+            cnt += 1
+            o = hit[0] + d * 2e-7
+        if cnt % 2 == 0:
+            return False
+    return True
+
+
+def _depth_one_way(a, b):
+    """Max distance to b's surface of a's vertices that lie inside b (0 if none)."""
+    import numpy as np
+    lo = b.mn - 1e-4; hi = b.mx + 1e-4
+    sel = np.nonzero(np.all((a.co >= lo) & (a.co <= hi), axis=1))[0]
+    best = 0.0; n_in = 0
+    for i in sel:
+        p = Vector(a.co[i])
+        if _inside(b.bvh, p):
+            d = b.bvh.find_nearest(p)[3]
+            if d is not None and d > 2e-6:
+                n_in += 1
+                best = max(best, d)
+    return best, n_in
+
+
+def interference(a, b, gap=5e-4):
+    """None if the bounding boxes are > gap apart or no triangles overlap; else a dict with the
+    overlapping triangle pairs and the penetration depth (mm)."""
+    import numpy as np
+    if np.any(a.mn > b.mx + gap) or np.any(b.mn > a.mx + gap):
+        return None
+    pairs = a.bvh.overlap(b.bvh)
+    if not pairs:
+        return None
+    d1, n1 = _depth_one_way(a, b)
+    d2, n2 = _depth_one_way(b, a)
+    d = max(d1, d2)
+    return {"tri_pairs": len(pairs), "depth_mm": round(d * 1000, 3), "verts_inside": n1 + n2,
+            "penetration": d > PEN_TOL_M}
+
+
+def min_distance(a, b, probe=0.01, sample=None):
+    """Smallest vertex-to-surface distance between two meshes (both directions), m."""
+    import numpy as np
+    best = None
+    for x, y in ((a, b), (b, a)):
+        idx = range(len(x.co)) if sample is None else np.linspace(0, len(x.co) - 1, min(sample, len(x.co))).astype(int)
+        for i in idx:
+            hit = y.bvh.find_nearest(Vector(x.co[i]), probe)
+            if hit[0] is not None and (best is None or hit[3] < best):
+                best = hit[3]
+    return best
+
+
+def _apply_pose(arm, pose):
+    for pb in arm.pose.bones:
+        pb.rotation_mode = 'XYZ'
+        pb.location = (0, 0, 0); pb.rotation_euler = (0, 0, 0)
+    for bn, (loc, rot) in pose.items():
+        pb = arm.pose.bones[bn]
+        pb.location = loc
+        pb.rotation_euler = [math.radians(a) for a in rot]
+    bpy.context.view_layer.update()
+
+
+def pose_checks(arm):
+    """Returns (report dict, problems list)."""
+    t0 = time.time()
+    parts = {n: p["obj"] for n, p in PARTS.items()}
+    moving_of = {}
+    for n, p in PARTS.items():
+        moving_of.setdefault(p["bone"], []).append(n)
+    _apply_pose(arm, {})
+    dg = bpy.context.evaluated_depsgraph_get()
+    bind = {n: _Geo.of(o, dg) for n, o in parts.items()}
+    rep = {"method": "posed evaluated meshes; BVH triangle-pair overlap; penetration depth = max distance to the "
+                     "other surface of vertices inside the other closed mesh (ray parity, 2 directions); "
+                     f"penetration if depth > {PEN_TOL_M * 1000:.1f} mm, otherwise seating contact",
+           "bind_pose": {}, "poses": {}, "charging_handle_stroke": [], "optics_folded": {}, "negative_control": {}}
+    problems = []
+    names = list(parts)
+    # ---- bind pose: all part pairs
+    for i, a in enumerate(names):
+        for b in names[i + 1:]:
+            r = interference(bind[a], bind[b])
+            if r:
+                rep["bind_pose"][f"{a} x {b}"] = r
+                if r["penetration"]:
+                    problems.append(f"pose bind: {a} penetrates {b} by {r['depth_mm']} mm")
+
+    def check_pose(label, pose, extra=None, expect_fail=False):
+        _apply_pose(arm, pose)
+        dg2 = bpy.context.evaluated_depsgraph_get()
+        mv = sorted({n for bn in pose for n in moving_of.get(bn, [])})
+        geo = dict(bind)
+        for n in mv:
+            geo[n] = _Geo.of(parts[n], dg2)
+        res = {}
+        for n in mv:
+            for m in names + list((extra or {}).keys()):
+                if m == n or (m in mv and m < n):
+                    continue
+                other = geo[m] if m in geo else extra[m]
+                r = interference(geo[n], other)
+                if r:
+                    res[f"{n} x {m}"] = r
+        pen = {k: v for k, v in res.items() if v["penetration"]}
+        out = {"pose": {k: [list(v[0]), list(v[1])] for k, v in pose.items()}, "contacts": res,
+               "penetrations": len(pen), "result": ("FAIL" if pen else "PASS")}
+        if pen and not expect_fail:
+            for k, v in pen.items():
+                problems.append(f"pose {label}: {k} penetration {v['depth_mm']} mm")
+        return out, geo
+
+    S = 0.01
+    poses = {
+        "dust_cover_closed": {"dust_cover": ((0, 0, 0), (-DUST_ANGLE, 0, 0))},
+        "dust_cover_half": {"dust_cover": ((0, 0, 0), (-DUST_ANGLE / 2, 0, 0))},
+        "bolt_carrier_back_3cm": {"bolt_carrier": ((-3 * S, 0, 0), (0, 0, 0))},
+        "bolt_carrier_back_7.5cm": {"bolt_carrier": ((-7.5 * S, 0, 0), (0, 0, 0))},
+        "trigger_pulled": {"trigger": ((0, 0, 0), (0, 12.0, 0))},
+        "selector_semi": {"selector": ((0, 0, 0), (0, 90.0, 0))},
+        "selector_auto": {"selector": ((0, 0, 0), (0, 180.0, 0))},
+        "bolt_catch_up": {"bolt_catch": ((0, 0, 0), (0, -9.0, 0))},
+        "bolt_catch_down": {"bolt_catch": ((0, 0, 0), (0, 9.0, 0))},
+        "mag_release_pressed": {"mag_release": ((0, 0.0015, 0), (0, 0, 0))},
+        "magazine_drop_1cm": {"magazine": ((0, 0, -1 * S), (0, 0, 0))},
+        "magazine_drop_7cm_rocked": {"magazine": ((0.004, 0, -7 * S), (0, -6.0, 0))},
+        "rear_sight_fold_-30": {"rear_sight": ((0, 0, 0), (0, -30.0, 0))},
+        "rear_sight_fold_-60": {"rear_sight": ((0, 0, 0), (0, -60.0, 0))},
+        "rear_sight_folded_-90": {"rear_sight": ((0, 0, 0), (0, -90.0, 0))},
+        "front_sight_fold_-30": {"front_sight": ((0, 0, 0), (0, -30.0, 0))},
+        "front_sight_fold_-60": {"front_sight": ((0, 0, 0), (0, -60.0, 0))},
+        "front_sight_folded_-90": {"front_sight": ((0, 0, 0), (0, -90.0, 0))},
+        "rig_test_pose_combined": TEST_POSE,
+    }
+    for label, pose in poses.items():
+        rep["poses"][label], _ = check_pose(label, pose)
+    # ---- negative control: the r1 sign (+90 deg) folds the rear leaf forward into the optic riser
+    rep["negative_control"]["rear_sight_+90_forward"], _ = check_pose(
+        "rear_sight_+90", {"rear_sight": ((0, 0, 0), (0, 90.0, 0))}, expect_fail=True)
+    rep["negative_control"]["expected"] = "FAIL (the leaf must be caught penetrating the optic riser)"
+    if rep["negative_control"]["rear_sight_+90_forward"]["result"] != "FAIL":
+        problems.append("pose check negative control (+90 deg rear fold) was NOT detected")
+    # ---- charging-handle stroke: every 0.5 cm, no penetration, shaft engaged and guided
+    up = bind["UpperReceiver"]
+    for k in range(1, int(CH_STROKE * 2) + 1):
+        s = 0.5 * k
+        out, geo = check_pose(f"charging_handle_{s:.1f}cm", {"charging_handle": ((-s * S, 0, 0), (0, 0, 0))})
+        ch = geo["ChargingHandle"]
+        engaged = (CH_SHAFT_X1 - s) - UP_X0
+        gap = min_distance(ch, up, probe=0.01, sample=1500)
+        rec = {"stroke_cm": s, "result": out["result"], "penetrations": out["penetrations"],
+               "shaft_engaged_cm": round(engaged, 2),
+               "min_gap_to_upper_mm": None if gap is None else round(gap * 1000, 3),
+               "contacts": list(out["contacts"].keys())}
+        rec["guided"] = gap is not None and gap <= 3e-4 and engaged >= 5.0
+        if not rec["guided"]:
+            problems.append(f"charging handle at {s} cm: not guided by the receiver channel "
+                            f"(engaged {engaged:.2f} cm, gap {rec['min_gap_to_upper_mm']} mm)")
+        rep["charging_handle_stroke"].append(rec)
+    # ---- optics of Shared/config/optics.json mounted on the rail, irons folded (-90 / -90)
+    folded = {"rear_sight": ((0, 0, 0), (0, -90.0, 0)), "front_sight": ((0, 0, 0), (0, -90.0, 0))}
+    try:
+        cfg = json.load(open(OPTICS_JSON))
+    except OSError:
+        cfg = {"optics": []}
+    rifle_optic = [n for n in names if n.startswith("Optic")]
+    for od in cfg.get("optics", []):
+        oid = od["id"]
+        glb = os.path.join(PROJECT, od["assets"]["glb"])
+        if not os.path.exists(glb):
+            rep["optics_folded"][oid] = {"result": "SKIPPED", "reason": f"missing {od['assets']['glb']}"}
+            continue
+        off = od["mount_on_iv7"]["socket_rail_rifle_m"]["blender_zup"]
+        import numpy as np
+        tri = glb_triangles(glb)
+        V = np.concatenate([t[1] for t in tri]) + np.array(off)
+        F = np.concatenate([t[2] + sum(len(u[1]) for u in tri[:k]) for k, t in enumerate(tri)])
+        og = _Geo(oid, V, F)
+        _apply_pose(arm, folded)
+        dg3 = bpy.context.evaluated_depsgraph_get()
+        geo = dict(bind)
+        for n in moving_of["rear_sight"] + moving_of["front_sight"]:
+            geo[n] = _Geo.of(parts[n], dg3)
+        res = {}
+        for n in names:
+            if n in rifle_optic:
+                continue                      # the built-in optic is hidden when an optic is mounted
+            r = interference(og, geo[n])
+            if r:
+                res[n] = r
+        pen = {k: v for k, v in res.items() if v["penetration"]}
+        d_leaf = min_distance(og, geo["RearSightLeaf"], probe=0.05)
+        d_base = min_distance(og, geo["RearSightBase"], probe=0.05)
+        d_front = min_distance(og, geo["FrontSightLeaf"], probe=0.05)
+        # charging handle pulled fully back under the optic
+        _apply_pose(arm, dict(folded, charging_handle=((-CH_STROKE * S, 0, 0), (0, 0, 0))))
+        dg4 = bpy.context.evaluated_depsgraph_get()
+        chg = _Geo.of(parts["ChargingHandle"], dg4)
+        r_ch = interference(og, chg)
+        rec = {"mount_socket_rail_rifle_m": off, "contacts": res, "penetrations": len(pen),
+               "rear_leaf_folded_clearance_mm": None if d_leaf is None else round(d_leaf * 1000, 2),
+               "rear_base_clearance_mm": None if d_base is None else round(d_base * 1000, 2),
+               "front_leaf_folded_clearance_mm": None if d_front is None else round(d_front * 1000, 2),
+               "charging_handle_full_stroke": r_ch or "no contact"}
+        ok = (not pen and (d_leaf is None or d_leaf >= FOLD_CLEAR_MIN_M) and not (r_ch and r_ch["penetration"]))
+        rec["result"] = "PASS" if ok else "FAIL"
+        if not ok:
+            problems.append(f"optic {oid} mounted, irons folded: {'penetration ' + str(list(pen)) if pen else ''}"
+                            f" rear leaf clearance {rec['rear_leaf_folded_clearance_mm']} mm")
+        rep["optics_folded"][oid] = rec
+    # folded leaves vs their own bases (built-in rifle, no optic): clearance
+    _apply_pose(arm, folded)
+    dg5 = bpy.context.evaluated_depsgraph_get()
+    rl = _Geo.of(parts["RearSightLeaf"], dg5); fl = _Geo.of(parts["FrontSightLeaf"], dg5)
+
+    def plate_clearance(leaf, base, hinge_x):
+        """Leaf-to-base distance of the leaf plate only (vertices > 3.5 mm from the hinge axis:
+        the knuckle itself turns on the pin with 0.1 mm clearance by design)."""
+        import numpy as np
+        hx, hz = W(hinge_x, 0, HINGE_Z).x, W(hinge_x, 0, HINGE_Z).z
+        far = np.hypot(leaf.co[:, 0] - hx, leaf.co[:, 2] - hz) > 0.0035
+        best = None
+        for p in leaf.co[far]:
+            hit = base.bvh.find_nearest(Vector(p), 0.02)
+            if hit[0] is not None and (best is None or hit[3] < best):
+                best = hit[3]
+        return None if best is None else round(best * 1000, 2)
+    rep["folded_leaf_clearance_mm"] = {
+        "RearSightLeaf plate - RearSightBase": plate_clearance(rl, bind["RearSightBase"], -8.3),
+        "FrontSightLeaf plate - FrontSightBase": plate_clearance(fl, bind["FrontSightBase"], 33.4),
+        "RearSightLeaf-Optic (built-in)": round((min_distance(rl, bind["Optic"], 0.05) or 0.05) * 1000, 2),
+        "RearSightLeaf-UpperReceiver": round((min_distance(rl, bind["UpperReceiver"], 0.05) or 0.05) * 1000, 2),
+        "FrontSightLeaf-Handguard": round((min_distance(fl, bind["Handguard"], 0.05) or 0.05) * 1000, 2),
+    }
+    zmin = (rl.co[:, 2].min() * 100 + HOLD.z, rl.co[:, 2].max() * 100 + HOLD.z)
+    xr = (rl.co[:, 0].min() * 100 + HOLD.x, rl.co[:, 0].max() * 100 + HOLD.x)
+    rep["rear_leaf_folded_bbox_bore_cm"] = {"x": [round(xr[0], 2), round(xr[1], 2)],
+                                            "z": [round(zmin[0], 2), round(zmin[1], 2)]}
+    _apply_pose(arm, {})
+    rep["seconds"] = round(time.time() - t0, 1)
+    rep["problems"] = problems
+    L.log(f"pose checks: {len(problems)} problems in {rep['seconds']} s")
+    return rep, problems
+
+
 # ============================================================================ validation
 # parts that are legitimately several separate shells; every other part must be ONE shell
 MULTI_SHELL = {"Pins": 4, "HandguardScrews": 2, "MagRounds": 2, "SM_IV7_Magazine": 3}
@@ -1517,9 +1949,78 @@ def validate_stage(arm, sm):
         "parts": {n: {"texture_set": p["set"], "bone": p["bone"]} for n, p in PARTS.items()},
     }
     extra["uv_unwrap"] = UV_REPORT
-    rep = L.validate(os.path.join(PREV_DIR, "IV7_validation.json"), lod0 + LOD_OBJS[1] + LOD_OBJS[2] + [sm],
+    extra["rear_sight_ring"] = ring_check()
+    pose_rep, pose_problems = pose_checks(arm)
+    extra["pose_checks"] = pose_rep
+    extra["glass_audit"] = glass_audit()
+    vp = os.path.join(PREV_DIR, "IV7_validation.json")
+    rep = L.validate(vp, lod0 + LOD_OBJS[1] + LOD_OBJS[2] + [sm],
                      arm, sets, extra, shells=MULTI_SHELL, max_zero_uv_face_mm2=0.05)
+    extra_problems = list(pose_problems)
+    if extra["rear_sight_ring"]["problems"]:
+        extra_problems += extra["rear_sight_ring"]["problems"]
+    extra_problems += extra["glass_audit"]["problems"]
+    if extra_problems:
+        rep["problems"] += extra_problems
+        rep["summary"]["problem_count"] = len(rep["problems"])
+        with open(vp, "w") as f:
+            json.dump(rep, f, indent=2)
+    L.log(f"validation total: {rep['summary']['problem_count']} problems")
     return rep
+
+
+def ring_check():
+    """TECH-1: the rear ghost ring must be ONE piece with the leaf in every LOD: one shell, and
+    the post must run into the ring (overlap of the post top with the ring's outer radius)."""
+    out = {"problems": [], "method": "shell count + solid-material probes on the leaf centre line from the post "
+                                     "(z 6.20) through the post/ring junction into the ring annulus (z 6.52), "
+                                     "bore frame, ray-parity inside test"}
+    dg = bpy.context.evaluated_depsgraph_get()
+    probes_z = (6.20, 6.30, 6.38, 6.42, 6.47, 6.52)
+    for name in ("RearSightLeaf", "RearSightLeaf_LOD1", "RearSightLeaf_LOD2"):
+        o = bpy.data.objects.get(name)
+        if o is None:
+            continue
+        bm = bmesh.new(); bm.from_mesh(o.data)
+        shells = len(bmesh_shells(bm)); bm.free()
+        g = _Geo.of(o, dg)
+        inside = {f"{z:.2f}": _inside(g.bvh, W(-8.3, 0.0, z)) for z in probes_z}
+        out[name] = {"shells": shells, "centre_line_solid": inside,
+                     "ring_outer_bottom_z_cm": round(SIGHT_Z - 0.62, 3)}
+        if shells != 1:
+            out["problems"].append(f"{name}: ghost ring not connected ({shells} shells)")
+        if not all(inside.values()):
+            out["problems"].append(f"{name}: gap between the post and the ghost ring {inside}")
+    return out
+
+
+def bmesh_shells(bm):
+    seen = set(); shells = []
+    for f in bm.faces:
+        if f.index in seen:
+            continue
+        st = [f]; seen.add(f.index); cur = []
+        while st:
+            g = st.pop(); cur.append(g.index)
+            for e in g.edges:
+                for h in e.link_faces:
+                    if h.index not in seen:
+                        seen.add(h.index); st.append(h)
+        shells.append(cur)
+    return shells
+
+
+def glass_audit():
+    """The rifle's own lens glass: thin coated ALPHA glass, no transmission / refraction."""
+    rep = O.blend_transmission_audit([m for m in bpy.data.materials if m.name.startswith("M_IV7")])
+    problems = []
+    for mn, r in rep.items():
+        if r.get("forbidden_node") or r.get("transmission_weight", 0) > 0 or r.get("transmission_linked"):
+            problems.append(f"material {mn}: transmission / refraction is not allowed ({r})")
+    g = rep.get("M_IV7_Glass", {})
+    if g.get("render_method") != 'BLENDED' or g.get("alpha", 1.0) >= 1.0:
+        problems.append(f"M_IV7_Glass must be alpha-blended thin glass ({g})")
+    return {"materials": rep, "problems": problems}
 
 
 # ============================================================================ export / reimport
@@ -1629,7 +2130,8 @@ def reimport_stage(arm, sm):
 # ============================================================================ renders
 RENDER_NAMES = ["ortho_right", "ortho_left", "ortho_top", "ortho_front", "persp_front_right", "persp_rear_left",
                 "closeup_receiver_right", "closeup_receiver_left", "first_person", "ads", "clay_right",
-                "shade_right", "lods", "magazine", "rig_pose_test", "contact_sheet"]
+                "shade_right", "sun_vs_shade", "lods", "magazine", "rig_pose_test", "charging_handle",
+                "sights_folded", "contact_sheet"]
 
 # pose used by the rig test render: bone -> (location m in bone space, rotation deg about bone X/Y/Z)
 # bone axes are world aligned: local X = weapon forward, Y = weapon left, Z = up
@@ -1642,6 +2144,9 @@ TEST_POSE = {
     "bolt_catch": ((0, 0, 0), (0, -9.0, 0)),                 # engaged (paddle up)
     "mag_release": ((0, 0.0015, 0), (0, 0, 0)),              # pressed in
     "magazine": ((0.004, 0, -0.07), (0, -6.0, 0)),           # dropping out
+    # sights fold REARWARD: -90 deg about the bone's local Y (world-aligned bones: local Y = weapon
+    # left), i.e. the leaf top moves towards the stock (-X).  +90 would drive the rear leaf into the
+    # optic riser (caught by the pose checks' negative control).
     "rear_sight": ((0, 0, 0), (0, -90.0, 0)),                # folded rearward
     "front_sight": ((0, 0, 0), (0, -90.0, 0)),               # folded rearward
 }
@@ -1738,6 +2243,17 @@ def _r(name):
     return os.path.join(PREV_DIR, f"IV7_{name}.png")
 
 
+def _pose_bones(arm, pose):
+    for pb in arm.pose.bones:
+        pb.rotation_mode = 'XYZ'
+        pb.location = (0, 0, 0); pb.rotation_euler = (0, 0, 0)
+    for bn, (loc, rot) in pose.items():
+        pb = arm.pose.bones[bn]
+        pb.location = loc
+        pb.rotation_euler = [math.radians(a) for a in rot]
+    bpy.context.view_layer.update()
+
+
 def render_stage(arm, sm):
     bpy.context.view_layer.material_override = None
     arm.hide_render = True
@@ -1751,10 +2267,10 @@ def render_stage(arm, sm):
                 cam = L.camera_ortho("cam", v.upper(), mn, mx, margin=1.06 if v in ("right", "left", "top") else 1.25)
                 done.append(L.render(_r(f"ortho_{v}"), cam, RES, samples))
         if "persp_front_right" in RENDERS:
-            cam = L.camera("cam", c + Vector((0.62, -0.78, 0.30)), c + Vector((0.03, 0, -0.03)), fov_deg=36)
+            cam = L.camera("cam", c + Vector((0.77, -0.97, 0.37)), c + Vector((0.0, 0, -0.02)), fov_deg=36)
             done.append(L.render(_r("persp_front_right"), cam, RES, samples))
         if "persp_rear_left" in RENDERS:
-            cam = L.camera("cam", c + Vector((-0.66, 0.74, 0.30)), c + Vector((-0.02, 0, -0.03)), fov_deg=36)
+            cam = L.camera("cam", c + Vector((-0.80, 0.91, 0.37)), c + Vector((0.0, 0, -0.02)), fov_deg=36)
             done.append(L.render(_r("persp_rear_left"), cam, RES, samples))
         if "closeup_receiver_right" in RENDERS:
             t = W(-6.5, 0, -3.2)
@@ -1788,6 +2304,28 @@ def render_stage(arm, sm):
         _only("IV7_Parts+Env")
         cam = L.camera_ortho("cam", "RIGHT", mn, mx, margin=1.06)
         done.append(L.render(_r("shade_right"), cam, RES, samples))
+    if "sun_vs_shade" in RENDERS:
+        # MAT-1: the same first-person-distance inspect view (left side: receivers, grip, magazine)
+        # in direct sun and in shade (sun occluded, sky only), side by side
+        eye, tgt = W(-14.0, 26.0, 12.0), W(-2.0, 0.0, -6.0)
+        paths = []
+        for sun in (True, False):
+            gz = env_outdoor(sun=True, elevation=40.0, rotation=-35.0)
+            if not sun:
+                d = L.sun_direction(40.0, -35.0)
+                occ = L.box("IV7_Occluder", -3, 3, -3, 3, -0.005, 0.005)
+                occ.rotation_euler = d.to_track_quat('Z', 'Y').to_euler()
+                occ.location = W(0, 0, 0) + d * 3.0
+                occ.visible_camera = False
+                occ.visible_glossy = False
+                L.link_to(occ, bpy.data.collections["IV7_Env"])
+            _only("IV7_Parts+Env")
+            cam = L.camera("cam", eye, tgt, fov_deg=60, clip_start=0.01, clip_end=500)
+            paths.append(L.render(_r("sun" if sun else "shade_inspect"), cam, RES, samples))
+        L.side_by_side(paths, _r("sun_vs_shade"), ["sun (40 deg)", "shade (sun occluded, sky only)"])
+        for pth in paths:
+            os.remove(pth)
+        done.append(_r("sun_vs_shade"))
     if "lods" in RENDERS:
         mn, mx, c = env_studio()
         paths = []
@@ -1832,6 +2370,37 @@ def render_stage(arm, sm):
         L.side_by_side([p1, p2], _r("rig_pose_test"), ["pose test (right): dust cover closed, carrier 7.5 + charging handle 7 cm back, trigger pressed, mag dropping, sights folded rearward",
                                                         "pose test (left): selector SEMI, bolt catch up"])
         done.append(_r("rig_pose_test"))
+    if "charging_handle" in RENDERS or "sights_folded" in RENDERS:
+        mn, mx, c = env_studio()
+        _only("IV7_Parts")
+        paths = []
+        if "charging_handle" in RENDERS:
+            for stroke in (0.0, CH_STROKE):
+                _pose_bones(arm, {"charging_handle": ((-stroke * 0.01, 0, 0), (0, 0, 0))})
+                t = W(-17.5 - stroke * 0.5, 0, 1.9)
+                cam = L.camera("cam", t + Vector((-0.06, 0.12, 0.20)), t, fov_deg=34 if stroke else 26)
+                paths.append(L.render(_r(f"ch_{int(stroke)}"), cam, RES, samples))
+            _pose_bones(arm, {})
+            L.side_by_side(paths, _r("charging_handle"),
+                           ["charging handle home: T-handle, latch lever (pin, thumb grooves)",
+                            f"pulled {CH_STROKE:.0f} cm: 5.2 cm of shaft still in the receiver channel"])
+            for pth in paths:
+                os.remove(pth)
+            done.append(_r("charging_handle"))
+        if "sights_folded" in RENDERS:
+            paths = []
+            _pose_bones(arm, {"rear_sight": ((0, 0, 0), (0, -90.0, 0)), "front_sight": ((0, 0, 0), (0, -90.0, 0))})
+            for nm, t, off in (("rs", W(-7.0, 0, 4.5), Vector((0.0, -0.30, 0.03))),
+                               ("fs", W(33.4, 0, 4.5), Vector((0.0, -0.22, 0.03)))):
+                cam = L.camera("cam", t + off, t, fov_deg=30)
+                paths.append(L.render(_r(f"fold_{nm}"), cam, RES, samples))
+            _pose_bones(arm, {})
+            L.side_by_side(paths, _r("sights_folded"),
+                           ["rear leaf folded -90 deg about bone Y (top towards the stock), optic riser clear",
+                            "front leaf folded -90 deg"])
+            for pth in paths:
+                os.remove(pth)
+            done.append(_r("sights_folded"))
     if "contact_sheet" in RENDERS:
         items = []
         for tset in ("Body", "Furniture"):

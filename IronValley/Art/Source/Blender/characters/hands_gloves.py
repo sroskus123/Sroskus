@@ -86,7 +86,9 @@ BASE_POSES = {
     "spread": dict(index=F(-5, 0, 0, 12), middle=F(-5, 0, 0, 2), ring=F(-5, 0, 0, -10), pinky=F(-5, 0, 0, -22),
                    thumb=T(-35, -5, 0, 0, -5)),
 }
-FIST_START = dict(index=F(90, 100, 70, -1), middle=F(90, 100, 70, 0), ring=F(90, 100, 70, 1), pinky=F(90, 100, 70, 2))
+# slight fan (index radial, ring / little ulnar) so neighbouring fingers press together instead of
+# overlapping (bare-skin finger-finger overlap 5.0 -> 3.2 mm, measured with ivchar.hand_contact_metrics)
+FIST_START = dict(index=F(90, 100, 70, 4), middle=F(90, 100, 70, 0), ring=F(90, 100, 70, -3), pinky=F(90, 100, 70, -6))
 TIP_PALM_MAX = 0.0010          # m: fingertip-to-palm penetration allowed in the full fist (skin contact)
 
 
@@ -290,16 +292,17 @@ def place_diagonal(model, k, pose, coll, axis_up, cdir, axis_origin, height_anch
     return HN.translate_to_contact(model, k, pose, H, coll, -cd, sel, gap=0.0005, max_dist=0.06)
 
 
-def place_anchor(model, k, pose, coll, web_target, mcp_target, fwd_hint, roll, sel=None):
+def place_anchor(model, k, pose, coll, web_target, mcp_target, fwd_hint, roll, sel=None, mcp_bone="index"):
     """Pistol-grip placement: the thumb-index web crotch sits on `web_target` (the back strap just
-    below the tang), the index MCP joint towards `mcp_target` (beside the frame / receiver), the
+    below the tang), the `mcp_bone` MCP joint towards `mcp_target` (the middle MCP on the grip's
+    side just under the trigger guard, so the middle finger wraps the front strap below it), the
     fingers (hand d axis) as close to `fwd_hint` as the roll allows (+ `roll` deg about the
     web -> MCP axis); then the hand moves along its palm normal until the palm touches."""
     from scipy.spatial.transform import Rotation as Rot
     arm, s = model.arm, model.s
     w, d, r, p = HN.hand_frame(arm, s)
     web = HN.hand_anchor(model, k, "web")
-    imcp = HN.bone_rest_frames(arm)[f"index_01_{s}"]["H"]
+    imcp = HN.bone_rest_frames(arm)[f"{mcp_bone}_01_{s}"]["H"]
     a_h = (imcp - web) / np.linalg.norm(imcp - web)
     a_w = np.asarray(mcp_target, float) - np.asarray(web_target, float)
     a_w /= np.linalg.norm(a_w)
@@ -319,35 +322,124 @@ def place_anchor(model, k, pose, coll, web_target, mcp_target, fwd_hint, roll, s
 
 
 def pistol_grip_search(model, coll, web_target, mcp_targets, fwd_hint, grip_parts, trigger_point=None,
-                       along_parts=None, rolls=(30.0, 45.0, 60.0, 75.0)):
+                       along_parts=None, rolls=(15.0, 30.0, 45.0, 60.0, 75.0), mcp_bone="middle"):
     """Search roll / MCP target of the anchor placement; per candidate the middle / ring / pinky
     curl to contact and the index is fitted (straight along the frame, or pad onto the trigger);
-    the best candidate is wrap-optimised.  Returns (H, pose, report)."""
+    a candidate whose middle / ring / pinky touch anything but the grip (e.g. the trigger guard)
+    is penalised; the best candidate is wrap-optimised.  Returns (H, pose, report)."""
     k = 0
     best, tried = None, []
     for T2 in mcp_targets:
         for roll in rolls:
             pose = open_pose()
-            H = place_anchor(model, k, pose, coll, web_target, T2, fwd_hint, roll)
+            H = place_anchor(model, k, pose, coll, web_target, T2, fwd_hint, roll, mcp_bone=mcp_bone)
             close_coupled(model, k, pose, H, coll, ["middle", "ring", "pinky"])
             sn = HN.snugness(model, k, pose, H, coll, ["middle", "ring", "pinky"])
+            nfor, wfor = foreign_contact(model, k, pose, H, coll, ["middle", "ring", "pinky"], grip_parts)
             if trigger_point is not None:
                 ir = fit_index(model, k, pose, H, coll, "trigger", trigger_part=trigger_point)
                 ipen = abs(ir["terms"].get("_gap", 0.03) * 1000 - 0.6) * 2 + max(0.0, -ir["terms"]["_min_sd"] * 1000 - 0.3) * 10
             else:
                 ir = fit_index(model, k, pose, H, coll, "straight", along_parts=along_parts)
                 ipen = ir["terms"].get("_gap", 0.05) * 1000 * 0.5 + ir["terms"]["_dir_deg"] * 0.2
-            sc = -sn * 1000 - ipen
+            sc = -sn * 1000 - ipen - 4.0 * nfor - 2.0 * wfor * 1000
             tried.append({"mcp_target_cm": [round(v * 100, 2) for v in T2], "roll_deg": roll,
-                          "snugness_mm": round(sn * 1000, 2), "index_penalty": round(ipen, 2), "score": round(sc, 2)})
+                          "snugness_mm": round(sn * 1000, 2), "index_penalty": round(ipen, 2),
+                          "fingers_touching_other_parts": nfor, "score": round(sc, 2)})
             if best is None or sc > best[0]:
                 best = (sc, H, pose, ir, T2, roll)
     sc, H, pose, ir, T2, roll = best
-    wr = {f: HN.wrap_finger(model, k, pose, H, coll, f) for f in ("middle", "ring", "pinky")}
-    return H, pose, {"placement": "web crotch on the back strap below the tang, index MCP beside the frame, roll searched",
+    wr = {f: HN.wrap_finger(model, k, pose, H, coll, f, lim=FIST_LIMITS[f]) for f in ("middle", "ring", "pinky")}
+    return H, pose, {"placement": f"web crotch on the back strap below the tang, {mcp_bone} MCP on the grip side, roll searched",
                      "mcp_target_cm": [round(v * 100, 2) for v in T2], "roll_deg": roll,
                      "snugness_mm": round(HN.snugness(model, k, pose, H, coll, ["middle", "ring", "pinky"]) * 1000, 2),
                      "wrap": wr, "index": ir, "candidates": tried}
+
+
+def place_frame(model, k, pose, coll, d_t, r_t, pivot_name, pivot_target, contact_dir, sel=None):
+    """Hand placement from an explicit target frame: the rest hand frame (d = wrist -> middle MCP,
+    r = radial) is rotated onto (d_t, r_t) (orthonormalised; the palm normal follows from the
+    hand's handedness), the rest anchor `pivot_name` goes to `pivot_target`, then the hand moves
+    along `contact_dir` until the palm / thumb base touch (or backs off if penetrating)."""
+    arm, s = model.arm, model.s
+    w, d, r, p = HN.hand_frame(arm, s)
+    def frame(a, b):
+        a = np.asarray(a, float) / np.linalg.norm(a)
+        b = np.asarray(b, float) - a * (a @ np.asarray(b, float))
+        b /= np.linalg.norm(b)
+        c = np.cross(a, b) if s == "l" else np.cross(b, a)
+        return np.stack([a, b, c], 1)
+    A = frame(d, r)
+    B = frame(d_t, r_t)
+    R = B @ A.T
+    piv = HN.hand_anchor(model, k, pivot_name) if isinstance(pivot_name, str) else np.asarray(pivot_name, float)
+    Hr = model.R[model.hand]
+    H = np.eye(4)
+    H[:3, :3] = R @ Hr[:3, :3]
+    H[:3, 3] = R @ (Hr[:3, 3] - piv) + np.asarray(pivot_target, float)
+    if sel is None:
+        sel = model.verts_of(k, [f"hand_{s}", f"thumb_01_{s}", f"lowerarm_{s}", f"lowerarm_twist_01_{s}"], 0.5)
+    return HN.translate_to_contact(model, k, pose, H, coll, contact_dir, sel, gap=0.0005, max_dist=0.05), B[:, 2]
+
+
+def pistol_grip_frame_search(model, coll, ga, fwd, side, mcp_ref, grip_parts, trigger_point=None,
+                             along_parts=None, yaws=(0.0, 10.0, 20.0), tilts=(-8.0, 0.0, 8.0),
+                             fwd_offsets=(-0.010, 0.0, 0.010), heights=(-0.006, 0.0, 0.006),
+                             fingers=("middle", "ring", "pinky")):
+    """Pistol-grip placement by the grip's anatomy.  The palm (2nd-5th metacarpals) lies on the
+    grip's side, the knuckle row along the grip axis `ga` (hand radial axis r = ga, index on top),
+    the straight fingers along `fwd` (perpendicular to ga) yawed by `yaw` about ga (+ = towards
+    the grip centre, i.e. the forearm arrives from behind and outside), the knuckle row tilted by
+    `tilt` about the palm normal.  The middle MCP joint starts at `mcp_ref` (on the grip's side just
+    under the trigger guard) shifted by fwd_offset along fwd and height along ga, well outside the
+    grip, and the hand moves towards the grip (palm normal) until the palm touches.  The thumb
+    metacarpal then wraps the back strap (fit_thumb), which brings the thumb-index web onto it.
+    Per candidate the fingers curl to contact and the index is fitted; fingers touching anything
+    but `grip_parts` (e.g. the trigger guard) are penalised.  Returns (H, pose, report)."""
+    from scipy.spatial.transform import Rotation as Rot
+    k = 0
+    s = model.s
+    ga = np.asarray(ga, float) / np.linalg.norm(ga)
+    f0 = np.asarray(fwd, float) - ga * (ga @ np.asarray(fwd, float))
+    f0 /= np.linalg.norm(f0)
+    side = np.asarray(side, float) / np.linalg.norm(side)
+    sgn = 1.0 if (np.cross(ga, f0) @ side) > 0 else -1.0        # yaw sense that turns the fingers towards the grip
+    mcp_rest = HN.bone_rest_frames(model.arm)[f"middle_01_{s}"]["H"]
+    best, tried = None, []
+    for yaw in yaws:
+        for tilt in tilts:
+            for fo in fwd_offsets:
+                for hz in heights:
+                    Ry = Rot.from_rotvec(ga * math.radians(yaw) * sgn).as_matrix()
+                    d_t = Ry @ f0
+                    pn = np.cross(ga, d_t) if (np.cross(ga, d_t) @ side) > 0 else -np.cross(ga, d_t)
+                    Rt = Rot.from_rotvec(pn * math.radians(tilt)).as_matrix()
+                    d_t, r_t = Rt @ d_t, Rt @ ga
+                    start = np.asarray(mcp_ref, float) + f0 * fo + ga * hz - pn * 0.03
+                    pose = open_pose()
+                    H, _ = place_frame(model, k, pose, coll, d_t, r_t, mcp_rest, start, pn)
+                    close_coupled(model, k, pose, H, coll, list(fingers))
+                    sn = HN.snugness(model, k, pose, H, coll, list(fingers))
+                    nfor, wfor = foreign_contact(model, k, pose, H, coll, list(fingers), grip_parts)
+                    if trigger_point is not None:
+                        ir = fit_index(model, k, pose, H, coll, "trigger", trigger_part=trigger_point)
+                        ipen = abs(ir["terms"].get("_gap", 0.03) * 1000 - 0.6) * 2 + max(0.0, -ir["terms"]["_min_sd"] * 1000 - 0.3) * 10
+                    else:
+                        ir = fit_index(model, k, pose, H, coll, "straight", along_parts=along_parts)
+                        ipen = ir["terms"].get("_gap", 0.05) * 1000 * 0.5 + ir["terms"]["_dir_deg"] * 0.2
+                    sc = -sn * 1000 - ipen - 4.0 * nfor - 2.0 * wfor * 1000
+                    tried.append({"yaw_deg": yaw, "tilt_deg": tilt, "fwd_offset_mm": round(fo * 1000, 1),
+                                  "height_mm": round(hz * 1000, 1), "snugness_mm": round(sn * 1000, 2),
+                                  "index_penalty": round(ipen, 2), "fingers_touching_other_parts": nfor,
+                                  "score": round(sc, 2)})
+                    if best is None or sc > best[0]:
+                        best = (sc, H, pose, ir, tried[-1])
+    sc, H, pose, ir, cand = best
+    wr = {f: HN.wrap_finger(model, k, pose, H, coll, f, lim=FIST_LIMITS[f]) for f in fingers}
+    return H, pose, dict({"placement": "palm on the grip side, knuckle row along the grip axis, middle MCP under the "
+                                       "trigger guard; yaw / tilt / forward offset / height searched"}, **cand,
+                         snugness_mm=round(HN.snugness(model, k, pose, H, coll, list(fingers)) * 1000, 2),
+                         wrap=wr, index=ir, candidates=tried)
 
 
 def fit_thumb(model, k, pose, H, coll, direction, parts=None, starts=None, bounds=None):
@@ -409,9 +501,37 @@ def fit_index(model, k, pose, H, coll, mode, trigger_point=None, trigger_part="T
     return rep
 
 
+# closing limits per finger: at most the tuned full fist (set by poses_stage from tune_fist), so
+# a finger that misses the object stops where the fist stops instead of curling into the palm
+FIST_LIMITS = {f: {"mcp": (-5.0, 92.0), "pip": (0.0, 100.0), "dip": (0.0, 70.0)} for f in C.FINGERS4}
+
+
+def set_fist_limits(fist):
+    for f in C.FINGERS4:
+        FIST_LIMITS[f] = {"mcp": (-5.0, 92.0), "pip": (0.0, float(fist[f]["pip"])), "dip": (0.0, float(fist[f]["dip"]))}
+
+
 def close_coupled(model, k, pose, H, coll, fingers):
     masks = HN.finger_masks(model, k, model.s)
-    return {f: HN.close_finger_coupled(model, k, pose, H, coll, f, masks=masks) for f in fingers}
+    return {f: HN.close_finger_coupled(model, k, pose, H, coll, f, masks=masks,
+                                       limits={kk: v[1] for kk, v in FIST_LIMITS[f].items()}) for f in fingers}
+
+
+def foreign_contact(model, k, pose, H, coll, fingers, allowed, thr=0.001):
+    """How many of `fingers` touch (sd < thr) a collider part NOT in `allowed`, and the deepest
+    such penetration (m)."""
+    names = [p_["name"] for p_ in coll.parts]
+    bad_ids = [i for i, nm in enumerate(names) if nm not in allowed]
+    S = model.pose(pose, H)
+    masks = HN.finger_masks(model, k, model.s)
+    n, worst = 0, 0.0
+    for f in fingers:
+        sd, pi = coll.signed(model.skin(k, S, masks[(f, 1)]), 0.03)
+        bad = (sd < thr) & np.isin(pi, bad_ids)
+        if bad.any():
+            n += 1
+            worst = max(worst, float(-sd[bad].min()))
+    return n, worst
 
 
 def rifle_frames(rig):
@@ -436,7 +556,7 @@ def grip_score(model, k, pose, H, coll, grip_part, fingers=("middle", "ring", "p
 
 
 def power_grasp(model, coll, up, cdir, origin, anchor, heights, yaws, tilts, fingers, grip_parts,
-                half=0.018, index_fit=None, top=3):
+                half=0.018, index_fit=None, top=3, allowed=None):
     """Search palm height / yaw / tilt of a diagonal power grasp: each candidate is placed and the
     fingers curl (coupled) to contact; the `top` snuggest candidates get the full wrap
     optimisation (all segments on the object) and the optional index fit; best total wins."""
@@ -448,13 +568,20 @@ def power_grasp(model, coll, up, cdir, origin, anchor, heights, yaws, tilts, fin
                 pose = open_pose()
                 H = place_diagonal(model, k, pose, coll, up, cdir, origin, anchor, h, yaw=yaw, half=half, tilt=tilt)
                 close_coupled(model, k, pose, H, coll, fingers)
-                cands.append((HN.snugness(model, k, pose, H, coll, fingers), h, yaw, tilt, H, pose))
+                sn = HN.snugness(model, k, pose, H, coll, fingers)
+                if allowed is not None:
+                    nf, wf = foreign_contact(model, k, pose, H, coll, fingers, allowed)
+                    sn += 0.004 * nf + 2.0 * wf
+                cands.append((sn, h, yaw, tilt, H, pose))
     cands.sort(key=lambda c: c[0])
     best = None
     for sn, h, yaw, tilt, H, pose in cands[:top]:
-        wr = {f: HN.wrap_finger(model, k, pose, H, coll, f) for f in fingers}
+        wr = {f: HN.wrap_finger(model, k, pose, H, coll, f, lim=FIST_LIMITS[f]) for f in fingers}
         sn2 = HN.snugness(model, k, pose, H, coll, fingers)
         sc = -sn2 * 1000.0
+        if allowed is not None:
+            nf, wf = foreign_contact(model, k, pose, H, coll, fingers, allowed)
+            sc -= 4.0 * nf + 2000.0 * wf
         ir = None
         if index_fit is not None:
             ir, ipen = index_fit(model, k, pose, H, coll)
@@ -499,7 +626,7 @@ def trigger_press(model, k, pose, H, coll, trigger_point, re_wrap=("middle", "ri
     rr["grid_start"] = {"error_mm": round(best[0] * 1000, 1), "mcp": best[1], "abd": best[2], "pip": best[3], "dip": best[4]}
     rr["pad_vertex"] = vi
     rep = {"index_trigger": rr}
-    rep["wrap"] = {f: HN.wrap_finger(model, k, pose, H2, coll, f) for f in re_wrap}
+    rep["wrap"] = {f: HN.wrap_finger(model, k, pose, H2, coll, f, lim=FIST_LIMITS[f]) for f in re_wrap}
     if thumb_dir is not None:
         rep["thumb"] = fit_thumb(model, k, pose, H2, coll, thumb_dir, parts=thumb_parts)
     return H2, rep
@@ -511,12 +638,12 @@ def fit_rifle_grip(model, coll, rig, trigger=False, base=None):
     S = HN.socket_matrix(rig, "socket_firing_hand")
     X = S[:3, :3] @ np.array([1.0, 0, 0])
     Mw = lambda v: (S @ np.append(np.asarray(v, float) / 100.0, 1.0))[:3]       # noqa: E731 (cm, weapon frame)
-    web_t = Mw((-2.45, 0.0, 4.1))                         # back strap just below the lower receiver's tang
-    mcps = ([Mw((-0.2, -3.0, 3.2)), Mw((-0.8, -3.2, 3.5)), Mw((-0.2, -3.0, 4.0))] if trigger else
-            [Mw((-0.2, -3.0, 4.0)), Mw((0.4, -2.8, 3.6)), Mw((-0.8, -3.2, 4.3))])
     tp = "Trigger" if trigger else None
-    H, pose, rep = pistol_grip_search(model, coll, web_t, mcps, X + Mw((0, 0, 0)) * 0 - 0.1 * (S[:3, :3] @ np.array([0, 0, 1.0])),
-                                      ["PistolGrip"], trigger_point=tp, along_parts=["LowerReceiver", "UpperReceiver"])
+    ga = S[:3, :3] @ np.array([math.sin(math.radians(22.0)), 0.0, math.cos(math.radians(22.0))])   # grip axis (22 deg rake)
+    # middle MCP joint reference: on the grip's right side (joint centre ~2 cm inside the palmar
+    # skin), front third of the grip, just under the trigger guard's rear foot (z ~1.3 cm)
+    H, pose, rep = pistol_grip_frame_search(model, coll, ga, X, S[:3, :3] @ np.array([0, 1.0, 0]), Mw((1.2, -3.8, 0.2)),
+                                            ["PistolGrip"], trigger_point=tp, along_parts=["LowerReceiver", "UpperReceiver"])
     dirv = S[:3, :3] @ np.array([1.0, 0, -0.25])
     rep["thumb"] = fit_thumb(model, 0, pose, H, coll, dirv)
     return H, pose, rep
@@ -565,16 +692,23 @@ def fit_pistol_2h(models, pistol_parts):
 
     top = up * P["grip_top"]
     web_t = top - fw * (0.5 * P["grip_depth"] + 0.001) + np.array([0, 0, 0.002])
-    mcps = [top + fw * 0.012 + np.array([0, -0.028, -0.004]), top + fw * 0.016 + np.array([0, -0.027, -0.008]),
-            top + fw * 0.008 + np.array([0, -0.030, 0.0])]
-    Hr_, pose_r, rr = pistol_grip_search(mr, coll, web_t, mcps, np.array([1.0, 0, -0.1]), ["PX_Grip"], trigger_point="PX_Trigger")
+    # middle MCP on the grip's right side just under the trigger guard (guard bottom 3.0 cm below
+    # the grip top), so the middle finger wraps the front strap below the guard
+    gb = top[2] - 0.030
+    mcps = [np.array([0.012, -0.028, gb - 0.008]), np.array([0.008, -0.028, gb - 0.013]),
+            np.array([0.016, -0.027, gb - 0.004]), np.array([0.010, -0.029, gb - 0.018])]
+    Hr_, pose_r, rr = pistol_grip_search(mr, coll, web_t, mcps, np.array([1.0, 0, -0.1]), ["PX_Grip"],
+                                         trigger_point="PX_Trigger", mcp_bone="middle")
     rr["thumb"] = fit_thumb(mr, 0, pose_r, Hr_, coll, np.array([1.0, 0, -0.15]), parts=["PX_Frame", "PX_Slide", "PX_Grip"])
     # left hand: the posed right glove joins the collider
     rco = mr.skin(0, mr.pose(pose_r, Hr_))
     coll2 = collider_of(pistol_parts, extra=[("SK_Glove_R_posed", rco, mr.meshes[0]["tris"])])
+    # the support fingers wrap the firing hand's fingers BELOW the trigger guard: any contact with
+    # the frame / slide / trigger / guard is penalised (allowed = grip + the right glove)
     Hl_, pose_l, lr = power_grasp(ml, coll2, up, 1.0 * Y + 0.15 * fw, fw * 0.012, "palm",
-                                  (-0.024, -0.012, 0.0), (-20.0, 0.0, 20.0, 40.0), (-10.0, 0.0, 10.0),
-                                  ["index", "middle", "ring", "pinky"], ["PX_Grip", "SK_Glove_R_posed"], half=0.030)
+                                  (-0.040, -0.032, -0.024, -0.016), (-20.0, 0.0, 20.0, 40.0), (-10.0, 0.0, 10.0),
+                                  ["index", "middle", "ring", "pinky"], ["PX_Grip", "SK_Glove_R_posed"], half=0.030,
+                                  allowed=["PX_Grip", "SK_Glove_R_posed"])
     lr["thumb"] = fit_thumb(ml, 0, pose_l, Hl_, coll2, np.array([1.0, 0, -0.1]),
                             parts=["PX_Frame", "PX_Slide", "PX_Grip", "SK_Glove_R_posed"])
     return (Hr_, pose_r), (Hl_, pose_l), {"right": rr, "left": lr}
@@ -652,6 +786,43 @@ def fit_thumb_over_fingers(model, k, pose, over=("index", "middle")):
     rep["grid_best"] = {"angles": best[1], "penetration_mm": round(best[2] * 1000, 2),
                         "pad_gap_mm": round(best[3] * 1000, 2), "direction_err_deg": round(best[4], 1)}
     return rep
+
+
+def thumb_over_fingers_bare(arm, pose, over=("index", "middle"), s="l",
+                            grid=((36, 40, 44), (26, 30, 34), (0,), (40,), (20, 28))):
+    """Thumb laid across the middle phalanges of the curled fingers, chosen on the closed bare
+    skin with the robust ray-parity contact metric (ivchar.hand_contact_metrics): minimise the
+    thumb penetration and the thumb-pad gap to the `over` fingers.  The grid was centred on the
+    best of a 72-candidate scan (cmc_flex 25-55, cmc_abd 0-30, cmc_rot 0-20, mcp 20-40, ip 20-45)."""
+    import itertools
+    from scipy.spatial import cKDTree
+    body = bpy.data.objects[BODY]
+    names = [b.name for b in arm.data.bones]
+    D = C.read_weights(body, names)
+    dom = np.array(names)[D.argmax(1)]
+    tris = HN.mesh_tris(body.data)
+    C.reset_pose(arm)
+    rest = C.mesh_arrays(body, evaluated=True)
+    ra = C.hand_rest_angles(arm, s)
+    best, tried = None, []
+    for cf, ca, cr, mc, ip in itertools.product(*grid):
+        p2 = json.loads(json.dumps(pose))
+        p2["thumb"] = T(cf, ca, cr, mc, ip)
+        C.reset_pose(arm)
+        C.pose_hand_anat(arm, s, p2, ra)
+        co = C.mesh_arrays(body, evaluated=True)
+        m = C.hand_contact_metrics(co, rest, tris, dom, s)
+        t3 = co[dom == f"thumb_03_{s}"]
+        tgt = co[np.isin(dom, [f"{f}_0{i}_{s}" for f in over for i in (2, 3)])]
+        gap = float(cKDTree(tgt).query(t3)[0].min())
+        c = max(m["thumb_max_mm"], 1.0) + max(gap * 1000 - 3.0, 0.0)
+        tried.append({"thumb": [cf, ca, cr, mc, ip], "thumb_penetration_mm": m["thumb_max_mm"], "pad_gap_mm": round(gap * 1000, 2)})
+        if best is None or c < best[0]:
+            best = (c, p2["thumb"], m["thumb_max_mm"], gap)
+    C.reset_pose(arm)
+    pose["thumb"] = best[1]
+    return {"angles": best[1], "thumb_penetration_mm_bare": best[2], "pad_gap_mm_bare": round(best[3] * 1000, 2),
+            "candidates": tried}
 
 
 def lerp_pose(a, b, t):
@@ -743,7 +914,7 @@ def poses_stage():
                   "abd = MCP abduction relative to rest, + = towards the thumb (both hands); thumb cmc_flex / "
                   "cmc_abd / cmc_rot = thumb_01 rotation relative to rest about its local X (across the palm) / "
                   "Z (palmar abduction) / Y (pronation); thumb mcp / ip anatomical flexion",
-        "local_rotation": "finger _01: q = Rz(abd * side) * Rx(mcp - rest); _02/_03: Rx(angle - rest); "
+        "local_rotation": "finger _01: q = Rx(mcp - rest) * Rz(abd * side) (flexion about the metacarpal-fixed X, abduction about the floating axis); _02/_03: Rx(angle - rest); "
                           "thumb_01: Rx(cmc_flex) * Rz(cmc_abd * side) * Ry(cmc_rot * side); side = +1 left, -1 right; "
                           "rest offsets below",
         "rest_offsets_deg": {s: C.hand_rest_angles(arm, s) for s in ("l", "r")},
@@ -755,7 +926,8 @@ def poses_stage():
         P[n] = {"kind": "base", "angles": {"l": pz, "r": pz}}
     # full fist (per finger tuned to palm contact) + thumb over index / middle
     fist, frep = tune_fist(models["l"], 0)
-    trep = fit_thumb_over_fingers(models["l"], 0, fist, ("index", "middle"))
+    set_fist_limits(fist)
+    trep = thumb_over_fingers_bare(arm, fist, ("index", "middle"))
     P["fist_full"] = {"kind": "base", "angles": {"l": fist, "r": fist},
                       "fit": {"fingers": frep, "thumb": trep}}
     for t, n in ((0.25, "fist_25"), (0.50, "fist_50"), (0.75, "fist_75")):
@@ -763,7 +935,7 @@ def poses_stage():
         P[n] = {"kind": "transition", "t": t, "angles": {"l": pz, "r": pz}}
     point = json.loads(json.dumps(fist))
     point["index"] = F(5, 5, 3, 0)
-    prep = fit_thumb_over_fingers(models["l"], 0, point, ("middle",))
+    prep = thumb_over_fingers_bare(arm, point, ("middle",))
     P["point"] = {"kind": "base", "angles": {"l": point, "r": point}, "fit": {"thumb": prep}}
     log("base poses done", round(time.time() - t0, 1))
     # weapon grips
@@ -909,6 +1081,19 @@ def validate():
         grest[s] = co2
         gtris_c[s] = (t2, loop)
         hand_skin[s] = np.isin(dom_b, HN.GLOVE_BONES(s))
+    # skin that SK_Human_Base_Gloved still has under the gloves (the cuff overlap band): the
+    # vertices of the glove region used by faces that make_gloved_body keeps
+    shipped_skin = {}
+    for s in ("l", "r"):
+        full = set(HN.glove_region(arm, body, s, HN.GLOVE_DESIGN["cuff_len"])[0].tolist())
+        cut = set(HN.glove_region(arm, body, s, HN.GLOVE_DESIGN["cuff_len"] - 0.025)[0].tolist())
+        keep = np.zeros(len(body.data.vertices), bool)
+        for p_ in body.data.polygons:
+            if not all(v in cut for v in p_.vertices):
+                keep[list(p_.vertices)] = True
+        m_ = np.zeros(len(keep), bool)
+        m_[list(full)] = True
+        shipped_skin[s] = m_ & keep
     coll_r = collider_of(props["rifle"]["parts"])
     coll_p = collider_of(props["pistol"]["parts"])
     out = {"limits": HAND01_LIMITS, "poses": {}}
@@ -931,7 +1116,12 @@ def validate():
             gco, _ = glove_arrays(gl[s])
             loop = gtris_c[s][1]
             gco2, gt2 = HN.cap_opening(gco, HN.mesh_tris(gl[s].data), loop)
-            r["glove_vs_skin"] = HN.skin_vs_glove(cob, hand_skin[s], gco, HN.mesh_tris(gl[s].data))
+            # (a) the shipped combination SK_Human_Base_Gloved + glove (skin left under the cuff)
+            r["glove_vs_skin"] = HN.skin_vs_glove(cob, shipped_skin[s], gco, HN.mesh_tris(gl[s].data),
+                                                 skin_rest=rest_b, glove_rest=grest[s][:-1])
+            # (b) informational: the glove worn over the FULL bare hand of SK_Human_Base
+            r["glove_vs_full_bare_hand"] = HN.skin_vs_glove(cob, hand_skin[s], gco, HN.mesh_tris(gl[s].data),
+                                                           skin_rest=rest_b, glove_rest=grest[s][:-1])
             gm = C.hand_contact_metrics(gco2, grest[s], gt2, gdom[s], s)
             r["glove_self_contact"] = {k: v for k, v in gm.items() if k != "penetration"}
             r["glove_self_contact_pairs"] = gm["penetration"]
@@ -1193,24 +1383,25 @@ def render_closeups(arm, lib):
 
 # ---- full-body stances for the first-person views --------------------------------
 
-FP = dict(eye=(0.0, -0.131, 1.687), rifle_ads_offset=(-0.070, -0.215, -0.120), rifle_pitch=-3.0,
-          spine_twist=(8.0, 10.0, 10.0), neck_counter=-24.0, cam_pitch=-10.0, fov=78.0,
+FP = dict(eye=(0.0, -0.131, 1.687), butt_pocket=(-0.150, -0.080, 1.445), butt_local=(-0.2840, 0.0, 0.0800),
+          rifle_pitch=4.0, rifle_cant=0.0, spine_twist=(12.0, 14.0, 14.0), neck_counter=-40.0,
+          clavicle_l_protraction=18.0, clavicle_r_elevation=6.0, cam_pitch=-31.0, cam_yaw=-10.0, fov=80.0,
           pistol_offset=(0.0, -0.46, -0.02))
 
 
 def rifle_world(arm):
-    """World matrix of the IV-7 root for the first-person ready stance (muzzle forward = -Y)."""
-    eye = np.array(FP["eye"])
+    """World matrix of the IV-7 root for the first-person ready stance: butt pad centre in the
+    right shoulder pocket, muzzle forward (-Y) and pitched up rifle_pitch degrees."""
     Rz = np.array(Matrix.Rotation(math.radians(-90), 4, 'Z'))
     Rp = np.array(Matrix.Rotation(math.radians(FP["rifle_pitch"]), 4, 'X'))
     W = Rp @ Rz
-    ads = W[:3, :3] @ np.array([0.01786, 0.0, 0.16172])
-    W[:3, 3] = eye + np.array(FP["rifle_ads_offset"]) - ads
+    W[:3, 3] = np.array(FP["butt_pocket"]) - W[:3, :3] @ np.array(FP["butt_local"])
     return W
 
 
 def stance_rifle(arm, lib, props, left="support_handguard", right="rifle_grip_index_straight"):
-    """Full body: torso turned (bladed), both arms solved (two-bone IK) to the grip poses."""
+    """Full body: torso turned (bladed), left shoulder protracted, head turned back to the front,
+    both arms solved (two-bone IK) to the grip poses on the rifle (butt in the shoulder pocket)."""
     C.reset_pose(arm)
     rig = props["rifle"]["rig"]
     W = rifle_world(arm)
@@ -1220,12 +1411,14 @@ def stance_rifle(arm, lib, props, left="support_handguard", right="rifle_grip_in
         C.rotate_bone_rest_axis(arm, n, Vector((0, 0, 1)), -a)
     C.rotate_bone_rest_axis(arm, "neck_01", Vector((0, 0, 1)), -FP["neck_counter"] * 0.5)
     C.rotate_bone_rest_axis(arm, "head", Vector((0, 0, 1)), -FP["neck_counter"] * 0.5)
+    C.rotate_bone_world(arm, "clavicle_l", Vector((0, 0, 1)), -FP["clavicle_l_protraction"])
+    C.rotate_bone_world(arm, "clavicle_r", Vector((0, 1, 0)), FP["clavicle_r_elevation"])
     ik = {}
-    for s, pn, pole in (("r", right, (-0.6, 0.35, -1.0)), ("l", left, (0.25, 0.2, -1.0))):
+    for s, pn, pole in (("r", right, (-0.6, 0.35, -1.0)), ("l", left, (0.35, 0.1, -1.0))):
         e = lib["poses"][pn]
         Sock = HN.socket_matrix(rig, e["socket"])
         H = Sock @ json_to_mat(e["hand_attach"][s])
-        ik[s] = HN.arm_ik(arm, s, H, pole, clavicle_deg=6.0 if s == "r" else 0.0)
+        ik[s] = HN.arm_ik(arm, s, H, pole)
         C.pose_hand_anat(arm, s, e["angles"][s], C.hand_rest_angles(arm, s))
     bpy.context.view_layer.update()
     return ik
@@ -1233,8 +1426,9 @@ def stance_rifle(arm, lib, props, left="support_handguard", right="rifle_grip_in
 
 def fp_camera(name):
     eye = Vector(FP["eye"])
-    tgt = eye + Vector((0, -1.0, math.tan(math.radians(FP["cam_pitch"]))))
-    cam = ivlib.camera(name, eye, tgt, fov_deg=FP["fov"], up=(0, 0, 1), clip_start=0.02)
+    yaw, pitch = math.radians(FP["cam_yaw"]), math.radians(FP["cam_pitch"])
+    d = Vector((-math.sin(-yaw) * 0 + math.sin(yaw), -math.cos(yaw), math.tan(pitch)))
+    cam = ivlib.camera(name, eye, eye + d, fov_deg=FP["fov"], up=(0, 0, 1), clip_start=0.02)
     return cam
 
 

@@ -44,7 +44,9 @@ right side, reading front to back:
   the bolt carrier visible through it (smooth side with a short band of forward-assist notches
   near the rear of the port, bolt head and extractor at the front), the hinged dust cover hanging
   open below it, a sculpted brass deflector, a forward-assist-style boss, and the T-shaped
-  charging handle at the rear. The handle's 14 cm shaft runs forward in a channel under the rail.
+  charging handle at the rear. Its left wing carries the latch (a lever in a pocket of the wing,
+  pivoting on a vertical roll pin, thumb grooves at the rear, a hook tooth that engages a notch in
+  the upper's rear face). The handle's 14 cm shaft runs forward in a channel under the rail.
 - **Lower receiver.** A billet-style lower with a magazine well that flares at the mouth
   (6 mm front wall below the pivot-pin lug) and has shallow machined flank panels. The trigger
   guard is integral and open. Takedown pins, bolt catch, selector with pictograms and a fenced
@@ -91,8 +93,8 @@ Tolerance for major proportions is ±5 %.
 | Magazine width | ~2.4 cm | **2.40 cm** | Baseplate 2.76 cm |
 | Magazine depth (front–back) | ~6.5 cm | **6.50 cm** | |
 | Magazine well | – | outside **7.5 cm** front–back (8.0 cm at the flared mouth); front wall **6 mm** below the pivot-pin lug (was 14 mm); rear wall 3 mm | Magazine clearance 0.5 mm; flared mouth kept (design inputs) |
-| Charging handle | real AR-type length | **14.1 cm** long (T-handle 1.9 cm + 12.2 cm shaft) | Shaft 8.8 × 4.8 mm in a 9.2 × 5.2 mm channel under the rail (0.2 mm sliding clearance) |
-| Charging-handle stroke | ≈ 6.5–7 cm | **7.0 cm** | At full stroke **5.2 cm** of shaft is still inside the receiver channel; the handle clears the buffer tower, end plate and castle nut over the whole stroke (checked every 0.5–1 cm) |
+| Charging handle | real AR-type length | **14.1 cm** long (T-handle 1.9 cm + 12.2 cm shaft), latch lever on the left wing | Shaft 8.8 × 4.8 mm in a 9.2 × 5.2 mm channel under the rail (0.2 mm sliding clearance). Latch: lever 1.6 × 1.7 cm in a 1.4 mm deep wing pocket (0.3 mm gap, raised 0.6 mm), Ø 1.4 mm roll pin, hook tooth 2.0 × 2.8 mm in a notch of the upper (0.4 mm clearance) |
+| Charging-handle stroke | ≈ 6.5–7 cm | **7.0 cm** | Checked automatically at every 0.5 cm (`IV7_validation.json → pose_checks.charging_handle_stroke`): no penetration, the shaft stays in the channel (≥ **5.2 cm** engaged at full stroke, 0.2 mm from the channel walls = guided, never floating), the body clears the castle nut by 0.2 mm, the buffer tower and end plate by 0.9 mm |
 | Optic axis above bore | ~7 cm | **7.00 cm** | |
 | Iron sight line above bore | co-witnessed | front post tip **7.00 cm**, rear aperture centre **6.99 cm** | Absolute co-witness: optic axis, rear aperture and front post tip on one line parallel to the bore |
 | socket_ads behind the optic's rear lens | 5–8 cm | **8.00 cm** | |
@@ -122,14 +124,14 @@ Every part is a separate mesh object in the collection `IV7_Parts`, parented to 
 | DustCoverRod | nitrided steel | Body | root | – |
 | RearSightBase / FrontSightBase (+ cross bolts) | black anodised aluminium / steel | Body | root | – |
 | Optic (housing 48 segments round, riser mount, turrets and brightness knob with V-groove knurling, clamp knob) + OpticBolt | black anodised aluminium / steel | Body | root | – |
-| OpticLensFront / OpticLensRear | glass with a thin-film coating | – (constant `M_IV7_Glass`) | root | – |
+| OpticLensFront / OpticLensRear | thin coated alpha glass (no transmission / refraction) | – (constant `M_IV7_Glass`) | root | – |
 | OpticReticle | 0.3 mm emissive red dot on the inner face of the front lens; its muzzle-side cap and rim are black (`M_IV7_ReticleMask`), so the dot cannot be seen from the front | – (constants `M_IV7_Reticle`, `M_IV7_ReticleMask`) | root | – |
 | PistolGrip | FDE polymer, stippled | Furniture | root | – |
 | Stock | FDE polymer | Furniture | root | (slides later) |
 | ButtPad | black rubber | Furniture | root | – |
 | **Magazine** (with the catch notch on the left flank) | dark-grey polymer (matte), textured lower flanks | Furniture | magazine | yes |
 | **MagRounds** (two visible cartridges) | brass case, copper jacket | Furniture | magazine | yes |
-| **ChargingHandle** (T-handle + 12 cm shaft) | black anodised aluminium | Body | charging_handle | yes |
+| **ChargingHandle** (T-handle with latch lever, roll pin and hook tooth + 12 cm shaft) | black anodised aluminium | Body | charging_handle | yes |
 | **BoltCarrier** (smooth flat, 9 forward-assist notches near the rear of the port, bolt head and extractor) | nitrided steel | Body | bolt_carrier | yes |
 | **DustCover** | nitrided steel | Body | dust_cover | yes |
 | **Trigger** | nitrided steel | Body | trigger | yes |
@@ -176,8 +178,8 @@ orientations should therefore be identity (X forward, Y right, Z up) in Unreal. 
 | selector | 4.086, 0, 5.872 | selector axis | rotate about Y: 0° SAFE (lever forward, bind pose), +90° SEMI (lever down), +180° AUTO (lever back) |
 | bolt_catch | 7.186, 1.3, 6.722 | roll pin | rotate about Y (±9°) |
 | mag_release | 10.386, −1.65, 4.912 | button axis (right magwell wall, over the rear of the magazine) | translate +Y (press, ≈ 1.5 mm; the button stays 1 mm clear of the magazine) |
-| rear_sight | 8.386, 0, 13.692 | leaf hinge (pin between two base lugs) | rotate about Y: bind pose deployed; **−90° folds rearward** (a forward fold would hit the optic riser) |
-| front_sight | 50.086, 0, 13.692 | leaf hinge (pin between two base lugs) | rotate about Y: bind pose deployed; −90° folds rearward |
+| rear_sight | 8.386, 0, 13.692 | leaf hinge (pin between two base lugs) | rotate about the bone's local Y: bind pose deployed; **−90° folds rearward**. Invariant: the leaf top moves towards the stock (−X). +90° (the r1 review's sign) drives the leaf 6 mm into the optic riser |
+| front_sight | 50.086, 0, 13.692 | leaf hinge (pin between two base lugs) | rotate about the bone's local Y: bind pose deployed; **−90° folds rearward** (same invariant) |
 | socket_muzzle | 57.586, 0, 9.172 | bore axis at the muzzle face | non-deforming |
 | socket_ads | 1.786, 0, 16.172 | eye point on the optic axis, 8.0 cm behind the rear lens | non-deforming |
 | socket_support_hand | 33.686, 0, 6.472 | handguard bottom, 17 cm ahead of the bolt face | non-deforming |
@@ -185,13 +187,26 @@ orientations should therefore be identity (X forward, Y right, Z up) in Unreal. 
 | socket_eject | 11.536, −1.5, 9.172 | centre of the ejection port, on the receiver's right face | non-deforming |
 | socket_mag | 12.536, 0, 0.372 | centre of the magwell mouth | non-deforming |
 
-The rig is checked in Blender by `Art/Previews/IV7/IV7_rig_pose_test.png` (every moving bone
-posed: dust cover closed, carrier 7.5 cm and charging handle 7 cm back, trigger pressed, selector
-on SEMI, bolt catch up, magazine release pressed, magazine dropping, both sights folded rearward)
-and by a pose interpenetration test (`Art/Previews/IV7/fix_r1/interpenetration.json`): every
-documented pose, the charging handle every 0.5–1 cm of its stroke, the carrier at 1/3/5/7.5 cm,
-the bolt catch at ±9°, and the sight leaves at −30/−60/−90°, collide with nothing (remaining
-contacts are coplanar seating faces of ≤ 0.05 mm).
+The rig is checked on every build by `pose_checks()` in the generator; the results are in
+`Art/Previews/IV7/IV7_validation.json → pose_checks` and every failure is a validation problem.
+Method: the posed (evaluated) meshes, BVH triangle-pair overlap, then the penetration depth (the
+largest distance to the other surface of any vertex that lies inside the other closed mesh, ray
+parity in two directions). A contact of ≤ 0.1 mm is a seating face (coplanar or a few µm), not a
+failure.
+
+| Check | Result |
+| --- | --- |
+| Bind pose, all part pairs | {{BIND_RESULT}} |
+| Documented poses: dust cover closed / half, carrier 3 and 7.5 cm, trigger +12°, selector SEMI / AUTO, bolt catch ±9°, magazine release pressed 1.5 mm, magazine dropping 1 cm and 7 cm rocked −6°, both sights at −30 / −60 / −90°, the combined rig test pose | {{POSE_RESULT}} |
+| Charging handle every 0.5 cm of its 7 cm stroke | {{CH_RESULT}} |
+| Every optic of `Shared/config/optics.json` mounted on the rail (its LOD0 GLB at `mount_on_iv7.socket_rail_rifle_m`), irons folded −90 / −90, charging handle at full stroke | {{OPTICS_RESULT}} |
+| Folded leaves (−90°) | {{FOLD_RESULT}} |
+| Negative control: rear leaf folded the wrong way (+90°) | {{NEG_RESULT}} (the check must catch it, and does) |
+
+`Art/Previews/IV7/IV7_rig_pose_test.png` shows every moving bone posed (dust cover closed, carrier
+7.5 cm and charging handle 7 cm back, trigger pressed, selector on SEMI, bolt catch up, magazine
+release pressed, magazine dropping, both sights folded rearward); `IV7_charging_handle.png` and
+`IV7_sights_folded.png` show the handle home / pulled and the folded leaves.
 
 ## 6. Texture plan
 
@@ -271,14 +286,14 @@ Material identity, as baked values (linear):
 
 | Material | BaseColor | Metallic | Roughness | Notes |
 | --- | --- | --- | --- | --- |
-| Black hard-anodised aluminium | ≈ 0.034–0.043 | **1** | ≈ 0.32–0.37, broken up ±0.05, ≈ 0.05 lower on bevel highlights and where handled | Wear-through to bare aluminium (base ≈ 0.6, roughness ≈ 0.27) on convex edges, concentrated where hands, sling and gear touch. Subtle orange-peel micro-normal. Heavy grime in closed cavities (receiver bore interior) is a dielectric layer |
+| Black hard-anodised aluminium | ≈ (0.040, 0.041, 0.047): dark, slightly cool (B/R ≈ 1.15), so the specular reflection is faintly coloured | **1** | ≈ 0.29–0.32 on the flats (measured {{ANOD_ROUGH}}), low-frequency breakup ±0.05 plus machining streaks (1.6 mm pitch, ±0.02), ≈ 0.05 lower on bevel highlights and where handled | Metal-like satin: sharper, structured highlights. Wear-through to bare aluminium (base ≈ 0.6, roughness ≈ 0.27) only where an edge is convex AND exposed (baked AO) and weighted by the contact attribute, broken into chips (not a line along every bevel): {{ANOD_WEAR}} of the exterior anodised texels. Micro normal: orange-peel + tool-path lines (mean tilt {{ANOD_TILT}}). Light dust in cavities (≈ 0.08 linear, rough ≈ 0.6); heavy grime in closed cavities is a dielectric layer |
 | Nitrided steel | ≈ 0.05 | **1** | ≈ 0.37 | Carbon fouling at the muzzle and heavy cavity grime are dielectric layers with a narrow transition (metallic stays binary) |
-| Phosphated steel | ≈ 0.06 | **1** | ≈ 0.6 | |
+| Phosphated steel | ≈ 0.06 | **1** ({{PHOS_METAL}} of the texels > 0.9) | ≈ 0.6 | |
 | FDE polymer | ≈ (0.175, 0.125, 0.072) | 0 | ≈ 0.66 | Stippled areas ≈ 0.8 |
-| Magazine polymer | ≈ (0.057, 0.054, 0.050), slightly warm | 0 | **≈ 0.76** (matte) | Reads clearly apart from the satin metal receivers |
+| Magazine polymer | ≈ (0.066, 0.063, 0.057): slightly lighter and warm | 0 | **≈ 0.80** (matte, diffuse), ≈ 0.9 on the stippled lower flanks | Reads clearly apart from the cool, reflective satin metal receivers in sun and in shade (`IV7_sun_vs_shade.png`) |
 | Rubber | ≈ 0.017 | 0 | ≈ 0.9 | |
 | Brass / copper | – | 1 | ≈ 0.28–0.3 | |
-| Glass | – | – | 0.02 | IOR 1.52, 120 nm thin-film coating |
+| Glass | (0.024, 0.030, 0.036) tint | 0 | 0.03 | Thin coated **alpha** glass like the optics set (`ivoptics.mat_glass_thin`): alpha 0.05 per surface (each lens is a closed disc, 4 surfaces in view), blended, double sided, specular 0.7 with a cool coating tint. **No transmission, no refraction** (checked: `IV7_validation.json → glass_audit`; the GLB carries no `KHR_materials_transmission`) |
 | Reticle | saturated red (1, 0.02, 0.01) | – | – | Emission **8** (was 150, which clipped to pink-white); 0.3 mm dot; in Cycles it does not illuminate its surroundings |
 | Reticle mask | 0.01 | 0 | 0.5 | Black back of the reticle dot |
 

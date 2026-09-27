@@ -1227,15 +1227,23 @@ def _contact(nb, attr, default=0.35):
     return nb.lerp(nb.math('GREATER_THAN', fac, 0.0005), default, fac)
 
 
-def _micro_normal(nb, co, w, h_extra=None, strength=1.0, milling=0.0, scuff=None):
+def _micro_normal(nb, co, w, h_extra=None, strength=1.0, milling=0.0, scuff=None, machining=0.0,
+                  peel_scale=420.0):
     """Normal detail that survives an 8-bit normal map (2-6 deg tilt) at ~25-45 px/cm:
     orange-peel (~2 mm features), optional milling lines along X (~1.3 mm pitch) and optional
-    handling scuffs (short streaks) where scuff (0..1 socket) is high."""
-    peel = nb.noise(co, 420.0, 3.0, 0.55, w + 21.0)
+    handling scuffs (short streaks) where scuff (0..1 socket) is high.  machining > 0 adds
+    tool-path lines (1.6 mm pitch, >= 4 texels at 25 px/cm so they do not alias) that run along
+    the part (bands vary along Z and Y), slightly wavy and faded in patches."""
+    peel = nb.noise(co, peel_scale, 3.0, 0.55, w + 21.0)
     h = nb.mul(peel, 0.55)
     if milling:
         mill = nb.wave(nb.mapping(co, scale=(1.0, 1.0, 1.0)), 780.0, 'X', distortion=0.0, detail=0.0)
         h = nb.add(h, nb.mul(mill, 0.08 * milling))
+    if machining:
+        fade = nb.remap(nb.noise(co, 14.0, 2.0, 0.5, w + 41.0), 0.35, 0.65, 0.25, 1.0)
+        tz = nb.wave(co, 196.0, 'Z', distortion=1.2, detail=1.0)
+        ty = nb.wave(co, 196.0, 'Y', distortion=1.2, detail=1.0)
+        h = nb.add(h, nb.mul(nb.mul(nb.add(tz, ty), fade), 0.5 * machining))
     if scuff is not None:
         # short, soft handling scuffs only where the contact attribute is high
         sco = nb.mapping(co, scale=(1.0, 7.0, 7.0))
@@ -1248,13 +1256,21 @@ def _micro_normal(nb, co, w, h_extra=None, strength=1.0, milling=0.0, scuff=None
 
 def mat_anodized(name, masks, base=(0.042, 0.042, 0.046), rough=0.34, wear=1.0,
                  scratches=0.6, seed=0, contact_attr="iv_contact", contact_default=0.35,
-                 bare=(0.62, 0.63, 0.65)):
+                 bare=(0.62, 0.63, 0.65), style="legacy", micro=0.28, machining=0.0):
     """Black hard-anodised aluminium, metallic workflow: the dyed oxide over aluminium reads as a
     dark metal (metallic 1, base ~0.04 linear) with a satin, slightly broken-up roughness
     (~0.30-0.38), crisper and slightly lighter on bevel highlights.  Wear-through to bright bare
     aluminium (base ~0.6, roughness ~0.27) sits on convex edges, driven by a wide convexity mask
     and the per-vertex contact attribute (hands, sling, magazine changes).  Handling polish
-    lowers roughness in contact areas.  Micro normal: orange-peel, milling marks, scuffs."""
+    lowers roughness in contact areas.  Micro normal: orange-peel, milling marks, scuffs.
+
+    style="legacy" (default, used by the optics set) keeps the original response.
+    style="worn_satin" (IV-7 fix round 1): wear only where an edge is BOTH convex and exposed
+    (the baked AO mask suppresses edges inside slots / recesses) and strongly weighted by the
+    contact attribute, broken into chips and scuffed patches (not a continuous line along every
+    bevel); tighter roughness breakup with machining streaks (sharper, structured highlights);
+    a light dusty grime in cavities; micro normal strong enough to survive 8 bits (micro,
+    machining)."""
     m, nb, bsdf = _new_material(name)
     co = nb.coords('Object')
     w = _seed_w(seed)
@@ -1263,12 +1279,26 @@ def mat_anodized(name, masks, base=(0.042, 0.042, 0.046), rough=0.34, wear=1.0,
     n_big = nb.noise(co, 9.0, 3.0, 0.5, w)
     n_mid = nb.noise(co, 60.0, 4.0, 0.55, w + 3.1)
     n_fine = nb.noise(co, 700.0, 2.0, 0.5, w + 5.7)
-    patch = nb.remap(nb.noise(co, 22.0, 3.0, 0.6, w + 8.0), 0.38, 0.62)          # where wear happens
-    gain = nb.lerp(contact, 0.45, 1.55)
-    e = nb.mul(edge, nb.lerp(patch, 0.55, 1.2))
-    e = nb.mul(e, nb.remap(n_mid, 0.3, 0.7, 0.8, 1.15))
-    e = nb.mul(e, gain)
-    worn = nb.remap(e, 0.40 / max(wear, 1e-3), 0.54 / max(wear, 1e-3), smooth=True)
+    satin = style == "worn_satin"
+    if satin:
+        # chips / scuffed stretches along the exposed edges: a coarse patch field (where the part
+        # got knocked) times a finer chip field (the broken outline of each worn spot)
+        patch = nb.remap(nb.noise(co, 16.0, 3.0, 0.6, w + 8.0), 0.35, 0.65)
+        chip = nb.remap(nb.noise(co, 170.0, 3.0, 0.65, w + 9.0), 0.30, 0.70, 0.70, 1.20)
+        expo = nb.remap(ao, 0.25, 0.70, smooth=True)                          # recessed edges wear less
+        gain = nb.lerp(contact, 0.40, 1.70)
+        e = nb.mul(edge, nb.lerp(patch, 0.55, 1.30))
+        e = nb.mul(e, chip)
+        e = nb.mul(e, nb.lerp(expo, 0.60, 1.0))
+        e = nb.mul(e, gain)
+        worn = nb.remap(e, 0.37 / max(wear, 1e-3), 0.51 / max(wear, 1e-3), smooth=True)
+    else:
+        patch = nb.remap(nb.noise(co, 22.0, 3.0, 0.6, w + 8.0), 0.38, 0.62)      # where wear happens
+        gain = nb.lerp(contact, 0.45, 1.55)
+        e = nb.mul(edge, nb.lerp(patch, 0.55, 1.2))
+        e = nb.mul(e, nb.remap(n_mid, 0.3, 0.7, 0.8, 1.15))
+        e = nb.mul(e, gain)
+        worn = nb.remap(e, 0.40 / max(wear, 1e-3), 0.54 / max(wear, 1e-3), smooth=True)
     hl = nb.remap(edge, 0.22, 0.5, smooth=True)                                    # bevel highlight
     # handling polish: streaks along X, low frequency, stronger where handled
     sco = nb.mapping(co, scale=(3.0, 60.0, 60.0))
@@ -1279,19 +1309,35 @@ def mat_anodized(name, masks, base=(0.042, 0.042, 0.046), rough=0.34, wear=1.0,
                    [(0.3, [c * 0.85 for c in base]), (0.7, [c * 1.15 for c in base])])
     coat = nb.mix_col(nb.add(nb.mul(hl, 0.35), nb.mul(polish, 0.10)), coat, [c * 1.6 for c in base])
     bare_c = nb.ramp(n_fine, [(0.3, [c * 0.88 for c in bare]), (0.7, [min(1.0, c * 1.08) for c in bare])])
-    col = nb.mix_col(worn, coat, bare_c)
-    col = nb.mix_col(dirt, col, (0.050, 0.046, 0.040))
+    if satin:
+        # worn spots are not all fully through the dye: the rim of a chip is dark-grey aluminium
+        half = nb.remap(worn, 0.0, 0.55, smooth=True)
+        rim = [0.5 * (a + b) for a, b in zip(base, bare)]
+        col = nb.mix_col(nb.mul(half, 0.6), coat, [c * 0.55 for c in rim])
+        col = nb.mix_col(nb.remap(worn, 0.45, 1.0, smooth=True), col, bare_c)
+        # light dusty grime settling in cavities and at the foot of walls (restrained)
+        dust = nb.mul(nb.remap(cav, 0.62, 0.20, smooth=True), nb.remap(n_mid, 0.25, 0.75, 0.55, 1.0))
+        col = nb.mix_col(nb.mul(dust, 0.55), col, (0.085, 0.076, 0.060))
+    else:
+        col = nb.mix_col(worn, coat, bare_c)
+        col = nb.mix_col(dirt, col, (0.050, 0.046, 0.040))
     r = nb.add(rough, nb.remap(n_big, 0.3, 0.7, -0.045, 0.045))
     r = nb.add(r, nb.remap(n_mid, 0.3, 0.7, -0.025, 0.025))
+    if satin and machining:
+        # machining streaks in the roughness too: the highlight breaks into fine parallel bands
+        st = nb.wave(co, 98.0, 'Z', distortion=1.5, detail=1.0)
+        r = nb.add(r, nb.mul(nb.sub(st, 0.5), 0.035 * machining))
     r = nb.sub(r, nb.mul(polish, 0.06))
     r = nb.sub(r, nb.mul(hl, 0.05))
     r = nb.lerp(worn, r, 0.27)
+    if satin:
+        r = nb.lerp(nb.mul(dust, 0.8), r, 0.62)
     r = nb.lerp(dirt, r, 0.72)
     # metallic: binary per material; only heavy grime in crevices turns dielectric (narrow step)
     grime = nb.remap(dirt, 0.42, 0.5)
     metal = nb.inv(grime)
-    nrm = _micro_normal(nb, co, w, nb.mul(worn, -0.35), strength=0.28, milling=0.0,
-                        scuff=nb.mul(contact, 1.0))
+    nrm = _micro_normal(nb, co, w, nb.mul(worn, -0.35), strength=micro, milling=0.0,
+                        scuff=nb.mul(contact, 1.0), machining=machining)
     nb.set(bsdf.inputs['Base Color'], col)
     nb.set(bsdf.inputs['Roughness'], r)
     nb.set(bsdf.inputs['Metallic'], metal)
@@ -1679,7 +1725,12 @@ def uv_snap_degenerate(obj, area_eps=5e-8, tex_size=None, min_island_texels=0.0,
     me = obj.data
     uv = me.uv_layers.active.data
     s2 = obj.matrix_world.median_scale ** 2
-    bad = set(p.index for p in me.polygons if p.area * s2 < area_eps)
+    # only islands that are tiny AS A WHOLE are collapsed: collapsing a tiny face inside a larger
+    # island would detach it (zero UV area, no tangent basis) and could split the island
+    bad = set()
+    for isl in uv_islands(obj):
+        if sum(me.polygons[fi].area for fi in isl) * s2 < area_eps:
+            bad.update(isl)
     if island_pixels:
         prot_verts = set()
         if protect_materials:
@@ -1693,7 +1744,10 @@ def uv_snap_degenerate(obj, area_eps=5e-8, tex_size=None, min_island_texels=0.0,
                 continue
             if any(v in prot_verts for fi in isl for v in me.polygons[fi].vertices):
                 continue
-            bad.update(isl)
+            # an island without a pixel centre is collapsed only if it is below the limit too;
+            # a larger one keeps its (valid, sub-pixel) UVs and samples its neighbourhood
+            if sum(me.polygons[fi].area for fi in isl) * s2 < area_eps:
+                bad.update(isl)
     if not bad:
         return 0
     good_uv = {}
@@ -1856,7 +1910,7 @@ def _nudge_island(obj, faces, res, owner=None, gid=None, max_shift=0.5):
     uv = obj.data.uv_layers.active.data
     loops = sorted({li for fi in faces for li in obj.data.polygons[fi].loop_indices})
     c = P.reshape(-1, 2).mean(0)
-    for grow in (1.0, 1.5, 2.25):
+    for grow in (1.0, 1.5, 2.25, 3.4):
         Pg = c + (P - c) * grow
         for dx, dy in ((0.0, 0.0), (0.5, 0.0), (0.0, 0.5), (0.5, 0.5), (-0.5, 0.0), (0.0, -0.5), (-0.5, -0.5),
                        (0.5, -0.5), (-0.5, 0.5), (0.25, 0.25), (-0.25, -0.25), (0.25, -0.25), (-0.25, 0.25)):
@@ -1866,10 +1920,17 @@ def _nudge_island(obj, faces, res, owner=None, gid=None, max_shift=0.5):
                 continue
             if owner is not None and np.any((owner[pix] != -1) & (owner[pix] != gid)):
                 continue
+            # a grown island must also keep >= 1 px from every other island (its own margin)
+            if owner is not None and grow > 1.0:
+                ring = np.unique(np.clip(pix[:, None] + np.array([-1, 1, -res, res])[None, :], 0, res * res - 1))
+                if np.any((owner[ring] != -1) & (owner[ring] != gid)):
+                    continue
             cu = Vector((c[0], c[1])) / res
             off = Vector((dx, dy)) * (max_shift / 0.5) / res
             for li in loops:
                 uv[li].uv = cu + (uv[li].uv - cu) * grow + off
+            if owner is not None:
+                owner[pix] = gid          # later nudges must not claim these pixels again
             return True
     return False
 

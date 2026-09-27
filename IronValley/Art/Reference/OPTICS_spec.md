@@ -424,6 +424,11 @@ Z = up. The bind pose is deployed.
 - **The required fix.** The rifle's documentation, pose test and any runtime code must use -90 deg
   (top towards the stock) and state the invariant, not a bare "rotate about Y" instruction.
   This is to be done in the rifle's fix pass; `iv7_carbine.py` was not edited.
+- **Resolved in the IV-7 fix round 1 (2026-09-27).** The rifle's spec (§5, §9.4), its rig test
+  pose and the generator's automated pose checks (`IV7_validation.json → pose_checks`) use −90 deg
+  and state the invariant. Every optic of `Shared/config/optics.json` is mounted in that check with
+  the irons folded (0 penetrations; the rear-leaf clearances match the table below). The +90 deg
+  fold is kept as a negative control that the check must catch.
 
 Measured with each optic mounted: posed rifle, BVH triangle intersections and nearest distances.
 
@@ -489,10 +494,10 @@ Rear leaf bounding box, bore frame (cm):
    (SDF).
 4. The **IV-H1 LOD1** has one 0.6 mm² decimated triangle with zero UV area; it samples a single
    texel. Third person only; cosmetic.
-5. **The IV-7 asset itself is unchanged.** It still carries its old optic, with transmission glass and a
-   geometry reticle, and the fold-sign documentation issue (section 8). The web runtime hides `^Optic`
-   for every loadout (IV-R1 replaces it) and folds with -90 deg (section 11); the web variant of the GLB
-   also drops the transmission extension. The rifle's own documentation still needs the fold-sign fix.
+5. **The IV-7's built-in optic** keeps its geometry reticle. Since the IV-7 fix round 1 (2026-09-27) its
+   lenses are thin coated alpha glass (no transmission) and its documentation uses the -90 deg fold
+   (section 8). The web runtime hides `^Optic` for every loadout (IV-R1 replaces it) and folds with
+   -90 deg (section 11); the web asset step still strips any transmission extension defensively.
 6. **Eye points differ per optic** (bore x -14.9 to -16.95 cm; heights 7.0 to 7.6 cm). This is
    realistic, but the ADS camera must follow `socket_eye`.
 7. **The magnified through-sight images are composites** that emulate the runtime PiP; they are

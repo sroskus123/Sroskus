@@ -1652,25 +1652,89 @@ def arm_ik(arm, s, H_hand, pole, clavicle_deg=0.0, clavicle_axis=(0, 1, 0)):
             "wrist_rel_deg": round(math.degrees(2 * math.acos(min(1.0, abs(rel.w)))), 2)}
 
 
-def skin_vs_glove(skin_co, skin_mask, glove_co, glove_tris, maxd=0.015):
-    """Skin vertices (skin_mask) relative to the posed glove surface: signed distance via the
-    nearest glove face normal (+ = OUTSIDE the glove = poke-through).  Returns stats (mm)."""
-    bg = bvh_arrays(glove_co, glove_tris)
-    out_n, out_max, gaps = 0, 0.0, []
-    for q in skin_co[skin_mask]:
-        v = Vector(tuple(map(float, q)))
-        loc, n, fi, dist = bg.find_nearest(v, maxd)
-        if loc is None:
-            continue
-        sgn = (v - loc).dot(n)
-        if sgn > 0:
-            out_n += 1
-            out_max = max(out_max, dist)
-        else:
-            gaps.append(dist)
-    g = np.array(gaps) if gaps else np.zeros(1)
-    return {"skin_verts_tested": int(skin_mask.sum()), "poke_through_verts": int(out_n),
-            "poke_through_max_mm": round(out_max * 1000, 2),
+def closest_on_triangles(p, A, B, Cc):
+    """Closest points on triangles (A, B, Cc: (n, 3)) to points p (n, 3) (Ericson, vectorised)."""
+    ab, ac, ap = B - A, Cc - A, p - A
+    d1, d2 = (ab * ap).sum(1), (ac * ap).sum(1)
+    bp = p - B
+    d3, d4 = (ab * bp).sum(1), (ac * bp).sum(1)
+    cp = p - Cc
+    d5, d6 = (ab * cp).sum(1), (ac * cp).sum(1)
+    va = d3 * d6 - d5 * d4
+    vb = d5 * d2 - d1 * d6
+    vc = d1 * d4 - d3 * d2
+    den = np.where(np.abs(va + vb + vc) < 1e-30, 1e-30, va + vb + vc)
+    v = vb / den
+    w = vc / den
+    out = A + ab * v[:, None] + ac * w[:, None]
+    # edge / vertex regions
+    m = (d1 <= 0) & (d2 <= 0)
+    out[m] = A[m]
+    m2 = (d3 >= 0) & (d4 <= d3)
+    out[m2] = B[m2]
+    m3 = (d6 >= 0) & (d5 <= d6)
+    out[m3] = Cc[m3]
+    mab = (vc <= 0) & (d1 >= 0) & (d3 <= 0) & ~m & ~m2 & ~m3
+    t_ = d1 / np.where(np.abs(d1 - d3) < 1e-30, 1e-30, d1 - d3)
+    out[mab] = (A + ab * t_[:, None])[mab]
+    mac = (vb <= 0) & (d2 >= 0) & (d6 <= 0) & ~m & ~m2 & ~m3 & ~mab
+    t_ = d2 / np.where(np.abs(d2 - d6) < 1e-30, 1e-30, d2 - d6)
+    out[mac] = (A + ac * t_[:, None])[mac]
+    mbc = (va <= 0) & ((d4 - d3) >= 0) & ((d5 - d6) >= 0) & ~m & ~m2 & ~m3 & ~mab & ~mac
+    t_ = (d4 - d3) / np.where(np.abs((d4 - d3) + (d5 - d6)) < 1e-30, 1e-30, (d4 - d3) + (d5 - d6))
+    out[mbc] = (B + (Cc - B) * t_[:, None])[mbc]
+    return out
+
+
+def skin_vs_glove(skin_co, skin_mask, glove_co, glove_tris, maxd=0.015, skin_rest=None,
+                  glove_rest=None, corr_r=0.008, per_vertex=None):
+    """Skin vertices (skin_mask) relative to the posed glove surface: signed distance (+ = OUTSIDE
+    the glove = poke-through).  Returns stats (mm).
+    With skin_rest / glove_rest the test uses each skin vertex's OWN glove patch -- the glove faces
+    that lay within corr_r of it in the rest pose (the shell was offset from this skin) -- so a
+    neighbouring finger's glove pressing against this finger's glove (glove-glove contact, measured
+    separately) cannot be mistaken for skin poking out.  Sign: normal of the nearest own face."""
+    idx = np.nonzero(skin_mask)[0]
+    gt = np.asarray(glove_tris)
+    if skin_rest is None or glove_rest is None:
+        bg = bvh_arrays(glove_co, glove_tris)
+        sd = np.full(len(idx), np.nan)
+        for j, i in enumerate(idx):
+            v = Vector(tuple(map(float, skin_co[i])))
+            loc, n, fi, dist = bg.find_nearest(v, maxd)
+            if loc is not None:
+                sd[j] = dist if (v - loc).dot(n) > 0 else -dist
+    else:
+        br = bvh_arrays(glove_rest, glove_tris)
+        vi, fi_ = [], []
+        for j, i in enumerate(idx):
+            for loc, n, fi, dist in br.find_nearest_range(Vector(tuple(map(float, skin_rest[i]))), corr_r):
+                if fi is not None:
+                    vi.append(j)
+                    fi_.append(fi)
+        vi, fi_ = np.array(vi), np.array(fi_)
+        P = skin_co[idx][vi]
+        A, B, Cc = (glove_co[gt[fi_, k]] for k in range(3))
+        Q = closest_on_triangles(P, A, B, Cc)
+        dist = np.linalg.norm(P - Q, axis=1)
+        fn = np.cross(B - A, Cc - A)
+        fn /= np.maximum(np.linalg.norm(fn, axis=1)[:, None], 1e-15)
+        sgn = np.sign(((P - Q) * fn).sum(1))
+        sd = np.full(len(idx), np.nan)
+        best = np.full(len(idx), np.inf)
+        order = np.lexsort((dist, vi))          # per skin vertex, nearest own face first
+        first = np.ones(len(order), bool)
+        first[1:] = vi[order][1:] != vi[order][:-1]
+        sel = order[first]
+        sd[vi[sel]] = dist[sel] * np.where(sgn[sel] > 0, 1.0, -1.0)
+    if per_vertex is not None:
+        per_vertex.update({int(i): float(x) for i, x in zip(idx, sd) if not np.isnan(x)})
+    ok = ~np.isnan(sd)
+    out = sd[ok & (sd > 0)]
+    g = -sd[ok & (sd <= 0)]
+    g = g if len(g) else np.zeros(1)
+    return {"skin_verts_tested": int(skin_mask.sum()), "poke_through_verts": int(len(out)),
+            "poke_through_max_mm": round(float(out.max()) * 1000, 2) if len(out) else 0.0,
             "glove_offset_median_mm": round(float(np.median(g)) * 1000, 2),
             "glove_offset_p95_mm": round(float(np.percentile(g, 95)) * 1000, 2),
             "glove_offset_max_mm": round(float(g.max()) * 1000, 2)}
@@ -1769,13 +1833,28 @@ def self_collider(model, k, pose, H, exclude_prefix, keep_prefixes, exclude_near
     return Collider([("self", P, m["tris"][np.nonzero(keep)[0]])])
 
 
+DIP_PIP_RANGE = (0.30, 0.90)       # natural DIP / PIP flexion ratio band while grasping
+
+
+def coupling_penalty(pip, dip, w=1e-4):
+    """Soft anatomical coupling: DIP flexion stays within DIP_PIP_RANGE x PIP (the flexor
+    profundus flexes both; a DIP flexed beyond its PIP or a stiff-straight DIP on a strongly
+    flexed PIP reads as a broken finger).  ~1e-2 (= a 1 mm gap in wrap_finger's cost) per 10 deg."""
+    lo, hi = DIP_PIP_RANGE
+    over = max(0.0, dip - hi * max(pip, 0.0) - 3.0)
+    under = max(0.0, lo * pip - dip - 3.0)
+    return w * (over * over + under * under)
+
+
 def wrap_finger(model, k, pose, H, coll, f, gap=0.0008, lim=None, maxiter=400):
     """Distribute a finger's flexion so that ALL three segments rest on the object: Powell over
-    (mcp, pip, dip) minimising sum_seg (max(gap_seg, 0) - gap)^2 with a no-penetration penalty,
-    starting from the current angles.  Returns a report with the per-segment gaps."""
+    (mcp, pip, dip) minimising sum_seg (max(gap_seg, 0) - gap)^2 with a no-penetration penalty
+    and the DIP/PIP coupling penalty, starting from the current angles.  lim: per-joint (lo, hi)
+    bounds, e.g. capped at the tuned full fist so a finger that misses the object cannot curl
+    into the palm.  Returns a report with the per-segment gaps."""
     from scipy.optimize import minimize
     s = model.s
-    lim = lim or {"mcp": (-5.0, 95.0), "pip": (0.0, 110.0), "dip": (0.0, 80.0)}
+    lim = dict({"mcp": (-5.0, 95.0), "pip": (0.0, 110.0), "dip": (0.0, 80.0)}, **(lim or {}))
     allm = model.verts_of(k, [f"{f}_0{i}_{s}" for i in (1, 2, 3)], 0.3)
     idx = np.nonzero(allm)[0]
     segs = [model.verts_of(k, [f"{f}_0{i}_{s}"], 0.5)[idx] for i in (1, 2, 3)]
@@ -1790,8 +1869,9 @@ def wrap_finger(model, k, pose, H, coll, f, gap=0.0008, lim=None, maxiter=400):
     def cost(x):
         sd, g = ev(x)
         pen = float(np.sum(np.minimum(sd - 0.0002, 0) ** 2)) * 1e7
-        return pen + sum((max(gi, 0.0) - gap) ** 2 for gi in g) * 1e4 * np.array([0.6, 1.0, 1.0]).sum() / 2.6
-    x0 = [pose[f][kk] for kk in keys]
+        return (pen + sum((max(gi, 0.0) - gap) ** 2 for gi in g) * 1e4 * np.array([0.6, 1.0, 1.0]).sum() / 2.6
+                + coupling_penalty(x[1], x[2]))
+    x0 = [min(max(pose[f][kk], lim[kk][0]), lim[kk][1]) for kk in keys]
     res = minimize(cost, x0, method="Powell", bounds=[lim[kk] for kk in keys],
                    options={"maxiter": maxiter, "xtol": 0.1, "ftol": 1e-10})
     sd, g = ev(res.x)
