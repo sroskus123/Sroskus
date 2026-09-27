@@ -27,6 +27,7 @@ import {
   LinearFilter,
   LinearMipmapLinearFilter,
   Matrix4,
+  MeshDepthMaterial,
   MeshStandardMaterial,
   NoColorSpace,
   Quaternion,
@@ -266,6 +267,69 @@ if ( vIvLeaf > 0.5 ) {
   return mat;
 }
 
+/**
+ * Shadow-pass material of the vegetation: cards cut out by the foliage atlas alpha (not solid quads), same wind as
+ * the visible material (so shadows sway with the leaves).
+ */
+export function createVegetationDepthMaterial(textures, uniforms, { uvScale = 32 } = {}) {
+  const m = new MeshDepthMaterial({ side: DoubleSide });
+  m.onBeforeCompile = (shader) => {
+    Object.assign(shader.uniforms, uniforms, { ivFoliage: { value: textures.foliage }, ivAtlasSize: { value: 1024 } });
+    shader.vertexShader = shader.vertexShader
+      .replace(
+        '#include <common>',
+        `#include <common>
+attribute vec4 _ivveg;
+uniform float ivTime;
+uniform vec3 ivWindDir;
+uniform float ivWindStrength;
+varying vec2 vIvUv;
+varying float vIvLeaf;`,
+      )
+      .replace(
+        '#include <begin_vertex>',
+        `#include <begin_vertex>
+vIvLeaf = step( 0.99, _ivveg.x );
+vIvUv = uv * ${uvScale.toFixed(1)};
+{
+	#ifdef USE_INSTANCING
+	vec3 ivOrigin = ( modelMatrix * instanceMatrix * vec4( 0.0, 0.0, 0.0, 1.0 ) ).xyz;
+	mat3 ivInv = inverse( mat3( instanceMatrix ) );
+	#else
+	vec3 ivOrigin = ( modelMatrix * vec4( 0.0, 0.0, 0.0, 1.0 ) ).xyz;
+	mat3 ivInv = mat3( 1.0 );
+	#endif
+	float flex = _ivveg.y;
+	float ph = dot( ivOrigin.xz, vec2( 0.071, 0.053 ) );
+	float gust = 0.6 + 0.4 * sin( ivTime * 0.31 + ivOrigin.x * 0.013 + ivOrigin.z * 0.009 );
+	float sway = ( sin( ivTime * 0.9 + ph ) + 0.35 * sin( ivTime * 2.3 + ph * 1.7 ) ) * gust * ivWindStrength;
+	float h = max( transformed.y, 0.0 );
+	transformed += ( ivInv * ivWindDir ) * ( 0.004 * h * h * 0.08 + flex * flex * 0.12 ) * sway;
+}`,
+      );
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        '#include <common>',
+        `#include <common>
+uniform sampler2D ivFoliage;
+uniform float ivAtlasSize;
+varying vec2 vIvUv;
+varying float vIvLeaf;`,
+      )
+      .replace(
+        '#include <alphatest_fragment>',
+        `if ( vIvLeaf > 0.5 ) {
+	float a = texture2D( ivFoliage, vIvUv ).a;
+	vec2 duv = fwidth( vIvUv ) * ivAtlasSize;
+	a *= 1.0 + max( 0.0, log2( max( duv.x, duv.y ) ) ) * 0.45;
+	if ( a < 0.5 ) discard;
+}`,
+      );
+  };
+  m.customProgramCacheKey = () => 'iv-vegetation-depth-1';
+  return m;
+}
+
 /** Geometry of one model LOD from the parsed glTF: dequantised (node scale), float uv, attributes kept. */
 function modelGeometry(gltf, nodeName) {
   let mesh = null;
@@ -307,7 +371,7 @@ export function buildVegetation({ vegGltf, vegGlb, worldGlb, textures, uniforms,
   const group = new Group();
   group.name = 'vegetation';
   const material = createVegetationMaterial(textures, uniforms, { uvScale: iv.uvScale || 32 });
-  const shadowMat = null;
+  const depthMaterial = createVegetationDepthMaterial(textures, uniforms, { uvScale: iv.uvScale || 32 });
   const models = {};
   for (const [name, info] of Object.entries(iv.models)) {
     models[name] = { name, info, geos: info.lods.map((l) => modelGeometry(vegGltf, l.node)) };
@@ -353,6 +417,7 @@ export function buildVegetation({ vegGltf, vegGlb, worldGlb, textures, uniforms,
       im.count = 0;
       im.frustumCulled = true;
       im.castShadow = lod < 2;
+      im.customDepthMaterial = depthMaterial;
       im.receiveShadow = true;
       im.instanceColor = new InstancedBufferAttribute(new Float32Array(list.length * 3), 3);
       im.userData.lod = lod;
@@ -436,7 +501,6 @@ export function buildVegetation({ vegGltf, vegGlb, worldGlb, textures, uniforms,
     meshes: meshes.length,
     triangles: Object.fromEntries(Object.entries(iv.models).map(([k, v]) => [k, v.lods.map((l) => l.triangles)])),
   };
-  void shadowMat;
   void nearCount;
   return { group, update, state, stats, material, models, instances: inst };
 }

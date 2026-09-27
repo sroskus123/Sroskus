@@ -207,6 +207,9 @@ varying vec2 vIvXZ;`,
         '#include <map_fragment>',
         `{
 	vec4 tx = texture2D( ivGrassTex, vIvUv );
+	// coverage-preserving alpha: thin blades must not vanish in the lower mips
+	vec2 duv = fwidth( vIvUv ) * vec2( 1024.0, 768.0 );
+	tx.a *= 1.0 + max( 0.0, log2( max( duv.x, duv.y ) ) ) * 0.6;
 	diffuseColor *= tx;
 	vec2 uvW = vec2( ( vIvXZ.x - ivSplatRect.x ) / ivSplatRect.z, ( vIvXZ.y + ivSplatRect.y ) / ivSplatRect.w );
 	vec3 macro = texture2D( ivMacro, uvW ).rgb * 2.0;

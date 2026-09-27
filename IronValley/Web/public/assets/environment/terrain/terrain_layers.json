@@ -88,13 +88,13 @@
  "files": {
   "albedo": {
    "path": "assets/environment/terrain/terrain_albedo.jpg",
-   "bytes": 800560,
-   "sha": "b4af2b5bfe74f2cb"
+   "bytes": 730850,
+   "sha": "6543a403ac3a6839"
   },
   "nh": {
    "path": "assets/environment/terrain/terrain_nh.jpg",
-   "bytes": 1304791,
-   "sha": "aab6ba861cc26b5d"
+   "bytes": 1111636,
+   "sha": "2c71dd9bb90c006e"
   },
   "rao": {
    "path": "assets/environment/terrain/terrain_rao.jpg",

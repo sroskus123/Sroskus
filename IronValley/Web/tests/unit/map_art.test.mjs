@@ -50,7 +50,7 @@ test('terrain splat: the layer manifest matches the level, 3 weight images cover
       sum += v;
       if (v > 128) used[l]++;
     }
-    if (Math.abs(sum - 252) > 24) bad++;
+    if (Math.abs(sum - 248) > 40) bad++; // 10 channels quantised to 32 levels (x8)
   }
   assert.ok(bad / (n / 7) < 0.001, `layer weights do not sum to 1 at ${bad} samples`);
   used.forEach((u, l) => assert.ok(u > 50, `layer ${splat.layers[l]} is used (${u} samples)`));

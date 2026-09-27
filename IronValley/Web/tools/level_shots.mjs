@@ -32,7 +32,7 @@ export const VIEWS = {
   road: { cam: { pos: [9.0, 1.7, -32.0], target: [-14.0, 0.5, -16.0], fovDeg: 80, ground: true } },
   // standing in the meadow east of the road, facing the road with a low wooden obstacle in front and trees behind
   // (the user's screenshot)
-  meadow: { cam: { pos: [36.0, 1.7, -52.0], target: [8.0, 1.2, -46.0], fovDeg: 80, ground: true } },
+  meadow: { cam: { pos: [-92.0, 1.7, 60.0], target: [-106.5, 1.4, 35.9], fovDeg: 80, ground: true } },
   // the game's default view: the practice spawn marker (what a player sees first, the user's screenshot)
   spawn: { marker: 'spawn' },
   // the forest edge south of the house garden, looking into the edge band of the forest

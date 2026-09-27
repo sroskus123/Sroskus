@@ -999,6 +999,52 @@
   "max_texture_px": 2048,
   "textures_ok": true
  },
+ "gear_attachment_gap_mm": {
+  "SG_Belt": 0.16,
+  "SG_Belt_Buckle": 3.01,
+  "SG_Belt_Dump": 4.12,
+  "SG_Belt_PouchRL": 6.8,
+  "SG_Belt_PouchRR": 6.93,
+  "SG_Glasses_Arm_L": 0.45,
+  "SG_Glasses_Arm_R": 1.1,
+  "SG_Glasses_Frame": 0.0,
+  "SG_Glasses_Lens": 0.0,
+  "SG_Headset_Arm_L": 0.17,
+  "SG_Headset_Arm_R": 0.17,
+  "SG_Headset_Cup_L": 0.67,
+  "SG_Headset_Cup_R": 1.7,
+  "SG_Headset_Mic": 4.88,
+  "SG_Helmet": 0.0,
+  "SG_Helmet_Band": 1.39,
+  "SG_Helmet_ChinStrap": 1.33,
+  "SG_Helmet_Mount": 3.0,
+  "SG_Helmet_Rail_L": 0.01,
+  "SG_Helmet_Rail_R": 0.0,
+  "SG_Helmet_Shroud": 0.99,
+  "SG_HelmetShell": 0.0,
+  "SG_KneePad_L": 4.17,
+  "SG_KneePad_R": 4.17,
+  "SG_PC_AdminPouch": 11.35,
+  "SG_PC_Antenna": 0.0,
+  "SG_PC_BackBag": 0.21,
+  "SG_PC_BackPanel": 0.51,
+  "SG_PC_BackPouch": 5.9,
+  "SG_PC_Bungee_1": 0.24,
+  "SG_PC_Bungee_2": 0.24,
+  "SG_PC_Bungee_3": 0.24,
+  "SG_PC_Cummerbund_L": 0.25,
+  "SG_PC_Cummerbund_R": 0.23,
+  "SG_PC_FrontBag": 6.54,
+  "SG_PC_GpPouch": 4.89,
+  "SG_PC_Mag_1": 0.49,
+  "SG_PC_Mag_2": 0.41,
+  "SG_PC_Mag_3": 0.49,
+  "SG_PC_Placard": 2.06,
+  "SG_PC_Radio": 1.31,
+  "SG_PC_RadioPouch": 0.13,
+  "SG_PC_Strap_L": 0.7,
+  "SG_PC_Strap_R": 0.12
+ },
  "poses": {
   "rest": {
    "gear_in_body": {},
@@ -1094,6 +1140,14 @@
     "Soldier_Trousers in SG_Belt_Dump": {
      "count": 1,
      "max_mm": 2.91
+    },
+    "Soldier_Trousers in SG_KneePad_L": {
+     "count": 7,
+     "max_mm": 5.63
+    },
+    "Soldier_Trousers in SG_KneePad_R": {
+     "count": 7,
+     "max_mm": 5.34
     }
    },
    "layers": {
@@ -1131,7 +1185,9 @@
     "findings": [
      "gear_in_body:SG_Belt:21@10.97mm",
      "garment_in_gear:Soldier_Trousers in SG_Belt:3@1.84mm",
-     "garment_in_gear:Soldier_Trousers in SG_Belt_Dump:1@2.91mm"
+     "garment_in_gear:Soldier_Trousers in SG_Belt_Dump:1@2.91mm",
+     "garment_in_gear:Soldier_Trousers in SG_KneePad_L:7@5.63mm",
+     "garment_in_gear:Soldier_Trousers in SG_KneePad_R:7@5.34mm"
     ]
    }
   },
@@ -1150,6 +1206,10 @@
     "Soldier_Trousers in SG_Belt_PouchRR": {
      "count": 1,
      "max_mm": 1.68
+    },
+    "Soldier_Trousers in SG_KneePad_L": {
+     "count": 7,
+     "max_mm": 5.98
     }
    },
    "layers": {
@@ -1181,13 +1241,14 @@
    },
    "description": "sprint stride: hip 65 / knee 95 (front), hip -22 / knee 35 (rear), arms swinging",
    "summary": {
-    "worst_gear_body_garment_mm": 2.59,
+    "worst_gear_body_garment_mm": 5.98,
     "worst_layer_poke_mm": 0.0,
     "worst_rifle_mm": 0.0,
     "findings": [
      "garment_in_gear:Soldier_Trousers in SG_Belt:2@2.59mm",
      "garment_in_gear:Soldier_Trousers in SG_Belt_PouchRL:1@1.13mm",
-     "garment_in_gear:Soldier_Trousers in SG_Belt_PouchRR:1@1.68mm"
+     "garment_in_gear:Soldier_Trousers in SG_Belt_PouchRR:1@1.68mm",
+     "garment_in_gear:Soldier_Trousers in SG_KneePad_L:7@5.98mm"
     ]
    }
   },
@@ -1680,5 +1741,5 @@
    }
   }
  },
- "seconds": 378.3
+ "seconds": 580.0
 }

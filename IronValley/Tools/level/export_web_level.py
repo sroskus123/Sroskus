@@ -2558,8 +2558,8 @@ def splat_maps(L, terr):
     dwater = ndimage.distance_transform_edt(cls != SURF_ID["water"]) * SPLAT_RES
     wet = np.maximum(wet, np.clip(1 - dwater / 2.5, 0, 1) * 0.35)
     W[..., 10] = ndimage.gaussian_filter(wet, 0.8)
-    # 64 levels are plenty (the shader renormalises and sharpens by height); far smaller PNGs
-    w8 = np.clip(np.round(W * 63) * 4, 0, 255).astype(np.uint8)
+    # 32 levels are plenty (bilinear filtering smooths the steps, the shader renormalises and sharpens by height)
+    w8 = np.clip(np.round(W * 31) * 8, 0, 255).astype(np.uint8)
     # ---- macro tint (1 m): large-scale brightness / hue, dry meadow patches, damp banks, worn road lanes
     m = int(round(2 * SPLAT_HALF / 1.0))
     ds = n // m

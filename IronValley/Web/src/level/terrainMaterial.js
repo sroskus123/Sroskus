@@ -187,6 +187,7 @@ void ivLayer( float layer, vec2 uv, float k, out vec4 alb, out vec4 nh, out vec4
 vec3 ivN = vec3( 0.0, 1.0, 0.0 );
 float ivRough = 0.9;
 float ivDetailAO = 1.0;
+float ivPud = 0.0;
 {
 	vec2 uvW = vec2( ( vIvWorld.x - ivSplatRect.x ) / ivSplatRect.z, ( vIvWorld.z + ivSplatRect.y ) / ivSplatRect.w );
 	// wobble the weight lookup a little (breaks the 0.25 m texel grid of the transitions)
@@ -246,6 +247,7 @@ float ivDetailAO = 1.0;
 	ivN = normalize( T * nt.x + B * nt.y + Ng * nz );
 	ivRough = clamp( rough, 0.03, 1.0 );
 	ivDetailAO = mix( rao.g, 1.0, pud );
+	ivPud = pud;
 	// cavity: a little of the detail occlusion also darkens the direct light (reads at grazing sun)
 	diffuseColor.rgb = alb * mix( 1.0, ivDetailAO, 0.35 );
 }`,
@@ -254,7 +256,7 @@ float ivDetailAO = 1.0;
       .replace('#include <normal_fragment_maps>', 'normal = normalize( ( viewMatrix * vec4( ivN, 0.0 ) ).xyz );')
       .replace(
         '#include <aomap_fragment>',
-        '#include <aomap_fragment>\nreflectedLight.indirectDiffuse *= ivDetailAO;\nreflectedLight.indirectSpecular *= mix( 1.0, ivDetailAO, 0.6 );',
+        '#include <aomap_fragment>\nreflectedLight.indirectDiffuse *= ivDetailAO;\nreflectedLight.indirectSpecular *= mix( 1.0, ivDetailAO, 0.6 ) * mix( 1.0, 3.2, ivPud );',
       );
   };
   const prevKey = material.customProgramCacheKey ? material.customProgramCacheKey() : '';

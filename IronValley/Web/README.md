@@ -291,18 +291,31 @@ Mapa vzniká **jen generátorem** z návrhových dat `../Shared/level/layout.jso
 výstupy se ručně neupravují:
 
 ```bash
-python3 ../Tools/level/export_web_level.py      # ~2 min: GLB + src/data/kalne_hamry.json (s bpy: zapečené světlo)
+python3 ../Tools/environment/build_environment.py   # ~8 min: textury terénu a vegetace, vegetation.glb, pak export mapy
+python3 ../Tools/level/export_web_level.py      # ~2 min: jen export mapy (GLB + src/data/kalne_hamry.json, s bpy: zapečené světlo)
 npm run build                                  # peče navmesh (public/assets/nav/kalne_hamry.json) + balík
+node tools/level_shots.mjs --prefix after      # snímky z pevných bodů -> ../Art/Previews/Environment/ (+ draw cally, trojúhelníky)
 node tools/match_report.mjs --level kalne_hamry --bots 5,6,6 --full --zone zone_dilna   # kolo 17 botů v Node
 ```
 
 | Soubor | Obsah | Velikost (base64) |
 | --- | --- | --- |
-| `public/assets/levels/kalne_hamry/kh_terrain.glb` | terén 0,5 m (vykreslení i kolize, 25 dlaždic 64 m), albedo 2048² (0,16 m/texel) z oblastí povrchů, roughness mapa (mokrý asfalt), rastr povrchů 0,5 m pro kroky a zásahy, okolní terén 2 m a prstenec vzdálených kopců | 8,9 MiB (11,9) |
-| `public/assets/levels/kalne_hamry/kh_world.glb` | budovy (zdi s tloušťkou a skladebnými kvádry, otvory, ostění, parapety, rámy, sklo, dveřní křídla v klidové poloze, podlahy, stropy, schody, zábradlí, střechy s přesahy, žlaby, svody, komíny, sokly), vedlejší budovy jako zavřené objemy, rekvizity jako bloky správné velikosti, ploty (pletivo průhledné), zdi, opěrné zdi, mosty, potok, sloupy vedení, hraniční bariéry s cedulemi, 1650 stromů (instancované: kmen, koruna listnáče, kužel smrku) | 5,4 MiB (7,3) |
+| `public/assets/levels/kalne_hamry/kh_terrain.glb` | terén 0,5 m (vykreslení i kolize, 25 dlaždic 64 m), váhy 10 vrstev terénu 0,25 m (3 PNG RGBA: vrstvy + kaluže), makro tón 1 m (JPEG, stín korun, suchá / vlhká místa, ojeté pruhy), hustota trávy 0,5 m (PNG: nízké trsy, vysoká tráva, květiny), rastr povrchů 0,5 m pro kroky a zásahy, okolní terén 2 m a prstenec vzdálených kopců | 9,3 MiB (12,5) |
+| `public/assets/levels/kalne_hamry/kh_world.glb` | budovy (zdi s tloušťkou a skladebnými kvádry, otvory, ostění, parapety, rámy, sklo, dveřní křídla v klidové poloze, podlahy, stropy, schody, zábradlí, střechy s přesahy, žlaby, svody, komíny, sokly), vedlejší budovy jako zavřené objemy, rekvizity jako bloky správné velikosti, ploty (pletivo průhledné), zdi, opěrné zdi, mosty, potok, vodorovné značení (pásy s opotřebovanou barvou), sloupy vedení, hraniční bariéry s cedulemi, tmavá jádra keřových pásů; tabulky instancí 1650 stromů a ~3900 keřů | 5,8 MiB (7,7) |
+| `public/assets/environment/terrain/` | 10 vrstev terénu (tráva, luční hrabanka, lesní hrabanka, hlína, bláto, štěrk, asfalt, beton, žulové kostky, kameny potoka) jako pásy JPEG 512 px/vrstva (albedo; normála + výška; roughness + AO) + `terrain_layers.json` (dlaždice v m) | 2,4 MiB (3,2) |
+| `public/assets/environment/vegetation.glb` | 13 modelů (smrk ×2, borovice, bříza vzrostlá / mladá, štíhlý / široký vícekmenný / kulatý listnáč, ovocný strom, 3 keře, divoký živý plot) × LOD0/1/2, atlas listových karet (WebP s alfou) + normály, atlas trávy a květin, pole kůry (5 vrstev), povrch stříhaného plotu | 2,9 MiB (3,9) |
 | `public/assets/levels/kalne_hamry/kh_collision.glb` | kolize ve třídách `main` (vše), `move` (jen kapsle: sklo, pletivo, zábradlí, tvrdá hranice), `movevis` (kapsle + výhled: živé ploty, keře, měkký nábytek, dřevěné bedny) | 0,4 MiB (0,5) |
 | `src/data/kalne_hamry.json` | spawny 3 × 16 (řady podle zóny + záložní řady), 3 polygonové zóny s pásmem výšky, 6 zbrojních beden (u každé řady), hranice (varování, odpočet 10 s, „Minové pole“), 900 návrhových krycích bodů, 183 testovacích bodů (markery `QA_*`), přepis mlhy D9 | 0,4 MiB |
 | `public/assets/nav/kalne_hamry.json` | navmesh (Recast cs 0,05 / r 0,35 m, dlaždice 12,8 m svařené na hranách), kryty z geometrie + návrhové, dosažitelnost spawn → zóna pro všechny týmy a zóny; načítá se za běhu, ne z balíku | 6,6 MB |
+
+**Výtvarný průchod, fáze 1 (terén a vegetace, rozhodnutí D13):** terén kreslí splat materiál (`src/level/terrainMaterial.js`:
+3 nejsilnější vrstvy na pixel podle vah, míchání podle výšky, dvojí vzorek proti opakování, makro tón, mokrý asfalt a kaluže),
+stromy a keře `src/level/vegetation.js` (InstancedMesh na model × LOD: LOD0 < 35 m, LOD1 < 90 m, jinak LOD2; keře 25 / 60 m;
+vítr ve vertex shaderu, průsvit listí proti slunci; les na kulisách kopců jako LOD2 rozsetý při načtení), trávu a květiny
+`src/level/grass.js` (buňky 8 m do 40 m od kamery, 5 typů trsů = 5 draw callů, útlum 20–40 m). Vše jen vizuální — kolize
+se nezměnila (`Docs/GAMEPLAY_CONTRACTS.md`, „Vegetace a tráva: jen vizuální“). Zdrojové textury:
+`Art/Textures/Environment/` (sady terénu vyměnitelné za skenované CC0 bez změny kódu), modely `Art/Source/Blender/environment/vegetation.py`.
+Kritika vzhledu: `Docs/MAP_art_r1_defects.json`, `Docs/MAP_art_r2_defects.json`.
 
 Světlo: slunce + obloha + mraky z `environment.json`, měkké stíny kolem hráče (rozsah 40 m), mlha D9 a **viditelnost oblohy
 + jeden odraz slunce zapečené na vrcholy při generování** (interiéry tmavší než venku), takže se při načtení nic nepeče.

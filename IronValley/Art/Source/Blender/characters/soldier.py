@@ -608,6 +608,7 @@ def build_carrier(arm, shirt, B):
     front_face_y = ymin
     shift = front_face_y + 0.001 - Vp[:, 1].max()
     Vp[:, 1] += shift
+    Vp = snap_to(Vp, Vf, Ff, ey)
     B.add("PC_Placard", Vp, Fp, ("rigid", "spine_03"), zone="pouch")
     info["placard_front_y"] = float(Vp[:, 1].min())
     info["placard_top_z"] = float(Vp[:, 2].max())
@@ -616,7 +617,8 @@ def build_carrier(arm, shirt, B):
     Ma = G.frame_matrix(np.array([0.018, 0, P["front_top"] - 0.075]), ex, ey, ez)
     Va = G.xf(Va, Ma)
     Va[:, 1] += (ymin + 0.001) - Va[:, 1].max() + 0.0
-    # the bag's outer face is tilted: fit per vertex height by moving until it touches
+    # the bag's outer face is tilted / curved: slide the pouch onto it
+    Va = snap_to(Va, Vf, Ff, ey)
     B.add("PC_AdminPouch", Va, Fa, ("rigid", "spine_03"), zone="pouch")
     # --- back: zip-on panel + horizontal pouch; radio pouch (left rear) + GP pouch (right rear)
     ob_, bx, by, bz = fr_b
@@ -625,9 +627,11 @@ def build_carrier(arm, shirt, B):
     Mz = G.frame_matrix(np.array([0.0, 0, P["back_top"] - 0.035 - 0.285 / 2]), bx, by, bz)
     Vz = G.xf(Vz, Mz)
     Vz[:, 1] += (ymax - 0.001) - Vz[:, 1].min()
+    Vz = snap_to(Vz, Vb, Fb, by)
     B.add("PC_BackPanel", Vz, Fz, ("rigid", "spine_03"), zone="pouch")
     Vh, Fh = G.rbox(0.200, 0.050, 0.085, 0.012)
     Vh = Vh + np.array([0.0, Vz[:, 1].max() + 0.025 - 0.004, P["back_top"] - 0.035 - 0.285 + 0.055])
+    Vh = snap_to(Vh, Vz, Fz, by)
     B.add("PC_BackPouch", Vh, Fh, ("rigid", "spine_03"), zone="pouch")
     info["back_panel_outer_y"] = float(Vz[:, 1].max())
     return info, (Vf, Ff), (Vb, Fb)
@@ -648,13 +652,15 @@ def build_side_pouches(arm, shirt, B, back_bag):
         yaw = math.radians(-18 * sg)
         R = np.array([[math.cos(yaw), -math.sin(yaw), 0], [math.sin(yaw), math.cos(yaw), 0], [0, 0, 1]])
         V = V @ R.T + c
+        V = snap_to(V, Vb, back_bag[1], np.array([-sg, 0.35, 0.0]))
+        c = V.mean(0) + np.array([0, 0, 0.0])
         B.add(f"PC_{kind.capitalize()}Pouch", V, F, ("rigid", "spine_03"), zone="pouch")
         if kind == "radio":
             # radio body top (knobs) above the pouch + antenna
             Vr, Fr = G.rbox(0.036, 0.060, 0.030, 0.006)
-            Vr = Vr @ R.T + c + np.array([0, 0, h / 2 + 0.010])
+            Vr = Vr @ R.T + np.array([c[0], c[1], V[:, 2].max() - 0.020 + 0.015])
             B.add("PC_Radio", Vr, Fr, ("rigid", "spine_03"), zone="hard")
-            top = c + np.array([0, 0.012, h / 2 + 0.025])
+            top = np.array([c[0], c[1] + 0.012, V[:, 2].max() + 0.020])
             prof = [(0.0, 0.0), (0.0065, 0.0), (0.0065, 0.030), (0.0035, 0.034), (0.0030, 0.150), (0.0, 0.153)]
             Va, Fa = G.lathe_closed(prof, n=8)
             tilt = math.radians(14)
@@ -762,10 +768,59 @@ def build_belt(arm, trousers, B):
         # hang: top at the belt top, back face on the belt
         c = p + n * (size[1] / 2 - 0.001) + np.array([0, 0, ring_out[i, 2, 2] + 0.004 - size[2] / 2 - p[2]])
         Vp = Vp @ R.T + c
-        Vp = push_clear(Vp, bv, n, 0.004, F=Fp, garment_co=tco)
+        belt_V, belt_F = B.parts["Belt"]["V"], B.parts["Belt"]["F"]
+        Vp = snap_to(Vp, belt_V, belt_F, -n)                   # back face on the belt
+        top_rear = Vp[np.argsort(Vp[:, 2])[-8:]].mean(0)
+        top_rear = top_rear - n * (size[1] / 2)
+        Vp, tilt = tilt_clear(Vp, Fp, bv, tco, top_rear, np.cross(n, [0, 0, 1.0]), clear=0.003)
         B.add(name, Vp, Fp, ("rigid", "pelvis"), zone="pouch")
-        pouch.append(name)
+        pouch.append(f"{name} (tilt {tilt} deg)")
     return {"pouches": pouch}
+
+
+def tris_from(F):
+    return np.array([t for f in F for t in ([f] if len(f) == 3 else [[f[0], f[i], f[i + 1]] for i in range(1, len(f) - 1)])])
+
+
+def snap_to(V, target_V, target_F, direction, gap=0.0006, iters=8):
+    """Translate a rigid part along `direction` (pointing from the part towards the target) until
+    its closest approach to the target surface is `gap` (attached, not floating, not inside)."""
+    d = np.asarray(direction, float) / np.linalg.norm(direction)
+    bv = S.bvh(np.asarray(target_V), tris_from(target_F))
+    V = np.array(V, float)
+    for _ in range(iters):
+        sd = S.signed_bvh(bv, V, maxd=0.08)
+        if np.all(np.isnan(sd)):
+            break
+        m = np.nanmin(sd)
+        if abs(m - gap) < 1e-4:
+            break
+        V = V + d * (m - gap)
+    return V
+
+
+def tilt_clear(V, F, bv, garment_co, hinge_p, hinge_axis, clear=0.003, max_deg=24.0):
+    """Swing a hanging pouch about its top hinge (on the belt) until it clears the garment below."""
+    ax = np.asarray(hinge_axis, float) / np.linalg.norm(hinge_axis)
+    base = np.array(V, float)
+    tris = tris_from(F)
+    for k in range(int(max_deg) + 1):
+        R = np.array(Matrix.Rotation(math.radians(k), 3, Vector(tuple(ax))))
+        W = (base - hinge_p) @ R.T + hinge_p
+        sd = S.signed_bvh(bv, W, maxd=0.2)
+        ok = np.nanmin(sd) >= clear - 1e-4
+        if ok:
+            pb = S.bvh(W, tris)
+            lo, hi = W.min(0) - 0.01, W.max(0) + 0.01
+            g = garment_co[((garment_co >= lo) & (garment_co <= hi)).all(1)]
+            if len(g):
+                sg = S.signed_bvh(pb, g, maxd=0.05)
+                cand = np.nonzero(np.nan_to_num(sg, nan=1.0) < 0)[0]
+                if len(cand) and S.closed_inside(pb, g[cand]).any():
+                    ok = False
+        if ok:
+            return W, k
+    return W, max_deg
 
 
 def push_clear(V, bv, direction, clear, iters=16, F=None, garment_co=None):
@@ -926,7 +981,7 @@ def build_helmet(arm, bala, skin, B):
         out[f"cup_{s}_inner_x"] = float(xin)
     # boom mic (left): swept tube from the cup front to the mouth
     cupL = B.parts["Headset_Cup_L"]["V"]
-    start = np.array([cupL[:, 0].min() + 0.012, cupL[:, 1].min() + 0.012, 1.640])
+    start = np.array([cupL[:, 0].min() + 0.018, cupL[:, 1].min() + 0.020, 1.642])     # root inside the cup
     mouth_loc, mouth_n = G.ray_hit(bb, np.array([0.02, -0.40, 1.603]), np.array([0, 1.0, 0]), 0.6)
     tip = mouth_loc + np.array([0.012, -0.020, 0.0])
     path = [start + (tip - start) * t + np.array([0.0, 0.0, -0.012 * math.sin(math.pi * t)]) + np.array([0.018 * math.sin(math.pi * t), 0, 0]) for t in np.linspace(0, 1, 7)]

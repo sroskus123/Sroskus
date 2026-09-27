@@ -426,7 +426,7 @@ def grass_blade_card(c, base, height, lean, width, col, dry_tip=0.3, r=None):
         c.put((ys, xs), al, colt, np.array([0, 0, 1.0]))
 
 
-def grass_card(w, h, r, count, height_frac, dry=0.25, width=3.0, spread=0.35):
+def grass_card(w, h, r, count, height_frac, dry=0.25, width=6.5, spread=0.35):
     c = Card(w, h)
     for _ in range(count):
         bx = w * (0.5 + r.normal(0, 0.16))
@@ -448,7 +448,7 @@ def seed_head(c, p, r, length, col):
 
 
 def tall_grass_card(w, h, r):
-    c = grass_card(w, h, r, 70, 0.62, dry=0.35, width=3.4, spread=0.25)
+    c = grass_card(w, h, r, 70, 0.62, dry=0.35, width=6.5, spread=0.25)
     for _ in range(9):
         bx = w * (0.5 + r.normal(0, 0.14))
         top = (bx + r.normal(0, w * 0.06), h * (0.04 + 0.12 * r.random()))
@@ -732,7 +732,7 @@ def main():
     meta["foliage"] = {"size": [2048, 2048], "rects": FOLIAGE_RECTS, "card_m": FOLIAGE_SIZE_M,
                        "maps": ["T_Foliage_Atlas_BaseColor.png", "T_Foliage_Atlas_Normal.png"]}
     # grass atlas
-    G = dilate_rgb(grass_atlas())
+    G = dilate_rgb(grass_atlas(), iters=3)
     rgba = np.concatenate([lin_to_srgb(G[..., :3]), G[..., 3:4]], -1)
     save_png8(os.path.join(OUT, "T_Grass_Atlas_BaseColor.png"), rgba, "RGBA")
     meta["grass"] = {"size": [2048, 1536], "rects": GRASS_RECTS, "height_m": GRASS_HEIGHT_M, "maps": ["T_Grass_Atlas_BaseColor.png"]}

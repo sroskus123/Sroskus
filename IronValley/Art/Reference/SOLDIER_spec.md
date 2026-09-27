@@ -103,8 +103,7 @@ body (`SK_Human_Base`, hidden, not exported) is kept only as the volume proxy fo
 tests.
 
 **Soldier stands on the boot soles at Z = 0.** The skeleton is unchanged (feet on Z = 0 in the
-rest pose); the 3 cm sole overlaps the (deleted) foot's plantar tissue, so the booted soldier is
-1.80 m tall to the helmet top minus nothing: the helmet top is at 1.833 m.
+rest pose); the 3 cm sole overlaps the (deleted) foot's plantar tissue, so the soldier's height is unchanged by the boots; with the helmet the top is at 1.833 m.
 
 **Folds.** At game resolution the hm08 edge length (2-3 cm) cannot carry fold geometry, so the
 silhouette gets the loose fit and bulges, and the folds are **baked into the normal map** (height
@@ -134,8 +133,14 @@ corrective shapes, interpolated) so they cannot separate from it.
 
 Placement is measured, not guessed: bags slide towards the body until their inner side is 6.5 mm
 off the shirt; bands are ray-cast onto the garment (back-face hits rejected) and offset along the
-smoothed normal; pouches and knee caps are pushed out along their attachment normal until no
-garment vertex is inside them and they are >= 4 mm off the surface.
+smoothed normal; knee caps are pushed out along their attachment normal until no garment vertex is
+inside them (inside confirmed by ray parity) and they are 5 mm off the trousers. Pouches mounted
+on another gear piece (placard / admin pouch on the front bag, back panel on the back bag, back
+pouch on the panel, radio / GP pouches on the cummerbund side of the bags, utility / dump pouches
+on the belt) are slid onto their carrier until the gap is 0.6 mm (`snap_to`, signed distance), and
+belt pouches then swing about their top edge (like a MOLLE pouch hanging from the belt) until they
+clear the trousers by 3 mm (`tilt_clear`: 7-14 deg). The attachment gaps are measured in
+`Soldier_validation.json -> gear_attachment_gap_mm`.
 
 ## 4. Materials and textures
 
