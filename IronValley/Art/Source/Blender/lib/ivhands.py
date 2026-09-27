@@ -43,6 +43,27 @@ FINGERS4 = C.FINGERS4
 FINGERS = C.FINGERS
 
 
+
+class _Res:
+    def __init__(self, x, fun, nfev=0):
+        self.x, self.fun, self.nfev = np.asarray(x, float), float(fun), nfev
+
+
+def powell_min(cost, x0, bounds, options):
+    """scipy Powell with bounds, guarded: scipy's bounded Powell can return a point WORSE than x0
+    on these non-smooth contact costs (seen: 0.52 -> 6.67), so the start is kept when it is
+    better, and one restart from the best point is made."""
+    from scipy.optimize import minimize
+    x0 = np.clip(np.asarray(x0, float), [b[0] for b in bounds], [b[1] for b in bounds])
+    best = _Res(x0, cost(x0))
+    for _ in range(2):
+        res = minimize(cost, best.x, method="Powell", bounds=bounds, options=options)
+        if res.fun < best.fun - 1e-12:
+            best = _Res(res.x, res.fun, res.nfev)
+        else:
+            break
+    return best
+
 def log(*a):
     print("[ivhands]", *a, flush=True)
 
@@ -1502,8 +1523,7 @@ def refine_placement(model, k, pose, H, coll, anchors, sel, palm_sel=None, w_anc
                     "palm_gap_mm": [round(float(v) * 1000, 2) for v in (np.sort(sd[pidx])[[0, min(n_palm, len(pidx)) - 1]] if pidx is not None and len(pidx) else [])]}
         return c
     b = [(-max_rot, max_rot)] * 3 + [(-max_move, max_move)] * 3
-    res = minimize(cost, np.zeros(6), method="Powell", bounds=b,
-                   options={"maxiter": maxiter, "xtol": 1e-4, "ftol": 1e-8})
+    res = powell_min(cost, np.zeros(6), b, {"maxiter": maxiter, "xtol": 1e-4, "ftol": 1e-8})
     Hn = Hx(res.x)
     rep = cost(res.x, True)
     rep["rotation_deg"] = round(float(np.degrees(np.linalg.norm(res.x[:3]))), 2)
@@ -1582,7 +1602,7 @@ def fit_digit(model, k, pose, H, coll, finger, keys, bounds, moving, contact=Non
         return sum(v for kk, v in t.items() if not kk.startswith("_"))
     x0 = np.array(x0 if x0 is not None else [pose[finger].get(kk, 0.0) for kk in keys], float)
     x0 = np.clip(x0, [b[0] for b in bounds], [b[1] for b in bounds])
-    res = minimize(cost, x0, method="Powell", bounds=bounds, options={"maxiter": maxiter, "xtol": 0.05, "ftol": 1e-9})
+    res = powell_min(cost, x0, bounds, {"maxiter": maxiter, "xtol": 0.05, "ftol": 1e-9})
     t = terms(res.x)
     apply(res.x)
     return {"angles": {kk: round(float(v), 2) for kk, v in zip(keys, res.x)},
@@ -1872,8 +1892,7 @@ def wrap_finger(model, k, pose, H, coll, f, gap=0.0008, lim=None, maxiter=400):
         return (pen + sum((max(gi, 0.0) - gap) ** 2 for gi in g) * 1e4 * np.array([0.6, 1.0, 1.0]).sum() / 2.6
                 + coupling_penalty(x[1], x[2]))
     x0 = [min(max(pose[f][kk], lim[kk][0]), lim[kk][1]) for kk in keys]
-    res = minimize(cost, x0, method="Powell", bounds=[lim[kk] for kk in keys],
-                   options={"maxiter": maxiter, "xtol": 0.1, "ftol": 1e-10})
+    res = powell_min(cost, x0, [lim[kk] for kk in keys], {"maxiter": maxiter, "xtol": 0.1, "ftol": 1e-10})
     sd, g = ev(res.x)
     return {"angles": {kk: round(float(v), 2) for kk, v in zip(keys, res.x)},
             "segment_gap_mm": [round(v * 1000, 2) for v in g], "min_signed_mm": round(float(sd.min()) * 1000, 2)}
@@ -1932,7 +1951,7 @@ def refine_hand_and_digit(model, k, pose, H, coll, finger, keys, bounds, target,
     x0 = np.concatenate([np.zeros(6), [pose[finger].get(kk, 0.0) for kk in keys]])
     b = [(-max_rot, max_rot)] * 3 + [(-max_move, max_move)] * 3 + list(bounds)
     x0 = np.clip(x0, [lo for lo, hi in b], [hi for lo, hi in b])
-    res = minimize(cost, x0, method="Powell", bounds=b, options={"maxiter": maxiter, "xtol": 1e-3, "ftol": 1e-10})
+    res = powell_min(cost, x0, b, {"maxiter": maxiter, "xtol": 1e-3, "ftol": 1e-10})
     Hn = unpack(res.x)
     pen, pt, reg, err, msd = terms(res.x)
     return Hn, {"point_error_mm": round(err * 1000, 2), "min_gap_mm": round(msd * 1000, 2),
