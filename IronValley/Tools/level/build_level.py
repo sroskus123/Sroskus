@@ -1,5 +1,6 @@
 """
-build_level.py -- authoring script for the IRON VALLEY map "Kalné Hamry" (final design, lead-designer merge).
+build_level.py -- authoring script for the IRON VALLEY map "Kalné Hamry" (final design, lead-designer merge; reference-matched
+revision 2026-09-27 after the user's art references Docs/navrhy/01-05 + REFERENCE_PROPS_VEGETATION.md and review round 1).
 Writes Shared/level/layout.json and Shared/level/buildings.json.  Deterministic (seeded, no wall-clock input).
 
 Run from anywhere:   python3 IronValley/Tools/level/build_level.py
@@ -131,7 +132,7 @@ def profile_z(pl, dz=0.0, smooth=15.0, monotonic=None, fixed=None, step=1.0):
 # =================================================================================================
 Z_HUB = 0.30
 DILNA = {"c": [-32.0, 24.0], "rot": 240.0, "floor": 1.30}
-SKLAD = {"c": [42.0, 16.0], "rot": 90.0, "floor": 2.40}
+SKLAD = {"c": [40.5, 16.0], "rot": 90.0, "floor": 2.40}     # brick hall 25 x 12.5 (ref. 01/03), dock face at world x 31.25
 DUM = {"c": [-8.0, -40.0], "rot": 350.0, "floor": 2.94}
 Z_DILNA_PAD = DILNA["floor"] - 0.17          # 1.13 (one 0.17 riser at every door)
 Z_TERRACE_DILNA = Z_DILNA_PAD + 2.00          # 3.13  (mill-race terrace behind the retaining wall)
@@ -192,11 +193,14 @@ BR_MAIN = perp_bridge([-14.5, 17.5], [-3, -13], 11.0, 4.5)        # [hub-side?, 
 BR_FOOT_A = perp_bridge([-58.0, -5.4], [-20, -3], 9.0, 1.5)
 BR_FOOT_B = perp_bridge([-14.8, 58.0], [1, -18], 9.0, 1.5)
 
-# ditch along the SW side of track C (drains to a culvert at the square)
+# ditch along the SW side of track C (drains to a culvert at the square).  Reference 01 (SE part) shows a stone-lined
+# stream channel beside the dirt road: the ditch is 1.25 m deep (review P2-DITCH-COVER: a crouched player, 1.20 m, is
+# really covered) with a stone-pitched bed and a trickle of water (footstep surface only, no speed change)
 TC_LEN = polyline_len(TC_XY)
-DITCH_C_XY = offset_polyline(resample(TC_XY, 14.0, 98.0), -3.9)
-DITCH_C_Z = [r2(z) for z in (np.array(profile_z(resample(TC_XY, 14.0, 98.0), smooth=6)) - 0.85)]
-# ditch along the S side of road A
+DITCH_C_DEPTH = 1.25
+DITCH_C_XY = offset_polyline(resample(TC_XY, 14.0, 98.0), -4.3)
+DITCH_C_Z = [r2(z) for z in (np.array(profile_z(resample(TC_XY, 14.0, 98.0), smooth=6)) - DITCH_C_DEPTH)]
+# ditch along the S side of road A (roadside drainage only: 0.80 m, NOT claimed as cover)
 DITCH_A_XY = offset_polyline(resample(RA_XY, 30.0, 104.0), -5.3)
 DITCH_A_Z = [r2(z) for z in (np.array(profile_z(resample(RA_XY, 30.0, 104.0), smooth=6)) - 0.80)]
 
@@ -212,30 +216,38 @@ for _i in range(2, len(_mz)):
     _mz[_i] = r2(max(_mz[_i], _mz[_i - 1] + 0.05))
 MILL_Z = _mz
 
-# footpaths (surface + light flattening only)
+# footpaths.  Every path is GRADED into the terrain (review P2-STEEP-PATHS): a road-kind stamp whose longitudinal profile
+# follows the smoothed ground but never exceeds `max_deg` (footpaths 18 deg, grassed ramps 18 deg, dirt tracks 11 deg),
+# flat across its width, blended 1.5 m into the slope.  Profiles are solved after the provisional terrain exists
+# (grade_paths() below); ends stay on the ground they connect to.
 PATHS = {
     "P_MILLRACE": {"xy": [DLw((12.0, -12.4)), DLw((-17.5, -12.4)), [-27.0, 51.0], [-26.0, 70.0], [-24.5, 88.0]],
                    "width": 1.4, "surface": "dirt", "role": "NW ring/flank: arm B <-> rear of the workshop (terrace behind the retaining wall)"},
     "P_BANK_A": {"xy": [[-58.8, -0.8], [-52.0, 4.0], DLw((14.5, 6.0)), DLw((13.0, 9.0))], "width": 1.4, "surface": "dirt",
                  "role": "footbridge A -> brook north bank -> workshop yard (SW)"},
-    "P_BANK_TERRACE": {"xy": [[-52.0, 4.0], DLw((15.0, -6.8)), DLw((15.0, -12.4)), DLw((12.0, -12.4))], "width": 1.2, "surface": "dirt",
-                       "role": "brook bank -> ramp up to the SW end of the mill-race terrace"},
+    "P_BANK_TERRACE": {"xy": [[-52.0, 4.0], DLw((15.2, -4.2)), DLw((15.2, -12.4)), DLw((12.0, -12.4))], "width": 1.2, "surface": "dirt",
+                       "role": "brook bank -> grassed ramp (16 deg) up to the SW end of the mill-race terrace"},
     "P_FOOT_A_ROAD": {"xy": [[-57.3, -9.9], [-56.5, -20.2]], "width": 1.4, "surface": "gravel", "role": "road A -> footbridge A"},
     "P_FOOT_B": {"xy": [[13.2, 58.0], [0.0, 58.4], [-10.3, 58.25]], "width": 1.4, "surface": "dirt", "role": "road B -> footbridge B"},
     "P_FOOT_B_W": {"xy": [[-19.3, 57.75], [-27.0, 57.0]], "width": 1.2, "surface": "dirt", "role": "footbridge B -> mill-race path"},
-    "P_BANK_B": {"xy": [[-19.3, 57.75], [-19.5, 45.0], DLw((-14.5, 4.0)), DLw((-12.2, 0.7))], "width": 1.2, "surface": "dirt",
-                 "role": "footbridge B -> brook west bank -> workshop gable door DL_D3 (NNE)"},
-    "P_E_RING": {"xy": [[14.5, 60.0], [30.0, 52.0], [47.0, 42.0], [61.0, 33.0], [61.3, 16.0], [61.0, 0.0], [56.0, -17.0], [47.0, -30.0], [44.5, -39.0]],
-                 "width": 1.6, "surface": "dirt", "role": "E ring/flank: arm B <-> arm C behind the warehouse (hedgerow side)"},
-    "P_S_RING": {"xy": [[46.0, -42.0], [40.0, -57.0], [16.0, -61.5], [-8.0, -60.0], [-26.0, -56.5], [-44.0, -47.0], [-54.0, -36.0], [-59.0, -24.0]],
-                 "width": 1.6, "surface": "dirt", "role": "S ring/flank: arm C <-> arm A behind the house (field / wood edge)"},
+    "P_BANK_B": {"xy": [[-19.3, 57.75], [-19.5, 45.0], DLw((-15.0, 1.0)), DLw((-13.4, -2.6)), DLw((-9.4, -2.6))], "width": 1.2,
+                 "surface": "dirt", "role": "footbridge B -> brook west bank -> workshop gable door DL_D3 (NNE)"},
+    "P_S_RING_E": {"xy": [[46.0, -42.0], [42.4, -51.0], [40.0, -57.0]], "width": 1.6, "surface": "dirt",
+                   "role": "S ring (east part, track C -> úvoz east end)"},
+    "P_S_RING_W": {"xy": [[-26.0, -56.5], [-44.0, -47.0], [-54.0, -36.0], [-59.0, -24.0]], "width": 1.6, "surface": "dirt",
+                   "role": "S ring (west part, úvoz west end -> road A); the middle part runs in the úvoz UVOZ_S"},
     "P_DUM_W": {"xy": [[-40.0, -21.0], [-30.0, -24.5], DMw((-16.5, 3.0)), DMw((-13.0, 3.0))], "width": 1.2, "surface": "gravel",
                 "role": "road A -> garden gate on the terrace west edge"},
-    "P_DUM_S": {"xy": [DMw((-1.0, -16.5)), DMw((-1.0, -13.5))], "width": 1.2, "surface": "gravel", "role": "S ring -> rear yard gate"},
+    "P_DUM_S": {"xy": [DMw((-1.0, -13.5)), [-11.97, -59.2]], "width": 1.2, "surface": "gravel",
+                "role": "rear yard gate -> down through the bank to the úvoz north exit (graded cut)"},
     "P_SKLAD_S": {"xy": [[37.5, -32.0], [34.5, -14.0], [29.5, 0.5]], "width": 1.4, "surface": "gravel", "role": "track C -> warehouse yard (S)"},
 }
+PATH_MAX_DEG = {"P_BANK_TERRACE": 18.0}
 for p in PATHS.values():
     p["xy"] = [[r2(q[0]), r2(q[1])] for q in p["xy"]]
+# dirt tracks (ref. 01: two-rut dirt roads with spruce rows east of the warehouse)
+TRACK_E_XY = [[14.5, 60.0], [30.0, 52.0], [47.0, 42.0], [60.0, 34.0], [61.3, 16.0], [61.0, 0.0], [56.0, -17.0], [47.0, -30.0], [44.5, -39.0]]
+TRACK_SK_REAR_XY = [[60.8, -2.5], [55.5, 0.2], [50.5, 1.6]]
 
 # =================================================================================================
 # 2.  Terrain stamps
@@ -255,9 +267,10 @@ pad("PAD_NAVES", [[-21, -13.2], [-21, 2], [-12, 12.5], [-6.5, 16.5], [4, 16.5], 
 # workshop: building + yard + rear pad
 pad("PAD_DILNA_TERRACE", xf_poly(DILNA["c"], DILNA["rot"], rect_local(-17.5, -16.5, 13.5, -9.25)), Z_TERRACE_DILNA, 5.0, "grass")
 pad("PAD_DILNA", xf_poly(DILNA["c"], DILNA["rot"], rect_local(-14.0, -9.25, 15.5, 12.0)), Z_DILNA_PAD, 4.0, "gravel")
-# warehouse: front yard (low), building + rear yard (high)
+# warehouse: front yard (low); platform = dock + building + gable aprons + rear yard (high), cut into the slope and held by
+# the retaining walls RW_SKLAD_N/E (review P1-CUT-FACE); the dock face is a terrain step (RW_SKLAD_DOCK, P1-DOCK-TERRAIN)
 pad("PAD_SKLAD_YARD", [[13.0, -1.0], [31.25, -1.0], [31.25, 36.0], [13.0, 36.0]], Z_SKLAD_YARD, 4.0, "concrete")
-pad("PAD_SKLAD", xf_poly(SKLAD["c"], SKLAD["rot"], rect_local(-15.25, -14.0, 15.25, 7.75)), Z_SKLAD_REAR, 3.0, "gravel")
+pad("PAD_SKLAD", xf_poly(SKLAD["c"], SKLAD["rot"], rect_local(-15.5, -13.8, 15.5, 6.25)), Z_SKLAD_REAR, 3.0, "gravel")
 # house terrace (front garden + house + rear yard)
 pad("PAD_DUM_TERRACE", xf_poly(DUM["c"], DUM["rot"], rect_local(-15.0, -13.5, 17.0, 22.5)), Z_TERRACE_DUM, 5.0, "grass")
 # bridge abutment aprons
@@ -265,8 +278,9 @@ pad("PAD_BR_MAIN_W", xf_poly([BR_MAIN[1][0], BR_MAIN[1][1]], 0, rect_local(-2.5,
 
 stamps = list(pads)
 # ditches first (so roads crossing them keep their bed = culverts)
-stamps.append({"kind": "ditch", "id": "DITCH_C", "polyline": with_z(DITCH_C_XY, DITCH_C_Z), "bed_width": 0.5,
+stamps.append({"kind": "ditch", "id": "DITCH_C", "polyline": with_z(DITCH_C_XY, DITCH_C_Z), "bed_width": 0.6,
                "bank_slope_h_per_v": 1.2})
+N_BEFORE_PATHS = len(stamps)          # graded paths / tracks are inserted here (grade_paths())
 stamps.append({"kind": "ditch", "id": "DITCH_A", "polyline": with_z(DITCH_A_XY, DITCH_A_Z), "bed_width": 0.5,
                "bank_slope_h_per_v": 1.2})
 # sunken lane (úvoz) on the central part of the S ring path behind the house: covered flank lane, exits every <= 20 m
@@ -307,13 +321,11 @@ stamps.append({"kind": "road", "id": "ROAD_A", "polyline": with_z(RA_XY, RA_Z), 
 stamps.append({"kind": "road", "id": "ROAD_B", "polyline": with_z(RB_XY, RB_Z), "width": 6.0, "shoulder": 0.75, "blend": 4.0})
 stamps.append({"kind": "road", "id": "TRACK_C", "polyline": with_z(TC_XY, TC_Z), "width": 3.6, "shoulder": 0.5, "blend": 3.0})
 stamps.append({"kind": "road", "id": "DRIVE_DUM", "polyline": DRIVE, "width": 3.2, "shoulder": 0.3, "blend": 3.0})
-RAMP_TERRACE_SW = [[r2(DLw((15.0, -7.0))[0]), r2(DLw((15.0, -7.0))[1]), Z_DILNA_PAD],
-                   [r2(DLw((15.0, -12.2))[0]), r2(DLw((15.0, -12.2))[1]), Z_TERRACE_DILNA]]
+RAMP_TERRACE_SW = [[r2(DLw((15.2, -5.4))[0]), r2(DLw((15.2, -5.4))[1]), Z_DILNA_PAD],
+                   [r2(DLw((15.2, -12.4))[0]), r2(DLw((15.2, -12.4))[1]), Z_TERRACE_DILNA]]
 stamps.append({"kind": "road", "id": "RAMP_TERRACE_SW", "polyline": RAMP_TERRACE_SW, "width": 2.0, "shoulder": 0.2, "blend": 2.5,
-               "note": "grassed ramp beside the SW end of RW_DILNA: rear pad <-> mill-race terrace (2.0 m over 5.2 m = 21 deg)"})
-RAMP_SKLAD_E = [[54.5, 17.0, Z_SKLAD_REAR], [67.5, 17.0, 7.60]]
-stamps.append({"kind": "road", "id": "RAMP_SKLAD_E", "polyline": RAMP_SKLAD_E, "width": 5.0, "shoulder": 0.3, "blend": 4.0,
-               "note": "field access ramp from the warehouse rear yard up to the E ring path (22 deg), through the hedge gaps"})
+               "note": "grassed ramp beside the SW end of RW_DILNA: rear pad <-> mill-race terrace (2.0 m over 7.0 m = 15.9 deg)"})
+N_BEFORE_WALLS = len(stamps)          # secondary-building pads are inserted before the roads (see sec_pads())
 # retaining walls (exact step)
 RW_DILNA_XY = [[r2(p[0]), r2(p[1])] for p in (DLw((13.5, -9.25)), DLw((-17.5, -9.25)))]
 stamps.append({"kind": "wall", "id": "RW_DILNA", "polyline": RW_DILNA_XY, "top_z": [Z_TERRACE_DILNA, Z_TERRACE_DILNA],
@@ -322,6 +334,21 @@ stamps.append({"kind": "wall", "id": "RW_DILNA", "polyline": RW_DILNA_XY, "top_z
 RW_DUM_STAMP_XY = [[r2(p[0]), r2(p[1])] for p in (DMw((-15.0, 22.5)), DMw((13.0, 22.5)))]
 stamps.append({"kind": "wall", "id": "RW_DUM", "polyline": RW_DUM_STAMP_XY, "top_z": [Z_TERRACE_DUM, Z_TERRACE_DUM],
                "bottom_z": [Z_HUB, Z_HUB], "high_side": "right", "set_high": 3.0, "blend_high": 2.0,
+               "set_low": 2.0, "blend_low": 3.0})
+# warehouse platform: cut walls (top follows the natural ground, filled in after the provisional terrain exists)
+RW_SKLAD_N_XY = [[37.5, 31.7], [41.5, 31.7], [45.5, 31.7], [49.5, 31.7], [54.5, 31.7]]
+RW_SKLAD_E_XY = [[54.5, 31.7], [54.5, 27.5], [54.5, 23.0], [54.5, 18.5], [54.5, 14.0], [54.5, 9.5], [54.5, 5.0], [54.5, 1.6]]
+for _id, _xy in (("RW_SKLAD_N", RW_SKLAD_N_XY), ("RW_SKLAD_E", RW_SKLAD_E_XY)):
+    stamps.append({"kind": "wall", "id": _id, "polyline": _xy, "top_z": [None] * len(_xy), "bottom_z": [Z_SKLAD_REAR] * len(_xy),
+                   "high_side": "left", "set_high": 3.0, "blend_high": 3.0, "set_low": 4.3, "blend_low": 0.5})
+# the loading-dock face is a terrain step too (dock top 2.40 over the yard 1.30) + its south return
+RW_SKLAD_DOCK_STAMP = [[31.40, 31.5], [31.40, 0.65]]
+stamps.append({"kind": "wall", "id": "RW_SKLAD_DOCK", "polyline": RW_SKLAD_DOCK_STAMP, "top_z": [SKLAD["floor"], SKLAD["floor"]],
+               "bottom_z": [Z_SKLAD_YARD, Z_SKLAD_YARD], "high_side": "left", "set_high": 3.0, "blend_high": 1.0,
+               "set_low": 4.3, "blend_low": 0.5})
+RW_SKLAD_SW_XY = [[31.40, 0.65], [36.5, 0.65]]
+stamps.append({"kind": "wall", "id": "RW_SKLAD_SW", "polyline": RW_SKLAD_SW_XY, "top_z": [Z_SKLAD_REAR, Z_SKLAD_REAR],
+               "bottom_z": [Z_SKLAD_YARD, Z_SKLAD_YARD], "high_side": "left", "set_high": 3.0, "blend_high": 1.0,
                "set_low": 2.0, "blend_low": 3.0})
 # stair ramps AFTER the wall stamps (terrain under each stair mesh follows its pitch line)
 WST_B = DMw((-1.0, 22.75))
@@ -361,24 +388,156 @@ def gz(x, y):
     return float(T.height_at(LAYOUT, x, y)[0])
 
 
+def fill_rw_tops():
+    """RW_SKLAD_N/E: wall top = natural ground 1.3 m behind the high face (the high side is then levelled to it for 3 m)."""
+    tmp = {"terrain": {"base_grid": {"heights": GRID.tolist()},
+                       "stamps": [st for st in stamps if not (st["kind"] == "wall" and None in st["top_z"])]}}
+    for st in stamps:
+        if st["kind"] != "wall" or None not in st["top_z"]:
+            continue
+        pl = np.array(st["polyline"], float)
+        tops = []
+        for k in range(len(pl)):
+            d = pl[min(k + 1, len(pl) - 1)] - pl[max(k - 1, 0)]
+            d /= np.linalg.norm(d)
+            nrm = np.array([-d[1], d[0]])          # left = high side
+            q = pl[k] + nrm * 1.5
+            zt = float(T.height_at(tmp, q[0], q[1])[0])
+            tops.append(r2(max(zt, st["bottom_z"][k] + 0.30)))
+        st["top_z"] = tops
+
+
+fill_rw_tops()
+
+
+def _footprint_samples(sb, grow=0.6, n=7):
+    fx, fy = sb["footprint"]
+    out = []
+    for u in np.linspace(-fx / 2 - grow, fx / 2 + grow, n):
+        for v in np.linspace(-fy / 2 - grow, fy / 2 + grow, n):
+            out.append(xf(sb["position"][:2], sb["rotation_deg"], (u, v)))
+    return np.array(out)
+
+
+def sec_pads():
+    """Review P1-SEC-CONTACT: every closed secondary building stands on its own levelled pad (flat at the base z, apron
+    0.6 m beyond the walls, blended into the slope) and shows a 0.30 m stone/concrete plinth; buildings already on a
+    flat pad (square, house terrace) keep that pad.  Pads go right after the main pads, i.e. before ditches, paths and
+    roads, which therefore keep their own profiles."""
+    new = []
+    for sb in SEC:
+        if sb.get("embedded_in"):
+            sb["plinth"] = {"type": "front_only_in_retaining_wall", "ground": "RW_DUM face"}
+            continue
+        P = _footprint_samples(sb)
+        h = np.array([gz(p[0], p[1]) for p in P])
+        rng = float(h.max() - h.min())
+        if rng <= 0.05:
+            z = float(np.median(h))
+            sb["position"][2] = r2(z)
+            sb["plinth"] = {"top_z": r2(z + 0.30), "visible_height": 0.30, "ground": "existing flat pad (terrain range "
+                            f"{rng:.2f} m over footprint + 0.6 m)", "material": sb.get("plinth_material", "concrete_plinth")}
+            continue
+        z = float(np.median(h))
+        blend = r2(float(np.clip(2.5 * rng, 2.0, 5.0)))
+        fx, fy = sb["footprint"]
+        poly = xf_poly(sb["position"][:2], sb["rotation_deg"], rect_local(-fx / 2 - 0.6, -fy / 2 - 0.6, fx / 2 + 0.6, fy / 2 + 0.6))
+        pid = "PAD_" + sb["id"][2:]
+        new.append({"kind": "pad", "id": pid, "polygon": poly, "z": r2(z), "blend": blend, "surface": "gravel",
+                    "note": f"levelled pad of {sb['id']} (natural ground range {rng:.2f} m before levelling)"})
+        sb["position"][2] = r2(z)
+        sb["plinth"] = {"top_z": r2(z + 0.30), "visible_height": 0.30, "ground": pid,
+                        "material": sb.get("plinth_material", "stone_rubble_plinth_rendered_grey"),
+                        "rule": "walls start on a 0.30 m plinth; the pad is flat at position z over the footprint + 0.6 m"}
+    k = len(pads)
+    for i, st in enumerate(new):
+        stamps.insert(k + i, st)
+    return len(new)
+
+
+def grade_profile(h, ds, max_deg, window=8):
+    g = math.tan(math.radians(max_deg)) * ds
+    n = len(h)
+    kk = max(1, int(window / 2 / ds))
+    hp = np.pad(h, kk, mode="edge")
+    z = np.convolve(hp, np.ones(2 * kk + 1) / (2 * kk + 1), mode="valid")
+    z[0], z[-1] = h[0], h[-1]
+    for _ in range(400):
+        old = z.copy()
+        for k in range(1, n):
+            z[k] = min(max(z[k], z[k - 1] - g), z[k - 1] + g)
+        for k in range(n - 2, -1, -1):
+            z[k] = min(max(z[k], z[k + 1] - g), z[k + 1] + g)
+        z[0], z[-1] = h[0], h[-1]
+        if np.max(np.abs(z - old)) < 1e-5:
+            break
+    return z
+
+
+GRADED = {}
+
+
+def grade_paths(insert_at):
+    """Review P2-STEEP-PATHS: road-kind stamps for every footpath and dirt track, profile = smoothed ground limited to
+    max_deg (18 deg footpaths / grassed ramp, 11 deg tracks), flat across the width."""
+    items = [(pid, p["xy"], p["width"], PATH_MAX_DEG.get(pid, 18.0), 0.3, 1.5) for pid, p in PATHS.items()]
+    items += [("TRACK_E_RING", TRACK_E_XY, 2.8, 11.0, 0.4, 2.5), ("TRACK_SKLAD_REAR", TRACK_SK_REAR_XY, 3.0, 11.0, 0.3, 2.0)]
+    new = []
+    for pid, xy, w, mx, sh, bl in items:
+        P = np.array(xy, float)
+        seg = np.hypot(*np.diff(P, axis=0).T)
+        cs = np.concatenate([[0], np.cumsum(seg)])
+        ds = 0.5
+        ss = np.arange(0.0, cs[-1] + 1e-9, ds)
+        if ss[-1] < cs[-1] - 1e-6:
+            ss = np.append(ss, cs[-1])
+        xs = np.interp(ss, cs, P[:, 0])
+        ys = np.interp(ss, cs, P[:, 1])
+        h = T.height_at(LAYOUT, xs, ys)
+        z = grade_profile(np.asarray(h, float), ds, mx)
+        grade = float(np.degrees(np.arctan(np.max(np.abs(np.diff(z))) / ds))) if len(z) > 1 else 0.0
+        keep = [0] + [k for k in range(1, len(ss) - 1) if int(ss[k]) != int(ss[k - 1])] + [len(ss) - 1]
+        pl = [[r2(xs[k]), r2(ys[k]), r2(z[k])] for k in keep]
+        new.append({"kind": "road", "id": "GRADE_" + pid, "polyline": pl, "width": w, "shoulder": sh, "blend": bl,
+                    "note": f"graded {'track' if pid.startswith('TRACK') else 'path'} {pid}: longitudinal grade <= {mx:.0f} deg "
+                            f"(solved max {grade:.1f} deg), flat across the width"})
+        GRADED[pid] = {"max_grade_deg": r2(grade), "limit_deg": mx, "stamp": "GRADE_" + pid}
+    for i, st in enumerate(new):
+        stamps.insert(insert_at + i, st)
+    return len(new)
+
+
+def terrain_finishing():
+    """called once from main() after all buildings/props exist: secondary-building pads, then graded paths."""
+    global N_BEFORE_PATHS
+    n = sec_pads()
+    N_BEFORE_PATHS += n
+    grade_paths(N_BEFORE_PATHS)
+
+
 # =================================================================================================
 # 4.  Buildings (main + secondary)
 # =================================================================================================
+from shapely.geometry import Polygon as _SPoly            # noqa: E402
+from shapely.ops import unary_union as _sunion           # noqa: E402
+_BDEF = {bd["id"]: bd for bd in IB.all_buildings()}
 main_buildings = [
     {"id": "B_DILNA", "type": "dilna", "position": [DILNA["c"][0], DILNA["c"][1], DILNA["floor"]], "rotation_deg": DILNA["rot"],
-     "footprint": [23.0, 10.0], "enterable": True, "levels": 2, "zone": "zone_dilna", "pad": "PAD_DILNA",
-     "front_faces_compass_deg": r2((90 - (DILNA["rot"] + 90)) % 360)},
+     "enterable": True, "levels": 1, "zone": "zone_dilna", "pad": "PAD_DILNA", "reference": "Docs/navrhy/04_dilna_samostatne.png"},
     {"id": "B_SKLAD", "type": "mensi_sklad", "position": [SKLAD["c"][0], SKLAD["c"][1], SKLAD["floor"]], "rotation_deg": SKLAD["rot"],
-     "footprint": [24.5, 15.5], "enterable": True, "levels": 1, "zone": "zone_sklad", "pad": "PAD_SKLAD"},
+     "enterable": True, "levels": 1, "zone": "zone_sklad", "pad": "PAD_SKLAD", "reference": "Docs/navrhy/03_ulice_kaple_sklad.png"},
     {"id": "B_DUM", "type": "obytny_dum", "position": [DUM["c"][0], DUM["c"][1], DUM["floor"]], "rotation_deg": DUM["rot"],
-     "footprint": [11.0, 9.5], "enterable": True, "levels": 2, "zone": "zone_dvur", "pad": "PAD_DUM_TERRACE"},
+     "enterable": True, "levels": 2, "zone": "zone_dvur", "pad": "PAD_DUM_TERRACE", "reference": "Docs/navrhy/01_letecky_pohled_vesnice.png"},
 ]
 for b in main_buildings:
+    bd = _BDEF[b["id"]]
+    b["footprint"] = bd["footprint_external"]
     a = math.radians(b["rotation_deg"])
     fx, fy = -math.sin(a), math.cos(a)
     b["front_faces_compass_deg"] = r2(math.degrees(math.atan2(fx, fy)) % 360)
-    b["footprint_world"] = xf_poly(b["position"][:2], b["rotation_deg"], rect_local(-b["footprint"][0] / 2, -b["footprint"][1] / 2,
-                                                                                   b["footprint"][0] / 2, b["footprint"][1] / 2))
+    U = _sunion([_SPoly(pt["external_rect"]) for pt in bd["footprint_parts"]]).simplify(0.001)
+    b["footprint_world"] = xf_poly(b["position"][:2], b["rotation_deg"], list(U.exterior.coords)[:-1])
+    b["footprint_note"] = "exact union of the buildings.json footprint_parts (L-shaped plans are not reduced to a rectangle)"
 
 SEC = []
 
@@ -394,22 +553,51 @@ def sec(sid, typ, name, c, rot, fp, h_eave, roof, ridge, enterable=False, note=N
     SEC.append(d)
 
 
-sec("S_TRAFO", "transformer_tower", "Trafostanice (zděná věž)", [-6.0, 9.5], 20, [3.2, 3.2], 8.6, "pyramid", 10.2,
-    note="steel doors with high-voltage signs, padlocked; no windows below 6 m")
-sec("S_KAPLE", "chapel", "Kaplička sv. Floriána (fiktivní)", [21.5, -7.5], 55, [4.2, 5.6], 4.2, "gable_with_bell_turret", 7.6,
-    note="locked wooden door with iron grille; tiny grilled windows")
-sec("S_ZASTAVKA", "bus_shelter", "Autobusová zastávka", [-13.0, -11.4], 22.3, [4.2, 1.8], 2.5, "flat", 2.6, enterable=True,
-    note="open-front concrete shelter (walk-in, 3 walls); back wall 1.8 m = high cover")
+R05 = {"reference": "Docs/navrhy/05_kulna_samostatne.png",
+       "construction": "brick 300 with peeling lime plaster, concrete plinth 0.40, mono-pitch corrugated sheet roof (16 deg) on exposed "
+                       "timber purlins falling to the front, half-round gutter on the front eave",
+       "materials": {"walls": "render_lime_offwhite_peeling_to_red_brick", "plinth": "concrete_weathered", "roof": "corrugated_sheet_rusty_dark",
+                     "door": "steel_sheet_grey_weathered", "sills": "concrete_precast"},
+       "door": {"width": 0.95, "height": 2.00, "state": "closed_padlocked", "enterable": False}}
+
+
+def sec_r05(sid, name, c, rot, where, surface_z=None):
+    """the small brick shed of reference 05, repeated around the village (never enterable, never a fake open door)."""
+    sec(sid, "shed_r05", name, c, rot, [3.8, 3.2], 2.50, "mono", 3.40,
+        note="grey steel door shut with a hasp and padlock, bulkhead lamp above; small window with dark dusty glass and a "
+             "concrete sill, louvred vent: reads closed (ref. 05)", surface_z=surface_z,
+        extra={"roof_slope": "falls to the front (+Y): low eave 2.50 at the door side, 3.40 at the rear", "variant_of": "R05",
+               "plinth_material": "concrete_weathered", "detail": dict(R05, where=where)})
+
+
+sec("S_TRAFO", "transformer_pole_h", "Stožárová trafostanice (ref. 03)", [-6.0, 9.5], 20, [2.6, 1.4], 1.80, "flat", 1.80,
+    note="concrete base with a steel switch cabinet (doors padlocked, high-voltage sign); transformer tank on a steel platform "
+         "between two concrete poles; chain-link enclosure F_TRAFO",
+    extra={"poles": {"type": "concrete_h_frame", "height": 9.0, "spacing": 2.2, "local": [[-1.1, 0.0], [1.1, 0.0]]},
+           "transformer": {"size": [1.5, 1.0, 1.6], "z0": 4.6, "platform_z": 4.4},
+           "reference": "Docs/navrhy/03_ulice_kaple_sklad.png (pole transformer beside the bus shelter)"})
+sec("S_KAPLE", "chapel", "Kaplička sv. Floriána (fiktivní)", [21.5, -7.5], 55, [4.6, 6.8], 3.60, "gable_with_bell_turret", 5.90,
+    note="arched double timber door, iron-banded, padlocked; statue niche above; tiny grilled windows",
+    extra={"tower": {"offset_local": [0.0, 2.55], "size": [1.6, 1.6], "height": 8.2, "enterable": False,
+                     "note": "square bell turret on the front gable with arched louvred openings, pointed slate spire to 10.6 m, ball and cross 11.3 m (ref. 03)"},
+           "materials": {"walls": "render_lime_cream_weathered", "roof": "slate_dark_grey", "door": "timber_oak_dark_brown_iron_bands"},
+           "reference": "Docs/navrhy/03_ulice_kaple_sklad.png, 01 (chapel at the road fork)"})
+sec("S_ZASTAVKA", "bus_shelter_timber", "Autobusová čekárna (dřevěná, ref. R06)", [-13.0, -11.4], 22.3, [3.6, 2.0], 2.40, "gable", 2.90,
+    enterable=True, note="open-front timber waiting shed (walk-in, 3 plank walls, bench); back wall 1.9 m = high cover (planks: "
+                         "concealment only above the 0.9 m concrete footing wall)",
+    extra={"construction": "grey weathered spruce posts on granite footings with rusty steel shoes, knee braces, vertical boards on "
+                           "back and sides, small square side window, gable roof of dark corrugated sheet with visible rafters, "
+                           "bench with backrest", "reference": "REFERENCE_PROPS_VEGETATION.md R06; 03 (shelter by the bridge)"})
 sec("S_GARAZE", "garage_row", "Řadové garáže (3 boxy)", [-44.0, -30.0], 12, [9.6, 6.2], 2.7, "flat", 2.8,
     note="closed up-and-over steel doors, rusted, padlocked")
 sec("S_HOSPODA", "pub_boarded", "Hostinec U Hamru (zavřený)", [-82.0, -35.6], 0, [14.0, 9.0], 6.4, "gable", 10.4,
     note="windows boarded with weathered OSB, door chained, 'ZAVŘENO' sign; beer-garden fence to the east")
-sec("S_KULNA", "shed", "Kůlna u hostince", [-95.0, -44.0], 20, [7.0, 4.5], 3.0, "mono", 3.6, note="closed timber doors")
+sec_r05("S_KULNA", "Kůlna u hostince", [-95.0, -44.0], 20, "behind the pub")
 sec("S_HASICI", "fire_station", "Hasičská zbrojnice", [19.0, 80.0], 90, [10.0, 8.0], 5.2, "gable", 8.0,
     note="closed garage doors; hose tower 3x3x12 m at the rear (see extra)",
     extra={"tower": {"offset_local": [3.5, -2.5], "size": [3.0, 3.0], "height": 12.0, "enterable": False}})
-sec("S_KULNA_DUM", "shed", "Kůlna na nářadí u domu", DMw((14.5, 10.0)), DUM["rot"], [3.4, 6.2], 2.6, "mono", 2.9,
-    surface_z=Z_TERRACE_DUM, note="closed plank shed (nářaďovna) with a padlocked double door facing the driveway")
+sec_r05("S_KULNA_DUM", "Kůlna na nářadí u domu", DMw((14.2, 10.5)), DUM["rot"] - 90, "house side yard, door to the driveway",
+        surface_z=Z_TERRACE_DUM)
 sec("S_DREVNIK", "woodshed", "Dřevník", DMw((-9.5, -9.6)), DUM["rot"], [5.0, 2.2], 2.1, "mono", 2.5, surface_z=Z_TERRACE_DUM,
     note="open front but filled with stacked logs to 1.9 m: solid block, not enterable")
 sec("S_SENIK", "hay_barn", "Seník (kryté stohování balíků)", [61.2, -46.8], 40, [12.0, 8.0], 5.0, "gable", 6.8,
@@ -417,17 +605,20 @@ sec("S_SENIK", "hay_barn", "Seník (kryté stohování balíků)", [61.2, -46.8]
 sec("S_STODOLA", "barn", "Stodola statku", [146.0, -100.0], 40, [22.0, 12.0], 6.0, "gable", 11.0,
     note="big closed timber doors; outside the playable boundary behind spawn C")
 sec("S_KOLNA_STROJE", "machinery_shed", "Kolna na stroje (otevřená)", [118.0, -125.0], 40, [15.0, 6.0], 4.2, "mono", 4.8,
-    note="open front with a tractor and a trailer inside; 5 m behind spawn C back row, soft boundary crosses it")
+    note="open front filled flush with the front posts by a 3.0 m stack of round bales and the tractor behind it: reads as a "
+         "solid block (the collision proxy is the full footprint, which matches what is seen)",
+    extra={"open_side": "+Y", "collision_proxy": "full footprint to the eave (bales close the open front)",
+           "location_note": "29 m behind spawn row CHARLIE_R2, on the soft boundary"})
 sec("S_STERKOVNA", "gravel_works_office", "Kancelář štěrkovny (kontejner)", [44.0, 150.0], 15, [6.0, 2.5], 2.6, "flat", 2.7,
     note="office container, door locked, barred windows")
 sec("S_DOMEK_1", "house_closed", "Uzavřený domek (čp. fiktivní 12)", [30.0, 66.0], 90, [9.0, 8.0], 3.2, "gable", 7.4,
-    note="single-storey + attic cottage, shutters closed, door locked; front garden picket fence; variant A (ochre render)")
+    note="single-storey + attic cottage, shutters closed, door locked; front garden picket fence; variant A (ochre render, red tiles)")
 sec("S_DOMEK_2", "house_closed", "Uzavřený domek u potoka", [-2.5, 34.0], 10, [8.0, 7.0], 3.0, "gable", 6.8,
     note="cottage between road B and the brook, shutters closed; variant B (grey render, eternit roof)")
 sec("S_DOMEK_3", "house_closed", "Uzavřený domek u silnice A", [-62.0, -45.0], 0, [9.0, 8.0], 3.2, "gable", 7.6,
     note="cottage south of road A, boarded ground-floor windows; variant C (white render, red tiles)")
 sec("S_DOMEK_4", "house_closed", "Uzavřený domek u polní cesty", [27.0, -46.0], 40, [9.0, 8.0], 3.2, "gable", 7.4,
-    note="cottage SW of track C, shutters closed; variant A mirrored")
+    note="cottage SW of track C, shutters closed; variant D (ref. 01 SE: rubble-stone walls, dark slate roof)")
 sec("S_KULNA_C", "field_shed", "Polní kůlna (ovčín, zavřená)", [46.0, -74.0], 63, [12.0, 6.0], 3.6, "gable", 5.2,
     note="timber field shed on a stone plinth, doors nailed shut")
 sec("S_KIOSK", "kiosk_closed", "Stánek (zavřený, rolety)", [-14.5, 2.5], 25, [4.0, 3.0], 2.8, "flat", 3.0,
@@ -436,27 +627,39 @@ sec("S_GARAZ_ZED", "garage_built_into_wall", "Garáž zapuštěná v opěrné zd
     "flat_under_garden_deck", 2.32, surface_z=Z_HUB,
     note="only the front in the RW_DUM face is modelled: steel up-and-over door 2.40 x 2.00, closed and padlocked, stone surround",
     extra={"embedded_in": "RW_DUM", "roof_deck_top_z": r2(Z_TERRACE_DUM + 0.22)})
-sec("S_PILA_BUDKA", "timber_yard_hut", "Bouda skládky dřeva", [-142.0, -72.0], 25, [4.0, 3.0], 2.4, "mono", 2.8,
-    note="closed plank hut behind spawn A")
+sec_r05("S_PILA_BUDKA", "Kůlna skládky dřeva", [-142.0, -72.0], 25, "timber yard behind spawn A")
+sec_r05("S_KULNA_2", "Kůlna u domku u potoka", [-3.0, 41.5], 10, "north of S_DOMEK_2 between road B and the brook")
+sec_r05("S_KULNA_3", "Kůlna u domku u polní cesty", [19.0, -47.5], 40, "west of S_DOMEK_4")
 
 # =================================================================================================
 # 5.  Bridges, retaining walls, fences, hedges, low walls
 # =================================================================================================
+RUSTY_RAIL = {"height": 1.00, "type": "steel_pipe_2_rail_on_steel_posts_rusty", "posts_every_m": 1.5,
+              "blocks_movement": True, "blocks_bullets": False, "blocks_vision": False, "reference": "02 (footbridge railings)"}
 bridges = [
-    {"id": "BR_MAIN", "type": "concrete_road_bridge", "ends": BR_MAIN, "width": 4.5,
-     "deck_z": [r2(Z_HUB), r2(Z_DILNA_PAD)], "approach": "flush at both ends (no step), deck ramps 0.83 m over 11 m (4.3 deg)", "railing": {"height": 1.10, "type": "steel_tube_3_rail",
-                                                                "blocks_movement": True, "blocks_bullets": False, "blocks_vision": False},
+    {"id": "BR_MAIN", "type": "concrete_road_bridge", "ends": BR_MAIN, "width": 4.5, "deck_thickness": 0.55,
+     "deck_z": [r2(Z_HUB), r2(Z_DILNA_PAD)], "approach": "flush at both ends (no step), deck ramps 0.83 m over 11 m (4.3 deg)",
+     "railing": {"height": 1.10, "type": "concrete_posts_with_two_rusty_pipe_rails", "posts_every_m": 2.0,
+                 "blocks_movement": True, "blocks_bullets": False, "blocks_vision": False,
+                 "reference": "REFERENCE_PROPS_VEGETATION.md R16 / ref. 02 (right edge)"},
+     "abutments": "masonry, vertical faces in the channel (BROOK vertical section)",
      "role": "square -> workshop yard; the direct lane for the team arriving through the square"},
-    {"id": "BR_FOOT_A", "type": "timber_footbridge", "ends": BR_FOOT_A, "width": 1.5,
-     "deck_z": None, "railing": {"height": 1.00, "type": "timber_handrail", "blocks_movement": True, "blocks_bullets": False,
-                                 "blocks_vision": False}, "role": "arm A crossing to the brook north bank"},
-    {"id": "BR_FOOT_B", "type": "timber_footbridge", "ends": BR_FOOT_B, "width": 1.5,
-     "deck_z": None, "railing": {"height": 1.00, "type": "timber_handrail", "blocks_movement": True, "blocks_bullets": False,
-                                 "blocks_vision": False}, "role": "arm B crossing to the mill-race path / west bank"},
+    {"id": "BR_FOOT_A", "type": "concrete_slab_footbridge", "ends": BR_FOOT_A, "width": 1.5, "deck_thickness": 0.30,
+     "deck_z": None, "railing": dict(RUSTY_RAIL), "abutments": "concrete blocks on the banks (ref. 02)",
+     "role": "arm A crossing to the brook north bank"},
+    {"id": "BR_FOOT_B", "type": "concrete_slab_footbridge", "ends": BR_FOOT_B, "width": 1.5, "deck_thickness": 0.30,
+     "deck_z": None, "railing": dict(RUSTY_RAIL), "abutments": "concrete blocks on the banks (ref. 02)",
+     "role": "arm B crossing to the mill-race path / west bank"},
 ]
 for br in bridges:
     if br["deck_z"] is None:
         br["approach"] = "flush: the abutment top and the deck end are level with the bank path (no step)"
+    # review P2-BRIDGE-UNDERPASS: the channel under every deck is closed on both deck edges by a steel debris screen
+    # (vertical flat bars 0.10 m apart, bed to deck soffit) on rip-rap, so no crouch-only passage exists under a deck
+    br["underpass"] = {"treatment": "closed", "by": "steel debris screens on both deck edges, bed -> deck soffit, full channel width",
+                       "passes": {"movement": False, "bullets": True, "vision": True, "water": True},
+                       "rule": "clear height bed -> soffit (deck_z - deck_thickness) is < 2.10 m, so the space is closed; "
+                               "check_layout.py B15 recomputes it"}
 
 # main bridge: which end is on the square side?
 e0, e1 = BR_MAIN
@@ -472,11 +675,13 @@ retaining_walls = [
                  "construction": "concrete steps cut into the terrace, side walls follow the pitch",
                  "bottom_center_world": [r2(v) for v in DLw((-13.0, -8.95))],
                  "top_center_world": [r2(v) for v in DLw((-13.0, -8.95 - 10 * 0.28))]}],
-     "note": "supports the dry mill-race terrace behind the workshop; its SW end dies out into a 1:3 grassed ramp (path P_BANK_TERRACE)"},
+     "note": "supports the dry mill-race terrace behind the workshop; its SW end dies out beside a 16 deg grassed ramp (RAMP_TERRACE_SW, path P_BANK_TERRACE)"},
     {"id": "RW_DUM", "polyline": [[r2(p[0]), r2(p[1])] for p in RW_DUM_XY], "segments": [[0, 1], [2, 3]], "thickness": 0.50,
-     "top_z": r2(Z_TERRACE_DUM + 0.60), "bottom_z": Z_HUB, "low_side": "N (village square)",
-     "material": "stone_rubble_sandstone_with_concrete_cap", "cap": {"height": 0.12, "overhang": 0.05},
-     "parapet": {"height_above_terrace": 0.60, "note": "0.60 m garden parapet = crouch cover for defenders; from the square the wall is 2.70 m"},
+     "top_z": r2(Z_TERRACE_DUM + 1.00), "bottom_z": Z_HUB, "low_side": "N (village square)",
+     "material": "stone_rubble_sandstone_with_rendered_garden_wall_and_concrete_coping", "cap": {"height": 0.12, "overhang": 0.05},
+     "parapet": {"height_above_terrace": 1.00, "material": "brick_rendered_cream_with_piers_every_3m",
+                 "note": "the terrace wall continues as the 1.00 m rendered garden wall of the walled garden (ref. 01): crouch cover "
+                         "for defenders (crouched eye 1.05 m); from the square the whole wall is 3.10 m"},
      "stairs": [{"id": "ST_RW_DUM", "type": "stair_cut_into_terrace", "gap_between_segments": [1, 2], "width": 1.50,
                  "bottom_center_world": [r2(WST_B[0]), r2(WST_B[1])], "top_center_world": [r2(WST_T[0]), r2(WST_T[1])],
                  "risers": 12, "riser": r3((Z_TERRACE_DUM - Z_HUB) / 12), "tread": 0.28, "run": r3(11 * 0.28),
@@ -492,38 +697,103 @@ retaining_walls = [
                  {"local_x": 10.5, "z": r2(Z_HUB + 0.40), "type": "stone_spout_pvc110", "serves": "DM_DP4"}],
      "weep_holes": "PVC 50 every 2.0 m, 0.30 m above the square",
      "note": "terrace wall of the house garden facing the village square"},
+    {"id": "RW_SKLAD_N", "polyline": RW_SKLAD_N_XY, "thickness": 0.40, "top_z": None, "top_z_profile": None, "bottom_z": Z_SKLAD_REAR,
+     "low_side": "S (warehouse platform)", "material": "concrete_cast_in_place_board_marked_weathered",
+     "cap": {"height": 0.10, "overhang": 0.0}, "parapet": None,
+     "guard": {"type": "steel_pipe_railing_galvanised", "height": 1.10, "blocks_movement": True, "blocks_bullets": False,
+               "blocks_vision": False, "note": "fall guard on the high side"},
+     "stairs": [], "weep_holes": "PVC 75 every 2.0 m, 0.30 m above the platform; drain channel at the foot",
+     "note": "review P1-CUT-FACE: holds the 0.9-4.4 m cut behind the north apron of the warehouse platform (top follows the "
+             "natural ground)"},
+    {"id": "RW_SKLAD_E", "polyline": RW_SKLAD_E_XY, "thickness": 0.40, "top_z": None, "top_z_profile": None, "bottom_z": Z_SKLAD_REAR,
+     "low_side": "W (warehouse rear yard)", "material": "concrete_cast_in_place_board_marked_weathered",
+     "cap": {"height": 0.10, "overhang": 0.0}, "parapet": None,
+     "guard": {"type": "steel_pipe_railing_galvanised", "height": 1.10, "blocks_movement": True, "blocks_bullets": False,
+               "blocks_vision": False, "note": "fall guard on the high side (E spur meadow)"},
+     "stairs": [], "weep_holes": "PVC 75 every 2.0 m, 0.30 m above the rear yard; drain channel at the foot",
+     "note": "review P1-CUT-FACE: holds the 1.0-4.4 m cut of the rear yard (was an unsupported 69 deg earth cliff); the rear "
+             "yard is reached at grade from the south-east (TRACK_SKLAD_REAR) and over the gable aprons"},
+    {"id": "RW_SKLAD_DOCK", "polyline": [[31.40, 31.5], [31.40, 28.5], [31.40, 20.9], [31.40, 18.7], [31.40, 7.85], [31.40, 6.15],
+                                         [31.40, 0.65]],
+     "segments": [[1, 2], [3, 4], [5, 6]], "thickness": 0.30, "top_z": SKLAD["floor"], "bottom_z": Z_SKLAD_YARD,
+     "low_side": "W (warehouse yard)", "material": "concrete_dock_face_with_steel_angle_nosing_and_rubber_bumpers",
+     "cap": None, "parapet": None, "stairs": [], "of": "B_SKLAD.SK_DOCK",
+     "gaps": [{"at": "SK_X3 ramp", "y": [28.5, 31.5]}, {"at": "SK_X2 stair", "y": [18.7, 20.9]}, {"at": "SK_X1 stair", "y": [6.15, 7.85]}],
+     "note": "review P1-DOCK-TERRAIN: the 1.10 m dock face is a declared terrain step (dock top 2.40 / yard 1.30); the dock "
+             "stairs and ramp stand in front of it on the flat yard (both sides free) and meet the dock at the gaps"},
+    {"id": "RW_SKLAD_SW", "polyline": RW_SKLAD_SW_XY, "thickness": 0.30, "top_z": Z_SKLAD_REAR, "bottom_z": Z_SKLAD_YARD,
+     "low_side": "S (yard south-east corner)", "material": "concrete_cast_in_place_board_marked_weathered",
+     "cap": {"height": 0.10, "overhang": 0.0}, "parapet": None, "stairs": [],
+     "note": "south return of the dock face: the platform is entered from the south only east of x 36.5 (declared south approach)"},
 ]
 
 # fences (see-through, movement-blocking), hedges (vision-blocking only), low walls (cover)
 FENCES = []
+# fence / wall types (layout.fences_walls_hedges[].type):
+#   chain_link_on_plinth_1p5m  R14: square steel posts with caps, top+bottom rail, mesh, 0.35 m concrete plinth -> blocks movement
+#                              (1.5 m > vault limit 1.3), not bullets, not vision
+#   concrete_wall_chain_link   ref. 02: 0.85 m concrete bank wall + chain-link to 1.80 m -> blocks movement; bullets and vision
+#                              only up to solid_height 0.85 (crouch cover)
+#   garden_wall_rendered_1p8   ref. 01: rendered brick garden wall with piers every 3 m and concrete coping -> blocks all (cover high)
+#   concrete_low_wall(_rendered) 0.85-1.1 m -> blocks all up to its height (low cover); vaultable by players (0.5-1.3 m)
+#   post_and_pipe_rail_1m      R16: rough concrete posts 0.25 x 0.25 every 2 m, two rusty pipe rails -> blocks movement only
+#   timber_picket_1m, hedge_privet, hedge_hornbeam, hedgerow_mixed (hedges: movement + vision, never bullets)
 
 
-def fence(fid, typ, pl, h, blocks_bullets=False, blocks_vision=False, note=None):
+def fence(fid, typ, pl, h, blocks_bullets=False, blocks_vision=False, note=None, solid_height=None, gates=None, reference=None):
+    sh = h if solid_height is None else solid_height
+    vault = "vaultable" if (blocks_bullets and 0.5 <= h <= 1.3) or typ in ("timber_picket_1m", "post_and_pipe_rail_1m") else "no"
     FENCES.append({"id": fid, "type": typ, "polyline": [[r2(p[0]), r2(p[1])] for p in pl], "height": h,
                    "blocks_movement": True, "blocks_bullets": blocks_bullets, "blocks_vision": blocks_vision,
-                   "cover": "low" if (blocks_bullets and 0.8 <= h < 1.6) else ("high" if blocks_bullets and h >= 1.6 else "none"),
+                   "solid_height": sh if (blocks_bullets or blocks_vision) else 0.0,
+                   "cover": "low" if (blocks_bullets and 0.8 <= sh < 1.6) else ("high" if blocks_bullets and sh >= 1.6 else "none"),
+                   "traversal": vault,
+                   **({"gates": gates} if gates else {}), **({"reference": reference} if reference else {}),
                    **({"note": note} if note else {})})
 
 
-fence("F_SKLAD_ROAD_S", "chain_link_2m", [[12.5, -1.0], [12.5, 13.5]], 2.0, note="yard fence, road side (S part)")
-fence("F_SKLAD_ROAD_N", "chain_link_2m", [[12.5, 20.5], [12.5, 36.0]], 2.0, note="yard fence, road side (N part); gate gap y 13.5-20.5 open")
+def KPw(p):
+    return xf([21.5, -7.5], 55, p)
+
+
+fence("F_SKLAD_ROAD_S", "chain_link_on_plinth_1p5m", [[12.5, -1.0], [12.5, 13.5]], 1.5, solid_height=0.35,
+      note="yard fence, road side (S part)", reference="R14")
+fence("F_SKLAD_ROAD_N", "chain_link_on_plinth_1p5m", [[12.5, 20.5], [12.5, 36.0]], 1.5, solid_height=0.35,
+      gates=[{"at": [12.5, 17.0], "width": 7.0, "type": "steel_sliding_gate_chain_link", "state": "open (slid north behind F_SKLAD_ROAD_N)"}],
+      note="yard fence, road side (N part); yard gate y 13.5-20.5 open", reference="R14")
 fence("LW_SKLAD_S", "concrete_low_wall", [[12.5, -1.0], [24.0, -1.0]], 0.90, True, True, note="yard south edge, low wall")
-fence("LW_DILNA_BANK_1", "concrete_low_wall", [DLw((-14.0, 11.6)), DLw((-5.6, 12.2))], 0.85, True, True, note="yard edge above the brook (NE part)")
-fence("LW_DILNA_BANK_2", "concrete_low_wall", [DLw((-0.5, 12.4)), DLw((6.0, 14.0)), DLw((13.5, 12.4))], 0.85, True, True,
-      note="yard edge above the brook (SW part); gap for the bridge landing")
-fence("HEDGE_DUM_W1", "hedge_hornbeam", [DMw((-15.3, -12.5)), DMw((-15.3, 1.8))], 1.8, False, True, note="terrace west hedge (S of gate)")
-fence("HEDGE_DUM_W2", "hedge_hornbeam", [DMw((-15.3, 4.2)), DMw((-15.3, 20.5))], 1.8, False, True, note="terrace west hedge (N of gate)")
-fence("F_DUM_REAR_1", "timber_picket_1m", [DMw((-15.3, -13.2)), DMw((-2.1, -13.2))], 1.1, note="rear yard picket fence")
-fence("F_DUM_REAR_2", "hedge_privet", [DMw((0.1, -13.2)), DMw((16.5, -13.2))], 1.8, False, True, note="rear yard hedge (SE side, blocks the long view from arm C); gate gap local x -2.1..0.1")
-fence("HEDGE_DUM_E", "hedge_privet", [DMw((16.6, -12.2)), DMw((16.6, 6.0))], 1.8, False, True, note="terrace east edge hedge (S of the driveway)")
-fence("HEDGE_DUM_N1", "hedge_hornbeam", [DMw((-14.4, 21.3)), DMw((-2.1, 21.3))], 1.8, False, True, note="front-garden hedge behind the parapet (W of the stair gate)")
-fence("HEDGE_DUM_N2", "hedge_hornbeam", [DMw((0.1, 21.3)), DMw((12.6, 21.3))], 1.8, False, True, note="front-garden hedge behind the parapet (E of the stair gate)")
+fence("LW_DILNA_BANK_1", "concrete_wall_chain_link", [DLw((-14.0, 11.6)), DLw((-5.6, 12.2))], 1.80, True, True, solid_height=0.85,
+      note="yard edge above the brook (NE part): concrete bank wall with a rusty chain-link fence on it (ref. 02)", reference="02")
+fence("LW_DILNA_BANK_2", "concrete_wall_chain_link", [DLw((-0.5, 12.4)), DLw((6.0, 14.0)), DLw((13.5, 12.4))], 1.80, True, True,
+      solid_height=0.85, note="yard edge above the brook (SW part); gap for the bridge landing (ref. 02)", reference="02")
+fence("GW_DUM_W1", "garden_wall_rendered_1p8", [DMw((-15.3, -12.5)), DMw((-15.3, 1.8))], 1.8, True, True,
+      note="walled garden (ref. 01), west wall S of the gate", reference="01")
+fence("GW_DUM_W2", "garden_wall_rendered_1p8", [DMw((-15.3, 4.2)), DMw((-15.3, 20.5))], 1.8, True, True,
+      gates=[{"at_local_of_B_DUM": [-15.3, 3.0], "width": 2.4, "type": "steel_garden_gate_pair", "state": "open"}],
+      note="walled garden, west wall N of the gate", reference="01")
+fence("GW_DUM_S1", "garden_wall_rendered_1p8", [DMw((-15.3, -13.2)), DMw((-2.1, -13.2))], 1.8, True, True,
+      note="walled garden, rear (south) wall W of the gate", reference="01")
+fence("GW_DUM_S2", "garden_wall_rendered_1p8", [DMw((0.1, -13.2)), DMw((16.5, -13.2))], 1.8, True, True,
+      gates=[{"at_local_of_B_DUM": [-1.0, -13.2], "width": 2.2, "type": "steel_garden_gate", "state": "open"}],
+      note="walled garden, rear wall E of the gate (blocks the long view from arm C)", reference="01")
+fence("GW_DUM_E", "garden_wall_rendered_1p8", [DMw((16.6, -12.2)), DMw((16.6, 6.0))], 1.8, True, True,
+      note="walled garden, east wall S of the driveway", reference="01")
+fence("HEDGE_DUM_N1", "hedge_hornbeam", [DMw((-14.4, 21.3)), DMw((-2.1, 21.3))], 1.8, False, True, note="front-garden hedge behind the garden wall (W of the stair gate)")
+fence("HEDGE_DUM_N2", "hedge_hornbeam", [DMw((0.1, 21.3)), DMw((12.6, 21.3))], 1.8, False, True, note="front-garden hedge behind the garden wall (E of the stair gate)")
 fence("LW_DUM_GARDEN", "concrete_low_wall", [DMw((9.8, 5.0)), DMw((9.8, 14.0))], 1.0, True, True,
       note="garden | side yard divider (cover line facing the driveway)")
+fence("LW_KAPLE", "concrete_low_wall_rendered", [KPw((-4.2, 3.0)), KPw((-4.2, -5.2)), KPw((4.2, -5.2)), KPw((4.2, 1.0))], 1.10, True, True,
+      note="low rendered wall round the chapel's sides and back (ref. 03), front towards the square open", reference="03")
+fence("F_TRAFO", "chain_link_on_plinth_1p5m", [xf([-6.0, 9.5], 20, q) for q in ((-1.9, -1.3), (1.9, -1.3), (1.9, 1.3), (-1.9, 1.3), (-1.9, -1.3))],
+      1.5, solid_height=0.35, gates=[{"width": 1.0, "type": "steel_gate_chain_link", "state": "closed_padlocked"}],
+      note="enclosure of the pole transformer S_TRAFO", reference="R14 / 03")
+fence("F_RAIL_NAVES", "post_and_pipe_rail_1m", [[-10.6, 14.4], [-13.4, 11.2], [-17.5, 6.2]], 1.0,
+      note="concrete posts + two rusty pipe rails along the square edge above the brook, from the main bridge (R16 / ref. 02)",
+      reference="R16")
 fence("HEDGE_E_RING_1", "hedgerow_mixed", [[62.5, 40.0], [63.5, 22.0]], 2.4, False, True, note="field hedgerow E of the warehouse")
 fence("HEDGE_E_RING_2", "hedgerow_mixed", [[63.8, 16.0], [63.0, -2.0], [58.5, -18.0]], 2.4, False, True)
-fence("HEDGE_SKLAD_REAR", "hedge_privet", [[57.0, 30.0], [57.0, 20.0]], 1.8, False, True, note="rear-yard hedge (gap y 12-20)")
-fence("HEDGE_SKLAD_REAR2", "hedge_privet", [[57.0, 12.0], [57.0, 3.0]], 1.8, False, True)
+fence("HEDGE_SKLAD_REAR", "hedge_privet", [[56.9, 30.0], [56.9, 20.0]], 1.8, False, True, note="hedge on the levelled strip behind RW_SKLAD_E (gap y 12-20)")
+fence("HEDGE_SKLAD_REAR2", "hedge_privet", [[56.9, 12.0], [56.9, 5.0]], 1.8, False, True)
 fence("HEDGE_TC_NE", "hedgerow_mixed", offset_polyline(resample(TC_XY, 44.0, 76.0), 4.6), 2.2, False, True, note="hedgerow NE of track C (gap 76-86)")
 fence("HEDGE_TC_NE2", "hedgerow_mixed", offset_polyline(resample(TC_XY, 86.0, 118.0), 4.6), 2.2, False, True)
 fence("F_DOMEK1_FRONT", "timber_picket_1m", [[21.5, 57.0], [21.5, 71.0]], 1.1, note="front garden fence S_DOMEK_1")
@@ -588,9 +858,11 @@ veg_copse("VK_6", [-36.0, 90.0], [10.0, 7.0], 85, 3.5, "copse in arm B west (NW 
 veg_copse("VK_7", [-118.0, -14.0], [10.0, 6.0], 15, 3.5, "copse in arm A north meadow")
 veg_copse("VK_8", [74.5, -50.5], [12.0, 7.0], 30, 3.5, "copse on the E spur foot above track C")
 veg_copse("VK_9", [46.0, -12.0], [8.0, 14.0], 0, 3.5, "copse S of the warehouse: breaks E-ring -> square -> workshop yard lines")
-veg_belt("VB_SKLAD_N", [[52.4, 31.0], [37.3, 31.4], [37.6, 44.8]], 2.6, 5.5,
-         "L-shaped windbreak (hornbeam/field maple row, dense to the ground, 5.5 m) round the warehouse north end: "
-         "no overwatch from the steep E spur slope / E ring path into the square and the workshop yard")
+veg_belt("VB_SKLAD_N", [[52.4, 34.2], [38.2, 34.2], [38.2, 44.8]], 2.6, 5.5,
+         "L-shaped windbreak (Norway spruce row with hornbeam and field maple, dense to the ground, 5.5 m; ref. 01 shows a spruce "
+         "row by the track east of the warehouse) behind RW_SKLAD_N: no overwatch from the steep E spur slope / E ring into the "
+         "square and the workshop yard")
+VEG[-1]["species_mix"] = "Norway spruce (branches to the ground) 50 %, hornbeam 25 %, field maple 15 %, hazel 10 %"
 veg_belt("VB_BROOK_W1", brook_bank(brook_s([-15.3, 62.0]), brook_s([-18.0, 96.0]), -5.2), 2.2, 3.0,
          "west bank N of footbridge B: breaks the long view down the brook corridor")
 # úvoz south crest: hedgerow with young field maples (a typical mez along a sunken lane), 4.5 m, 4.2 m S of the lane axis

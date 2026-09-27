@@ -474,7 +474,8 @@ def pistol_grip_frame_search(model, coll, ga, fwd, side, mcp_ref, grip_parts, tr
                         ipen = abs(ir["terms"].get("_gap", 0.03) * 1000 - 0.6) * 2 + max(0.0, -ir["terms"]["_min_sd"] * 1000 - 0.3) * 10
                     else:
                         ir = fit_index(model, k, pose, H, coll, "straight", along_parts=along_parts)
-                        ipen = ir["terms"].get("_gap", 0.05) * 1000 * 0.5 + ir["terms"]["_dir_deg"] * 0.2
+                        ipen = (abs(ir["terms"].get("_gap", 0.05) * 1000 - 0.8) * 0.5 + ir["terms"]["_dir_deg"] * 0.2
+                                + 10.0 * max(-ir["terms"]["_min_sd"] * 1000 - 0.3, 0.0))
                     sc = (-sn * 1000 - ipen - 4.0 * nfor - 2.0 * wfor * 1000 - 0.2 * max(row_dev - 10.0, 0.0)
                           - 5.0 * max(fpen * 1000 - 1.0, 0.0) - 0.5 * max(clear * 1000 - 3.0, 0.0))
                     rerr = None
@@ -528,7 +529,7 @@ def fit_thumb(model, k, pose, H, coll, direction, parts=None, starts=None, bound
 STRAIGHT_INDEX_DIR = np.array([1.0, 0.0, 0.30])
 
 
-def fit_index(model, k, pose, H, coll, mode, trigger_point=None, trigger_part="Trigger", along_parts=None):
+def fit_index(model, k, pose, H, coll, mode, trigger_point=None, trigger_part="Trigger", along_parts=None, target=None):
     """mode 'straight': index along the frame (trigger discipline); 'trigger': pad on the trigger."""
     s = model.s
     masks = HN.finger_masks(model, k, s)
@@ -547,7 +548,13 @@ def fit_index(model, k, pose, H, coll, mode, trigger_point=None, trigger_part="T
     tb = tpart["bvh"]
     mv = masks[("index", 1)]
     g = None
-    for mcp, abd, pip, dip in itertools.product(range(10, 91, 10), (-15, -5, 5, 15), range(0, 101, 15), range(0, 71, 15)):
+    if target is not None:
+        # start from the coupled-angle grid that brings the pad onto the trigger contact point
+        err, ang = index_reach(model, k, pose, H, coll, target)
+        if ang is not None:
+            g = (err, ang)
+    for mcp, abd, pip, dip in (itertools.product(range(10, 91, 10), (-15, -5, 5, 15), range(0, 101, 15), range(0, 71, 15))
+                               if g is None else ()):
         if HN.coupling_penalty(pip, dip, mcp) > 0:          # anatomically coupled candidates only
             continue
         pose["index"] = F(mcp, pip, dip, abd)
@@ -714,13 +721,10 @@ def fit_rifle_grip(model, coll, rig, trigger=False, base=None):
         # contact point: the front face of the trigger blade 1.0 cm above its tip (where the
         # distal pad presses), found on the evaluated Trigger mesh; the pad targets it 0.6 mm out
         target = trigger_contact_point(coll, "Trigger")
-        H2, rep = trigger_press(model, 0, pose, H, coll, target, re_wrap=("middle", "ring", "pinky"),
-                                thumb_dir=None, max_rot=0.05, max_move=0.004)
-        rep["placement"] = ("the trigger-discipline grip (chosen so the index can reach the trigger), the hand allowed "
-                            "to shift <= 4 mm / 3 deg while the index pad moves onto the trigger face; middle / ring / "
-                            "little re-wrapped, thumb kept")
-        rep["trigger_contact_point_m"] = [round(float(v), 5) for v in target]
-        return H2, pose, rep
+        ir = fit_index(model, 0, pose, H, coll, "trigger", trigger_part="Trigger", target=target)
+        return H, pose, {"placement": "the trigger-discipline grip (chosen so the index can also reach the trigger); only "
+                                      "the index moves: its distal pad onto the trigger's front face",
+                         "trigger_contact_point_m": [round(float(v), 5) for v in target], "index": ir}
     X = S[:3, :3] @ np.array([1.0, 0, 0])
     Mw = lambda v: (S @ np.append(np.asarray(v, float) / 100.0, 1.0))[:3]       # noqa: E731 (cm, weapon frame)
     tp = "Trigger" if trigger else None
@@ -796,8 +800,9 @@ def fit_pistol_2h(models, pistol_parts):
     Hr0, pose_r, rr0 = pistol_grip_frame_search(mr, coll, up, fw, Y, mcp_ref, ["PX_Grip"],
                                                 along_parts=["PX_Frame", "PX_Slide"], reach=tpt)
     rr0["thumb"] = fit_thumb(mr, 0, pose_r, Hr0, coll, np.array([1.0, 0, -0.15]), parts=["PX_Frame", "PX_Slide", "PX_Grip"])
-    Hr_, rr = trigger_press(mr, 0, pose_r, Hr0, coll, tpt, re_wrap=("middle", "ring", "pinky"), thumb_dir=None,
-                            max_rot=0.05, max_move=0.004)
+    Hr_ = Hr0
+    rr = {"index": fit_index(mr, 0, pose_r, Hr0, coll, "trigger", trigger_part="PX_Trigger", target=tpt),
+          "trigger_contact_point_m": [round(float(v), 5) for v in tpt]}
     rr["grip_search"] = {k_: v for k_, v in rr0.items() if k_ != "candidates"}
     # left hand: the posed right glove joins the collider; the support hand holds grip + firing
     # fingers like a grip from the left: palm on the left panel over the firing fingertips,
@@ -1124,8 +1129,21 @@ def main():
 # stage: validate
 # =============================================================================
 
-HAND01_LIMITS = dict(tip_palm_mm=1.5, finger_finger_mm=4.0, thumb_mm=4.0, glove_poke_mm=0.5,
-                     weapon_pen_mm=2.0, contact_gap_mm=3.0, glove_float_p95_mm=4.0)
+# bare-skin limits; the glove shells are offset copies of the skin (1.0-1.25 mm each), so where
+# two bare surfaces press together their shells overlap by the two thicknesses more
+HAND01_LIMITS = dict(tip_palm_mm=1.5, finger_finger_mm=4.0, thumb_mm=4.0, glove_shells_extra_mm=2.5,
+                     glove_poke_mm=0.5, weapon_pen_mm=2.0, contact_gap_mm=3.0, glove_float_p95_mm=4.0)
+# per grip: the digits that must hold the object (some segment within 0-3 mm of the named parts)
+GRIP_HOLD = {
+    "rifle_grip_index_straight": {"r": {"middle": ["PistolGrip"], "ring": ["PistolGrip"], "pinky": ["PistolGrip"],
+                                        "thumb": None, "index": ["LowerReceiver", "UpperReceiver"]}},
+    "rifle_grip_trigger": {"r": {"middle": ["PistolGrip"], "ring": ["PistolGrip"], "pinky": ["PistolGrip"],
+                                 "thumb": None, "index_03": ["Trigger"]}},
+    "support_handguard": {"l": {"index": ["Handguard"], "middle": ["Handguard"], "ring": ["Handguard"], "thumb": None}},
+    "mag_grasp": {"l": {"index": None, "middle": ["Magazine"], "ring": ["Magazine"], "pinky": ["Magazine"], "thumb": None}},
+    "pistol_2h": {"r": {"middle": ["PX_Grip"], "ring": ["PX_Grip"], "pinky": ["PX_Grip"], "index_03": ["PX_Trigger"]},
+                  "l": {"index": None, "middle": None, "ring": None, "thumb": None}},
+}
 
 
 def load_pose_scene(with_props=True):
@@ -1278,6 +1296,14 @@ def validate():
                 r["max_penetration_mm"] = round(max([v["penetration_mm"] for v in reg.values()] + [worst * 1000]), 2)
                 cont = [k for k, v in reg.items() if v["in_contact_0_3mm"]]
                 r["segments_in_contact"] = cont
+                hold = {}
+                for dg, parts_ok in GRIP_HOLD.get(pn, {}).get(s, {}).items():
+                    segs_ = [k for k in reg if (k == dg or k.startswith(dg + "_"))]
+                    okk = [k for k in segs_ if reg[k]["in_contact_0_3mm"]
+                           and (parts_ok is None or set(reg[k]["touches"]) & set(parts_ok))]
+                    hold[dg] = {"holding_segments": okk, "ok": bool(okk),
+                                "min_gap_mm": min(reg[k]["min_gap_mm"] for k in segs_) if segs_ else None}
+                r["grip_hold"] = hold
             er["sides"][s] = r
         out["poses"][pn] = er
         log("validated", pn, round(time.time() - t0, 1))
@@ -1290,7 +1316,9 @@ def hand_checks(v):
     L = HAND01_LIMITS
     chk = {}
     worst = {"tip_palm": 0.0, "finger_finger": 0.0, "thumb": 0.0, "through_back": 0, "poke": 0.0,
-             "angle_dev": 0.0, "bone_len": 0.0, "wpn_pen": 0.0}
+             "angle_dev": 0.0, "bone_len": 0.0, "wpn_pen": 0.0, "bare_tip_palm": 0.0, "bare_finger_finger": 0.0,
+             "bare_thumb": 0.0}
+    hold_fail = []
     for pn, e in v["poses"].items():
         for s, r in e["sides"].items():
             worst["angle_dev"] = max(worst["angle_dev"], r["angle_readback_max_dev_deg"])
@@ -1302,16 +1330,29 @@ def hand_checks(v):
             worst["thumb"] = max(worst["thumb"], gs["thumb_max_mm"])
             if "bare_fingertips_through_back" in r:
                 worst["through_back"] = max(worst["through_back"], r["bare_fingertips_through_back"]["verts"])
+            if "bare_contact" in r:
+                for c in ("tip_palm", "finger_finger", "thumb"):
+                    worst["bare_" + c] = max(worst["bare_" + c], r["bare_contact"][f"{c}_max_mm"])
+            for dg, h in r.get("grip_hold", {}).items():
+                if not h["ok"]:
+                    hold_fail.append(f"{pn}/{s}/{dg}")
             if "max_penetration_mm" in r:
                 worst["wpn_pen"] = max(worst["wpn_pen"], r["max_penetration_mm"])
     chk["joint_angles_exact_readback"] = "PASS" if worst["angle_dev"] < 0.05 else "FAIL"
     chk["phalanx_lengths_constant"] = "PASS" if worst["bone_len"] < 1e-3 else "FAIL"
     chk["no_fingertip_through_back_of_hand"] = "PASS" if worst["through_back"] == 0 else "FAIL"
     chk["glove_never_penetrated_by_skin"] = "PASS" if worst["poke"] <= L["glove_poke_mm"] else "FAIL"
+    ex = L["glove_shells_extra_mm"]
+    chk["bare_fingertip_into_palm_le_1.5mm"] = "PASS" if worst["bare_tip_palm"] <= L["tip_palm_mm"] else "FAIL"
+    chk["bare_finger_finger_overlap_le_4mm"] = "PASS" if worst["bare_finger_finger"] <= L["finger_finger_mm"] else "FAIL"
+    chk["bare_thumb_overlap_le_4mm"] = "PASS" if worst["bare_thumb"] <= L["thumb_mm"] else "FAIL"
     chk["glove_fingertip_into_palm_le_1.5mm"] = "PASS" if worst["tip_palm"] <= L["tip_palm_mm"] else "FAIL"
-    chk["glove_finger_side_contact_le_4mm"] = "PASS" if worst["finger_finger"] <= L["finger_finger_mm"] else "FAIL"
-    chk["glove_thumb_contact_le_4mm"] = "PASS" if worst["thumb"] <= L["thumb_mm"] else "FAIL"
+    chk[f"glove_finger_finger_overlap_le_{L['finger_finger_mm'] + ex}mm"] = (
+        "PASS" if worst["finger_finger"] <= L["finger_finger_mm"] + ex else "FAIL")
+    chk[f"glove_thumb_overlap_le_{L['thumb_mm'] + ex}mm"] = "PASS" if worst["thumb"] <= L["thumb_mm"] + ex else "FAIL"
     chk["weapon_penetration_le_2mm"] = "PASS" if worst["wpn_pen"] <= L["weapon_pen_mm"] else "FAIL"
+    chk["grip_digits_in_contact_0_3mm"] = "PASS" if not hold_fail else "FAIL"
+    chk["_grip_hold_failures"] = hold_fail
     chk["_worst"] = {k: round(float(x), 3) for k, x in worst.items()}
     return chk
 

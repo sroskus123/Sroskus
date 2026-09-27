@@ -40,6 +40,10 @@ creation-time metadata.
 | UE-mannequin bone names and hierarchy, single root `root` (+ 4 UE4 twist bones) | **PASS** | report `skeleton` |
 | Every vertex weighted, ≤ 4 influences, sums 1, exact L/R symmetry | **PASS** | report `skin`, `weights` |
 | Joints inside the mesh, tips on the surface (bone lengths match the mesh) | **PASS** | report `joints_vs_mesh`; `HumanBase_skeleton_*.png` |
+| Finger joints centred in the fingers (PIP / DIP dorsal fraction 0.44–0.47, MCP 0.35 = knuckle depth) (R1-HAND-01) | **PASS** | report `finger_joint_depths` |
+| Phalanx ratio proximal / middle 1.55–1.97 | **PASS** | report `finger_segments` |
+| Anatomical fists: no fingertip through the back of the hand; tuned full fist fingertip-into-palm ≤ 2 mm; grip 60/80/50 without fingertip–palm contact | **PASS** | report `hand_anatomical_fist_tests` |
+| No weight spikes (> 0.3 step between neighbours) on any bone, including foot / ball (R1-TOE-WEIGHTS) | **PASS** | report `toe_weights` |
 | Proportions within plausibility ranges | **PASS** | report `measurements` (section 3) |
 | FBX re-import (Blender) | **PASS** | report `export.fbx_reimport` |
 | GLB re-import (Blender) | **PASS** | report `export.glb_reimport` |
@@ -107,15 +111,15 @@ has no single reference person.
 | Arm (upper arm) | shoulder joint → elbow joint | **29.8 cm** | 28.5–33.5 |
 | Forearm | elbow joint → wrist joint | **25.3 cm** | 24.5–27.5 |
 | Hand | wrist joint → tip of middle finger (mesh) | **21.0 cm** | 18.5–21.5 |
-| Hand breadth | across the palm (mesh, hand-dominated vertices) | 9.3 cm | – |
-| Thigh | hip joint → knee joint | **43.3 cm** | 41.5–46.5 |
+| Hand breadth | across the palm (mesh, hand-dominated vertices) | 9.0 cm | – |
+| Thigh | hip joint → knee joint | **43.5 cm** | 41.5–46.5 |
 | Shin | knee joint → ankle joint | **45.5 cm** | 41.5–46.5 |
 | Foot | heel → toe tip along the foot axis (mesh) | **26.9 cm** | 25.5–29.0 |
 | Shoulder joint height | – | 143.5 cm | 140–148 |
 | Hip joint height | – | 95.6 cm | 90–98 |
 | Knee joint height | – | 52.7 cm | 48–54 |
 | Ankle joint height | – | 7.4 cm | – |
-| Hip joint separation | – | 22.7 cm | – |
+| Hip joint separation | – | **18.7 cm** (MPFB joint cubes gave 22.7 cm; R1 moved each thigh head 2.0 cm medially, adult-male hip-centre regressions give 17.5–19 cm) | 17.5–19 |
 | Arm span (estimate) | 2 × (shoulder joint x + arm + forearm + hand) | 190.9 cm | 178–192 |
 | Elbow / wrist / fingertip height, arm hanging | shoulder joint height minus the segments | 113.8 / 88.4 / 67.4 cm | – |
 
@@ -220,11 +224,11 @@ lists all 57 bones with head, tail, length and roll):
 | pelvis | 0, −0.3, 96.2 | 9.7 | upperarm_l | 19.4, −1.8, 143.5 | 29.8 |
 | spine_01 | 0, 3.0, 105.3 | 7.3 | lowerarm_l | 39.2, −1.6, 121.3 | 25.3 |
 | spine_02 | 0, 2.1, 112.5 | 6.3 | hand_l | 55.8, −8.0, 103.3 | 3.7 |
-| spine_03 | 0, 3.1, 118.7 | 14.3 | thumb_01_l | 57.5, −12.0, 100.7 | 3.5 |
-| neck_01 | 0, −1.1, 154.4 | 10.7 | index_01_l | 61.9, −14.7, 95.3 | 2.9 |
-| head | 0, −4.9, 164.4 | 16.2 | middle_01_l | 62.8, −11.9, 94.9 | 3.8 |
-| thigh_l | 11.3, 0.8, 95.6 | 43.3 | ring_01_l | 62.9, −9.6, 94.8 | 3.4 |
-| calf_l | 15.7, −2.8, 52.7 | 45.5 | pinky_01_l | 62.2, −7.3, 94.7 | 2.4 |
+| spine_03 | 0, 3.1, 118.7 | 14.3 | thumb_01_l | 57.5, −12.1, 100.7 | 3.5 |
+| neck_01 | 0, −1.1, 154.4 | 10.7 | index_01_l | 61.0, −14.0, 96.0 | 4.3 |
+| head | 0, −4.9, 164.4 | 16.2 | middle_01_l | 61.7, −11.5, 95.7 | 5.3 |
+| thigh_l | 9.3, 0.8, 95.6 | 43.5 | ring_01_l | 61.7, −9.4, 95.6 | 4.8 |
+| calf_l | 15.7, −2.8, 52.7 | 45.5 | pinky_01_l | 61.1, −7.4, 95.6 | 3.9 |
 | foot_l | 20.5, −1.5, 7.4 | 14.6 | ball_l | 20.9, −14.5, 0.9 | 7.4 |
 
 **Bones vs mesh** (check `joints_inside_mesh_tips_on_surface` = PASS):
@@ -234,16 +238,28 @@ lists all 57 bones with head, tail, length and roll):
 - Twist-bone tails lie inside the arm.
 - The largest L/R joint asymmetry is 0.0 mm.
 
-**Anatomical bone axes (measured).** For every finger and thumb bone, local **+X is the
-flexion axis**: the dot product with the anatomical axis is 0.96–1.00, and positive rotation
-curls towards the palm on **both** hands, because Blender mirrors the rolls. Local Z of the
-finger `_01` bones is the abduction axis. +Z moves the index towards the thumb on the left
-hand; the sign is mirrored on the right. The thumb:
-- `thumb_01` +X folds it across the palm;
-- `thumb_01` +Z (left, mirrored on the right) swings it out in front of the palm;
-- `thumb_02/03` +X curl it.
+**Finger joints (review R1-HAND-01, fixed).** MPFB's joint cubes put the PIP / DIP joints 3–5 mm
+under the dorsal skin (dorsal fraction 0.13–0.27) and the MCP at the finger webs, so a fist
+drove the fingertips through the back of the hand. The joints are now re-seated inside the
+fingers (`FINGER_RESEAT`: PIP / DIP centred, dorsal fraction 0.44–0.47; MCP moved 1.2 cm
+proximally to the knuckle, dorsal fraction 0.35), and the finger weights are rebuilt around them.
 
-Verified with renders during development; `ivchar.pose_hand()` uses these axes.
+**Anatomical bone axes.** For every finger and thumb bone, local **+X is the flexion axis** and
+positive rotation curls towards the palm on **both** hands (Blender mirrors the rolls). Each
+finger chain (and the thumb MCP + IP) now **shares one flexion axis exactly** (0.000°): the
+chain is made planar first (joint shifts ≤ 1.7 mm, `finger_axes` in the report), then every
+bone's roll is set so its X is the chain's mean axis (`ivchar.unify_chain_axes`). Local Z of the
+finger `_01` bones is the abduction axis (+ = towards the thumb on both hands in the anatomical
+pose API). The thumb: `thumb_01` +X folds it across the palm, +Z (mirrored on the right) swings
+it out in front of the palm, `thumb_02/03` +X curl it.
+
+**Pose API (anatomical, used by all hand poses).** `ivchar.pose_hand_anat(arm, side, pose)` takes
+anatomical degrees (0 = straight finger, the proximal phalanx in the palm plane); the rest pose's
+own flexion (MCP 11–14°, PIP 8–14°) is measured once and stored on the armature
+(`iv_hand_rest_angles`). Finger `_01`: `q = Rx(mcp − rest) · Rz(abd)` (flexion about the
+metacarpal-fixed axis, abduction about the floating axis); `_02/_03`: `Rx(angle − rest)`; thumb
+`_01`: `Rx(cmc_flex) · Rz(cmc_abd) · Ry(cmc_rot)`. `ivchar.measured_hand_angles()` reads the
+angles back exactly. See `Art/Reference/HANDS_spec.md`.
 
 ## 8. Skinning
 
@@ -252,9 +268,11 @@ Verified with renders during development; `ivchar.pose_hand()` uses these axes.
 | Source | `weights.game_engine.json`, at most 6 influences per vertex on the body, rows summing to 1 ± 1e-4 |
 | Vertex mapping | targets move vertices but keep their indices; body vertices 0..13379 map 1:1 (helpers dropped) |
 | Symmetrisation | the source L/R mismatch was up to **0.259** (645 vertices over 0.01, mostly calves, feet and pelvis). Each vertex is averaged with its `hm08.mirror` partner, bones mirrored `_l`↔`_r`. After: **0.000**. |
+| Finger weights (R1-HAND-01) | rebuilt procedurally around the re-seated joints for the hand and the four finger chains (`FINGER_WEIGHTS`: dorsal / palmar MCP windows, IP windows ±30 % of the shorter phalanx, lateral blend at the webs); thumb unchanged |
+| Toe weights (R1-TOE-WEIGHTS) | the foot / ball split across the MTP crease was jagged; it is smoothed over 3 vertex rings (10 iterations), mirror-exact; max gradient 0.74 per cm, 0 spikes > 0.3 on any bone |
 | Twist split | forearm: a smoothstep ramp moves 0 → 100 % of `lowerarm` weight to `lowerarm_twist_01` between 30 % and 70 % of the forearm. Upper arm: 100 → 0 % of `upperarm` weight to `upperarm_twist_01` between 20 % and 55 % (shoulder side). |
 | Influence limit | **4 per vertex** (real time), mirror-exact: left and midline vertices are limited, then right vertices copy their mirror partner. Before the limit, after symmetrisation and the twist split, at most 7 influences, with 630 vertices over 4. The mean L1 change is 0.0004, the maximum 0.11. |
-| Result | 13 380 vertices, **0 unweighted**, max 4 influences (1: 6 333, 2: 4 314, 3: 1 403, 4: 1 330), sums **1.000000**, every vertex group is a bone, and `root` is the only deform bone without weight (check `skin_all_weighted_max4_sum1` = PASS) |
+| Result | 13 380 vertices, **0 unweighted**, max 4 influences, sums **1.000000**, every vertex group is a bone, and `root` is the only deform bone without weight (check `skin_all_weighted_max4_sum1` = PASS) |
 
 ## 9. Twist bones: runtime rule (must be implemented in the engine)
 
@@ -277,6 +295,28 @@ Measured effect (validation `deformation_tests`, radius ratio posed/rest; 1.0 = 
 | same, forearm 95 % / 85 % / 50 % | 0.866 / 0.931 / 1.000 | 0.964 / 0.981 / 0.940 |
 | Upper arm rolled 70° (elbow 90°): 10 % / 20 % ring | **0.881** / 0.917 | **0.969** / 0.978 |
 
+### 9.1 Corrective shapes (review R1-ELBOW-140 / R1-KNEE-HIP-LBS)
+
+Plain LBS pinches the inner elbow at 140° (clearance 0.535 of rest, a sharp wedge) and loses
+~8 % of the body volume in a deep squat (knee clearance 0.51). 24 corrective shape keys fix
+this: `CS_<joint>_<angle>_<side>` for the elbow and knee (solved at 50 / 80 / 110 / 140°) and the
+hip flexion (30 / 55 / 80 / 105°). Each shape is solved from the dual-quaternion-skinned pose at
+its angle (the volume-preserving answer) and stored as a rest-space offset; at runtime the two
+neighbouring shapes cross-fade linearly with the joint angle (`ivchar.drive_correctives`, rules in
+`Art/Export/*/Human_Base.runtime.json`). The FBX / GLB carry the shape keys; **the engine must
+drive them** (UE: pose-driven curves / Control Rig; three.js: morph target influences per frame).
+
+| Pose | Plain LBS | Correctives + twist bones driven |
+| --- | --- | --- |
+| elbows 140°: inner clearance / ring at the elbow | 0.535 / 0.66 | **0.966** / 0.79 |
+| elbows 120° | 0.703 / 0.72 | **0.982** / 0.85 |
+| squat hip 100 / knee 130 / ankle 30: body volume, knee clearance | 0.917, 0.512 | **0.950**, **1.00** |
+| crouch hip 95 / knee 110: volume, knee clearance | 0.931, 0.711 | **0.962**, **0.998** |
+
+Renders: `HumanBase_compare_elbows_140_*.png`, `HumanBase_compare_squat_knees_130_*.png` (left
+plain LBS, right driven). The elbow wedge becomes a soft crease; the squat knee keeps its volume
+and the back of the knee no longer collapses (a shallow crease remains).
+
 ## 10. Deformation tests
 
 Plain LBS, 4 influences, rest A-pose, all poses scripted in `human_base.py` (`POSES`). Metrics
@@ -291,15 +331,21 @@ a bone), joint clearance and limb ring ratios.
 | arms_forward | shoulder flexion to horizontal, elbows straight | 28 | 0.09 | 0.13 / 2.73 | 8 | Shoulder cap smooth from the side and from above |
 | arms_crossed | forearms crossed in front of the chest | 13 | 0.08 | 0.15 / 1.70 | 153 | No elbow collapse. The pairs are hands and forearms touching the chest and arms (contact). |
 | elbows_120 | elbow flexion 120° | 22 | 0.02 | 0.28 / 1.84 | 64 | The inner crease compresses: joint-to-surface clearance goes from 2.45 to 1.68 cm (0.68). The outer elbow tip turns slightly pointed and faceted, a classic LBS artefact, **P2**. No inversion or candy-wrapper. |
-| squat_knees_120 | hip 100°, knee 120°, ankle 20°, feet planted | 35 | 0.06 | 0.23 / 8.18 | 192 | Knees bend the right way with no collapse. Back-of-knee clearance goes from 4.2 to 2.4 cm (0.57); calf and thigh touch (contact pairs). The gluteal skin stretches, with a **small pinch at the bottom of the gluteal cleft** (4 mm edges stretched up to 8×). **P2**, hidden under trousers. |
+| squat_knees_120 | hip 100°, knee 120°, ankle 20°, feet planted | 39 | 0.09 | 0.23 / 8.18 | 184 | Knees bend the right way with no collapse. Plain LBS: back-of-knee clearance 0.62, volume 0.919; driven correctives: 1.0 / 0.952. Calf and thigh touch (contact pairs). The gluteal skin stretches, with a **small pinch at the bottom of the gluteal cleft** (4 mm edges stretched up to 8×). **P2**, hidden under trousers. |
+| elbows_140 | elbow flexion 140° (R1 test) | 30 | 0.05 | 0.20 / 2.00 | 98 | Plain LBS: sharp inner wedge, clearance 0.535. Driven correctives: soft crease, clearance 0.966 (section 9.1). |
+| squat_knees_130 | hip 100°, knee 130°, ankle 30° (R1 test) | 39 | 0.03 | 0.23 / 8.18 | 200 | Plain LBS: volume 0.917, knee clearance 0.51. Driven: 0.950 / 1.00 (section 9.1). |
+| crouch_knees_110 | hip 95°, knee 110°, ankle 25° | 41 | 0.11 | 0.20 / 7.90 | 156 | Plain 0.931 / 0.71; driven 0.962 / 0.998 |
+| hip_abduction_45 | both hips 45° | 0 | 0.55 | 0.56 / 6.52 | 8 | Groin smooth; the medial hip centres (R1) keep the inner-thigh ring at 0.89 |
+| toes_40 | left toes 40° up, right 40° down | 12 | 0.09 | 0.12 / 2.54 | 14 | Smooth MTP crease after the toe-weight smoothing (R1) |
 | spine_twist | 55° axial (15/20/20) + neck 5° | 0 | 0.43 | 0.70 / 1.54 | 8 | Smooth torso twist |
 | wrist_flex | left flexion 70°, right extension 60° | 4 | 0.11 | 0.22 / 2.14 | 14 | No collapse on the palm or the back of the wrist |
 | wrist_twist | hand turned 80° about the forearm | 0 | 0.30 | 0.36 / 2.11 | 8 | **Candy-wrapper** with plain LBS: the wrist ring shrinks to 0.79 and a notch is visible. |
 | wrist_twist_driven | same, twist bones driven | 0 | 0.61 | 0.68 / 1.48 | 8 | Smooth wrist, ring 0.95 (`HumanBase_compare_wrist_twist_l/r.png`) |
 | upperarm_roll | elbow 90°, humerus rolled 70° | 32 | 0.01 | 0.07 / 2.13 | 255 | Shoulder ring 0.88; the pairs are forearm and hand touching the belly (contact) |
 | upperarm_roll_driven | same, twist bones driven | 28 | 0.01 | 0.07 / 1.66 | 255 | Shoulder ring 0.97, smooth shoulder cap |
-| fist | 80/90/45, thumb 45/10/35/40 | 150 | 0.03 | 0.14 / 3.51 | 752 | Reads as a proper fist, with the thumb across the middle phalanges. **No fingertip comes through the back of the hand.** The pairs are finger-to-finger and fingertip-to-palm contact inside the fist. The dorsal skin over the thumb knuckles stretches (1.7 mm edges up to 3.5×) and the palmar creases compress, as knuckles do. |
-| fingers_half | 42/48/30 (transition) | 60 | 0.01 | 0.04 / 1.70 | 50 | Natural half-curl. The strongest compression is in the palmar creases. |
+| fist | anatomical full fist FIST_TUNED_ROW | FIST_ROW_METRICS | Reads as a proper fist with the thumb across the index / middle middle phalanges. **No fingertip comes through the back of the hand** (0 vertices); fingertip-into-palm FIST_TIP mm. The pairs are fingers pressing against each other and the palmar creases folding, as in a real fist. |
+| fingers_grip | anatomical 60/80/50 | GRIP_ROW_METRICS | Closed grip without fingertip–palm contact |
+| fingers_half | anatomical 45/50/30 (transition) | HALF_ROW_METRICS | Natural half-curl. The strongest compression is in the palmar creases. |
 | fingers_spread | 14° spread, thumb 18° radial | 0 | 0.43 | 0.73 / 1.97 | 8 | Clean |
 
 \* Includes the 8 native lip pairs present in the rest pose.
@@ -316,7 +362,7 @@ the saved file is untouched. The skeleton inside the hand: `HumanBase_skeleton_h
 
 | File | Settings | Re-import (Blender stock importers, clean process) |
 | --- | --- | --- |
-| `Art/Export/FBX/SK_Human_Base.fbx` | `ivlib.FBX_UNREAL_OPTS`: centimetre bake (UnitScaleFactor 1, no node scale), `-Z` forward / `Y` up, no leaf bones, primary/secondary bone axis Y/X, smoothing groups, tangents, triangulated | **PASS**. 2.39 MB. 57 bones with the same names and parents, bone heads within **0.07 mm** of the source. Height **1.800 m** (bbox 131.5 × 31.7 × 180.0 cm). 13 380 vertices / 26 756 triangles, `UVMap`, armature modifier. Weights: 0 unweighted, max 4 influences, sums 1.000. 56 vertex groups: `root` has no weights, so FBX writes no cluster for it, but the bone exists. The importer converts cm to m with an armature object scale of 0.01; the file itself has no node scale. |
+| `Art/Export/FBX/SK_Human_Base.fbx` | `ivlib.FBX_UNREAL_OPTS`: centimetre bake (UnitScaleFactor 1, no node scale), `-Z` forward / `Y` up, no leaf bones, primary/secondary bone axis Y/X, smoothing groups, tangents, triangulated | **PASS**. 2.49 MB (with the 24 corrective shape keys). 57 bones with the same names and parents, bone heads within **0.07 mm** of the source. Height **1.800 m** (bbox 131.5 × 31.7 × 180.0 cm). 13 380 vertices / 26 756 triangles, `UVMap`, armature modifier. Weights: 0 unweighted, max 4 influences, sums 1.000. The FBX skin deformer has **57 clusters, one per bone including `root`** (root's cluster is empty; raw FBX read in the R1 review, `Art/Previews/_review/base/r1/r1_fbx_raw.json`), so Unreal sees a complete bind pose; Blender's re-import shows 56 vertex groups because it skips the empty one. The importer converts cm to m with an armature object scale of 0.01; the file itself has no node scale. |
 | `Art/Export/GLB/Human_Base.glb` | `ivlib.GLB_OPTS`: metres, Y up, skin, all bones, tangents, rest-position armature | **PASS**. 1.17 MB. 57 bones, heads within **0.07 mm**, height **1.800 m**. 14 517 vertices after the usual glTF split at UV seams (13 380 in the source), 26 756 triangles, 57 joints. Weights: 0 unweighted, max 4 influences, sums 1.000. |
 
 - **Armature object name `Armature`.** When Blender writes the armature object as an FBX null
@@ -358,12 +404,12 @@ the saved file is untouched. The skeleton inside the hand: `HumanBase_skeleton_h
     (0, −13.1, 168.7) cm.
    - Drive the twist bones (section 9). Without them, rifle-hold forearm pronation and
      supination will candy-wrapper the wrist.
-4. **Hand poses and grips** (`ivchar.pose_hand`, local +X = flexion):
-   - Tested fist: MCP/PIP/DIP **80/90/45°**, thumb `01` +45° X / +10° Z, `02/03` +35/+40°.
-   - **Do not exceed about 80/90/45**: at 88/100/62 the fingertips pass through the thin hm08
-     palm and appear on the back of the hand (seen in development renders).
-   - Grips on the IV-7 should be posed to contact, not by fixed angles; for close-up quality,
-     check intersections with the weapon mesh.
+4. **Hand poses and grips** (`ivchar.pose_hand_anat`, anatomical angles, section 7):
+   - The full fist is MCP 90 with PIP / DIP tuned per finger (FIST_TUNED_TEXT): no fingertip
+     through the back of the hand and the fingertip pad at most ~1 mm into the palm. The old
+     80/90/45 cap is gone (it came from the joints sitting under the dorsal skin, fixed in R1).
+   - The pose library, the tactical gloves and the IV-7 grips (fitted to contact on the real
+     weapon geometry) are in `Art/Reference/HANDS_spec.md`.
 5. **Animation:**
    - Retarget onto this skeleton (CMU BVH are T-pose, so compensate for the rest difference).
      Keep locomotion in-place (D7). Bone lengths are constant.
@@ -374,9 +420,10 @@ the saved file is untouched. The skeleton inside the hand: `HumanBase_skeleton_h
 | --- | --- | --- | --- |
 | 1 | P0 (external) | Unreal import, axis mapping, the possible extra `Armature` root bone, in-engine skinning and IK Retargeter setup against the UE mannequin were not tested. | **BLOCKED** (no Unreal) |
 | 2 | P1 if ignored | The twist bones only help when something drives them (section 9). Without a driver, hand twist past ~60° candy-wrappers the wrist (ring 0.79 at 80°). | Implement the rule in the three.js runtime and the UE AnimBP, or bake it during retargeting |
-| 3 | P2 | Elbow at 120°: pointed outer tip and 32 % inner clearance loss (plain LBS, 4 influences). | Possible later fix: corrective shape or helper bone. Sleeves hide most of it. |
-| 4 | P2 | Deep squat: gluteal stretch with a small pinch at the bottom of the cleft; back-of-knee compression. | Hidden by trousers. Revisit if a crouch animation shows it. |
-| 5 | P2 | Tightest clean fist is about 80/90/45°; hm08's thin palm lets tighter curls pass through the back of the hand. Fingers touch and intersect inside the fist. | Pose grips to contact; do not exceed these angles |
+| 3 | P2 (fixed when driven) | Elbow 120–140° and knee / hip flexion lose volume under plain LBS (elbow 140° inner clearance 0.535, squat volume 0.917). | **Fixed by the corrective shapes (section 9.1) — only if the engine drives them.** Without the rule the plain-LBS result remains. The outer elbow tip stays slightly faceted at 140°. |
+| 4 | P2 | Deep squat: gluteal stretch with a small pinch at the bottom of the cleft (edges stretched up to 8–10×, also with the correctives). | Hidden by trousers. Revisit if a crouch animation shows it. |
+| 5 | P2 | Adjacent fingers overlap by up to ~3–4 mm where they press together in a full fist (LBS has no soft-tissue contact); the palmar creases fold into themselves. | Hidden inside the fist; measured per pose in `hand_anatomical_fist_tests` / `Hands_validation.json` |
+| 5a | fixed (R1) | Finger joints under the dorsal skin, MCP at the webs, per-bone axis spread up to 4.9°; fist capped at 80/90/45; hip joint centres 22.7 cm apart; jagged foot / ball weights; spec wrongly said the FBX writes no `root` cluster. | Fixed in `human_base.py` / `ivchar.py` (sections 3, 7, 8, 11) |
 | 6 | P2 | Eyeballs removed: the eyelid openings show the dark socket pocket (`HumanBase_rest_front.png`). | Eye protection or a balaclava covers it; re-add `helper-*-eye` rigid to `head` for a bare-faced character |
 | 7 | P2 | 8 face pairs at the mouth corners intersect in the rest pose (native hm08 lip contact). | Hidden under face covering |
 | 8 | info | The proportion plausibility ranges are approximate literature values, not a measured reference person. The deltoid breadth is inflated by the A-pose. | – |

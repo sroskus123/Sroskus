@@ -40,6 +40,7 @@ pushed the fingertips through the back of the hand and the tested fist had to be
 | Finger joint depth (dorsal fraction = dorsal / (dorsal + palmar) thickness through the joint) | MPFB cubes: PIP/DIP 0.13–0.27 (3–5 mm under the dorsal skin), MCP at the finger webs | PIP / DIP **0.44–0.47** (centred), MCP **0.35** (knuckle depth, i.e. slightly palmar of the metacarpal-head top: 10–11 mm under the dorsal skin, 17–21 mm above the palmar skin); MCP moved 1.2 cm proximally from the web to the knuckle; PIP/DIP centred sideways |
 | Bone axes | per-bone MPFB rolls, X axes of one finger up to 3.1° apart (thumb IP/MCP 4.9°) | every finger chain (and thumb MCP + IP) **shares one flexion axis exactly** (0.000°); the chain was made planar first (joint shifts ≤ 1 mm, reported per finger in `HumanBase_validation.json → finger_axes`) |
 | Pose angles | curls were added on top of the relaxed rest pose (already MCP 11–14°, PIP 8–14° flexed), so "90/100/70" was really ~104/110/73 and drove the fingertips ~15 mm into the palm | poses are **anatomical** (0 = straight finger); the measured rest offsets are stored on the armature (`iv_hand_rest_angles`) and in the data (`Hand_Poses.json → conventions.rest_offsets_deg`) |
+| MCP abduction | (new) | joint-coordinate-system order `q = Rx(flexion) · Rz(abduction)`: abduction turns the finger about its own floating axis, so a flexed finger still moves **sideways**. (The first implementation used `Rz · Rx`; at 90° MCP that turned "abduction" into a twist of the finger about its long axis, which swung the curled fingertips into the neighbour.) Read back exactly (Euler `ZXY`) |
 | Full fist | capped at 80/90/45 (fingertips through the back beyond that) | MCP 90°, PIP 88–100°, DIP 55–70° per finger (index 90/88/55, middle 90/100/70, ring 90/92/60, little 90/100/70): **0 vertices through the back of the hand**, fingertip-into-palm **0.0 mm** on the bare skin (glove: ≤ 1 mm) |
 | Weights | MPFB finger weights centred on the old joints | procedural finger weights around the re-seated joints (R1), web and thumb splits smoothed |
 | Thumb | CMC 4.3 cm distal of the wrist joint in the thenar, metacarpal 3.5 cm / proximal 4.0 / distal+tip 3.2 cm | kept (the joints coincide with the thumb's weight splits and creases; see §9 for the proportion caveat); thumb MCP + IP now share one axis; rest thumb: metacarpal 40° radial and 46° palmar of the index metacarpal, flexion plane ~77° to the fingers' (opposition) |
@@ -121,17 +122,40 @@ target of the hand (the fingers come from the clip).
 in-game surface) with a numpy re-implementation of the armature skinning (checked against Blender:
 max 0.0003 mm difference) and BVH queries on the evaluated IV-7 meshes (appended read-only from
 `iv7_carbine.blend`; nothing is written back):
-1. Placement: pistol grips — the thumb–index web crotch on the back strap just below the tang, the
-   index MCP beside the frame, roll searched; handguard / magazine — a diagonal power grasp (the
-   object axis runs from the palm heel to the web), height / yaw / tilt searched. The hand then
-   slides along its palm normal to first contact (0.5 mm).
-2. Fingers: a tendon-coupled curl (MCP : PIP : DIP = 0.85 : 1 : 0.65) to first contact, then a
-   wrap optimisation of all three joints so every segment rests on the object (target 0.8 mm).
-3. Index: trigger discipline = straight finger pointing along the receiver axis with its pad side
-   touching the receiver; trigger = the distal pad resting on the trigger (≤ 0.6 mm).
-4. Thumb: a multi-start optimisation for contact plus a direction (forward along the receiver /
-   handguard / frame).
-5. Validation measures the result independently (exact ray-parity penetration, weapon vertices
+1. **Pistol grips (IV-7 grip, magazine, proxy pistol): placement by the grip's anatomy**
+   (`pistol_grip_frame_search`). The palm (2nd–5th metacarpals) lies on the grip's side, the
+   knuckle row along the grip axis (index on top), the straight fingers point forward, and the
+   middle MCP joint starts about one proximal phalanx behind the front strap, one finger radius
+   under the trigger guard. The hand then moves along its palm normal to first contact (0.5 mm).
+   Yaw, knuckle-row tilt, forward offset and height are searched (IV-7: 120 candidates). Each
+   candidate is scored on: the finger wrap measured on the **grip only**, no finger touching
+   anything else (the trigger guard), no penetration, the knuckle row parallel to the grip axis,
+   a high grip (the middle finger right under the guard), the index along the frame, and, for
+   the firing hand, that the **same placement lets the index pad reach the trigger face**
+   (coupled-angle grid). This is how a shooter holds a pistol grip: the proximal phalanges lie
+   along the side, the PIPs turn the front corner, the middle phalanges span the front strap and
+   the distal phalanges rest on the far side.
+2. **Handguard:** a diagonal power grasp (the object axis runs from the palm heel to the web),
+   height / yaw / tilt searched.
+3. **Fingers:** a tendon-coupled curl (MCP : PIP : DIP = 0.85 : 1 : 0.65) to first contact, then the
+   joints distal of the first touching segment keep closing; then a wrap optimisation of all three
+   joints so every segment rests on the object (target 0.8 mm) with a soft anatomical coupling (DIP
+   within 0.3–0.9 × PIP, MCP no more than 25° beyond PIP). A finger that misses the object stops at
+   the tuned full fist (it never curls into the palm).
+4. **Index:** trigger discipline = straight finger along the receiver side above the trigger guard
+   (rising 17° from its MCP) with its pad side on the receiver; trigger = the hand of the
+   trigger-discipline grip, allowed to shift ≤ 4 mm / 3°, with the distal pad moved onto the
+   trigger's front face (0.6 mm) by a joint hand + index refinement; the other fingers re-wrap, the
+   thumb stays.
+5. **Thumb:** a multi-start optimisation for pad contact plus a direction (forward along the left
+   side of the grip / handguard / frame).
+6. **Two-handed pistol:** the firing hand as above; the support hand holds grip + firing fingers
+   like a grip from the left (palm over the firing fingertips on the left panel, its index right
+   under the trigger guard, all four fingers wrapping the firing hand's fingers; contact with frame
+   / slide / trigger / guard penalised); the posed right glove is part of its collider.
+7. Every bounded Powell search is guarded (scipy's bounded Powell sometimes returned a point worse
+   than its start on these contact costs; the start is kept then).
+8. Validation measures the result independently (exact ray-parity penetration, weapon vertices
    inside the glove, per-segment gaps).
 
 ## 4. Validation results (from `Hands_validation.json`)
