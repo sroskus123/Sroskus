@@ -196,12 +196,12 @@ failure.
 
 | Check | Result |
 | --- | --- |
-| Bind pose, all part pairs | {{BIND_RESULT}} |
-| Documented poses: dust cover closed / half, carrier 3 and 7.5 cm, trigger +12°, selector SEMI / AUTO, bolt catch ±9°, magazine release pressed 1.5 mm, magazine dropping 1 cm and 7 cm rocked −6°, both sights at −30 / −60 / −90°, the combined rig test pose | {{POSE_RESULT}} |
-| Charging handle every 0.5 cm of its 7 cm stroke | {{CH_RESULT}} |
-| Every optic of `Shared/config/optics.json` mounted on the rail (its LOD0 GLB at `mount_on_iv7.socket_rail_rifle_m`), irons folded −90 / −90, charging handle at full stroke | {{OPTICS_RESULT}} |
-| Folded leaves (−90°) | {{FOLD_RESULT}} |
-| Negative control: rear leaf folded the wrong way (+90°) | {{NEG_RESULT}} (the check must catch it, and does) |
+| Bind pose, all part pairs | **0 penetrations**; 18 seating contacts (upper/lower, pins in their holes, barrel in nut and muzzle device, cross bolts, grip on the lower ...), deepest 0.016 mm |
+| Documented poses: dust cover closed / half, carrier 3 and 7.5 cm, trigger +12°, selector SEMI / AUTO, bolt catch ±9°, magazine release pressed 1.5 mm, magazine dropping 1 cm and 7 cm rocked −6°, both sights at −30 / −60 / −90°, the combined rig test pose | **19 / 19 PASS**, 0 penetrations (only coplanar selector-hub seating contacts) |
+| Charging handle every 0.5 cm of its 7 cm stroke | **14 / 14 guided**: 0 penetrations, shaft engaged 11.7 -> 5.2 cm, 0.2 mm from the channel at every step |
+| Every optic of `Shared/config/optics.json` mounted on the rail (its LOD0 GLB at `mount_on_iv7.socket_rail_rifle_m`), irons folded −90 / −90, charging handle at full stroke | **IVH1 PASS, IVR1 PASS, IVP2 PASS, IVS3 PASS, IVS6 PASS**, 0 penetrations; folded rear leaf to the optic 17.7 / 11.4 / 8.0 / 3.5 / 7.6 mm; charging handle at full stroke: no contact with any optic |
+| Folded leaves (−90°) | rear leaf lies at x -11.4 ... -8.17, z 4.37 ... 4.67 cm (bore frame); leaf plates 0.87 / 0.9 mm above their bases, 11.37 mm from the built-in optic |
+| Negative control: rear leaf folded the wrong way (+90°) | **FAIL as expected**: RearSightLeaf in the optic riser, 6.0 mm deep (the check must catch it, and does) |
 
 `Art/Previews/IV7/IV7_rig_pose_test.png` shows every moving bone posed (dust cover closed, carrier
 7.5 cm and charging handle 7 cm back, trigger pressed, selector on SEMI, bolt catch up, magazine
@@ -275,12 +275,12 @@ somewhat higher, interior/hidden surfaces lower by design):
 
 | Surface | Density |
 | --- | --- |
-| Body, receivers and controls | {{BODY_DENS}} |
+| Body, receivers and controls | 24.1-29.4 px/cm (upper 24.6, lower 29.0, handguard 24.1, optic 26.4) |
 | Body hidden or interior surfaces (receiver bore, handguard and buffer-tube insides, barrel under the handguard, gas system, bolt carrier) | 35–70 % of the exterior density, by design (`uv_scale_policy`) |
 | Engraved and painted markings (pictograms, roll marks) | 1.6× the exterior density, for legibility |
-| Furniture | {{FURN_DENS}} |
+| Furniture | 46.4 px/cm (grip, stock, magazine) |
 
-UV coverage of the 2048² sheets: Body **{{BODY_COV}}** (was 41 %), Furniture **{{FURN_COV}}**. The
+UV coverage of the 2048² sheets: Body **47.5 %** (was 41 %), Furniture **67.3 %**. The
 Body sheet stays below the 65–70 % a hand-packed sheet reaches because the bevelled hard-surface
 parts break into ≈ 2 000 smart-projection islands, each with a 3 px margin (§10, MAT-6).
 
@@ -288,9 +288,9 @@ Material identity, as baked values (linear):
 
 | Material | BaseColor | Metallic | Roughness | Notes |
 | --- | --- | --- | --- | --- |
-| Black hard-anodised aluminium | ≈ (0.040, 0.041, 0.047): dark, slightly cool (B/R ≈ 1.15), so the specular reflection is faintly coloured | **1** | ≈ 0.29–0.32 on the flats (measured {{ANOD_ROUGH}}), low-frequency breakup ±0.05 plus machining streaks (1.6 mm pitch, ±0.02), ≈ 0.05 lower on bevel highlights and where handled | Metal-like satin: sharper, structured highlights. Wear-through to bare aluminium (base ≈ 0.6, roughness ≈ 0.27) only where an edge is convex AND exposed (baked AO) and weighted by the contact attribute, broken into chips (not a line along every bevel): {{ANOD_WEAR}} of the exterior anodised texels. Micro normal: orange-peel + tool-path lines (mean tilt {{ANOD_TILT}}). Light dust in cavities (≈ 0.08 linear, rough ≈ 0.6); heavy grime in closed cavities is a dielectric layer |
+| Black hard-anodised aluminium | ≈ (0.040, 0.041, 0.047): dark, slightly cool (B/R ≈ 1.15), so the specular reflection is faintly coloured | **1** | ≈ 0.29–0.32 on the flats (measured p5 / p50 / p95 = 0.27 / 0.32 / 0.38), low-frequency breakup ±0.05 plus machining streaks (1.6 mm pitch, ±0.02), ≈ 0.05 lower on bevel highlights and where handled | Metal-like satin: sharper, structured highlights. Wear-through to bare aluminium (base ≈ 0.6, roughness ≈ 0.27) only where an edge is convex AND exposed (baked AO) and weighted by the contact attribute, broken into chips (not a line along every bevel): 1.8 % of the exterior anodised texels. Micro normal: orange-peel + tool-path lines (mean tilt 0.8 deg, p99 5.6 deg). Light dust in cavities (≈ 0.08 linear, rough ≈ 0.6); heavy grime in closed cavities is a dielectric layer |
 | Nitrided steel | ≈ 0.05 | **1** | ≈ 0.37 | Carbon fouling at the muzzle and heavy cavity grime are dielectric layers with a narrow transition (metallic stays binary) |
-| Phosphated steel | ≈ 0.046 | **1** ({{PHOS_METAL}} of the texels > 0.9) | ≈ 0.52 | Darker and slightly less rough than the shared preset, so pins and controls read as dark grey steel |
+| Phosphated steel | ≈ 0.046 | **1** (96 % of the texels > 0.9) | ≈ 0.52 | Darker and slightly less rough than the shared preset, so pins and controls read as dark grey steel |
 | FDE polymer | ≈ (0.175, 0.125, 0.072) | 0 | ≈ 0.66 | Stippled areas ≈ 0.8 |
 | Magazine polymer | ≈ (0.066, 0.063, 0.057): slightly lighter and warm | 0 | **≈ 0.80** (matte, diffuse), ≈ 0.9 on the stippled lower flanks | Reads clearly apart from the cool, reflective satin metal receivers in sun and in shade (`IV7_sun_vs_shade.png`) |
 | Rubber | ≈ 0.017 | 0 | ≈ 0.9 | |
@@ -443,4 +443,35 @@ pass verified every item against the source, finished the open ones and regenera
 `review_renders.py`, `tech_checks.py` and their JSON output, review renders). The ivlib material
 change is opt-in (`style="worn_satin"`); the optics set keeps the legacy response.
 
-{{FIX_TABLE}}
+| ID | Sev. | Outcome | Change in the source | Evidence (regenerated) |
+| --- | --- | --- | --- | --- |
+| SIL-1 | P1 | **Fixed** | Real AR-type charging handle: T-handle (1.9 cm) + 12.2 cm shaft (14.1 cm) running in a 9.2 x 5.2 mm channel under the rail; latch lever on the left wing (1.4 mm pocket, 0.3 mm gap, raised 0.6 mm), vertical roll pin, thumb grooves, hook tooth in a notch of the upper's rear face; wings 0.2 mm behind the upper; body 0.2 mm over the castle nut | `pose_checks.charging_handle_stroke`: **14 / 14 guided**: 0 penetrations, shaft engaged 11.7 -> 5.2 cm, 0.2 mm from the channel at every step. `IV7_charging_handle.png`, `IV7_rig_pose_test.png` |
+| SIL-2 | P1 | **Fixed** | Fold = -90 deg about the bone's local Y (leaf top towards the stock) in the rig test pose, spec 5 / 9.4 and the optics spec; sight towers lowered to z 4.28 with the hinge at 4.52 so a folded leaf never touches its base; automated fold validation with the built-in optic and with every optic of `Shared/config/optics.json` mounted | Folds at -30 / -60 / -90 deg: 0 penetrations. Mounted optics: **IVH1 PASS, IVR1 PASS, IVP2 PASS, IVS3 PASS, IVS6 PASS**, 0 penetrations; folded rear leaf to the optic 17.7 / 11.4 / 8.0 / 3.5 / 7.6 mm; charging handle at full stroke: no contact with any optic. rear leaf lies at x -11.4 ... -8.17, z 4.37 ... 4.67 cm (bore frame); leaf plates 0.87 / 0.9 mm above their bases, 11.37 mm from the built-in optic. Negative control +90 deg: **FAIL as expected**: RearSightLeaf in the optic riser, 6.0 mm deep. `IV7_sights_folded.png` |
+| TECH-2 | P1 | **Fixed** | Same change as SIL-2 (the documented sign was the defect) | As SIL-2 |
+| TECH-1 | P1 | **Fixed** | The leaf's centre post runs up into the ghost ring (post to z 6.62, trimmed by the aperture bore), bevelled separately, then unioned; new validation `rear_sight_ring` + the one-shell rule for every part | RearSightLeaf LOD0 / LOD1 / LOD2: 1 / 1 / 1 shell; solid material on the centre line from the post (z 6.20) through the junction into the ring (z 6.52) in every LOD. `IV7_ads.png`, `fix_r1/fix_rear_ring_closeup_optic_hidden.png` |
+| MAT-1 | P1 | **Fixed** | Anodised aluminium: metallic 1, dark cool base (B/R 1.15, faintly coloured specular), satin roughness 0.29-0.32 with breakup and machining streaks, orange-peel + tool-path micro normal (`ivlib.mat_anodized(style='worn_satin')`; the legacy style used by the optics set is unchanged). Magazine polymer: lighter warm grey (0.066, 0.063, 0.057), matte 0.80 (0.9 stippled) | Exterior texels, anodised: BaseColor median [0.0409, 0.0409, 0.0467], metallic > 0.9 on 97.0 %, roughness p5 / p50 / p95 = 0.27 / 0.32 / 0.38; magazine: [0.0666, 0.0648, 0.0578], metallic 0, roughness p50 0.91. Inspect render (same camera as r1), sRGB luminance p50 / p90 upper receiver vs magazine: shade 12.9 / 52.3 vs 36.6 / 38.3 (r1: 30.6 / 51.1 vs 33.4 / 34.5); sun 21.9 / 61.2 vs 108.9 / 111.1 (r1: 62.9 / 85.5 vs 89.4 / 92.7). The receiver is now a dark reflective surface with sky highlights, the magazine a flat lighter diffuse grey. `IV7_sun_vs_shade.png` |
+| MAT-2 | P1 | **Fixed** | Wear only where an edge is convex AND exposed (baked AO) and weighted by the contact attribute (handguard bottom at the support hand, magwell flare, trigger guard, charging-handle wings and latch, rail teeth moderately, turret caps, end plate), broken into chips and scuffed patches; half-worn dark rims; light dust in cavities | Bare-aluminium texels (exterior anodised): r1 0.22 % -> 1.8 % (partial build 1.8 % as a continuous line on every bevel); per part: ChargingHandle 6.7 %, LowerReceiver 3.6 %, UpperReceiver 1.8 %, Handguard 1.1 %, Optic 1.1 %, BufferTube 0.1 %. `fix_r1/fix_graze_*.png`, `IV7_closeup_receiver_*.png` |
+| MAT-3 | P1 | **Fixed** | The mask bake moves every moving part away (dust cover, charging handle, carrier, selector, bolt catch, trigger, magazine release, both leaves, magazine + rounds): no inter-part AO or cavity dirt in either direction | ORM AO on the cover's closed-outer face: r1 mean 0.032 -> 0.95 (p5 0.78); lower flank under the port 0.69 vs control patch 0.78 (fence / button occlusion, no cover shape). `fix_r1/fix_engineAO_dustcover_open_vs_closed.png` |
+| Glass | P1 | **Fixed** | `M_IV7_Glass` = thin coated alpha glass (`ivoptics.mat_glass_thin`: alpha 0.05 per surface, blended, double sided, specular 0.7 with a cool coating tint): no transmission, no refraction | `glass_audit`: 0 problems; GLB `extensionsUsed` = ['KHR_materials_emissive_strength', 'KHR_materials_specular', 'KHR_materials_ior'] (no KHR_materials_transmission) |
+| SIL-3 | P2 | Fixed | Trigger, trigger pin and hammer pin 1.2 cm rearward | Trigger reach 7.36 cm (was 8.6) |
+| SIL-4 | P2 | Documented | LOP and bolt-face-to-butt added to 3 and 9.1 | LOP 34.65 cm |
+| SIL-5 | P2 | Fixed | Magwell front wall 14 -> 6 mm below the pivot-pin lug, flared mouth kept | Measured 6.0 mm; magazine clearance 0.5 mm |
+| SIL-6 | P2 | Fixed | Smooth carrier flat with 9 fine forward-assist notches (1.2 mm wide, 2.6 mm pitch) near the rear of the port; bolt head and extractor | `IV7_closeup_receiver_right.png` |
+| SIL-7 | P2 | Fixed | Grip top section inside the lower's footprint, first ring 2.8 mm below the top (even bevel) | Grip / lower seating contact 0 penetration |
+| TECH-3 | P2 | Fixed | Only UV islands whose TOTAL area is < 0.05 mm^2 are collapsed (a tiny face inside a larger island keeps its UVs); islands with no pixel centre are nudged / grown (up to 3.4x) instead of collapsed; glyph counters and pictogram gaps get the markings' 1.6x density; LOD triangles with collapsed UVs get a neighbour's affine mapping | Collapsed faces 6,060 -> 144 (Body); largest zero-UV face 0.050 mm^2 across LOD0/1/2 (limit 0.05); the '6' of the roll mark renders with its counter (`fix_r1/crop_rollmark_3x.png`) |
+| TECH-4 | P2 | Fixed | Pixel-exact per-island raster check (fails on any shared pixel); nudged islands update the ownership map | Shared pixels Body 0, Furniture 0 at 2048 |
+| TECH-5 | P2 | Partly fixed | Knife edge at the buffer tower removed (tower flat 1.55), dust-cover hinge rebuilt (solid barrel, then bored), leaves bevelled per piece, V-groove knurls. Remaining > 70 deg edges are mostly concave (inside corners of slots and knurls) | Convex / concave > 70 deg (cm): UpperReceiver 33.9/30.0, LowerReceiver 24.7/70.3, Optic 42.7/67.5, MuzzleDevice 16.2/4.0, RearSightBase 6.3/6.5, DustCover 0.0/0.0 (r1 total: upper 59.8, lower 61, optic 132, muzzle 54.7, dust cover 2 x 6.5 fold). Rail-slot and muzzle-slot convex edges remain: known issue |
+| TECH-6 | P2 | Fixed | Forward-assist pawl trimmed to the carrier radius + 0.2 mm, gas tube from x 3.05, CH wings 0.2 mm behind the upper, end plate over the tube OD, magazine-release hole deepened, bolt-catch top lowered | **0 penetrations**; 18 seating contacts (upper/lower, pins in their holes, barrel in nut and muzzle device, cross bolts, grip on the lower ...), deepest 0.016 mm; every documented pose 0 penetrations |
+| TECH-7 | P2 | Fixed | Upper bevelled with a 22 deg limit (the 26 deg side creases get a soft bevel, the large flats shade flat) | No flat receiver face > 1 cm^2 with corner normals > 5.5 deg off (the review's 4.63 cm^2 face: 12.2 deg); the magwell flare strip stays smooth by design |
+| TECH-8 | P2 | Fixed | FBX materials reference `_Normal_DX`; relative texture paths only; the header's source-file path reduced to the file name | Raw scan: `_Normal_DX` references 14, OpenGL normal references 0, '/home/' 0 in 4 FBX files |
+| TECH-9 | P2 | Fixed | One self-contained LOD0 GLB for the browser + a glTF set (LOD0/1/2 + magazine) sharing one copy of the textures | `Art/Export/GLB/IV7/` |
+| TECH-10 | P2 | Fixed | Magazine release and catch notch moved to x -6.3 over the rear of the magwell; magazine bone on that axis | `measurements.magazine_pivot_on_catch_axis` = [true, true] |
+| TECH-11 | P2 | Fixed | Recursive orphan purge; static magazine: all vertex groups and deform weights removed, custom normals copied from LOD0 | Orphan materials / meshes / generated images: 0; node groups: `glTF Material Output` only |
+| TECH-12 | P2 | Fixed | Selector hub disc planar and barrel cylindrical islands (`uv_planar_policy`) | Selector UV area with stretch > 1.5: 17.4 % -> 7.9 % |
+| MAT-4 | P2 | Fixed | Phosphate metallic 1 (darker base 0.046, roughness 0.52); grime / soot fade to dielectric in a narrow step | Phosphate texels metallic > 0.9: 95.9 % (r1: 0 %, all mid) |
+| MAT-5 | P2 | Improved | Orange-peel + tool-path micro normal, bake dithered to 8 bits | Anodised mean tilt 0.32-0.45 -> 0.79 deg, p99 5.6 deg (kept subtle on purpose: stronger peel read as crumpled paper in the close-ups) |
+| MAT-6 | P2 | Improved, documented | Per-island budgets, markings 1.6x, hidden surfaces 0.35-0.7x | Body coverage 41 % -> 47.5 %; the ~2,000 bevel islands with 3 px margins keep it below 65 % |
+| MAT-7 | P2 | Fixed | Stipple cells ~2.5 mm (~11 texels), low Voronoi randomness | `IV7_closeup_receiver_*.png` |
+| MAT-8 | P2 | Fixed | 0.3 mm dot, emission 8, black muzzle-side mask | `IV7_ads.png`: small saturated red dot |
+| MAT-9 | P2 | Fixed | SAFE = white bullet with an unpainted diagonal gap + thin slash, cutters never overlap | `fix_r1/crop_pictograms_3x.png` |
+| MAT-10 | P2 | Fixed | Housing 48 segments (12 per quarter) | `IV7_ads.png` |

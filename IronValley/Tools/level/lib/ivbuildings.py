@@ -44,7 +44,7 @@ Openings:
     setting; cs 0.10 / radius 4 would leave only 0.20-0.30 m and pinched the house U-stair); clear_height >= 2.05 m.
   * sliding doors (`sliding_door`): top-hung steel leaf on an external track; guides 0.05 m each side ->
     clear_width = width - 0.10, clear_height = head_height - 0.05.  `state.open` true = the leaf is parked beside the
-    opening over solid wall (`leaf_rest.u` = its span along the wall, `leaf_rest.side` = outside face, 0.12 m off
+    opening over solid wall (`leaf_rest.u` = its span along the wall, `leaf_rest.side` = outside face, 0.25 m off
     it, clear of the 0.15 m pilasters); false = closed and padlocked (solid collision, blocks bullets and vision, baked as wall in the navmesh).
   * roller doors: guide rails 0.05 m each side -> clear_width = width - 0.10; clear_height =
     state.open_height - 0.05 (bottom rail).  open_height < 2.10 is never used on a walkable opening.
@@ -828,13 +828,13 @@ def sklad():
     ]
     furniture = [
         furn("SK_F1", "L0", "pallet_racking_full", (-1.0, 1.15), (9.8, 1.10, 3.60), 0, "high", note="rack run 1a (x -5.9..3.9), loaded solid"),
-        furn("SK_F2", "L0", "pallet_racking_full", (8.9, 1.15), (5.4, 1.10, 3.60), 0, "high", note="rack run 1b; gap x 3.9..6.2 = cross aisle"),
+        furn("SK_F2", "L0", "pallet_racking_full", (8.55, 1.15), (4.7, 1.10, 3.60), 0, "high", note="rack run 1b; gap x 3.9..6.2 = cross aisle; ends 1.1 m short of the gable door SK_D6"),
         furn("SK_F3", "L0", "pallet_racking_full", (-4.1, -3.55), (9.2, 1.10, 3.60), 0, "high", note="rack run 2a (x -8.7..0.5)"),
-        furn("SK_F4", "L0", "pallet_racking_full", (7.2, -3.55), (8.8, 1.10, 3.60), 0, "high", note="rack run 2b; gap x 0.5..2.8 = cross aisle"),
-        furn("SK_F5", "L0", "forklift", (-10.6, -0.9), (2.3, 1.2, 2.10), 0, "high", note="parked forklift (ref. 02/03)"),
+        furn("SK_F4", "L0", "pallet_racking_full", (7.1, -3.55), (8.2, 1.10, 3.60), 0, "high", note="rack run 2b; gap x 0.5..3.0 = cross aisle; ends 0.8 m short of the gable window SK_W5"),
+        furn("SK_F5", "L0", "forklift", (-9.2, -0.9), (2.3, 1.2, 2.10), 0, "high", note="parked forklift (ref. 02/03), clear of the gable window SK_W2"),
         furn("SK_F6", "L0", "pallets_bagged_cement", (4.2, 4.4), (1.2, 1.0, 1.20), 0, "low"),
         furn("SK_F7", "L0", "pallets_bagged_cement", (9.9, 4.6), (1.2, 2.0, 1.20), 0, "low"),
-        furn("SK_F8", "L0", "big_bags_x3", (-10.3, -4.8), (1.0, 2.2, 1.40), 0, "low"),
+        furn("SK_F8", "L0", "big_bags_x3", (-10.3, -4.6), (1.0, 2.2, 1.40), 0, "low"),
         furn("SK_F9", "L0", "ibc_tanks_x2", (10.8, -5.05), (2.2, 1.0, 1.15), 0, "low"),
         furn("SK_F10", "L0", "desk_office", (-11.0, 3.6), (1.6, 0.8, 0.75), 90, "low"),
         furn("SK_F11", "L0", "filing_cabinets", (-8.6, 4.55), (0.9, 0.5, 1.40), 90, "low"),
@@ -1101,7 +1101,7 @@ def dum():
         furn("DM_F3", "L0", "wall_unit_cabinet", (-0.9, 0.45), (2.4, 0.5, 2.00), 0, "high",
              note="against the spine wall (review P2-WINDOW-FURNITURE: no longer in front of a window)"),
         furn("DM_F4", "L0", "kitchen_units", (3.85, 4.0), (2.3, 0.6, 0.90), 0, "low"),
-        furn("DM_F5", "L0", "kitchen_table", (3.5, 2.75), (1.0, 0.8, 0.75), 0, "low"),
+        furn("DM_F5", "L0", "kitchen_table", (3.3, 2.9), (1.0, 0.8, 0.75), 0, "low"),
         furn("DM_F6", "L0", "wardrobe", (-1.95, -2.0), (0.6, 1.6, 2.00), 0, "none", blocks_bullets=False, note="soft: concealment only"),
         furn("DM_F7", "L0", "bed_single", (-4.0, -3.55), (1.0, 2.0, 0.55), 90, "none", blocks_bullets=False),
         furn("DM_F8", "L0", "boiler_washing_machine", (4.65, -3.6), (0.7, 1.3, 1.80), 0, "high"),

@@ -1,0 +1,302 @@
+{
+ "inspect_sun": {
+  "upper_receiver": {
+   "px": 125125,
+   "lum_mean": 31.7,
+   "lum_p10_p50_p90_p99": [
+    18.9,
+    21.9,
+    61.2,
+    112.4
+   ],
+   "lum_std": 22.5,
+   "highlight_share_lum_gt_2x_median": 0.2116,
+   "rgb_mean": [
+    27.3,
+    32.2,
+    39.3
+   ],
+   "blue_minus_red": 11.98
+  },
+  "lower_receiver": {
+   "px": 107732,
+   "lum_mean": 28.4,
+   "lum_p10_p50_p90_p99": [
+    19.9,
+    21.9,
+    41.1,
+    149.9
+   ],
+   "lum_std": 23.76,
+   "highlight_share_lum_gt_2x_median": 0.0957,
+   "rgb_mean": [
+    27.9,
+    28.3,
+    31.1
+   ],
+   "blue_minus_red": 3.23
+  },
+  "magazine": {
+   "px": 43437,
+   "lum_mean": 107.8,
+   "lum_p10_p50_p90_p99": [
+    104.9,
+    108.9,
+    111.1,
+    114.1
+   ],
+   "lum_std": 5.3,
+   "highlight_share_lum_gt_2x_median": 0.0,
+   "rgb_mean": [
+    108.0,
+    107.8,
+    106.7
+   ],
+   "blue_minus_red": -1.33
+  },
+  "handguard": {
+   "px": 78020,
+   "lum_mean": 28.3,
+   "lum_p10_p50_p90_p99": [
+    3.1,
+    25.0,
+    54.9,
+    127.3
+   ],
+   "lum_std": 21.72,
+   "highlight_share_lum_gt_2x_median": 0.13,
+   "rgb_mean": [
+    23.7,
+    29.0,
+    35.8
+   ],
+   "blue_minus_red": 12.04
+  },
+  "grip_fde": {
+   "px": 43002,
+   "lum_mean": 142.1,
+   "lum_p10_p50_p90_p99": [
+    107.1,
+    150.3,
+    161.0,
+    163.2
+   ],
+   "lum_std": 22.26,
+   "highlight_share_lum_gt_2x_median": 0.0,
+   "rgb_mean": [
+    156.8,
+    140.0,
+    119.6
+   ],
+   "blue_minus_red": -37.26
+  }
+ },
+ "inspect_shade": {
+  "upper_receiver": {
+   "px": 125125,
+   "lum_mean": 23.7,
+   "lum_p10_p50_p90_p99": [
+    6.9,
+    12.9,
+    52.3,
+    110.2
+   ],
+   "lum_std": 23.72,
+   "highlight_share_lum_gt_2x_median": 0.3065,
+   "rgb_mean": [
+    19.0,
+    24.3,
+    31.5
+   ],
+   "blue_minus_red": 12.47
+  },
+  "lower_receiver": {
+   "px": 107732,
+   "lum_mean": 14.4,
+   "lum_p10_p50_p90_p99": [
+    4.9,
+    7.8,
+    31.7,
+    100.7
+   ],
+   "lum_std": 20.71,
+   "highlight_share_lum_gt_2x_median": 0.1779,
+   "rgb_mean": [
+    12.9,
+    14.5,
+    17.6
+   ],
+   "blue_minus_red": 4.77
+  },
+  "magazine": {
+   "px": 43437,
+   "lum_mean": 36.3,
+   "lum_p10_p50_p90_p99": [
+    34.6,
+    36.6,
+    38.3,
+    45.3
+   ],
+   "lum_std": 3.17,
+   "highlight_share_lum_gt_2x_median": 0.0,
+   "rgb_mean": [
+    33.7,
+    36.8,
+    38.9
+   ],
+   "blue_minus_red": 5.18
+  },
+  "handguard": {
+   "px": 78020,
+   "lum_mean": 21.1,
+   "lum_p10_p50_p90_p99": [
+    1.1,
+    20.7,
+    30.0,
+    126.5
+   ],
+   "lum_std": 19.15,
+   "highlight_share_lum_gt_2x_median": 0.0424,
+   "rgb_mean": [
+    15.8,
+    21.9,
+    29.2
+   ],
+   "blue_minus_red": 13.4
+  },
+  "grip_fde": {
+   "px": 43002,
+   "lum_mean": 52.7,
+   "lum_p10_p50_p90_p99": [
+    50.7,
+    52.3,
+    55.6,
+    66.5
+   ],
+   "lum_std": 2.96,
+   "highlight_share_lum_gt_2x_median": 0.0,
+   "rgb_mean": [
+    58.3,
+    52.1,
+    42.4
+   ],
+   "blue_minus_red": -15.92
+  }
+ },
+ "fp_sun": {
+  "upper_receiver": {
+   "px": 19565,
+   "lum_mean": 45.0,
+   "lum_p10_p50_p90_p99": [
+    9.9,
+    50.8,
+    61.6,
+    107.7
+   ],
+   "lum_std": 20.98,
+   "highlight_share_lum_gt_2x_median": 0.0136,
+   "rgb_mean": [
+    40.6,
+    45.7,
+    50.5
+   ],
+   "blue_minus_red": 9.85
+  },
+  "lower_receiver": {
+   "px": 348,
+   "lum_mean": 49.1,
+   "lum_p10_p50_p90_p99": [
+    9.5,
+    60.0,
+    63.0,
+    71.2
+   ],
+   "lum_std": 19.13,
+   "highlight_share_lum_gt_2x_median": 0.0,
+   "rgb_mean": [
+    47.8,
+    49.3,
+    51.2
+   ],
+   "blue_minus_red": 3.42
+  },
+  "magazine": null,
+  "handguard": {
+   "px": 18896,
+   "lum_mean": 67.7,
+   "lum_p10_p50_p90_p99": [
+    5.0,
+    74.8,
+    121.5,
+    137.7
+   ],
+   "lum_std": 39.49,
+   "highlight_share_lum_gt_2x_median": 0.0017,
+   "rgb_mean": [
+    58.0,
+    69.4,
+    79.5
+   ],
+   "blue_minus_red": 21.54
+  },
+  "grip_fde": null
+ },
+ "fp_shade": {
+  "upper_receiver": {
+   "px": 19565,
+   "lum_mean": 37.8,
+   "lum_p10_p50_p90_p99": [
+    5.2,
+    38.7,
+    59.7,
+    104.8
+   ],
+   "lum_std": 20.34,
+   "highlight_share_lum_gt_2x_median": 0.0173,
+   "rgb_mean": [
+    33.0,
+    38.6,
+    43.9
+   ],
+   "blue_minus_red": 10.87
+  },
+  "lower_receiver": {
+   "px": 348,
+   "lum_mean": 29.5,
+   "lum_p10_p50_p90_p99": [
+    7.2,
+    32.7,
+    39.3,
+    43.9
+   ],
+   "lum_std": 10.97,
+   "highlight_share_lum_gt_2x_median": 0.0,
+   "rgb_mean": [
+    26.3,
+    29.9,
+    34.0
+   ],
+   "blue_minus_red": 7.7
+  },
+  "magazine": null,
+  "handguard": {
+   "px": 18896,
+   "lum_mean": 64.7,
+   "lum_p10_p50_p90_p99": [
+    2.9,
+    71.8,
+    119.6,
+    136.0
+   ],
+   "lum_std": 39.81,
+   "highlight_share_lum_gt_2x_median": 0.0004,
+   "rgb_mean": [
+    54.9,
+    66.4,
+    76.4
+   ],
+   "blue_minus_red": 21.53
+  },
+  "grip_fde": null
+ }
+}

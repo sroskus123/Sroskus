@@ -1366,6 +1366,9 @@ def cover_points(layout, ras, walk):
             cands = [top + dv * dd + nrm * ll for dd in (0.6, 0.8, 1.0, 1.2) for ll in (0.0, 0.3, -0.3, 0.6, -0.6)]
             chosen = None
             for ql in cands:
+                if ld and ld.get("level") == lt and Polygon(ld["polygon"]).buffer(-0.36).contains(Point(ql[0], ql[1])):
+                    chosen = (ql, ld["id"], ld["z"])          # balcony / platform at the top of an exterior flight
+                    break
                 if lvl:
                     xs, ys, X, Y, free, walkable, dist = rasters[lvl]
                     j, i = _ij(xs, ys, ql[0], ql[1])
@@ -1579,7 +1582,7 @@ def ai_nav(layout):
                                              "Shared/testvectors/rng.json)",
                             "hard_rule": "never spawn within rules.json respawn.minEnemyDistance (25 m) of a living enemy or inside "
                                          "bodyClearance (1.0 m) of any character; if no point of the active row passes, use the rows listed in "
-                                         "fallback_rows[zone][team] (LOS-clean for that zone), else wait 2 s and re-score; the forward rows (s 84-92 m: ALFA_R2, BRAVO_R2, CHARLIE_R1) are the most exposed and always "
+                                         "fallback_rows[zone][team] (LOS-clean for that zone), else wait 2 s and re-score; the forward rows (s 85-92 m: ALFA_R2, BRAVO_R2, CHARLIE_R1) are the most exposed and always "
                                          "apply the hard rule",
                             "normative": "this block is the single normative respawn rule; spawn_areas[].selection_rule only refers to it"},
     }

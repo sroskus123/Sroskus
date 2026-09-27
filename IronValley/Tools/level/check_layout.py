@@ -243,6 +243,47 @@ def roof_plane_at(rf, x, y):
     return None
 
 
+def sliding_leaf_polys(bd, open_only=True):
+    """local polygons of parked sliding-door leaves (outside face, beside the opening)."""
+    out = []
+    wm = {w["id"]: w for w in bd["walls"]}
+    for o in bd["openings"]:
+        if o["type"] != "sliding_door" or not o.get("leaf_rest") or (open_only and not o.get("state", {}).get("open")):
+            continue
+        w = wm[o["wall_id"]]
+        lr = o["leaf_rest"]
+        sx, sy, ux, uy, nx, ny, Lw = wall_frame(w)
+        side = -1.0 if lr["side"] == "right" else 1.0
+        off0 = w["thickness"] / 2 + lr["offset_from_face"]
+        off1 = off0 + lr["thickness"]
+        u0, u1 = lr["u"]
+        out.append(Polygon([(sx + ux * u0 + nx * side * off0, sy + uy * u0 + ny * side * off0),
+                            (sx + ux * u1 + nx * side * off0, sy + uy * u1 + ny * side * off0),
+                            (sx + ux * u1 + nx * side * off1, sy + uy * u1 + ny * side * off1),
+                            (sx + ux * u0 + nx * side * off1, sy + uy * u0 + ny * side * off1)]))
+    return out
+
+
+def ramp_param(st, lx, ly):
+    """0 at the ramp top edge, 1 at its foot (local coords).  Uses rise_direction_deg when given (the ramp rises towards it),
+    else the long axis with the top at the end nearer to the building origin."""
+    P = np.array(st["polygon"], float)
+    if "rise_direction_deg" in st:
+        d = dirv(st["rise_direction_deg"])
+        proj = P[:, 0] * d[0] + P[:, 1] * d[1]
+        top, foot = proj.max(), proj.min()
+        return np.clip((top - (lx * d[0] + ly * d[1])) / (top - foot), 0, 1)
+    lx0, lx1 = P[:, 0].min(), P[:, 0].max()
+    ly0, ly1 = P[:, 1].min(), P[:, 1].max()
+    if (lx1 - lx0) > (ly1 - ly0):
+        near = lx0 if abs(lx0) < abs(lx1) else lx1
+        far = lx1 if near == lx0 else lx0
+        return np.clip((lx - near) / (far - near), 0, 1)
+    near = ly0 if abs(ly0) < abs(ly1) else ly1
+    far = ly1 if near == ly0 else ly0
+    return np.clip((ly - near) / (far - near), 0, 1)
+
+
 def shoelace(poly):
     return Polygon(poly).area
 
@@ -524,7 +565,7 @@ def check_building(bd, rep):
             along = px * ux + py * uy
             perp = abs(px * nx + py * ny)
             half = max(col["size"]) / 2
-            if perp <= w["thickness"] / 2 + 0.40 and a - half < along < b + half and o["type"] in ("door", "double_door", "roller_door"):
+            if perp <= w["thickness"] / 2 + 0.40 and a - half < along < b + half and o["type"] in ("door", "double_door", "roller_door", "sliding_door"):
                 errs.append(f"{o['id']}: column {col['center']} stands in the opening")
     # piers measured to the FACE of every abutting / crossing wall (review P2-PIERS), not only to the end of the wall box
     for o in bd["openings"]:
@@ -718,7 +759,7 @@ def check_building(bd, rep):
         if not any(Polygon(r["polygon"]).buffer(0.01).contains(fp) for r in bd["rooms"] if r["level"] == f["level"]):
             errs.append(f"furniture {f['id']} not inside a room of {f['level']}")
         for o in bd["openings"]:
-            if o["type"] not in ("door", "double_door", "roller_door"):
+            if not is_walk_opening(o):
                 continue
             w = wmap[o["wall_id"]]
             if w["level"] != f["level"]:
@@ -744,8 +785,33 @@ def check_building(bd, rep):
         for o in bd["openings"]:
             if cp.intersection(opening_poly(wmap[o["wall_id"]], o, 0.0)).area > 1e-4:
                 errs.append(f"chimney {ch['id']} cuts opening {o['id']}")
-    rep.check(f"B07[{bid}]", errs, f"{len(fl)} furniture boxes inside rooms, clear of walls, of 1.0 m door zones and of each other; "
-                                   "chimneys clear of openings")
+        # every flue serves a real heat source (review P2-CONSTRUCTION-DATA: a flue without a stove)
+        srv = ch.get("serves")
+        fsrv = next((f for f in bd.get("furniture", []) if f["id"] == srv), None)
+        if ch.get("base_z", 0.0) > 0.3:
+            if fsrv is None:
+                errs.append(f"chimney {ch['id']} starts at z {ch['base_z']} but serves no furniture (stove/forge) -- flue without a heat source")
+            elif box_poly(fsrv["center"], fsrv["size"], fsrv.get("rotation_deg", 0)).distance(cp) > 1.5:
+                errs.append(f"chimney {ch['id']} is {box_poly(fsrv['center'], fsrv['size'], 0).distance(cp):.2f} m from the stove {srv} it serves")
+        elif srv and fsrv is None:
+            errs.append(f"chimney {ch['id']} serves unknown furniture {srv}")
+    # tall furniture in front of windows (review P2-WINDOW-FURNITURE): taller than sill + 0.10 within 0.7 m of the window
+    for o in bd["openings"]:
+        if o["type"] != "window":
+            continue
+        w = wmap[o["wall_id"]]
+        zone = opening_poly(w, o, extra=0.7)
+        for f in fl:
+            if f["level"] != w["level"] or f["size"][2] <= o["sill_height"] + 0.10:
+                continue
+            fp = box_poly(f["center"], f["size"], f.get("rotation_deg", 0))
+            a_ = fp.intersection(zone).area
+            if a_ > 0.01:
+                errs.append(f"furniture {f['id']} ({f['size'][2]} m tall) stands within 0.7 m in front of window {o['id']} (sill "
+                            f"{o['sill_height']})")
+    rep.check(f"B07[{bid}]", errs, f"{len(fl)} furniture boxes inside rooms, clear of walls, of 1.0 m door zones, of each other and of "
+                                   "the 0.7 m zone in front of windows (when taller than the sill); chimneys clear of openings, every "
+                                   "raised flue serves a stove/forge")
     # ---- B08 construction boxes (piers / sills / lintels)
     errs = []
     for w in walls:
@@ -768,7 +834,44 @@ def check_building(bd, rep):
             for j in range(i + 1, len(rects)):
                 if rects[i].intersection(rects[j]).area > 1e-6:
                     errs.append(f"{w['id']}: construction boxes {i} and {j} overlap")
-    rep.check(f"B08[{bid}]", errs, "construction boxes (piers/sills/lintels) exactly tile every wall minus its openings")
+    # gables: openings above the wall box need a gable prism with hole-free construction polygons (review P2-CONSTRUCTION-DATA)
+    ngab = 0
+    for w in walls:
+        top = w.get("base_z", 0.0) + w["height"]
+        above = [o for o in bd["openings"] if o["wall_id"] == w["id"] and o["head_height"] > top + EPS]
+        g = w.get("gable")
+        if above and not g:
+            errs.append(f"{w['id']}: openings {[o['id'] for o in above]} rise above the wall box (z {top}) but the wall has no gable prism")
+            continue
+        if not g:
+            continue
+        ngab += 1
+        gp = Polygon(g["polygon_uz"]).buffer(0)
+        gops = [o for o in bd["openings"] if o["id"] in g.get("openings", [])]
+        for o in above:
+            if o["id"] not in g.get("openings", []):
+                errs.append(f"{w['id']}: opening {o['id']} above the wall box is not listed in the gable openings")
+        holes = unary_union([sbox(o["offset_from_start"], max(o["sill_height"], top), o["offset_from_start"] + o["width"],
+                                  o["head_height"]) for o in gops]) if gops else Polygon()
+        pieces = [Polygon(pc).buffer(0) for pc in g["construction_polygons"]]
+        area = sum(pc.area for pc in pieces)
+        exp = gp.difference(holes).area
+        if abs(area - exp) > 2e-3:
+            errs.append(f"{w['id']}: gable construction polygons {area:.3f} m2 != gable {gp.area:.3f} - openings = {exp:.3f}")
+        for k, pc in enumerate(pieces):
+            if list(Polygon(g["construction_polygons"][k]).interiors):
+                errs.append(f"{w['id']}: gable construction polygon {k} has holes (no booleans allowed)")
+            if pc.difference(gp.buffer(1e-3)).area > 1e-4 or pc.intersection(holes).area > 1e-4:
+                errs.append(f"{w['id']}: gable construction polygon {k} leaves the gable or covers an opening")
+        for i_ in range(len(pieces)):
+            for j_ in range(i_ + 1, len(pieces)):
+                if pieces[i_].intersection(pieces[j_]).area > 1e-4:
+                    errs.append(f"{w['id']}: gable construction polygons {i_} and {j_} overlap")
+        rf = next((r for r in bd["roof"] if r["id"] == g.get("roof")), None)
+        if rf is None or abs(g["apex_z"] - rf.get("ridge_z", g["apex_z"])) > 0.01:
+            errs.append(f"{w['id']}: gable apex {g['apex_z']} != ridge of roof {g.get('roof')}")
+    rep.check(f"B08[{bid}]", errs, f"construction boxes (piers/sills/lintels) exactly tile every wall minus its openings; {ngab} gable "
+                                   "prisms tile gable minus gable openings with hole-free polygons up to the ridge")
     # ---- B09 stairs
     errs = []
     info = []
@@ -844,6 +947,36 @@ def check_building(bd, rep):
                     f"min headroom {'open sky' if min_head > 50 else f'{min_head:.2f}'}")
         if "under_stair" not in s or s["under_stair"].get("treatment") not in ("enclosed", "solid_mass", "filled"):
             errs.append(f"{s['id']}: under_stair treatment missing")
+        # exterior flights: headroom under roofs / canopies above them (B09 used to skip exterior stairs)
+        if s in bd["exterior_stairs"]:
+            nx, ny = -dv[1], dv[0]
+            for k in range(1, s["count"] + 1):
+                d = (k - 1) * T_
+                z = s["z_start"] + k * R_
+                for side in (-0.45, 0.0, 0.45):
+                    px = s["start"][0] + dv[0] * (d + 0.02) + nx * side * s["width"]
+                    py = s["start"][1] + dv[1] * (d + 0.02) + ny * side * s["width"]
+                    for rf in bd["roof"]:
+                        P = rf.get("rect") or rf["wall_rect"]
+                        oh = 0.0 if rf.get("rect") else rf.get("overhang_eave", 0.0)
+                        if Polygon(P).buffer(oh, join_style=2).contains(Point(px, py)):
+                            zr = roof_plane_at(rf, px, py) - 0.25
+                            if zr - z < HEADROOM - EPS:
+                                errs.append(f"{s['id']}: headroom {zr - z:.2f} under roof {rf['id']} above step {k} (< 2.10)")
+        # nothing structural stands in the flight or in its 1.0 m approach / arrival (review P2-ACCESS-CLUTTER: canopy post)
+        hw = s["width"] / 2
+        x0_, y0_ = s["start"]
+        nx, ny = -dv[1], dv[0]
+        L0_, L1_ = -1.0, s["run"] + s["tread"] + 1.0
+        clear_zone = Polygon([(x0_ + dv[0] * L0_ + nx * hw, y0_ + dv[1] * L0_ + ny * hw), (x0_ + dv[0] * L1_ + nx * hw, y0_ + dv[1] * L1_ + ny * hw),
+                              (x0_ + dv[0] * L1_ - nx * hw, y0_ + dv[1] * L1_ - ny * hw), (x0_ + dv[0] * L0_ - nx * hw, y0_ + dv[1] * L0_ - ny * hw)])
+        for rf in bd["roof"]:
+            for su in rf.get("supports", []):
+                if box_poly(su["pos"], su["size"], 0).intersects(clear_zone):
+                    errs.append(f"{s['id']}: roof support {su['pos']} of {rf['id']} stands in the flight or its 1.0 m approach/arrival")
+        for col in bd.get("columns", []):
+            if box_poly(col["center"], col["size"], 0).intersects(clear_zone):
+                errs.append(f"{s['id']}: column {col['center']} stands in the flight or its 1.0 m approach/arrival")
     rep.check(f"B09[{bid}]", errs, f"{len(bd['stairs']) + len(bd['exterior_stairs'])} stairs within riser/tread/2R+T/width/headroom "
                                    "limits; direction_deg (0 = +Y) consistent with top_riser_center; arrive at their levels")
     for i in info:
@@ -871,7 +1004,75 @@ def check_building(bd, rep):
                 errs.append(f"room {r['id']} overlaps wall {w['id']}")
         if r["level"] in lv and lv[r["level"]].get("ceiling_height", 3) + (lv[r['level']]['floor_z']) < 0:
             errs.append(f"{r['id']}: bad level")
-    rep.check(f"B11[{bid}]", errs, f"{len(bd['rooms'])} rooms: clear height >= 2.10, polygons clear of walls")
+        # ceiling derived from geometry (review P2-SKLAD-OFFICE): a slab above the room, or the roof structure directly over it
+        fz = lv[r["level"]]["floor_z"] if r["level"] in lv else 0.0
+        zc = fz + r["ceiling_height"]
+        cover = None
+        for sl in bd.get("slabs", []):
+            bot = sl["top_z"] - sl["thickness"]
+            if bot <= fz + 0.5:
+                continue
+            if Polygon(sl["polygon"]).intersection(rp).area >= 0.90 * rp.area and (cover is None or bot < cover[1]):
+                cover = (sl["id"], bot)
+        decl = r.get("ceiling") or {}
+        if cover:
+            if abs(cover[1] - zc) > 0.05:
+                errs.append(f"{r['id']}: declared ceiling z {zc:.2f} but slab {cover[0]} soffit is at {cover[1]:.2f}")
+            if decl.get("type") == "slab" and decl.get("slab") != cover[0]:
+                errs.append(f"{r['id']}: ceiling references slab {decl.get('slab')} but {cover[0]} covers the room")
+        else:
+            if decl.get("type") == "slab":
+                errs.append(f"{r['id']}: ceiling type slab {decl.get('slab')} but no slab covers the room")
+            x0_, y0_, x1_, y1_ = rp.bounds
+            zr = []
+            for xx in np.arange(x0_ + 0.25, x1_, 0.5):
+                for yy in np.arange(y0_ + 0.25, y1_, 0.5):
+                    if not rp.contains(Point(xx, yy)):
+                        continue
+                    zs = [roof_plane_at(rf, xx, yy) for rf in bd["roof"] if Polygon(rf["wall_rect"]).buffer(0.01).contains(Point(xx, yy))]
+                    zr.append(min(zs) if zs else None)
+            if not zr or any(z_ is None for z_ in zr):
+                errs.append(f"{r['id']}: part of the room is covered by neither a slab nor a roof")
+            else:
+                rmin = min(zr)
+                if rmin - zc < -EPS:
+                    errs.append(f"{r['id']}: declared ceiling z {zc:.2f} above the roof plane ({rmin:.2f})")
+                elif rmin - zc > 1.0:
+                    errs.append(f"{r['id']}: declared ceiling z {zc:.2f} but nothing covers it: the roof is {rmin - zc:.2f} m higher and "
+                                "there is no slab (open-topped box)")
+    rep.check(f"B11[{bid}]", errs, f"{len(bd['rooms'])} rooms: clear height >= 2.10, polygons clear of walls; every declared ceiling is "
+                                   "a real slab soffit or the roof structure directly over the room (<= 1.0 m below the roof plane)")
+    # ---- B16 gutters hang just below the roof drip edge; downpipes meet them (review P1-GUTTERS)
+    errs = []
+    rfs = {rf["id"]: rf for rf in bd["roof"]}
+    for g in bd.get("gutters", []):
+        rf = rfs.get(g["roof"])
+        if rf is None:
+            errs.append(f"gutter on unknown roof {g['roof']}")
+            continue
+        for end in (g["from"], g["to"], [(g["from"][0] + g["to"][0]) / 2, (g["from"][1] + g["to"][1]) / 2]):
+            drip = roof_plane_at(rf, end[0], end[1])
+            if not (drip - 0.10 - EPS <= g["z"] <= drip - 0.0 + EPS):
+                errs.append(f"gutter {g['roof']} {g['edge']}: z {g['z']} at {end} is {g['z'] - drip:+.3f} m from the roof plane "
+                            f"({drip:.3f}); must hang 0.00-0.10 m below the drip edge")
+                break
+        dz = g.get("drip_edge_z")
+        if dz is not None and abs(dz - roof_plane_at(rf, *g["from"])) > 0.01:
+            errs.append(f"gutter {g['roof']} {g['edge']}: drip_edge_z {dz} != roof plane at the edge {roof_plane_at(rf, *g['from']):.3f}")
+        P = Polygon(rf.get("rect") or rf["wall_rect"]).buffer(0.0 if rf.get("rect") else rf.get("overhang_eave", 0.0), join_style=2)
+        if max(P.exterior.distance(Point(*g["from"])), P.exterior.distance(Point(*g["to"]))) > 0.05:
+            errs.append(f"gutter {g['roof']} {g['edge']}: not on the roof's overhang line")
+    gl = [(LineString([g["from"], g["to"]]), g) for g in bd.get("gutters", [])]
+    for dp in bd.get("downpipes", []):
+        cands = [(ln.distance(Point(*dp["pos"])), g) for ln, g in gl]
+        cands = [c for c in cands if c[0] <= 0.75]
+        if not cands:
+            errs.append(f"downpipe {dp['id']} at {dp['pos']} is not under any gutter (> 0.75 m)")
+            continue
+        if not any(abs(dp["top_z"] - g["z"]) <= 0.05 for _, g in cands):
+            errs.append(f"downpipe {dp['id']} top {dp['top_z']} does not meet the gutter it serves ({[g['z'] for _, g in cands]})")
+    rep.check(f"B16[{bid}]", errs, f"{len(bd.get('gutters', []))} gutters hang 0-0.10 m below the roof plane at the drip edge (eave_z - "
+                                   f"overhang x tan pitch), on the overhang line; {len(bd.get('downpipes', []))} downpipes meet a gutter")
     return {"walls": walls, "wmap": wmap}
 
 
@@ -893,7 +1094,7 @@ def building_level_raster(bd, level, res=0.05, close_doors=True, pad=1.5):
             for o in bd["openings"]:
                 if o["wall_id"] != w["id"]:
                     continue
-                walk = o["type"] in ("door", "double_door") or (o["type"] == "roller_door" and o["state"]["open_height"] >= HEADROOM)
+                walk = is_walk_opening(o)
                 if walk:
                     solid &= ~poly_mask(list(opening_poly(w, o, 0.03).exterior.coords)[:-1], X, Y)
     return xs, ys, X, Y, solid, ext
@@ -904,6 +1105,7 @@ def check_rooms_closed_and_reachable(bd, rep):
     errs = []
     warns = []
     lvls = [l["id"] for l in bd["levels"] if l.get("ceiling_height", 0) > 0]
+    lv_floor = {l["id"]: l["floor_z"] for l in bd["levels"]}
     interior = unary_union([Polygon(p["interior_rect"]) for p in bd["footprint_parts"]])
     for lvl in lvls:
         xs, ys, X, Y, solid, ext = building_level_raster(bd, lvl, close_doors=True)
@@ -920,7 +1122,8 @@ def check_rooms_closed_and_reachable(bd, rep):
             if lf == lvl:
                 blocked |= poly_mask(list(stair_poly(s).exterior.coords)[:-1], X, Y)
         for ch in bd.get("chimneys", []):
-            blocked |= poly_mask(list(box_poly(ch["pos"], ch.get("size", [0.3, 0.3]), 0).exterior.coords)[:-1], X, Y)
+            if ch.get("base_z", 0.0) <= lv_floor.get(lvl, 0.0) + 2.10:      # stacks corbelled out above head height do not block
+                blocked |= poly_mask(list(box_poly(ch["pos"], ch.get("size", [0.3, 0.3]), 0).exterior.coords)[:-1], X, Y)
         # slab openings on upper levels are not floor
         for sl in bd.get("slabs", []):
             if sl["level"] == lvl:
@@ -961,9 +1164,15 @@ def check_rooms_closed_and_reachable(bd, rep):
             if len(comps) > 1 and rid in masks:
                 errs.append(f"{lvl}: room {rid} is split into {len(comps)} separate regions by walls")
             if comps and rid in masks:
-                area = Polygon(next(r for r in rooms if r["id"] == rid)["polygon"]).area
-                if abs(sum(comps) - area) / area > 0.03 and not any(s for s in bd["stairs"]):
-                    errs.append(f"{lvl}: room {rid} region {sum(comps):.2f} m2 vs polygon {area:.2f} m2")
+                rpoly = Polygon(next(r for r in rooms if r["id"] == rid)["polygon"])
+                occ = [stair_poly(s) for s in bd["stairs"] if (s["level_from"] if s["level_from"] != "Lmid" else "L0") == lvl]
+                occ += [box_poly(ch["pos"], ch.get("size", [0.3, 0.3]), 0) for ch in bd.get("chimneys", [])
+                        if ch.get("base_z", 0.0) <= lv_floor.get(lvl, 0.0) + 2.10]
+                occ += [Polygon(h["polygon"]) for sl in bd.get("slabs", []) if sl["level"] == lvl for h in sl.get("openings", [])]
+                occ += [LineString(ba["polyline"]).buffer(0.04) for ba in bd.get("balustrades", []) if ba["level"] == lvl]
+                area = rpoly.difference(unary_union(occ)).area if occ else rpoly.area
+                if abs(sum(comps) - area) / area > 0.03:
+                    errs.append(f"{lvl}: room {rid} free region {sum(comps):.2f} m2 vs polygon minus stairs/voids {area:.2f} m2")
     rep.check(f"B12[{bid}]", errs, f"walls close into rooms on {lvls}: every enclosed region (doors closed) is exactly one room or "
                                    "a declared sealed void")
     # ---- graph reachability through doors + stairs; capsule raster through open doors
@@ -983,7 +1192,7 @@ def check_rooms_closed_and_reachable(bd, rep):
         if ld and s["level_to"] != "L0":
             platforms[ld["id"]] = (ld, s)
     for o in bd["openings"]:
-        walk = o["type"] in ("door", "double_door") or (o["type"] == "roller_door" and o["state"]["open_height"] >= HEADROOM)
+        walk = is_walk_opening(o)
         if not walk:
             continue
         w = wmap[o["wall_id"]]
@@ -1083,10 +1292,17 @@ def check_rooms_closed_and_reachable(bd, rep):
             # dock edge (1.10 m) is not walkable from the yard: model the dock as a separate raised area joined by its stairs
             pass
         for f in bd.get("furniture", []):
-            if f["level"] == lvl:
+            if f["level"] == lvl or (f["level"] == "exterior" and lvl == "L0"):
                 blocked |= poly_mask(list(box_poly(f["center"], f["size"], f.get("rotation_deg", 0)).exterior.coords)[:-1], X, Y)
+        if lvl == "L0":
+            for pl_ in sliding_leaf_polys(bd):
+                blocked |= poly_mask(list(pl_.exterior.coords)[:-1], X, Y)
+            for rf in bd["roof"]:
+                for su in rf.get("supports", []):
+                    blocked |= poly_mask(list(box_poly(su["pos"], su["size"], 0).exterior.coords)[:-1], X, Y)
         for ch in bd.get("chimneys", []):
-            blocked |= poly_mask(list(box_poly(ch["pos"], ch.get("size", [0.3, 0.3]), 0).exterior.coords)[:-1], X, Y)
+            if ch.get("base_z", 0.0) <= lv_floor.get(lvl, 0.0) + 2.10:
+                blocked |= poly_mask(list(box_poly(ch["pos"], ch.get("size", [0.3, 0.3]), 0).exterior.coords)[:-1], X, Y)
         for col in bd.get("columns", []):
             blocked |= poly_mask(list(box_poly(col["center"], col["size"], 0).exterior.coords)[:-1], X, Y)
         for sl in bd.get("slabs", []):
@@ -1290,7 +1506,7 @@ def check_placement(L, B, H_at, rep):
     # secondary buildings are non-enterable and flagged, no fake doors
     errs = []
     for sb in L["secondary_buildings"]:
-        if sb.get("enterable") and sb["type"] != "bus_shelter":
+        if sb.get("enterable") and not sb["type"].startswith("bus_shelter"):
             errs.append(f"{sb['id']} flagged enterable but has no interior data")
         if not sb.get("enterable") and not sb.get("reads_closed_by"):
             errs.append(f"{sb['id']}: non-enterable building without 'reads_closed_by' (must read closed: no fake open doors)")
@@ -1322,13 +1538,19 @@ def check_placement(L, B, H_at, rep):
             if st.get("apron"):
                 surfaces.append((Polygon(st["apron"]["polygon"]), st["apron"]["z"], st["id"] + "_apron"))
         for o in bd["openings"]:
-            walk = o["type"] in ("door", "double_door") or (o["type"] == "roller_door" and o["state"]["open_height"] >= HEADROOM)
+            walk = is_walk_opening(o)
             w = wmap[o["wall_id"]]
             if not walk or w["kind"] != "external" or w["level"] != "L0":
                 continue
             a, bb, Lw, mid, (nx, ny), u = opening_span(w, o)
             pl = (mid[0] - nx * (w["thickness"] / 2 + 0.25), mid[1] - ny * (w["thickness"] / 2 + 0.25))
             pf = (mid[0] - nx * (w["thickness"] / 2 + 1.2), mid[1] - ny * (w["thickness"] / 2 + 1.2))
+            pin = (mid[0] + nx * (w["thickness"] / 2 + 0.25), mid[1] + ny * (w["thickness"] / 2 + 0.25))
+            rin = [r for r in bd["rooms"] if r["level"] == "L0" and Polygon(r["polygon"]).buffer(0.02).contains(Point(*pin))]
+            if not rin:
+                pl, pf, pin = pin, (mid[0] + nx * (w["thickness"] / 2 + 1.2), mid[1] + ny * (w["thickness"] / 2 + 1.2)), pl
+            if any(Polygon(r["polygon"]).buffer(0.02).contains(Point(*pl)) for r in bd["rooms"] if r["level"] == "L0"):
+                continue            # the "external" wall separates two rooms here (house -> wing): an internal doorway
             zs = None
             for P, z, sid in surfaces:
                 if P.buffer(0.02).contains(Point(*pl)):
@@ -1437,7 +1659,7 @@ class Walk:
                 for o in bd["openings"]:
                     if o["wall_id"] != w["id"]:
                         continue
-                    walk = o["type"] in ("door", "double_door") or (o["type"] == "roller_door" and o["state"]["open_height"] >= HEADROOM)
+                    walk = is_walk_opening(o)
                     if walk:
                         op = opening_poly(w, o, res)
                         m &= ~pm([xf(c, rot, q) for q in list(op.exterior.coords)[:-1]])
@@ -1452,29 +1674,26 @@ class Walk:
             for v in bd.get("sealed_voids", []):
                 blocked |= pm([xf(c, rot, q) for q in v["polygon"]])
             for ch in bd.get("chimneys", []):
+                if ch.get("base_z", 0.0) > 2.10:
+                    continue            # stack corbelled out on the roof structure: no floor footprint
                 if Polygon(unary_union([Polygon(p["external_rect"]) for p in bd["footprint_parts"]])).contains(Point(*ch["pos"])):
                     blocked |= pm([xf(c, rot, q) for q in list(box_poly(ch["pos"], ch.get("size", [0.3, 0.3]), 0).exterior.coords)[:-1]])
+            for pl_ in sliding_leaf_polys(bd):
+                blocked |= pm([xf(c, rot, q) for q in list(pl_.exterior.coords)[:-1]])
+            for rf in bd["roof"]:
+                for su in rf.get("supports", []):
+                    blocked |= pm([xf(c, rot, q) for q in list(box_poly(su["pos"], su["size"], 0).exterior.coords)[:-1]])
             if bd.get("loading_dock"):
                 F[pm([xf(c, rot, q) for q in bd["loading_dock"]["polygon"]])] = zf + bd["loading_dock"]["top_z"]
             for st in bd.get("exterior_steps", []):
                 if st.get("apron"):
                     F[pm([xf(c, rot, q) for q in st["apron"]["polygon"]])] = zf + st["apron"]["z"]
                 if st["type"] == "ramp":
-                    P = np.array(st["polygon"])
                     m = pm([xf(c, rot, q) for q in st["polygon"]])
                     a = math.radians(rot)
                     lx = (X - c[0]) * math.cos(a) + (Y - c[1]) * math.sin(a)
                     ly = -(X - c[0]) * math.sin(a) + (Y - c[1]) * math.cos(a)
-                    lx0, lx1 = P[:, 0].min(), P[:, 0].max()
-                    ly0, ly1 = P[:, 1].min(), P[:, 1].max()
-                    if (lx1 - lx0) > (ly1 - ly0):
-                        near = lx0 if abs(lx0) < abs(lx1) else lx1
-                        far = lx1 if near == lx0 else lx0
-                        tt = np.clip((lx - near) / (far - near), 0, 1)
-                    else:
-                        near = ly0 if abs(ly0) < abs(ly1) else ly1
-                        far = ly1 if near == ly0 else ly0
-                        tt = np.clip((ly - near) / (far - near), 0, 1)
+                    tt = ramp_param(st, lx, ly)
                     F = np.where(m, zf + st["z_top"] + tt * (st["z_bottom"] - st["z_top"]), F)
                 if st["type"] == "step":
                     F[pm([xf(c, rot, q) for q in st["polygon"]])] = zf - st["riser"] / 2
@@ -1534,6 +1753,13 @@ class Walk:
                 off = nrm * sg * (br["width"] / 2 + 0.05)
                 blocked |= sm((np.array(a) + off).tolist(), (np.array(b) + off).tolist(), 0.06)
             blocked &= ~sm(a, b, br["width"] / 2 - 0.05)
+        for po in L.get("utility_lines", {}).get("poles", []):
+            x, y = po["pos"][:2]
+            r = po.get("collision_radius", 0.14)
+            i = int(round((x + 175) / res)); j = int(round((y + 175) / res))
+            k = int(math.ceil(r / res)) + 1
+            sub = (slice(max(0, j - k), j + k + 1), slice(max(0, i - k), i + k + 1))
+            blocked[sub] |= np.hypot(X[sub] - x, Y[sub] - y) <= max(r, res / 2)
         for t in L["trees"]["instances"]:
             sp = L["trees"]["species"][t["species"]]
             r = sp["trunk_radius"] * t.get("scale", 1.0)
@@ -2026,8 +2252,8 @@ class LOS:
         for sb in L["secondary_buildings"]:
             if sb.get("embedded_in"):
                 continue
-            if sb["type"] == "bus_shelter":
-                continue
+            if sb["type"].startswith("bus_shelter") or sb["type"].startswith("transformer_pole"):
+                continue          # open timber shelter (back wall is slatted) / pole-mounted transformer: no solid volume
             c, rot, z = sb["position"][:2], sb["rotation_deg"], sb["position"][2]
             addbox(c[0], c[1], sb["footprint"][0], sb["footprint"][1], rot, z - 0.5, z + sb["eave_height"])
             roofs.append(("SEC", sb))
