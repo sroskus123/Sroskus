@@ -383,8 +383,8 @@ def place_frame(model, k, pose, coll, d_t, r_t, pivot_name, pivot_target, contac
 
 
 def pistol_grip_frame_search(model, coll, ga, fwd, side, mcp_ref, grip_parts, trigger_point=None,
-                             along_parts=None, yaws=(0.0, 10.0, 20.0), tilts=(-8.0, 0.0, 8.0),
-                             fwd_offsets=(-0.010, 0.0, 0.010), heights=(-0.006, 0.0, 0.006),
+                             along_parts=None, yaws=(-30.0, -20.0, -10.0, 0.0), tilts=(-16.0, -8.0, 0.0),
+                             fwd_offsets=(0.0, 0.010, 0.020), heights=(-0.006, 0.0, 0.006),
                              fingers=("middle", "ring", "pinky")):
     """Pistol-grip placement by the grip's anatomy.  The palm (2nd-5th metacarpals) lies on the
     grip's side, the knuckle row along the grip axis `ga` (hand radial axis r = ga, index on top),
@@ -404,7 +404,10 @@ def pistol_grip_frame_search(model, coll, ga, fwd, side, mcp_ref, grip_parts, tr
     f0 /= np.linalg.norm(f0)
     side = np.asarray(side, float) / np.linalg.norm(side)
     sgn = 1.0 if (np.cross(ga, f0) @ side) > 0 else -1.0        # yaw sense that turns the fingers towards the grip
-    mcp_rest = HN.bone_rest_frames(model.arm)[f"middle_01_{s}"]["H"]
+    RF = HN.bone_rest_frames(model.arm)
+    mcp_rest = RF[f"middle_01_{s}"]["H"]
+    row_rest = RF[f"index_01_{s}"]["H"] - RF[f"pinky_01_{s}"]["H"]
+    grip_only = HN.Collider([(p_["name"], p_["co"], p_["tris"]) for p_ in coll.parts if p_["name"] in grip_parts])
     best, tried = None, []
     for yaw in yaws:
         for tilt in tilts:
@@ -419,16 +422,20 @@ def pistol_grip_frame_search(model, coll, ga, fwd, side, mcp_ref, grip_parts, tr
                     pose = open_pose()
                     H, _ = place_frame(model, k, pose, coll, d_t, r_t, mcp_rest, start, pn)
                     close_coupled(model, k, pose, H, coll, list(fingers))
-                    sn = HN.snugness(model, k, pose, H, coll, list(fingers))
+                    sn = HN.snugness(model, k, pose, H, grip_only, list(fingers))      # wrap on the GRIP only
                     nfor, wfor = foreign_contact(model, k, pose, H, coll, list(fingers), grip_parts)
+                    Rw = H[:3, :3] @ np.linalg.inv(model.R[model.hand][:3, :3])
+                    row = Rw @ row_rest
+                    row_dev = math.degrees(math.acos(abs(float(row @ ga)) / np.linalg.norm(row)))
                     if trigger_point is not None:
                         ir = fit_index(model, k, pose, H, coll, "trigger", trigger_part=trigger_point)
                         ipen = abs(ir["terms"].get("_gap", 0.03) * 1000 - 0.6) * 2 + max(0.0, -ir["terms"]["_min_sd"] * 1000 - 0.3) * 10
                     else:
                         ir = fit_index(model, k, pose, H, coll, "straight", along_parts=along_parts)
                         ipen = ir["terms"].get("_gap", 0.05) * 1000 * 0.5 + ir["terms"]["_dir_deg"] * 0.2
-                    sc = -sn * 1000 - ipen - 4.0 * nfor - 2.0 * wfor * 1000
+                    sc = -sn * 1000 - ipen - 4.0 * nfor - 2.0 * wfor * 1000 - 0.2 * max(row_dev - 10.0, 0.0)
                     tried.append({"yaw_deg": yaw, "tilt_deg": tilt, "fwd_offset_mm": round(fo * 1000, 1),
+                                  "knuckle_row_vs_grip_axis_deg": round(row_dev, 1),
                                   "height_mm": round(hz * 1000, 1), "snugness_mm": round(sn * 1000, 2),
                                   "index_penalty": round(ipen, 2), "fingers_touching_other_parts": nfor,
                                   "score": round(sc, 2)})
@@ -438,7 +445,7 @@ def pistol_grip_frame_search(model, coll, ga, fwd, side, mcp_ref, grip_parts, tr
     wr = {f: HN.wrap_finger(model, k, pose, H, coll, f, lim=FIST_LIMITS[f]) for f in fingers}
     return H, pose, dict({"placement": "palm on the grip side, knuckle row along the grip axis, middle MCP under the "
                                        "trigger guard; yaw / tilt / forward offset / height searched"}, **cand,
-                         snugness_after_wrap_mm=round(HN.snugness(model, k, pose, H, coll, list(fingers)) * 1000, 2),
+                         snugness_after_wrap_mm=round(HN.snugness(model, k, pose, H, grip_only, list(fingers)) * 1000, 2),
                          wrap=wr, index=ir, candidates=tried)
 
 

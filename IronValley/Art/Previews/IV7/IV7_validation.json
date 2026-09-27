@@ -1,11 +1,11 @@
 {
   "generated_by": "ivlib 1.0.0",
   "blender": "4.5.14 LTS",
-  "time": "2026-09-26 21:14:07",
+  "time": "2026-09-27 06:25:18",
   "objects": {
     "UpperReceiver": {
-      "tris": 5052,
-      "verts": 2518,
+      "tris": 5140,
+      "verts": 2562,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
@@ -62,18 +62,18 @@
         }
       ],
       "uv_min": [
-        0.00213,
+        0.01221,
         0.0015
       ],
       "uv_max": [
-        0.97863,
-        0.98543
+        0.99292,
+        0.9946
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 1322,
-      "zero_uv_area_mm2": 36.59,
-      "zero_uv_max_face_mm2": 0.05,
-      "texel_density_px_per_cm": 24.43,
+      "zero_uv_faces": 38,
+      "zero_uv_area_mm2": 0.443,
+      "zero_uv_max_face_mm2": 0.0463,
+      "texel_density_px_per_cm": 24.6,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -148,14 +148,14 @@
         0.0015
       ],
       "uv_max": [
-        0.98591,
-        0.99067
+        0.99823,
+        0.9948
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 952,
-      "zero_uv_area_mm2": 17.93,
-      "zero_uv_max_face_mm2": 0.2505,
-      "texel_density_px_per_cm": 28.94,
+      "zero_uv_faces": 25,
+      "zero_uv_area_mm2": 0.072,
+      "zero_uv_max_face_mm2": 0.019,
+      "texel_density_px_per_cm": 28.98,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -230,14 +230,14 @@
         0.0015
       ],
       "uv_max": [
-        0.98583,
-        0.99062
+        0.99256,
+        0.99433
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 181,
-      "zero_uv_area_mm2": 4.724,
-      "zero_uv_max_face_mm2": 0.0494,
-      "texel_density_px_per_cm": 24.04,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
+      "texel_density_px_per_cm": 24.08,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -308,18 +308,18 @@
         }
       ],
       "uv_min": [
-        0.01066,
-        0.19509
+        0.07249,
+        0.02222
       ],
       "uv_max": [
-        0.98574,
-        0.99055
+        0.99817,
+        0.99473
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 190,
-      "zero_uv_area_mm2": 6.449,
-      "zero_uv_max_face_mm2": 0.0483,
-      "texel_density_px_per_cm": 18.29,
+      "zero_uv_faces": 2,
+      "zero_uv_area_mm2": 0.048,
+      "zero_uv_max_face_mm2": 0.0241,
+      "texel_density_px_per_cm": 18.44,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -390,18 +390,18 @@
         }
       ],
       "uv_min": [
-        0.02157,
-        0.12538
+        0.06161,
+        0.0015
       ],
       "uv_max": [
-        0.98582,
-        0.97851
+        0.98551,
+        0.99471
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 10.08,
+      "texel_density_px_per_cm": 10.1,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -472,18 +472,18 @@
         }
       ],
       "uv_min": [
-        0.02127,
+        0.11721,
         0.0015
       ],
       "uv_max": [
-        0.98592,
-        0.98567
+        0.99338,
+        0.99471
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 56,
-      "zero_uv_area_mm2": 2.273,
-      "zero_uv_max_face_mm2": 0.0458,
-      "texel_density_px_per_cm": 11.59,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
+      "texel_density_px_per_cm": 11.61,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -554,18 +554,18 @@
         }
       ],
       "uv_min": [
-        0.03595,
-        0.10671
+        0.0015,
+        0.02791
       ],
       "uv_max": [
-        0.96971,
-        0.96725
+        0.976,
+        0.97952
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 88,
-      "zero_uv_area_mm2": 1.818,
-      "zero_uv_max_face_mm2": 0.0434,
-      "texel_density_px_per_cm": 28.8,
+      "zero_uv_faces": 6,
+      "zero_uv_area_mm2": 0.091,
+      "zero_uv_max_face_mm2": 0.0317,
+      "texel_density_px_per_cm": 28.85,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -636,18 +636,18 @@
         }
       ],
       "uv_min": [
-        0.24785,
-        0.36971
+        0.14672,
+        0.14198
       ],
       "uv_max": [
-        0.98566,
-        0.98497
+        0.99315,
+        0.99468
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 314,
-      "zero_uv_area_mm2": 8.388,
-      "zero_uv_max_face_mm2": 0.0497,
-      "texel_density_px_per_cm": 12.98,
+      "zero_uv_faces": 1,
+      "zero_uv_area_mm2": 0.046,
+      "zero_uv_max_face_mm2": 0.0458,
+      "texel_density_px_per_cm": 13.01,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -718,18 +718,18 @@
         }
       ],
       "uv_min": [
-        0.74195,
-        0.08536
+        0.49693,
+        0.01
       ],
       "uv_max": [
-        0.98542,
-        0.60609
+        0.84121,
+        0.99432
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 10.08,
+      "texel_density_px_per_cm": 10.09,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -800,18 +800,18 @@
         }
       ],
       "uv_min": [
-        0.00313,
-        0.00214
+        0.01557,
+        0.0015
       ],
       "uv_max": [
-        0.97835,
-        0.96815
+        0.97407,
+        0.98773
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 498,
-      "zero_uv_area_mm2": 12.303,
-      "zero_uv_max_face_mm2": 0.0476,
-      "texel_density_px_per_cm": 26.4,
+      "zero_uv_faces": 6,
+      "zero_uv_area_mm2": 0.116,
+      "zero_uv_max_face_mm2": 0.0358,
+      "texel_density_px_per_cm": 26.45,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -882,18 +882,18 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.06913
+        0.02253,
+        0.07318
       ],
       "uv_max": [
-        0.98596,
-        0.97763
+        0.99237,
+        0.98733
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 46,
-      "zero_uv_area_mm2": 1.122,
-      "zero_uv_max_face_mm2": 0.0489,
-      "texel_density_px_per_cm": 28.82,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
+      "texel_density_px_per_cm": 28.87,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -964,18 +964,18 @@
         }
       ],
       "uv_min": [
-        0.18683,
-        0.24998
+        0.07111,
+        0.17495
       ],
       "uv_max": [
-        0.98575,
-        0.98506
+        0.99282,
+        0.99467
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 32,
-      "zero_uv_area_mm2": 1.012,
-      "zero_uv_max_face_mm2": 0.0439,
-      "texel_density_px_per_cm": 28.72,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
+      "texel_density_px_per_cm": 28.78,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1136,9 +1136,9 @@
         0.98442
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 226,
-      "zero_uv_area_mm2": 3.694,
-      "zero_uv_max_face_mm2": 0.0493,
+      "zero_uv_faces": 14,
+      "zero_uv_area_mm2": 0.097,
+      "zero_uv_max_face_mm2": 0.0107,
       "texel_density_px_per_cm": 46.41,
       "skin": {
         "armature": "SK_IV7",
@@ -1234,8 +1234,8 @@
       "texture_set": "Furniture"
     },
     "ChargingHandle": {
-      "tris": 920,
-      "verts": 462,
+      "tris": 1642,
+      "verts": 823,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
@@ -1254,17 +1254,17 @@
       "bbox_min_m": [
         0.00306,
         -0.02408,
-        0.10792
+        0.10802
       ],
       "bbox_max_m": [
         0.14386,
         0.02408,
-        0.11412
+        0.11502
       ],
       "dimensions_cm": [
         14.08,
         4.815,
-        0.62
+        0.7
       ],
       "materials": [
         {
@@ -1292,18 +1292,18 @@
         }
       ],
       "uv_min": [
-        0.0023,
-        0.04004
+        0.07136,
+        0.0015
       ],
       "uv_max": [
-        0.98593,
-        0.98501
+        0.99309,
+        0.99466
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 208,
-      "zero_uv_area_mm2": 5.329,
-      "zero_uv_max_face_mm2": 0.0373,
-      "texel_density_px_per_cm": 28.81,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
+      "texel_density_px_per_cm": 28.86,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1374,18 +1374,18 @@
         }
       ],
       "uv_min": [
-        0.00294,
-        0.04812
+        0.00553,
+        0.0015
       ],
       "uv_max": [
-        0.98589,
-        0.98474
+        0.99256,
+        0.99479
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 158,
-      "zero_uv_area_mm2": 3.444,
-      "zero_uv_max_face_mm2": 0.0318,
-      "texel_density_px_per_cm": 20.21,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
+      "texel_density_px_per_cm": 20.25,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1456,18 +1456,18 @@
         }
       ],
       "uv_min": [
-        0.01259,
-        0.00184
+        0.11936,
+        0.05147
       ],
       "uv_max": [
-        0.87454,
-        0.96831
+        0.97632,
+        0.86661
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 206,
-      "zero_uv_area_mm2": 2.941,
-      "zero_uv_max_face_mm2": 0.0458,
-      "texel_density_px_per_cm": 28.79,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
+      "texel_density_px_per_cm": 28.83,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1538,18 +1538,18 @@
         }
       ],
       "uv_min": [
-        0.18875,
-        0.57897
+        0.09569,
+        0.76961
       ],
       "uv_max": [
-        0.98544,
-        0.81311
+        0.96829,
+        0.99385
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 14.61,
+      "texel_density_px_per_cm": 14.52,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1620,18 +1620,18 @@
         }
       ],
       "uv_min": [
-        0.37531,
-        0.02751
+        0.12682,
+        0.03085
       ],
       "uv_max": [
-        0.9858,
-        0.98508
+        0.9929,
+        0.9947
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 167,
-      "zero_uv_area_mm2": 3.728,
-      "zero_uv_max_face_mm2": 0.0475,
-      "texel_density_px_per_cm": 27.3,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
+      "texel_density_px_per_cm": 27.52,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1702,18 +1702,18 @@
         }
       ],
       "uv_min": [
-        0.27031,
-        0.39191
+        0.35265,
+        0.0015
       ],
       "uv_max": [
-        0.98529,
-        0.9784
+        0.9865,
+        0.99419
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 22.99,
+      "texel_density_px_per_cm": 23.03,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1784,18 +1784,18 @@
         }
       ],
       "uv_min": [
-        0.27549,
-        0.15379
+        0.15994,
+        0.07992
       ],
       "uv_max": [
-        0.9695,
-        0.96751
+        0.97579,
+        0.97949
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 28.8,
+      "texel_density_px_per_cm": 28.84,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1866,18 +1866,18 @@
         }
       ],
       "uv_min": [
-        0.0373,
-        0.07302
+        0.02295,
+        0.08775
       ],
       "uv_max": [
-        0.9853,
-        0.99021
+        0.99812,
+        0.99397
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 315,
-      "zero_uv_area_mm2": 7.437,
-      "zero_uv_max_face_mm2": 0.0495,
-      "texel_density_px_per_cm": 28.57,
+      "zero_uv_faces": 16,
+      "zero_uv_area_mm2": 0.146,
+      "zero_uv_max_face_mm2": 0.0171,
+      "texel_density_px_per_cm": 28.77,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -1948,18 +1948,18 @@
         }
       ],
       "uv_min": [
-        0.05251,
-        0.0015
+        0.00854,
+        0.01885
       ],
       "uv_max": [
-        0.98575,
-        0.99045
+        0.99807,
+        0.99464
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 168,
-      "zero_uv_area_mm2": 6.791,
+      "zero_uv_faces": 26,
+      "zero_uv_area_mm2": 0.876,
       "zero_uv_max_face_mm2": 0.0497,
-      "texel_density_px_per_cm": 29.1,
+      "texel_density_px_per_cm": 29.42,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2030,18 +2030,18 @@
         }
       ],
       "uv_min": [
-        0.10995,
-        0.01496
+        0.28685,
+        0.0015
       ],
       "uv_max": [
-        0.97059,
-        0.94643
+        0.97611,
+        0.90097
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 263,
-      "zero_uv_area_mm2": 6.333,
-      "zero_uv_max_face_mm2": 0.0495,
-      "texel_density_px_per_cm": 28.69,
+      "zero_uv_faces": 3,
+      "zero_uv_area_mm2": 0.035,
+      "zero_uv_max_face_mm2": 0.0193,
+      "texel_density_px_per_cm": 28.84,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2112,18 +2112,18 @@
         }
       ],
       "uv_min": [
-        0.01957,
-        0.04111
+        0.06732,
+        0.1376
       ],
       "uv_max": [
-        0.98596,
-        0.99064
+        0.99313,
+        0.99434
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 980,
-      "zero_uv_area_mm2": 21.619,
-      "zero_uv_max_face_mm2": 0.0499,
-      "texel_density_px_per_cm": 28.76,
+      "zero_uv_faces": 15,
+      "zero_uv_area_mm2": 0.123,
+      "zero_uv_max_face_mm2": 0.0316,
+      "texel_density_px_per_cm": 28.92,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2194,18 +2194,18 @@
         }
       ],
       "uv_min": [
-        0.51911,
-        0.174
+        0.20042,
+        0.27925
       ],
       "uv_max": [
-        0.97981,
-        0.97823
+        0.98629,
+        0.98823
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 20.28,
+      "texel_density_px_per_cm": 20.3,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2276,18 +2276,18 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.09059
+        0.02517,
+        0.28358
       ],
       "uv_max": [
-        0.97978,
-        0.96785
+        0.98539,
+        0.98813
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 800,
-      "zero_uv_area_mm2": 18.815,
-      "zero_uv_max_face_mm2": 0.046,
-      "texel_density_px_per_cm": 28.64,
+      "zero_uv_faces": 1,
+      "zero_uv_area_mm2": 0.007,
+      "zero_uv_max_face_mm2": 0.0071,
+      "texel_density_px_per_cm": 28.84,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2358,18 +2358,18 @@
         }
       ],
       "uv_min": [
-        0.27015,
-        0.00154
+        0.0015,
+        0.06137
       ],
       "uv_max": [
-        0.98596,
-        0.98535
+        0.99317,
+        0.99483
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 910,
-      "zero_uv_area_mm2": 19.003,
-      "zero_uv_max_face_mm2": 0.0492,
-      "texel_density_px_per_cm": 28.76,
+      "zero_uv_faces": 11,
+      "zero_uv_area_mm2": 0.137,
+      "zero_uv_max_face_mm2": 0.034,
+      "texel_density_px_per_cm": 28.92,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2440,18 +2440,18 @@
         }
       ],
       "uv_min": [
-        0.29893,
-        0.23524
+        0.16455,
+        0.28308
       ],
       "uv_max": [
-        0.97962,
-        0.97823
+        0.98629,
+        0.98823
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 20.31,
+      "texel_density_px_per_cm": 20.34,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2522,18 +2522,18 @@
         }
       ],
       "uv_min": [
-        0.05987,
-        0.35266
+        0.0015,
+        0.19715
       ],
       "uv_max": [
-        0.98518,
-        0.98457
+        0.99254,
+        0.99408
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 636,
-      "zero_uv_area_mm2": 14.188,
-      "zero_uv_max_face_mm2": 0.0436,
-      "texel_density_px_per_cm": 28.56,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
+      "texel_density_px_per_cm": 28.76,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2605,17 +2605,17 @@
       ],
       "uv_min": [
         0.0015,
-        0.0015
+        0.02475
       ],
       "uv_max": [
-        0.98596,
-        0.99067
+        0.99326,
+        0.99474
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 1414,
-      "zero_uv_area_mm2": 32.671,
-      "zero_uv_max_face_mm2": 0.0499,
-      "texel_density_px_per_cm": 26.33,
+      "zero_uv_faces": 21,
+      "zero_uv_area_mm2": 0.362,
+      "zero_uv_max_face_mm2": 0.0492,
+      "texel_density_px_per_cm": 26.41,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2686,18 +2686,18 @@
         }
       ],
       "uv_min": [
-        0.26451,
-        0.00856
+        0.5511,
+        0.04865
       ],
       "uv_max": [
-        0.97986,
-        0.98525
+        0.99314,
+        0.97934
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
       "zero_uv_area_mm2": 0.0,
       "zero_uv_max_face_mm2": 0.0,
-      "texel_density_px_per_cm": 20.6,
+      "texel_density_px_per_cm": 20.67,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2881,13 +2881,13 @@
         0.004
       ],
       "uv_max": [
-        0.80336,
+        0.496,
         0.996
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 0,
-      "zero_uv_area_mm2": 0.0,
-      "zero_uv_max_face_mm2": 0.0,
+      "zero_uv_faces": 24,
+      "zero_uv_area_mm2": 0.047,
+      "zero_uv_max_face_mm2": 0.0019,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -2963,13 +2963,13 @@
       ],
       "uv_max": [
         0.97134,
-        0.91058
+        0.91095
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 370,
-      "zero_uv_area_mm2": 6.528,
-      "zero_uv_max_face_mm2": 0.0497,
-      "texel_density_px_per_cm": 46.4,
+      "zero_uv_faces": 13,
+      "zero_uv_area_mm2": 0.08,
+      "zero_uv_max_face_mm2": 0.0339,
+      "texel_density_px_per_cm": 46.41,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3048,10 +3048,10 @@
         0.8981
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 40,
-      "zero_uv_area_mm2": 1.988,
-      "zero_uv_max_face_mm2": 0.0497,
-      "texel_density_px_per_cm": 36.94,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
+      "texel_density_px_per_cm": 36.95,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3064,8 +3064,8 @@
       "texture_set": "Furniture"
     },
     "UpperReceiver_LOD1": {
-      "tris": 2526,
-      "verts": 1255,
+      "tris": 2570,
+      "verts": 1277,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
@@ -3082,7 +3082,7 @@
       "missing_uvs": false,
       "has_custom_normals": true,
       "bbox_min_m": [
-        0.02185,
+        0.02186,
         -0.02219,
         0.07272
       ],
@@ -3122,17 +3122,17 @@
         }
       ],
       "uv_min": [
-        0.00213,
+        0.01228,
         0.0015
       ],
       "uv_max": [
-        0.97863,
-        0.98543
+        0.99272,
+        0.9946
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 95,
-      "zero_uv_area_mm2": 4.325,
-      "zero_uv_max_face_mm2": 0.05,
+      "zero_uv_faces": 1,
+      "zero_uv_area_mm2": 0.048,
+      "zero_uv_max_face_mm2": 0.0483,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3207,13 +3207,13 @@
         0.0015
       ],
       "uv_max": [
-        0.98603,
-        0.99077
+        0.99823,
+        0.9948
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 11,
-      "zero_uv_area_mm2": 0.293,
-      "zero_uv_max_face_mm2": 0.0483,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3288,8 +3288,8 @@
         0.0015
       ],
       "uv_max": [
-        0.98583,
-        0.99062
+        0.99256,
+        0.99433
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -3365,17 +3365,17 @@
         }
       ],
       "uv_min": [
-        0.01074,
-        0.19509
+        0.07257,
+        0.02231
       ],
       "uv_max": [
-        0.98586,
-        0.99055
+        0.99817,
+        0.99473
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 6,
-      "zero_uv_area_mm2": 0.256,
-      "zero_uv_max_face_mm2": 0.0439,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3446,12 +3446,12 @@
         }
       ],
       "uv_min": [
-        0.02157,
-        0.12538
+        0.06165,
+        0.00151
       ],
       "uv_max": [
-        0.98582,
-        0.97851
+        0.98545,
+        0.99471
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -3527,12 +3527,12 @@
         }
       ],
       "uv_min": [
-        0.02127,
+        0.31718,
         0.0015
       ],
       "uv_max": [
-        0.98592,
-        0.98567
+        0.99338,
+        0.98741
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -3608,12 +3608,12 @@
         }
       ],
       "uv_min": [
-        0.03595,
-        0.10671
+        0.0015,
+        0.02791
       ],
       "uv_max": [
-        0.96905,
-        0.96722
+        0.97534,
+        0.97923
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -3689,17 +3689,17 @@
         }
       ],
       "uv_min": [
-        0.24785,
-        0.36971
+        0.14672,
+        0.14198
       ],
       "uv_max": [
-        0.98566,
-        0.98497
+        0.99315,
+        0.99468
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 8,
-      "zero_uv_area_mm2": 8.071,
-      "zero_uv_max_face_mm2": 7.7757,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3770,12 +3770,12 @@
         }
       ],
       "uv_min": [
-        0.74195,
-        0.08536
+        0.49693,
+        0.01
       ],
       "uv_max": [
-        0.98542,
-        0.60602
+        0.84121,
+        0.99432
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -3851,17 +3851,17 @@
         }
       ],
       "uv_min": [
-        0.00298,
-        0.00214
+        0.01557,
+        0.0015
       ],
       "uv_max": [
-        0.97835,
-        0.96815
+        0.974,
+        0.98773
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 5,
-      "zero_uv_area_mm2": 0.201,
-      "zero_uv_max_face_mm2": 0.0481,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -3932,12 +3932,12 @@
         }
       ],
       "uv_min": [
-        0.00155,
-        0.06913
+        0.04647,
+        0.07318
       ],
       "uv_max": [
-        0.98596,
-        0.97763
+        0.99237,
+        0.98733
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -4013,12 +4013,12 @@
         }
       ],
       "uv_min": [
-        0.18683,
-        0.27576
+        0.07111,
+        0.17495
       ],
       "uv_max": [
-        0.87424,
-        0.98506
+        0.99282,
+        0.99465
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -4183,8 +4183,8 @@
         0.98442
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 4,
-      "zero_uv_area_mm2": 0.07,
+      "zero_uv_faces": 2,
+      "zero_uv_area_mm2": 0.04,
       "zero_uv_max_face_mm2": 0.0206,
       "skin": {
         "armature": "SK_IV7",
@@ -4279,8 +4279,8 @@
       "texture_set": null
     },
     "ChargingHandle_LOD1": {
-      "tris": 460,
-      "verts": 232,
+      "tris": 820,
+      "verts": 412,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
@@ -4299,17 +4299,17 @@
       "bbox_min_m": [
         0.00309,
         -0.02407,
-        0.10792
+        0.10802
       ],
       "bbox_max_m": [
         0.14385,
         0.02407,
-        0.11412
+        0.11502
       ],
       "dimensions_cm": [
         14.076,
         4.814,
-        0.62
+        0.7
       ],
       "materials": [
         {
@@ -4337,17 +4337,17 @@
         }
       ],
       "uv_min": [
-        0.0023,
-        0.04004
+        0.07136,
+        0.00154
       ],
       "uv_max": [
-        0.98593,
-        0.98501
+        0.99309,
+        0.99466
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 15,
-      "zero_uv_area_mm2": 0.503,
-      "zero_uv_max_face_mm2": 0.0482,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -4418,12 +4418,12 @@
         }
       ],
       "uv_min": [
-        0.00294,
-        0.04812
+        0.00573,
+        0.0015
       ],
       "uv_max": [
-        0.98589,
-        0.98474
+        0.99256,
+        0.99457
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -4499,17 +4499,17 @@
         }
       ],
       "uv_min": [
-        0.01259,
-        0.00184
+        0.11936,
+        0.05147
       ],
       "uv_max": [
-        0.87454,
-        0.96831
+        0.97628,
+        0.86661
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 14,
-      "zero_uv_area_mm2": 0.285,
-      "zero_uv_max_face_mm2": 0.0395,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -4580,12 +4580,12 @@
         }
       ],
       "uv_min": [
-        0.18875,
-        0.57897
+        0.09569,
+        0.76961
       ],
       "uv_max": [
-        0.98544,
-        0.81311
+        0.96829,
+        0.99385
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -4661,17 +4661,17 @@
         }
       ],
       "uv_min": [
-        0.37531,
-        0.02753
+        0.12682,
+        0.03094
       ],
       "uv_max": [
-        0.9858,
-        0.98505
+        0.99287,
+        0.9947
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 21,
-      "zero_uv_area_mm2": 0.724,
-      "zero_uv_max_face_mm2": 0.0385,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -4742,12 +4742,12 @@
         }
       ],
       "uv_min": [
-        0.27032,
-        0.39191
+        0.35265,
+        0.0015
       ],
       "uv_max": [
-        0.98529,
-        0.9784
+        0.9865,
+        0.99419
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -4823,12 +4823,12 @@
         }
       ],
       "uv_min": [
-        0.27549,
-        0.15379
+        0.15994,
+        0.07992
       ],
       "uv_max": [
-        0.9695,
-        0.96751
+        0.97579,
+        0.97949
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -4904,17 +4904,17 @@
         }
       ],
       "uv_min": [
-        0.0373,
-        0.07302
+        0.02295,
+        0.08776
       ],
       "uv_max": [
-        0.9853,
-        0.99021
+        0.99812,
+        0.99392
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 30,
-      "zero_uv_area_mm2": 0.792,
-      "zero_uv_max_face_mm2": 0.0587,
+      "zero_uv_faces": 5,
+      "zero_uv_area_mm2": 0.089,
+      "zero_uv_max_face_mm2": 0.0185,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -4985,17 +4985,17 @@
         }
       ],
       "uv_min": [
-        0.05251,
-        0.00191
+        0.00854,
+        0.03401
       ],
       "uv_max": [
-        0.98575,
-        0.99045
+        0.99807,
+        0.99464
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 3,
-      "zero_uv_area_mm2": 0.147,
-      "zero_uv_max_face_mm2": 0.071,
+      "zero_uv_faces": 2,
+      "zero_uv_area_mm2": 0.076,
+      "zero_uv_max_face_mm2": 0.0417,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -5066,17 +5066,17 @@
         }
       ],
       "uv_min": [
-        0.10992,
-        0.01684
+        0.28686,
+        0.00153
       ],
       "uv_max": [
-        0.97015,
-        0.94661
+        0.97611,
+        0.90097
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 40,
-      "zero_uv_area_mm2": 1.069,
-      "zero_uv_max_face_mm2": 0.0491,
+      "zero_uv_faces": 3,
+      "zero_uv_area_mm2": 0.036,
+      "zero_uv_max_face_mm2": 0.0197,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -5147,17 +5147,17 @@
         }
       ],
       "uv_min": [
-        0.01957,
-        0.04111
+        0.06734,
+        0.13763
       ],
       "uv_max": [
-        0.98595,
-        0.99063
+        0.99312,
+        0.99433
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 155,
-      "zero_uv_area_mm2": 5.419,
-      "zero_uv_max_face_mm2": 0.3261,
+      "zero_uv_faces": 2,
+      "zero_uv_area_mm2": 0.022,
+      "zero_uv_max_face_mm2": 0.0121,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -5228,12 +5228,12 @@
         }
       ],
       "uv_min": [
-        0.51911,
-        0.1741
+        0.20042,
+        0.27935
       ],
       "uv_max": [
-        0.97981,
-        0.97823
+        0.98629,
+        0.98823
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -5309,17 +5309,17 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.09059
+        0.02517,
+        0.28358
       ],
       "uv_max": [
-        0.97978,
-        0.96825
+        0.98537,
+        0.98807
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 77,
-      "zero_uv_area_mm2": 2.68,
-      "zero_uv_max_face_mm2": 0.0497,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -5390,17 +5390,17 @@
         }
       ],
       "uv_min": [
-        0.27015,
-        0.00154
+        0.00153,
+        0.06137
       ],
       "uv_max": [
-        0.98596,
-        0.98534
+        0.99316,
+        0.99482
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 204,
-      "zero_uv_area_mm2": 6.734,
-      "zero_uv_max_face_mm2": 0.0497,
+      "zero_uv_faces": 2,
+      "zero_uv_area_mm2": 0.041,
+      "zero_uv_max_face_mm2": 0.034,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -5471,12 +5471,12 @@
         }
       ],
       "uv_min": [
-        0.29893,
-        0.23532
+        0.16455,
+        0.28315
       ],
       "uv_max": [
-        0.97889,
-        0.97823
+        0.98629,
+        0.98823
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -5552,17 +5552,17 @@
         }
       ],
       "uv_min": [
-        0.05992,
-        0.35266
+        0.0015,
+        0.19715
       ],
       "uv_max": [
-        0.98518,
-        0.98457
+        0.99254,
+        0.99408
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 136,
-      "zero_uv_area_mm2": 4.525,
-      "zero_uv_max_face_mm2": 0.0498,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -5634,16 +5634,16 @@
       ],
       "uv_min": [
         0.0015,
-        0.0015
+        0.02475
       ],
       "uv_max": [
-        0.98596,
-        0.99067
+        0.99326,
+        0.99474
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 47,
-      "zero_uv_area_mm2": 0.833,
-      "zero_uv_max_face_mm2": 0.0454,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -5714,12 +5714,12 @@
         }
       ],
       "uv_min": [
-        0.26456,
-        0.00861
+        0.5511,
+        0.04865
       ],
       "uv_max": [
-        0.97986,
-        0.9852
+        0.99309,
+        0.94314
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -5908,13 +5908,13 @@
         0.004
       ],
       "uv_max": [
-        0.80336,
+        0.496,
         0.996
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 0,
-      "zero_uv_area_mm2": 0.0,
-      "zero_uv_max_face_mm2": 0.0,
+      "zero_uv_faces": 14,
+      "zero_uv_area_mm2": 0.048,
+      "zero_uv_max_face_mm2": 0.0041,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -5990,12 +5990,12 @@
       ],
       "uv_max": [
         0.97134,
-        0.91058
+        0.91095
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 19,
-      "zero_uv_area_mm2": 0.595,
-      "zero_uv_max_face_mm2": 0.0473,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -6089,8 +6089,8 @@
       "texture_set": null
     },
     "UpperReceiver_LOD2": {
-      "tris": 1010,
-      "verts": 497,
+      "tris": 1028,
+      "verts": 506,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
@@ -6147,12 +6147,12 @@
         }
       ],
       "uv_min": [
-        0.00213,
-        0.00154
+        0.07886,
+        0.00157
       ],
       "uv_max": [
-        0.97861,
-        0.98562
+        0.99258,
+        0.99407
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6228,12 +6228,12 @@
         }
       ],
       "uv_min": [
-        0.00198,
+        0.00152,
         0.0015
       ],
       "uv_max": [
-        0.98591,
-        0.99067
+        0.99823,
+        0.9948
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6309,12 +6309,12 @@
         }
       ],
       "uv_min": [
-        0.0015,
-        0.0017
+        0.00168,
+        0.00159
       ],
       "uv_max": [
-        0.98524,
-        0.9904
+        0.99069,
+        0.99406
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6390,12 +6390,12 @@
         }
       ],
       "uv_min": [
-        0.01074,
-        0.19509
+        0.07264,
+        0.02231
       ],
       "uv_max": [
-        0.98573,
-        0.99055
+        0.99817,
+        0.99464
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6471,12 +6471,12 @@
         }
       ],
       "uv_min": [
-        0.02165,
-        0.12538
+        0.06175,
+        0.00156
       ],
       "uv_max": [
-        0.9857,
-        0.97844
+        0.98545,
+        0.9946
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6552,12 +6552,12 @@
         }
       ],
       "uv_min": [
-        0.02127,
+        0.31719,
         0.0015
       ],
       "uv_max": [
-        0.9858,
-        0.98567
+        0.99338,
+        0.98737
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6633,12 +6633,12 @@
         }
       ],
       "uv_min": [
-        0.03601,
-        0.10671
+        0.00163,
+        0.02791
       ],
       "uv_max": [
-        0.96896,
-        0.96722
+        0.97524,
+        0.97921
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6714,12 +6714,12 @@
         }
       ],
       "uv_min": [
-        0.24787,
-        0.36971
+        0.14676,
+        0.37859
       ],
       "uv_max": [
-        0.98566,
-        0.9849
+        0.99272,
+        0.99463
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6795,12 +6795,12 @@
         }
       ],
       "uv_min": [
-        0.74195,
-        0.08536
+        0.49712,
+        0.01
       ],
       "uv_max": [
-        0.98523,
-        0.60556
+        0.84121,
+        0.99416
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6876,12 +6876,12 @@
         }
       ],
       "uv_min": [
-        0.00322,
-        0.00214
+        0.01559,
+        0.0015
       ],
       "uv_max": [
-        0.97831,
-        0.96809
+        0.974,
+        0.98773
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -6957,12 +6957,12 @@
         }
       ],
       "uv_min": [
-        0.00168,
-        0.18299
+        0.04647,
+        0.07318
       ],
       "uv_max": [
-        0.97795,
-        0.97763
+        0.98574,
+        0.98733
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7038,12 +7038,12 @@
         }
       ],
       "uv_min": [
-        0.18708,
-        0.276
+        0.07161,
+        0.1752
       ],
       "uv_max": [
-        0.87383,
-        0.98486
+        0.9927,
+        0.9872
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7205,7 +7205,7 @@
       ],
       "uv_max": [
         0.97666,
-        0.98438
+        0.98432
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7304,8 +7304,8 @@
       "texture_set": null
     },
     "ChargingHandle_LOD2": {
-      "tris": 184,
-      "verts": 94,
+      "tris": 328,
+      "verts": 166,
       "non_manifold_edges": 0,
       "boundary_edges": 0,
       "inconsistent_normal_edges": 0,
@@ -7322,19 +7322,19 @@
       "missing_uvs": false,
       "has_custom_normals": true,
       "bbox_min_m": [
-        0.00315,
+        0.00309,
         -0.02412,
-        0.10796
+        0.10806
       ],
       "bbox_max_m": [
         0.14372,
         0.02412,
-        0.11412
+        0.115
       ],
       "dimensions_cm": [
-        14.057,
+        14.063,
         4.825,
-        0.616
+        0.694
       ],
       "materials": [
         {
@@ -7362,12 +7362,12 @@
         }
       ],
       "uv_min": [
-        0.0023,
-        0.04018
+        0.07136,
+        0.00154
       ],
       "uv_max": [
-        0.98593,
-        0.98453
+        0.99309,
+        0.99466
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7443,12 +7443,12 @@
         }
       ],
       "uv_min": [
-        0.00294,
-        0.11886
+        0.01052,
+        0.0015
       ],
       "uv_max": [
-        0.98589,
-        0.98474
+        0.99256,
+        0.99457
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7524,12 +7524,12 @@
         }
       ],
       "uv_min": [
-        0.01259,
-        0.00184
+        0.11959,
+        0.05147
       ],
       "uv_max": [
-        0.87454,
-        0.96831
+        0.97628,
+        0.86661
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7605,12 +7605,12 @@
         }
       ],
       "uv_min": [
-        0.18887,
-        0.57908
+        0.09586,
+        0.76961
       ],
       "uv_max": [
-        0.98532,
-        0.81311
+        0.96802,
+        0.99376
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7686,12 +7686,12 @@
         }
       ],
       "uv_min": [
-        0.37534,
-        0.02753
+        0.12689,
+        0.28218
       ],
       "uv_max": [
-        0.9858,
-        0.98505
+        0.99287,
+        0.99469
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7767,12 +7767,12 @@
         }
       ],
       "uv_min": [
-        0.27032,
-        0.39205
+        0.35326,
+        0.0015
       ],
       "uv_max": [
-        0.98508,
-        0.9784
+        0.9865,
+        0.99414
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7848,12 +7848,12 @@
         }
       ],
       "uv_min": [
-        0.27549,
-        0.15408
+        0.15994,
+        0.08044
       ],
       "uv_max": [
-        0.96933,
-        0.96751
+        0.9755,
+        0.97949
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -7929,17 +7929,17 @@
         }
       ],
       "uv_min": [
-        0.0373,
-        0.07302
+        0.02325,
+        0.08776
       ],
       "uv_max": [
-        0.98842,
-        0.99021
+        0.99812,
+        0.99392
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 1,
-      "zero_uv_area_mm2": 0.034,
-      "zero_uv_max_face_mm2": 0.0341,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -8010,12 +8010,12 @@
         }
       ],
       "uv_min": [
-        0.13088,
-        0.00197
+        0.05886,
+        0.0342
       ],
       "uv_max": [
-        0.98575,
-        0.98557
+        0.99324,
+        0.99464
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8091,12 +8091,12 @@
         }
       ],
       "uv_min": [
-        0.10995,
-        0.01686
+        0.28694,
+        0.00259
       ],
       "uv_max": [
-        0.97014,
-        0.94621
+        0.9761,
+        0.90095
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8172,17 +8172,17 @@
         }
       ],
       "uv_min": [
-        0.01957,
-        0.04111
+        0.06742,
+        0.13764
       ],
       "uv_max": [
-        0.9859,
-        0.99045
+        0.99311,
+        0.99433
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 1,
-      "zero_uv_area_mm2": 0.886,
-      "zero_uv_max_face_mm2": 0.8855,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -8253,12 +8253,12 @@
         }
       ],
       "uv_min": [
-        0.5193,
-        0.1741
+        0.20062,
+        0.27935
       ],
       "uv_max": [
-        0.97973,
-        0.97816
+        0.98622,
+        0.98823
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8334,12 +8334,12 @@
         }
       ],
       "uv_min": [
-        0.00171,
-        0.09065
+        0.02517,
+        0.28364
       ],
       "uv_max": [
-        0.97978,
-        0.96785
+        0.98514,
+        0.98799
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8415,17 +8415,17 @@
         }
       ],
       "uv_min": [
-        0.27107,
-        0.00154
+        0.00153,
+        0.06145
       ],
       "uv_max": [
-        0.98596,
-        0.98534
+        0.99316,
+        0.99478
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 1,
-      "zero_uv_area_mm2": 1.731,
-      "zero_uv_max_face_mm2": 1.7314,
+      "zero_uv_faces": 0,
+      "zero_uv_area_mm2": 0.0,
+      "zero_uv_max_face_mm2": 0.0,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -8496,12 +8496,12 @@
         }
       ],
       "uv_min": [
-        0.29893,
-        0.23532
+        0.16455,
+        0.28316
       ],
       "uv_max": [
-        0.97889,
-        0.97823
+        0.98629,
+        0.98823
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8577,12 +8577,12 @@
         }
       ],
       "uv_min": [
-        0.05992,
-        0.35266
+        0.00157,
+        0.19715
       ],
       "uv_max": [
-        0.98504,
-        0.98457
+        0.99251,
+        0.99403
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8658,12 +8658,12 @@
         }
       ],
       "uv_min": [
-        0.0016,
-        0.01756
+        0.00153,
+        0.02475
       ],
       "uv_max": [
-        0.98585,
-        0.98982
+        0.99326,
+        0.99474
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8739,12 +8739,12 @@
         }
       ],
       "uv_min": [
-        0.2647,
-        0.00872
+        0.5511,
+        0.04894
       ],
       "uv_max": [
-        0.97986,
-        0.98512
+        0.99291,
+        0.94312
       ],
       "uv_out_of_bounds_loops": 0,
       "zero_uv_faces": 0,
@@ -8933,13 +8933,13 @@
         0.004
       ],
       "uv_max": [
-        0.80336,
-        0.96715
+        0.496,
+        0.996
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 0,
-      "zero_uv_area_mm2": 0.0,
-      "zero_uv_max_face_mm2": 0.0,
+      "zero_uv_faces": 5,
+      "zero_uv_area_mm2": 0.025,
+      "zero_uv_max_face_mm2": 0.0059,
       "skin": {
         "armature": "SK_IV7",
         "groups": [
@@ -9010,11 +9010,11 @@
         }
       ],
       "uv_min": [
-        0.00227,
-        0.0
+        0.00221,
+        0.00166
       ],
       "uv_max": [
-        0.97122,
+        0.97131,
         0.91058
       ],
       "uv_out_of_bounds_loops": 0,
@@ -9177,19 +9177,19 @@
       ],
       "uv_max": [
         0.97338,
-        0.91058
+        0.91095
       ],
       "uv_out_of_bounds_loops": 0,
-      "zero_uv_faces": 410,
-      "zero_uv_area_mm2": 8.516,
-      "zero_uv_max_face_mm2": 0.0497,
+      "zero_uv_faces": 13,
+      "zero_uv_area_mm2": 0.08,
+      "zero_uv_max_face_mm2": 0.0339,
       "texture_set": null
     }
   },
   "summary": {
-    "total_tris": 114666,
-    "problem_count": 8,
-    "validation_seconds": 5.8
+    "total_tris": 116042,
+    "problem_count": 0,
+    "validation_seconds": 4.7
   },
   "texture_sets": {
     "Body": {
@@ -9228,15 +9228,15 @@
       "size": 2048,
       "uv_overlap": {
         "resolution": 2048,
-        "covered_fraction": 0.4717,
-        "pixels_shared_by_different_islands": 26,
-        "islands": 8433,
-        "islands_without_pixel_centres": 269,
-        "collapsed_degenerate_faces": 6060,
+        "covered_fraction": 0.4746,
+        "pixels_shared_by_different_islands": 0,
+        "islands": 2044,
+        "islands_without_pixel_centres": 2,
+        "collapsed_degenerate_faces": 144,
         "method": "pixel-centre rasterisation per island at the texture size"
       },
-      "texel_density_min": 10.08,
-      "texel_density_max": 29.1
+      "texel_density_min": 10.09,
+      "texel_density_max": 29.42
     },
     "Furniture": {
       "objects": [
@@ -9249,14 +9249,14 @@
       "size": 2048,
       "uv_overlap": {
         "resolution": 2048,
-        "covered_fraction": 0.6734,
+        "covered_fraction": 0.6735,
         "pixels_shared_by_different_islands": 0,
-        "islands": 596,
-        "islands_without_pixel_centres": 3,
-        "collapsed_degenerate_faces": 450,
+        "islands": 148,
+        "islands_without_pixel_centres": 0,
+        "collapsed_degenerate_faces": 21,
         "method": "pixel-centre rasterisation per island at the texture size"
       },
-      "texel_density_min": 36.94,
+      "texel_density_min": 36.95,
       "texel_density_max": 46.41
     }
   },
@@ -9419,16 +9419,7 @@
       }
     }
   },
-  "problems": [
-    "LowerReceiver: zero-UV-area face of 0.2505 mm2 (limit 0.05)",
-    "GasBlock_LOD1: zero-UV-area face of 7.7757 mm2 (limit 0.05)",
-    "BoltCatch_LOD1: zero-UV-area face of 0.0587 mm2 (limit 0.05)",
-    "Selector_LOD1: zero-UV-area face of 0.071 mm2 (limit 0.05)",
-    "RearSightBase_LOD1: zero-UV-area face of 0.3261 mm2 (limit 0.05)",
-    "RearSightBase_LOD2: zero-UV-area face of 0.8855 mm2 (limit 0.05)",
-    "FrontSightBase_LOD2: zero-UV-area face of 1.7314 mm2 (limit 0.05)",
-    "set Body: 26 px shared by different UV islands"
-  ],
+  "problems": [],
   "asset": "IV-7 carbine",
   "measurements": {
     "overall_length_cm": 86.0,
@@ -9480,15 +9471,15 @@
     "note": "all values measured from the built meshes except rake / grip length / rail pitch / magwell front wall / charging-handle stroke (design inputs)"
   },
   "triangles": {
-    "LOD0": 65044,
-    "LOD1": 32516,
-    "LOD2": 12990,
+    "LOD0": 65854,
+    "LOD1": 32920,
+    "LOD2": 13152,
     "SM_IV7_Magazine": 4116,
     "per_part_LOD0": {
       "Optic": 8656,
       "Handguard": 7950,
       "LowerReceiver": 6194,
-      "UpperReceiver": 5052,
+      "UpperReceiver": 5140,
       "Magazine": 2996,
       "BufferTube": 2782,
       "RearSightBase": 2340,
@@ -9497,6 +9488,7 @@
       "MuzzleDevice": 1932,
       "Stock": 1930,
       "FrontSightBase": 1836,
+      "ChargingHandle": 1642,
       "BoltCarrier": 1596,
       "GasBlock": 1570,
       "BarrelNut": 1484,
@@ -9505,7 +9497,6 @@
       "CastleNut": 1208,
       "MagRounds": 1120,
       "EndPlate": 1082,
-      "ChargingHandle": 920,
       "Trigger": 848,
       "BoltCatch": 842,
       "Pins": 768,
@@ -9682,16 +9673,16 @@
   "uv_unwrap": {
     "Body": {
       "enlarged": [
-        681,
-        389
+        710,
+        442
       ],
       "shape": "CONCAVE",
-      "nudged": 48,
-      "coverage": 0.4725,
+      "nudged": 39,
+      "coverage": 0.4749,
       "overlap_px": 0,
-      "islands": 2019,
-      "islands_without_pixels": 1,
-      "collapsed_faces": 9904
+      "islands": 2049,
+      "islands_without_pixels": 2,
+      "collapsed_faces": 171
     },
     "Furniture": {
       "enlarged": [
@@ -9704,8 +9695,946 @@
       "overlap_px": 0,
       "islands": 141,
       "islands_without_pixels": 0,
-      "collapsed_faces": 636
+      "collapsed_faces": 27
     }
+  },
+  "rear_sight_ring": {
+    "problems": [],
+    "method": "shell count + solid-material probes on the leaf centre line from the post (z 6.20) through the post/ring junction into the ring annulus (z 6.52), bore frame, ray-parity inside test",
+    "RearSightLeaf": {
+      "shells": 1,
+      "centre_line_solid": {
+        "6.20": true,
+        "6.30": true,
+        "6.38": true,
+        "6.42": true,
+        "6.47": true,
+        "6.52": true
+      },
+      "ring_outer_bottom_z_cm": 6.38
+    },
+    "RearSightLeaf_LOD1": {
+      "shells": 1,
+      "centre_line_solid": {
+        "6.20": true,
+        "6.30": true,
+        "6.38": true,
+        "6.42": true,
+        "6.47": true,
+        "6.52": true
+      },
+      "ring_outer_bottom_z_cm": 6.38
+    },
+    "RearSightLeaf_LOD2": {
+      "shells": 1,
+      "centre_line_solid": {
+        "6.20": true,
+        "6.30": true,
+        "6.38": true,
+        "6.42": true,
+        "6.47": true,
+        "6.52": true
+      },
+      "ring_outer_bottom_z_cm": 6.38
+    }
+  },
+  "pose_checks": {
+    "method": "posed evaluated meshes; BVH triangle-pair overlap; penetration depth = max distance to the other surface of vertices inside the other closed mesh (ray parity, 2 directions); penetration if depth > 0.1 mm, otherwise seating contact",
+    "bind_pose": {
+      "UpperReceiver x LowerReceiver": {
+        "tri_pairs": 257,
+        "depth_mm": 0.0,
+        "verts_inside": 0,
+        "penetration": false
+      },
+      "UpperReceiver x BarrelNut": {
+        "tri_pairs": 149,
+        "depth_mm": 0.0,
+        "verts_inside": 0,
+        "penetration": false
+      },
+      "UpperReceiver x DustCoverRod": {
+        "tri_pairs": 82,
+        "depth_mm": 0.0,
+        "verts_inside": 0,
+        "penetration": false
+      },
+      "UpperReceiver x ForwardAssist": {
+        "tri_pairs": 38,
+        "depth_mm": 0.0,
+        "verts_inside": 0,
+        "penetration": false
+      },
+      "UpperReceiver x RearSightBolt": {
+        "tri_pairs": 2,
+        "depth_mm": 0.0,
+        "verts_inside": 0,
+        "penetration": false
+      },
+      "UpperReceiver x OpticBolt": {
+        "tri_pairs": 2,
+        "depth_mm": 0.0,
+        "verts_inside": 0,
+        "penetration": false
+      },
+      "LowerReceiver x EndPlate": {
+        "tri_pairs": 302,
+        "depth_mm": 0.0,
+        "verts_inside": 0,
+        "penetration": false
+      },
+      "LowerReceiver x PistolGrip": {
+        "tri_pairs": 67,
+        "depth_mm": 0.0,
+        "verts_inside": 0,
+        "penetration": false
+      },
+      "LowerReceiver x Pins": {
+        "tri_pairs": 582,
+        "depth_mm": 0.004,
+        "verts_inside": 32,
+        "penetration": false
+      },
+      "LowerReceiver x Selector": {
+        "tri_pairs": 98,
+        "depth_mm": 0.0,
+        "verts_inside": 0,
+        "penetration": false
+      },
+      "Handguard x FrontSightBolt": {
+        "tri_pairs": 2,
+        "depth_mm": 0.0,
+        "verts_inside": 0,
+        "penetration": false
+      },
+      "Barrel x BarrelNut": {
+        "tri_pairs": 173,
+        "depth_mm": 0.0,
+        "verts_inside": 0,
+        "penetration": false
+      },
+      "Barrel x MuzzleDevice": {
+        "tri_pairs": 159,
+        "depth_mm": 0.0,
+        "verts_inside": 0,
+        "penetration": false
+      },
+      "EndPlate x CastleNut": {
+        "tri_pairs": 102,
+        "depth_mm": 0.0,
+        "verts_inside": 0,
+        "penetration": false
+      },
+      "Stock x ButtPad": {
+        "tri_pairs": 48,
+        "depth_mm": 0.0,
+        "verts_inside": 0,
+        "penetration": false
+      },
+      "RearSightBase x RearSightBolt": {
+        "tri_pairs": 83,
+        "depth_mm": 0.0,
+        "verts_inside": 0,
+        "penetration": false
+      },
+      "FrontSightBase x FrontSightBolt": {
+        "tri_pairs": 91,
+        "depth_mm": 0.016,
+        "verts_inside": 3,
+        "penetration": false
+      },
+      "Optic x OpticBolt": {
+        "tri_pairs": 78,
+        "depth_mm": 0.0,
+        "verts_inside": 0,
+        "penetration": false
+      }
+    },
+    "poses": {
+      "dust_cover_closed": {
+        "pose": {
+          "dust_cover": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              -176.0,
+              0,
+              0
+            ]
+          ]
+        },
+        "contacts": {},
+        "penetrations": 0,
+        "result": "PASS"
+      },
+      "dust_cover_half": {
+        "pose": {
+          "dust_cover": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              -88.0,
+              0,
+              0
+            ]
+          ]
+        },
+        "contacts": {},
+        "penetrations": 0,
+        "result": "PASS"
+      },
+      "bolt_carrier_back_3cm": {
+        "pose": {
+          "bolt_carrier": [
+            [
+              -0.03,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "contacts": {},
+        "penetrations": 0,
+        "result": "PASS"
+      },
+      "bolt_carrier_back_7.5cm": {
+        "pose": {
+          "bolt_carrier": [
+            [
+              -0.075,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "contacts": {},
+        "penetrations": 0,
+        "result": "PASS"
+      },
+      "trigger_pulled": {
+        "pose": {
+          "trigger": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              12.0,
+              0
+            ]
+          ]
+        },
+        "contacts": {},
+        "penetrations": 0,
+        "result": "PASS"
+      },
+      "selector_semi": {
+        "pose": {
+          "selector": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              90.0,
+              0
+            ]
+          ]
+        },
+        "contacts": {
+          "Selector x LowerReceiver": {
+            "tri_pairs": 102,
+            "depth_mm": 0.0,
+            "verts_inside": 0,
+            "penetration": false
+          }
+        },
+        "penetrations": 0,
+        "result": "PASS"
+      },
+      "selector_auto": {
+        "pose": {
+          "selector": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              180.0,
+              0
+            ]
+          ]
+        },
+        "contacts": {
+          "Selector x LowerReceiver": {
+            "tri_pairs": 104,
+            "depth_mm": 0.0,
+            "verts_inside": 0,
+            "penetration": false
+          }
+        },
+        "penetrations": 0,
+        "result": "PASS"
+      },
+      "bolt_catch_up": {
+        "pose": {
+          "bolt_catch": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              -9.0,
+              0
+            ]
+          ]
+        },
+        "contacts": {},
+        "penetrations": 0,
+        "result": "PASS"
+      },
+      "bolt_catch_down": {
+        "pose": {
+          "bolt_catch": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              9.0,
+              0
+            ]
+          ]
+        },
+        "contacts": {},
+        "penetrations": 0,
+        "result": "PASS"
+      },
+      "mag_release_pressed": {
+        "pose": {
+          "mag_release": [
+            [
+              0,
+              0.0015,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "contacts": {},
+        "penetrations": 0,
+        "result": "PASS"
+      },
+      "magazine_drop_1cm": {
+        "pose": {
+          "magazine": [
+            [
+              0,
+              0,
+              -0.01
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "contacts": {},
+        "penetrations": 0,
+        "result": "PASS"
+      },
+      "magazine_drop_7cm_rocked": {
+        "pose": {
+          "magazine": [
+            [
+              0.004,
+              0,
+              -0.07
+            ],
+            [
+              0,
+              -6.0,
+              0
+            ]
+          ]
+        },
+        "contacts": {},
+        "penetrations": 0,
+        "result": "PASS"
+      },
+      "rear_sight_fold_-30": {
+        "pose": {
+          "rear_sight": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              -30.0,
+              0
+            ]
+          ]
+        },
+        "contacts": {},
+        "penetrations": 0,
+        "result": "PASS"
+      },
+      "rear_sight_fold_-60": {
+        "pose": {
+          "rear_sight": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              -60.0,
+              0
+            ]
+          ]
+        },
+        "contacts": {},
+        "penetrations": 0,
+        "result": "PASS"
+      },
+      "rear_sight_folded_-90": {
+        "pose": {
+          "rear_sight": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              -90.0,
+              0
+            ]
+          ]
+        },
+        "contacts": {},
+        "penetrations": 0,
+        "result": "PASS"
+      },
+      "front_sight_fold_-30": {
+        "pose": {
+          "front_sight": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              -30.0,
+              0
+            ]
+          ]
+        },
+        "contacts": {},
+        "penetrations": 0,
+        "result": "PASS"
+      },
+      "front_sight_fold_-60": {
+        "pose": {
+          "front_sight": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              -60.0,
+              0
+            ]
+          ]
+        },
+        "contacts": {},
+        "penetrations": 0,
+        "result": "PASS"
+      },
+      "front_sight_folded_-90": {
+        "pose": {
+          "front_sight": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              -90.0,
+              0
+            ]
+          ]
+        },
+        "contacts": {},
+        "penetrations": 0,
+        "result": "PASS"
+      },
+      "rig_test_pose_combined": {
+        "pose": {
+          "dust_cover": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              -176.0,
+              0,
+              0
+            ]
+          ],
+          "bolt_carrier": [
+            [
+              -0.075,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ],
+          "charging_handle": [
+            [
+              -0.07,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ],
+          "trigger": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              12.0,
+              0
+            ]
+          ],
+          "selector": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              90.0,
+              0
+            ]
+          ],
+          "bolt_catch": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              -9.0,
+              0
+            ]
+          ],
+          "mag_release": [
+            [
+              0,
+              0.0015,
+              0
+            ],
+            [
+              0,
+              0,
+              0
+            ]
+          ],
+          "magazine": [
+            [
+              0.004,
+              0,
+              -0.07
+            ],
+            [
+              0,
+              -6.0,
+              0
+            ]
+          ],
+          "rear_sight": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              -90.0,
+              0
+            ]
+          ],
+          "front_sight": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              -90.0,
+              0
+            ]
+          ]
+        },
+        "contacts": {
+          "Selector x LowerReceiver": {
+            "tri_pairs": 102,
+            "depth_mm": 0.0,
+            "verts_inside": 0,
+            "penetration": false
+          }
+        },
+        "penetrations": 0,
+        "result": "PASS"
+      }
+    },
+    "charging_handle_stroke": [
+      {
+        "stroke_cm": 0.5,
+        "result": "PASS",
+        "penetrations": 0,
+        "shaft_engaged_cm": 11.7,
+        "min_gap_to_upper_mm": 0.2,
+        "contacts": [],
+        "guided": true
+      },
+      {
+        "stroke_cm": 1.0,
+        "result": "PASS",
+        "penetrations": 0,
+        "shaft_engaged_cm": 11.2,
+        "min_gap_to_upper_mm": 0.2,
+        "contacts": [],
+        "guided": true
+      },
+      {
+        "stroke_cm": 1.5,
+        "result": "PASS",
+        "penetrations": 0,
+        "shaft_engaged_cm": 10.7,
+        "min_gap_to_upper_mm": 0.2,
+        "contacts": [],
+        "guided": true
+      },
+      {
+        "stroke_cm": 2.0,
+        "result": "PASS",
+        "penetrations": 0,
+        "shaft_engaged_cm": 10.2,
+        "min_gap_to_upper_mm": 0.2,
+        "contacts": [],
+        "guided": true
+      },
+      {
+        "stroke_cm": 2.5,
+        "result": "PASS",
+        "penetrations": 0,
+        "shaft_engaged_cm": 9.7,
+        "min_gap_to_upper_mm": 0.2,
+        "contacts": [],
+        "guided": true
+      },
+      {
+        "stroke_cm": 3.0,
+        "result": "PASS",
+        "penetrations": 0,
+        "shaft_engaged_cm": 9.2,
+        "min_gap_to_upper_mm": 0.2,
+        "contacts": [],
+        "guided": true
+      },
+      {
+        "stroke_cm": 3.5,
+        "result": "PASS",
+        "penetrations": 0,
+        "shaft_engaged_cm": 8.7,
+        "min_gap_to_upper_mm": 0.2,
+        "contacts": [],
+        "guided": true
+      },
+      {
+        "stroke_cm": 4.0,
+        "result": "PASS",
+        "penetrations": 0,
+        "shaft_engaged_cm": 8.2,
+        "min_gap_to_upper_mm": 0.2,
+        "contacts": [],
+        "guided": true
+      },
+      {
+        "stroke_cm": 4.5,
+        "result": "PASS",
+        "penetrations": 0,
+        "shaft_engaged_cm": 7.7,
+        "min_gap_to_upper_mm": 0.2,
+        "contacts": [],
+        "guided": true
+      },
+      {
+        "stroke_cm": 5.0,
+        "result": "PASS",
+        "penetrations": 0,
+        "shaft_engaged_cm": 7.2,
+        "min_gap_to_upper_mm": 0.2,
+        "contacts": [],
+        "guided": true
+      },
+      {
+        "stroke_cm": 5.5,
+        "result": "PASS",
+        "penetrations": 0,
+        "shaft_engaged_cm": 6.7,
+        "min_gap_to_upper_mm": 0.2,
+        "contacts": [],
+        "guided": true
+      },
+      {
+        "stroke_cm": 6.0,
+        "result": "PASS",
+        "penetrations": 0,
+        "shaft_engaged_cm": 6.2,
+        "min_gap_to_upper_mm": 0.2,
+        "contacts": [],
+        "guided": true
+      },
+      {
+        "stroke_cm": 6.5,
+        "result": "PASS",
+        "penetrations": 0,
+        "shaft_engaged_cm": 5.7,
+        "min_gap_to_upper_mm": 0.2,
+        "contacts": [],
+        "guided": true
+      },
+      {
+        "stroke_cm": 7.0,
+        "result": "PASS",
+        "penetrations": 0,
+        "shaft_engaged_cm": 5.2,
+        "min_gap_to_upper_mm": 0.2,
+        "contacts": [],
+        "guided": true
+      }
+    ],
+    "optics_folded": {
+      "IVH1": {
+        "mount_socket_rail_rifle_m": [
+          0.18386,
+          0.0,
+          0.12172
+        ],
+        "contacts": {},
+        "penetrations": 0,
+        "rear_leaf_folded_clearance_mm": 17.7,
+        "rear_base_clearance_mm": 9.0,
+        "front_leaf_folded_clearance_mm": null,
+        "charging_handle_full_stroke": "no contact",
+        "result": "PASS"
+      },
+      "IVR1": {
+        "mount_socket_rail_rifle_m": [
+          0.14886,
+          0.0,
+          0.12172
+        ],
+        "contacts": {},
+        "penetrations": 0,
+        "rear_leaf_folded_clearance_mm": 11.37,
+        "rear_base_clearance_mm": 9.99,
+        "front_leaf_folded_clearance_mm": null,
+        "charging_handle_full_stroke": "no contact",
+        "result": "PASS"
+      },
+      "IVP2": {
+        "mount_socket_rail_rifle_m": [
+          0.16286,
+          0.0,
+          0.12172
+        ],
+        "contacts": {},
+        "penetrations": 0,
+        "rear_leaf_folded_clearance_mm": 8.0,
+        "rear_base_clearance_mm": 7.83,
+        "front_leaf_folded_clearance_mm": null,
+        "charging_handle_full_stroke": "no contact",
+        "result": "PASS"
+      },
+      "IVS3": {
+        "mount_socket_rail_rifle_m": [
+          0.19086,
+          0.0,
+          0.12172
+        ],
+        "contacts": {},
+        "penetrations": 0,
+        "rear_leaf_folded_clearance_mm": 3.48,
+        "rear_base_clearance_mm": 3.31,
+        "front_leaf_folded_clearance_mm": null,
+        "charging_handle_full_stroke": "no contact",
+        "result": "PASS"
+      },
+      "IVS6": {
+        "mount_socket_rail_rifle_m": [
+          0.19086,
+          0.0,
+          0.12172
+        ],
+        "contacts": {},
+        "penetrations": 0,
+        "rear_leaf_folded_clearance_mm": 7.6,
+        "rear_base_clearance_mm": 6.96,
+        "front_leaf_folded_clearance_mm": null,
+        "charging_handle_full_stroke": "no contact",
+        "result": "PASS"
+      }
+    },
+    "negative_control": {
+      "rear_sight_+90_forward": {
+        "pose": {
+          "rear_sight": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              90.0,
+              0
+            ]
+          ]
+        },
+        "contacts": {
+          "RearSightLeaf x Optic": {
+            "tri_pairs": 134,
+            "depth_mm": 5.952,
+            "verts_inside": 322,
+            "penetration": true
+          }
+        },
+        "penetrations": 1,
+        "result": "FAIL"
+      },
+      "expected": "FAIL (the leaf must be caught penetrating the optic riser)"
+    },
+    "folded_leaf_clearance_mm": {
+      "RearSightLeaf plate - RearSightBase": 0.87,
+      "FrontSightLeaf plate - FrontSightBase": 0.9,
+      "RearSightLeaf-Optic (built-in)": 11.37,
+      "RearSightLeaf-UpperReceiver": 13.7,
+      "FrontSightLeaf-Handguard": 13.7
+    },
+    "rear_leaf_folded_bbox_bore_cm": {
+      "x": [
+        -11.4,
+        -8.17
+      ],
+      "z": [
+        4.37,
+        4.67
+      ]
+    },
+    "seconds": 1.0,
+    "problems": []
+  },
+  "glass_audit": {
+    "materials": {
+      "M_IV7_Body": {
+        "transmission_weight": 0.0,
+        "transmission_linked": false,
+        "alpha": 1.0,
+        "alpha_linked": false,
+        "render_method": "DITHERED",
+        "backface_culling": false
+      },
+      "M_IV7_Furniture": {
+        "transmission_weight": 0.0,
+        "transmission_linked": false,
+        "alpha": 1.0,
+        "alpha_linked": false,
+        "render_method": "DITHERED",
+        "backface_culling": false
+      },
+      "M_IV7_Glass": {
+        "transmission_weight": 0.0,
+        "transmission_linked": false,
+        "alpha": 0.05,
+        "alpha_linked": false,
+        "render_method": "BLENDED",
+        "backface_culling": false
+      },
+      "M_IV7_Reticle": {
+        "transmission_weight": 0.0,
+        "transmission_linked": false,
+        "alpha": 1.0,
+        "alpha_linked": false,
+        "render_method": "DITHERED",
+        "backface_culling": false
+      },
+      "M_IV7_ReticleMask": {
+        "transmission_weight": 0.0,
+        "transmission_linked": false,
+        "alpha": 1.0,
+        "alpha_linked": false,
+        "render_method": "DITHERED",
+        "backface_culling": false
+      }
+    },
+    "problems": []
   },
   "reimport_checks": {
     "Art/Export/FBX/SK_IV7_Carbine.fbx": {
@@ -9730,7 +10659,7 @@
         0.01,
         0.01
       ],
-      "tris": 65044,
+      "tris": 65854,
       "materials": {
         "M_IV7_Body": [
           "T_IV7_Body_BaseColor.png",
@@ -9772,19 +10701,19 @@
         0.01,
         0.01
       ],
-      "tris": 32516,
+      "tris": 32920,
       "materials": {
         "M_IV7_Body": [
           "T_IV7_Body_BaseColor.png",
           "T_IV7_Body_Normal_DX.png"
         ],
+        "M_IV7_Glass": [],
         "M_IV7_Reticle": [],
         "M_IV7_ReticleMask": [],
         "M_IV7_Furniture": [
           "T_IV7_Furniture_BaseColor.png",
           "T_IV7_Furniture_Normal_DX.png"
-        ],
-        "M_IV7_Glass": []
+        ]
       },
       "images_resolved": true,
       "textured_materials_ok": true,
@@ -9814,7 +10743,7 @@
         0.01,
         0.01
       ],
-      "tris": 12990,
+      "tris": 13152,
       "materials": {
         "M_IV7_Body": [
           "T_IV7_Body_BaseColor.png",
@@ -9887,7 +10816,7 @@
         1.0,
         1.0
       ],
-      "tris": 65044,
+      "tris": 65854,
       "materials": {
         "M_IV7_Body": [
           "T_IV7_Body_BaseColor",
@@ -9933,7 +10862,7 @@
         1.0,
         1.0
       ],
-      "tris": 65044,
+      "tris": 65854,
       "materials": {
         "M_IV7_Body": [
           "T_IV7_Body_BaseColor.png",
@@ -9979,7 +10908,7 @@
         1.0,
         1.0
       ],
-      "tris": 32516,
+      "tris": 32920,
       "materials": {
         "M_IV7_Body": [
           "T_IV7_Body_BaseColor.png",
@@ -10025,7 +10954,7 @@
         1.0,
         1.0
       ],
-      "tris": 12990,
+      "tris": 13152,
       "materials": {
         "M_IV7_Body": [
           "T_IV7_Body_BaseColor.png",
@@ -10087,47 +11016,47 @@
     "Art/Export/FBX/SK_IV7_Carbine.fbx": {
       "format": "FBX",
       "objects": 39,
-      "bytes": 6231980
+      "bytes": 6539740
     },
     "Art/Export/FBX/SK_IV7_Carbine_LOD1.fbx": {
       "format": "FBX",
       "objects": 39,
-      "bytes": 3803900
+      "bytes": 3793964
     },
     "Art/Export/FBX/SK_IV7_Carbine_LOD2.fbx": {
       "format": "FBX",
       "objects": 39,
-      "bytes": 2083516
+      "bytes": 2088252
     },
     "Art/Export/FBX/SM_IV7_Magazine.fbx": {
       "format": "FBX",
       "objects": 1,
-      "bytes": 351724
+      "bytes": 360300
     },
     "Art/Export/GLB/IV7_Carbine.glb": {
       "format": "GLB",
       "objects": 39,
-      "bytes": 17394236
+      "bytes": 16643904
     },
     "Art/Export/GLB/IV7/IV7_Carbine.gltf": {
       "format": "glTF (separate, shared textures)",
       "objects": 39,
-      "bytes": 5413758
+      "bytes": 4219512
     },
     "Art/Export/GLB/IV7/IV7_Carbine_LOD1.gltf": {
       "format": "glTF (separate, shared textures)",
       "objects": 39,
-      "bytes": 2756933
+      "bytes": 2549015
     },
     "Art/Export/GLB/IV7/IV7_Carbine_LOD2.gltf": {
       "format": "glTF (separate, shared textures)",
       "objects": 39,
-      "bytes": 1300029
+      "bytes": 1288628
     },
     "Art/Export/GLB/IV7/IV7_Magazine.gltf": {
       "format": "glTF (separate, shared textures)",
       "objects": 1,
-      "bytes": 217909
+      "bytes": 185365
     },
     "Art/Export/GLB/IV7/textures": {
       "format": "shared PNG textures of the glTF set",
@@ -10139,7 +11068,7 @@
         "T_IV7_Furniture_Normal.png",
         "T_IV7_Furniture_ORM.png"
       ],
-      "bytes": 11999857
+      "bytes": 12443787
     }
   }
 }
