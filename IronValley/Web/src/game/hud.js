@@ -255,7 +255,7 @@ export class Hud {
       }
     }
     if (this.vignetteTimer > 0) this.vignetteTimer -= dt;
-    this.vignette.style.opacity = String(Math.max(0, this.vignetteTimer / 0.35) * 0.55);
+    this.vignette.style.opacity = String(Math.max(Math.max(0, this.vignetteTimer / 0.35) * 0.55, this.outOfBounds ? 0.8 : 0));
   }
 
   clearTransient() {
@@ -317,7 +317,8 @@ export class Hud {
     setText(this.boundary, bnd ? bnd.text : '');
     this.boundary.classList.toggle('iv-show', !!(bnd && bnd.text));
     this.boundary.classList.toggle('iv-urgent', !!(bnd && bnd.status === 'outside'));
-    this.hud.classList.toggle('iv-out-of-bounds', !!(bnd && bnd.status === 'outside'));
+    this.outOfBounds = !!(bnd && bnd.status === 'outside');
+    this.hud.classList.toggle('iv-out-of-bounds', this.outOfBounds);
     this._updateRound(s.round, s.zoneVec, s.ownTeam);
     this._updateKillFeed(s.killFeed || []);
     this._updateAllies(s.allies || []);

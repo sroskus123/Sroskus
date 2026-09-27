@@ -1,0 +1,25 @@
+{
+ "cloth": {
+  "coverage_without_gloves": 0.425,
+  "overlap_px": 0,
+  "islands": 286,
+  "px_per_cm": {
+   "Soldier_Shirt": 9.19,
+   "Soldier_Trousers": 9.19,
+   "Soldier_Balaclava": 11.95,
+   "Soldier_FaceSkin": 5.52,
+   "SG_Helmet": 11.49
+  }
+ },
+ "gear": {
+  "coverage": 0.4237,
+  "overlap_px": 25,
+  "islands": 653,
+  "px_per_cm": {}
+ },
+ "team": {
+  "coverage": 0.2606,
+  "overlap_px": 0,
+  "islands": 38
+ }
+}

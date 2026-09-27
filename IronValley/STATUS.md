@@ -5,7 +5,7 @@ Tento soubor čti jako první při každém pokračování práce.
 | Položka | Hodnota |
 | --- | --- |
 | Aktuální fáze | A — dostupnost prostředí (Unreal zablokovaný), B-příprava — ověření pipeline assetů v Blenderu |
-| Startovací mapa | zatím neexistuje |
+| Startovací mapa | Kalné Hamry — webová pracovní verze s provizorní grafikou (generovaná z dat mapy); v UE zatím neexistuje |
 | Engine | Unreal Engine 5 — **není k dispozici** (viz tabulka níže) |
 | Blender | 4.5.14 LTS jako Python modul `bpy` (PyPI), bez GUI |
 | Higgsfield | nepřipojen |
@@ -73,6 +73,18 @@ cca 29 GB volného disku, **bez GPU** (`/dev/dri` chybí, `nvidia-smi` chybí). 
   `Tools/web_assets/build_web_assets.py` (puška 16,6 → 7,0 MiB, optiky 19,3 → 8,8 MiB). Podrobně a čísla:
   `Art/Reference/OPTICS_spec.md` oddíl 11. Poslední běh: **unit 412/412, e2e 82/82 PASS** (SwiftShader). Výkon na GPU NOT TESTED.
 
+- **Kalné Hamry hratelné ve webu (2026-09-27, pracovní verze, provizorní grafika):** mapa se generuje reprodukovatelně
+  z `Shared/level/layout.json` + `buildings.json` nástrojem `Tools/level/export_web_level.py` (rozhodnutí D12): terén 0,5 m
+  s povrchy (asfalt, štěrk, hlína, bláto, tráva, beton, dlažba, voda), všechny budovy z `buildings.json` (zdi s tloušťkou,
+  otvory, ostění, parapety, rámy, sklo, dveře v klidové poloze, podlahy, stropy, schody, střechy, sokly), vedlejší budovy jako
+  zavřené objemy, opěrné zdi, mosty s česlemi, ploty (pletivo průhledné pro výhled i střely), fyzická hranice, rekvizity
+  jako bloky, 1650 stromů podle druhů; světlo zapečené při generování. Level `kalne_hamry` v nabídce „Kalné Hamry — pracovní
+  verze (provizorní grafika)“: 3 týmy, 3 polygonové zóny, řady spawnů podle zóny, 6 zbrojních beden, hranice s odpočtem
+  a „Minové pole“, 846 návrhových krycích bodů. Navmesh (Recast, dlaždice svařené) — všechny týmy dosáhnou všech zón.
+  Načtení ~1,0–1,2 s, 221 draw callů / 0,65 M trojúhelníků na návsi (se stíny), tik 17 botů 2,3–3,1 ms. Kola se 17 boty
+  na všech třech zónách končí vítězem, zaseknutí < 4 s, 0 teleportů. Podrobnosti: `Web/README.md` („Mapa Kalné Hamry“),
+  `Docs/AI.md` oddíl 14, testy `tests/unit/kalne_hamry.test.mjs`, `tests/e2e/11_kalne_hamry.test.mjs`.
+
 ## Náhled pro uživatele
 
 - Soukromý Artifact: https://claude.ai/artifact/5h5KbXu4z4j3Q2SWxGNZgi
@@ -126,7 +138,8 @@ Zastaveni agenti: úprava mapy podle referencí uživatele (checker 82 PASS / 5 
 
 - P0 (vnější blokátor): Unreal Engine 5 není v prostředí dostupný → hra v UE nemůže být spuštěna ani testována.
 - HF-01: BLOCKED — Higgsfield nepřipojen.
-- Zapečení osvětlení běží při načtení (zkušební prostor ~0,7 s); pro mapu 350 × 350 m přesunout do buildu.
+- Zapečení osvětlení běží při načtení jen u zkušebního prostoru a AI arény (~0,7 s); Kalné Hamry mají světlo zapečené
+  při generování.
 - Chování uvnitř hostitele Artifact na claude.ai (pointer lock, CSP) NOT TESTED; lokálně simulovaná přísná CSP prochází.
 
 ## Další krok

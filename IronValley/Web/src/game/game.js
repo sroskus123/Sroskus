@@ -994,6 +994,11 @@ export class Game {
       optic: opticHud,
       boundary: s.boundary ? s.boundary.info(pc.id) : null,
     });
+    const oob = !!(s.boundary && alive && s.boundary.info(pc.id).status === 'outside');
+    if (oob !== !!this._oob) {
+      this._oob = oob;
+      r.canvas.classList.toggle('iv-out-of-bounds-canvas', oob);
+    }
 
     // audio listener on the camera
     _fwd.set(0, 0, -1).applyQuaternion(this.camera.quaternion);

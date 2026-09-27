@@ -279,6 +279,14 @@ class Terrain:
         self.cellX, self.cellY = cx, cy
         self.cell_in = MPath(np.array(self.region.exterior.coords)).contains_points(
             np.column_stack([cx.ravel(), cy.ravel()])).reshape(cx.shape)
+        # no terrain under the ground floors of the main buildings (their floor base fills the footprint): no
+        # coincident terrain at floor height (z-fighting, wrong footstep surface)
+        for bp in L["buildings"]:
+            fp = Polygon(bp["footprint_world"]).buffer(-0.3, join_style=2)
+            if fp.is_empty:
+                continue
+            under = MPath(np.array(fp.exterior.coords)).contains_points(np.column_stack([cx.ravel(), cy.ravel()])).reshape(cx.shape)
+            self.cell_in &= ~under
 
     def fine_z(self, x, y):
         """height on the triangulated fine grid (diagonal (i, j) -> (i + 1, j + 1)), vectorised."""
@@ -325,18 +333,19 @@ class Terrain:
 
 
 def surface_fields(L, X, Y):
-    """priority-ordered surface features evaluated on points (X, Y): yields (priority, surface, mask)."""
+    """priority-ordered surface features on points (X, Y): yields (priority, surface, d) with d <= 0 inside
+    (signed distance-like fields, so they can be upsampled smoothly for the albedo map)."""
     feats = []
     stamps = {s["id"]: s for s in L["terrain"]["stamps"]}
     soft = L["boundary"]["soft_polygon"]
     # forest floor outside the soft boundary
-    feats.append((20, "forest_floor", poly_signed_dist(soft, X, Y) > 2.0))
+    feats.append((20, "forest_floor", 2.0 - poly_signed_dist(soft, X, Y)))
     for f in L.get("fields", []):
         crop = (f.get("crop") or "").lower()
         surf = "grass" if ("hay" in crop or "meadow" in crop) else "dirt"
-        feats.append((56, surf, poly_signed_dist(f["polygon"], X, Y) <= 0))
+        feats.append((56, surf, poly_signed_dist(f["polygon"], X, Y)))
     for sa in L["spawn_areas"]:
-        feats.append((58, "mud" if sa["team"] == "charlie" else "gravel", poly_signed_dist(sa["polygon"], X, Y) <= 0))
+        feats.append((58, "mud" if sa["team"] == "charlie" else "gravel", poly_signed_dist(sa["polygon"], X, Y)))
     pad_surf = {"PAD_NAVES": "paving", "PAD_DILNA": "gravel", "PAD_SKLAD_YARD": "concrete", "PAD_SKLAD": "gravel",
                 "PAD_DUM_TERRACE": "grass"}
     for pid, s in stamps.items():
@@ -348,77 +357,87 @@ def surface_fields(L, X, Y):
             surf = "gravel" if "gravel" in ss else ("grass" if "grass" in ss else None)
         if surf:
             pr = 60 if pid in pad_surf else 57
-            feats.append((pr, surf, poly_signed_dist(s["polygon"], X, Y) <= (0 if pid in pad_surf else 0.4)))
+            feats.append((pr, surf, poly_signed_dist(s["polygon"], X, Y) - (0 if pid in pad_surf else 0.4)))
     # garden gravel paths around the house (1.0 m)
     for bp in L["buildings"]:
         if bp["id"] == "B_DUM":
             fp = Polygon(bp["footprint_world"]).buffer(1.0, join_style=2)
-            feats.append((59, "gravel", poly_signed_dist(list(fp.exterior.coords), X, Y) <= 0))
+            feats.append((59, "gravel", poly_signed_dist(list(fp.exterior.coords), X, Y)))
     for d in L["ditches"]:
         dd, _ = polyline_dist(d["polyline"], X, Y)
         bw = d.get("bed_width", 0.6)
         if d["id"] == "MILLRACE":
-            feats.append((71, "grass", dd <= bw / 2 + 1.5))
+            feats.append((71, "grass", dd - (bw / 2 + 1.5)))
         elif d["id"].startswith("DITCH_C"):
-            feats.append((70, "mud", dd <= bw / 2 + 1.9))
-            feats.append((71, "stone", dd <= bw / 2))
-            feats.append((88, "water", dd <= 0.12))
+            feats.append((70, "mud", dd - (bw / 2 + 1.9)))
+            feats.append((71, "stone", dd - bw / 2))
+            feats.append((88, "water", dd - 0.12))
         else:
-            feats.append((70, "mud", dd <= bw / 2 + 0.6))
+            feats.append((70, "mud", dd - (bw / 2 + 0.6)))
     uv = stamps.get("UVOZ_S")
     if uv:
         dd, _ = polyline_dist(uv["polyline"], X, Y)
-        feats.append((72, "dirt", dd <= uv["bed_width"] / 2 + 0.3))
+        feats.append((72, "dirt", dd - (uv["bed_width"] / 2 + 0.3)))
     for p in L["paths"]:
         dd, _ = polyline_dist(p["xy"], X, Y)
         surf = p.get("surface", "gravel")
         surf = "gravel" if "gravel" in surf else ("dirt" if ("dirt" in surf or "earth" in surf) else ("grass" if "grass" in surf else "gravel"))
-        feats.append((78 if surf == "gravel" else 76, surf, dd <= p["width"] / 2))
+        feats.append((78 if surf == "gravel" else 76, surf, dd - p["width"] / 2))
     for t in L["tracks"]:
         dd, _ = polyline_dist(t["polyline"], X, Y)
         sid = t["id"]
         if sid == "DRIVE_DUM":
-            feats.append((74, "concrete", dd <= t["width"] / 2))
+            feats.append((74, "concrete", dd - t["width"] / 2))
         elif sid in ("TRACK_C", "TRACK_E_RING"):
-            feats.append((76, "dirt", dd <= t["width"] / 2))
-            feats.append((77, "grass", dd <= 0.3))
-            feats.append((76, "gravel", (dd > 1.25) & (dd <= t["width"] / 2)))
+            feats.append((76, "dirt", dd - t["width"] / 2))
+            feats.append((77, "grass", dd - 0.3))
+            feats.append((76, "gravel", np.maximum(1.25 - dd, dd - t["width"] / 2)))
         else:
-            feats.append((75, "gravel", dd <= t["width"] / 2))
+            feats.append((75, "gravel", dd - t["width"] / 2))
     for r in L["roads"]:
         dd, _ = polyline_dist(r["polyline"], X, Y)
         sh = r.get("shoulders", 0.75)
         if isinstance(sh, dict):
             sh = sh.get("width", 0.75)
-        feats.append((78, "gravel", dd <= r["width"] / 2 + float(sh)))
-        feats.append((80, "asphalt", dd <= r["width"] / 2))
+        feats.append((78, "gravel", dd - (r["width"] / 2 + float(sh))))
+        feats.append((80, "asphalt", dd - r["width"] / 2))
     for w in L["water"]:
         dd, _ = polyline_dist(w["polyline"], X, Y)
-        feats.append((70, "mud", dd <= w["width_at_surface"] / 2 + 0.9))
-        feats.append((100, "water", dd <= w["width_at_surface"] / 2))
+        feats.append((70, "mud", dd - (w["width_at_surface"] / 2 + 0.9)))
+        feats.append((100, "water", dd - w["width_at_surface"] / 2))
     return feats
 
 
-def surface_raster(L, X, Y):
+def surface_raster(L, X, Y, fields=None):
     best = np.full(X.shape, -1, np.int16)
     cls = np.full(X.shape, SURF_ID["grass"], np.uint8)
-    for pr, surf, m in surface_fields(L, X, Y):
-        upd = m & (pr >= best)
+    for pr, surf, d in (fields if fields is not None else surface_fields(L, X, Y)):
+        upd = (d <= 0) & (pr >= best)
         cls[upd] = SURF_ID[surf]
         best[upd] = pr
     return cls
 
 
-def road_markings(L, X, Y):
-    """white road markings (edge lines, dashed centre line) as a 0..1 mask on points (X, Y)."""
+def road_markings(L, X, Y, where=None):
+    """white road markings (edge lines, dashed centre line) as a 0..1 mask on points (X, Y) (evaluated only where)."""
     m = np.zeros(X.shape, np.float32)
+    idx = np.nonzero(where) if where is not None else None
+    Xs = X[idx] if idx is not None else X
+    Ys = Y[idx] if idx is not None else Y
+    ms = np.zeros(Xs.shape, np.float32)
     for r in L["roads"]:
-        dd, s = polyline_dist(r["polyline"], X, Y)
+        dd, s = polyline_dist(r["polyline"], Xs, Ys)
         hw = r["width"] / 2
-        edge = (np.abs(dd - (hw - 0.25)) < 0.06)
-        centre = (dd < 0.06) & ((s % 9.0) < 3.0)
-        m = np.maximum(m, (edge | centre).astype(np.float32))
-    return m
+        total = sum(math.dist(a[:2], b[:2]) for a, b in zip(r["polyline"][:-1], r["polyline"][1:]))
+        # no markings in the end caps (the polylines end in the middle of the square): arc length strictly inside
+        inner = (s > hw + 0.5) & (s < total - hw - 0.5)
+        edge = (np.abs(dd - (hw - 0.25)) < 0.06) & inner
+        centre = (dd < 0.06) & ((s % 9.0) < 3.0) & inner
+        ms = np.maximum(ms, (edge | centre).astype(np.float32))
+    if idx is not None:
+        m[idx] = ms
+        return m
+    return ms
 
 
 def make_albedo(L, terr, px):
@@ -428,8 +447,18 @@ def make_albedo(L, terr, px):
     tx = x0 + (np.arange(px) + 0.5) * (x1 - x0) / px
     ty = y1 - (np.arange(px) + 0.5) * (y1 - y0) / px
     TX, TY = np.meshgrid(tx, ty)
-    log(f"albedo: classes at {px}x{px} ({(x1 - x0) / px:.3f} m/texel)")
-    cls = surface_raster(L, TX, TY)
+    log(f"albedo: classes at {px}x{px} ({(x1 - x0) / px:.3f} m/texel) from 0.25 m distance fields")
+    # evaluate the feature distance fields on a 0.25 m grid (north row first) and upsample them bilinearly
+    gres = 0.25
+    gx = np.arange(x0, x1 + 1e-9, gres)
+    gy = np.arange(y1, y0 - 1e-9, -gres)
+    GX, GY = np.meshgrid(gx, gy)
+    coarse = surface_fields(L, GX, GY)
+    fy = (y1 - ty) / gres
+    fx = (tx - x0) / gres
+    FX, FY = np.meshgrid(fx, fy)
+    up = [(pr, surf, ndimage.map_coordinates(d.astype(np.float32), [FY, FX], order=1, mode="nearest")) for pr, surf, d in coarse]
+    cls = surface_raster(L, TX, TY, up)
     col = np.zeros((px, px, 3), np.float64)
     for s, h in SURF_COL.items():
         c = np.array(hex_rgb(h))
@@ -439,10 +468,11 @@ def make_albedo(L, terr, px):
     grass = cls == SURF_ID["grass"]
     # grass: sunny meadow / dry grass on the slopes / wet near the brook
     dry = np.clip((n1 - 0.52) * 3.0, 0, 1)
-    brook_d = np.full(TX.shape, 1e9)
+    brook_c = np.full(GX.shape, 1e9)
     for w in L["water"]:
-        d, _ = polyline_dist(w["polyline"], TX, TY)
-        brook_d = np.minimum(brook_d, d)
+        d, _ = polyline_dist(w["polyline"], GX, GY)
+        brook_c = np.minimum(brook_c, d)
+    brook_d = ndimage.map_coordinates(brook_c.astype(np.float32), [FY, FX], order=1, mode="nearest")
     wet = np.clip(1 - (brook_d - 2) / 7.0, 0, 1)
     g_sun = np.array(hex_rgb("#8e9a55"))
     g_dry = np.array(hex_rgb("#a99d68"))
@@ -451,7 +481,8 @@ def make_albedo(L, terr, px):
     gc = gc * (1 - wet[..., None]) + g_wet[None, None] * wet[..., None]
     col[grass] = gc[grass]
     # lawn in the walled garden
-    garden = poly_signed_dist(next(s["polygon"] for s in L["terrain"]["stamps"] if s["id"] == "PAD_DUM_TERRACE"), TX, TY) < 0
+    gc_ = poly_signed_dist(next(s["polygon"] for s in L["terrain"]["stamps"] if s["id"] == "PAD_DUM_TERRACE"), GX, GY)
+    garden = ndimage.map_coordinates(gc_.astype(np.float32), [FY, FX], order=1, mode="nearest") < 0
     col[grass & garden] = np.array(hex_rgb("#7a8c47"))
     # variation
     var = 0.86 + 0.26 * n1[..., None] + 0.14 * (n2[..., None] - 0.5)
@@ -459,12 +490,11 @@ def make_albedo(L, terr, px):
     # asphalt: wet darker patches
     asph = cls == SURF_ID["asphalt"]
     col[asph] *= (0.9 + 0.2 * n2[asph])[..., None]
-    mk = road_markings(L, TX, TY) * asph
+    mk = road_markings(L, TX, TY, asph) * asph
     col = col * (1 - mk[..., None] * 0.9) + np.array(hex_rgb("#d9d6cc"))[None, None] * mk[..., None] * 0.9
     # paving setts grid (0.12 m) and concrete slab joints (3 m)
     pav = cls == SURF_ID["paving"]
-    gx = (np.abs(((TX / 0.12) % 1) - 0.5) > 0.42) | (np.abs(((TY / 0.12) % 1) - 0.5) > 0.42)
-    col[pav & gx] *= 0.8
+    col[pav] *= (0.86 + 0.28 * value_noise((px, px), 700, SEED + 3, 1)[pav])[..., None]
     con = cls == SURF_ID["concrete"]
     j = (np.abs(((TX / 3.0) % 1) - 0.5) > 0.494) | (np.abs(((TY / 3.0) % 1) - 0.5) > 0.494)
     col[con & j] *= 0.72
@@ -472,7 +502,19 @@ def make_albedo(L, terr, px):
     dirt = cls == SURF_ID["dirt"]
     col[dirt] *= (0.85 + 0.3 * n2[dirt])[..., None]
     img = np.clip(col * 255, 0, 255)
-    return img.astype(np.uint8), cls
+    # roughness map (glTF metallicRoughness: G = roughness, B = metalness 0): wet asphalt / concrete after a shower
+    # (ART_DIRECTION 3.1: wet asphalt 0.25-0.40, mud 0.35-0.60, grass 0.85-0.95)
+    rough_of = {"asphalt": 0.38, "concrete": 0.62, "paving": 0.55, "water": 0.08, "mud": 0.5, "stone": 0.75, "gravel": 0.92,
+                "dirt": 0.88, "grass": 0.95, "forest_floor": 0.95, "wood": 0.8, "metal": 0.5, "tiles": 0.4}
+    rough = np.full(cls.shape, 0.93)
+    for k, v in rough_of.items():
+        rough[cls == SURF_ID[k]] = v
+    wetn = value_noise((px, px), 40, SEED + 11, 3)
+    rough = np.where(np.isin(cls, [SURF_ID["asphalt"], SURF_ID["concrete"], SURF_ID["paving"]]), rough - 0.22 * np.clip((wetn - 0.55) * 4, 0, 1), rough)
+    mr = np.zeros((px, px, 3))
+    mr[..., 0] = 1.0
+    mr[..., 1] = np.clip(rough, 0.04, 1.0)
+    return img.astype(np.uint8), cls, np.clip(mr * 255, 0, 255).astype(np.uint8)
 
 
 # ================================================================================================
@@ -906,6 +948,38 @@ def layered_face(sc, key_layers, a, b, z0, z1, zbase, sub=1.0):
             break
 
 
+def brick_patches(sc, A, B, Z0, Z1, zb, key):
+    """exposed brick where the lime render has fallen off (refs 02, 04: plinth, corners, under the eaves): a few
+    brick quads 4 mm proud of the facade, deterministic per wall piece."""
+    L = math.hypot(B[0] - A[0], B[1] - A[1])
+    if L < 0.9 or Z1 - Z0 < 0.8:
+        return
+    h = int(hashlib.sha256(key.encode()).hexdigest()[:8], 16)
+    r = rng(h)
+    ux, uy = (B[0] - A[0]) / L, (B[1] - A[1]) / L
+    nx, ny = uy, -ux  # outward (right side of A->B = exterior)
+    n = int(r.integers(0, 3)) if L > 2.0 else int(r.integers(0, 2))
+    for k in range(n):
+        wdt = float(r.uniform(0.35, min(1.3, L * 0.6)))
+        hgt = float(r.uniform(0.25, min(0.9, Z1 - Z0 - 0.1)))
+        u = float(r.uniform(0.05, max(0.06, L - wdt - 0.05)))
+        where = r.random()
+        if where < 0.45:
+            z0 = zb + float(r.uniform(0.05, 0.4))           # plinth band
+        elif where < 0.75:
+            z0 = Z1 - hgt - float(r.uniform(0.05, 0.3))     # under the eaves / lintels
+        else:
+            z0 = float(r.uniform(Z0 + 0.2, max(Z0 + 0.25, Z1 - hgt - 0.2)))
+        z0 = max(Z0 + 0.02, z0)
+        z1 = min(Z1 - 0.02, z0 + hgt)
+        if z1 - z0 < 0.15:
+            continue
+        o = 0.004
+        p0 = (A[0] + ux * u + nx * o, A[1] + uy * u + ny * o)
+        p1 = (A[0] + ux * (u + wdt) + nx * o, A[1] + uy * (u + wdt) + ny * o)
+        sc.face("brick", [(p0[0], p0[1], z0), (p1[0], p1[1], z0), (p1[0], p1[1], z1), (p0[0], p0[1], z1)])
+
+
 def wall_box(ctx, w, u0, u1, z0, z1, ext_layers, int_layers, end_key, top_key, zbase, bottom=False, cls="main", surface="concrete"):
     """one construction box of a wall with per-face finishes (local wall frame -> world)."""
     sc = ctx.sc
@@ -920,6 +994,8 @@ def wall_box(ctx, w, u0, u1, z0, z1, ext_layers, int_layers, end_key, top_key, z
     zb = ctx.zf + zbase
     layered_face(sc, ext_layers, A, B, Z0, Z1, zb)
     layered_face(sc, int_layers, Cc, D, Z0, Z1, zb)
+    if ext_layers and ext_layers[-1][1] == "plaster_lime" and w.get("kind") == "external":
+        brick_patches(sc, A, B, Z0, Z1, zb, f"{w['id']}:{u0:.2f}")
     sc.face(end_key, [(B[0], B[1], Z0), (Cc[0], Cc[1], Z0), (Cc[0], Cc[1], Z1), (B[0], B[1], Z1)])
     sc.face(end_key, [(D[0], D[1], Z0), (A[0], A[1], Z0), (A[0], A[1], Z1), (D[0], D[1], Z1)])
     sc.face(top_key, [(A[0], A[1], Z1), (B[0], B[1], Z1), (Cc[0], Cc[1], Z1), (D[0], D[1], Z1)])
@@ -1139,6 +1215,62 @@ def roof_geometry(ctx, rf, mat_key):
             k2 = (k + 1) % n
             I += [(k, k2, n + k2), (k, n + k2, n + k)]
         col.add(V, I)
+
+
+def build_dormers(ctx, rf, mat_key):
+    """small gabled dormers on a hip roof slope (render only; the attic is closed)."""
+    sc = ctx.sc
+    P = rf.get("wall_rect")
+    if not P or not rf.get("dormers"):
+        return
+    y0 = min(p[1] for p in P)
+    y1 = max(p[1] for p in P)
+    tp = math.tan(math.radians(rf["pitch_deg"]))
+    for d in rf["dormers"]:
+        sgn = 1 if d.get("slope", "+Y") == "+Y" else -1
+        cx = d["center_x"]
+        w = d["width"]
+        fh = d.get("front_height", 1.2)
+        yf = (y1 - 0.6) if sgn > 0 else (y0 + 0.6)          # front face just behind the eave line
+        zf_ = float(C.roof_plane_at(rf, cx, yf)) + 0.14
+        depth = fh / tp + 0.3
+        yb = yf - sgn * depth
+        # cheeks + front (box up to front height), gable roof along the dormer axis
+        a = (cx - w / 2, min(yf, yb))
+        b = (cx + w / 2, max(yf, yb))
+        pts = [ctx.W(p) for p in ((a[0], a[1]), (b[0], a[1]), (b[0], b[1]), (a[0], b[1]))]
+        sc.prism(pts, ctx.zf + zf_ - 0.4, ctx.zf + zf_ + fh, mat="plaster_cream", collide=False)
+        ww = d.get("window", {}).get("width", 0.7)
+        wh = d.get("window", {}).get("height", 0.8)
+        fy = yf + sgn * 0.01
+        q0 = ctx.W((cx - ww / 2, fy))
+        q1 = ctx.W((cx + ww / 2, fy))
+        z0 = ctx.zf + zf_ + 0.2
+        quad = [(q0[0], q0[1], z0), (q1[0], q1[1], z0), (q1[0], q1[1], z0 + wh), (q0[0], q0[1], z0 + wh)]
+        if sgn < 0:
+            quad = quad[::-1]
+        sc.face("glass_dark", quad if sgn > 0 else quad)
+        ridge_h = w / 2
+        zt = ctx.zf + zf_ + fh
+        for s_ in (-1, 1):
+            e0 = ctx.W((cx + s_ * (w / 2 + 0.15), yf + sgn * 0.2))
+            e1 = ctx.W((cx + s_ * (w / 2 + 0.15), yb))
+            r0 = ctx.W((cx, yf + sgn * 0.2))
+            r1 = ctx.W((cx, yb))
+            quad = [(e0[0], e0[1], zt), (e1[0], e1[1], zt), (r1[0], r1[1], zt + ridge_h), (r0[0], r0[1], zt + ridge_h)]
+            n = np.cross(np.array(quad[1]) - quad[0], np.array(quad[3]) - quad[0])
+            if n[2] < 0:
+                quad = quad[::-1]
+            sc.face(mat_key, quad)
+        g0 = ctx.W((cx - w / 2, yf))
+        g1 = ctx.W((cx + w / 2, yf))
+        gm = ctx.W((cx, yf))
+        tri = [(g0[0], g0[1], zt), (g1[0], g1[1], zt), (gm[0], gm[1], zt + ridge_h)]
+        n = np.cross(np.array(tri[1]) - tri[0], np.array(tri[2]) - tri[0])
+        outward = np.array([ctx.W((cx, yf + sgn))[0] - gm[0], ctx.W((cx, yf + sgn))[1] - gm[1], 0])
+        if np.dot(n, outward) < 0:
+            tri = tri[::-1]
+        sc.face("plaster_cream", tri)
 
 
 def roof_mat(m):
@@ -1366,6 +1498,7 @@ def build_main_building(sc, bp, bd, terr):
     # roofs
     for rf in bd["roof"]:
         roof_geometry(ctx, rf, roof_mat(rf.get("material")))
+        build_dormers(ctx, rf, roof_mat(rf.get("material")))
         if rf["type"] == "mono" and rf.get("supports"):
             for sp in rf["supports"]:
                 c = sp.get("pos") or sp.get("center")
@@ -1722,6 +1855,22 @@ def build_prop(sc, p, terr):
         for k in range(n):
             c = tint(PROP_COL[typ], 1.0 if k == 0 else 0.85)
             sc.obox(x, y, lx, ly, rot, zb - 0.1 + k * hh, z + (k + 1) * hh - 0.02, mat="prop_container", color=c, collide=False)
+        return
+    if typ in ("semi_trailer_box", "flatbed_trailer", "farm_trailer_old"):
+        deck = zb + (1.1 if typ == "semi_trailer_box" else 0.75)
+        sc.obox(x, y, lx, ly * 0.9, rot, deck - 0.25, deck, mat="steel_grey", collide=False)
+        top = z + lz if typ == "semi_trailer_box" else deck + (0.45 if typ == "farm_trailer_old" else 0.08)
+        if top > deck + 0.01:
+            key = "prop_container" if typ == "semi_trailer_box" else "furn_wood"
+            sc.obox(x, y, lx, ly, rot, deck, top, mat=key, color=col, collide=False)
+        wr = 0.45
+        for fx_ in ((-lx / 2 + 1.2, -lx / 2 + 2.3) if typ == "semi_trailer_box" else (-lx / 4, lx / 4)):
+            for fy_ in (-ly / 2 + 0.2, ly / 2 - 0.2):
+                q = xf((x, y), rot, (fx_, fy_))
+                sc.obox(q[0], q[1], wr * 2, 0.35, rot, zb, zb + wr * 2, mat="tyre", collide=False)
+        if typ == "semi_trailer_box":
+            q = xf((x, y), rot, (lx / 2 - 1.5, 0))
+            sc.obox(q[0], q[1], 0.15, 0.15, rot, zb, deck - 0.25, mat="steel_grey", collide=False)
         return
     if typ in VEHICLES:
         clear = 0.35 if typ not in ("bus_wreck", "car_wreck", "lorry_wreck", "military_truck_wreck") else 0.15
@@ -2431,7 +2580,7 @@ NO_BAKE = {"glass", "water", "chainlink", "mesh_deer", "lamp_emissive", "backdro
 NO_OCCLUDE = {"glass", "water", "chainlink", "mesh_deer", "backdrop", "terrain_outer", "lamp_emissive"}
 
 
-def chunk_split(arrs, size=88.0):
+def chunk_split(arrs, size=120.0):
     """split an indexed mesh (P, N, UV, C, I) into spatial chunks by triangle centroid."""
     P, N, UV, Cc, I = arrs
     cen = P[I].mean(axis=1)
@@ -2493,7 +2642,7 @@ def main():
     tree_nodes, ntrees = build_trees(gw, mbw, L, terr, sc)
 
     # ---- albedo map + surface raster
-    albedo, _ = make_albedo(L, terr, args.albedo)
+    albedo, _, rough_map = make_albedo(L, terr, args.albedo)
     SX = terr.X[:-1, :-1] + RES / 2
     SY = terr.Y[:-1, :-1] + RES / 2
     surf = surface_raster(L, SX, SY)          # rows = south -> north (j), cols = west -> east (i)
@@ -2576,6 +2725,11 @@ def main():
     gt = GLB()
     mbt = MaterialBank(gt)
     mat_ter = mbt.get("terrain", extra_tex=albedo)
+    # roughness map on the terrain material (G channel)
+    t_r = mbt.texture("terrain_rough", rough_map, True, jpeg=True)
+    gt.materials[mat_ter]["pbrMetallicRoughness"]["metallicRoughnessTexture"] = {"index": t_r}
+    gt.materials[mat_ter]["pbrMetallicRoughness"]["roughnessFactor"] = 1.0
+    gt.materials[mat_ter]["pbrMetallicRoughness"]["metallicFactor"] = 0.0
     tnodes = []
     # fine tiles with quantised normals (smooth across tiles)
     gy, gx = np.gradient(H, RES)
@@ -2639,6 +2793,20 @@ def main():
     t_size = gt.write(t_path, tnodes)
     log(f"wrote {t_path} ({t_size / 1048576:.2f} MiB)")
 
+    # ---- facades: darker splash zone near the ground (rain splash, dirt), vertex tint
+    for key in ("plaster_lime", "plaster_cream", "plaster_ochre", "plaster_greyish", "render_grey", "brick", "brick_sooty", "stone",
+                "concrete", "wood_grey"):
+        if key not in world_arrays:
+            continue
+        P, N, UV, Cc, I = world_arrays[key]
+        vert = np.abs(N[:, 2]) < 0.3
+        hg = P[:, 2] - terr.z(P[:, 0], P[:, 1])
+        f = 0.78 + 0.22 * np.clip(hg / 0.7, 0, 1)
+        f = np.where(vert & (hg > -0.5) & (hg < 1.2), f, 1.0)
+        Cc = Cc.copy()
+        Cc[:, :3] *= f[:, None]
+        world_arrays[key] = (P, N, UV, Cc, I)
+
     # ---- world GLB: render meshes by material x chunk + trees
     wnodes = list(tree_nodes)
     wstats = {"meshes": 0, "tris": 0, "verts": 0}
@@ -2694,8 +2862,8 @@ def main():
         log(f"  {os.path.basename(pth)}: {sz / 1048576:.2f} MiB, base64 {sz * 4 / 3 / 1048576:.2f} MiB (limit 15)")
 
 
-def file_sha(p):
-    return hashlib.sha256(open(p, "rb").read()).hexdigest()[:16]
+def file_sha(p, n=16):
+    return hashlib.sha256(open(p, "rb").read()).hexdigest()[:n]
 
 
 def armory_for_row(L, terr, sa, row, occupied):
@@ -2783,6 +2951,8 @@ def level_json(L, terr, level_hash, files, stats):
         "displayName": "Kalné Hamry",
         "tag": "pracovní verze (provizorní grafika)",
         "levelHash": level_hash,
+        "sources": {"Shared/level/layout.json": file_sha(C.LAYOUT, 64), "Shared/level/buildings.json": file_sha(C.BUILDINGS, 64),
+                    "generator": "Tools/level/export_web_level.py"},
         "size": [round(bx1 - bx0, 1), round(by1 - by0, 1)],
         "solids": [],
         "geometry": {

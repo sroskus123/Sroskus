@@ -13,12 +13,35 @@ import { EventBus } from '../src/engine/events.js';
 import { buildLevelSolids } from '../src/level/levelGeometry.js';
 import { CollisionWorld } from '../src/physics/collisionWorld.js';
 import { MatchSession } from '../src/game/session.js';
-import { createAISystem } from '../src/ai/index.js';
+import { createAISystem, registerNavData } from '../src/ai/index.js';
 import { MatchTelemetry } from '../src/debug/matchTelemetry.js';
+import { collisionSolidsFromGlb, parseGlb, surfaceRasterFromGlb, terrainSolidsFromGlb } from '../src/level/levelAssets.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const WEB = path.resolve(here, '..');
 const readJson = (p) => JSON.parse(readFileSync(path.join(WEB, p), 'utf8'));
+
+const worldCache = new Map();
+/**
+ * Collision world of a level in Node: JSON solids, plus the GLB geometry of generated levels (level.geometry) and
+ * their external navmesh (level.nav.external), read from public/ (cached per level id).
+ */
+export function levelWorld(lvl) {
+  if (worldCache.has(lvl.id)) return worldCache.get(lvl.id);
+  const solids = buildLevelSolids(lvl);
+  let raster = null;
+  if (lvl.geometry) {
+    const ter = parseGlb(readFileSync(path.join(WEB, 'public', lvl.geometry.terrain)));
+    const col = parseGlb(readFileSync(path.join(WEB, 'public', lvl.geometry.collision)));
+    solids.push(...terrainSolidsFromGlb(ter), ...collisionSolidsFromGlb(col));
+    raster = surfaceRasterFromGlb(ter);
+  }
+  if (lvl.nav && lvl.nav.external) registerNavData(lvl.id, readJson(path.join('public', lvl.nav.file)));
+  const world = new CollisionWorld(solids);
+  world.surfaceRaster = raster;
+  worldCache.set(lvl.id, world);
+  return world;
+}
 
 export function runMatch({ level = 'ai_arena', bots = [5, 6, 6], seconds = 180, full = false, seed = 1, withPlayer = true, skipPreRound = true, zone = null, onSample = null } = {}) {
   const lvl = readJson(`src/data/${level}.json`);
@@ -32,7 +55,7 @@ export function runMatch({ level = 'ai_arena', bots = [5, 6, 6], seconds = 180, 
   try {
     const session = new MatchSession({
       level: lvl,
-      world: new CollisionWorld(buildLevelSolids(lvl)),
+      world: levelWorld(lvl),
       movement: readJson('src/data/movement.json'),
       weaponsData: readJson('src/data/weapons.json'),
       combat: readJson('src/data/combat.json'),

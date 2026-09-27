@@ -161,6 +161,37 @@ Stávající schéma (`solids`, `signs`, `banners`, `dummies`, `markers`) + voli
 - Načtení: `loadLevelData(id)` (`src/game/levels.js`), v prohlížeči `window.__IV.loadLevel(id)`; seznam pro nabídku
   `src/data/levels.json`.
 
+### Generované úrovně: `geometry`, polygonové zóny, řady spawnů, hranice, kryty (2026-09-27)
+
+Rozšíření schématu úrovně pro mapy generované z návrhových dat (Kalné Hamry, `Tools/level/export_web_level.py`,
+rozhodnutí D12). Stávající úrovně se nemění; každé pole je volitelné.
+
+- `geometry`: `{ terrain, collision, render: [..], files: {soubor: sha256[:16]}, navClip: [[x, z]..] }` — GLB soubory pod
+  `public/`. Nahrazuje `solids` (smí být prázdné). Kolize: uzly `kh_collision.glb` s `extras.iv = { class, surface, nav }`
+  (`main` zastaví kapsli, střelu i výhled; `move` jen kapsli — sklo oken, pletivo, laťové a trubkové zábradlí, neviditelná
+  tvrdá hranice; `movevis` kapsli a výhled, střela projde — živé ploty, keře, měkký nábytek, dřevěné bedny) a dlaždice terénu
+  (`extras.iv.collision = 'terrain'`). Solidy dostanou id s předponou `geo:` (AI je považuje za známé navmeshi).
+  `CollisionWorld.raycast(o, d, far, near, filter)` s `filter` `'bullets'` / `'vision'` přeskočí skupiny, které daný paprsek
+  nezastaví (`GROUP_RAY_FLAGS`); `WorldQuery.raycastCombat` (hitscan) používá `'bullets'`, `lineOfSight` `'vision'`,
+  `raycastStatic` dál všechno (pohyb, sondy). Povrch terénu pro kroky a zásahy dává rastr 0,5 m v `kh_terrain.glb`
+  (`world.surfaceRaster.surfaceAt(x, z)`), ostatní geometrie nese povrch v `mat`.
+- `match.zones[i]` smí mít `polygon: [[x, z]..]`, `yMin`, `yMax` (pata kapsle uvnitř polygonu a v pásmu výšky, stejně jako
+  `Docs/MAP_DESIGN.md` oddíl 5); `center` a `radius` (opsaná kružnice) zůstávají pro HUD a AI. Test: `src/game/zoneShape.js`
+  (`pointInZone`), používá ho `MatchSession.isInZone` i AI.
+- `match.teamSpawns[t][i]` smí mít `zones: [id..]` a `row`: predikát spawnu přijme bod jen pro aktivní zónu kola; záložní
+  politika (`combat.spawn.fallback`) navíc řady z `match.fallbackRows[zóna][id týmu]`. Jádro pravidel se nemění (dostává
+  všechny body týmu, predikát rozhoduje).
+- `boundary: { soft, warning, hard: [[x, z]..], countdownS, text }` — `src/game/boundary.js`: pás varování (text v HUD),
+  za měkkou hranicí odpočet `countdownS` (10 s) a smrt s příčinou „Minové pole“ (`MatchSession.killByCause`: bez zabití
+  pro nikoho, skóre beze změny, běžný respawn); událost `combatant:died` nese `cause`. Tvrdá hranice je kolize třídy `move`.
+- `cover: [{ id, pos, normal, height: low|high|window, kind, peek }]` — návrhové krycí body (u objektů, nábytku v budovách,
+  střelecké pozice u oken, hlídání schodiště); bake navmeshe je přichytí na navmesh a dá jim přednost před body z geometrie.
+- `nav: { file, external: true }` — navmesh se nebalí do `game.js`; hra ho při načtení úrovně stáhne
+  (`fetchAssetBytes`) a zaregistruje (`registerNavData` v `src/ai/index.js`), Node nástroje ho čtou z disku.
+- `environment: { fog: { color, density }, shadowExtent, cameraFar }` — přepis mlhy (D9; výšková mlha se škáluje s hustotou)
+  a stínů pro danou mapu; ostatní mapy dostanou `environment.json` zpět.
+- `tag` — podtitul mapy v HUD a v nabídce („pracovní verze (provizorní grafika)“).
+
 ### Pocit ze zbraně (recoil, 2026-09-26)
 
 - `weapon:fired` nese navíc `ads` (0..1) a `crouch` (bool) — postoj, podle kterého se počítal kop.

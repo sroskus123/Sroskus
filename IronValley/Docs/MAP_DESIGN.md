@@ -848,6 +848,9 @@ python3 Tools/level/run_pipeline.py [--skip-nav] [--skip-draw] [--sightlines]
 3. `draw_plans.py` vykreslí `Docs/img/*.png` a přepíše generované tabulky tohoto dokumentu (bilance, výhledy, testovací body).
 4. `analyze_sightlines.py` (s volbou `--sightlines`) spočítá metriky výhledů do `Tools/level/_out/`.
 5. `check_layout.py` musí skončit `0 FAIL`, jinak má nenulový návratový kód.
+6. S volbou `--web` pak `export_web_level.py` vygeneruje hratelnou webovou verzi mapy (GLB terénu, budov a kolize +
+   `Web/src/data/kalne_hamry.json`, rozhodnutí D12); `npm run build` ve `Web/` k ní upeče navmesh. Popis: `Web/README.md`,
+   oddíl „Mapa Kalné Hamry“.
 
 Požadavky: Python 3.11 s numpy, scipy, shapely, matplotlib, scikit-fmm, scikit-image a pillow; Node ≥ 22 s `npm install`
 v `Tools/level/nav`. Ruční úpravy JSON se nedělají: mění se zdrojové skripty a pipeline se spustí znovu.

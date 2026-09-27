@@ -4,6 +4,11 @@
  "displayName": "Kalné Hamry",
  "tag": "pracovní verze (provizorní grafika)",
  "levelHash": "47d8720dd61e1945",
+ "sources": {
+  "Shared/level/layout.json": "4fb1fd1d06e9f8dc18108505a3fc35c9d510070b22743b4d90867b88f0abbf2d",
+  "Shared/level/buildings.json": "d59570dc47889f904b9f5b1723cdc1ab5814748c98e9b27129fd37ab96df483d",
+  "generator": "Tools/level/export_web_level.py"
+ },
  "size": [
   310.6,
   310.6
@@ -17,8 +22,8 @@
   ],
   "collision": "assets/levels/kalne_hamry/kh_collision.glb",
   "files": {
-   "kh_terrain.glb": "15a83b1108a2bbd8",
-   "kh_world.glb": "91cf551b08d314ad",
+   "kh_terrain.glb": "d79ef7dea1584c18",
+   "kh_world.glb": "f4b36ed4994eefd6",
    "kh_collision.glb": "e741bb3475cdec93"
   },
   "navClip": [
@@ -177,14 +182,14 @@
   ],
   "stats": {
    "terrain": {
-    "tris": 438524,
-    "verts": 224130,
+    "tris": 433738,
+    "verts": 221950,
     "tiles": 25
    },
    "world": {
-    "meshes": 261,
-    "tris": 60612,
-    "verts": 107349
+    "meshes": 181,
+    "tris": 61020,
+    "verts": 108057
    },
    "collisionTris": 27154,
    "trees": 1650

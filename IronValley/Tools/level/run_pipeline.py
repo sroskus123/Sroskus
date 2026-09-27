@@ -9,8 +9,10 @@ run_pipeline.py -- regenerates and verifies the whole level data set of "Kalné 
   5. analyze_sightlines.py       -> Tools/level/_out/sightlines*.json (only with --sightlines)
   6. draw_plans.py               -> Docs/img/*.png + generated tables in Docs/MAP_DESIGN.md
   7. check_layout.py             -> exits non-zero on any violation
+  8. export_web_level.py         -> web version of the map (GLB + Web/src/data/kalne_hamry.json), only with --web;
+                                    then `npm run build` in Web/ bakes its navmesh
 
-Usage: python3 Tools/level/run_pipeline.py [--skip-nav] [--skip-draw] [--sightlines]
+Usage: python3 Tools/level/run_pipeline.py [--skip-nav] [--skip-draw] [--sightlines] [--web]
 Requires: Python 3.11 + numpy, scipy, shapely, matplotlib, scikit-fmm, scikit-image, pillow; Node >= 22 with
 `npm install` done in Tools/level/nav (recast-navigation 0.43.1).
 """
@@ -36,6 +38,7 @@ def main():
     ap.add_argument("--skip-nav", action="store_true")
     ap.add_argument("--skip-draw", action="store_true")
     ap.add_argument("--sightlines", action="store_true", help="also run analyze_sightlines.py (hard geometry and + vegetation, ~2 min each)")
+    ap.add_argument("--web", action="store_true", help="also regenerate the web version of the map (export_web_level.py, ~2 min)")
     a = ap.parse_args()
     py = sys.executable
     if run([py, "build_level.py"]):
@@ -55,6 +58,8 @@ def main():
         # check Q02 compares that document with the data
         run([py, "draw_plans.py"])
     rc = run([py, "check_layout.py"])
+    if a.web and rc == 0:
+        rc = run([py, "export_web_level.py"])
     sys.exit(rc)
 
 

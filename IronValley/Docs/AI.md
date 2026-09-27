@@ -440,3 +440,30 @@ node tests/unit/support/aiSim.mjs --seconds 120 --seed 3  # ruční simulace zá
 - Navmeshe jsou v balíku `game.js` (~150 kB na úroveň). Pro mapu 350 × 350 m zvážit asynchronní načítání.
 - Animace botů (třetí osoba) patří herní integraci — zatím provizorní figuríny.
 - Výkon na skutečném hardwaru a chování v rámci Artifact na claude.ai: NOT TESTED.
+
+## 14. Kalné Hamry — generovaná mapa (2026-09-27)
+
+Mapa 350 × 350 m z `Tools/level/export_web_level.py` (rozhodnutí D12). AI beze změny chování; doplňky, které mapu umožnily:
+
+- **Navmesh** peče `tools/bake_navmesh.mjs` z kolize GLB (třídy `main`, `move`, `movevis`; terén jen uvnitř měkké hranice
+  − 1 m, `geometry.navClip`), Recast v dlaždicích 12,8 m (cs 0,05, r 0,35 m, D10). Trojúhelníky dlaždic se před převodem
+  na zónu three-pathfinding **svařují** (stejné XZ do 2 mm, výška do 0,3 m) a hrany na hranicích dlaždic se dělí v bodech
+  sousední dlaždice (T-spoje) — bez toho se mapa rozpadla na odpojené skupiny. Výsledek: 37 793 trojúhelníků, hlavní skupina
+  29 267 (35 145 m²), ostatní skupiny jsou střechy a vršky předmětů; 170 ze 173 testovacích bodů (dveře obou stran, schody,
+  zóny, spawny) na hlavní skupině (zbylé 3 jsou značky úzkých míst v korytě pod mosty). Soubor 6,6 MB se načítá za běhu
+  (`nav.external`, `registerNavData`), ne z balíku.
+- **Dosažitelnost** spawn → střed zóny (bake, všech 8 bodů aktivní řady): Dílna Alfa 154,6 / Bravo 149,9 / Charlie 135,6 m
+  (poměr 1,14 ke středu; cesta Alfy vede brodem potoka u dílny), Sklad 144,7 / 138,5 / 138,3 m (1,046), Dvůr 138,1 /
+  140,4 / 134,9 m (1,041). Návrhová bilance (MAP_DESIGN 6.1) měří k okraji zóny, proto se čísla liší.
+- **Kryty:** 846 návrhových bodů z `layout.json` (objekty, nábytek v budovách, 15 okenních pozic, hlídání schodiště) má
+  přednost, doplněno body z geometrie → 3 323 bodů.
+- **Zóny** jsou polygony s pásmem výšky (`src/game/zoneShape.js`); `Tactics.zonePost` bere jen body uvnitř polygonu,
+  `enemySpawnCenters` jen řady aktivní pro zónu; solidy s id `geo:` jsou pro detektor zaseknutí „známé navmeshi“.
+- **Kola se 17 boty** (hráč nečinný, seed 7, Node, celé kolo): Dílna 39/87/0 (Bravo časem, oblast sporná 215 s), Sklad
+  4/100/57 (Bravo cílem v 545 s), Dvůr 38/28/63 (Charlie časem); všechny týmy byly v oblasti, nejdelší zaseknutí 3,1–3,7 s,
+  0 teleportů, 0 chyb, 0 blokovaných spawnů, čekání na respawn max 5 s. V Chromiu (vypnuté vykreslování, ×10) Dvůr seed 5:
+  35/14/72, zaseknutí max 3,9 s, 0 teleportů. Vzdálený tým zóny (Charlie u Dílny, Alfa u Skladu) boduje málo — přichází
+  přes náves do boku dvou blízkých týmů (návrhový vzorec), otevřená otázka ladění.
+- **Cena tiku** (17 botů, vypnuté vykreslování): Node 2,6–3,1 ms průměr (p95 5–6,5 ms, p99 13–17 ms), Chromium 2,3 ms
+  (p95 4,0 ms); v aréně 1,0–1,5 ms. Profil: A\* 7 %, kapslový kontroler a BVH ~25 %, paprsky 5 %, GC 5 %.
+

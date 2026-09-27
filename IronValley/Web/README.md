@@ -4,7 +4,8 @@ Hratelná prohlížečová verze hry IRON VALLEY: čistý JavaScript (three.js, 
 a bez `eval` / `new Function` za běhu**. Obsahuje celý herní cyklus: úvodní obrazovka → výběr výbavy → kolo
 tří týmů po šesti (hráč + 5 spojenců, 12 nepřátelských botů) o jednu aktivní kontrolní oblast (10 minut nebo
 100 bodů) → smrt a respawn → výsledek → nové kolo. Mapy: **Zkušební prostor** (vývojová graybox mapa s krytými
-spawny týmů) a **AI aréna** (připravuje modul AI); Kalné Hamry přibudou později.
+spawny týmů), **AI aréna** (testovací mapa AI) a **Kalné Hamry — pracovní verze (provizorní grafika)**: skutečná mapa
+350 × 350 m generovaná z návrhových dat (viz oddíl „Mapa Kalné Hamry“).
 
 > **Toto není verze v Unreal Engine.** Projekt UE5 se připravuje zvlášť (adresář `../Unreal`) a v tomto
 > prostředí nebyl spuštěn ani zkompilován. Vše níže se týká jen webové verze.
@@ -284,6 +285,33 @@ to míchá kanály (PSNR 25–30 dB), JPEG 4:4:4 q92 drží 39–44 dB (normála
 Textury se dekódují z bajtů (`createImageBitmap(Blob)`), takže WebP i JPEG projdou i přísným CSP. V `dist-artifact/`
 jsou kromě GLB i obrázky pod `assets/` jako `<soubor>.b64.txt`.
 
+## Mapa Kalné Hamry (generovaná, provizorní grafika)
+
+Mapa vzniká **jen generátorem** z návrhových dat `../Shared/level/layout.json` + `buildings.json` (rozhodnutí D10, D12);
+výstupy se ručně neupravují:
+
+```bash
+python3 ../Tools/level/export_web_level.py      # ~2 min: GLB + src/data/kalne_hamry.json (s bpy: zapečené světlo)
+npm run build                                  # peče navmesh (public/assets/nav/kalne_hamry.json) + balík
+node tools/match_report.mjs --level kalne_hamry --bots 5,6,6 --full --zone zone_dilna   # kolo 17 botů v Node
+```
+
+| Soubor | Obsah | Velikost (base64) |
+| --- | --- | --- |
+| `public/assets/levels/kalne_hamry/kh_terrain.glb` | terén 0,5 m (vykreslení i kolize, 25 dlaždic 64 m), albedo 2048² (0,16 m/texel) z oblastí povrchů, roughness mapa (mokrý asfalt), rastr povrchů 0,5 m pro kroky a zásahy, okolní terén 2 m a prstenec vzdálených kopců | 8,9 MiB (11,9) |
+| `public/assets/levels/kalne_hamry/kh_world.glb` | budovy (zdi s tloušťkou a skladebnými kvádry, otvory, ostění, parapety, rámy, sklo, dveřní křídla v klidové poloze, podlahy, stropy, schody, zábradlí, střechy s přesahy, žlaby, svody, komíny, sokly), vedlejší budovy jako zavřené objemy, rekvizity jako bloky správné velikosti, ploty (pletivo průhledné), zdi, opěrné zdi, mosty, potok, sloupy vedení, hraniční bariéry s cedulemi, 1650 stromů (instancované: kmen, koruna listnáče, kužel smrku) | 5,4 MiB (7,3) |
+| `public/assets/levels/kalne_hamry/kh_collision.glb` | kolize ve třídách `main` (vše), `move` (jen kapsle: sklo, pletivo, zábradlí, tvrdá hranice), `movevis` (kapsle + výhled: živé ploty, keře, měkký nábytek, dřevěné bedny) | 0,4 MiB (0,5) |
+| `src/data/kalne_hamry.json` | spawny 3 × 16 (řady podle zóny + záložní řady), 3 polygonové zóny s pásmem výšky, 6 zbrojních beden (u každé řady), hranice (varování, odpočet 10 s, „Minové pole“), 900 návrhových krycích bodů, 183 testovacích bodů (markery `QA_*`), přepis mlhy D9 | 0,4 MiB |
+| `public/assets/nav/kalne_hamry.json` | navmesh (Recast cs 0,05 / r 0,35 m, dlaždice 12,8 m svařené na hranách), kryty z geometrie + návrhové, dosažitelnost spawn → zóna pro všechny týmy a zóny; načítá se za běhu, ne z balíku | 6,6 MB |
+
+Světlo: slunce + obloha + mraky z `environment.json`, měkké stíny kolem hráče (rozsah 40 m), mlha D9 a **viditelnost oblohy
++ jeden odraz slunce zapečené na vrcholy při generování** (interiéry tmavší než venku), takže se při načtení nic nepeče.
+Načtení mapy v Chromiu ~1,0–1,2 s (místní server: stažení 0,2 s, BVH kolize 0,5 s, GLTF 0,2 s).
+
+Testy: `tests/unit/kalne_hamry.test.mjs` (data, čerstvost výstupů vůči zdrojům, kolizní třídy, povrchy, spawny, bedny,
+zóny, hranice, navmesh, 60 s 17 botů v Node) a `tests/e2e/11_kalne_hamry.test.mjs` (načtení bez chyb, bezpečný spawn,
+průchod do dílny, skladu a domu dveřmi a po schodech, celé kolo se 17 boty).
+
 ## Zbraň IV-7
 
 Pokud existuje `public/assets/weapons/IV7_Carbine.glb`, hra ho použije jako zbraň v rukou; jinak
@@ -333,5 +361,5 @@ optika (IV-R1 je její samostatná dvojče na stejném místě). Textury vložen
 * „Ukončit“ kartu nezavírá (prohlížeč to webové stránce spolehlivě nedovolí); uvolní kurzor a napíše, jak hru
   ukončit.
 * Nad nízkou hranou (schod, stupeň do 0,40 m) se kapsle smí opřít až 0,32 m od osy; nad vyšším srázem jen 0,15 m.
-* Zapečené nepřímé světlo počítá jen jeden odraz slunce; pečení běží při každém načtení mapy (~0,7 s pro
-  Zkušební prostor); pro velkou mapu bude potřeba péct při sestavení.
+* Zapečené nepřímé světlo počítá jen jeden odraz slunce; u Zkušebního prostoru a AI arény běží při každém načtení mapy
+  (~0,7 s), Kalné Hamry mají světlo zapečené při generování (`Tools/level/export_web_level.py`).
