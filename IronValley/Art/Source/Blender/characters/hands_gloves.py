@@ -383,9 +383,9 @@ def place_frame(model, k, pose, coll, d_t, r_t, pivot_name, pivot_target, contac
 
 
 def pistol_grip_frame_search(model, coll, ga, fwd, side, mcp_ref, grip_parts, trigger_point=None,
-                             along_parts=None, yaws=(-10.0, 0.0, 10.0), tilts=(-16.0, -8.0, 0.0),
-                             fwd_offsets=(-0.010, 0.0, 0.010), heights=(-0.006, 0.0, 0.006),
-                             fingers=("middle", "ring", "pinky")):
+                             along_parts=None, yaws=(-5.0, 0.0, 5.0), tilts=(-16.0, -10.0),
+                             fwd_offsets=(-0.005, 0.0, 0.005, 0.010), heights=(-0.004, 0.0, 0.004, 0.008, 0.012),
+                             fingers=("middle", "ring", "pinky"), index_mode="auto"):
     """Pistol-grip placement by the grip's anatomy.  The palm (2nd-5th metacarpals) lies on the
     grip's side, the knuckle row along the grip axis `ga` (hand radial axis r = ga, index on top),
     the straight fingers along `fwd` (perpendicular to ga) yawed by `yaw` about ga (+ = towards
@@ -409,6 +409,9 @@ def pistol_grip_frame_search(model, coll, ga, fwd, side, mcp_ref, grip_parts, tr
     row_rest = RF[f"index_01_{s}"]["H"] - RF[f"pinky_01_{s}"]["H"]
     grip_only = HN.Collider([(p_["name"], p_["co"], p_["tris"]) for p_ in coll.parts if p_["name"] in grip_parts])
     fmask = model.verts_of(k, [f"hand_{s}"] + [f"{f}_0{i}_{s}" for f in fingers for i in (1, 2, 3)], 0.5)
+    # high grip: the top finger of the wrap (middle) sits right under the trigger guard
+    other = HN.Collider([(p_["name"], p_["co"], p_["tris"]) for p_ in coll.parts if p_["name"] not in grip_parts])
+    top_mask = model.verts_of(k, [f"{fingers[0]}_01_{s}", f"{fingers[0]}_02_{s}"], 0.5)
     best, tried = None, []
     for yaw in yaws:
         for tilt in tilts:
@@ -428,19 +431,24 @@ def pistol_grip_frame_search(model, coll, ga, fwd, side, mcp_ref, grip_parts, tr
                     Rw = H[:3, :3] @ np.linalg.inv(model.R[model.hand][:3, :3])
                     row = Rw @ row_rest
                     row_dev = math.degrees(math.acos(abs(float(row @ ga)) / np.linalg.norm(row)))
-                    fsd, _ = coll.signed(model.skin(k, model.pose(pose, H), fmask), 0.03)
+                    Sm_ = model.pose(pose, H)
+                    fsd, _ = coll.signed(model.skin(k, Sm_, fmask), 0.03)
                     fpen = max(0.0, -float(fsd.min()))                                 # fingers / palm inside the weapon
-                    if trigger_point is not None:
+                    clear = float(other.signed(model.skin(k, Sm_, top_mask), 0.03)[0].min())   # top finger to the guard
+                    if "index" in fingers:
+                        ir, ipen = None, 0.0                      # the index wraps with the others
+                    elif trigger_point is not None:
                         ir = fit_index(model, k, pose, H, coll, "trigger", trigger_part=trigger_point)
                         ipen = abs(ir["terms"].get("_gap", 0.03) * 1000 - 0.6) * 2 + max(0.0, -ir["terms"]["_min_sd"] * 1000 - 0.3) * 10
                     else:
                         ir = fit_index(model, k, pose, H, coll, "straight", along_parts=along_parts)
                         ipen = ir["terms"].get("_gap", 0.05) * 1000 * 0.5 + ir["terms"]["_dir_deg"] * 0.2
                     sc = (-sn * 1000 - ipen - 4.0 * nfor - 2.0 * wfor * 1000 - 0.2 * max(row_dev - 10.0, 0.0)
-                          - 5.0 * max(fpen * 1000 - 1.0, 0.0))
+                          - 5.0 * max(fpen * 1000 - 1.0, 0.0) - 0.5 * max(clear * 1000 - 3.0, 0.0))
                     tried.append({"yaw_deg": yaw, "tilt_deg": tilt, "fwd_offset_mm": round(fo * 1000, 1),
                                   "knuckle_row_vs_grip_axis_deg": round(row_dev, 1),
                                   "penetration_mm": round(fpen * 1000, 2),
+                                  "top_finger_to_guard_mm": round(clear * 1000, 2),
                                   "height_mm": round(hz * 1000, 1), "snugness_mm": round(sn * 1000, 2),
                                   "index_penalty": round(ipen, 2), "fingers_touching_other_parts": nfor,
                                   "score": round(sc, 2)})
@@ -695,17 +703,24 @@ def fit_support_handguard(model, coll, rig):
 
 
 def fit_mag_grasp(model, coll, rig):
-    """Left hand grasping the seated magazine below the magwell (reload grasp)."""
+    """Left hand grasping the seated magazine below the magwell (reload grasp), held like a grip:
+    palm on the magazine's left flank, knuckle row along the (curved) magazine axis with the
+    index on top just under the magwell, all four fingers wrapping the front edge onto the right
+    flank, thumb on the left flank pointing forward-down."""
     S = HN.socket_matrix(rig, "socket_mag")
     X = S[:3, :3] @ np.array([1.0, 0, 0]); Y = S[:3, :3] @ np.array([0, 1.0, 0]); Z = S[:3, :3] @ np.array([0, 0, 1.0])
-    mouth = S[:3, 3]
-    bottom = mouth + (X * 0.036 - Z * 0.115)             # magazine centreline near the base plate
-    up = mouth - bottom; up /= np.linalg.norm(up)
-    cdir = -0.35 * X + 1.0 * Y                            # palm on the left flank, towards the rear
-    H, pose, rep = power_grasp(model, coll, up, cdir, mouth, "palm", (-0.070, -0.060, -0.050), (-15.0, 0.0, 15.0),
-                               (-10.0, 0.0, 10.0), ["index", "middle", "ring", "pinky"], ["Magazine"], half=0.013)
-    rep["placement"] = "diagonal grasp of the magazine body below the magwell"
-    rep["thumb"] = fit_thumb(model, 0, pose, H, coll, X - 0.3 * Z, parts=["Magazine", "MagRounds"])
+    Mw = lambda v: (S @ np.append(np.asarray(v, float) / 100.0, 1.0))[:3]       # noqa: E731 (cm, socket frame)
+    # magazine front edge: x 16.2 (z -2) .. 17.6 (z -8) cm in the weapon frame; socket_mag at (12.54, 0, 0.37)
+    up = S[:3, :3] @ np.array([-0.22, 0.0, 0.975])
+    # middle MCP joint: left flank (half width 1.2 + palm 2.2 cm), a proximal phalanx behind the
+    # front edge, ~5.5 cm below the magwell (the index then sits ~3 cm under it)
+    ref = Mw((16.9 - 12.54 - 5.3, 1.2 + 2.2, -5.3 - 0.37))
+    H, pose, rep = pistol_grip_frame_search(model, coll, up, X, -Y, ref, ["Magazine", "MagRounds"],
+                                            fingers=("index", "middle", "ring", "pinky"),
+                                            yaws=(-5.0, 0.0, 5.0), tilts=(-16.0, -8.0, 0.0),
+                                            fwd_offsets=(-0.005, 0.0, 0.005), heights=(-0.008, 0.0, 0.008))
+    rep["placement"] = "grip-style grasp of the magazine body below the magwell (palm on the left flank)"
+    rep["thumb"] = fit_thumb(model, 0, pose, H, coll, X - 0.6 * Z, parts=["Magazine", "MagRounds"])
     return H, pose, rep
 
 
