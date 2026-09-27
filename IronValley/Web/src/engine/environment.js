@@ -182,6 +182,29 @@ export class Environment {
   }
 
   /**
+   * Per-level overrides (level JSON `environment`): fog { color, density } (the height fog follows the distance
+   * density, see heightFog.js), shadowExtent (m, half size of the sun's shadow frustum around the player).
+   * null restores environment.json.
+   */
+  applyLevel(o = null) {
+    const f = (o && o.fog) || this.cfg.fog;
+    this.scene.fog.color.setHex(parseInt(f.color.slice(1), 16), LinearSRGBColorSpace);
+    this.scene.fog.density = f.density;
+    const ext = (o && o.shadowExtent) || this.baseShadowExtent || this.cfg.sun.shadowExtent;
+    if (!this.baseShadowExtent) this.baseShadowExtent = this.cfg.sun.shadowExtent;
+    if (ext !== this.cfg.sun.shadowExtent) {
+      this.cfg = { ...this.cfg, sun: { ...this.cfg.sun, shadowExtent: ext } };
+      const cam = this.sun.shadow.camera;
+      cam.left = -ext;
+      cam.right = ext;
+      cam.top = ext;
+      cam.bottom = -ext;
+      cam.updateProjectionMatrix();
+    }
+    this.levelOverrides = o;
+  }
+
+  /**
    * World-space height range of the static shadow casters (level bounds). Dynamic objects are
    * covered by a margin above (characters, jumps, props thrown up).
    */

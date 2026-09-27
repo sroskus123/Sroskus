@@ -12,7 +12,14 @@ export function validateLevel(level, id = null) {
   const errs = [];
   if (!level || typeof level !== 'object') return ['level is not an object'];
   if (id !== null && level.id !== id) errs.push(`id "${level.id}" does not match file "${id}"`);
-  if (!Array.isArray(level.solids) || level.solids.length === 0) errs.push('solids: non-empty array required');
+  // generated levels (Tools/level/export_web_level.py) carry their geometry in GLB files: `geometry` replaces solids
+  const geo = level.geometry;
+  if (geo !== undefined) {
+    if (!geo || typeof geo.collision !== 'string' || typeof geo.terrain !== 'string' || !Array.isArray(geo.render) || geo.render.length === 0) {
+      errs.push('geometry: { collision, terrain, render: [..] } asset paths required');
+    }
+    if (!Array.isArray(level.solids)) errs.push('solids: array required');
+  } else if (!Array.isArray(level.solids) || level.solids.length === 0) errs.push('solids: non-empty array required');
   if (!level.markers || typeof level.markers !== 'object') errs.push('markers: object required');
   const m = level.match;
   if (m !== undefined) {
@@ -34,6 +41,9 @@ export function validateLevel(level, id = null) {
         else seen.add(z.id);
         if (!z || !Array.isArray(z.center) || z.center.length !== 3 || !z.center.every(Number.isFinite)) errs.push(`match.zones[${i}].center: [x, y, z] required`);
         if (!z || !(z.radius > 0)) errs.push(`match.zones[${i}].radius > 0 required`);
+        if (z && z.polygon !== undefined && (!Array.isArray(z.polygon) || z.polygon.length < 3 || !Number.isFinite(z.yMin) || !Number.isFinite(z.yMax) || z.yMax <= z.yMin)) {
+          errs.push(`match.zones[${i}].polygon: >= 3 points [x, z] with yMin < yMax required`);
+        }
       });
     }
   }
@@ -64,7 +74,7 @@ export async function listAvailableLevels() {
   for (const entry of index.list) {
     try {
       const lvl = await loadLevelData(entry.id);
-      out.push({ id: entry.id, name: lvl.displayName || entry.name, hasMatch: !!lvl.match });
+      out.push({ id: entry.id, name: lvl.displayName || entry.name, hasMatch: !!lvl.match, tag: lvl.tag || null });
     } catch {
       /* not in this build */
     }

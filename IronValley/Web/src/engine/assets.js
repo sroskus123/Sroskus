@@ -126,8 +126,14 @@ let loader = null;
 /** Number of embedded images decoded without blob: URLs (for tests / diagnostics). */
 export const assetStats = { embeddedImagesDecoded: 0 };
 
-/** Loads a GLB/GLTF relative to the page. Resolves to the parsed glTF. */
-export function loadGLTF(path) {
+/** Parses GLB bytes already in memory (e.g. fetched once for collision and rendering). */
+export function parseGLTF(bytes, path = '') {
+  getLoader();
+  const base = path.slice(0, path.lastIndexOf('/') + 1);
+  return new Promise((resolve, reject) => loader.parse(bytes, base, resolve, (err) => reject(err instanceof Error ? err : new Error(String(err)))));
+}
+
+function getLoader() {
   if (!loader) {
     loader = new GLTFLoader();
     loader.register((parser) => {
@@ -144,6 +150,12 @@ export function loadGLTF(path) {
       return plugin;
     });
   }
+  return loader;
+}
+
+/** Loads a GLB/GLTF relative to the page. Resolves to the parsed glTF. */
+export function loadGLTF(path) {
+  getLoader();
   const fail = (reject) => (err) => reject(err instanceof Error ? err : new Error(String(err)));
   if (!AVAILABLE.has(path) && AVAILABLE.has(path + B64_SUFFIX)) {
     const base = path.slice(0, path.lastIndexOf('/') + 1);

@@ -15,9 +15,11 @@ import { FixedStepLoop } from '../engine/loop.js';
 import { Renderer } from '../engine/renderer.js';
 import { Environment } from '../engine/environment.js';
 import { AdaptiveResolution } from '../engine/adaptiveResolution.js';
-import { assetStats, hasAsset, listAssets, loadGLTF } from '../engine/assets.js';
+import { assetStats, fetchAssetBytes, hasAsset, listAssets, loadGLTF, parseGLTF } from '../engine/assets.js';
 import { buildLevelSolids, listLevelBoxes } from '../level/levelGeometry.js';
 import { buildTestRangeView } from '../level/testRangeView.js';
+import { albedoRectFromGlb, collisionSolidsFromGlb, parseGlb, surfaceRasterFromGlb, terrainSolidsFromGlb } from '../level/levelAssets.js';
+import { buildGeoLevelView } from '../level/geoLevelView.js';
 import { probeSkyVisibility } from '../engine/indirectBake.js';
 import { updateBakedSun } from '../engine/bakedLightingMaterial.js';
 import { CollisionWorld } from '../physics/collisionWorld.js';
@@ -40,7 +42,7 @@ import { CombatantViews } from './combatantViews.js';
 import { ZoneView } from './zoneView.js';
 import { DEFAULT_LEVEL_ID, listAvailableLevels, loadLevelData } from './levels.js';
 import { baseRulesCompiled } from './gameRules.js';
-import { createAISystem } from '../ai/index.js';
+import { createAISystem, registerNavData } from '../ai/index.js';
 import { horizontalToVerticalFov, wrapAngle, DEG2RAD } from '../util/math.js';
 import { OpticAssets, FirstPersonOptics } from '../weapons/opticView.js';
 import { ATTACHMENTS, IRONS, getOpticDef, opticName, resolveOpticId, sensitivityFactor, validateOpticLoadout } from '../weapons/optics.js';
@@ -65,6 +67,8 @@ const _qRecoilRoll = new Quaternion();
 const RECOIL_PITCH_LIMIT = 88 * DEG2RAD; // same as Player
 const _fwd = new Vector3();
 const _up = new Vector3();
+const _down = new Vector3(0, -1, 0);
+const _zoneProbe = new Vector3();
 
 export class Game {
   constructor(root) {
@@ -153,6 +157,11 @@ export class Game {
     this.effects = new ImpactEffects(this.scene, { rng: Math.random, camera: this.camera, world: () => this.world, events, lookupCombatant: (id) => (this.session ? this.session.combatants.get(id) : null) });
     this.combatantViews = new CombatantViews(this.scene, teamsData);
     this.zoneView = new ZoneView(this.scene, teamsData);
+    this.zoneView.groundAt = (x, z, yFrom) => {
+      if (!this.world) return null;
+      const h = this.world.raycast(_zoneProbe.set(x, yFrom, z), _down, 12);
+      return h ? h.point.y : null;
+    };
 
     // --- HUD, menus, audio ---
     this.hud = new Hud(this.root, { levelName: '', teamsData });
@@ -249,7 +258,22 @@ export class Game {
   // ------------------------------------------------------------------ level
 
   async loadLevel(id) {
+    const t0 = performance.now();
     const level = await loadLevelData(id);
+    // generated levels (level.geometry): GLB bytes are fetched once and serve collision and rendering
+    let geo = null;
+    if (level.geometry) {
+      const g = level.geometry;
+      const paths = [...new Set([g.collision, g.terrain, ...g.render])];
+      const bytes = new Map(await Promise.all(paths.map(async (p) => [p, await fetchAssetBytes(p)])));
+      const terGlb = parseGlb(bytes.get(g.terrain));
+      const colGlb = parseGlb(bytes.get(g.collision));
+      geo = { bytes, terGlb, colGlb, fetchMs: performance.now() - t0 };
+      if (level.nav && level.nav.external && level.nav.file) {
+        const navBytes = await fetchAssetBytes(level.nav.file);
+        registerNavData(level.id, JSON.parse(new TextDecoder('utf-8').decode(navBytes)));
+      }
+    }
     if (this.levelView) {
       this.scene.remove(this.levelView.group);
       this.levelView.group.traverse((o) => {
@@ -260,12 +284,32 @@ export class Game {
     this.level = level;
     this.data.level = level;
     this.levelSolids = buildLevelSolids(level);
-    this.world = new CollisionWorld(this.levelSolids);
     const maxAniso = this.renderer.renderer.capabilities.getMaxAnisotropy();
-    this.levelView = buildTestRangeView(level, this.levelSolids, {
-      maxAnisotropy: Math.min(8, maxAniso),
-      lighting: this.bakedLighting ? { world: this.world, sunDirection: this.env.sunDirection, ...this.bakedLighting } : null,
-    });
+    const timing = { fetchMs: geo ? geo.fetchMs : 0 };
+    if (geo) {
+      const tc = performance.now();
+      this.levelSolids.push(...terrainSolidsFromGlb(geo.terGlb), ...collisionSolidsFromGlb(geo.colGlb));
+      this.world = new CollisionWorld(this.levelSolids);
+      this.world.surfaceRaster = surfaceRasterFromGlb(geo.terGlb);
+      timing.collisionMs = performance.now() - tc;
+      const tr = performance.now();
+      const gltfs = await Promise.all(level.geometry.render.map((p) => parseGLTF(geo.bytes.get(p), p)));
+      this.levelView = buildGeoLevelView(level, gltfs, {
+        maxAnisotropy: Math.min(8, maxAniso),
+        ambientFloor: this.bakedLighting ? this.bakedLighting.ambientFloor : 0.2,
+        albedoRect: albedoRectFromGlb(geo.terGlb),
+      });
+      timing.renderMs = performance.now() - tr;
+    } else {
+      this.world = new CollisionWorld(this.levelSolids);
+      this.levelView = buildTestRangeView(level, this.levelSolids, {
+        maxAnisotropy: Math.min(8, maxAniso),
+        lighting: this.bakedLighting ? { world: this.world, sunDirection: this.env.sunDirection, ...this.bakedLighting } : null,
+      });
+    }
+    this.env.applyLevel(level.environment || null);
+    this.camera.far = (level.environment && level.environment.cameraFar) || 2500;
+    this.camera.updateProjectionMatrix();
     this.scene.add(this.levelView.group);
     if (this.armoryView) this.armoryView.dispose();
     this.armoryView = new ArmoryView(level, teamsData);
@@ -278,14 +322,18 @@ export class Game {
         return bl.ambientFloor + (1 - bl.ambientFloor) * probeSkyVisibility(this.world, q, { sunDirection: this.env.sunDirection, rays: bl.rays }).skyVis;
       });
     }
-    const levelBounds = new Box3().setFromObject(this.levelView.group);
+    // shadow caster height range: the playable world only (not the distant backdrop hills / outer terrain ring)
+    const levelBounds = level.geometry ? this.world.bounds.clone() : new Box3().setFromObject(this.levelView.group);
+    if (level.geometry) levelBounds.max.y += 25; // trees (render only above their trunks)
     this.env.setShadowCasterHeights(levelBounds.min.y, levelBounds.max.y);
     this.dynamics = new DynamicsWorld({ gravity: movement.gravity });
     this.dynamics.addLevelBoxes(listLevelBoxes(level));
     this.hud.setLevelName(level.displayName || id);
     this.hud.setLevelTag(id === 'test_range' ? 'vývojová mapa' : level.tag || 'mapa');
     this.newSession({ mode: 'practice' });
-    return { id, displayName: level.displayName, hasMatch: !!level.match };
+    timing.totalMs = performance.now() - t0;
+    this.levelLoadInfo = { id, ...timing, triangles: this.world.triangleCount, view: this.levelView.stats || null };
+    return { id, displayName: level.displayName, hasMatch: !!level.match, load: this.levelLoadInfo };
   }
 
   async selectLevel(id) {

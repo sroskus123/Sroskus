@@ -89,7 +89,7 @@ normalised (every vertex weighted). The glove therefore bends exactly like the s
 | Wrist strap | hook-and-loop webbing with overlapping end and pull tab | 2.6 cm band 3.1 cm proximal of the wrist joint |
 | Hem / lining | dark lining fabric | the cuff opening |
 
-**Textures (`ivhands.glove_textures`, 2048², one UV set, 55 px/cm, 48 % coverage).** The material
+**Textures (`ivhands.glove_textures`, 2048², one UV set, 55 px/cm, 49 % coverage).** The material
 is evaluated **per texel** in numpy from the interpolated zone fields: seams are smooth curves (not
 mesh edges), every seam has a groove, and stitch rows are dashed with a true 3.1 mm pitch along
 the seam (55 % thread). Height detail (knit, grain, stipple, loop fabric, relief edges, grooves,
@@ -178,7 +178,7 @@ How it is measured (`hands_gloves.py --stages validate`, `ivchar.hand_contact_me
   separately because in the hand-only evaluation it simply follows the hand (its in-game
   position comes from the arm IK).
 
-| Check (all poses, both hands) | Limit | Worst | Result |
+| Check (all poses + 4 wrist extremes, both hands) | Limit | Worst | Result |
 | --- | --- | --- | --- |
 | Joint angles read back from the posed rig vs the library | < 0.05° | 0.001° | **PASS** |
 | Phalanx (bone) length change | < 0.001 mm | 0.0000 mm | **PASS** |
@@ -186,7 +186,8 @@ How it is measured (`hands_gloves.py --stages validate`, `ivchar.hand_contact_me
 | Bare skin: fingertip into the palm | ≤ 1.5 mm | 0.00 mm | **PASS** |
 | Bare skin: neighbouring fingers pressing into each other | ≤ 4 mm | 2.90 mm | **PASS** |
 | Bare skin: thumb into fingers / palm | ≤ 4 mm | 2.90 mm | **PASS** |
-| Glove: skin poking through (SK_Human_Base_Gloved, skin left under the cuff) | ≤ 0.5 mm | 0.27 mm | **PASS** |
+| Glove: skin poking through (SK_Human_Base_Gloved, skin left under the cuff; incl. wrist extremes) | ≤ 0.5 mm | 0.27 mm | **PASS** |
+| Glove: cuff lining outside the shell (incl. wrist flex 70 / ext 60 / ulnar 30 / twist 80) | ≤ 0.1 mm | 0.00 mm | **PASS** |
 | Glove: fingertip into the palm | ≤ 1.5 mm | 1.33 mm | **PASS** |
 | Glove: neighbouring finger shells overlapping (bare limit + 2 shells) | ≤ 6.5 mm | 5.51 mm | **PASS** |
 | Glove: thumb shell overlapping fingers / palm | ≤ 6.5 mm | 5.83 mm | **PASS** |
@@ -217,6 +218,8 @@ Weapon grips (glove against the evaluated IV-7 / proxy pistol meshes):
 | `pistol_2h` | r | 2/24/33 (-8) · 13/42/9 · 16/30/46 · 18/0/4 | 39/5/31, 9, 37 | 0.14 | middle: middle_01/middle_02, ring: ring_02, pinky: pinky_01/pinky_02/pinky_03, index_03: index_03 |
 | `pistol_2h` | l | 16/0/0 · 13/19/21 · 27/2/8 · 63/38/32 | -30/15/32, 14, 53 | 0.11 | index: index_01/index_02/index_03, middle: middle_02/middle_03, ring: ring_02/ring_03, thumb: thumb_03 |
 
+Exports re-imported with Blender's stock importers (clean scene): `SK_Hands_Gloved.fbx`, `SK_Human_Base_Gloved.fbx`, both glove GLBs: **PASS** (57 bones, 8,963 vertices / 17,884 triangles per glove, 0 unweighted, ≤ 4 influences, sums 1). `A_Hand_Poses.fbx` and the GLB animations: 14 actions, every static pose's finger rotations reproduced to **0.000°** (FBX) / **0.000°** (GLB), rest offsets measured on the re-imported rig within 0.001° of the data: **PASS**.
+
 ## 5. Evidence renders (`Art/Previews/Hands/`)
 
 All renders: Cycles CPU, neutral studio light, ≤ 1600 × 900. Every image was looked at and the
@@ -228,7 +231,7 @@ digits counted (five per visible hand, thumb opposed, joints bending the right w
 | `Hands_black_{open_flat,fist_50,fist_full}.png` | the black glove variant | Same shell and normal map with the black BaseColor / ORM |
 | `Hands_closeup_fist_knuckles_{bare,coyote}_{l,r}.png`, `Hands_closeup_fist_thumb_*` | knuckle and thumb close-ups at the full fist | Four knuckles in a row with the segmented guard over them; the fingers press together along clean contact lines; the thumb lies on the index / middle phalanges |
 | `Hands_closeup_wrist_{flex70,ext60,ulnar30,twist80}_{bare,coyote}.png` | wrist extremes (twist bones driven) | Smooth hand-to-forearm transition; the palmar crease folds at 70° flexion as skin does; no candy-wrapper at 80° twist; the cuff, strap and hem stay closed (the cuff lining stays inside the shell, validated per pose) |
-| `Hands_sections_fist_{bare,coyote}.png` | 2D sections through each finger's curl plane at the full fist | The phalanges stay inside the hand outline; no fingertip reaches the back of the hand; the glove shell is a constant-thickness offset of the skin |
+| `Hands_sections_fist_{bare,coyote}.png` | 2D sections through each finger's curl plane at the full fist | The joint centres (orange) sit inside the phalanx outlines; the curled fingertip stays inside the fist and never reaches the back of the hand; at the palmar PIP / DIP creases the surface folds into small loops (skin compression, hidden inside the fist) |
 | `Hands_grip_<grip>_<view>.png` (two close views per grip) | `rifle_grip_index_straight`, `rifle_grip_trigger`, `support_handguard`, `mag_grasp`, `pistol_2h` on the real IV-7 (proxy pistol for `pistol_2h`) | Rifle grip: web high under the tang, middle finger right under the trigger guard, fingers wrapping the grip, index straight along the receiver side above the guard (trigger discipline) or its pad on the trigger face; thumb on the left side of the grip. Handguard: the fingers wrap the handguard from the right, thumb along the left side. Magazine: palm on the left flank, fingers round the front edge onto the right flank. Pistol: firing index on the trigger, support fingers over the firing fingers under the guard, both thumbs forward on the left. |
 | `Hands_grip_<grip>_fp.png` | first-person camera (eye at the head, 80° horizontal FOV) with the whole body posed and the arms solved by two-bone IK to the grip transforms | What the player sees: the rifle in the shoulder pocket with the support hand on the handguard (magazine grasp during a reload for `mag_grasp`), the firing hand at the lower right; the pistol held two-handed in front |
 | `Hands_grip_<grip>_stance.png` | outside view of the same stance | Arms continuous from the shoulders to the hands; butt stock in the shoulder pocket |

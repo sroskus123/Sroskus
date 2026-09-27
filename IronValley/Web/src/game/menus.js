@@ -146,8 +146,11 @@ export class Menus {
       const b = button(l.name, `iv-btn-small iv-map${l.id === current ? ' iv-selected' : ''}`, () => this._act('selectLevel', l.id), `map-${l.id}`);
       b.disabled = !l.hasMatch;
       if (!l.hasMatch) b.title = 'Mapa nemá zápasová data';
+      else if (l.tag) b.title = `${l.name} — ${l.tag}`;
       row.append(b);
     }
+    const cur = levels.find((l) => l.id === current);
+    if (cur && cur.tag) row.append(el('span', 'iv-map-note', `${cur.name} — ${cur.tag}`));
     const btns = el('div', 'iv-menu-buttons');
     btns.append(
       button('Začít', 'iv-btn-primary', () => this._act('start'), 'start'),
